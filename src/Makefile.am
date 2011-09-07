@@ -23,8 +23,10 @@ strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
 ## ggo rule
-%.c %.h: %.ggo
+%.c %.h: %.ggo $(srcdir)/__gengetopt-mularg.sed
 	gengetopt -l -i $< -F $*
+## patch the multiple arg thingie dingie
+	sed -i -f $(srcdir)/__gengetopt-mularg.sed -- $*.c
 
 # 
 # Help the developers get nice post-processed source files
