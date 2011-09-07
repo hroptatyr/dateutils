@@ -10,3 +10,9 @@ option "format" f
 option "input-format" i
 	"inputs are specified in this format"
 	string optional
+
+option "skip" -
+	"skip weekday specified by STRING, use multiple times
+or comma separated to skip several days, use `ss' to skip
+weekends (sat+sun) altogether"
+	string optional multiple
