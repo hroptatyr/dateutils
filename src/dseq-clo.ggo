@@ -11,8 +11,9 @@ option "input-format" i
 	"inputs are specified in this format"
 	string optional
 
-option "skip" -
+option "skip" s
 	"skip weekday specified by STRING, use multiple times
 or comma separated to skip several days, use `ss' to skip
-weekends (sat+sun) altogether"
+weekends (sat+sun) altogether, date ranges can be specified
+like `mo-we' for monday to wednesday"
 	string optional multiple
