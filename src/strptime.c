@@ -44,28 +44,24 @@
 #include <sys/time.h>
 #include <time.h>
 
-static char **infmt = NULL;
-static size_t ninfmt = 0;
-static char *outfmt = "%Y-%m-%d\n";
-
 static void
-prline(const char *line)
+prline(const char *line, const char *const *fmt, size_t nfmt, const char *ofmt)
 {
 	struct tm tm[1] = {{0}};
 	size_t i = 0;
 
-	for (i = 0; i < ninfmt && !strptime(line, infmt[i], tm); i++);
+	for (i = 0; i < nfmt && !strptime(line, fmt[i], tm); i++);
 
-	if (i < ninfmt) {
+	if (i < nfmt) {
 		char res[256];
-		strftime(res, sizeof(res), outfmt, tm);
+		strftime(res, sizeof(res), ofmt, tm);
 		fputs(res, stdout);
 	}
 	return;
 }
 
 static void
-prlines(void)
+prlines(const char *const *fmt, size_t nfmt, const char *ofmt)
 {
 	FILE *fp = stdin;
 	char *line;
@@ -85,7 +81,7 @@ prlines(void)
 		/* terminate the string accordingly */
 		line[n - 1] = '\0';
 		/* check if line matches */
-		prline(line);
+		prline(line, fmt, nfmt, ofmt);
 	}
 	/* get rid of resources */
 	free(line);
@@ -93,71 +89,38 @@ prlines(void)
 }
 
 
-static void
-usage(void)
-{
-	fputs("\
-Usage: strptime [-t] IN_FORMAT [IN_FORMAT ...]\n\
-\n\
-Parse input from stdin according to the specified IN_FORMAT.\n\
-The format string specifiers are the same as for strptime(3).\n\
-\n\
-Options:\n\
--t  also display time in the output, default is to display the date\n\
-\n\
-strptime v0.1 is part of the rolf tools.\n", stderr);
-	return;
-}
-
-static int
-init(int argc, char *argv[])
-{
-	infmt = malloc(argc * sizeof(char*));
-
-	/* parse cli args */
-	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "-h") ||
-		    !strcmp(argv[i], "--help")) {
-			usage();
-			return -1;
-		} else if (!strcmp(argv[i], "-t")) {
-			outfmt = "%Y-%m-%d %H:%M:%S %Z\n";
-		} else {
-			/* must be the format string */
-			infmt[ninfmt++] = argv[i];
-		}
-	}
-	return 0;
-}
-
-static void
-deinit(void)
-{
-	free(infmt);
-	return;
-}
+#if defined __INTEL_COMPILER
+# pragma warning (disable:593)
+#endif	/* __INTEL_COMPILER */
+#include "strptime-clo.h"
+#include "strptime-clo.c"
+#if defined __INTEL_COMPILER
+# pragma warning (default:593)
+#endif	/* __INTEL_COMPILER */
 
 int
 main(int argc, char *argv[])
 {
-	/* initialise */
-	if (init(argc, argv)) {
-		deinit();
-		return 0;
+	struct gengetopt_args_info argi[1];
+	char outfmt[] = "%Y-%m-%d\n\0H:%M:%S %Z\n";
+	int res = 0;
+
+	if (cmdline_parser(argc, argv, argi)) {
+		res = 1;
+		goto out;
 	}
 
-	/* last checks */
-	if (ninfmt == 0 || argc <= 1) {
-		usage();
-		deinit();
-		return 1;
+	if (argi->time_given) {
+		outfmt[8] = ' ';
+		outfmt[9] = '%';
 	}
+
 	/* get lines one by one, apply format string and print date/time */
-	prlines();
+	prlines(argi->inputs, argi->inputs_num, outfmt);
 
-	/* free our resources */
-	deinit();
-	return 0;
+out:
+	cmdline_parser_free(argi);
+	return res;
 }
 
 /* strptime.c ends here */

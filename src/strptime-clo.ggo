@@ -1,0 +1,8 @@
+args "--unamed-opts=FMTs --long-help"
+package "strptime"
+description "Parse input from stdin according to one of the given formats FMTs.
+The format string specifiers are the same as for strptime(3)."
+
+option "time" t
+	"also display time in the output, default is to display the date"
+	optional
