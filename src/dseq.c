@@ -39,71 +39,58 @@ sc_ts(const char *s)
 	return mktime(&tm);
 }
 
-static void
-usage(void)
-{
-	fputs("\
-Usage: dseq [OPTION] FIRST\n\
-  or:  dseq [OPTION] FIRST LAST\n\
-", stdout);
-	fputs("\
-Print dates from FIRST to LAST (or today if omitted).\n\
-\n\
-  -f, --format=FORMAT      use printf style floating-point FORMAT\n\
-  -s, --separator=STRING   use STRING to separate numbers (default: \\n)\n\
-", stdout);
-	exit(0);
-}
-
-static struct option const long_options[] = {
-	{ "format", required_argument, NULL, 'f'},
-	{ "separator", required_argument, NULL, 's'},
-	{ NULL, 0, NULL, 0}
-};
+
+#if defined __INTEL_COMPILER
+# pragma warning (disable:593)
+#endif	/* __INTEL_COMPILER */
+#include "dseq-clo.h"
+#include "dseq-clo.c"
+#if defined __INTEL_COMPILER
+# pragma warning (default:593)
+#endif	/* __INTEL_COMPILER */
 
 int
 main(int argc, char *argv[])
 {
+	struct gengetopt_args_info argi[1];
 	time_t fst, lst;
-	int inc = 86400;
-	int optc;
+	long int ite = 1;
 	char *sep = "\n";
+	int res = 0;
 
-	if (argc < 2) {
-		usage();
+	if (cmdline_parser(argc, argv, argi)) {
+		res = 1;
+		goto out;
 	}
 
-	while (optind < argc) {
-		optc = getopt_long(argc, argv, "+f:s", long_options, NULL);
-		if (optc == -1) {
-			break;
-		}
-
-		switch (optc) {
-		case 'f':
-			fmt = optarg;
-			break;
-		case 's':
-			sep = optarg;
-			break;
-		default:
-			usage();
-		}
-	}
-
-	fst = sc_ts(argv[optind++]);
-	if (argc == optind) {
+	switch (argi->inputs_num) {
+	default:
+		cmdline_parser_print_help();
+		res = 1;
+		goto out;
+	case 1:
+		fst = sc_ts(argi->inputs[0]);
 		lst = time(NULL);
-	} else {
-		lst = sc_ts(argv[optind++]);
+		break;
+	case 2:
+		fst = sc_ts(argi->inputs[0]);
+		lst = sc_ts(argi->inputs[1]);
+		break;
+	case 3:
+		fst = sc_ts(argi->inputs[0]);
+		ite = strtol(argi->inputs[1], NULL, 10);
+		lst = sc_ts(argi->inputs[2]);
+		break;
 	}
 
 	while (fst <= lst) {
 		pr_ts(fst);
 		fputs(sep, stdout);
-		fst += inc;
+		fst += ite * 86400;
 	}
-	return 0;
+out:
+	cmdline_parser_free(argi);
+	return res;
 }
 
 /* dseq.c ends here */
