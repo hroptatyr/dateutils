@@ -132,58 +132,120 @@ skipp(__skipspec_t ss, idate_t dt)
 #define SKIP_SUN	(1)
 
 static inline int
-__tolower(int c)
+__toupper(int c)
 {
-	return c | 0x20;
+	return c & ~0x20;
+}
+
+static __dow_t
+__parse_wd(const char *str)
+{
+#define ILEA(a, b)	(((a) << 8) | (b))
+	int s1 = __toupper(str[0]);
+	int s2 = __toupper(str[1]);
+
+	switch (ILEA(s1, s2)) {
+	case ILEA('M', 'O'):
+	case ILEA('M', 0):
+		/* monday */
+		return DOW_MONDAY;
+	case ILEA('T', 'U'):
+		/* tuesday */
+		return DOW_TUESDAY;
+	case ILEA('W', 'E'):
+	case ILEA('W', 0):
+		/* wednesday */
+		return DOW_WEDNESDAY;
+	case ILEA('T', 'H'):
+		/* thursday */
+		return DOW_THURSDAY;
+	case ILEA('F', 'R'):
+	case ILEA('F', 0):
+		/* friday */
+		return DOW_FRIDAY;
+	case ILEA('S', 'A'):
+	case ILEA('A', 0):
+		/* saturday */
+		return DOW_SATURDAY;
+	case ILEA('S', 'U'):
+		/* sunday */
+		return DOW_SUNDAY;
+	default:
+		return DOW_MIRACLEDAY;
+	}
 }
 
 static __skipspec_t
-__set_skip(__skipspec_t ss, const char *str)
+__skip_dow(__skipspec_t ss, __dow_t wd)
 {
-/* unrolled trie */
-#define ILEA(a, b)	(((a) << 8) | (b))
-	int s1 = __tolower(str[0]);
-	int s2 = __tolower(str[1]);
-
-	switch (ILEA(s1, s2)) {
-	case ILEA('m', 'o'):
-	case ILEA('m', 0):
+	switch (wd) {
+	case DOW_MONDAY:
 		/* monday */
 		ss |= SKIP_MON;
 		break;
-	case ILEA('t', 'u'):
+	case DOW_TUESDAY:
 		/* tuesday */
 		ss |= SKIP_TUE;
 		break;
-	case ILEA('w', 'e'):
+	case DOW_WEDNESDAY:
 		/* wednesday */
 		ss |= SKIP_WED;
 		break;
-	case ILEA('t', 'h'):
+	case DOW_THURSDAY:
 		/* thursday */
 		ss |= SKIP_THU;
 		break;
-	case ILEA('f', 'r'):
-	case ILEA('f', 0):
+	case DOW_FRIDAY:
 		/* friday */
 		ss |= SKIP_FRI;
 		break;
-	case ILEA('s', 'a'):
-	case ILEA('a', 0):
+	case DOW_SATURDAY:
 		/* saturday */
 		ss |= SKIP_SAT;
 		break;
-	case ILEA('s', 'u'):
+	case DOW_SUNDAY:
 		/* sunday */
 		ss |= SKIP_SUN;
 		break;
-	case ILEA('s', 's'):
-		/* weekend */
-		ss |= SKIP_SAT;
-		ss |= SKIP_SUN;
-		break;
-	default:
-		break;
+	}
+	return ss;
+}
+
+static __skipspec_t
+__skip_str(__skipspec_t ss, const char *str)
+{
+	__dow_t tmp;
+
+	if ((tmp = __parse_wd(str)) < DOW_MIRACLEDAY) {
+		ss = __skip_dow(ss, tmp);
+	} else {
+		int s1 = __toupper(str[0]);
+		int s2 = __toupper(str[1]);
+
+		if (ILEA(s1, s2) == ILEA('S', 'S')) {
+			/* weekend */
+			ss |= SKIP_SAT;
+			ss |= SKIP_SUN;
+		}
+	}
+	return ss;
+}
+
+static __skipspec_t
+__skip_1spec(__skipspec_t ss, const char *spec)
+{
+	char *tmp;
+	__dow_t from, till;
+
+	if ((tmp = strchr(spec, '-')) == NULL) {
+		return __skip_str(ss, spec);
+	}
+	/* otherwise it's a range */
+	*tmp = '\0';
+	from = __parse_wd(spec);
+	till = __parse_wd(tmp + 1);
+	for (int d = from, e = till >= from ? till : till + 7; d <= e; d++) {
+		ss = __skip_dow(ss, (__dow_t)(d % 7));
 	}
 	return ss;
 }
@@ -194,17 +256,16 @@ set_skip(__skipspec_t ss, const char *spec)
 	char *tmp;
 
 	if ((tmp = strchr(spec, ',')) == NULL) {
-		return __set_skip(ss, spec);
+		return __skip_1spec(ss, spec);
 	}
 	/* const violation */
 	*tmp++ = '\0';
-	ss = __set_skip(ss, spec);
+	ss = __skip_1spec(ss, spec);
 	for (char *tm2; (tmp = strchr(tm2 = tmp, ',')); tmp++) {
 		*tmp = '\0';
-		ss = __set_skip(ss, tm2);
+		ss = __skip_1spec(ss, tm2);
 	}
-	ss = __set_skip(ss, tmp);
-	return ss;
+	return __skip_1spec(ss, tmp);
 }
 
 
