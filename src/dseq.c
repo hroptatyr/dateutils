@@ -41,34 +41,42 @@
 #include <time.h>
 #include <string.h>
 
-static char *fmt = "%Y-%m-%d";
+/* idates are normally just YYYYMMDD just in an integer, but we haven't
+ * switched to that system yet */
+typedef uint32_t idate_t;
+/* iddurs are normally YYYYMMWWDD durations just in an integer, but we
+ * haven't switched to that system yet */
+typedef uint32_t iddur_t;
 
 static void
-pr_ts(time_t ts)
+pr_ts(const char *fmt, idate_t dt)
 {
 	struct tm tm;
 	static char b[32];
+	time_t ts = dt * 86400;
+	size_t len;
 
 	memset(&tm, 0, sizeof(tm));
 	(void)gmtime_r(&ts, &tm);
-	strftime(b, sizeof(b), fmt, &tm);
-	fputs(b, stdout);
+	len = strftime(b, sizeof(b), fmt, &tm);
+	b[len++] = '\n';
+	fwrite(b, sizeof(*b), len, stdout);
 	return;
 }
 
-static time_t
-sc_ts(const char *s)
+static idate_t
+sc_ts(const char *s, const char *fmt)
 {
 	struct tm tm;
 
 	/* basic sanity check */
 	if (s == NULL) {
-		return 0;
+		return time(NULL) / 86400;
 	}
 	/* wipe tm */
 	memset(&tm, 0, sizeof(tm));
 	(void)strptime(s, fmt, &tm);
-	return mktime(&tm);
+	return mktime(&tm) / 86400;
 }
 
 
@@ -85,15 +93,21 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	time_t fst, lst;
-	long int ite = 1;
-	char *sep = "\n";
+	static const char dflt_fmt[] = "%F";
+	idate_t fst, lst;
+	iddur_t ite = 1;
+	const char *ifmt = dflt_fmt;
+	const char *ofmt = dflt_fmt;
 	int res = 0;
+
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
 	}
+	if (argi->format_given) {
+		ofmt = argi->format_arg;
+	}		
 
 	switch (argi->inputs_num) {
 	default:
@@ -101,24 +115,23 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	case 1:
-		fst = sc_ts(argi->inputs[0]);
-		lst = time(NULL);
+		fst = sc_ts(argi->inputs[0], ifmt);
+		lst = sc_ts(NULL, ifmt);
 		break;
 	case 2:
-		fst = sc_ts(argi->inputs[0]);
-		lst = sc_ts(argi->inputs[1]);
+		fst = sc_ts(argi->inputs[0], ifmt);
+		lst = sc_ts(argi->inputs[1], ifmt);
 		break;
 	case 3:
-		fst = sc_ts(argi->inputs[0]);
+		fst = sc_ts(argi->inputs[0], ifmt);
 		ite = strtol(argi->inputs[1], NULL, 10);
-		lst = sc_ts(argi->inputs[2]);
+		lst = sc_ts(argi->inputs[2], ifmt);
 		break;
 	}
 
 	while (fst <= lst) {
-		pr_ts(fst);
-		fputs(sep, stdout);
-		fst += ite * 86400;
+		pr_ts(ofmt, fst);
+		fst += ite;
 	}
 out:
 	cmdline_parser_free(argi);
