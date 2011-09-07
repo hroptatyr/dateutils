@@ -101,8 +101,13 @@ prlines(const char *const *fmt, size_t nfmt, const char *ofmt)
 int
 main(int argc, char *argv[])
 {
+	static char dflt_fmt[] = "%Y-%m-%d\n\0H:%M:%S %Z\n";
 	struct gengetopt_args_info argi[1];
-	char outfmt[] = "%Y-%m-%d\n\0H:%M:%S %Z\n";
+	char *outfmt = dflt_fmt;
+	char **infmt;
+	size_t ninfmt;
+	char **input;
+	size_t ninput;
 	int res = 0;
 
 	if (cmdline_parser(argc, argv, argi)) {
@@ -110,13 +115,34 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (argi->time_given) {
+	if (argi->format_given) {
+		outfmt = argi->format_arg;
+	} else if (argi->time_given) {
 		outfmt[8] = ' ';
 		outfmt[9] = '%';
 	}
 
+	if (!argi->input_format_given) {
+		infmt = argi->inputs;
+		ninfmt = argi->inputs_num;
+		input = NULL;
+		ninput = 0;
+	} else {
+		infmt = argi->input_format_arg;
+		ninfmt = argi->input_format_given;
+		input = argi->inputs;
+		ninput = argi->inputs_num;
+	}
+
 	/* get lines one by one, apply format string and print date/time */
-	prlines(argi->inputs, argi->inputs_num, outfmt);
+	if (ninput == 0) {
+		/* read from stdin */
+		prlines(infmt, ninfmt, outfmt);
+	} else {
+		for (size_t i = 0; i < ninput; i++) {
+			prline(input[i], infmt, ninfmt, outfmt);
+		}
+	}
 
 out:
 	cmdline_parser_free(argi);
