@@ -88,6 +88,27 @@ prlines(const char *const *fmt, size_t nfmt, const char *ofmt)
 	return;
 }
 
+static void
+unescape(char *s)
+{
+	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
+	char *p, *q;
+
+	if ((p = q = strchr(s, '\\'))) {
+		do {
+			if (*p != '\\' || !*++p) {
+				*q++ = *p++;
+			} else if (*p < 'a' || *p > 'v') {
+				*q++ = *p++;
+			} else {
+				*q++ = esc_map[*p++ - 'a'];
+			}
+		} while (*p);
+		*q = '\0';
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -117,6 +138,10 @@ main(int argc, char *argv[])
 
 	if (argi->format_given) {
 		outfmt = argi->format_arg;
+		/* unescape sequences, maybe */
+		if (argi->escape_backslash_sequences_given) {
+			unescape(outfmt);
+		}
 	} else if (argi->time_given) {
 		outfmt[8] = ' ';
 		outfmt[9] = '%';
