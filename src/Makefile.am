@@ -9,6 +9,7 @@ noinst_HEADERS =
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
+EXTRA_DIST += __gengetopt-mularg.h __gengetopt-mularg.sed
 
 bin_PROGRAMS += dseq
 dseq_SOURCES = dseq.c dseq-clo.ggo
