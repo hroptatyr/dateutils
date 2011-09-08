@@ -29,6 +29,13 @@ dcal_CPPFLAGS = $(AM_CPPFLAGS)
 dcal_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dcal-clo.c dcal-clo.h
 
+bin_PROGRAMS += dtest
+dtest_SOURCES = dtest.c dtest-clo.ggop
+dtest_CPPFLAGS = $(AM_CPPFLAGS)
+dtest_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += dtest-clo.c dtest-clo.h
+
+
 ## ggo rule
 %.c %.h: %.ggo $(srcdir)/__gengetopt-mularg.sed
 	gengetopt -l -i $< -F $*
