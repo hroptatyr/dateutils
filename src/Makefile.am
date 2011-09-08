@@ -23,11 +23,21 @@ strptime_CPPFLAGS = $(AM_CPPFLAGS)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
+bin_PROGRAMS += dcal
+dcal_SOURCES = dcal.c dcal-clo.ggop
+dcal_CPPFLAGS = $(AM_CPPFLAGS)
+dcal_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += dcal-clo.c dcal-clo.h
+
 ## ggo rule
 %.c %.h: %.ggo $(srcdir)/__gengetopt-mularg.sed
 	gengetopt -l -i $< -F $*
 ## patch the multiple arg thingie dingie
 	sed -i -f $(srcdir)/__gengetopt-mularg.sed -- $*.c
+
+## ggo rule without multiple patch
+%.c %.h: %.ggop
+	gengetopt -l -i $< -F $*
 
 # 
 # Help the developers get nice post-processed source files
