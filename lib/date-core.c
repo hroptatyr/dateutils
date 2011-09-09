@@ -35,7 +35,7 @@
  *
  **/
 /* implementation part of date-core.h */
-
+#include <string.h>
 #include "date-core.h"
 
 #if defined DEBUG_FLAG
@@ -47,6 +47,9 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif
+#if !defined countof
+# define countof(x)	(sizeof(x) / sizeof(*(x)))
+#endif	/* !countof */
 
 /* weekdays of the first day of the year,
  * 3 bits per year, times 10 years makes 1 uint32_t */
@@ -96,9 +99,61 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 	}
 };
 
+static const char *__long_wday[] = {
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+	"Miracleday",
+};
+
+static const char *__abbr_wday[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
+};
+
+static const char __abab_wday[] = "SMTWRFAX";
+
+static const char *__long_mon[] = {
+	"Miraculary",
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+};
+
+static const char *__abbr_mon[] = {
+	"Mir",
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+};
+
+/* futures expiry codes, how convenient */
+static const char __abab_mon[] = "_FGHJKMNQUVXZ";
+
 /* stolen from Klaus Klein/David Laight's strptime() */
 static const char*
-conv_num(const char *str, int *dest, uint32_t llim, uint32_t ulim)
+conv_num(const char *str, unsigned int *dest, uint32_t llim, uint32_t ulim)
 {
 	int result = 0;
 	char ch;
@@ -121,6 +176,24 @@ conv_num(const char *str, int *dest, uint32_t llim, uint32_t ulim)
 	}
 	*dest = result;
 	return str;
+}
+
+static const char*
+find_string(
+	const char *buf, unsigned int *tgt, const char *const *arr, size_t narr)
+{
+	for (size_t i = 0; i < narr; i++) {
+		const char *chk = arr[i];
+		size_t len = strlen(chk);
+
+		if (strncasecmp(chk, buf, len) == 0) {
+			*tgt = i;
+			return buf + len;
+		}
+	}
+
+	/* Nothing matched */
+	return NULL;
 }
 
 static size_t
@@ -151,16 +224,33 @@ ltostr(char *restrict buf, size_t bsz, int d, int pad)
 	return res;
 }
 
+static size_t
+arritostr(
+	char *restrict buf, size_t bsz, size_t i,
+	const char *const *arr, size_t narr)
+{
+	size_t ncp;
+	size_t len;
+
+	if (i > narr) {
+		return 0;
+	}
+	len = strlen(arr[i]);
+	ncp = bsz > len ? len : bsz;
+	memcpy(buf, arr[i], ncp);
+	return ncp;
+}
+
 
 /* implementations */
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
 	struct dt_d_s res = {DT_UNK, 0};
-	int y;
-	int m;
-	int d;
-	int c;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+	unsigned int c;
 
 	if (UNLIKELY(fmt == NULL)) {
 		return res;
@@ -231,10 +321,10 @@ DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 {
 	size_t res = 0;
-	int y;
-	int m;
-	int d;
-	int c;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+	unsigned int c;
 
 	if (UNLIKELY(fmt == NULL || buf == NULL || bsz == 0)) {
 		goto out;
@@ -288,6 +378,28 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			case 'c':
 				/* ymcd mode check? */
 				res += ltostr(buf + res, bsz - res, c, 2);
+				break;
+			case 'a':
+				/* get the weekday in ymd mode!! */
+				res += arritostr(
+					buf + res, bsz - res, d,
+					__abbr_wday, countof(__abbr_wday));
+				break;
+			case 'A':
+				/* get the weekday in ymd mode!! */
+				res += arritostr(
+					buf + res, bsz - res, d,
+					__long_wday, countof(__long_wday));
+				break;
+			case 'b':
+				res += arritostr(
+					buf + res, bsz - res, m,
+					__abbr_mon, countof(__abbr_mon));
+				break;
+			case 'B':
+				res += arritostr(
+					buf + res, bsz - res, m,
+					__long_mon, countof(__long_mon));
 				break;
 			}
 		} else {

@@ -27,8 +27,8 @@ test_strpd(size_t nruns)
 		}
 	}
 	if ((s = dt_strpd(test_ymd, "%F")).typ) {
-		char buf[32];
-		dt_strfd(buf, sizeof(buf), "%F\n", s);
+		char buf[256];
+		dt_strfd(buf, sizeof(buf), "%F %a %A %b %B\n", s);
 		fputs(buf, stdout);
 	}
 	return;
