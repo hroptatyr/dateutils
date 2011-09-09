@@ -309,6 +309,12 @@ dt_strpd(const char *str, const char *fmt)
 					&m, sp,
 					__long_mon, countof(__long_mon));
 				break;
+			case 'y':
+				sp = strtoui_lim(&y, sp, 0, 99);
+				if ((y += 2000) > 2068) {
+					y -= 100;
+				}
+				break;
 			}
 		} else {
 		literal:
@@ -420,6 +426,9 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				res += arritostr(
 					buf + res, bsz - res, m,
 					__long_mon, countof(__long_mon));
+				break;
+			case 'y':
+				res += ui32tostr(buf + res, bsz - res, y, 2);
 				break;
 			}
 		} else {
