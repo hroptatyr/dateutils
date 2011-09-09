@@ -78,6 +78,7 @@ typedef struct {
 
 /* helpers */
 static const __jan01_wday_block_t __jan01_wday[] = {
+#define __JAN01_WDAY_BEG	(1970)
 	{
 		/* 1970 - 1979 */
 		R, F, A, M, T, W, R, A, S, M,
@@ -97,6 +98,12 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 		/* 2020 - 2029 */
 		W, F, A, S, M, W, R, F, A, M,
 	}
+#define __JAN01_WDAY_END	(2029)
+};
+
+static uint16_t __mon_yday[] = {
+/* this is \sum ml, first element is a bit set of leap days to add */
+	0xfff8, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
 };
 
 static const char *__long_wday[] = {
@@ -237,6 +244,94 @@ arritostr(
 	ncp = bsz > len ? len : bsz;
 	memcpy(buf, arr[i], ncp);
 	return ncp;
+}
+
+static dt_dow_t
+__get_wday(int year)
+{
+	dt_dow_t res;
+	__jan01_wday_block_t j01b;
+
+	if (UNLIKELY(year < __JAN01_WDAY_BEG || year > __JAN01_WDAY_END)) {
+		return DT_MIRACLEDAY;
+	}
+	j01b = __jan01_wday[year - __JAN01_WDAY_BEG];
+
+	switch (year % 10) {
+	default:
+		res = DT_MIRACLEDAY;
+		break;
+	case 0:
+		res = (dt_dow_t)j01b.y0;
+		break;
+	case 1:
+		res = (dt_dow_t)j01b.y1;
+		break;
+	case 2:
+		res = (dt_dow_t)j01b.y2;
+		break;
+	case 3:
+		res = (dt_dow_t)j01b.y3;
+		break;
+	case 4:
+		res = (dt_dow_t)j01b.y4;
+		break;
+	case 5:
+		res = (dt_dow_t)j01b.y5;
+		break;
+	case 6:
+		res = (dt_dow_t)j01b.y6;
+		break;
+	case 7:
+		res = (dt_dow_t)j01b.y7;
+		break;
+	case 8:
+		res = (dt_dow_t)j01b.y8;
+		break;
+	case 9:
+		res = (dt_dow_t)j01b.y9;
+		break;
+	}
+	return res;
+}
+
+static int
+__ymd_get_yday(dt_ymd_t this)
+{
+	int res = this.d + __mon_yday[this.m];
+
+	if (UNLIKELY(this.y == 0)) {
+		return 0;
+	} else if (UNLIKELY(this.y % 4 == 0)) {
+		res += (__mon_yday[0] >> this.m) & 1;
+	}
+	return res;
+}
+
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t this)
+{
+	int yd;
+	dt_dow_t j01_wd;
+	if ((yd = __ymd_get_yday(this)) > 0 &&
+	    (j01_wd = __get_wday(this.y)) != DT_MIRACLEDAY) {
+		return (dt_dow_t)((yd + (unsigned int)j01_wd) % 7);
+	}
+	return DT_MIRACLEDAY;
+}
+
+static dt_dow_t
+dt_get_wday(struct dt_d_s this)
+{
+	switch (this.typ) {
+	default:
+	case DT_UNK:
+		return DT_MIRACLEDAY;
+	case DT_YMD:
+		return __ymd_get_wday(this.ymd);
+	case DT_YMCD:
+		return (dt_dow_t)this.ymcd.d;
+	}
 }
 
 
@@ -409,13 +504,15 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			case 'a':
 				/* get the weekday in ymd mode!! */
 				res += arritostr(
-					buf + res, bsz - res, d,
+					buf + res, bsz - res,
+					dt_get_wday(this),
 					__abbr_wday, countof(__abbr_wday));
 				break;
 			case 'A':
 				/* get the weekday in ymd mode!! */
 				res += arritostr(
-					buf + res, bsz - res, d,
+					buf + res, bsz - res,
+					dt_get_wday(this),
 					__long_wday, countof(__long_wday));
 				break;
 			case 'b':
