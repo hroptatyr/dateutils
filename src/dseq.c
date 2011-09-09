@@ -253,7 +253,7 @@ __skip_1spec(__skipspec_t ss, const char *spec)
 static __skipspec_t
 set_skip(__skipspec_t ss, const char *spec)
 {
-	char *tmp;
+	char *tmp, *tm2;
 
 	if ((tmp = strchr(spec, ',')) == NULL) {
 		return __skip_1spec(ss, spec);
@@ -261,11 +261,11 @@ set_skip(__skipspec_t ss, const char *spec)
 	/* const violation */
 	*tmp++ = '\0';
 	ss = __skip_1spec(ss, spec);
-	for (char *tm2; (tmp = strchr(tm2 = tmp, ',')); tmp++) {
-		*tmp = '\0';
+	while ((tmp = strchr(tm2 = tmp, ','))) {
+		*tmp++ = '\0';
 		ss = __skip_1spec(ss, tm2);
 	}
-	return __skip_1spec(ss, tmp);
+	return __skip_1spec(ss, tm2);
 }
 
 
