@@ -153,9 +153,9 @@ static const char __abab_mon[] = "_FGHJKMNQUVXZ";
 
 /* stolen from Klaus Klein/David Laight's strptime() */
 static const char*
-conv_num(const char *str, unsigned int *dest, uint32_t llim, uint32_t ulim)
+strtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
 {
-	int result = 0;
+	uint32_t result = 0;
 	char ch;
 	/* The limit also determines the number of valid digits. */
 	int rulim = ulim;
@@ -174,36 +174,18 @@ conv_num(const char *str, unsigned int *dest, uint32_t llim, uint32_t ulim)
 	if (result < llim || result > ulim) {
 		return NULL;
 	}
-	*dest = result;
+	*tgt = result;
 	return str;
 }
 
-static const char*
-find_string(
-	const char *buf, unsigned int *tgt, const char *const *arr, size_t narr)
-{
-	for (size_t i = 0; i < narr; i++) {
-		const char *chk = arr[i];
-		size_t len = strlen(chk);
-
-		if (strncasecmp(chk, buf, len) == 0) {
-			*tgt = i;
-			return buf + len;
-		}
-	}
-
-	/* Nothing matched */
-	return NULL;
-}
-
 static size_t
-ltostr(char *restrict buf, size_t bsz, int d, int pad)
+ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 {
 /* all strings should be little */
 #define C(x, d)	((x) / (d) % 10 + '0')
 	size_t res;
 
-	if (UNLIKELY(d > 10000 || d < 0)) {
+	if (UNLIKELY(d > 10000)) {
 		return 0;
 	}
 	switch ((res = pad) < bsz ? res : bsz) {
@@ -222,6 +204,22 @@ ltostr(char *restrict buf, size_t bsz, int d, int pad)
 		break;
 	}
 	return res;
+}
+
+static const char*
+strtoarri(uint32_t *tgt, const char *buf, const char *const *arr, size_t narr)
+{
+	for (size_t i = 0; i < narr; i++) {
+		const char *chk = arr[i];
+		size_t len = strlen(chk);
+
+		if (strncasecmp(chk, buf, len) == 0) {
+			*tgt = i;
+			return buf + len;
+		}
+	}
+	/* no matches */
+	return NULL;
 }
 
 static size_t
@@ -265,29 +263,51 @@ dt_strpd(const char *str, const char *fmt)
 			case 'F':
 				shaught = 1;
 			case 'Y':
-				sp = conv_num(sp, &y, 0, 9999);
+				sp = strtoui_lim(&y, sp, 0, 9999);
 				if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
 					break;
 				}
 			case 'm':
-				sp = conv_num(sp, &m, 0, 12);
+				sp = strtoui_lim(&m, sp, 0, 12);
 				if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
 					break;
 				}
 			case 'd':
 				/* gregorian mode */
 				res.typ = DT_YMD;
-				sp = conv_num(sp, &d, 0, 31);
+				sp = strtoui_lim(&d, sp, 0, 31);
 				break;
 			case 'w':
 				/* ymcd mode */
 				res.typ = DT_YMCD;
-				sp = conv_num(sp, &d, 0, 7);
+				sp = strtoui_lim(&d, sp, 0, 7);
 				break;
 			case 'c':
 				/* ymcd mode */
 				res.typ = DT_YMCD;
-				sp = conv_num(sp, &c, 0, 5);
+				sp = strtoui_lim(&c, sp, 0, 5);
+				break;
+			case 'a':
+				/* ymcd mode! */
+				sp = strtoarri(
+					&d, sp,
+					__abbr_wday, countof(__abbr_wday));
+				break;
+			case 'A':
+				/* ymcd mode! */
+				sp = strtoarri(
+					&d, sp,
+					__long_wday, countof(__long_wday));
+				break;
+			case 'b':
+				sp = strtoarri(
+					&m, sp,
+					__abbr_mon, countof(__abbr_mon));
+				break;
+			case 'B':
+				sp = strtoarri(
+					&m, sp,
+					__long_mon, countof(__long_mon));
 				break;
 			}
 		} else {
@@ -356,28 +376,28 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			case 'F':
 				shaught = 1;
 			case 'Y':
-				res += ltostr(buf + res, bsz - res, y, 4);
+				res += ui32tostr(buf + res, bsz - res, y, 4);
 				if (UNLIKELY(shaught == 0)) {
 					break;
 				}
 				buf[res++] = '-';
 			case 'm':
-				res += ltostr(buf + res, bsz - res, m, 2);
+				res += ui32tostr(buf + res, bsz - res, m, 2);
 				if (UNLIKELY(shaught == 0)) {
 					break;
 				}
 				buf[res++] = '-';
 			case 'd':
 				/* ymd mode check? */
-				res += ltostr(buf + res, bsz - res, d, 2);
+				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'w':
 				/* ymcd mode check? */
-				res += ltostr(buf + res, bsz - res, d, 2);
+				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'c':
 				/* ymcd mode check? */
-				res += ltostr(buf + res, bsz - res, c, 2);
+				res += ui32tostr(buf + res, bsz - res, c, 2);
 				break;
 			case 'a':
 				/* get the weekday in ymd mode!! */

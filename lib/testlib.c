@@ -5,6 +5,7 @@
 #include "date-core.h"
 
 static const char test_ymd[] = "2001-02-03";
+static const char test_ybd[] = "2001-Feb-03";
 
 static void __attribute__((unused))
 orig_strptime_perf(size_t nruns)
@@ -27,6 +28,11 @@ test_strpd(size_t nruns)
 		}
 	}
 	if ((s = dt_strpd(test_ymd, "%F")).typ) {
+		char buf[256];
+		dt_strfd(buf, sizeof(buf), "%F %a %A %b %B\n", s);
+		fputs(buf, stdout);
+	}
+	if ((s = dt_strpd(test_ybd, "%Y-%b-%d")).typ) {
 		char buf[256];
 		dt_strfd(buf, sizeof(buf), "%F %a %A %b %B\n", s);
 		fputs(buf, stdout);
