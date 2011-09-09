@@ -7,10 +7,11 @@ headerdir = $(includedir)/datetools
 
 noinst_PROGRAMS =
 noinst_HEADERS =
-header_HEADERS =
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
+
+header_HEADERS = date-core.h date-core.c
 
 noinst_PROGRAMS += testlib
 testlib_CPPFLAGS = $(AM_CPPFLAGS)
