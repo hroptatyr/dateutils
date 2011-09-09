@@ -300,6 +300,7 @@ dt_strpd(const char *str, const char *fmt)
 					__long_wday, countof(__long_wday));
 				break;
 			case 'b':
+			case 'h':
 				sp = strtoarri(
 					&m, sp,
 					__abbr_mon, countof(__abbr_mon));
@@ -418,6 +419,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 					__long_wday, countof(__long_wday));
 				break;
 			case 'b':
+			case 'h':
 				res += arritostr(
 					buf + res, bsz - res, m,
 					__abbr_mon, countof(__abbr_mon));
