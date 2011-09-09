@@ -43,7 +43,7 @@
 
 /* idates are normally just YYYYMMDD just in an integer, but we haven't
  * switched to that system yet */
-typedef uint32_t idate_t;
+typedef int32_t idate_t;
 /* iddurs are normally YYYYMMWWDD durations just in an integer, but we
  * haven't switched to that system yet */
 typedef uint32_t iddur_t;
