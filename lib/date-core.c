@@ -713,4 +713,25 @@ out:
 	return res;
 }
 
+
+/* date getters, platform dependent */
+DEFUN struct dt_d_s
+dt_date(dt_dtyp_t outtyp)
+{
+	struct dt_d_s res;
+
+	switch ((res.typ = outtyp)) {
+	case DT_YMD:
+		break;
+
+	case DT_YMCD:
+		break;
+
+	default:
+	case DT_UNK:
+		res.u = 0;
+	}
+	return res;
+}
+
 /* date-core.c ends here */

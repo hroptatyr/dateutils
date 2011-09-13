@@ -130,6 +130,10 @@ DECLF struct dt_d_s dt_strpd(const char *str, const char *fmt);
 DECLF size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s d);
 
+/**
+ * Like time() but return the current date in the desired format. */
+DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"

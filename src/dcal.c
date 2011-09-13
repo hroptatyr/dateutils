@@ -41,12 +41,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include "date-core.h"
-
-typedef enum {
-	PLMODE_UNK,
-	PLMODE_D2P,
-	PLMODE_P2D,
-} plmode_t;
+#include "date-io.h"
 
 
 static int
@@ -69,45 +64,6 @@ dcal_conv(struct dt_d_s d, const char *fmt)
 	}
 	fputs(buf, stdout);
 	return res;
-}
-
-static struct dt_d_s
-read_input(const char *input, const char *const *fmt, size_t nfmt)
-{
-	struct dt_d_s res;
-
-	if (nfmt == 0) {
-		res = dt_strpd(input, NULL);
-	} else {
-		for (size_t i = 0; i < nfmt; i++) {
-			if ((res = dt_strpd(input, fmt[i])).typ > DT_UNK) {
-				break;
-			}
-		}
-	}
-	return res;
-}
-
-
-static void
-unescape(char *s)
-{
-	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
-	char *p, *q;
-
-	if ((p = q = strchr(s, '\\'))) {
-		do {
-			if (*p != '\\' || !*++p) {
-				*q++ = *p++;
-			} else if (*p < 'a' || *p > 'v') {
-				*q++ = *p++;
-			} else {
-				*q++ = esc_map[*p++ - 'a'];
-			}
-		} while (*p);
-		*q = '\0';
-	}
-	return;
 }
 
 
@@ -134,7 +90,7 @@ main(int argc, char *argv[])
 	}
 	/* unescape sequences, maybe */
 	if (argi->backslash_escapes_given) {
-		unescape(argi->format_arg);
+		dt_io_unescape(argi->format_arg);
 	}
 
 	fmt = argi->input_format_arg;
@@ -144,7 +100,7 @@ main(int argc, char *argv[])
 			const char *inp = argi->inputs[i];
 			struct dt_d_s d;
 
-			if ((d = read_input(inp, fmt, nfmt)).typ > DT_UNK) {
+			if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
 				dcal_conv(d, argi->format_arg);
 			}
 		}
@@ -169,7 +125,7 @@ main(int argc, char *argv[])
 			/* terminate the string accordingly */
 			line[n - 1] = '\0';
 			/* check if line matches */
-			if ((d = read_input(line, fmt, nfmt)).typ > DT_UNK) {
+			if ((d = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK) {
 				dcal_conv(d, argi->format_arg);
 			}
 		}
