@@ -777,6 +777,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			buf[res++] = *fp;
 		}
 	}
+	if (res > 0 && buf[res - 1] != '\n') {
+		/* auto-newline */
+		buf[res++] = '\n';
+	}
 out:
 	if (res < bsz) {
 		buf[res] = '\0';
