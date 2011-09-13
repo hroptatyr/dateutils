@@ -91,7 +91,15 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (argi->eq_given) {
+	if (argi->cmp_given) {
+		if (d1.u == d2.u) {
+			res = 0;
+		} else if (d1.u < d2.u) {
+			res = 2;
+		} else /*if (d1.u > d2.u)*/ {
+			res = 1;
+		}
+	} else if (argi->eq_given) {
 		res = 1 - (d1.u == d2.u);
 	} else if (argi->ne_given) {
 		res = 1 - (d1.u != d2.u);

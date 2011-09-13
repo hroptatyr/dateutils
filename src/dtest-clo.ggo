@@ -41,3 +41,8 @@ groupoption "nt" -
 groupoption "ot" -
 	"DATE1 is older than DATE2"
 	group="op"
+
+groupoption "cmp" -
+	"compare DATE1 to DATE2, return with 0 if equal, \
+1 if left argument was newer and 2 if right argument was newer"
+	group="op"
