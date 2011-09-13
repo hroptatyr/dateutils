@@ -32,7 +32,7 @@ dcal_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dcal-clo.c dcal-clo.h
 
 bin_PROGRAMS += dtest
-dtest_SOURCES = dtest.c dtest-clo.ggop
+dtest_SOURCES = dtest.c dtest-clo.ggo
 dtest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtest_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dtest-clo.c dtest-clo.h
