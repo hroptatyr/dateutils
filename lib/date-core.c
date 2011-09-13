@@ -77,6 +77,10 @@ typedef struct {
 
 
 /* helpers */
+#define SECS_PER_MINUTE	(60)
+#define SECS_PER_HOUR	(SECS_PER_MINUTE * 60)
+#define SECS_PER_DAY	(SECS_PER_HOUR * 24)
+
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1970)
 	{
@@ -246,7 +250,9 @@ arritostr(
 	return ncp;
 }
 
-static dt_dow_t
+
+/* converters and getters */
+static inline dt_dow_t
 __get_wday(int year)
 {
 	dt_dow_t res;
@@ -295,6 +301,17 @@ __get_wday(int year)
 	return res;
 }
 
+static inline int
+__get_mdays(int y, int m)
+{
+	int res = __mon_yday[m + 1] - __mon_yday[m];
+
+	if (UNLIKELY(y % 4 == 0 && m == 2)) {
+		res++;
+	}
+	return res;
+}
+
 static int
 __ymd_get_yday(dt_ymd_t this)
 {
@@ -315,25 +332,86 @@ __ymd_get_wday(dt_ymd_t this)
 	dt_dow_t j01_wd;
 	if ((yd = __ymd_get_yday(this)) > 0 &&
 	    (j01_wd = __get_wday(this.y)) != DT_MIRACLEDAY) {
-		return (dt_dow_t)((yd + (unsigned int)j01_wd) % 7);
+		return (dt_dow_t)((yd - 1 + (unsigned int)j01_wd) % 7);
 	}
 	return DT_MIRACLEDAY;
 }
 
+static int
+__ymd_get_count(dt_ymd_t this)
+{
+	if (UNLIKELY(this.d + 7 > __get_mdays(this.y, this.m))) {
+		return 5;
+	}
+	return (this.d - 1) / 7 + 1;
+}
+
+static int
+__ymcd_get_day(dt_ymcd_t this)
+{
+	dt_ymd_t ymd = {
+		.y = this.y,
+		.m = this.m,
+		.d = __get_wday(this.y),
+	};
+	int wd = __ymd_get_yday(ymd);
+	int res;
+
+	wd %= 7;
+	res = this.d + 7 * this.c - wd + (this.d < wd ?: -6);
+	if (res > __get_mdays(this.y, this.m)) {
+		res -= 7;
+	}
+	return res;
+}
+
+
+/* converting accessors */
 static dt_dow_t
 dt_get_wday(struct dt_d_s this)
 {
 	switch (this.typ) {
-	default:
-	case DT_UNK:
-		return DT_MIRACLEDAY;
 	case DT_YMD:
 		return __ymd_get_wday(this.ymd);
 	case DT_YMCD:
 		return (dt_dow_t)this.ymcd.d;
+	default:
+	case DT_UNK:
+		return DT_MIRACLEDAY;
 	}
 }
 
+static int
+dt_get_day(struct dt_d_s this)
+{
+	if (LIKELY(this.typ == DT_YMD)) {
+		return this.ymd.d;
+	}
+	switch (this.typ) {
+	case DT_YMCD:
+		return __ymcd_get_day(this.ymcd);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+static int
+dt_get_count(struct dt_d_s this)
+{
+	if (LIKELY(this.typ == DT_YMCD)) {
+		return this.ymcd.c;
+	}
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_get_count(this.ymd);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+
 /* guessing parsers */
 static struct dt_d_s
 __strpd_std(const char *str)
@@ -539,13 +617,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	case DT_YMD:
 		y = this.ymd.y;
 		m = this.ymd.m;
-		d = this.ymd.d;
 		break;
 	case DT_YMCD:
 		y = this.ymcd.y;
 		m = this.ymcd.m;
-		c = this.ymcd.c;
-		d = this.ymcd.d;
 		break;
 	}
 
@@ -571,14 +646,17 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				buf[res++] = '-';
 			case 'd':
 				/* ymd mode check? */
+				d = dt_get_day(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'w':
-				/* ymcd mode check? */
+				/* ymcd mode check */
+				d = dt_get_wday(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'c':
 				/* ymcd mode check? */
+				c = dt_get_count(this);
 				res += ui32tostr(buf + res, bsz - res, c, 2);
 				break;
 			case 'a':
