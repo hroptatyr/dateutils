@@ -357,17 +357,22 @@ __ymd_get_count(dt_ymd_t this)
 static int
 __ymcd_get_day(dt_ymcd_t this)
 {
-	dt_ymd_t ymd = {
-		.y = this.y,
-		.m = this.m,
-		.d = __get_wday(this.y),
-	};
-	int wd = __ymd_get_yday(ymd);
+	int wd01;
+	int wd_jan01;
 	int res;
 
-	wd %= 7;
-	res = this.d + 7 * this.c - wd + (this.d < wd ?: -6);
+	/* weekday the year started with */
+	wd_jan01 = __get_wday(this.y);
+	/* see what weekday the first of the month was*/
+	wd01 = __ymd_get_yday((dt_ymd_t){.y = this.y, .m = this.m, .d = 01});
+	wd01 = (wd_jan01 - 1 + wd01) % 7;
+
+	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
+	 * so the first WDx with WDx > WD1 is on (WDx - WD1) + 1 */
+	res = (this.d + 7 - wd01) % 7 + 1 + 7 * (this.c - 1);
+	/* not all months have a 5th X, so check for this */
 	if (res > __get_mdays(this.y, this.m)) {
+		 /* 5th = 4th in that case */
 		res -= 7;
 	}
 	return res;
