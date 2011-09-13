@@ -50,3 +50,32 @@ The following tools are part of datetools:
     =>
       2000-05-01
 
++ dcal
+  A tool to convert dates between different calendric systems.  While
+  other such tools usually focus on converting Gregorian dates to, say,
+  the Chinese calendar, dcal aims at supporting calendric systems which
+  are essential in financial contexts.
+
+  To convert a (Gregorian) date into the so called ymcd representation:
+    dcal 2012-03-04 -f "%Y-%m-%c-%w"
+    =>
+      2012-03-01-00
+
+  and vice versa:
+    dcal 2012-03-01-Sun -i "%Y-%m-%c-%a"
+    =>
+      2012-03-04
+
+  where the ymcd representation means, the %c-th %w of the month in a
+  given year.  This is useful if dates are specified like, the third
+  Thursday in May for instance.
+
++ dtest
+  A tool to perform date comparison in the shell, it's modelled after
+  test(1) but with proper command line options.
+
+    if src/dtest now --gt 2010-01-01; then
+      echo "yes"
+    fi
+    =>
+      yes
