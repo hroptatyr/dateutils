@@ -171,7 +171,7 @@ strtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
 	uint32_t result = 0;
 	char ch;
 	/* The limit also determines the number of valid digits. */
-	int rulim = ulim;
+	int rulim = ulim > 10 ? ulim : 10;
 
 	ch = *str;
 	if (ch < '0' || ch > '9') {
