@@ -4,7 +4,7 @@
 
 #include "date-core.h"
 
-static inline struct dt_d_s
+static struct dt_d_s __attribute__((unused))
 dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
 {
 	struct dt_d_s res;
@@ -24,7 +24,7 @@ dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
 	return res;
 }
 
-static inline void
+static void __attribute__((unused))
 dt_io_unescape(char *s)
 {
 	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
