@@ -11,27 +11,29 @@ CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 EXTRA_DIST += __gengetopt-mularg.h __gengetopt-mularg.sed
 
+DT_INCLUDES = -I$(top_srcdir)/lib
+
 bin_PROGRAMS += dseq
 dseq_SOURCES = dseq.c dseq-clo.ggo
-dseq_CPPFLAGS = $(AM_CPPFLAGS)
+dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dseq_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dseq-clo.c dseq-clo.h
 
 bin_PROGRAMS += strptime
 strptime_SOURCES = strptime.c strptime-clo.ggo
-strptime_CPPFLAGS = $(AM_CPPFLAGS)
+strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
 bin_PROGRAMS += dcal
-dcal_SOURCES = dcal.c dcal-clo.ggop
-dcal_CPPFLAGS = $(AM_CPPFLAGS)
+dcal_SOURCES = dcal.c dcal-clo.ggo
+dcal_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dcal_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dcal-clo.c dcal-clo.h
 
 bin_PROGRAMS += dtest
 dtest_SOURCES = dtest.c dtest-clo.ggop
-dtest_CPPFLAGS = $(AM_CPPFLAGS)
+dtest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtest_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dtest-clo.c dtest-clo.h
 

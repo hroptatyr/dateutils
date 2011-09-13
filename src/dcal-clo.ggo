@@ -1,11 +1,12 @@
-args "--unamed-opts=FMTs --long-help"
-package "strptime"
-description "Parse input from stdin according to one of the given formats FMTs.
-The format string specifiers are the same as for strptime(3)."
+args "--unamed-opts --long-help"
+package "dcal"
+usage "dcal [OPTION]... DATEs"
+description "Convert DATEs between calendrical systems.  If DATEs are
+omitted they read from stdin, the special date `now' is interpreted as
+the current date.
 
-option "time" t
-	"also display time in the output, default is to display the date"
-	optional
+The default conversion is between the Gregorian YMD (year-month-day) and
+the Gregorian YMCD (year-month-count-weekday)."
 
 option "format" f
 	"output format as passed to strftime()"
