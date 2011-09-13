@@ -139,7 +139,7 @@ main(int argc, char *argv[])
 	if (argi->format_given) {
 		outfmt = argi->format_arg;
 		/* unescape sequences, maybe */
-		if (argi->escape_backslash_sequences_given) {
+		if (argi->backslash_escapes_given) {
 			unescape(outfmt);
 		}
 	} else if (argi->time_given) {

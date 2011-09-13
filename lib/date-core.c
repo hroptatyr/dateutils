@@ -54,49 +54,55 @@
 /* weekdays of the first day of the year,
  * 3 bits per year, times 10 years makes 1 uint32_t */
 typedef struct {
-	int y0:3;
-	int y1:3;
-	int y2:3;
-	int y3:3;
-	int y4:3;
-	int y5:3;
-	int y6:3;
-	int y7:3;
-	int y8:3;
-	int y9:3;
+#define __JAN01_Y_PER_B		(10)
+	unsigned int y0:3;
+	unsigned int y1:3;
+	unsigned int y2:3;
+	unsigned int y3:3;
+	unsigned int y4:3;
+	unsigned int y5:3;
+	unsigned int y6:3;
+	unsigned int y7:3;
+	unsigned int y8:3;
+	unsigned int y9:3;
 	/* 2 bits left */
+	unsigned int rest:2;
 } __jan01_wday_block_t;
 
-#define M	DT_MONDAY
-#define T	DT_TUESDAY
-#define W	DT_WEDNESDAY
-#define R	DT_THURSDAY
-#define F	DT_FRIDAY
-#define A	DT_SATURDAY
-#define S	DT_SUNDAY
+#define M	(unsigned int)(DT_MONDAY)
+#define T	(unsigned int)(DT_TUESDAY)
+#define W	(unsigned int)(DT_WEDNESDAY)
+#define R	(unsigned int)(DT_THURSDAY)
+#define F	(unsigned int)(DT_FRIDAY)
+#define A	(unsigned int)(DT_SATURDAY)
+#define S	(unsigned int)(DT_SUNDAY)
 
 
 /* helpers */
+#define SECS_PER_MINUTE	(60)
+#define SECS_PER_HOUR	(SECS_PER_MINUTE * 60)
+#define SECS_PER_DAY	(SECS_PER_HOUR * 24)
+
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1970)
 	{
 		/* 1970 - 1979 */
-		R, F, A, M, T, W, R, A, S, M,
+		R, F, A, M, T, W, R, A, S, M, 0,
 	}, {
 		/* 1980 - 1989 */
-		T, R, F, A, S, T, W, R, F, S,
+		T, R, F, A, S, T, W, R, F, S, 0,
 	}, {
 		/* 1990 - 1999 */
-		M, T, W, F, A, S, M, W, R, F,
+		M, T, W, F, A, S, M, W, R, F, 0,
 	}, {
 		/* 2000 - 2009 */
-		A, M, T, W, R, A, S, M, T, R,
+		A, M, T, W, R, A, S, M, T, R, 0,
 	}, {
 		/* 2010 - 2019 */
-		F, A, S, T, W, R, F, S, M, T,
+		F, A, S, T, W, R, F, S, M, T, 0,
 	}, {
 		/* 2020 - 2029 */
-		W, F, A, S, M, W, R, F, A, M,
+		W, F, A, S, M, W, R, F, A, M, 0,
 	}
 #define __JAN01_WDAY_END	(2029)
 };
@@ -165,7 +171,7 @@ strtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
 	uint32_t result = 0;
 	char ch;
 	/* The limit also determines the number of valid digits. */
-	int rulim = ulim;
+	int rulim = ulim > 10 ? ulim : 10;
 
 	ch = *str;
 	if (ch < '0' || ch > '9') {
@@ -246,51 +252,70 @@ arritostr(
 	return ncp;
 }
 
-static dt_dow_t
+
+/* converters and getters */
+static inline __jan01_wday_block_t
+__get_jan01_block(int year)
+{
+	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
+}
+
+static inline dt_dow_t
 __get_wday(int year)
 {
-	dt_dow_t res;
+	unsigned int res;
 	__jan01_wday_block_t j01b;
 
 	if (UNLIKELY(year < __JAN01_WDAY_BEG || year > __JAN01_WDAY_END)) {
 		return DT_MIRACLEDAY;
 	}
-	j01b = __jan01_wday[year - __JAN01_WDAY_BEG];
+	j01b = __get_jan01_block(year);
 
 	switch (year % 10) {
 	default:
 		res = DT_MIRACLEDAY;
 		break;
 	case 0:
-		res = (dt_dow_t)j01b.y0;
+		res = j01b.y0;
 		break;
 	case 1:
-		res = (dt_dow_t)j01b.y1;
+		res = j01b.y1;
 		break;
 	case 2:
-		res = (dt_dow_t)j01b.y2;
+		res = j01b.y2;
 		break;
 	case 3:
-		res = (dt_dow_t)j01b.y3;
+		res = j01b.y3;
 		break;
 	case 4:
-		res = (dt_dow_t)j01b.y4;
+		res = j01b.y4;
 		break;
 	case 5:
-		res = (dt_dow_t)j01b.y5;
+		res = j01b.y5;
 		break;
 	case 6:
-		res = (dt_dow_t)j01b.y6;
+		res = j01b.y6;
 		break;
 	case 7:
-		res = (dt_dow_t)j01b.y7;
+		res = j01b.y7;
 		break;
 	case 8:
-		res = (dt_dow_t)j01b.y8;
+		res = j01b.y8;
 		break;
 	case 9:
-		res = (dt_dow_t)j01b.y9;
+		res = j01b.y9;
 		break;
+	}
+	return (dt_dow_t)res;
+}
+
+static inline int
+__get_mdays(int y, int m)
+{
+	int res = __mon_yday[m + 1] - __mon_yday[m];
+
+	if (UNLIKELY(y % 4 == 0 && m == 2)) {
+		res++;
 	}
 	return res;
 }
@@ -315,25 +340,91 @@ __ymd_get_wday(dt_ymd_t this)
 	dt_dow_t j01_wd;
 	if ((yd = __ymd_get_yday(this)) > 0 &&
 	    (j01_wd = __get_wday(this.y)) != DT_MIRACLEDAY) {
-		return (dt_dow_t)((yd + (unsigned int)j01_wd) % 7);
+		return (dt_dow_t)((yd - 1 + (unsigned int)j01_wd) % 7);
 	}
 	return DT_MIRACLEDAY;
 }
 
+static int
+__ymd_get_count(dt_ymd_t this)
+{
+	if (UNLIKELY(this.d + 7 > __get_mdays(this.y, this.m))) {
+		return 5;
+	}
+	return (this.d - 1) / 7 + 1;
+}
+
+static int
+__ymcd_get_day(dt_ymcd_t this)
+{
+	int wd01;
+	int wd_jan01;
+	int res;
+
+	/* weekday the year started with */
+	wd_jan01 = __get_wday(this.y);
+	/* see what weekday the first of the month was*/
+	wd01 = __ymd_get_yday((dt_ymd_t){.y = this.y, .m = this.m, .d = 01});
+	wd01 = (wd_jan01 - 1 + wd01) % 7;
+
+	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
+	 * so the first WDx with WDx > WD1 is on (WDx - WD1) + 1 */
+	res = (this.d + 7 - wd01) % 7 + 1 + 7 * (this.c - 1);
+	/* not all months have a 5th X, so check for this */
+	if (res > __get_mdays(this.y, this.m)) {
+		 /* 5th = 4th in that case */
+		res -= 7;
+	}
+	return res;
+}
+
+
+/* converting accessors */
 static dt_dow_t
 dt_get_wday(struct dt_d_s this)
 {
 	switch (this.typ) {
-	default:
-	case DT_UNK:
-		return DT_MIRACLEDAY;
 	case DT_YMD:
 		return __ymd_get_wday(this.ymd);
 	case DT_YMCD:
 		return (dt_dow_t)this.ymcd.d;
+	default:
+	case DT_UNK:
+		return DT_MIRACLEDAY;
 	}
 }
 
+static int
+dt_get_day(struct dt_d_s this)
+{
+	if (LIKELY(this.typ == DT_YMD)) {
+		return this.ymd.d;
+	}
+	switch (this.typ) {
+	case DT_YMCD:
+		return __ymcd_get_day(this.ymcd);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+static int
+dt_get_count(struct dt_d_s this)
+{
+	if (LIKELY(this.typ == DT_YMCD)) {
+		return this.ymcd.c;
+	}
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_get_count(this.ymd);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+
 /* guessing parsers */
 static struct dt_d_s
 __strpd_std(const char *str)
@@ -539,13 +630,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	case DT_YMD:
 		y = this.ymd.y;
 		m = this.ymd.m;
-		d = this.ymd.d;
 		break;
 	case DT_YMCD:
 		y = this.ymcd.y;
 		m = this.ymcd.m;
-		c = this.ymcd.c;
-		d = this.ymcd.d;
 		break;
 	}
 
@@ -571,14 +659,17 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				buf[res++] = '-';
 			case 'd':
 				/* ymd mode check? */
+				d = dt_get_day(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'w':
-				/* ymcd mode check? */
+				/* ymcd mode check */
+				d = dt_get_wday(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'c':
 				/* ymcd mode check? */
+				c = dt_get_count(this);
 				res += ui32tostr(buf + res, bsz - res, c, 2);
 				break;
 			case 'a':

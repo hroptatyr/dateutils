@@ -65,9 +65,9 @@ typedef enum {
 typedef union {
 	uint32_t u;
 	struct {
-		int d:5;
-		int m:4;
-		int y:16;
+		unsigned int d:5;
+		unsigned int m:4;
+		unsigned int y:16;
 		/* 7 bits left */
 	};
 } dt_ymd_t;
@@ -77,10 +77,10 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-		int d:3;
-		int c:3;
-		int m:4;
-		int y:16;
+		unsigned int d:3;
+		unsigned int c:3;
+		unsigned int m:4;
+		unsigned int y:16;
 		/* 6 bits left */
 	};
 } dt_ymcd_t;
