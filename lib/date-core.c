@@ -690,7 +690,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	unsigned int d;
 	unsigned int c;
 
-	if (UNLIKELY(fmt == NULL || buf == NULL || bsz == 0)) {
+	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		goto out;
 	}
 
@@ -701,10 +701,16 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	case DT_YMD:
 		y = this.ymd.y;
 		m = this.ymd.m;
+		if (fmt == NULL) {
+			fmt = "%F\n";
+		}
 		break;
 	case DT_YMCD:
 		y = this.ymcd.y;
 		m = this.ymcd.m;
+		if (fmt == NULL) {
+			fmt = "%Y-%m-%c-%w\n";
+		}
 		break;
 	}
 
@@ -776,6 +782,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 		literal:
 			buf[res++] = *fp;
 		}
+	}
+	if (res > 0 && buf[res - 1] != '\n') {
+		/* auto-newline */
+		buf[res++] = '\n';
 	}
 out:
 	if (res < bsz) {
