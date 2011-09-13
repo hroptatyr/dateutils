@@ -26,7 +26,7 @@ strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
 bin_PROGRAMS += dcal
-dcal_SOURCES = dcal.c dcal-clo.ggop
+dcal_SOURCES = dcal.c dcal-clo.ggo
 dcal_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dcal_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dcal-clo.c dcal-clo.h

@@ -50,17 +50,17 @@ typedef enum {
 
 
 static int
-dcal_conv(int mode __attribute__((unused)), struct dt_d_s d)
+dcal_conv(struct dt_d_s d, const char *fmt)
 {
 	static char buf[64];
 	int res;
 
 	switch (d.typ) {
 	case DT_YMD:
-		dt_strfd(buf, sizeof(buf), "%Y-%m-%c-%w\n", d);
+		dt_strfd(buf, sizeof(buf), fmt ?: "%Y-%m-%c-%w\n", d);
 		break;
 	case DT_YMCD:
-		dt_strfd(buf, sizeof(buf), "%Y-%m-%d\n", d);
+		dt_strfd(buf, sizeof(buf), fmt ?: "%Y-%m-%d\n", d);
 		break;
 	default:
 		buf[0] = '\n';
@@ -68,6 +68,23 @@ dcal_conv(int mode __attribute__((unused)), struct dt_d_s d)
 		res = 1;
 	}
 	fputs(buf, stdout);
+	return res;
+}
+
+static struct dt_d_s
+read_input(const char *input, const char *const *fmt, size_t nfmt)
+{
+	struct dt_d_s res;
+
+	if (nfmt == 0) {
+		res = dt_strpd(input, NULL);
+	} else {
+		for (size_t i = 0; i < nfmt; i++) {
+			if ((res = dt_strpd(input, fmt[i])).typ > DT_UNK) {
+				break;
+			}
+		}
+	}
 	return res;
 }
 
@@ -85,7 +102,8 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	int mode = 0;
+	char **fmt;
+	size_t nfmt;
 	int res = 0;
 
 	if (cmdline_parser(argc, argv, argi)) {
@@ -93,11 +111,15 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
+	fmt = argi->input_format_arg;
+	nfmt = argi->input_format_given;
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {
-			struct dt_d_s d = dt_strpd(argi->inputs[i], NULL);
-			if (d.typ > DT_UNK) {
-				dcal_conv(mode, d);
+			const char *inp = argi->inputs[i];
+			struct dt_d_s d;
+
+			if ((d = read_input(inp, fmt, nfmt)).typ > DT_UNK) {
+				dcal_conv(d, argi->format_arg);
 			}
 		}
 	} else {
@@ -121,9 +143,8 @@ main(int argc, char *argv[])
 			/* terminate the string accordingly */
 			line[n - 1] = '\0';
 			/* check if line matches */
-			d = dt_strpd(line, NULL);
-			if (d.typ > DT_UNK) {
-				dcal_conv(mode, d);
+			if ((d = read_input(line, fmt, nfmt)).typ > DT_UNK) {
+				dcal_conv(d, argi->format_arg);
 			}
 		}
 		/* get rid of resources */
