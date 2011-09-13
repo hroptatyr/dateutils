@@ -40,6 +40,22 @@ test_strpd(size_t nruns)
 	return;
 }
 
+static void __attribute__((unused))
+test_date(size_t nruns)
+{
+	struct dt_d_s s;
+	char buf[256];
+
+	for (size_t i = 0; i < nruns; i++) {
+		if ((s = dt_date(DT_YMCD)).u == 0) {
+			break;
+		}
+	}
+	dt_strfd(buf, sizeof(buf), "%Y-%m-%c-%w\n", s);
+	fputs(buf, stdout);
+	return;
+}
+
 
 int
 main(int argc, char *argv[])
@@ -47,8 +63,10 @@ main(int argc, char *argv[])
 	const size_t nruns = 10000000;
 #if 0
 	orig_strptime_perf(nruns);
-#elif 1
+#elif 0
 	test_strpd(nruns);
+#elif 1
+	test_date(nruns);
 #endif
 	return 0;
 }

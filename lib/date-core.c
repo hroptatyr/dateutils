@@ -252,6 +252,77 @@ arritostr(
 	return ncp;
 }
 
+static inline int
+__leapp(int y)
+{
+	return y % 4 == 0;
+}
+
+static void
+ffff_gmtime(struct tm *tm, const time_t t)
+{
+	register int days, yy;
+	const uint16_t *ip;
+
+	/* just go to day computation */
+	days = t / SECS_PER_DAY;
+	/* week day computation, that one's easy, 1 jan '70 was Thu */
+	tm->tm_wday = (days + 4) % 7;
+
+	/* gotta do the date now */
+	yy = 1970;
+	/* stolen from libc */
+#define DIV(a, b)		((a) / (b))
+/* we only care about 1901 to 2099 and there are no bullshit leap years */
+#define LEAPS_TILL(y)		(DIV(y, 4))
+	while (days < 0 || days >= (!__leapp(yy) ? 365 : 366)) {
+		/* Guess a corrected year, assuming 365 days per year. */
+		register int yg = yy + days / 365 - (days % 365 < 0);
+
+		/* Adjust DAYS and Y to match the guessed year.  */
+		days -= (yg - yy) * 365 +
+			LEAPS_TILL(yg - 1) - LEAPS_TILL(yy - 1);
+		yy = yg;
+	}
+	/* set the year */
+	tm->tm_year = yy;
+
+	ip = __mon_yday;
+	/* unrolled */
+	yy = 13;
+	if (days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy] &&
+	    days < ip[--yy]) {
+		yy = 0;
+	}
+	/* set the rest of the tm structure */
+	tm->tm_mday = days - ip[yy] + 1;
+	tm->tm_yday = days;
+	tm->tm_mon = yy;
+	/* fix up leap years */
+	if (UNLIKELY(__leapp(tm->tm_year))) {
+		if ((ip[0] >> (yy)) & 1) {
+			if (UNLIKELY(tm->tm_yday == 59)) {
+				tm->tm_mon = 2;
+				tm->tm_mday = 29;
+			} else if (UNLIKELY(tm->tm_yday == ip[yy])) {
+				tm->tm_mday = tm->tm_yday - ip[--tm->tm_mon];
+			} else {
+				tm->tm_mday--;
+			}
+		}
+	}
+	return;
+}
+
 
 /* converters and getters */
 static inline __jan01_wday_block_t
@@ -314,7 +385,7 @@ __get_mdays(int y, int m)
 {
 	int res = __mon_yday[m + 1] - __mon_yday[m];
 
-	if (UNLIKELY(y % 4 == 0 && m == 2)) {
+	if (UNLIKELY(__leapp(y) && m == 2)) {
 		res++;
 	}
 	return res;
@@ -327,7 +398,7 @@ __ymd_get_yday(dt_ymd_t this)
 
 	if (UNLIKELY(this.y == 0)) {
 		return 0;
-	} else if (UNLIKELY(this.y % 4 == 0)) {
+	} else if (UNLIKELY(__leapp(this.y))) {
 		res += (__mon_yday[0] >> this.m) & 1;
 	}
 	return res;
@@ -709,6 +780,47 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 out:
 	if (res < bsz) {
 		buf[res] = '\0';
+	}
+	return res;
+}
+
+
+/* date getters, platform dependent */
+DEFUN struct dt_d_s
+dt_date(dt_dtyp_t outtyp)
+{
+	struct dt_d_s res;
+
+	switch ((res.typ = outtyp)) {
+	case DT_YMD:
+	case DT_YMCD: {
+		time_t t = time(NULL);
+		struct tm tm;
+		ffff_gmtime(&tm, t);
+		switch (res.typ) {
+		case DT_YMD:
+			res.ymd.y = tm.tm_year;
+			res.ymd.m = tm.tm_mon;
+			res.ymd.d = tm.tm_mday;
+			break;
+		case DT_YMCD: {
+			dt_ymd_t tmp = {
+				.y = tm.tm_year,
+				.m = tm.tm_mon,
+				.d = tm.tm_mday,
+			};
+			res.ymcd.y = tm.tm_year;
+			res.ymcd.m = tm.tm_mon;
+			res.ymcd.c = __ymd_get_count(tmp);
+			res.ymcd.d = tm.tm_wday;
+			break;
+		}
+		}
+		break;
+	}
+	default:
+	case DT_UNK:
+		res.u = 0;
 	}
 	return res;
 }
