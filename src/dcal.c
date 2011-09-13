@@ -88,6 +88,28 @@ read_input(const char *input, const char *const *fmt, size_t nfmt)
 	return res;
 }
 
+
+static void
+unescape(char *s)
+{
+	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
+	char *p, *q;
+
+	if ((p = q = strchr(s, '\\'))) {
+		do {
+			if (*p != '\\' || !*++p) {
+				*q++ = *p++;
+			} else if (*p < 'a' || *p > 'v') {
+				*q++ = *p++;
+			} else {
+				*q++ = esc_map[*p++ - 'a'];
+			}
+		} while (*p);
+		*q = '\0';
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -109,6 +131,10 @@ main(int argc, char *argv[])
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
+	}
+	/* unescape sequences, maybe */
+	if (argi->backslash_escapes_given) {
+		unescape(argi->format_arg);
 	}
 
 	fmt = argi->input_format_arg;
