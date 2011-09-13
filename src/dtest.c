@@ -41,26 +41,8 @@
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
-
-static int
-read_ts(time_t *t, const char *s, const char *fmt)
-{
-	struct tm tm;
-
-	/* basic sanity check */
-	if (s == NULL || strcmp(s, "now") == 0) {
-		*t = time(NULL);
-		return 0;
-	}
-	/* wipe tm */
-	memset(&tm, 0, sizeof(tm));
-	if (strptime(s, fmt, &tm) == NULL) {
-		*t = (time_t)-1;
-		return -1;
-	}
-	*t = mktime(&tm);
-	return 0;
-}
+#include "date-core.h"
+#include "date-io.h"
 
 
 #if defined __INTEL_COMPILER
@@ -72,13 +54,16 @@ read_ts(time_t *t, const char *s, const char *fmt)
 # pragma warning (default:593)
 #endif	/* __INTEL_COMPILER */
 
+DECLF size_t __attribute__((unused))
+dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this);
+
 int
 main(int argc, char *argv[])
 {
-	static const char dflt_fmt[] = "%F";
 	struct gengetopt_args_info argi[1];
-	const char *ifmt[] = {dflt_fmt, dflt_fmt};
-	time_t d1, d2;
+	char **ifmt;
+	size_t nifmt;
+	struct dt_d_s d1, d2;
 	int res = 0;
 
 	if (cmdline_parser(argc, argv, argi)) {
@@ -92,33 +77,40 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	for (size_t i = 0; i < argi->input_format_given; i++) {
-		ifmt[i] = argi->input_format_arg[i];
-	}
+	ifmt = argi->input_format_arg;
+	nifmt = argi->input_format_given;
 
-	if (read_ts(&d1, argi->inputs[0], ifmt[0]) < 0) {
+	if ((d1 = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ == DT_UNK) {
 		fputs("cannot read first date specified\n", stderr);
 		res = 2;
 		goto out;
 	}
-	if (read_ts(&d2, argi->inputs[1], ifmt[1]) < 0) {
+	if ((d2 = dt_io_strpd(argi->inputs[1], ifmt, nifmt)).typ == DT_UNK) {
 		fputs("cannot read second date specified\n", stderr);
 		res = 2;
 		goto out;
 	}
 
-	if (argi->eq_given) {
-		res = 1 - (d1 == d2);
+	if (argi->cmp_given) {
+		if (d1.u == d2.u) {
+			res = 0;
+		} else if (d1.u < d2.u) {
+			res = 2;
+		} else /*if (d1.u > d2.u)*/ {
+			res = 1;
+		}
+	} else if (argi->eq_given) {
+		res = 1 - (d1.u == d2.u);
 	} else if (argi->ne_given) {
-		res = 1 - (d1 != d2);
+		res = 1 - (d1.u != d2.u);
 	} else if (argi->lt_given || argi->ot_given) {
-		res = 1 - (d1 < d2);
+		res = 1 - (d1.u < d2.u);
 	} else if (argi->le_given) {
-		res = 1 - (d1 <= d2);
+		res = 1 - (d1.u <= d2.u);
 	} else if (argi->gt_given || argi->nt_given) {
-		res = 1 - (d1 > d2);
+		res = 1 - (d1.u > d2.u);
 	} else if (argi->ge_given) {
-		res = 1 - (d1 >= d2);
+		res = 1 - (d1.u >= d2.u);
 	}
 out:
 	cmdline_parser_free(argi);

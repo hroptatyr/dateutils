@@ -3,7 +3,12 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-AC_INIT([datetools], m4_esyscmd([./git-version-gen]), [https://github.com/hroptatyr/datetools])
+m4_define([GIT_VERSION_GEN], [dnl
+pushdef([version], [m4_esyscmd([./git-version-gen])])[]dnl
+ifelse([]version[], [], [0.1.0], []version[])[]dnl
+popdef([version])[]dnl
+])
+AC_INIT([datetools], [GIT_VERSION_GEN], [https://github.com/hroptatyr/datetools])
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -36,9 +41,10 @@ AC_PROG_CC(["icc -static-intel" icc gcc cc])
 AC_PROG_CC_C99
 
 ## trivial, no special stuff needed
-apps=" dseq strptime"
+apps=" dcal dseq dtest strptime"
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_OUTPUT
 

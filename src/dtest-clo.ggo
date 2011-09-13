@@ -4,8 +4,7 @@ usage "dtest [OPTION]... DATE1 OP DATE2"
 description "Like test(1) but for dates."
 
 option "input-format" i
-	"input format as passed to strptime(), can be used multiple times,
-the first format corresponds to the first argument, etc."
+	"input format as passed to strptime(), can be used multiple times."
 	string optional multiple
 
 defgroup "op" groupdesc="Following operations are supported" required
@@ -41,4 +40,9 @@ groupoption "nt" -
 
 groupoption "ot" -
 	"DATE1 is older than DATE2"
+	group="op"
+
+groupoption "cmp" -
+	"compare DATE1 to DATE2, return with 0 if equal, \
+1 if left argument was newer and 2 if right argument was newer"
 	group="op"
