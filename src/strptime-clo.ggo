@@ -17,7 +17,7 @@ If used dates can be specified on the command line, or if left empty they
 are read from stdin"
 	string optional multiple
 
-option "escape-backslash-sequences" e
+option "backslash-escapes" e
 	"enable interpretation of backslash escapes in the output and
 input format strings"
 	optional
