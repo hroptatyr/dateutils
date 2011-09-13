@@ -803,12 +803,18 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymd.m = tm.tm_mon;
 			res.ymd.d = tm.tm_mday;
 			break;
-		case DT_YMCD:
+		case DT_YMCD: {
+			dt_ymd_t tmp = {
+				.y = tm.tm_year,
+				.m = tm.tm_mon,
+				.d = tm.tm_mday,
+			};
 			res.ymcd.y = tm.tm_year;
 			res.ymcd.m = tm.tm_mon;
-			res.ymcd.c = 0;
+			res.ymcd.c = __ymd_get_count(tmp);
 			res.ymcd.d = tm.tm_wday;
 			break;
+		}
 		}
 		break;
 	}
