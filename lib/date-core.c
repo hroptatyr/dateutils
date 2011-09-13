@@ -334,6 +334,86 @@ dt_get_wday(struct dt_d_s this)
 	}
 }
 
+/* guessing parsers */
+static struct dt_d_s
+__strpd_std(const char *str)
+{
+	struct dt_d_s res = {DT_UNK, 0};
+	const char *sp = str;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+	unsigned int c;
+
+	if (sp == NULL) {
+		goto out;
+	}
+	/* read the year */
+	sp = strtoui_lim(&y, sp, 0, 9999);
+	if (sp == NULL || *sp++ != '-') {
+		goto out;
+	}
+	/* read the month */
+	sp = strtoui_lim(&m, sp, 0, 12);
+	if (sp == NULL || *sp++ != '-') {
+		goto out;
+	}
+	/* read the day or the count */
+	sp = strtoui_lim(&d, sp, 0, 31);
+	if (sp == NULL) {
+		/* didn't work, fuck off */
+		goto out;
+	}
+	/* check the date type */
+	switch (*sp++) {
+	case '\0':
+		/* it was a YMD date */
+		res.typ = DT_YMD;
+		goto assess;
+	case '-':
+		/* it is a YMCD date */
+		res.typ = DT_YMCD;
+		if ((c = d) > 5) {
+			/* nope, it was bollocks */
+			goto out;
+		}
+		break;
+	case '<':
+	case '>':
+		/* it's a YMDU date */
+		;
+		break;
+	default:
+		/* it's fuckered */
+		goto out;
+	}
+	sp = strtoui_lim(&d, sp, 0, 7);
+	if (sp == NULL) {
+		/* didn't work, fuck off */
+		res.typ = DT_UNK;
+		goto out;
+	}
+assess:
+	switch (res.typ) {
+	default:
+	case DT_UNK:
+		break;
+	case DT_YMD:
+		res.ymd.y = y;
+		res.ymd.m = m;
+		res.ymd.d = d;
+		break;
+	case DT_YMCD:
+		res.ymcd.y = y;
+		res.ymcd.m = m;
+		res.ymcd.c = c;
+		res.ymcd.d = d;
+		break;
+	}
+out:
+	return res;
+}
+
 
 /* implementations */
 DEFUN struct dt_d_s
@@ -346,7 +426,7 @@ dt_strpd(const char *str, const char *fmt)
 	unsigned int c;
 
 	if (UNLIKELY(fmt == NULL)) {
-		return res;
+		return __strpd_std(str);
 	}
 
 	for (const char *fp = fmt, *sp = str; *fp && sp; fp++) {

@@ -117,7 +117,13 @@ typedef enum {
  * %m - month in ymd and ymcd mode
  * %d - day in ymd mode
  * %c - week of the month in ymcd mode
- * %w - numeric weekday in ymcd mode */
+ * %w - numeric weekday in ymcd mode
+ *
+ * If FMT is NULL the standard format for each calendric system is used,
+ * that is:
+ * - %Y-%m-%d for YMD dates
+ * - %Y-%m-%c-%d for YMCD dates
+ * - %Y-%m-%d%u for YMDU dates */
 DECLF struct dt_d_s dt_strpd(const char *str, const char *fmt);
 /**
  * Like strftime() for our dates */
