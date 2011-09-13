@@ -54,26 +54,28 @@
 /* weekdays of the first day of the year,
  * 3 bits per year, times 10 years makes 1 uint32_t */
 typedef struct {
-	int y0:3;
-	int y1:3;
-	int y2:3;
-	int y3:3;
-	int y4:3;
-	int y5:3;
-	int y6:3;
-	int y7:3;
-	int y8:3;
-	int y9:3;
+#define __JAN01_Y_PER_B		(10)
+	unsigned int y0:3;
+	unsigned int y1:3;
+	unsigned int y2:3;
+	unsigned int y3:3;
+	unsigned int y4:3;
+	unsigned int y5:3;
+	unsigned int y6:3;
+	unsigned int y7:3;
+	unsigned int y8:3;
+	unsigned int y9:3;
 	/* 2 bits left */
+	unsigned int rest:2;
 } __jan01_wday_block_t;
 
-#define M	DT_MONDAY
-#define T	DT_TUESDAY
-#define W	DT_WEDNESDAY
-#define R	DT_THURSDAY
-#define F	DT_FRIDAY
-#define A	DT_SATURDAY
-#define S	DT_SUNDAY
+#define M	(unsigned int)(DT_MONDAY)
+#define T	(unsigned int)(DT_TUESDAY)
+#define W	(unsigned int)(DT_WEDNESDAY)
+#define R	(unsigned int)(DT_THURSDAY)
+#define F	(unsigned int)(DT_FRIDAY)
+#define A	(unsigned int)(DT_SATURDAY)
+#define S	(unsigned int)(DT_SUNDAY)
 
 
 /* helpers */
@@ -85,22 +87,22 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1970)
 	{
 		/* 1970 - 1979 */
-		R, F, A, M, T, W, R, A, S, M,
+		R, F, A, M, T, W, R, A, S, M, 0,
 	}, {
 		/* 1980 - 1989 */
-		T, R, F, A, S, T, W, R, F, S,
+		T, R, F, A, S, T, W, R, F, S, 0,
 	}, {
 		/* 1990 - 1999 */
-		M, T, W, F, A, S, M, W, R, F,
+		M, T, W, F, A, S, M, W, R, F, 0,
 	}, {
 		/* 2000 - 2009 */
-		A, M, T, W, R, A, S, M, T, R,
+		A, M, T, W, R, A, S, M, T, R, 0,
 	}, {
 		/* 2010 - 2019 */
-		F, A, S, T, W, R, F, S, M, T,
+		F, A, S, T, W, R, F, S, M, T, 0,
 	}, {
 		/* 2020 - 2029 */
-		W, F, A, S, M, W, R, F, A, M,
+		W, F, A, S, M, W, R, F, A, M, 0,
 	}
 #define __JAN01_WDAY_END	(2029)
 };
@@ -252,53 +254,59 @@ arritostr(
 
 
 /* converters and getters */
+static inline __jan01_wday_block_t
+__get_jan01_block(int year)
+{
+	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
+}
+
 static inline dt_dow_t
 __get_wday(int year)
 {
-	dt_dow_t res;
+	unsigned int res;
 	__jan01_wday_block_t j01b;
 
 	if (UNLIKELY(year < __JAN01_WDAY_BEG || year > __JAN01_WDAY_END)) {
 		return DT_MIRACLEDAY;
 	}
-	j01b = __jan01_wday[year - __JAN01_WDAY_BEG];
+	j01b = __get_jan01_block(year);
 
 	switch (year % 10) {
 	default:
 		res = DT_MIRACLEDAY;
 		break;
 	case 0:
-		res = (dt_dow_t)j01b.y0;
+		res = j01b.y0;
 		break;
 	case 1:
-		res = (dt_dow_t)j01b.y1;
+		res = j01b.y1;
 		break;
 	case 2:
-		res = (dt_dow_t)j01b.y2;
+		res = j01b.y2;
 		break;
 	case 3:
-		res = (dt_dow_t)j01b.y3;
+		res = j01b.y3;
 		break;
 	case 4:
-		res = (dt_dow_t)j01b.y4;
+		res = j01b.y4;
 		break;
 	case 5:
-		res = (dt_dow_t)j01b.y5;
+		res = j01b.y5;
 		break;
 	case 6:
-		res = (dt_dow_t)j01b.y6;
+		res = j01b.y6;
 		break;
 	case 7:
-		res = (dt_dow_t)j01b.y7;
+		res = j01b.y7;
 		break;
 	case 8:
-		res = (dt_dow_t)j01b.y8;
+		res = j01b.y8;
 		break;
 	case 9:
-		res = (dt_dow_t)j01b.y9;
+		res = j01b.y9;
 		break;
 	}
-	return res;
+	return (dt_dow_t)res;
 }
 
 static inline int
