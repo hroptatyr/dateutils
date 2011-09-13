@@ -41,7 +41,7 @@ AC_PROG_CC(["icc -static-intel" icc gcc cc])
 AC_PROG_CC_C99
 
 ## trivial, no special stuff needed
-apps=" dseq strptime"
+apps=" dcal dseq dtest strptime"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
