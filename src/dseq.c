@@ -314,6 +314,7 @@ main(int argc, char *argv[])
 		unfixup_arg(argi->inputs[1]);
 		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
 			fputs("increment must not be naught\n", stderr);
+			res = 1;
 			goto out;
 		}
 		lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt);
