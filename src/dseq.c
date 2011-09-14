@@ -48,7 +48,7 @@
 typedef int32_t idate_t;
 /* iddurs are normally YYYYMMWWDD durations just in an integer, but we
  * haven't switched to that system yet */
-typedef uint32_t iddur_t;
+typedef int32_t iddur_t;
 
 typedef uint8_t __skipspec_t;
 
@@ -213,6 +213,16 @@ set_skip(__skipspec_t ss, const char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
+static void
+prnt_date(struct dt_d_s d, const char *fmt)
+{
+	char buf[256];
+	size_t len = dt_strfd(buf, sizeof(buf), fmt, d);
+	fwrite(buf, sizeof(*buf), len, stdout);
+	return;
+}
+
+
 #define MAGIC_CHAR	'~'
 
 static void
@@ -302,7 +312,10 @@ main(int argc, char *argv[])
 	case 3:
 		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
 		unfixup_arg(argi->inputs[1]);
-		ite = strtol(argi->inputs[1], NULL, 10);
+		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
+			fputs("increment must not be naught\n", stderr);
+			goto out;
+		}
 		lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt);
 		break;
 	}
@@ -315,15 +328,43 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	while (fst.daisy <= lst.daisy) {
-		if (!skipp(ss, fst)) {
-			char buf[64];
-			size_t len = dt_strfd(buf, sizeof(buf), ofmt, fst);
-			fwrite(buf, sizeof(*buf), len, stdout);
-			fst.daisy += ite;
-		} else {
-			fst.daisy++;
+	if (fst.daisy <= lst.daisy) {
+		if (ite < 0) {
+			/* different meaning now, we need to compute the
+			 * beginning rather than the end */
+			dt_daisy_t tmp = lst.daisy;
+
+			ite = -ite;
+			while ((tmp -= ite) >= fst.daisy);
+			fst.daisy = tmp + ite;
 		}
+		do {
+			if (!skipp(ss, fst)) {
+				prnt_date(fst, ofmt);
+				fst.daisy += ite;
+			} else {
+				fst.daisy++;
+			}
+		} while (fst.daisy <= lst.daisy);
+	} else {
+		if (ite > 0) {
+			/* different meaning now, we need to compute the
+			 * end rather than the beginning */
+			dt_daisy_t tmp = lst.daisy;
+
+			while ((tmp += ite) <= fst.daisy);
+			fst.daisy = tmp - ite;
+		} else {
+			ite = -ite;
+		}
+		do {
+			if (!skipp(ss, fst)) {
+				prnt_date(fst, ofmt);
+				fst.daisy -= ite;
+			} else {
+				fst.daisy--;
+			}
+		} while (fst.daisy >= lst.daisy);
 	}
 out:
 	cmdline_parser_free(argi);
