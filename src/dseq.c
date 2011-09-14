@@ -213,6 +213,39 @@ set_skip(__skipspec_t ss, const char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
+#define MAGIC_CHAR	'~'
+
+static void
+fixup_argv(int argc, char *argv[])
+{
+	size_t i = 0;
+
+	while (++i < argc) {
+		if (argv[i][0] != '-') {
+			break;
+		}
+	}
+	/* now take a closer look */
+	while (++i < argc) {
+		if (argv[i][0] == '-' &&
+		    argv[i][1] >= '1' && argv[i][1] <= '9') {
+			/* assume this is meant to be an integer
+			 * as opposed to an option that begins with a digit */
+			argv[i][0] = MAGIC_CHAR;
+		}
+	}
+	return;
+}
+
+static inline void
+unfixup_arg(char *arg)
+{
+	if (UNLIKELY(arg[0] == MAGIC_CHAR)) {
+		arg[0] = '-';
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -235,6 +268,8 @@ main(int argc, char *argv[])
 	int res = 0;
 	__skipspec_t ss = 0;
 
+	/* fixup negative numbers, A -1 B for dates A and B */
+	fixup_argv(argc, argv);
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
@@ -266,6 +301,7 @@ main(int argc, char *argv[])
 		break;
 	case 3:
 		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
+		unfixup_arg(argi->inputs[1]);
 		ite = strtol(argi->inputs[1], NULL, 10);
 		lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt);
 		break;
