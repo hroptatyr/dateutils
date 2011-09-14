@@ -40,12 +40,15 @@ fi
 AC_PROG_CC(["icc -static-intel" icc gcc cc])
 AC_PROG_CC_C99
 
+AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
+
 ## trivial, no special stuff needed
 apps=" dcal dseq dtest strptime"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([info/Makefile])
 AC_OUTPUT
 
 echo
