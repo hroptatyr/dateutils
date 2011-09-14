@@ -43,25 +43,45 @@
 #include <stdio_ext.h>
 #include <sys/time.h>
 #include <time.h>
+#include "date-io.h"
+
+static int
+pars_line(struct tm *tm, const char *const *fmt, size_t nfmt, const char *line)
+{
+	for (size_t i = 0; i < nfmt; i++) {
+		if (strptime(line, fmt[i], tm)) {
+			return 0;
+		}
+	}
+	return -1;
+}
 
 static void
-prline(const char *line, const char *const *fmt, size_t nfmt, const char *ofmt)
+prnt_line(const char *ofmt, struct tm *tm)
 {
-	struct tm tm[1] = {{0}};
-	size_t i = 0;
+	char res[256];
+	strftime(res, sizeof(res), ofmt, tm);
+	fputs(res, stdout);
+	return;
+}
 
-	for (i = 0; i < nfmt && !strptime(line, fmt[i], tm); i++);
+static void
+proc_line(const char *ln, const char *const *fmt, size_t nfmt, const char *ofmt)
+{
+	struct tm tm = {0};
 
-	if (i < nfmt) {
-		char res[256];
-		strftime(res, sizeof(res), ofmt, tm);
-		fputs(res, stdout);
+	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
+		fputs("cannot parse line: ", stderr);
+		fputs(ln, stderr);
+		fputc('\n', stderr);
+	} else {
+		prnt_line(ofmt, &tm);
 	}
 	return;
 }
 
 static void
-prlines(const char *const *fmt, size_t nfmt, const char *ofmt)
+proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt)
 {
 	FILE *fp = stdin;
 	char *line;
@@ -81,31 +101,10 @@ prlines(const char *const *fmt, size_t nfmt, const char *ofmt)
 		/* terminate the string accordingly */
 		line[n - 1] = '\0';
 		/* check if line matches */
-		prline(line, fmt, nfmt, ofmt);
+		proc_line(line, fmt, nfmt, ofmt);
 	}
 	/* get rid of resources */
 	free(line);
-	return;
-}
-
-static void
-unescape(char *s)
-{
-	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
-	char *p, *q;
-
-	if ((p = q = strchr(s, '\\'))) {
-		do {
-			if (*p != '\\' || !*++p) {
-				*q++ = *p++;
-			} else if (*p < 'a' || *p > 'v') {
-				*q++ = *p++;
-			} else {
-				*q++ = esc_map[*p++ - 'a'];
-			}
-		} while (*p);
-		*q = '\0';
-	}
 	return;
 }
 
@@ -140,7 +139,7 @@ main(int argc, char *argv[])
 		outfmt = argi->format_arg;
 		/* unescape sequences, maybe */
 		if (argi->backslash_escapes_given) {
-			unescape(outfmt);
+			dt_io_unescape(outfmt);
 		}
 	} else if (argi->time_given) {
 		outfmt[8] = ' ';
@@ -162,10 +161,10 @@ main(int argc, char *argv[])
 	/* get lines one by one, apply format string and print date/time */
 	if (ninput == 0) {
 		/* read from stdin */
-		prlines(infmt, ninfmt, outfmt);
+		proc_lines(infmt, ninfmt, outfmt);
 	} else {
 		for (size_t i = 0; i < ninput; i++) {
-			prline(input[i], infmt, ninfmt, outfmt);
+			proc_line(input[i], infmt, ninfmt, outfmt);
 		}
 	}
 
