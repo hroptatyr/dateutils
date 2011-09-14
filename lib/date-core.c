@@ -464,14 +464,36 @@ __ymd_to_daisy(dt_ymd_t d)
 {
 /* compute days since 1917-01-01 (Mon),
  * if year slot is absent in D compute the day in the year of D instead. */
-	uint32_t res = __mon_yday[d.m] + d.d;
-	int dy = (d.y - DT_DAISY_BASE_YEAR);
+	dt_daisy_t res;
+	int dy = TO_BASE(d.y);
 
 	if (UNLIKELY(dy < 0)) {
 		return 0;
 	}
-	res += dy * 365 + dy / 4;
-	if (UNLIKELY(dy % 4 == 3)) {
+	res = __jan00_daisy(d.y);
+	res += __mon_yday[d.m] + d.d;
+	if (UNLIKELY(__leapp(d.y))) {
+		res += (__mon_yday[0] >> (d.m)) & 1;
+	}
+	return res;
+}
+
+static dt_daisy_t
+__ymcd_to_daisy(dt_ymcd_t d)
+{
+/* compute days since 1917-01-01 (Mon),
+ * if year slot is absent in D compute the day in the year of D instead. */
+	dt_daisy_t res;
+	int dy = TO_BASE(d.y);
+
+	if (UNLIKELY(dy < 0)) {
+		return 0;
+	}
+	res = __jan00_daisy(d.y);
+	res += __mon_yday[d.m];
+	/* add up days too */
+	res += __ymcd_get_day(d);
+	if (UNLIKELY(__leapp(d.y))) {
 		res += (__mon_yday[0] >> (d.m)) & 1;
 	}
 	return res;
@@ -590,7 +612,7 @@ dt_conv_to_daisy(struct dt_d_s this)
 	case DT_YMD:
 		return __ymd_to_daisy(this.ymd);
 	case DT_YMCD:
-		break;
+		return __ymcd_to_daisy(this.ymcd);
 	case DT_DAISY:
 		return this.daisy;
 	case DT_BIZDA:
