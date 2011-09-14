@@ -17,4 +17,5 @@ man1_MANS += dseq.man
 man1_MANS += dtest.man
 
 %.man: $(top_builddir)/src/%$(EXEEXT)
-	$(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" -o $@ $<
+	$(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
+		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" -o "$@" "$<"
