@@ -1021,11 +1021,11 @@ DEFUN struct dt_d_s
 dt_date(dt_dtyp_t outtyp)
 {
 	struct dt_d_s res;
+	time_t t = time(NULL);
 
 	switch ((res.typ = outtyp)) {
 	case DT_YMD:
 	case DT_YMCW: {
-		time_t t = time(NULL);
 		struct tm tm;
 		ffff_gmtime(&tm, t);
 		switch (res.typ) {
@@ -1049,6 +1049,10 @@ dt_date(dt_dtyp_t outtyp)
 		}
 		break;
 	}
+	case DT_DAISY:
+		/* time_t's base is 1970-01-01, which is daisy 19359 */
+		res.daisy = t / 86400 + 19359;
+		break;
 	default:
 	case DT_UNK:
 		res.u = 0;
