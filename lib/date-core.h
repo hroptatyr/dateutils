@@ -47,7 +47,7 @@ extern "C" {
 #endif	/* __cplusplus */
 
 #if !defined DECLF
-# define DECLF	static
+# define DECLF	static __attribute__((unused))
 # define DEFUN	static
 # define INCLUDE_DATE_CORE_IMPL
 #elif !defined DEFUN
@@ -57,7 +57,9 @@ extern "C" {
 typedef enum {
 	DT_UNK,
 	DT_YMD,
-	DT_YMCD,
+	DT_YMCW,
+	DT_DAISY,
+	DT_BIZDA,
 } dt_dtyp_t;
 
 /** ymds
@@ -72,25 +74,49 @@ typedef union {
 	};
 } dt_ymd_t;
 
-/** ymcds
- * ymcds are year-month-count-weekday bcd coded. */
+/** ymcws
+ * ymcws are year-month-count-weekday bcd coded. */
 typedef union {
 	uint32_t u;
 	struct {
-		unsigned int d:3;
+		unsigned int w:3;
 		unsigned int c:3;
 		unsigned int m:4;
 		unsigned int y:16;
 		/* 6 bits left */
 	};
-} dt_ymcd_t;
+} dt_ymcw_t;
+
+/** daysi
+ * daisys are days since X, 1917-01-01 here */
+typedef uint32_t dt_daisy_t;
+#define DT_DAISY_BASE_YEAR	(1917)
+
+/** bizda
+ * bizdas is a calendar that counts business days before or after a
+ * certain day in the month, mostly ultimo. */
+typedef union {
+	uint32_t u;
+	struct {
+		/* key day, use 00 for ultimo */
+		unsigned int x:5;
+		/* before or after */
+		unsigned int ba:1;
+		unsigned int bd:5;
+		unsigned int m:4;
+		unsigned int y:16;
+		/* 1 bits left */
+	};
+} dt_bizda_t;
 
 struct dt_d_s {
 	dt_dtyp_t typ;
 	union {
 		uint32_t u;
 		dt_ymd_t ymd;
-		dt_ymcd_t ymcd;
+		dt_ymcw_t ymcw;
+		dt_daisy_t daisy;
+		dt_bizda_t bizda;
 	};
 };
 
@@ -113,16 +139,16 @@ typedef enum {
  * The format characters are _NOT_ compatible with strptime().
  * This is what we support:
  * %F - alias for %Y-%m-%d
- * %Y - year in ymd and ymcd mode
- * %m - month in ymd and ymcd mode
+ * %Y - year in ymd and ymcw mode
+ * %m - month in ymd and ymcw mode
  * %d - day in ymd mode
- * %c - week of the month in ymcd mode
- * %w - numeric weekday in ymcd mode
+ * %c - week of the month in ymcw mode
+ * %w - numeric weekday in ymcw mode
  *
  * If FMT is NULL the standard format for each calendric system is used,
  * that is:
  * - %Y-%m-%d for YMD dates
- * - %Y-%m-%c-%d for YMCD dates
+ * - %Y-%m-%c-%w for YMCW dates
  * - %Y-%m-%d%u for YMDU dates */
 DECLF struct dt_d_s dt_strpd(const char *str, const char *fmt);
 /**
@@ -133,6 +159,22 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s d);
 /**
  * Like time() but return the current date in the desired format. */
 DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
+
+/**
+ * Convert D to another calendric system, specified by TGTTYP. */
+DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d);
+
+/**
+ * Get the wday component of a date. */
+DECLF dt_dow_t dt_get_wday(struct dt_d_s d);
+
+/**
+ * Get the day of the month component of a date. */
+DECLF int dt_get_mday(struct dt_d_s d);
+
+/**
+ * Get the INCREM-th next day in the current calendric system. */
+DECLF struct dt_d_s dt_next_day(struct dt_d_s d, int increm);
 
 
 #if defined INCLUDE_DATE_CORE_IMPL

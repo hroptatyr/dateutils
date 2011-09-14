@@ -40,6 +40,8 @@
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
+#include "date-core.h"
+#include "date-io.h"
 
 /* idates are normally just YYYYMMDD just in an integer, but we haven't
  * switched to that system yet */
@@ -50,75 +52,17 @@ typedef uint32_t iddur_t;
 
 typedef uint8_t __skipspec_t;
 
-typedef enum {
-	DOW_SUNDAY,
-	DOW_MONDAY,
-	DOW_TUESDAY,
-	DOW_WEDNESDAY,
-	DOW_THURSDAY,
-	DOW_FRIDAY,
-	DOW_SATURDAY,
-	DOW_MIRACLEDAY
-} __dow_t;
-
-
-static void
-pr_ts(const char *fmt, idate_t dt)
-{
-	struct tm tm;
-	static char b[32];
-	time_t ts = dt * 86400;
-	size_t len;
-
-	memset(&tm, 0, sizeof(tm));
-	(void)gmtime_r(&ts, &tm);
-	len = strftime(b, sizeof(b), fmt, &tm);
-	b[len++] = '\n';
-	fwrite(b, sizeof(*b), len, stdout);
-	return;
-}
-
-static idate_t
-sc_ts(const char *s, const char *fmt)
-{
-	struct tm tm;
-
-	/* basic sanity check */
-	if (s == NULL) {
-		return time(NULL) / 86400;
-	}
-	/* wipe tm */
-	memset(&tm, 0, sizeof(tm));
-	(void)strptime(s, fmt, &tm);
-	return mktime(&tm) / 86400;
-}
-
-static inline __dow_t
-__dayofweek(idate_t dt)
-{
-	/* we know that 15/01/1984 was a sunday, and this is 442972800, */
-	const time_t anchor = 442972800 / 86400;
-	/* fucking intel compiler insists on negative values for % so
-	 * branch here */
-	if (dt > anchor) {
-		dt = dt - anchor;
-	} else {
-		dt = anchor - dt;
-	}
-	return (__dow_t)(dt % 7);
-}
-
 
 /* skip system */
 static int
-skipp(__skipspec_t ss, idate_t dt)
+skipp(__skipspec_t ss, struct dt_d_s dt)
 {
-	__dow_t dow;
+	dt_dow_t dow;
 	/* common case first */
 	if (ss == 0) {
 		return 0;
 	}
-	dow = __dayofweek(dt);
+	dow = dt_get_wday(dt);
 	/* just check if the bit in the bitset `skip' is set */
 	return (ss & (1 << dow)) != 0;
 }
@@ -137,7 +81,7 @@ __toupper(int c)
 	return c & ~0x20;
 }
 
-static __dow_t
+static dt_dow_t
 __parse_wd(const char *str)
 {
 #define ILEA(a, b)	(((a) << 8) | (b))
@@ -148,62 +92,63 @@ __parse_wd(const char *str)
 	case ILEA('M', 'O'):
 	case ILEA('M', 0):
 		/* monday */
-		return DOW_MONDAY;
+		return DT_MONDAY;
 	case ILEA('T', 'U'):
 		/* tuesday */
-		return DOW_TUESDAY;
+		return DT_TUESDAY;
 	case ILEA('W', 'E'):
 	case ILEA('W', 0):
 		/* wednesday */
-		return DOW_WEDNESDAY;
+		return DT_WEDNESDAY;
 	case ILEA('T', 'H'):
 		/* thursday */
-		return DOW_THURSDAY;
+		return DT_THURSDAY;
 	case ILEA('F', 'R'):
 	case ILEA('F', 0):
 		/* friday */
-		return DOW_FRIDAY;
+		return DT_FRIDAY;
 	case ILEA('S', 'A'):
 	case ILEA('A', 0):
 		/* saturday */
-		return DOW_SATURDAY;
+		return DT_SATURDAY;
 	case ILEA('S', 'U'):
+	case ILEA('S', 0):
 		/* sunday */
-		return DOW_SUNDAY;
+		return DT_SUNDAY;
 	default:
-		return DOW_MIRACLEDAY;
+		return DT_MIRACLEDAY;
 	}
 }
 
 static __skipspec_t
-__skip_dow(__skipspec_t ss, __dow_t wd)
+__skip_dow(__skipspec_t ss, dt_dow_t wd)
 {
 	switch (wd) {
-	case DOW_MONDAY:
+	case DT_MONDAY:
 		/* monday */
 		ss |= SKIP_MON;
 		break;
-	case DOW_TUESDAY:
+	case DT_TUESDAY:
 		/* tuesday */
 		ss |= SKIP_TUE;
 		break;
-	case DOW_WEDNESDAY:
+	case DT_WEDNESDAY:
 		/* wednesday */
 		ss |= SKIP_WED;
 		break;
-	case DOW_THURSDAY:
+	case DT_THURSDAY:
 		/* thursday */
 		ss |= SKIP_THU;
 		break;
-	case DOW_FRIDAY:
+	case DT_FRIDAY:
 		/* friday */
 		ss |= SKIP_FRI;
 		break;
-	case DOW_SATURDAY:
+	case DT_SATURDAY:
 		/* saturday */
 		ss |= SKIP_SAT;
 		break;
-	case DOW_SUNDAY:
+	case DT_SUNDAY:
 		/* sunday */
 		ss |= SKIP_SUN;
 		break;
@@ -214,9 +159,9 @@ __skip_dow(__skipspec_t ss, __dow_t wd)
 static __skipspec_t
 __skip_str(__skipspec_t ss, const char *str)
 {
-	__dow_t tmp;
+	dt_dow_t tmp;
 
-	if ((tmp = __parse_wd(str)) < DOW_MIRACLEDAY) {
+	if ((tmp = __parse_wd(str)) < DT_MIRACLEDAY) {
 		ss = __skip_dow(ss, tmp);
 	} else {
 		int s1 = __toupper(str[0]);
@@ -235,7 +180,7 @@ static __skipspec_t
 __skip_1spec(__skipspec_t ss, const char *spec)
 {
 	char *tmp;
-	__dow_t from, till;
+	dt_dow_t from, till;
 
 	if ((tmp = strchr(spec, '-')) == NULL) {
 		return __skip_str(ss, spec);
@@ -245,7 +190,7 @@ __skip_1spec(__skipspec_t ss, const char *spec)
 	from = __parse_wd(spec);
 	till = __parse_wd(tmp + 1);
 	for (int d = from, e = till >= from ? till : till + 7; d <= e; d++) {
-		ss = __skip_dow(ss, (__dow_t)(d % 7));
+		ss = __skip_dow(ss, (dt_dow_t)(d % 7));
 	}
 	return ss;
 }
@@ -282,11 +227,11 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	static const char dflt_fmt[] = "%F";
-	idate_t fst, lst;
+	struct dt_d_s fst, lst;
 	iddur_t ite = 1;
-	const char *ifmt = dflt_fmt;
-	const char *ofmt = dflt_fmt;
+	char **ifmt;
+	size_t nifmt;
+	char *ofmt;
 	int res = 0;
 	__skipspec_t ss = 0;
 
@@ -294,12 +239,14 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	}
-	if (argi->format_given) {
-		ofmt = argi->format_arg;
+	/* assign ofmt/ifmt */
+	ofmt = argi->format_arg;
+	if (argi->backslash_escapes_given) {
+		dt_io_unescape(ofmt);
 	}
-	if (argi->input_format_given) {
-		ifmt = argi->input_format_arg;
-	}
+	nifmt = argi->input_format_given;
+	ifmt = argi->input_format_arg;
+
 	for (size_t i = 0; i < argi->skip_given; i++) {
 		ss = set_skip(ss, argi->skip_arg[i]);
 	}
@@ -310,25 +257,35 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	case 1:
-		fst = sc_ts(argi->inputs[0], ifmt);
-		lst = sc_ts(NULL, ifmt);
+		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
+		lst = dt_date(DT_YMD);
 		break;
 	case 2:
-		fst = sc_ts(argi->inputs[0], ifmt);
-		lst = sc_ts(argi->inputs[1], ifmt);
+		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
+		lst = dt_io_strpd(argi->inputs[1], ifmt, nifmt);
 		break;
 	case 3:
-		fst = sc_ts(argi->inputs[0], ifmt);
+		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
 		ite = strtol(argi->inputs[1], NULL, 10);
-		lst = sc_ts(argi->inputs[2], ifmt);
+		lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt);
 		break;
 	}
 
-	while (fst <= lst) {
+	/* convert to bizdas */
+	if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
+	    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
+		res = 1;
+		fputs("cannot convert calendric system internally\n", stderr);
+		goto out;
+	}
+
+	while (fst.daisy <= lst.daisy) {
 		if (!skipp(ss, fst)) {
-			pr_ts(ofmt, fst);
+			char buf[64];
+			size_t len = dt_strfd(buf, sizeof(buf), ofmt, fst);
+			fwrite(buf, sizeof(*buf), len, stdout);
 		}
-		fst += ite;
+		fst.daisy += ite;
 	}
 out:
 	cmdline_parser_free(argi);
