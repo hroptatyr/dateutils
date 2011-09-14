@@ -48,7 +48,7 @@
 typedef int32_t idate_t;
 /* iddurs are normally YYYYMMWWDD durations just in an integer, but we
  * haven't switched to that system yet */
-typedef uint32_t iddur_t;
+typedef int32_t iddur_t;
 
 typedef uint8_t __skipspec_t;
 
@@ -213,6 +213,49 @@ set_skip(__skipspec_t ss, const char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
+static void
+prnt_date(struct dt_d_s d, const char *fmt)
+{
+	char buf[256];
+	size_t len = dt_strfd(buf, sizeof(buf), fmt, d);
+	fwrite(buf, sizeof(*buf), len, stdout);
+	return;
+}
+
+
+#define MAGIC_CHAR	'~'
+
+static void
+fixup_argv(int argc, char *argv[])
+{
+	size_t i = 0;
+
+	while (++i < argc) {
+		if (argv[i][0] != '-') {
+			break;
+		}
+	}
+	/* now take a closer look */
+	while (++i < argc) {
+		if (argv[i][0] == '-' &&
+		    argv[i][1] >= '1' && argv[i][1] <= '9') {
+			/* assume this is meant to be an integer
+			 * as opposed to an option that begins with a digit */
+			argv[i][0] = MAGIC_CHAR;
+		}
+	}
+	return;
+}
+
+static inline void
+unfixup_arg(char *arg)
+{
+	if (UNLIKELY(arg[0] == MAGIC_CHAR)) {
+		arg[0] = '-';
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -235,6 +278,8 @@ main(int argc, char *argv[])
 	int res = 0;
 	__skipspec_t ss = 0;
 
+	/* fixup negative numbers, A -1 B for dates A and B */
+	fixup_argv(argc, argv);
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
@@ -266,7 +311,11 @@ main(int argc, char *argv[])
 		break;
 	case 3:
 		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
-		ite = strtol(argi->inputs[1], NULL, 10);
+		unfixup_arg(argi->inputs[1]);
+		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
+			fputs("increment must not be naught\n", stderr);
+			goto out;
+		}
 		lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt);
 		break;
 	}
@@ -279,13 +328,43 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	while (fst.daisy <= lst.daisy) {
-		if (!skipp(ss, fst)) {
-			char buf[64];
-			size_t len = dt_strfd(buf, sizeof(buf), ofmt, fst);
-			fwrite(buf, sizeof(*buf), len, stdout);
+	if (fst.daisy <= lst.daisy) {
+		if (ite < 0) {
+			/* different meaning now, we need to compute the
+			 * beginning rather than the end */
+			dt_daisy_t tmp = lst.daisy;
+
+			ite = -ite;
+			while ((tmp -= ite) >= fst.daisy);
+			fst.daisy = tmp + ite;
 		}
-		fst.daisy += ite;
+		do {
+			if (!skipp(ss, fst)) {
+				prnt_date(fst, ofmt);
+				fst.daisy += ite;
+			} else {
+				fst.daisy++;
+			}
+		} while (fst.daisy <= lst.daisy);
+	} else {
+		if (ite > 0) {
+			/* different meaning now, we need to compute the
+			 * end rather than the beginning */
+			dt_daisy_t tmp = lst.daisy;
+
+			while ((tmp += ite) <= fst.daisy);
+			fst.daisy = tmp - ite;
+		} else {
+			ite = -ite;
+		}
+		do {
+			if (!skipp(ss, fst)) {
+				prnt_date(fst, ofmt);
+				fst.daisy -= ite;
+			} else {
+				fst.daisy--;
+			}
+		} while (fst.daisy >= lst.daisy);
 	}
 out:
 	cmdline_parser_free(argi);
