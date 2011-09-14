@@ -112,6 +112,7 @@ __parse_wd(const char *str)
 		/* saturday */
 		return DT_SATURDAY;
 	case ILEA('S', 'U'):
+	case ILEA('S', 0):
 		/* sunday */
 		return DT_SUNDAY;
 	default:
