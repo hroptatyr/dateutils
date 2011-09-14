@@ -491,6 +491,9 @@ __daisy_get_year(dt_daisy_t d)
 /* given days since 1917-01-01 (Mon), compute a year */
 	int by;
 
+	if (UNLIKELY(d == 0)) {
+		return 0;
+	}
 	for (by = d / 365; __jan00_daisy(TO_YEAR(by)) >= d; by--);
 	return TO_YEAR(by);
 }
@@ -504,6 +507,9 @@ __daisy_to_ymd(dt_daisy_t this)
 	int m;
 	int d;
 
+	if (UNLIKELY(this == 0)) {
+		return (dt_ymd_t){.u = 0};
+	}
 	y = __daisy_get_year(this);
 	j00 = __jan00_daisy(y);
 	doy = this - j00;
@@ -980,6 +986,7 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		res.ymd = dt_conv_to_ymd(d);
 		break;
 	case DT_YMCD:
+		break;
 	case DT_DAISY:
 		res.daisy = dt_conv_to_daisy(d);
 		break;
