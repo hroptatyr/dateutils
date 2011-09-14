@@ -1,0 +1,109 @@
+\input texinfo  @c -*-texinfo-*-
+@setfilename datetools.info
+@comment  node-name,  next,  previous,  up
+
+@ifinfo
+@dircategory datetools
+@direntry
+* datetools: (datetools).	Command line tools to fiddle with dates.
+@end direntry
+
+This manual documents the datetools package.
+
+Copyright @copyright{} 2011 Sebastian Freundt.
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included
+in the section entitled "GNU Free Documentation License".
+@end ifinfo
+@c
+@setchapternewpage odd
+@settitle datetools User's Manual
+@c
+@titlepage
+@sp 6
+@center @titlefont{datetools User's Manual}
+@sp 4
+@sp 1
+@sp 1
+@center September 2011
+@sp 5
+@center Sebastian Freundt
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2011 Sebastian Freundt.
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included
+in the section entitled "GNU Free Documentation License".
+@end titlepage
+@page
+
+@node Top, Introduction,, (dir)
+@top datetools
+
+datetools are a bunch of tools that revolve around fiddling with dates
+and times in the command line with a strong focus on use cases that
+arise when dealing with large amounts of financial data.
+
+@menu
+* Introduction::        
+* Calendars::           
+* strptime::            Command line version of the C function
+* dseq::                Generate sequences of dates
+* dcal::                Convert dates between calendars
+* dtest::               Compare dates
+@end menu
+
+@include strptime.texi
+@include dcal.texi
+@include dseq.texi
+@include dtest.texi
+
+@c node, next, prev, up
+@node Introduction, Calendars, Top, Top
+
+The datetools package is an attempt to provide a comprehensive set of
+command line tools that behave intuitively, support a similar variety of
+inputs, allow for normalised output and, most importantly, cover nearly
+all tasks that arise whilst dealing with huge amounts of dates and
+unusual calendars.
+
+In day to day business, the authors have run across a plethora of
+approaches to tackle seemingly simple problems.  When the command line
+is a necessity most of these involve perl or awk, which suffer from bad
+maintainability simply because those tools weren't made to process dates
+and times in particular, and for the same reason those approaches are
+anything but fast.
+
+And conversely, good maintainability and fast processing is often seen
+in integrated systems, such as R or database solutions but they come at
+a price: little flexibility.  It's very uncommon to import billions of
+dates into a database just to compare if they are greater than or equal
+to a given date.  Besides, most of the time those billions of dates come
+from external sources and have to be brought into shape before or whilst
+importing them into an integrated system.
+
+
+@c node, next, prev, up
+@node Calendars, strptime, Introduction, Top
+
+
+
+
+@summarycontents
+@contents
+@bye
+
+
+@c Remember to delete these lines before creating the info file.
+@iftex
+@bindingoffset = 0.5in
+@parindent = 0pt
+@end iftex

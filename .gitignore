@@ -25,6 +25,4 @@ config.h
 stamp-h1
 .deps
 .libs
-
-##binaries and shite
-truffle
+texinfo.tex
