@@ -459,6 +459,14 @@ __ymcd_get_day(dt_ymcd_t this)
 	return res;
 }
 
+static dt_ymcd_t
+__ymd_to_ymcd(dt_ymd_t d)
+{
+	int c = __ymd_get_count(d);
+	int w = __ymd_get_wday(d);
+	return (dt_ymcd_t){.y = d.y, .m = d.m, .c = c, .d = w};
+}
+
 static dt_daisy_t
 __ymd_to_daisy(dt_ymd_t d)
 {
@@ -555,6 +563,29 @@ __daisy_to_ymd(dt_daisy_t this)
 	return (dt_ymd_t){.y = y, .m = m, .d = d};
 }
 
+static dt_ymcd_t
+__daisy_to_ymcd(dt_daisy_t this)
+{
+	dt_ymd_t tmp;
+	int c;
+	int w;
+
+	if (UNLIKELY(this == 0)) {
+		return (dt_ymcd_t){.u = 0};
+	}
+	tmp = __daisy_to_ymd(this);
+	c = __ymd_get_count(tmp);
+	w = __daisy_get_wday(this);
+	return (dt_ymcd_t){.y = tmp.y, .m = tmp.m, .c = c, .d = w};
+}
+
+static dt_ymd_t
+__ymcd_to_ymd(dt_ymcd_t d)
+{
+	int md = __ymcd_get_day(d);
+	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
+}
+
 
 /* converting accessors */
 DEFUN dt_dow_t
@@ -631,7 +662,7 @@ dt_conv_to_ymd(struct dt_d_s this)
 	case DT_YMD:
 		return this.ymd;
 	case DT_YMCD:
-		break;
+		return __ymcd_to_ymd(this.ymcd);
 	case DT_DAISY:
 		return __daisy_to_ymd(this.daisy);
 	case DT_BIZDA:
@@ -641,6 +672,25 @@ dt_conv_to_ymd(struct dt_d_s this)
 		break;
 	}
 	return (dt_ymd_t){.u = 0};
+}
+
+static dt_ymcd_t
+dt_conv_to_ymcd(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_to_ymcd(this.ymd);
+	case DT_YMCD:
+		return this.ymcd;
+	case DT_DAISY:
+		return __daisy_to_ymcd(this.daisy);
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return (dt_ymcd_t){.u = 0};
 }
 
 
@@ -1008,6 +1058,7 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		res.ymd = dt_conv_to_ymd(d);
 		break;
 	case DT_YMCD:
+		res.ymcd = dt_conv_to_ymcd(d);
 		break;
 	case DT_DAISY:
 		res.daisy = dt_conv_to_daisy(d);
