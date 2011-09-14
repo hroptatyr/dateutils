@@ -284,8 +284,10 @@ main(int argc, char *argv[])
 			char buf[64];
 			size_t len = dt_strfd(buf, sizeof(buf), ofmt, fst);
 			fwrite(buf, sizeof(*buf), len, stdout);
+			fst.daisy += ite;
+		} else {
+			fst.daisy++;
 		}
-		fst.daisy += ite;
 	}
 out:
 	cmdline_parser_free(argi);
