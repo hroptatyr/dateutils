@@ -30,7 +30,9 @@ dt_io_unescape(char *s)
 	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
 	char *p, *q;
 
-	if ((p = q = strchr(s, '\\'))) {
+	if (UNLIKELY(s == NULL)) {
+		return;
+	} else if ((p = q = strchr(s, '\\'))) {
 		do {
 			if (*p != '\\' || !*++p) {
 				*q++ = *p++;
