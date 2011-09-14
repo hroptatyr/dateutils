@@ -449,9 +449,35 @@ __ymcd_get_day(dt_ymcd_t this)
 	return res;
 }
 
+static dt_daisy_t
+__ymd_to_daisy(dt_ymd_t d)
+{
+/* compute days since 1917-01-01 (Mon),
+ * if year slot is absent in D compute the day in the year of D instead. */
+	uint32_t res = __mon_yday[d.m] + d.d;
+	int dy = (d.y - DT_DAISY_BASE_YEAR);
+
+	if (UNLIKELY(dy < 0)) {
+		return 0;
+	}
+	res += dy * 365 + dy / 4;
+	if (UNLIKELY(dy % 4 == 3)) {
+		res += (__mon_yday[0] >> (d.m)) & 1;
+	}
+	return res;
+}
+
+static dt_dow_t
+__daisy_get_wday(dt_daisy_t d)
+{
+/* daisy wdays are simple because the base year is chosen so that day 0
+ * in the daisy calendar is a sunday */
+	return (dt_dow_t)(d % 7);
+}
+
 
 /* converting accessors */
-static dt_dow_t
+DEFUN dt_dow_t
 dt_get_wday(struct dt_d_s this)
 {
 	switch (this.typ) {
@@ -459,14 +485,16 @@ dt_get_wday(struct dt_d_s this)
 		return __ymd_get_wday(this.ymd);
 	case DT_YMCD:
 		return (dt_dow_t)this.ymcd.d;
+	case DT_DAISY:
+		return __daisy_get_wday(this.daisy);
 	default:
 	case DT_UNK:
 		return DT_MIRACLEDAY;
 	}
 }
 
-static int
-dt_get_day(struct dt_d_s this)
+DEFUN int
+dt_get_mday(struct dt_d_s this)
 {
 	if (LIKELY(this.typ == DT_YMD)) {
 		return this.ymd.d;
@@ -493,6 +521,31 @@ dt_get_count(struct dt_d_s this)
 	case DT_UNK:
 		return 0;
 	}
+}
+
+
+/* converters */
+static struct dt_d_s
+dt_conv_to_daisy(struct dt_d_s this)
+{
+	struct dt_d_s res = {.typ = DT_DAISY};
+
+	switch (this.typ) {
+	case DT_YMD:
+		res.daisy = __ymd_to_daisy(this.ymd);
+		break;
+	case DT_YMCD:
+		break;
+	case DT_DAISY:
+		return this;
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		res.typ = DT_UNK;
+		break;
+	}
+	return res;
 }
 
 
@@ -736,7 +789,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				buf[res++] = '-';
 			case 'd':
 				/* ymd mode check? */
-				d = dt_get_day(this);
+				d = dt_get_mday(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'w':
@@ -833,6 +886,42 @@ dt_date(dt_dtyp_t outtyp)
 		res.u = 0;
 	}
 	return res;
+}
+
+DEFUN struct dt_d_s
+dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
+{
+	struct dt_d_s res = {.typ = DT_UNK};
+
+	switch (tgttyp) {
+	case DT_YMD:
+	case DT_YMCD:
+	case DT_DAISY:
+		res = dt_conv_to_daisy(d);
+		break;
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return res;
+}
+
+DEFUN struct dt_d_s
+dt_next_day(struct dt_d_s d, int increm)
+{
+	switch (d.typ) {
+	case DT_DAISY:
+		d.daisy += increm;
+		break;
+	case DT_UNK:
+	default:
+		d.typ = DT_UNK;
+		d.u = 0;
+		break;
+	}
+	return d;
 }
 
 /* date-core.c ends here */
