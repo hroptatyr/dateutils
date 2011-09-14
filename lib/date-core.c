@@ -331,6 +331,16 @@ __get_jan01_block(int year)
 	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
 }
 
+static inline dt_daisy_t
+__jan00_daisy(int year)
+{
+/* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
+#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
+#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
+	int by = TO_BASE(year);
+	return by * 365 + by / 4;
+}
+
 static inline dt_dow_t
 __get_wday(int year)
 {
@@ -449,9 +459,105 @@ __ymcd_get_day(dt_ymcd_t this)
 	return res;
 }
 
+static dt_daisy_t
+__ymd_to_daisy(dt_ymd_t d)
+{
+/* compute days since 1917-01-01 (Mon),
+ * if year slot is absent in D compute the day in the year of D instead. */
+	dt_daisy_t res;
+	int dy = TO_BASE(d.y);
+
+	if (UNLIKELY(dy < 0)) {
+		return 0;
+	}
+	res = __jan00_daisy(d.y);
+	res += __mon_yday[d.m] + d.d;
+	if (UNLIKELY(__leapp(d.y))) {
+		res += (__mon_yday[0] >> (d.m)) & 1;
+	}
+	return res;
+}
+
+static dt_daisy_t
+__ymcd_to_daisy(dt_ymcd_t d)
+{
+/* compute days since 1917-01-01 (Mon),
+ * if year slot is absent in D compute the day in the year of D instead. */
+	dt_daisy_t res;
+	int dy = TO_BASE(d.y);
+
+	if (UNLIKELY(dy < 0)) {
+		return 0;
+	}
+	res = __jan00_daisy(d.y);
+	res += __mon_yday[d.m];
+	/* add up days too */
+	res += __ymcd_get_day(d);
+	if (UNLIKELY(__leapp(d.y))) {
+		res += (__mon_yday[0] >> (d.m)) & 1;
+	}
+	return res;
+}
+
+static dt_dow_t
+__daisy_get_wday(dt_daisy_t d)
+{
+/* daisy wdays are simple because the base year is chosen so that day 0
+ * in the daisy calendar is a sunday */
+	return (dt_dow_t)(d % 7);
+}
+
+static int
+__daisy_get_year(dt_daisy_t d)
+{
+/* given days since 1917-01-01 (Mon), compute a year */
+	int by;
+
+	if (UNLIKELY(d == 0)) {
+		return 0;
+	}
+	for (by = d / 365; __jan00_daisy(TO_YEAR(by)) >= d; by--);
+	return TO_YEAR(by);
+}
+
+static dt_ymd_t
+__daisy_to_ymd(dt_daisy_t this)
+{
+	dt_daisy_t j00;
+	int doy;
+	int y;
+	int m;
+	int d;
+
+	if (UNLIKELY(this == 0)) {
+		return (dt_ymd_t){.u = 0};
+	}
+	y = __daisy_get_year(this);
+	j00 = __jan00_daisy(y);
+	doy = this - j00;
+	for (m = 1; m < 12 && doy > __mon_yday[m + 1]; m++);
+	d = doy - __mon_yday[m];
+
+	/* fix up leap years */
+	if (UNLIKELY(__leapp(y))) {
+		if ((__mon_yday[0] >> (m)) & 1) {
+			if (UNLIKELY(doy == 60)) {
+				m = 2;
+				d = 29;
+			} else if (UNLIKELY(doy == __mon_yday[m] + 1)) {
+				m--;
+				d = doy - __mon_yday[m] - 1;
+			} else {
+				d--;
+			}
+		}
+	}
+	return (dt_ymd_t){.y = y, .m = m, .d = d};
+}
+
 
 /* converting accessors */
-static dt_dow_t
+DEFUN dt_dow_t
 dt_get_wday(struct dt_d_s this)
 {
 	switch (this.typ) {
@@ -459,14 +565,16 @@ dt_get_wday(struct dt_d_s this)
 		return __ymd_get_wday(this.ymd);
 	case DT_YMCD:
 		return (dt_dow_t)this.ymcd.d;
+	case DT_DAISY:
+		return __daisy_get_wday(this.daisy);
 	default:
 	case DT_UNK:
 		return DT_MIRACLEDAY;
 	}
 }
 
-static int
-dt_get_day(struct dt_d_s this)
+DEFUN int
+dt_get_mday(struct dt_d_s this)
 {
 	if (LIKELY(this.typ == DT_YMD)) {
 		return this.ymd.d;
@@ -493,6 +601,46 @@ dt_get_count(struct dt_d_s this)
 	case DT_UNK:
 		return 0;
 	}
+}
+
+
+/* converters */
+static dt_daisy_t
+dt_conv_to_daisy(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_to_daisy(this.ymd);
+	case DT_YMCD:
+		return __ymcd_to_daisy(this.ymcd);
+	case DT_DAISY:
+		return this.daisy;
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return 0;
+}
+
+static dt_ymd_t
+dt_conv_to_ymd(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return this.ymd;
+	case DT_YMCD:
+		break;
+	case DT_DAISY:
+		return __daisy_to_ymd(this.daisy);
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return (dt_ymd_t){.u = 0};
 }
 
 
@@ -695,12 +843,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	}
 
 	switch (this.typ) {
-	default:
-	case DT_UNK:
-		goto out;
 	case DT_YMD:
 		y = this.ymd.y;
 		m = this.ymd.m;
+		d = this.ymd.d;
 		if (fmt == NULL) {
 			fmt = "%F\n";
 		}
@@ -711,7 +857,24 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 		if (fmt == NULL) {
 			fmt = "%Y-%m-%c-%w\n";
 		}
+		d = 0;
 		break;
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		y = tmp.y;
+		m = tmp.m;
+		d = tmp.d;
+		if (fmt == NULL) {
+			/* subject to change */
+			fmt = "%F\n";
+		}
+		break;
+	}
+	case DT_BIZDA:
+		goto out;
+	default:
+	case DT_UNK:
+		goto out;
 	}
 
 	for (const char *fp = fmt; *fp && res < bsz; fp++) {
@@ -736,7 +899,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				buf[res++] = '-';
 			case 'd':
 				/* ymd mode check? */
-				d = dt_get_day(this);
+				d = d ?: dt_get_mday(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'w':
@@ -833,6 +996,46 @@ dt_date(dt_dtyp_t outtyp)
 		res.u = 0;
 	}
 	return res;
+}
+
+DEFUN struct dt_d_s
+dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
+{
+	struct dt_d_s res;
+
+	switch ((res.typ = tgttyp)) {
+	case DT_YMD:
+		res.ymd = dt_conv_to_ymd(d);
+		break;
+	case DT_YMCD:
+		break;
+	case DT_DAISY:
+		res.daisy = dt_conv_to_daisy(d);
+		break;
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		res.typ = DT_UNK;
+		break;
+	}
+	return res;
+}
+
+DEFUN struct dt_d_s
+dt_next_day(struct dt_d_s d, int increm)
+{
+	switch (d.typ) {
+	case DT_DAISY:
+		d.daisy += increm;
+		break;
+	case DT_UNK:
+	default:
+		d.typ = DT_UNK;
+		d.u = 0;
+		break;
+	}
+	return d;
 }
 
 /* date-core.c ends here */

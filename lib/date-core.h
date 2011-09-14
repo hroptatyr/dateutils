@@ -47,7 +47,7 @@ extern "C" {
 #endif	/* __cplusplus */
 
 #if !defined DECLF
-# define DECLF	static
+# define DECLF	static __attribute__((unused))
 # define DEFUN	static
 # define INCLUDE_DATE_CORE_IMPL
 #elif !defined DEFUN
@@ -58,6 +58,8 @@ typedef enum {
 	DT_UNK,
 	DT_YMD,
 	DT_YMCD,
+	DT_DAISY,
+	DT_BIZDA,
 } dt_dtyp_t;
 
 /** ymds
@@ -85,12 +87,36 @@ typedef union {
 	};
 } dt_ymcd_t;
 
+/** daysi
+ * daisys are days since X, 1917-01-01 here */
+typedef uint32_t dt_daisy_t;
+#define DT_DAISY_BASE_YEAR	(1917)
+
+/** bizda
+ * bizdas is a calendar that counts business days before or after a
+ * certain day in the month, mostly ultimo. */
+typedef union {
+	uint32_t u;
+	struct {
+		/* key day, use 00 for ultimo */
+		unsigned int x:5;
+		/* before or after */
+		unsigned int ba:1;
+		unsigned int bd:5;
+		unsigned int m:4;
+		unsigned int y:16;
+		/* 1 bits left */
+	};
+} dt_bizda_t;
+
 struct dt_d_s {
 	dt_dtyp_t typ;
 	union {
 		uint32_t u;
 		dt_ymd_t ymd;
 		dt_ymcd_t ymcd;
+		dt_daisy_t daisy;
+		dt_bizda_t bizda;
 	};
 };
 
@@ -133,6 +159,22 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s d);
 /**
  * Like time() but return the current date in the desired format. */
 DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
+
+/**
+ * Convert D to another calendric system, specified by TGTTYP. */
+DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d);
+
+/**
+ * Get the wday component of a date. */
+DECLF dt_dow_t dt_get_wday(struct dt_d_s d);
+
+/**
+ * Get the day of the month component of a date. */
+DECLF int dt_get_mday(struct dt_d_s d);
+
+/**
+ * Get the INCREM-th next day in the current calendric system. */
+DECLF struct dt_d_s dt_next_day(struct dt_d_s d, int increm);
 
 
 #if defined INCLUDE_DATE_CORE_IMPL
