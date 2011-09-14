@@ -435,8 +435,14 @@ __ymd_get_count(dt_ymd_t this)
 	return (this.d - 1) / 7 + 1;
 }
 
+static dt_dow_t
+__ymcw_get_wday(dt_ymcw_t this)
+{
+	return (dt_dow_t)this.w;
+}
+
 static int
-__ymcd_get_day(dt_ymcd_t this)
+__ymcw_get_day(dt_ymcw_t this)
 {
 	int wd01;
 	int wd_jan01;
@@ -450,13 +456,21 @@ __ymcd_get_day(dt_ymcd_t this)
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
 	 * so the first WDx with WDx > WD1 is on (WDx - WD1) + 1 */
-	res = (this.d + 7 - wd01) % 7 + 1 + 7 * (this.c - 1);
+	res = (this.w + 7 - wd01) % 7 + 1 + 7 * (this.c - 1);
 	/* not all months have a 5th X, so check for this */
 	if (res > __get_mdays(this.y, this.m)) {
 		 /* 5th = 4th in that case */
 		res -= 7;
 	}
 	return res;
+}
+
+static dt_ymcw_t
+__ymd_to_ymcw(dt_ymd_t d)
+{
+	int c = __ymd_get_count(d);
+	int w = __ymd_get_wday(d);
+	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
 }
 
 static dt_daisy_t
@@ -479,7 +493,7 @@ __ymd_to_daisy(dt_ymd_t d)
 }
 
 static dt_daisy_t
-__ymcd_to_daisy(dt_ymcd_t d)
+__ymcw_to_daisy(dt_ymcw_t d)
 {
 /* compute days since 1917-01-01 (Mon),
  * if year slot is absent in D compute the day in the year of D instead. */
@@ -492,7 +506,7 @@ __ymcd_to_daisy(dt_ymcd_t d)
 	res = __jan00_daisy(d.y);
 	res += __mon_yday[d.m];
 	/* add up days too */
-	res += __ymcd_get_day(d);
+	res += __ymcw_get_day(d);
 	if (UNLIKELY(__leapp(d.y))) {
 		res += (__mon_yday[0] >> (d.m)) & 1;
 	}
@@ -555,6 +569,29 @@ __daisy_to_ymd(dt_daisy_t this)
 	return (dt_ymd_t){.y = y, .m = m, .d = d};
 }
 
+static dt_ymcw_t
+__daisy_to_ymcw(dt_daisy_t this)
+{
+	dt_ymd_t tmp;
+	int c;
+	int w;
+
+	if (UNLIKELY(this == 0)) {
+		return (dt_ymcw_t){.u = 0};
+	}
+	tmp = __daisy_to_ymd(this);
+	c = __ymd_get_count(tmp);
+	w = __daisy_get_wday(this);
+	return (dt_ymcw_t){.y = tmp.y, .m = tmp.m, .c = c, .w = w};
+}
+
+static dt_ymd_t
+__ymcw_to_ymd(dt_ymcw_t d)
+{
+	int md = __ymcw_get_day(d);
+	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
+}
+
 
 /* converting accessors */
 DEFUN dt_dow_t
@@ -563,8 +600,8 @@ dt_get_wday(struct dt_d_s this)
 	switch (this.typ) {
 	case DT_YMD:
 		return __ymd_get_wday(this.ymd);
-	case DT_YMCD:
-		return (dt_dow_t)this.ymcd.d;
+	case DT_YMCW:
+		return __ymcw_get_wday(this.ymcw);
 	case DT_DAISY:
 		return __daisy_get_wday(this.daisy);
 	default:
@@ -580,8 +617,8 @@ dt_get_mday(struct dt_d_s this)
 		return this.ymd.d;
 	}
 	switch (this.typ) {
-	case DT_YMCD:
-		return __ymcd_get_day(this.ymcd);
+	case DT_YMCW:
+		return __ymcw_get_day(this.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
@@ -591,8 +628,8 @@ dt_get_mday(struct dt_d_s this)
 static int
 dt_get_count(struct dt_d_s this)
 {
-	if (LIKELY(this.typ == DT_YMCD)) {
-		return this.ymcd.c;
+	if (LIKELY(this.typ == DT_YMCW)) {
+		return this.ymcw.c;
 	}
 	switch (this.typ) {
 	case DT_YMD:
@@ -611,8 +648,8 @@ dt_conv_to_daisy(struct dt_d_s this)
 	switch (this.typ) {
 	case DT_YMD:
 		return __ymd_to_daisy(this.ymd);
-	case DT_YMCD:
-		return __ymcd_to_daisy(this.ymcd);
+	case DT_YMCW:
+		return __ymcw_to_daisy(this.ymcw);
 	case DT_DAISY:
 		return this.daisy;
 	case DT_BIZDA:
@@ -630,8 +667,8 @@ dt_conv_to_ymd(struct dt_d_s this)
 	switch (this.typ) {
 	case DT_YMD:
 		return this.ymd;
-	case DT_YMCD:
-		break;
+	case DT_YMCW:
+		return __ymcw_to_ymd(this.ymcw);
 	case DT_DAISY:
 		return __daisy_to_ymd(this.daisy);
 	case DT_BIZDA:
@@ -641,6 +678,25 @@ dt_conv_to_ymd(struct dt_d_s this)
 		break;
 	}
 	return (dt_ymd_t){.u = 0};
+}
+
+static dt_ymcw_t
+dt_conv_to_ymcw(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_to_ymcw(this.ymd);
+	case DT_YMCW:
+		return this.ymcw;
+	case DT_DAISY:
+		return __daisy_to_ymcw(this.daisy);
+	case DT_BIZDA:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return (dt_ymcw_t){.u = 0};
 }
 
 
@@ -654,6 +710,7 @@ __strpd_std(const char *str)
 	unsigned int m;
 	unsigned int d;
 	unsigned int c;
+	unsigned int w;
 
 	if (sp == NULL) {
 		goto out;
@@ -681,8 +738,8 @@ __strpd_std(const char *str)
 		res.typ = DT_YMD;
 		goto assess;
 	case '-':
-		/* it is a YMCD date */
-		res.typ = DT_YMCD;
+		/* it is a YMCW date */
+		res.typ = DT_YMCW;
 		if ((c = d) > 5) {
 			/* nope, it was bollocks */
 			goto out;
@@ -697,7 +754,7 @@ __strpd_std(const char *str)
 		/* it's fuckered */
 		goto out;
 	}
-	sp = strtoui_lim(&d, sp, 0, 7);
+	sp = strtoui_lim(&w, sp, 0, 7);
 	if (sp == NULL) {
 		/* didn't work, fuck off */
 		res.typ = DT_UNK;
@@ -713,11 +770,11 @@ assess:
 		res.ymd.m = m;
 		res.ymd.d = d;
 		break;
-	case DT_YMCD:
-		res.ymcd.y = y;
-		res.ymcd.m = m;
-		res.ymcd.c = c;
-		res.ymcd.d = d;
+	case DT_YMCW:
+		res.ymcw.y = y;
+		res.ymcw.m = m;
+		res.ymcw.c = c;
+		res.ymcw.w = w;
 		break;
 	}
 out:
@@ -734,6 +791,7 @@ dt_strpd(const char *str, const char *fmt)
 	unsigned int m;
 	unsigned int d;
 	unsigned int c;
+	unsigned int w;
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str);
@@ -763,25 +821,25 @@ dt_strpd(const char *str, const char *fmt)
 				sp = strtoui_lim(&d, sp, 0, 31);
 				break;
 			case 'w':
-				/* ymcd mode */
-				res.typ = DT_YMCD;
-				sp = strtoui_lim(&d, sp, 0, 7);
+				/* ymcw mode */
+				res.typ = DT_YMCW;
+				sp = strtoui_lim(&w, sp, 0, 7);
 				break;
 			case 'c':
-				/* ymcd mode */
-				res.typ = DT_YMCD;
+				/* ymcw mode */
+				res.typ = DT_YMCW;
 				sp = strtoui_lim(&c, sp, 0, 5);
 				break;
 			case 'a':
-				/* ymcd mode! */
+				/* ymcw mode! */
 				sp = strtoarri(
-					&d, sp,
+					&w, sp,
 					__abbr_wday, countof(__abbr_wday));
 				break;
 			case 'A':
-				/* ymcd mode! */
+				/* ymcw mode! */
 				sp = strtoarri(
-					&d, sp,
+					&w, sp,
 					__long_wday, countof(__long_wday));
 				break;
 			case 'b':
@@ -819,11 +877,11 @@ dt_strpd(const char *str, const char *fmt)
 		res.ymd.m = m;
 		res.ymd.d = d;
 		break;
-	case DT_YMCD:
-		res.ymcd.y = y;
-		res.ymcd.m = m;
-		res.ymcd.c = c;
-		res.ymcd.d = d;
+	case DT_YMCW:
+		res.ymcw.y = y;
+		res.ymcw.m = m;
+		res.ymcw.c = c;
+		res.ymcw.w = w;
 		break;
 	}
 	return res;
@@ -851,9 +909,9 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			fmt = "%F\n";
 		}
 		break;
-	case DT_YMCD:
-		y = this.ymcd.y;
-		m = this.ymcd.m;
+	case DT_YMCW:
+		y = this.ymcw.y;
+		m = this.ymcw.m;
 		if (fmt == NULL) {
 			fmt = "%Y-%m-%c-%w\n";
 		}
@@ -903,12 +961,12 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'w':
-				/* ymcd mode check */
+				/* ymcw mode check */
 				d = dt_get_wday(this);
 				res += ui32tostr(buf + res, bsz - res, d, 2);
 				break;
 			case 'c':
-				/* ymcd mode check? */
+				/* ymcw mode check? */
 				c = dt_get_count(this);
 				res += ui32tostr(buf + res, bsz - res, c, 2);
 				break;
@@ -966,7 +1024,7 @@ dt_date(dt_dtyp_t outtyp)
 
 	switch ((res.typ = outtyp)) {
 	case DT_YMD:
-	case DT_YMCD: {
+	case DT_YMCW: {
 		time_t t = time(NULL);
 		struct tm tm;
 		ffff_gmtime(&tm, t);
@@ -976,16 +1034,16 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymd.m = tm.tm_mon;
 			res.ymd.d = tm.tm_mday;
 			break;
-		case DT_YMCD: {
+		case DT_YMCW: {
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
 				.m = tm.tm_mon,
 				.d = tm.tm_mday,
 			};
-			res.ymcd.y = tm.tm_year;
-			res.ymcd.m = tm.tm_mon;
-			res.ymcd.c = __ymd_get_count(tmp);
-			res.ymcd.d = tm.tm_wday;
+			res.ymcw.y = tm.tm_year;
+			res.ymcw.m = tm.tm_mon;
+			res.ymcw.c = __ymd_get_count(tmp);
+			res.ymcw.w = tm.tm_wday;
 			break;
 		}
 		}
@@ -1007,7 +1065,8 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 	case DT_YMD:
 		res.ymd = dt_conv_to_ymd(d);
 		break;
-	case DT_YMCD:
+	case DT_YMCW:
+		res.ymcw = dt_conv_to_ymcw(d);
 		break;
 	case DT_DAISY:
 		res.daisy = dt_conv_to_daisy(d);

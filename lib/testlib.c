@@ -47,7 +47,7 @@ test_date(size_t nruns)
 	char buf[256];
 
 	for (size_t i = 0; i < nruns; i++) {
-		if ((s = dt_date(DT_YMCD)).u == 0) {
+		if ((s = dt_date(DT_YMCW)).u == 0) {
 			break;
 		}
 	}
