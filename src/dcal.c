@@ -54,7 +54,7 @@ dcal_conv(struct dt_d_s d, const char *fmt)
 	case DT_YMD:
 		dt_strfd(buf, sizeof(buf), fmt ?: "%Y-%m-%c-%w\n", d);
 		break;
-	case DT_YMCD:
+	case DT_YMCW:
 		dt_strfd(buf, sizeof(buf), fmt ?: "%Y-%m-%d\n", d);
 		break;
 	default:
