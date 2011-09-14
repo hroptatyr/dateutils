@@ -62,6 +62,9 @@ typedef enum {
 	DT_BIZDA,
 } dt_dtyp_t;
 
+#define DT_MIN_YEAR	(0)
+#define DT_MAX_YEAR	(4095)
+
 /** ymds
  * ymds are just bcd coded concatenations of 8601 dates */
 typedef union {
@@ -69,8 +72,8 @@ typedef union {
 	struct {
 		unsigned int d:5;
 		unsigned int m:4;
-		unsigned int y:16;
-		/* 7 bits left */
+		unsigned int y:12;
+		/* 11 bits left */
 	};
 } dt_ymd_t;
 
@@ -82,8 +85,8 @@ typedef union {
 		unsigned int w:3;
 		unsigned int c:3;
 		unsigned int m:4;
-		unsigned int y:16;
-		/* 6 bits left */
+		unsigned int y:12;
+		/* 10 bits left */
 	};
 } dt_ymcw_t;
 
@@ -104,8 +107,8 @@ typedef union {
 		unsigned int ba:1;
 		unsigned int bd:5;
 		unsigned int m:4;
-		unsigned int y:16;
-		/* 1 bits left */
+		unsigned int y:12;
+		/* 5 bits left */
 	};
 } dt_bizda_t;
 
