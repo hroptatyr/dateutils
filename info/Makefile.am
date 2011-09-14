@@ -9,3 +9,12 @@ info_TEXINFOS +=
 
 TEXI2DVI_TEX = latex
 TEXI2DVI = TEX=$(TEXI2DVI_TEX) texi2dvi -c -s
+
+man1_MANS =
+man1_MANS += strptime.man
+man1_MANS += dcal.man
+man1_MANS += dseq.man
+man1_MANS += dtest.man
+
+%.man: $(top_builddir)/src/%$(EXEEXT)
+	$(HELP2MAN) -o $@ $<

@@ -40,6 +40,8 @@ fi
 AC_PROG_CC(["icc -static-intel" icc gcc cc])
 AC_PROG_CC_C99
 
+AC_CHECK_PROGS([HELP2MAN], [help2man], ["${am_aux_dir}/missing" "help2man"])
+
 ## trivial, no special stuff needed
 apps=" dcal dseq dtest strptime"
 
