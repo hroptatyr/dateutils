@@ -33,7 +33,7 @@ AM_INIT_AUTOMAKE([foreign parallel-tests])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 if test -z "${CFLAGS}"; then
-	CFLAGS="-g -O3 -Wall -Wunused -Wunused-function"
+	CFLAGS="-g -O3 -Wall -Wunused -Wunused-function -Wuninitialized"
 fi
 
 ## the build chain
