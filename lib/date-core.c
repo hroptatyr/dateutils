@@ -801,6 +801,115 @@ dt_conv_to_ymcw(struct dt_d_s this)
 }
 
 
+/* arithmetic */
+static dt_daisy_t
+__daisy_add(dt_daisy_t d, struct dt_dur_s dur)
+{
+	switch (dur.typ) {
+	case DT_DUR_WD:
+		d += dur.wd.w * 7 + dur.wd.d;
+		break;
+	case DT_DUR_MD:
+	case DT_DUR_YM:
+		/* daisies have no notion of years and months */
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	return d;
+}
+
+static dt_ymd_t
+__ymd_add(dt_ymd_t d, struct dt_dur_s dur)
+{
+	unsigned int tgty = 0;
+	unsigned int tgtm = 0;
+	unsigned int tgtd = 0;
+
+	switch (dur.typ) {
+		int tmp;
+		unsigned int mdays;
+	case DT_DUR_YM:
+	case DT_DUR_MD:
+		/* init tmp */
+		switch (dur.typ) {
+		case DT_DUR_YM:
+			tmp = dur.ym.y * 12 + dur.ym.m;
+			break;
+		case DT_DUR_MD:
+			tmp = dur.md.m;
+			break;
+		}
+
+		/* construct new month */
+		tmp += d.m - 1;
+		tgty = tmp / 12 + d.y;
+		tgtm = tmp % 12 + 1;
+
+		/* fixup day */
+		if ((tgtd = d.d) > (mdays = __get_mdays(tgty, tgtm))) {
+			tgtd = mdays;
+		}
+		if (dur.typ == DT_DUR_YM) {
+			/* we dont have to bother about day corrections */
+			break;
+		}
+		/* otherwise we may need to fixup the day, let's do that
+		 * in the next step */
+	case DT_DUR_WD:
+		if (dur.typ == DT_DUR_MD) {
+			/* fallthrough from above */
+			tgtd += dur.md.d;
+		} else {
+			tgtd = d.d + dur.wd.w * 7 + dur.wd.d;
+			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
+		}
+		/* fixup the day */
+		while (tgtd > mdays) {
+			tgtd -= mdays;
+			if (++tgtm > 12) {
+				++tgty;
+				tgtm = 1;
+			}
+			mdays = __get_mdays(tgty, tgtm);
+		}
+		break;
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	d.y = tgty;
+	d.m = tgtm;
+	d.d = tgtd;
+	return d;
+}
+
+static dt_ymcw_t
+__ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
+{
+	switch (dur.typ) {
+	case DT_DUR_YM:
+		d.y += dur.ym.y;
+		d.m += dur.ym.m;
+		break;
+	case DT_DUR_MD:
+		d.y += dur.md.m / 12;
+		d.m += dur.md.m % 12;
+		d.c += dur.md.d / 7;
+		d.w += dur.md.d % 7;
+		break;
+	case DT_DUR_WD:
+		d.c += dur.wd.w;
+		d.w += dur.wd.d;
+		break;
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	return d;
+}
+
+
 /* guessing parsers */
 static struct dt_d_s
 __strpd_std(const char *str)
@@ -1251,12 +1360,21 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 }
 
 DEFUN struct dt_d_s
-dt_next_day(struct dt_d_s d, int increm)
+dt_add(struct dt_d_s d, struct dt_dur_s dur)
 {
 	switch (d.typ) {
 	case DT_DAISY:
-		d.daisy += increm;
+		d.daisy = __daisy_add(d.daisy, dur);
 		break;
+
+	case DT_YMD:
+		d.ymd = __ymd_add(d.ymd, dur);
+		break;
+
+	case DT_YMCW:
+		d.ymcw = __ymcw_add(d.ymcw, dur);
+		break;
+
 	case DT_UNK:
 	default:
 		d.typ = DT_UNK;
@@ -1264,6 +1382,18 @@ dt_next_day(struct dt_d_s d, int increm)
 		break;
 	}
 	return d;
+}
+
+DEFUN struct dt_dur_s
+dt_diff(struct dt_d_s d1, struct dt_d_s d2)
+{
+	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
+}
+
+DEFUN struct dt_dur_s
+dt_neg_dur(struct dt_dur_s dur)
+{
+	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
 }
 
 /* date-core.c ends here */

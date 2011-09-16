@@ -240,6 +240,27 @@ DECLF int dt_get_mday(struct dt_d_s d);
  * For calendars without the notion of a year this will return 0. */
 DECLF unsigned int dt_get_yday(struct dt_d_s d);
 
+/**
+ * Add duration DUR to date D.
+ * The result will be in the calendar as specified by TGTTYP, or if
+ * DT_UNK is given, the calendar of D will be used. */
+DECLF struct dt_d_s
+dt_add(struct dt_d_s d, struct dt_dur_s dur);
+
+/**
+ * Get duration between D1 and D2.
+ * The result will be in the duration type as specified by TGTTYP,
+ * the calendar of D1 will be used, e.g. its month-per-year, days-per-week,
+ * etc. conventions count.
+ * If instead D2 should count, swap D1 and D2 and negate the duration
+ * using `dt_neg_dur()'. */
+DECLF struct dt_dur_s
+dt_diff(struct dt_d_s d1, struct dt_d_s d2);
+
+/**
+ * Negate the duration. */
+DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"
