@@ -805,7 +805,7 @@ dt_conv_to_ymcw(struct dt_d_s this)
 static struct dt_d_s
 __strpd_std(const char *str)
 {
-	struct dt_d_s res = {DT_UNK, 0};
+	struct dt_d_s res = {DT_UNK};
 	const char *sp = str;
 	unsigned int y;
 	unsigned int m;
@@ -887,12 +887,12 @@ out:
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
-	struct dt_d_s res = {DT_UNK, 0};
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-	unsigned int c;
-	unsigned int w;
+	struct dt_d_s res = {DT_UNK};
+	unsigned int y = 0;
+	unsigned int m = 0;
+	unsigned int d = 0;
+	unsigned int c = 0;
+	unsigned int w = 0;
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str);
