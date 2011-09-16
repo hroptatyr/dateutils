@@ -1270,7 +1270,7 @@ dt_strpdur(const char *str)
 		}
 	} while (*sp);
 assess:
-	if (LIKELY(m && d ||
+	if (LIKELY((m && d) ||
 		   (y == 0 && m == 0 && w == 0) ||
 		   (y == 0 && w == 0 && d == 0))) {
 		res.typ = DT_DUR_MD;
