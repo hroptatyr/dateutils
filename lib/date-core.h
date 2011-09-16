@@ -223,11 +223,11 @@ DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
 DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d);
 
 /**
- * Get the wday component of a date. */
+ * Get the weekday of a date. */
 DECLF dt_dow_t dt_get_wday(struct dt_d_s d);
 
 /**
- * Get the day of the month component of a date. */
+ * Get the day of the month of a date. */
 DECLF int dt_get_mday(struct dt_d_s d);
 
 /**

@@ -711,6 +711,7 @@ dt_get_mday(struct dt_d_s this)
 	}
 }
 
+/* too exotic to be public */
 static int
 dt_get_count(struct dt_d_s this)
 {
@@ -882,7 +883,7 @@ out:
 }
 
 
-/* implementations */
+/* parser implementations */
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
