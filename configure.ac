@@ -37,7 +37,7 @@ if test -z "${CFLAGS}"; then
 fi
 
 ## the build chain
-AC_PROG_CC(["icc -static-intel" icc gcc cc])
+AC_PROG_CC([icc gcc tcc cc])
 AC_PROG_CC_C99
 
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
