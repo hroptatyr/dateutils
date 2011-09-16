@@ -68,13 +68,13 @@ strp_d_or_dur(const char *input, const char *const *fmt, size_t nfmt)
 static inline int
 __dp(union __d_or_dur_u d)
 {
-	return d.typ & SECRET_BIT == 0;
+	return (d.typ & SECRET_BIT) == 0;
 }
 
 static inline int
 __durp(union __d_or_dur_u d)
 {
-	return d.typ & SECRET_BIT == SECRET_BIT;
+	return (d.typ & SECRET_BIT) == SECRET_BIT;
 }
 
 static int
