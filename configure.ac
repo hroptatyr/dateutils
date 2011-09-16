@@ -33,12 +33,14 @@ AM_INIT_AUTOMAKE([foreign parallel-tests])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 if test -z "${CFLAGS}"; then
-	CFLAGS="-g -O3 -Wall -Wunused -Wunused-function"
+	CFLAGS="-g -O3 -Wall -Wunused -Wunused-function -Wuninitialized"
 fi
 
 ## the build chain
-AC_PROG_CC(["icc -static-intel" icc gcc cc])
+AC_PROG_CC([icc gcc tcc cc])
 AC_PROG_CC_C99
+
+AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
 apps=" dcal dseq dtest strptime"
@@ -46,6 +48,7 @@ apps=" dcal dseq dtest strptime"
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([info/Makefile])
 AC_OUTPUT
 
 echo

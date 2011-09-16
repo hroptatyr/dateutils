@@ -1,0 +1,29 @@
+args "--unamed-opts --long-help"
+package "dadd"
+usage "dadd [OPTION]... DATE [DURATION]\012\
+   or: dadd [OPTION]... DURATION [DATE]"
+description "Add DURATION to DATE and print the result, or
+add DURATION to DATE and print the result.
+
+Durations are specified as nYnM for years and months, \
+nWnD for weeks and days, nMnD for months and days.  \
+N can be negative in any case and if N = 0 the unit \
+may be omitted.
+
+If the second argument is omitted DATEs or DURATIONs are \
+read from stdin."
+
+option "format" f
+	"output format as passed to strftime()"
+	string optional
+
+option "input-format" i
+	"input format as passed to strptime(), can be used multiple times.
+If used dates can be specified on the command line, or if left empty they \
+are read from stdin"
+	string optional multiple
+
+option "backslash-escapes" e
+	"enable interpretation of backslash escapes in the output and \
+input format strings"
+	optional
