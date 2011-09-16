@@ -1289,6 +1289,38 @@ out:
 	return res;
 }
 
+DEFUN size_t
+dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this)
+{
+/* at the moment we allow only one format */
+	size_t res = 0;
+
+	if (UNLIKELY(buf == NULL || bsz == 0)) {
+		goto out;
+	}
+
+	switch (this.typ) {
+	case DT_DUR_MD:
+		/* auto-newline */
+		res = snprintf(buf, bsz, "%dm%dd\n", this.md.m, this.md.d);
+		break;
+	case DT_DUR_WD:
+		/* auto-newline */
+		res = snprintf(buf, bsz, "%dw%dd\n", this.wd.w, this.wd.d);
+		break;
+	case DT_DUR_YM:
+		/* auto-newline */
+		res = snprintf(buf, bsz, "%dy%dm\n", this.ym.y, this.ym.m);
+		break;
+	case DT_DUR_UNK:
+	default:
+		buf[0] = '\0';
+		break;
+	}
+out:
+	return res;
+}
+
 
 /* date getters, platform dependent */
 DEFUN struct dt_d_s

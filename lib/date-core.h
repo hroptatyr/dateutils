@@ -215,6 +215,11 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s d);
 DECLF struct dt_dur_s dt_strpdur(const char *str);
 
 /**
+ * Print a duration. */
+DEFUN size_t
+dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this);
+
+/**
  * Like time() but return the current date in the desired format. */
 DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
 
