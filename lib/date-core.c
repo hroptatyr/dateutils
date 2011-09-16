@@ -1024,6 +1024,69 @@ out:
 	return res;
 }
 
+DEFUN struct dt_dur_s
+dt_strpdur(const char *str)
+{
+/* at the moment we allow only one format */
+	struct dt_dur_s res = {DT_DUR_UNK};
+	char *sp = ((union {char *p; const char *c;}){.c = str}).p;
+	int tmp;
+	int y = 0;
+	int m = 0;
+	int w = 0;
+	int d = 0;
+
+	if (str == NULL) {
+		goto out;
+	}
+	/* read the year */
+	do {
+		tmp = strtol(sp, &sp, 10);
+		switch (*sp++) {
+		case '\0':
+			/* must have been day then */
+			d = tmp;
+			goto assess;
+		case 'd':
+		case 'D':
+			d = tmp;
+			break;
+		case 'y':
+		case 'Y':
+			y = tmp;
+			break;
+		case 'm':
+		case 'M':
+			m = tmp;
+			break;
+		case 'w':
+		case 'W':
+			w = tmp;
+			break;
+		default:
+			goto out;
+		}
+	} while (*sp);
+assess:
+	if (LIKELY(m && d ||
+		   (y == 0 && m == 0 && w == 0) ||
+		   (y == 0 && w == 0 && d == 0))) {
+		res.typ = DT_DUR_MD;
+		res.md.m = m;
+		res.md.d = d;
+	} else if (w) {
+		res.typ = DT_DUR_WD;
+		res.wd.w = w;
+		res.wd.d = d;
+	} else if (y) {
+		res.typ = DT_DUR_YM;
+		res.ym.y = y;
+		res.ym.m = m;
+	}
+out:
+	return res;
+}
+
 
 /* date getters, platform dependent */
 DEFUN struct dt_d_s

@@ -62,6 +62,13 @@ typedef enum {
 	DT_BIZDA,
 } dt_dtyp_t;
 
+typedef enum {
+	DT_DUR_UNK,
+	DT_DUR_MD,
+	DT_DUR_WD,
+	DT_DUR_YM,
+} dt_durtyp_t;
+
 #define DT_MIN_YEAR	(0)
 #define DT_MAX_YEAR	(4095)
 
@@ -112,6 +119,8 @@ typedef union {
 	};
 } dt_bizda_t;
 
+/**
+ * Collection of all date types. */
 struct dt_d_s {
 	dt_dtyp_t typ;
 	union {
@@ -134,6 +143,48 @@ typedef enum {
 	DT_SATURDAY,
 	DT_MIRACLEDAY
 } dt_dow_t;
+
+/** mddur
+ * duration type for calendars where 1 year = 12 months and 1 week = 7 days */
+typedef union {
+	uint32_t u;
+	struct {
+		int d:16;
+		int m:16;
+	};
+} dt_mddur_t;
+
+/** wddur
+ * duration type in weeks and days. */
+typedef union {
+	uint32_t u;
+	struct {
+		int d:16;
+		int w:16;
+	};
+} dt_wddur_t;
+
+/** ymdur
+ * duration type in years and months. */
+typedef union {
+	uint32_t u;
+	struct {
+		int m:16;
+		int y:16;
+	};
+} dt_ymdur_t;
+
+/**
+ * Collection of all duration types. */
+struct dt_dur_s {
+	dt_durtyp_t typ;
+	union {
+		uint32_t u;
+		dt_mddur_t md;
+		dt_wddur_t wd;
+		dt_ymdur_t ym;
+	};
+};
 
 
 /* decls */
@@ -158,6 +209,10 @@ DECLF struct dt_d_s dt_strpd(const char *str, const char *fmt);
  * Like strftime() for our dates */
 DECLF size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s d);
+
+/**
+ * Parse durations as in 1w5d, etc. */
+DECLF struct dt_dur_s dt_strpdur(const char *str);
 
 /**
  * Like time() but return the current date in the desired format. */
