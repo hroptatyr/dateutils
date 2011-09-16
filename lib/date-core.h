@@ -231,8 +231,14 @@ DECLF dt_dow_t dt_get_wday(struct dt_d_s d);
 DECLF int dt_get_mday(struct dt_d_s d);
 
 /**
- * Get the INCREM-th next day in the current calendric system. */
-DECLF struct dt_d_s dt_next_day(struct dt_d_s d, int increm);
+ * Get the day of the year of a date.
+ * This might only be intuitive for YMD dates.  The formal definition
+ * is to find a representation of D that lacks the notion of a month,
+ * so for YMD dates this would be the sum of the days in the months
+ * preceding M and the current day of the month in M.
+ * For YMCW dates this will yield the n-th W-day in Y.
+ * For calendars without the notion of a year this will return 0. */
+DECLF unsigned int dt_get_yday(struct dt_d_s d);
 
 
 #if defined INCLUDE_DATE_CORE_IMPL

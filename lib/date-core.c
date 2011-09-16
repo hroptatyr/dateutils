@@ -342,8 +342,9 @@ __jan00_daisy(int year)
 }
 
 static inline dt_dow_t
-__get_wday(int year)
+__get_jan01_wday(int year)
 {
+/* get the weekday of jan01 in YEAR */
 	unsigned int res;
 	__jan01_wday_block_t j01b;
 
@@ -390,6 +391,25 @@ __get_wday(int year)
 	return (dt_dow_t)res;
 }
 
+static dt_dow_t
+__get_m01_wday(int year, int mon)
+{
+/* get the weekday of the first of MONTH in YEAR */
+	unsigned int off;
+	dt_dow_t cand;
+
+	if (UNLIKELY(mon < 1 && mon > 12)) {
+		return DT_MIRACLEDAY;
+	}
+	cand = __get_jan01_wday(year);
+	off = __mon_yday[mon] % 7;
+	/* fixup leap years */
+	if (UNLIKELY(__leapp(year))) {
+		off += (__mon_yday[0] >> this.m) & 1;
+	}
+	return (dt_dow_t)(cand + off);
+}
+
 static inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
@@ -429,10 +449,10 @@ __ymd_get_yday(dt_ymd_t this)
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t this)
 {
-	int yd;
+	unsigned int yd;
 	dt_dow_t j01_wd;
 	if ((yd = __ymd_get_yday(this)) > 0 &&
-	    (j01_wd = __get_wday(this.y)) != DT_MIRACLEDAY) {
+	    (j01_wd = __get_jan01_wday(this.y)) != DT_MIRACLEDAY) {
 		return (dt_dow_t)((yd - 1 + (unsigned int)j01_wd) % 7);
 	}
 	return DT_MIRACLEDAY;
@@ -453,15 +473,69 @@ __ymcw_get_wday(dt_ymcw_t this)
 	return (dt_dow_t)this.w;
 }
 
-static int
-__ymcw_get_day(dt_ymcw_t this)
+static unsigned int
+__ymcw_get_yday(dt_ymcw_t this)
 {
-	int wd01;
-	int wd_jan01;
-	int res;
+/* return the N-th W-day in Y, this is equivalent with 8601's Y-W-D calendar
+ * where W is the week of the year and D the day in the week */
+/* if a year starts on W, then it's
+ * 5 Ws in jan
+ * 4 Ws in feb
+ * 4 Ws in mar
+ * 5 Ws in apr
+ * 4 Ws in may
+ * 4 Ws in jun
+ * 5 Ws in jul
+ * 4 Ws in aug
+ * 4 + leap Ws in sep
+ * 5 - leap Ws in oct
+ * 4 Ws in nov
+ * 5 Ws in dec,
+ * so go back to the last W, and compute its number instead */
+	/* we guess the number of Ws up to the previous month */
+	unsigned int ws = 4 * (this.m - 1);
+	dt_dow_t j01w = __get_jan01_wday(this.y);
+	dt_dow_t m01w = __get_m01_wday(this.y, this.m);
+
+	switch (this.m) {
+	case 10:
+		ws += 3 + __leapp(this.y);
+		break;
+	case 11:
+		ws++;
+	case 9:
+	case 8:
+		ws++;
+	case 7:
+	case 6:
+	case 5:
+		ws++;
+	case 4:
+	case 3:
+	case 2:
+		ws++;
+	case 1:
+		break;
+	}
+	/* now find the count of the last W before/eq today */
+	if (m01w <= j01w &&
+	    this.w >= m01w && this.w < j01w) {
+		ws--;
+	} else if (this.w >= m01w || this.w < j01w) {
+		ws--;
+	}
+	return ws + this.c;
+}
+
+static unsigned int
+__ymcw_get_mday(dt_ymcw_t this)
+{
+	unsigned int wd01;
+	unsigned int wd_jan01;
+	unsigned int res;
 
 	/* weekday the year started with */
-	wd_jan01 = __get_wday(this.y);
+	wd_jan01 = __get_jan01_wday(this.y);
 	/* see what weekday the first of the month was*/
 	wd01 = __ymd_get_yday((dt_ymd_t){.y = this.y, .m = this.m, .d = 01});
 	wd01 = (wd_jan01 - 1 + wd01) % 7;
@@ -518,7 +592,7 @@ __ymcw_to_daisy(dt_ymcw_t d)
 	res = __jan00_daisy(d.y);
 	res += __mon_yday[d.m];
 	/* add up days too */
-	res += __ymcw_get_day(d);
+	res += __ymcw_get_mday(d);
 	if (UNLIKELY(__leapp(d.y))) {
 		res += (__mon_yday[0] >> (d.m)) & 1;
 	}
@@ -600,7 +674,7 @@ __daisy_to_ymcw(dt_daisy_t this)
 static dt_ymd_t
 __ymcw_to_ymd(dt_ymcw_t d)
 {
-	int md = __ymcw_get_day(d);
+	int md = __ymcw_get_mday(d);
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
 }
 
@@ -646,6 +720,20 @@ dt_get_count(struct dt_d_s this)
 	switch (this.typ) {
 	case DT_YMD:
 		return __ymd_get_count(this.ymd);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+DEFUN unsigned int
+dt_get_yday(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_get_yday(this.ymd);
+	case DT_YMCW:
+		return __ymcw_get_yday(this.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
