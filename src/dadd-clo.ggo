@@ -1,14 +1,17 @@
 args "--unamed-opts --long-help"
 package "dadd"
-usage "dadd [OPTION]... [DATEs] DURATION\012\
-   or: dadd [OPTION]... DATE [DURATIONs]"
-description "Add DURATION to DATEs and print the result, or
-add DURATIONs to DATE and print the result.
+usage "dadd [OPTION]... DATE [DURATION]\012\
+   or: dadd [OPTION]... DURATION [DATE]"
+description "Add DURATION to DATE and print the result, or
+add DURATION to DATE and print the result.
 
 Durations are specified as nYnM for years and months, \
 nWnD for weeks and days, nMnD for months and days.  \
 N can be negative in any case and if N = 0 the unit \
-may be omitted."
+may be omitted.
+
+If the second argument is omitted DATEs or DURATIONs are \
+read from stdin."
 
 option "format" f
 	"output format as passed to strftime()"

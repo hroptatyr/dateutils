@@ -217,18 +217,17 @@ main(int argc, char *argv[])
 		}
 		/* get rid of resources */
 		free(line);
+		goto out;
+
 	} else if (argi->inputs_num == 2) {
 		/* special case for people that need the exit code */
 		inp = unfixup_arg(argi->inputs[1]);
 		if (dadd_proc(inp, d, fmt, nfmt, ofmt) < 0) {
 			res = 1;
 		}
-	} else /*if (argi->inputs_num > 2)*/ {
-		/* all args are specified, at least they should be */
-		for (size_t i = 1; i < argi->inputs_num; i++) {
-			inp = unfixup_arg(argi->inputs[i]);
-			res = dadd_proc(inp, d, fmt, nfmt, ofmt);
-		}
+	} else {
+		cmdline_parser_print_help();
+		res = 1;
 	}
 
 out:
