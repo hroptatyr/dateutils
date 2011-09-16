@@ -405,7 +405,7 @@ __get_m01_wday(int year, int mon)
 	off = __mon_yday[mon] % 7;
 	/* fixup leap years */
 	if (UNLIKELY(__leapp(year))) {
-		off += (__mon_yday[0] >> this.m) & 1;
+		off += (__mon_yday[0] >> mon) & 1;
 	}
 	return (dt_dow_t)(cand + off);
 }
