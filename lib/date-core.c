@@ -704,7 +704,7 @@ dt_get_mday(struct dt_d_s this)
 	}
 	switch (this.typ) {
 	case DT_YMCW:
-		return __ymcw_get_day(this.ymcw);
+		return __ymcw_get_mday(this.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
