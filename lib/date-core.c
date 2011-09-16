@@ -195,7 +195,7 @@ static size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 {
 /* all strings should be little */
-#define C(x, d)	((x) / (d) % 10 + '0')
+#define C(x, d)	(char)((x) / (d) % 10 + '0')
 	size_t res;
 
 	if (UNLIKELY(d > 10000)) {
@@ -390,7 +390,7 @@ __get_wday(int year)
 	return (dt_dow_t)res;
 }
 
-static inline int
+static inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
 	int res;
@@ -409,14 +409,18 @@ __get_mdays(unsigned int y, unsigned int m)
 	return res;
 }
 
-static int
+static unsigned int
 __ymd_get_yday(dt_ymd_t this)
 {
-	int res = this.d + __mon_yday[this.m];
+	unsigned int res;
 
-	if (UNLIKELY(this.y == 0)) {
+	if (UNLIKELY(this.y == 0 || this.m == 0 || this.m > 12)) {
 		return 0;
-	} else if (UNLIKELY(__leapp(this.y))) {
+	}
+	/* process */
+	res = this.d + __mon_yday[this.m];
+	/* fixup leap years */
+	if (UNLIKELY(__leapp(this.y))) {
 		res += (__mon_yday[0] >> this.m) & 1;
 	}
 	return res;
@@ -434,13 +438,13 @@ __ymd_get_wday(dt_ymd_t this)
 	return DT_MIRACLEDAY;
 }
 
-static int
+static unsigned int
 __ymd_get_count(dt_ymd_t this)
 {
-	if (UNLIKELY(this.d + 7 > __get_mdays(this.y, this.m))) {
+	if (UNLIKELY(this.d + 7U > __get_mdays(this.y, this.m))) {
 		return 5;
 	}
-	return (this.d - 1) / 7 + 1;
+	return (this.d - 1U) / 7U + 1U;
 }
 
 static dt_dow_t
