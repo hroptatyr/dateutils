@@ -216,7 +216,7 @@ DECLF struct dt_dur_s dt_strpdur(const char *str);
 
 /**
  * Print a duration. */
-DEFUN size_t
+DECLF size_t
 dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this);
 
 /**
