@@ -195,7 +195,7 @@ static size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 {
 /* all strings should be little */
-#define C(x, d)	((x) / (d) % 10 + '0')
+#define C(x, d)	(char)((x) / (d) % 10 + '0')
 	size_t res;
 
 	if (UNLIKELY(d > 10000)) {
@@ -342,8 +342,9 @@ __jan00_daisy(int year)
 }
 
 static inline dt_dow_t
-__get_wday(int year)
+__get_jan01_wday(int year)
 {
+/* get the weekday of jan01 in YEAR */
 	unsigned int res;
 	__jan01_wday_block_t j01b;
 
@@ -390,25 +391,56 @@ __get_wday(int year)
 	return (dt_dow_t)res;
 }
 
-static inline int
-__get_mdays(int y, int m)
+static dt_dow_t
+__get_m01_wday(int year, int mon)
 {
-	int res = __mon_yday[m + 1] - __mon_yday[m];
+/* get the weekday of the first of MONTH in YEAR */
+	unsigned int off;
+	dt_dow_t cand;
 
+	if (UNLIKELY(mon < 1 && mon > 12)) {
+		return DT_MIRACLEDAY;
+	}
+	cand = __get_jan01_wday(year);
+	off = __mon_yday[mon] % 7;
+	/* fixup leap years */
+	if (UNLIKELY(__leapp(year))) {
+		off += (__mon_yday[0] >> mon) & 1;
+	}
+	return (dt_dow_t)(cand + off);
+}
+
+static inline unsigned int
+__get_mdays(unsigned int y, unsigned int m)
+{
+	int res;
+
+	if (UNLIKELY(m < 1 || m > 12)) {
+		return 0;
+	}
+
+	/* use our cumulative yday array */
+	res = __mon_yday[m + 1] - __mon_yday[m];
+
+	/* fixup leap years */
 	if (UNLIKELY(__leapp(y) && m == 2)) {
 		res++;
 	}
 	return res;
 }
 
-static int
+static unsigned int
 __ymd_get_yday(dt_ymd_t this)
 {
-	int res = this.d + __mon_yday[this.m];
+	unsigned int res;
 
-	if (UNLIKELY(this.y == 0)) {
+	if (UNLIKELY(this.y == 0 || this.m == 0 || this.m > 12)) {
 		return 0;
-	} else if (UNLIKELY(__leapp(this.y))) {
+	}
+	/* process */
+	res = this.d + __mon_yday[this.m];
+	/* fixup leap years */
+	if (UNLIKELY(__leapp(this.y))) {
 		res += (__mon_yday[0] >> this.m) & 1;
 	}
 	return res;
@@ -417,22 +449,22 @@ __ymd_get_yday(dt_ymd_t this)
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t this)
 {
-	int yd;
+	unsigned int yd;
 	dt_dow_t j01_wd;
 	if ((yd = __ymd_get_yday(this)) > 0 &&
-	    (j01_wd = __get_wday(this.y)) != DT_MIRACLEDAY) {
+	    (j01_wd = __get_jan01_wday(this.y)) != DT_MIRACLEDAY) {
 		return (dt_dow_t)((yd - 1 + (unsigned int)j01_wd) % 7);
 	}
 	return DT_MIRACLEDAY;
 }
 
-static int
+static unsigned int
 __ymd_get_count(dt_ymd_t this)
 {
-	if (UNLIKELY(this.d + 7 > __get_mdays(this.y, this.m))) {
+	if (UNLIKELY(this.d + 7U > __get_mdays(this.y, this.m))) {
 		return 5;
 	}
-	return (this.d - 1) / 7 + 1;
+	return (this.d - 1U) / 7U + 1U;
 }
 
 static dt_dow_t
@@ -441,15 +473,69 @@ __ymcw_get_wday(dt_ymcw_t this)
 	return (dt_dow_t)this.w;
 }
 
-static int
-__ymcw_get_day(dt_ymcw_t this)
+static unsigned int
+__ymcw_get_yday(dt_ymcw_t this)
 {
-	int wd01;
-	int wd_jan01;
-	int res;
+/* return the N-th W-day in Y, this is equivalent with 8601's Y-W-D calendar
+ * where W is the week of the year and D the day in the week */
+/* if a year starts on W, then it's
+ * 5 Ws in jan
+ * 4 Ws in feb
+ * 4 Ws in mar
+ * 5 Ws in apr
+ * 4 Ws in may
+ * 4 Ws in jun
+ * 5 Ws in jul
+ * 4 Ws in aug
+ * 4 + leap Ws in sep
+ * 5 - leap Ws in oct
+ * 4 Ws in nov
+ * 5 Ws in dec,
+ * so go back to the last W, and compute its number instead */
+	/* we guess the number of Ws up to the previous month */
+	unsigned int ws = 4 * (this.m - 1);
+	dt_dow_t j01w = __get_jan01_wday(this.y);
+	dt_dow_t m01w = __get_m01_wday(this.y, this.m);
+
+	switch (this.m) {
+	case 10:
+		ws += 3 + __leapp(this.y);
+		break;
+	case 11:
+		ws++;
+	case 9:
+	case 8:
+		ws++;
+	case 7:
+	case 6:
+	case 5:
+		ws++;
+	case 4:
+	case 3:
+	case 2:
+		ws++;
+	case 1:
+		break;
+	}
+	/* now find the count of the last W before/eq today */
+	if (m01w <= j01w &&
+	    this.w >= m01w && this.w < j01w) {
+		ws--;
+	} else if (this.w >= m01w || this.w < j01w) {
+		ws--;
+	}
+	return ws + this.c;
+}
+
+static unsigned int
+__ymcw_get_mday(dt_ymcw_t this)
+{
+	unsigned int wd01;
+	unsigned int wd_jan01;
+	unsigned int res;
 
 	/* weekday the year started with */
-	wd_jan01 = __get_wday(this.y);
+	wd_jan01 = __get_jan01_wday(this.y);
 	/* see what weekday the first of the month was*/
 	wd01 = __ymd_get_yday((dt_ymd_t){.y = this.y, .m = this.m, .d = 01});
 	wd01 = (wd_jan01 - 1 + wd01) % 7;
@@ -506,7 +592,7 @@ __ymcw_to_daisy(dt_ymcw_t d)
 	res = __jan00_daisy(d.y);
 	res += __mon_yday[d.m];
 	/* add up days too */
-	res += __ymcw_get_day(d);
+	res += __ymcw_get_mday(d);
 	if (UNLIKELY(__leapp(d.y))) {
 		res += (__mon_yday[0] >> (d.m)) & 1;
 	}
@@ -588,7 +674,7 @@ __daisy_to_ymcw(dt_daisy_t this)
 static dt_ymd_t
 __ymcw_to_ymd(dt_ymcw_t d)
 {
-	int md = __ymcw_get_day(d);
+	int md = __ymcw_get_mday(d);
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
 }
 
@@ -618,13 +704,14 @@ dt_get_mday(struct dt_d_s this)
 	}
 	switch (this.typ) {
 	case DT_YMCW:
-		return __ymcw_get_day(this.ymcw);
+		return __ymcw_get_mday(this.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
 	}
 }
 
+/* too exotic to be public */
 static int
 dt_get_count(struct dt_d_s this)
 {
@@ -634,6 +721,20 @@ dt_get_count(struct dt_d_s this)
 	switch (this.typ) {
 	case DT_YMD:
 		return __ymd_get_count(this.ymd);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+DEFUN unsigned int
+dt_get_yday(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return __ymd_get_yday(this.ymd);
+	case DT_YMCW:
+		return __ymcw_get_yday(this.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
@@ -700,11 +801,120 @@ dt_conv_to_ymcw(struct dt_d_s this)
 }
 
 
+/* arithmetic */
+static dt_daisy_t
+__daisy_add(dt_daisy_t d, struct dt_dur_s dur)
+{
+	switch (dur.typ) {
+	case DT_DUR_WD:
+		d += dur.wd.w * 7 + dur.wd.d;
+		break;
+	case DT_DUR_MD:
+	case DT_DUR_YM:
+		/* daisies have no notion of years and months */
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	return d;
+}
+
+static dt_ymd_t
+__ymd_add(dt_ymd_t d, struct dt_dur_s dur)
+{
+	unsigned int tgty = 0;
+	unsigned int tgtm = 0;
+	unsigned int tgtd = 0;
+
+	switch (dur.typ) {
+		int tmp;
+		unsigned int mdays;
+	case DT_DUR_YM:
+	case DT_DUR_MD:
+		/* init tmp */
+		switch (dur.typ) {
+		case DT_DUR_YM:
+			tmp = dur.ym.y * 12 + dur.ym.m;
+			break;
+		case DT_DUR_MD:
+			tmp = dur.md.m;
+			break;
+		}
+
+		/* construct new month */
+		tmp += d.m - 1;
+		tgty = tmp / 12 + d.y;
+		tgtm = tmp % 12 + 1;
+
+		/* fixup day */
+		if ((tgtd = d.d) > (mdays = __get_mdays(tgty, tgtm))) {
+			tgtd = mdays;
+		}
+		if (dur.typ == DT_DUR_YM) {
+			/* we dont have to bother about day corrections */
+			break;
+		}
+		/* otherwise we may need to fixup the day, let's do that
+		 * in the next step */
+	case DT_DUR_WD:
+		if (dur.typ == DT_DUR_MD) {
+			/* fallthrough from above */
+			tgtd += dur.md.d;
+		} else {
+			tgtd = d.d + dur.wd.w * 7 + dur.wd.d;
+			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
+		}
+		/* fixup the day */
+		while (tgtd > mdays) {
+			tgtd -= mdays;
+			if (++tgtm > 12) {
+				++tgty;
+				tgtm = 1;
+			}
+			mdays = __get_mdays(tgty, tgtm);
+		}
+		break;
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	d.y = tgty;
+	d.m = tgtm;
+	d.d = tgtd;
+	return d;
+}
+
+static dt_ymcw_t
+__ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
+{
+	switch (dur.typ) {
+	case DT_DUR_YM:
+		d.y += dur.ym.y;
+		d.m += dur.ym.m;
+		break;
+	case DT_DUR_MD:
+		d.y += dur.md.m / 12;
+		d.m += dur.md.m % 12;
+		d.c += dur.md.d / 7;
+		d.w += dur.md.d % 7;
+		break;
+	case DT_DUR_WD:
+		d.c += dur.wd.w;
+		d.w += dur.wd.d;
+		break;
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	return d;
+}
+
+
 /* guessing parsers */
 static struct dt_d_s
 __strpd_std(const char *str)
 {
-	struct dt_d_s res = {DT_UNK, 0};
+	struct dt_d_s res = {DT_UNK};
 	const char *sp = str;
 	unsigned int y;
 	unsigned int m;
@@ -782,16 +992,16 @@ out:
 }
 
 
-/* implementations */
+/* parser implementations */
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
-	struct dt_d_s res = {DT_UNK, 0};
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-	unsigned int c;
-	unsigned int w;
+	struct dt_d_s res = {DT_UNK};
+	unsigned int y = 0;
+	unsigned int m = 0;
+	unsigned int d = 0;
+	unsigned int c = 0;
+	unsigned int w = 0;
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str);
@@ -1016,6 +1226,101 @@ out:
 	return res;
 }
 
+DEFUN struct dt_dur_s
+dt_strpdur(const char *str)
+{
+/* at the moment we allow only one format */
+	struct dt_dur_s res = {DT_DUR_UNK};
+	char *sp = ((union {char *p; const char *c;}){.c = str}).p;
+	int tmp;
+	int y = 0;
+	int m = 0;
+	int w = 0;
+	int d = 0;
+
+	if (str == NULL) {
+		goto out;
+	}
+	/* read the year */
+	do {
+		tmp = strtol(sp, &sp, 10);
+		switch (*sp++) {
+		case '\0':
+			/* must have been day then */
+			d = tmp;
+			goto assess;
+		case 'd':
+		case 'D':
+			d = tmp;
+			break;
+		case 'y':
+		case 'Y':
+			y = tmp;
+			break;
+		case 'm':
+		case 'M':
+			m = tmp;
+			break;
+		case 'w':
+		case 'W':
+			w = tmp;
+			break;
+		default:
+			goto out;
+		}
+	} while (*sp);
+assess:
+	if (LIKELY(m && d ||
+		   (y == 0 && m == 0 && w == 0) ||
+		   (y == 0 && w == 0 && d == 0))) {
+		res.typ = DT_DUR_MD;
+		res.md.m = m;
+		res.md.d = d;
+	} else if (w) {
+		res.typ = DT_DUR_WD;
+		res.wd.w = w;
+		res.wd.d = d;
+	} else if (y) {
+		res.typ = DT_DUR_YM;
+		res.ym.y = y;
+		res.ym.m = m;
+	}
+out:
+	return res;
+}
+
+DEFUN size_t
+dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this)
+{
+/* at the moment we allow only one format */
+	size_t res = 0;
+
+	if (UNLIKELY(buf == NULL || bsz == 0)) {
+		goto out;
+	}
+
+	switch (this.typ) {
+	case DT_DUR_MD:
+		/* auto-newline */
+		res = snprintf(buf, bsz, "%dm%dd\n", this.md.m, this.md.d);
+		break;
+	case DT_DUR_WD:
+		/* auto-newline */
+		res = snprintf(buf, bsz, "%dw%dd\n", this.wd.w, this.wd.d);
+		break;
+	case DT_DUR_YM:
+		/* auto-newline */
+		res = snprintf(buf, bsz, "%dy%dm\n", this.ym.y, this.ym.m);
+		break;
+	case DT_DUR_UNK:
+	default:
+		buf[0] = '\0';
+		break;
+	}
+out:
+	return res;
+}
+
 
 /* date getters, platform dependent */
 DEFUN struct dt_d_s
@@ -1087,12 +1392,21 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 }
 
 DEFUN struct dt_d_s
-dt_next_day(struct dt_d_s d, int increm)
+dt_add(struct dt_d_s d, struct dt_dur_s dur)
 {
 	switch (d.typ) {
 	case DT_DAISY:
-		d.daisy += increm;
+		d.daisy = __daisy_add(d.daisy, dur);
 		break;
+
+	case DT_YMD:
+		d.ymd = __ymd_add(d.ymd, dur);
+		break;
+
+	case DT_YMCW:
+		d.ymcw = __ymcw_add(d.ymcw, dur);
+		break;
+
 	case DT_UNK:
 	default:
 		d.typ = DT_UNK;
@@ -1100,6 +1414,18 @@ dt_next_day(struct dt_d_s d, int increm)
 		break;
 	}
 	return d;
+}
+
+DEFUN struct dt_dur_s
+dt_diff(struct dt_d_s d1, struct dt_d_s d2)
+{
+	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
+}
+
+DEFUN struct dt_dur_s
+dt_neg_dur(struct dt_dur_s dur)
+{
+	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
 }
 
 /* date-core.c ends here */

@@ -7,7 +7,7 @@
 static struct dt_d_s __attribute__((unused))
 dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
 {
-	struct dt_d_s res;
+	struct dt_d_s res = {DT_UNK};
 
 	/* basic sanity check */
 	if (input == NULL || strcmp(input, "now") == 0) {
@@ -16,10 +16,13 @@ dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
 		res = dt_strpd(input, NULL);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
-			if ((res = dt_strpd(input, fmt[i])).typ > DT_UNK) {
+			if ((res = dt_strpd(input, fmt[i])).typ && res.u ) {
 				break;
 			}
 		}
+	}
+	if (res.u == 0) {
+		res.typ = DT_UNK;
 	}
 	return res;
 }
