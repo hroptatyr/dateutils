@@ -391,10 +391,18 @@ __get_wday(int year)
 }
 
 static inline int
-__get_mdays(int y, int m)
+__get_mdays(unsigned int y, unsigned int m)
 {
-	int res = __mon_yday[m + 1] - __mon_yday[m];
+	int res;
 
+	if (UNLIKELY(m < 1 || m > 12)) {
+		return 0;
+	}
+
+	/* use our cumulative yday array */
+	res = __mon_yday[m + 1] - __mon_yday[m];
+
+	/* fixup leap years */
 	if (UNLIKELY(__leapp(y) && m == 2)) {
 		res++;
 	}
