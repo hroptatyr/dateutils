@@ -112,40 +112,6 @@ dadd_proc(
 }
 
 
-#define MAGIC_CHAR	'~'
-
-static void
-fixup_argv(int argc, char *argv[])
-{
-	int i = 0;
-
-	while (++i < argc) {
-		if (argv[i][0] != '-') {
-			break;
-		}
-	}
-	/* now take a closer look */
-	while (++i < argc) {
-		if (argv[i][0] == '-' &&
-		    argv[i][1] >= '1' && argv[i][1] <= '9') {
-			/* assume this is meant to be an integer
-			 * as opposed to an option that begins with a digit */
-			argv[i][0] = MAGIC_CHAR;
-		}
-	}
-	return;
-}
-
-static inline char*
-unfixup_arg(char *arg)
-{
-	if (UNLIKELY(arg[0] == MAGIC_CHAR)) {
-		arg[0] = '-';
-	}
-	return arg;
-}
-
-
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 #endif	/* __INTEL_COMPILER */
