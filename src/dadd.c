@@ -48,24 +48,67 @@
  * non-commutativity of duration addition:
  * 2000-03-30 +1m -> 2000-04-30 +1d -> 2000-05-01
  * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
-static struct dt_dur_s
-dadd_strpdur(char **restrict str)
+struct __strpdur_st_s {
+	int sign;
+	const char *istr;
+	const char *cont;
+	struct dt_dur_s this;
+};
+
+static int
+__strpdur_more_p(struct __strpdur_st_s *st)
+{
+	return st->cont != NULL;
+}
+
+static int
+dadd_strpdur(struct __strpdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */
-	struct dt_dur_s res = {DT_DUR_UNK};
+	struct dt_dur_s this = {DT_DUR_UNK};
+	const char *sp = NULL;
 	int tmp;
 	int y = 0;
 	int m = 0;
 	int w = 0;
 	int d = 0;
+	int res = 0;
 
-	if (str == NULL) {
+	/* check if we should continue */
+	if (st->cont) {
+		str = st->istr = st->cont;
+	} else if ((st->istr = str)) {
+		;
+	} else {
 		goto out;
 	}
+
+	/* read over signs and prefixes */
+	for (sp = str; ; sp++) {
+		switch (*sp) {
+		case '\0':
+			goto out;
+		case '+':
+			st->sign = 0;
+			continue;
+		case '-':
+			st->sign = -1;
+			continue;
+		case '=':
+			st->sign = 1;
+			continue;
+		case 'P':
+			continue;
+		default:
+			break;
+		}
+		break;
+	}
+
 	/* read the year */
 	do {
-		tmp = strtol(*str, str, 10);
-		switch (*(*str)++) {
+		tmp = strtol(sp, (char**)&sp, 10);
+		switch (*sp++) {
 		case '\0':
 			/* must have been day then */
 			d = tmp;
@@ -87,6 +130,7 @@ dadd_strpdur(char **restrict str)
 			w = tmp;
 			goto assess;
 		default:
+			res = -1;
 			goto out;
 		}
 	} while (1);
@@ -94,19 +138,69 @@ assess:
 	if (LIKELY((m && d) ||
 		   (y == 0 && m == 0 && w == 0) ||
 		   (y == 0 && w == 0 && d == 0))) {
-		res.typ = DT_DUR_MD;
-		res.md.m = m;
-		res.md.d = d;
+		this.typ = DT_DUR_MD;
+		switch (st->sign) {
+		case 0:
+			this.md.m = m;
+			this.md.d = d;
+			break;
+		case -1:
+			this.md.m = -m;
+			this.md.d = -d;
+			break;
+		case 1:
+			/* set mode */
+			this.md.m = 0;
+			this.md.d = 0;
+			break;
+		}
+		res = 1;
 	} else if (w) {
-		res.typ = DT_DUR_WD;
-		res.wd.w = w;
-		res.wd.d = d;
+		this.typ = DT_DUR_WD;
+		switch (st->sign) {
+		case 0:
+			this.wd.w = w;
+			this.wd.d = d;
+			break;
+		case -1:
+			this.wd.w = -w;
+			this.wd.d = -d;
+			break;
+		case 1:
+			/* set mode */
+			this.wd.w = 0;
+			this.wd.d = 0;
+			break;
+		}
+		res = 1;
 	} else if (y) {
-		res.typ = DT_DUR_YM;
-		res.ym.y = y;
-		res.ym.m = m;
+		this.typ = DT_DUR_YM;
+		switch (st->sign) {
+		case 0:
+			this.ym.y = y;
+			this.ym.m = m;
+			break;
+		case -1:
+			this.ym.y = -y;
+			this.ym.m = -m;
+			break;
+		case 1:
+			/* set mode */
+			this.ym.y = 0;
+			this.ym.m = 0;
+			break;
+		}
+		res = 1;
+	} else {
+		sp = NULL;
+		res = -1;		
 	}
 out:
+	st->this = this;
+	if ((st->cont = sp) && *sp == '\0') {
+		st->sign = 0;
+		st->cont = NULL;
+	}
 	return res;
 }
 
@@ -149,6 +243,7 @@ main(int argc, char *argv[])
 	struct dt_d_s d;
 	struct dt_dur_s dur[32];
 	size_t ndur = 0;
+	struct __strpdur_st_s st = {0};
 	char *inp;
 	const char *ofmt;
 	char **fmt;
@@ -157,7 +252,7 @@ main(int argc, char *argv[])
 	size_t beg_idx = 0;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv);
+	fixup_argv(argc, argv, "Pp+");
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
@@ -188,10 +283,19 @@ main(int argc, char *argv[])
 	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
-			if ((dur[ndur] = dadd_strpdur(&inp)).typ > DT_DUR_UNK) {
-				ndur++;
+			switch (dadd_strpdur(&st, inp)) {
+			case 1:
+				dur[ndur++] = st.this;
+				break;
+			case -1:
+				fprintf(stderr, "Error: \
+cannot parse duration string `%s'\n", st.istr);
+				break;
+			default:
+			case 0:
+				break;
 			}
-		} while (*inp);
+		} while (__strpdur_more_p(&st));
 	}
 	if (ndur == 0) {
 		fputs("Error: no duration given\n\n", stderr);

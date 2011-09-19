@@ -54,11 +54,12 @@ dt_io_unescape(char *s)
 #define MAGIC_CHAR	'~'
 
 static void __attribute__((unused))
-fixup_argv(int argc, char *argv[])
+fixup_argv(int argc, char *argv[], const char *additional)
 {
 	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] == '-' &&
-		    argv[i][1] >= '1' && argv[i][1] <= '9') {
+		    ((argv[i][1] >= '1' && argv[i][1] <= '9') ||
+		     (additional && strchr(additional, argv[i][1])))) {
 			/* assume this is meant to be an integer
 			 * as opposed to an option that begins with a digit */
 			argv[i][0] = MAGIC_CHAR;
