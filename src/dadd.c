@@ -114,11 +114,13 @@ dadd_proc(
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
+# pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
 #include "dadd-clo.h"
 #include "dadd-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
+# pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
 int
