@@ -61,7 +61,7 @@ __strpdur_more_p(struct __strpdur_st_s *st)
 	return st->cont != NULL;
 }
 
-static int __attribute__((noinline))
+static int
 dadd_strpdur(struct __strpdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */
@@ -136,25 +136,68 @@ assess:
 		   (y == 0 && m == 0 && w == 0) ||
 		   (y == 0 && w == 0 && d == 0))) {
 		this.typ = DT_DUR_MD;
-		this.md.m = m;
-		this.md.d = d;
+		switch (st->sign) {
+		case 0:
+			this.md.m = m;
+			this.md.d = d;
+			break;
+		case -1:
+			this.md.m = -m;
+			this.md.d = -d;
+			break;
+		case 1:
+			/* set mode */
+			this.md.m = 0;
+			this.md.d = 0;
+			break;
+		}
 		res = 1;
 	} else if (w) {
 		this.typ = DT_DUR_WD;
-		this.wd.w = w;
-		this.wd.d = d;
+		switch (st->sign) {
+		case 0:
+			this.wd.w = w;
+			this.wd.d = d;
+			break;
+		case -1:
+			this.wd.w = -w;
+			this.wd.d = -d;
+			break;
+		case 1:
+			/* set mode */
+			this.wd.w = 0;
+			this.wd.d = 0;
+			break;
+		}
 		res = 1;
 	} else if (y) {
 		this.typ = DT_DUR_YM;
-		this.ym.y = y;
-		this.ym.m = m;
+		switch (st->sign) {
+		case 0:
+			this.ym.y = y;
+			this.ym.m = m;
+			break;
+		case -1:
+			this.ym.y = -y;
+			this.ym.m = -m;
+			break;
+		case 1:
+			/* set mode */
+			this.ym.y = 0;
+			this.ym.m = 0;
+			break;
+		}
 		res = 1;
 	} else {
+		sp = NULL;
 		res = -1;		
 	}
 out:
 	st->this = this;
-	st->cont = sp;
+	if ((st->cont = sp) && *sp == '\0') {
+		st->sign = 0;
+		st->cont = NULL;
+	}
 	return res;
 }
 
@@ -197,6 +240,7 @@ main(int argc, char *argv[])
 	struct dt_d_s d;
 	struct dt_dur_s dur[32];
 	size_t ndur = 0;
+	struct __strpdur_st_s st = {0};
 	char *inp;
 	const char *ofmt;
 	char **fmt;
@@ -234,8 +278,6 @@ main(int argc, char *argv[])
 
 	/* check durations */
 	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
-		struct __strpdur_st_s st = {0};
-
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
 			switch (dadd_strpdur(&st, inp)) {
