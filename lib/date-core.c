@@ -1175,6 +1175,20 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
 	return res;
 }
 
+static void
+__trans_fmt(const char **fmt)
+{
+	static char ymd_dflt[] = "%F";
+	static char ymcw_dflt[] = "%Y-%m-%c-%w";
+	
+	if (strcasecmp(*fmt, "ymd") == 0) {
+		*fmt = ymd_dflt;
+	} else if (strcasecmp(*fmt, "ymcw") == 0) {
+		*fmt = ymcw_dflt;
+	}
+	return;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -1191,6 +1205,8 @@ dt_strpd(const char *str, const char *fmt)
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str);
 	}
+	/* translate high-level format names */
+	__trans_fmt(&fmt);
 
 	for (const char *fp = fmt, *sp = str; *fp && sp; fp++) {
 		int shaught = 0;
@@ -1210,12 +1226,14 @@ dt_strpd(const char *str, const char *fmt)
 			shaught = 1;
 		case 'Y':
 			sp = strtoui_lim(&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0 ||
+				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'm':
 			sp = strtoui_lim(&m, sp, 0, 12);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0 ||
+				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'd':
@@ -1395,6 +1413,8 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	case DT_UNK:
 		goto out;
 	}
+	/* translate high-level format names */
+	__trans_fmt(&fmt);
 
 	for (const char *fp = fmt; *fp && res < bsz; fp++) {
 		int shaught = 0;
