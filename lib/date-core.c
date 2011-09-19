@@ -1006,6 +1006,7 @@ DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
 	struct dt_d_s res = {DT_UNK};
+	unsigned int dummy = 0;
 	unsigned int y = 0;
 	unsigned int m = 0;
 	unsigned int d = 0;
@@ -1116,6 +1117,15 @@ dt_strpd(const char *str, const char *fmt)
 				sp = NULL;
 			}
 			break;
+		case 'W':
+			/* cannot be used at the moment */
+			sp = strtoui_lim(&dummy, sp, 1, 366);
+			break;
+		case 'j':
+			/* cannot be used at the moment */
+			sp = strtoui_lim(&dummy, sp, 0, 53);
+			break;
+		}
 		}
 	}
 	switch (res.typ) {
