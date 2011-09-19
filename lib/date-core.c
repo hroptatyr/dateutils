@@ -219,6 +219,61 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 	return res;
 }
 
+static size_t
+__rom_pr1(char *buf, size_t bsz, unsigned int i, char cnt, char hi, char lo)
+{
+	size_t res = 0;
+
+	if (UNLIKELY(bsz < 4)) {
+		return 0;
+	}
+	switch (i) {
+	case 9:
+		buf[res++] = cnt;
+		buf[res++] = hi;
+		break;
+	case 4:
+		buf[res++] = cnt;
+		buf[res++] = lo;
+		break;
+	case 8:
+		buf[++res] = cnt;
+	case 7:
+		buf[++res] = cnt;
+	case 6:
+		buf[++res] = cnt;
+	case 5:
+		buf[0] = lo;
+		res++;
+		break;
+	case 3:
+		buf[res++] = cnt;
+	case 2:
+		buf[res++] = cnt;
+	case 1:
+		buf[res++] = cnt;
+		break;
+	}
+	return res;
+}
+
+static size_t
+ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
+{
+	size_t res;
+
+	for (res = 0; d >= 1000 && res < bsz; d -= 1000) {
+		buf[res++] = 'M';
+	}
+
+	res += __rom_pr1(buf + res, bsz - res, d / 100, 'C', 'M', 'D');
+	d %= 100;
+	res += __rom_pr1(buf + res, bsz - res, d / 10, 'X', 'C', 'L');
+	d %= 10;
+	res += __rom_pr1(buf + res, bsz - res, d, 'I', 'X', 'V');
+	return res;
+}
+
 static const char*
 strtoarri(uint32_t *tgt, const char *buf, const char *const *arr, size_t narr)
 {
@@ -1000,6 +1055,66 @@ out:
 	return res;
 }
 
+static size_t
+__strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
+{
+	size_t res = 0;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+	unsigned int c;
+
+	switch (this.typ) {
+	case DT_YMD:
+		y = this.ymd.y;
+		m = this.ymd.m;
+		d = this.ymd.d;
+		break;
+	case DT_YMCW:
+		y = this.ymcw.y;
+		m = this.ymcw.m;
+		d = __ymcw_get_mday(this.ymcw);
+		break;
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		y = tmp.y;
+		m = tmp.m;
+		d = tmp.d;
+		break;
+	}
+	case DT_BIZDA:
+	default:
+		return 0;
+	}
+
+	if (this.typ != DT_YMD) {
+		/* not supported for non-ymds */
+		return res;
+	}
+
+	switch (spec) {
+	case 'Y':
+		res = ui32tostrrom(buf, bsz, y);
+		break;
+	case 'y':
+		res = ui32tostrrom(buf, bsz, y % 100);
+		break;
+	case 'm':
+		res = ui32tostrrom(buf, bsz, m);
+		break;
+	case 'd':
+		res = ui32tostrrom(buf, bsz, d);
+		break;
+	case 'c':
+		c = dt_get_count(this);
+		res = ui32tostrrom(buf, bsz, c);
+		break;
+	default:
+		break;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -1125,7 +1240,6 @@ dt_strpd(const char *str, const char *fmt)
 			/* cannot be used at the moment */
 			sp = strtoui_lim(&dummy, sp, 0, 53);
 			break;
-		}
 		}
 	}
 	switch (res.typ) {
@@ -1300,6 +1414,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				int yd = __ymcw_get_yday(this.ymcw);
 				res += ui32tostr(buf + res, bsz - res, yd, 2);
 			}
+			break;
+		case 'O':
+			/* o modifier for roman dates */
+			res += __strfd_O(buf + res, bsz - res, *++fp, this);
 			break;
 		}
 	}
