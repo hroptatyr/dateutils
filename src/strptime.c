@@ -111,11 +111,13 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt)
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
+# pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
 #include "strptime-clo.h"
 #include "strptime-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
+# pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
 int
