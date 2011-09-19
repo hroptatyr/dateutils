@@ -1226,12 +1226,14 @@ dt_strpd(const char *str, const char *fmt)
 			shaught = 1;
 		case 'Y':
 			sp = strtoui_lim(&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0 ||
+				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'm':
 			sp = strtoui_lim(&m, sp, 0, 12);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0 ||
+				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'd':
