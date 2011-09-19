@@ -1086,6 +1086,26 @@ dt_strpd(const char *str, const char *fmt)
 				y -= 100;
 			}
 			break;
+		case '_':
+			switch (*++fp) {
+				char *pos;
+			case 'b':
+				if ((pos = strchr(__abab_mon, *sp++))) {
+					m = pos - __abab_mon;
+				} else {
+					sp = NULL;
+				}
+				break;
+			case 'a':
+				if ((pos = strchr(__abab_wday, *sp++))) {
+					/* ymcw mode! */
+					w = pos - __abab_wday;
+				} else {
+					sp = NULL;
+				}
+				break;
+			}
+			break;
 		}
 	}
 	switch (res.typ) {
@@ -1221,6 +1241,25 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			break;
 		case 'y':
 			res += ui32tostr(buf + res, bsz - res, y, 2);
+			break;
+		case '_':
+			/* secret mode */
+			switch (*++fp) {
+			case 'b':
+				/* super abbrev'd month */
+				if (m < countof(__abab_mon)) {
+					buf[res++] = __abab_mon[m];
+				}
+				break;
+			case 'a': {
+				dt_dow_t wd = dt_get_wday(this);
+				/* super abbrev'd wday */
+				if (wd < countof(__abab_wday)) {
+					buf[res++] = __abab_wday[wd];
+				}
+				break;
+			}
+			}
 			break;
 		}
 	}
