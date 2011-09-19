@@ -219,6 +219,66 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 	return res;
 }
 
+static uint32_t
+__romstr_v(const char c)
+{
+	switch (c) {
+	case 'n':
+	case 'N':
+		return 0;
+	case 'i':
+	case 'I':
+		return 1;
+	case 'v':
+	case 'V':
+		return 5;
+	case 'x':
+	case 'X':
+		return 10;
+	case 'l':
+	case 'L':
+		return 50;
+	case 'c':
+	case 'C':
+		return 100;
+	case 'd':
+	case 'D':
+		return 500;
+	case 'm':
+	case 'M':
+		return 1000;
+	default:
+		return -1U;
+	}
+}
+
+static const char*
+romstrtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
+{
+	uint32_t res = 0;
+	const char *sp;
+	uint32_t v;
+
+	/* loops through characters */
+	for (sp = str, v = __romstr_v(*sp); *sp; sp++) {
+		uint32_t nv = __romstr_v(sp[1]);
+
+		if (UNLIKELY(v == -1U)) {
+			break;
+		} else if (LIKELY(nv == -1U || v >= nv)) {
+			res += v;
+		} else {
+			res -= v;
+		}
+		v = nv;
+	}
+	if (res < llim || res > ulim) {
+		res = 0;
+	}
+	*tgt = res;
+	return sp;
+}
+
 static size_t
 __rom_pr1(char *buf, size_t bsz, unsigned int i, char cnt, char hi, char lo)
 {
@@ -1239,6 +1299,33 @@ dt_strpd(const char *str, const char *fmt)
 		case 'j':
 			/* cannot be used at the moment */
 			sp = strtoui_lim(&dummy, sp, 0, 53);
+			break;
+		case 'O':
+			/* roman numerals modifier */
+			switch (*++fp) {
+			case 'Y':
+				sp = romstrtoui_lim(
+					&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
+				break;
+			case 'y':
+				sp = romstrtoui_lim(&y, sp, 0, 99);
+				if ((y += 2000) > 2068) {
+					y -= 100;
+				}
+				break;
+			case 'm':
+				sp = romstrtoui_lim(&m, sp, 0, 12);
+				break;
+			case 'd':
+				sp = romstrtoui_lim(&d, sp, 0, 31);
+				break;
+			case 'c':
+				sp = romstrtoui_lim(&c, sp, 0, 5);
+				break;
+			default:
+				sp = NULL;
+				break;
+			}
 			break;
 		}
 	}
