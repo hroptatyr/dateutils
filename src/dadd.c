@@ -101,6 +101,9 @@ dadd_strpdur(struct __strpdur_st_s *st, const char *str)
 			res = -1;
 		}
 		goto out;
+	} else if (str[0] == 'P') {
+		/* convenience */
+		str++;
 	}
 	/* read the year */
 	do {
