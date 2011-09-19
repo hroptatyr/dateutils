@@ -223,47 +223,15 @@ prnt_date(struct dt_d_s d, const char *fmt)
 }
 
 
-#define MAGIC_CHAR	'~'
-
-static void
-fixup_argv(int argc, char *argv[])
-{
-	size_t i = 0;
-
-	while (++i < argc) {
-		if (argv[i][0] != '-') {
-			break;
-		}
-	}
-	/* now take a closer look */
-	while (++i < argc) {
-		if (argv[i][0] == '-' &&
-		    argv[i][1] >= '1' && argv[i][1] <= '9') {
-			/* assume this is meant to be an integer
-			 * as opposed to an option that begins with a digit */
-			argv[i][0] = MAGIC_CHAR;
-		}
-	}
-	return;
-}
-
-static inline void
-unfixup_arg(char *arg)
-{
-	if (UNLIKELY(arg[0] == MAGIC_CHAR)) {
-		arg[0] = '-';
-	}
-	return;
-}
-
-
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
+# pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
 #include "dseq-clo.h"
 #include "dseq-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
+# pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
 int
@@ -279,7 +247,7 @@ main(int argc, char *argv[])
 	__skipspec_t ss = 0;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv);
+	fixup_argv(argc, argv, NULL);
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;

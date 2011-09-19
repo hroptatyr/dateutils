@@ -219,6 +219,121 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 	return res;
 }
 
+static uint32_t
+__romstr_v(const char c)
+{
+	switch (c) {
+	case 'n':
+	case 'N':
+		return 0;
+	case 'i':
+	case 'I':
+		return 1;
+	case 'v':
+	case 'V':
+		return 5;
+	case 'x':
+	case 'X':
+		return 10;
+	case 'l':
+	case 'L':
+		return 50;
+	case 'c':
+	case 'C':
+		return 100;
+	case 'd':
+	case 'D':
+		return 500;
+	case 'm':
+	case 'M':
+		return 1000;
+	default:
+		return -1U;
+	}
+}
+
+static const char*
+romstrtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
+{
+	uint32_t res = 0;
+	const char *sp;
+	uint32_t v;
+
+	/* loops through characters */
+	for (sp = str, v = __romstr_v(*sp); *sp; sp++) {
+		uint32_t nv = __romstr_v(sp[1]);
+
+		if (UNLIKELY(v == -1U)) {
+			break;
+		} else if (LIKELY(nv == -1U || v >= nv)) {
+			res += v;
+		} else {
+			res -= v;
+		}
+		v = nv;
+	}
+	if (res < llim || res > ulim) {
+		res = 0;
+	}
+	*tgt = res;
+	return sp;
+}
+
+static size_t
+__rom_pr1(char *buf, size_t bsz, unsigned int i, char cnt, char hi, char lo)
+{
+	size_t res = 0;
+
+	if (UNLIKELY(bsz < 4)) {
+		return 0;
+	}
+	switch (i) {
+	case 9:
+		buf[res++] = cnt;
+		buf[res++] = hi;
+		break;
+	case 4:
+		buf[res++] = cnt;
+		buf[res++] = lo;
+		break;
+	case 8:
+		buf[++res] = cnt;
+	case 7:
+		buf[++res] = cnt;
+	case 6:
+		buf[++res] = cnt;
+	case 5:
+		buf[0] = lo;
+		res++;
+		break;
+	case 3:
+		buf[res++] = cnt;
+	case 2:
+		buf[res++] = cnt;
+	case 1:
+		buf[res++] = cnt;
+		break;
+	}
+	return res;
+}
+
+static size_t
+ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
+{
+	size_t res;
+
+	for (res = 0; d >= 1000 && res < bsz; d -= 1000) {
+		buf[res++] = 'M';
+	}
+
+	res += __rom_pr1(buf + res, bsz - res, d / 100, 'C', 'M', 'D');
+	d %= 100;
+	res += __rom_pr1(buf + res, bsz - res, d / 10, 'X', 'C', 'L');
+	d %= 10;
+	res += __rom_pr1(buf + res, bsz - res, d, 'I', 'X', 'V');
+	return res;
+}
+
 static const char*
 strtoarri(uint32_t *tgt, const char *buf, const char *const *arr, size_t narr)
 {
@@ -824,7 +939,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 {
 	unsigned int tgty = 0;
 	unsigned int tgtm = 0;
-	unsigned int tgtd = 0;
+	int tgtd = 0;
 
 	switch (dur.typ) {
 		int tmp;
@@ -847,7 +962,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 		tgtm = tmp % 12 + 1;
 
 		/* fixup day */
-		if ((tgtd = d.d) > (mdays = __get_mdays(tgty, tgtm))) {
+		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
 			tgtd = mdays;
 		}
 		if (dur.typ == DT_DUR_YM) {
@@ -865,13 +980,22 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
 		}
 		/* fixup the day */
-		while (tgtd > mdays) {
+		while (tgtd > (int)mdays) {
 			tgtd -= mdays;
 			if (++tgtm > 12) {
 				++tgty;
 				tgtm = 1;
 			}
 			mdays = __get_mdays(tgty, tgtm);
+		}
+		/* and the other direction */
+		while (tgtd < 1) {
+			if (--tgtm < 1) {
+				--tgty;
+				tgtm = 12;
+			}
+			mdays = __get_mdays(tgty, tgtm);
+			tgtd += mdays;
 		}
 		break;
 	case DT_DUR_UNK:
@@ -991,12 +1115,87 @@ out:
 	return res;
 }
 
+static size_t
+__strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
+{
+	size_t res = 0;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+	unsigned int c;
+
+	switch (this.typ) {
+	case DT_YMD:
+		y = this.ymd.y;
+		m = this.ymd.m;
+		d = this.ymd.d;
+		break;
+	case DT_YMCW:
+		y = this.ymcw.y;
+		m = this.ymcw.m;
+		d = __ymcw_get_mday(this.ymcw);
+		break;
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		y = tmp.y;
+		m = tmp.m;
+		d = tmp.d;
+		break;
+	}
+	case DT_BIZDA:
+	default:
+		return 0;
+	}
+
+	if (this.typ != DT_YMD) {
+		/* not supported for non-ymds */
+		return res;
+	}
+
+	switch (spec) {
+	case 'Y':
+		res = ui32tostrrom(buf, bsz, y);
+		break;
+	case 'y':
+		res = ui32tostrrom(buf, bsz, y % 100);
+		break;
+	case 'm':
+		res = ui32tostrrom(buf, bsz, m);
+		break;
+	case 'd':
+		res = ui32tostrrom(buf, bsz, d);
+		break;
+	case 'c':
+		c = dt_get_count(this);
+		res = ui32tostrrom(buf, bsz, c);
+		break;
+	default:
+		break;
+	}
+	return res;
+}
+
+static void
+__trans_fmt(const char **fmt)
+{
+	static char ymd_dflt[] = "%F";
+	static char ymcw_dflt[] = "%Y-%m-%c-%w";
+	
+	if (strcasecmp(*fmt, "ymd") == 0) {
+		*fmt = ymd_dflt;
+	} else if (strcasecmp(*fmt, "ymcw") == 0) {
+		*fmt = ymcw_dflt;
+	}
+	return;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
 	struct dt_d_s res = {DT_UNK};
+	unsigned int dummy = 0;
 	unsigned int y = 0;
 	unsigned int m = 0;
 	unsigned int d = 0;
@@ -1006,6 +1205,8 @@ dt_strpd(const char *str, const char *fmt)
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str);
 	}
+	/* translate high-level format names */
+	__trans_fmt(&fmt);
 
 	for (const char *fp = fmt, *sp = str; *fp && sp; fp++) {
 		int shaught = 0;
@@ -1025,12 +1226,14 @@ dt_strpd(const char *str, const char *fmt)
 			shaught = 1;
 		case 'Y':
 			sp = strtoui_lim(&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0 ||
+				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'm':
 			sp = strtoui_lim(&m, sp, 0, 12);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0 ||
+				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'd':
@@ -1075,6 +1278,71 @@ dt_strpd(const char *str, const char *fmt)
 			sp = strtoui_lim(&y, sp, 0, 99);
 			if ((y += 2000) > 2068) {
 				y -= 100;
+			}
+			break;
+		case '_':
+			switch (*++fp) {
+				char *pos;
+			case 'b':
+				if ((pos = strchr(__abab_mon, *sp++))) {
+					m = pos - __abab_mon;
+				} else {
+					sp = NULL;
+				}
+				break;
+			case 'a':
+				if ((pos = strchr(__abab_wday, *sp++))) {
+					/* ymcw mode! */
+					w = pos - __abab_wday;
+				} else {
+					sp = NULL;
+				}
+				break;
+			}
+			break;
+		case 't':
+			if (*sp++ != '\t') {
+				sp = NULL;
+			}
+			break;
+		case 'n':
+			if (*sp++ != '\n') {
+				sp = NULL;
+			}
+			break;
+		case 'W':
+			/* cannot be used at the moment */
+			sp = strtoui_lim(&dummy, sp, 1, 366);
+			break;
+		case 'j':
+			/* cannot be used at the moment */
+			sp = strtoui_lim(&dummy, sp, 0, 53);
+			break;
+		case 'O':
+			/* roman numerals modifier */
+			switch (*++fp) {
+			case 'Y':
+				sp = romstrtoui_lim(
+					&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
+				break;
+			case 'y':
+				sp = romstrtoui_lim(&y, sp, 0, 99);
+				if ((y += 2000) > 2068) {
+					y -= 100;
+				}
+				break;
+			case 'm':
+				sp = romstrtoui_lim(&m, sp, 0, 12);
+				break;
+			case 'd':
+				sp = romstrtoui_lim(&d, sp, 0, 31);
+				break;
+			case 'c':
+				sp = romstrtoui_lim(&c, sp, 0, 5);
+				break;
+			default:
+				sp = NULL;
+				break;
 			}
 			break;
 		}
@@ -1145,6 +1413,8 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 	case DT_UNK:
 		goto out;
 	}
+	/* translate high-level format names */
+	__trans_fmt(&fmt);
 
 	for (const char *fp = fmt; *fp && res < bsz; fp++) {
 		int shaught = 0;
@@ -1212,6 +1482,49 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			break;
 		case 'y':
 			res += ui32tostr(buf + res, bsz - res, y, 2);
+			break;
+		case '_':
+			/* secret mode */
+			switch (*++fp) {
+			case 'b':
+				/* super abbrev'd month */
+				if (m < countof(__abab_mon)) {
+					buf[res++] = __abab_mon[m];
+				}
+				break;
+			case 'a': {
+				dt_dow_t wd = dt_get_wday(this);
+				/* super abbrev'd wday */
+				if (wd < countof(__abab_wday)) {
+					buf[res++] = __abab_wday[wd];
+				}
+				break;
+			}
+			}
+			break;
+		case 't':
+			/* literal tab */
+			buf[res++] = '\t';
+			break;
+		case 'n':
+			/* literal \n */
+			buf[res++] = '\n';
+			break;
+		case 'j':
+			if (this.typ == DT_YMD) {
+				int yd = __ymd_get_yday(this.ymd);
+				res += ui32tostr(buf + res, bsz - res, yd, 3);
+			}
+			break;
+		case 'W':
+			if (this.typ == DT_YMCW) {
+				int yd = __ymcw_get_yday(this.ymcw);
+				res += ui32tostr(buf + res, bsz - res, yd, 2);
+			}
+			break;
+		case 'O':
+			/* o modifier for roman dates */
+			res += __strfd_O(buf + res, bsz - res, *++fp, this);
 			break;
 		}
 	}

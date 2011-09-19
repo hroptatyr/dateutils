@@ -47,11 +47,13 @@
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
+# pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
 #include "dtest-clo.h"
 #include "dtest-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
+# pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
 DECLF size_t __attribute__((unused))

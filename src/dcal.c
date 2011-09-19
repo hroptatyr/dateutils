@@ -69,11 +69,13 @@ dcal_conv(struct dt_d_s d, const char *fmt)
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
+# pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
 #include "dcal-clo.h"
 #include "dcal-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
+# pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
 int

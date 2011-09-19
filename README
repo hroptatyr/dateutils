@@ -79,3 +79,25 @@ The following tools are part of datetools:
     fi
     =>
       yes
+
++ dadd
+  A tool to perform date/duration arithmetic in the shell.  Given a date
+  and a a list of durations this will compute new dates.  Given a
+  duration and a list of dates this will compute new dates.
+
+    dadd 2010-02-02 +4d
+    =>
+      2010-02-06
+
+    dadd 2010-02-02 +1w
+    =>
+      2010-02-09
+
+    dadd -1d <<EOF
+    2001-01-05
+    2001-01-01
+    EOF
+    =>
+      2001-01-04
+      2000-12-31
+

@@ -44,130 +44,215 @@
 #include "date-io.h"
 
 
-#define SECRET_BIT	(1U << 31)
-
-union __d_or_dur_u {
-	uint32_t typ;
-	struct dt_d_s d;
-	struct dt_dur_s dur;
+/* we parse durations ourselves so we can cope with the
+ * non-commutativity of duration addition:
+ * 2000-03-30 +1m -> 2000-04-30 +1d -> 2000-05-01
+ * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
+struct __strpdur_st_s {
+	int sign;
+	const char *istr;
+	const char *cont;
+	struct dt_dur_s this;
 };
 
-static union __d_or_dur_u
-strp_d_or_dur(const char *input, const char *const *fmt, size_t nfmt)
+static int
+__strpdur_more_p(struct __strpdur_st_s *st)
 {
-	union __d_or_dur_u res = {.typ = DT_UNK};
+	return st->cont != NULL;
+}
 
-	if ((res.dur = dt_strpdur(input)).typ > DT_DUR_UNK) {
-		res.typ |= SECRET_BIT;
-	} else if ((res.d = dt_io_strpd(input, fmt, nfmt)).typ > DT_UNK) {
+static int
+dadd_strpdur(struct __strpdur_st_s *st, const char *str)
+{
+/* at the moment we allow only one format */
+	struct dt_dur_s this = {DT_DUR_UNK};
+	const char *sp = NULL;
+	int tmp;
+	int y = 0;
+	int m = 0;
+	int w = 0;
+	int d = 0;
+	int res = 0;
+
+	/* check if we should continue */
+	if (st->cont) {
+		str = st->istr = st->cont;
+	} else if ((st->istr = str)) {
 		;
+	} else {
+		goto out;
 	}
-	return res;
-}
 
-static inline int
-__dp(union __d_or_dur_u d)
-{
-	return (d.typ & SECRET_BIT) == 0;
-}
-
-static inline int
-__durp(union __d_or_dur_u d)
-{
-	return (d.typ & SECRET_BIT) == SECRET_BIT;
-}
-
-static int
-dadd_addprnt(struct dt_d_s d, struct dt_dur_s dur, const char *fmt)
-{
-	struct dt_d_s da;
-	char buf[256];
-
-	da = dt_add(d, dur);
-	dt_strfd(buf, sizeof(buf), fmt, da);
-	fputs(buf, stdout);
-	return 0;
-}
-
-static int
-dadd_proc(
-	const char *inp, union __d_or_dur_u ddur,
-	const char *const *fmt, size_t nfmt, const char *ofmt)
-{
-	int res = -1;
-
-	if (__durp(ddur)) {
-		struct dt_d_s d;
-		if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
-			ddur.typ &= ~SECRET_BIT;
-			res = dadd_addprnt(d, ddur.dur, ofmt);
+	/* read over signs and prefixes */
+	for (sp = str; ; sp++) {
+		switch (*sp) {
+		case '\0':
+			goto out;
+		case '+':
+			st->sign = 0;
+			continue;
+		case '-':
+			st->sign = -1;
+			continue;
+		case '=':
+			st->sign = 1;
+			continue;
+		case 'P':
+			continue;
+		default:
+			break;
 		}
-	} else if (__dp(ddur)) {
-		struct dt_dur_s dur;
-		if ((dur = dt_strpdur(inp)).typ > DT_DUR_UNK) {
-			res = dadd_addprnt(ddur.d, dur, ofmt);
+		break;
+	}
+
+	/* read the year */
+	do {
+		tmp = strtol(sp, (char**)&sp, 10);
+		switch (*sp++) {
+		case '\0':
+			/* must have been day then */
+			d = tmp;
+			goto assess;
+		case 'd':
+		case 'D':
+			d = tmp;
+			goto assess;
+		case 'y':
+		case 'Y':
+			y = tmp;
+			goto assess;
+		case 'm':
+		case 'M':
+			m = tmp;
+			goto assess;
+		case 'w':
+		case 'W':
+			w = tmp;
+			goto assess;
+		default:
+			res = -1;
+			goto out;
 		}
+	} while (1);
+assess:
+	if (LIKELY((m && d) ||
+		   (y == 0 && m == 0 && w == 0) ||
+		   (y == 0 && w == 0 && d == 0))) {
+		this.typ = DT_DUR_MD;
+		switch (st->sign) {
+		case 0:
+			this.md.m = m;
+			this.md.d = d;
+			break;
+		case -1:
+			this.md.m = -m;
+			this.md.d = -d;
+			break;
+		case 1:
+			/* set mode */
+			this.md.m = 0;
+			this.md.d = 0;
+			break;
+		}
+		res = 1;
+	} else if (w) {
+		this.typ = DT_DUR_WD;
+		switch (st->sign) {
+		case 0:
+			this.wd.w = w;
+			this.wd.d = d;
+			break;
+		case -1:
+			this.wd.w = -w;
+			this.wd.d = -d;
+			break;
+		case 1:
+			/* set mode */
+			this.wd.w = 0;
+			this.wd.d = 0;
+			break;
+		}
+		res = 1;
+	} else if (y) {
+		this.typ = DT_DUR_YM;
+		switch (st->sign) {
+		case 0:
+			this.ym.y = y;
+			this.ym.m = m;
+			break;
+		case -1:
+			this.ym.y = -y;
+			this.ym.m = -m;
+			break;
+		case 1:
+			/* set mode */
+			this.ym.y = 0;
+			this.ym.m = 0;
+			break;
+		}
+		res = 1;
+	} else {
+		sp = NULL;
+		res = -1;		
+	}
+out:
+	st->this = this;
+	if ((st->cont = sp) && *sp == '\0') {
+		st->sign = 0;
+		st->cont = NULL;
 	}
 	return res;
 }
 
 
-#define MAGIC_CHAR	'~'
-
-static void
-fixup_argv(int argc, char *argv[])
+static struct dt_d_s
+dadd_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
 {
-	int i = 0;
-
-	while (++i < argc) {
-		if (argv[i][0] != '-') {
-			break;
-		}
+	for (size_t i = 0; i < ndur; i++) {
+		d = dt_add(d, dur[i]);
 	}
-	/* now take a closer look */
-	while (++i < argc) {
-		if (argv[i][0] == '-' &&
-		    argv[i][1] >= '1' && argv[i][1] <= '9') {
-			/* assume this is meant to be an integer
-			 * as opposed to an option that begins with a digit */
-			argv[i][0] = MAGIC_CHAR;
-		}
-	}
-	return;
+	return d;
 }
 
-static inline char*
-unfixup_arg(char *arg)
+static int
+dadd_prnt(struct dt_d_s d, const char *fmt)
 {
-	if (UNLIKELY(arg[0] == MAGIC_CHAR)) {
-		arg[0] = '-';
-	}
-	return arg;
+	char buf[256];
+
+	dt_strfd(buf, sizeof(buf), fmt, d);
+	fputs(buf, stdout);
+	return 0;
 }
 
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
+# pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
 #include "dadd-clo.h"
 #include "dadd-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
+# pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
 int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	union __d_or_dur_u d;
-	const char *inp;
+	struct dt_d_s d;
+	struct dt_dur_s dur[32];
+	size_t ndur = 0;
+	struct __strpdur_st_s st = {0};
+	char *inp;
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
+	size_t beg_idx = 0;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv);
+	fixup_argv(argc, argv, "Pp+");
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
@@ -186,14 +271,48 @@ main(int argc, char *argv[])
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
 
-	/* check first arg */
+	/* check first arg, if it's a date the rest of the arguments are
+	 * durations, if not, dates must be read from stdin */
 	inp = unfixup_arg(argi->inputs[0]);
-	if ((d = strp_d_or_dur(inp, fmt, nfmt)).typ == 0) {
-		fprintf(stderr, "Error: neither date nor duration `%s'\n", inp);
+	if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
+		/* ah good, it's a date */
+		beg_idx++;
+	}
+
+	/* check durations */
+	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
+		inp = unfixup_arg(argi->inputs[i]);
+		do {
+			switch (dadd_strpdur(&st, inp)) {
+			case 1:
+				dur[ndur++] = st.this;
+				break;
+			case -1:
+				fprintf(stderr, "Error: \
+cannot parse duration string `%s'\n", st.istr);
+				break;
+			default:
+			case 0:
+				break;
+			}
+		} while (__strpdur_more_p(&st));
+	}
+	if (ndur == 0) {
+		fputs("Error: no duration given\n\n", stderr);
+		cmdline_parser_print_help();
 		res = 1;
 		goto out;
 	}
-	if (argi->inputs_num == 1) {
+
+	/* start the actual work */
+	if (beg_idx > 0) {
+		if ((d = dadd_add(d, dur, ndur)).typ > DT_UNK) {
+			dadd_prnt(d, ofmt);
+			res = 0;
+		} else {
+			res = 1;
+		}
+	} else {
 		/* read from stdin */
 		FILE *fp = stdin;
 		char *line;
@@ -213,21 +332,14 @@ main(int argc, char *argv[])
 			/* terminate the string accordingly */
 			line[n - 1] = '\0';
 			/* perform addition now */
-			dadd_proc(line, d, fmt, nfmt, ofmt);
+			if ((d = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK) {
+				d = dadd_add(d, dur, ndur);
+				dadd_prnt(d, ofmt);
+			}
 		}
 		/* get rid of resources */
 		free(line);
 		goto out;
-
-	} else if (argi->inputs_num == 2) {
-		/* special case for people that need the exit code */
-		inp = unfixup_arg(argi->inputs[1]);
-		if (dadd_proc(inp, d, fmt, nfmt, ofmt) < 0) {
-			res = 1;
-		}
-	} else {
-		cmdline_parser_print_help();
-		res = 1;
 	}
 
 out:
