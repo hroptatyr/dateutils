@@ -53,7 +53,7 @@ dt_io_unescape(char *s)
 
 #define MAGIC_CHAR	'~'
 
-static void
+static void __attribute__((unused))
 fixup_argv(int argc, char *argv[])
 {
 	for (int i = 1; i < argc; i++) {
