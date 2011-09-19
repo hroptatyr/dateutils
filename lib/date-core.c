@@ -1106,6 +1106,16 @@ dt_strpd(const char *str, const char *fmt)
 				break;
 			}
 			break;
+		case 't':
+			if (*sp++ != '\t') {
+				sp = NULL;
+			}
+			break;
+		case 'n':
+			if (*sp++ != '\n') {
+				sp = NULL;
+			}
+			break;
 		}
 	}
 	switch (res.typ) {
@@ -1259,6 +1269,26 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				}
 				break;
 			}
+			}
+			break;
+		case 't':
+			/* literal tab */
+			buf[res++] = '\t';
+			break;
+		case 'n':
+			/* literal \n */
+			buf[res++] = '\n';
+			break;
+		case 'j':
+			if (this.typ == DT_YMD) {
+				int yd = __ymd_get_yday(this.ymd);
+				res += ui32tostr(buf + res, bsz - res, yd, 3);
+			}
+			break;
+		case 'W':
+			if (this.typ == DT_YMCW) {
+				int yd = __ymcw_get_yday(this.ymcw);
+				res += ui32tostr(buf + res, bsz - res, yd, 2);
 			}
 			break;
 		}
