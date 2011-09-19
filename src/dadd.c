@@ -66,7 +66,7 @@ dadd_strpdur(struct __strpdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */
 	struct dt_dur_s this = {DT_DUR_UNK};
-	char *sp = NULL;
+	const char *sp = NULL;
 	int tmp;
 	int y = 0;
 	int m = 0;
@@ -83,31 +83,31 @@ dadd_strpdur(struct __strpdur_st_s *st, const char *str)
 		goto out;
 	}
 
-	if (str[0] == '\0') {
-		goto out;
-	} else if (str[1] == '\0') {
-		/* special case, just the sign */
-		switch (str[0]) {
+	/* read over signs and prefixes */
+	for (sp = str; ; sp++) {
+		switch (*sp) {
+		case '\0':
+			goto out;
 		case '+':
 			st->sign = 0;
-			break;
+			continue;
 		case '-':
 			st->sign = -1;
-			break;
+			continue;
 		case '=':
 			st->sign = 1;
-			break;
+			continue;
+		case 'P':
+			continue;
 		default:
-			res = -1;
+			break;
 		}
-		goto out;
-	} else if (str[0] == 'P') {
-		/* convenience */
-		str++;
+		break;
 	}
+
 	/* read the year */
 	do {
-		tmp = strtol(str, &sp, 10);
+		tmp = strtol(sp, (char**)&sp, 10);
 		switch (*sp++) {
 		case '\0':
 			/* must have been day then */
@@ -252,7 +252,7 @@ main(int argc, char *argv[])
 	size_t beg_idx = 0;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv);
+	fixup_argv(argc, argv, "Pp+");
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;

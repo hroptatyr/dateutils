@@ -247,7 +247,7 @@ main(int argc, char *argv[])
 	__skipspec_t ss = 0;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv);
+	fixup_argv(argc, argv, NULL);
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
