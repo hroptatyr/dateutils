@@ -44,6 +44,74 @@
 #include "date-io.h"
 
 
+/* we parse durations ourselves so we can cope with the
+ * non-commutativity of duration addition:
+ * 2000-03-30 +1m -> 2000-04-30 +1d -> 2000-05-01
+ * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
+static struct dt_dur_s
+dadd_strpdur(const char *str)
+{
+/* at the moment we allow only one format */
+	struct dt_dur_s res = {DT_DUR_UNK};
+	char *sp = ((union {char *p; const char *c;}){.c = str}).p;
+	int tmp;
+	int y = 0;
+	int m = 0;
+	int w = 0;
+	int d = 0;
+
+	if (str == NULL) {
+		goto out;
+	}
+	/* read the year */
+	do {
+		tmp = strtol(sp, &sp, 10);
+		switch (*sp++) {
+		case '\0':
+			/* must have been day then */
+			d = tmp;
+			goto assess;
+		case 'd':
+		case 'D':
+			d = tmp;
+			goto assess;
+		case 'y':
+		case 'Y':
+			y = tmp;
+			goto assess;
+		case 'm':
+		case 'M':
+			m = tmp;
+			goto assess;
+		case 'w':
+		case 'W':
+			w = tmp;
+			goto assess;
+		default:
+			goto out;
+		}
+	} while (*sp);
+assess:
+	if (LIKELY((m && d) ||
+		   (y == 0 && m == 0 && w == 0) ||
+		   (y == 0 && w == 0 && d == 0))) {
+		res.typ = DT_DUR_MD;
+		res.md.m = m;
+		res.md.d = d;
+	} else if (w) {
+		res.typ = DT_DUR_WD;
+		res.wd.w = w;
+		res.wd.d = d;
+	} else if (y) {
+		res.typ = DT_DUR_YM;
+		res.ym.y = y;
+		res.ym.m = m;
+	}
+out:
+	return res;
+}
+
+
 #define SECRET_BIT	(1U << 31)
 
 union __d_or_dur_u {
@@ -57,7 +125,7 @@ strp_d_or_dur(const char *input, const char *const *fmt, size_t nfmt)
 {
 	union __d_or_dur_u res = {.typ = DT_UNK};
 
-	if ((res.dur = dt_strpdur(input)).typ > DT_DUR_UNK) {
+	if ((res.dur = dadd_strpdur(input)).typ > DT_DUR_UNK) {
 		res.typ |= SECRET_BIT;
 	} else if ((res.d = dt_io_strpd(input, fmt, nfmt)).typ > DT_UNK) {
 		;
