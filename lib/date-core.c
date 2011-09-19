@@ -824,7 +824,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 {
 	unsigned int tgty = 0;
 	unsigned int tgtm = 0;
-	unsigned int tgtd = 0;
+	int tgtd = 0;
 
 	switch (dur.typ) {
 		int tmp;
@@ -847,7 +847,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 		tgtm = tmp % 12 + 1;
 
 		/* fixup day */
-		if ((tgtd = d.d) > (mdays = __get_mdays(tgty, tgtm))) {
+		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
 			tgtd = mdays;
 		}
 		if (dur.typ == DT_DUR_YM) {
@@ -865,13 +865,22 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
 		}
 		/* fixup the day */
-		while (tgtd > mdays) {
+		while (tgtd > (int)mdays) {
 			tgtd -= mdays;
 			if (++tgtm > 12) {
 				++tgty;
 				tgtm = 1;
 			}
 			mdays = __get_mdays(tgty, tgtm);
+		}
+		/* and the other direction */
+		while (tgtd < 1) {
+			if (--tgtm < 1) {
+				--tgty;
+				tgtm = 12;
+			}
+			mdays = __get_mdays(tgty, tgtm);
+			tgtd += mdays;
 		}
 		break;
 	case DT_DUR_UNK:
