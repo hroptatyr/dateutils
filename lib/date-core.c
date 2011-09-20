@@ -35,12 +35,14 @@
  *
  **/
 /* implementation part of date-core.h */
+#if !defined INCLUDED_date_core_c_
+#define INCLUDED_date_core_c_
+
 #include <string.h>
+#include <stdio.h>
+#include <time.h>
 #include "date-core.h"
 
-#if defined DEBUG_FLAG
-# include <stdio.h>
-#endif	/* DEBUG_FLAG */
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
 #endif
@@ -1741,4 +1743,5 @@ dt_neg_dur(struct dt_dur_s dur)
 	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
 }
 
+#endif	/* INCLUDED_date_core_c_ */
 /* date-core.c ends here */
