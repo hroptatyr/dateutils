@@ -936,6 +936,23 @@ __daisy_add(dt_daisy_t d, struct dt_dur_s dur)
 	return d;
 }
 
+static struct dt_dur_s
+__daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
+{
+/* compute d2 - d1 */
+	struct dt_dur_s res = {.typ = DT_DUR_WD};
+	int32_t diff = d2 - d1;
+
+#if 0
+	res.wd.d = diff;
+	res.wd.w = 0;
+#elif 1
+	res.wd.w = diff / 7;
+	res.wd.d = diff % 7;
+#endif
+	return res;
+}
+
 static dt_ymd_t
 __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 {
@@ -1008,6 +1025,35 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 	d.m = tgtm;
 	d.d = tgtd;
 	return d;
+}
+
+static struct dt_dur_s
+__ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
+{
+/* compute d2 - d1 entirely in terms of ymd */
+	struct dt_dur_s res = {.typ = DT_DUR_MD};
+	signed int tgtd = 0;
+	signed int tgtm = 0;
+
+	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
+	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
+		/* if tgtm is 0 it remains 0 and tgtd remains negative */
+		/* get the target month's mdays */
+		unsigned int d2m = d2.m;
+		unsigned int d2y = d2.y;
+
+		if (--d2m < 1) {
+			d2m = 12;
+			d2y--;
+		}
+		tgtd += __get_mdays(d2y, d2m);
+		tgtm--;
+	}
+	/* fill in the results */
+	res.md.m = tgtm;
+	res.md.d = tgtd;
+	return res;
 }
 
 static dt_ymcw_t
@@ -1617,15 +1663,45 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 	switch (that.typ) {
 	case DT_DUR_MD:
 		/* auto-newline */
-		res = snprintf(buf, bsz, "%dm%dd\n", that.md.m, that.md.d);
+		if (that.md.m >= 0 && that.md.d >= 0 ||
+		    that.md.m > 0 && that.md.d < 0) {
+			res = snprintf(
+				buf, bsz, "%dm%dd\n", that.md.m, that.md.d);
+		} else if (that.md.m < 0 && that.md.d > 0) {
+			res = snprintf(
+				buf, bsz, "%dm+%dd\n", that.md.m, that.md.d);
+		} else if (that.md.m < 0 && that.md.d < 0) {
+			res = snprintf(
+				buf, bsz, "%dm%dd\n", that.md.m, -that.md.d);
+		}
 		break;
 	case DT_DUR_WD:
 		/* auto-newline */
-		res = snprintf(buf, bsz, "%dw%dd\n", that.wd.w, that.wd.d);
+		if (that.wd.w >= 0 && that.wd.d >= 0 ||
+		    that.wd.w > 0 && that.wd.d < 0) {
+			res = snprintf(
+				buf, bsz, "%dw%dd\n", that.wd.w, that.wd.d);
+		} else if (that.wd.w < 0 && that.wd.d > 0) {
+			res = snprintf(
+				buf, bsz, "%dw+%dd\n", that.wd.w, that.wd.d);
+		} else if (that.wd.w < 0 && that.wd.d < 0) {
+			res = snprintf(
+				buf, bsz, "%dw%dd\n", that.wd.w, -that.wd.d);
+		}
 		break;
 	case DT_DUR_YM:
 		/* auto-newline */
-		res = snprintf(buf, bsz, "%dy%dm\n", that.ym.y, that.ym.m);
+		if (that.ym.y >= 0 && that.ym.m >= 0 ||
+		    that.ym.y > 0 && that.ym.m < 0) {
+			res = snprintf(
+				buf, bsz, "%dy%dm\n", that.ym.y, that.ym.m);
+		} else if (that.ym.y < 0 && that.ym.m > 0) {
+			res = snprintf(
+				buf, bsz, "%dy+%dm\n", that.ym.y, that.ym.m);
+		} else if (that.ym.y < 0 && that.ym.m < 0) {
+			res = snprintf(
+				buf, bsz, "%dy%dm\n", that.ym.m, -that.ym.m);
+		}
 		break;
 	case DT_DUR_UNK:
 	default:
@@ -1735,14 +1811,48 @@ DEFUN struct dt_dur_s
 dt_diff(struct dt_d_s d1, struct dt_d_s d2)
 {
 	struct dt_dur_s res = {.typ = DT_DUR_UNK};
+
+	switch (d1.typ) {
+	case DT_DAISY: {
+		dt_daisy_t tmp = dt_conv_to_daisy(d2);
+		res = __daisy_diff(d1.daisy, tmp);
+		break;
+	}
+	case DT_YMD: {
+		dt_ymd_t tmp = dt_conv_to_ymd(d2);
+		res = __ymd_diff(d1.ymd, tmp);
+		break;
+	}
+	case DT_UNK:
+	default:
+		res.u = 0;
+		break;
+	}
 	return res;
 }
 
 DEFUN struct dt_dur_s
 dt_neg_dur(struct dt_dur_s dur)
 {
-	struct dt_dur_s res = {.typ = DT_DUR_UNK};
-	return res;
+	switch (dur.typ) {
+	case DT_DUR_WD:
+		dur.wd.d = -dur.wd.d;
+		dur.wd.w = -dur.wd.w;
+		break;
+	case DT_DUR_MD:
+		dur.md.d = -dur.md.d;
+		dur.md.m = -dur.md.m;
+		break;
+	case DT_DUR_YM:
+		dur.ym.m = -dur.ym.m;
+		dur.ym.y = -dur.ym.y;
+		break;
+	case DT_DUR_UNK:
+	default:
+		dur.u = 0;
+		break;
+	}
+	return dur;
 }
 
 #endif	/* INCLUDED_date_core_c_ */

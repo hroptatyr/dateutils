@@ -101,3 +101,16 @@ The following tools are part of datetools:
       2001-01-04
       2000-12-31
 
++ ddiff
+  A tool to compute durations between two (or more) dates.  This is
+  somewhat the converse of dadd.
+
+    ddiff 2001-02-08 2001-03-02
+    =>
+      0m22d
+
+
+Notes
+=====
+- Supported compilers: gcc (>= 4.6.0), icc, clang, tcc
+
