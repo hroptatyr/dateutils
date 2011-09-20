@@ -1741,8 +1741,25 @@ dt_diff(struct dt_d_s d1, struct dt_d_s d2)
 DEFUN struct dt_dur_s
 dt_neg_dur(struct dt_dur_s dur)
 {
-	struct dt_dur_s res = {.typ = DT_DUR_UNK};
-	return res;
+	switch (dur.typ) {
+	case DT_DUR_WD:
+		dur.wd.d = -dur.wd.d;
+		dur.wd.w = -dur.wd.w;
+		break;
+	case DT_DUR_MD:
+		dur.md.d = -dur.md.d;
+		dur.md.m = -dur.md.m;
+		break;
+	case DT_DUR_YM:
+		dur.ym.m = -dur.ym.m;
+		dur.ym.y = -dur.ym.y;
+		break;
+	case DT_DUR_UNK:
+	default:
+		dur.u = 0;
+		break;
+	}
+	return dur;
 }
 
 #endif	/* INCLUDED_date_core_c_ */
