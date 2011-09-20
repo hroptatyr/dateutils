@@ -5,7 +5,7 @@ dnl -------------------------------------------------------------------------
 AC_PREREQ([2.63])
 m4_define([GIT_VERSION_GEN], [dnl
 pushdef([version], [m4_esyscmd([./git-version-gen])])[]dnl
-ifelse([]version[], [], [0.1.0], []version[])[]dnl
+ifelse([]version[], [], [0.1.3-pre], []version[])[]dnl
 popdef([version])[]dnl
 ])
 AC_INIT([datetools], [GIT_VERSION_GEN], [https://github.com/hroptatyr/datetools])
@@ -43,7 +43,7 @@ AC_PROG_CC_C99
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
-apps=" dcal dseq dtest strptime"
+apps=" dadd dcal dseq dtest strptime"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])

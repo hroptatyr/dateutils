@@ -177,7 +177,7 @@ __skip_str(__skipspec_t ss, const char *str)
 }
 
 static __skipspec_t
-__skip_1spec(__skipspec_t ss, const char *spec)
+__skip_1spec(__skipspec_t ss, char *spec)
 {
 	char *tmp;
 	dt_dow_t from, till;
@@ -196,7 +196,7 @@ __skip_1spec(__skipspec_t ss, const char *spec)
 }
 
 static __skipspec_t
-set_skip(__skipspec_t ss, const char *spec)
+set_skip(__skipspec_t ss, char *spec)
 {
 	char *tmp, *tm2;
 

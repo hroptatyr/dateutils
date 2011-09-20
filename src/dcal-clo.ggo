@@ -1,24 +1,23 @@
 args "--unamed-opts --long-help"
 package "dcal"
 usage "dcal [OPTION]... DATEs"
-description "Convert DATEs between calendrical systems.  If DATEs are
-omitted they read from stdin, the special date `now' is interpreted as
-the current date.
-
-The default conversion is between the Gregorian YMD (year-month-day) and
-the Gregorian YMCD (year-month-count-weekday)."
+description "Convert DATEs between calendrical systems.  If DATEs are \
+omitted they read from stdin, the special date `now' is interpreted as \
+the current date."
 
 option "format" f
-	"output format as passed to strftime()"
+	"Output format as passed to strfd(), this can either be a \
+spec string (much like strftime()'s FMT) or the name of a calendar."
 	string optional
 
 option "input-format" i
-	"input format as passed to strptime(), can be used multiple times.
-If used dates can be specified on the command line, or if left empty they
-are read from stdin"
+	"Input format as passed to strpd(), can be used multiple times.
+Each DATE will be passed to the input format parsers in the order they \
+are given, if DATE can be read successfully with a given input format \
+that value will be used."
 	string optional multiple
 
 option "backslash-escapes" e
-	"enable interpretation of backslash escapes in the output and
+	"enable interpretation of backslash escapes in the output and \
 input format strings"
 	optional

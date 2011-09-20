@@ -48,22 +48,11 @@ static int
 dcal_conv(struct dt_d_s d, const char *fmt)
 {
 	static char buf[64];
-	int res;
+	size_t n;
 
-	switch (d.typ) {
-	case DT_YMD:
-		dt_strfd(buf, sizeof(buf), fmt ?: "%Y-%m-%c-%w\n", d);
-		break;
-	case DT_YMCW:
-		dt_strfd(buf, sizeof(buf), fmt ?: "%Y-%m-%d\n", d);
-		break;
-	default:
-		buf[0] = '\n';
-		buf[1] = '\0';
-		res = 1;
-	}
-	fputs(buf, stdout);
-	return res;
+	n = dt_strfd(buf, sizeof(buf), fmt, d);
+	fwrite(buf, sizeof(*buf), n, stdout);
+	return (n > 0) - 1;
 }
 
 
