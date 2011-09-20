@@ -18,6 +18,7 @@ man1_MANS =
 man1_MANS += strptime.man
 man1_MANS += dadd.man
 man1_MANS += dcal.man
+man1_MANS += ddiff.man
 man1_MANS += dseq.man
 man1_MANS += dtest.man
 
