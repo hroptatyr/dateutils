@@ -13,4 +13,12 @@ DT_LOG_COMPILER = $(srcdir)/dt-test.sh
 AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
 LOG_COMPILER = echo
 
+TESTS += dseq.1.dt
+TESTS += dseq.2.dt
+TESTS += dseq.3.dt
+TESTS += dseq.4.dt
+TESTS += dseq.5.dt
+TESTS += dseq.6.dt
+TESTS += dseq.7.dt
+
 ## Makefile.am ends here

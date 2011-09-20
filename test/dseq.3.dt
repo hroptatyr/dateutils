@@ -1,0 +1,37 @@
+## -*- shell-script -*-
+
+TOOL=dseq
+CMDLINE="2001-02-03 -1 2001-03-03 --skip sat -f \"%F %a\""
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+2001-02-04 Sun
+2001-02-05 Mon
+2001-02-06 Tue
+2001-02-07 Wed
+2001-02-08 Thu
+2001-02-09 Fri
+2001-02-11 Sun
+2001-02-12 Mon
+2001-02-13 Tue
+2001-02-14 Wed
+2001-02-15 Thu
+2001-02-16 Fri
+2001-02-18 Sun
+2001-02-19 Mon
+2001-02-20 Tue
+2001-02-21 Wed
+2001-02-22 Thu
+2001-02-23 Fri
+2001-02-25 Sun
+2001-02-26 Mon
+2001-02-27 Tue
+2001-02-28 Wed
+2001-03-01 Thu
+2001-03-02 Fri
+EOF
+
+## dseq.3.dt ends here
