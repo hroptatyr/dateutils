@@ -152,8 +152,8 @@ typedef enum {
 typedef union {
 	uint32_t u;
 	struct {
-		int d:16;
-		int m:16;
+		signed int d:16;
+		signed int m:16;
 	};
 } dt_mddur_t;
 
@@ -162,8 +162,8 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-		int d:16;
-		int w:16;
+		signed int d:16;
+		signed int w:16;
 	};
 } dt_wddur_t;
 
@@ -172,8 +172,8 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-		int m:16;
-		int y:16;
+		signed int m:16;
+		signed int y:16;
 	};
 } dt_ymdur_t;
 
