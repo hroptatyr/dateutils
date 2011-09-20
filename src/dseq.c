@@ -301,11 +301,17 @@ main(int argc, char *argv[])
 		if (ite < 0) {
 			/* different meaning now, we need to compute the
 			 * beginning rather than the end */
-			dt_daisy_t tmp = lst.daisy;
+			struct dt_d_s tmp = lst;
 
 			ite = -ite;
-			while ((tmp -= ite) >= fst.daisy);
-			fst.daisy = tmp + ite;
+			while (tmp.daisy >= fst.daisy) {
+				if (!skipp(ss, tmp)) {
+					tmp.daisy -= ite;
+				} else {
+					tmp.daisy--;
+				}
+			}
+			fst.daisy = tmp.daisy + ite;
 		}
 		do {
 			if (!skipp(ss, fst)) {
@@ -319,10 +325,16 @@ main(int argc, char *argv[])
 		if (ite > 0) {
 			/* different meaning now, we need to compute the
 			 * end rather than the beginning */
-			dt_daisy_t tmp = lst.daisy;
+			struct dt_d_s tmp = lst;
 
-			while ((tmp += ite) <= fst.daisy);
-			fst.daisy = tmp - ite;
+			while (tmp.daisy <= fst.daisy) {
+				if (!skipp(ss, tmp)) {
+					tmp.daisy += ite;
+				} else {
+					tmp.daisy++;
+				}
+			}
+			fst.daisy = tmp.daisy - ite;
 		} else {
 			ite = -ite;
 		}
