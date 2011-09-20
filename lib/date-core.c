@@ -936,6 +936,23 @@ __daisy_add(dt_daisy_t d, struct dt_dur_s dur)
 	return d;
 }
 
+static struct dt_dur_s
+__daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
+{
+/* compute d2 - d1 */
+	struct dt_dur_s res = {.typ = DT_DUR_WD};
+	int32_t diff = d2 - d1;
+
+#if 0
+	res.wd.d = diff;
+	res.wd.w = 0;
+#elif 1
+	res.wd.w = diff / 7;
+	res.wd.d = diff % 7;
+#endif
+	return res;
+}
+
 static dt_ymd_t
 __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 {
@@ -1008,6 +1025,35 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 	d.m = tgtm;
 	d.d = tgtd;
 	return d;
+}
+
+static struct dt_dur_s
+__ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
+{
+/* compute d2 - d1 entirely in terms of ymd */
+	struct dt_dur_s res = {.typ = DT_DUR_MD};
+	signed int tgtd = 0;
+	signed int tgtm = 0;
+
+	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
+	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
+		/* if tgtm is 0 it remains 0 and tgtd remains negative */
+		/* get the target month's mdays */
+		unsigned int d2m = d2.m;
+		unsigned int d2y = d2.y;
+
+		if (--d2m < 1) {
+			d2m = 12;
+			d2y--;
+		}
+		tgtd += __get_mdays(d2y, d2m);
+		tgtm--;
+	}
+	/* fill in the results */
+	res.md.m = tgtm;
+	res.md.d = tgtd;
+	return res;
 }
 
 static dt_ymcw_t
@@ -1735,6 +1781,23 @@ DEFUN struct dt_dur_s
 dt_diff(struct dt_d_s d1, struct dt_d_s d2)
 {
 	struct dt_dur_s res = {.typ = DT_DUR_UNK};
+
+	switch (d1.typ) {
+	case DT_DAISY: {
+		dt_daisy_t tmp = dt_conv_to_daisy(d2);
+		res = __daisy_diff(d1.daisy, tmp);
+		break;
+	}
+	case DT_YMD: {
+		dt_ymd_t tmp = dt_conv_to_ymd(d2);
+		res = __ymd_diff(d1.ymd, tmp);
+		break;
+	}
+	case DT_UNK:
+	default:
+		res.u = 0;
+		break;
+	}
 	return res;
 }
 
