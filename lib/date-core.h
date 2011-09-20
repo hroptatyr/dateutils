@@ -53,6 +53,9 @@ extern "C" {
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
+#if !defined restrict
+# define restrict	__restrict
+#endif	/* !restrict */
 
 typedef enum {
 	DT_UNK,
@@ -208,7 +211,7 @@ DECLF struct dt_d_s dt_strpd(const char *str, const char *fmt);
 /**
  * Like strftime() for our dates */
 DECLF size_t
-dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s d);
+dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
@@ -217,7 +220,7 @@ DECLF struct dt_dur_s dt_strpdur(const char *str);
 /**
  * Print a duration. */
 DECLF size_t
-dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this);
+dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s);
 
 /**
  * Like time() but return the current date in the desired format. */
@@ -225,11 +228,11 @@ DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
-DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d);
+DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s);
 
 /**
  * Get the weekday of a date. */
-DECLF dt_dow_t dt_get_wday(struct dt_d_s d);
+DECLF dt_dow_t dt_get_wday(struct dt_d_s);
 
 /**
  * Get the day of the month of a date. */

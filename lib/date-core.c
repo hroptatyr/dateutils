@@ -547,51 +547,51 @@ __get_mdays(unsigned int y, unsigned int m)
 }
 
 static unsigned int
-__ymd_get_yday(dt_ymd_t this)
+__ymd_get_yday(dt_ymd_t that)
 {
 	unsigned int res;
 
-	if (UNLIKELY(this.y == 0 || this.m == 0 || this.m > 12)) {
+	if (UNLIKELY(that.y == 0 || that.m == 0 || that.m > 12)) {
 		return 0;
 	}
 	/* process */
-	res = this.d + __mon_yday[this.m];
+	res = that.d + __mon_yday[that.m];
 	/* fixup leap years */
-	if (UNLIKELY(__leapp(this.y))) {
-		res += (__mon_yday[0] >> this.m) & 1;
+	if (UNLIKELY(__leapp(that.y))) {
+		res += (__mon_yday[0] >> that.m) & 1;
 	}
 	return res;
 }
 
 static dt_dow_t
-__ymd_get_wday(dt_ymd_t this)
+__ymd_get_wday(dt_ymd_t that)
 {
 	unsigned int yd;
 	dt_dow_t j01_wd;
-	if ((yd = __ymd_get_yday(this)) > 0 &&
-	    (j01_wd = __get_jan01_wday(this.y)) != DT_MIRACLEDAY) {
+	if ((yd = __ymd_get_yday(that)) > 0 &&
+	    (j01_wd = __get_jan01_wday(that.y)) != DT_MIRACLEDAY) {
 		return (dt_dow_t)((yd - 1 + (unsigned int)j01_wd) % 7);
 	}
 	return DT_MIRACLEDAY;
 }
 
 static unsigned int
-__ymd_get_count(dt_ymd_t this)
+__ymd_get_count(dt_ymd_t that)
 {
-	if (UNLIKELY(this.d + 7U > __get_mdays(this.y, this.m))) {
+	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
-	return (this.d - 1U) / 7U + 1U;
+	return (that.d - 1U) / 7U + 1U;
 }
 
 static dt_dow_t
-__ymcw_get_wday(dt_ymcw_t this)
+__ymcw_get_wday(dt_ymcw_t that)
 {
-	return (dt_dow_t)this.w;
+	return (dt_dow_t)that.w;
 }
 
 static unsigned int
-__ymcw_get_yday(dt_ymcw_t this)
+__ymcw_get_yday(dt_ymcw_t that)
 {
 /* return the N-th W-day in Y, this is equivalent with 8601's Y-W-D calendar
  * where W is the week of the year and D the day in the week */
@@ -610,13 +610,13 @@ __ymcw_get_yday(dt_ymcw_t this)
  * 5 Ws in dec,
  * so go back to the last W, and compute its number instead */
 	/* we guess the number of Ws up to the previous month */
-	unsigned int ws = 4 * (this.m - 1);
-	dt_dow_t j01w = __get_jan01_wday(this.y);
-	dt_dow_t m01w = __get_m01_wday(this.y, this.m);
+	unsigned int ws = 4 * (that.m - 1);
+	dt_dow_t j01w = __get_jan01_wday(that.y);
+	dt_dow_t m01w = __get_m01_wday(that.y, that.m);
 
-	switch (this.m) {
+	switch (that.m) {
 	case 10:
-		ws += 3 + __leapp(this.y);
+		ws += 3 + __leapp(that.y);
 		break;
 	case 11:
 		ws++;
@@ -636,32 +636,32 @@ __ymcw_get_yday(dt_ymcw_t this)
 	}
 	/* now find the count of the last W before/eq today */
 	if (m01w <= j01w &&
-	    this.w >= m01w && this.w < j01w) {
+	    that.w >= m01w && that.w < j01w) {
 		ws--;
-	} else if (this.w >= m01w || this.w < j01w) {
+	} else if (that.w >= m01w || that.w < j01w) {
 		ws--;
 	}
-	return ws + this.c;
+	return ws + that.c;
 }
 
 static unsigned int
-__ymcw_get_mday(dt_ymcw_t this)
+__ymcw_get_mday(dt_ymcw_t that)
 {
 	unsigned int wd01;
 	unsigned int wd_jan01;
 	unsigned int res;
 
 	/* weekday the year started with */
-	wd_jan01 = __get_jan01_wday(this.y);
+	wd_jan01 = __get_jan01_wday(that.y);
 	/* see what weekday the first of the month was*/
-	wd01 = __ymd_get_yday((dt_ymd_t){.y = this.y, .m = this.m, .d = 01});
+	wd01 = __ymd_get_yday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
 	wd01 = (wd_jan01 - 1 + wd01) % 7;
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
 	 * so the first WDx with WDx > WD1 is on (WDx - WD1) + 1 */
-	res = (this.w + 7 - wd01) % 7 + 1 + 7 * (this.c - 1);
+	res = (that.w + 7 - wd01) % 7 + 1 + 7 * (that.c - 1);
 	/* not all months have a 5th X, so check for this */
-	if (res > __get_mdays(this.y, this.m)) {
+	if (res > __get_mdays(that.y, that.m)) {
 		 /* 5th = 4th in that case */
 		res -= 7;
 	}
@@ -738,7 +738,7 @@ __daisy_get_year(dt_daisy_t d)
 }
 
 static dt_ymd_t
-__daisy_to_ymd(dt_daisy_t this)
+__daisy_to_ymd(dt_daisy_t that)
 {
 	dt_daisy_t j00;
 	int doy;
@@ -746,12 +746,12 @@ __daisy_to_ymd(dt_daisy_t this)
 	int m;
 	int d;
 
-	if (UNLIKELY(this == 0)) {
+	if (UNLIKELY(that == 0)) {
 		return (dt_ymd_t){.u = 0};
 	}
-	y = __daisy_get_year(this);
+	y = __daisy_get_year(that);
 	j00 = __jan00_daisy(y);
-	doy = this - j00;
+	doy = that - j00;
 	for (m = 1; m < 12 && doy > __mon_yday[m + 1]; m++);
 	d = doy - __mon_yday[m];
 
@@ -773,18 +773,18 @@ __daisy_to_ymd(dt_daisy_t this)
 }
 
 static dt_ymcw_t
-__daisy_to_ymcw(dt_daisy_t this)
+__daisy_to_ymcw(dt_daisy_t that)
 {
 	dt_ymd_t tmp;
 	int c;
 	int w;
 
-	if (UNLIKELY(this == 0)) {
+	if (UNLIKELY(that == 0)) {
 		return (dt_ymcw_t){.u = 0};
 	}
-	tmp = __daisy_to_ymd(this);
+	tmp = __daisy_to_ymd(that);
 	c = __ymd_get_count(tmp);
-	w = __daisy_get_wday(this);
+	w = __daisy_get_wday(that);
 	return (dt_ymcw_t){.y = tmp.y, .m = tmp.m, .c = c, .w = w};
 }
 
@@ -798,15 +798,15 @@ __ymcw_to_ymd(dt_ymcw_t d)
 
 /* converting accessors */
 DEFUN dt_dow_t
-dt_get_wday(struct dt_d_s this)
+dt_get_wday(struct dt_d_s that)
 {
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		return __ymd_get_wday(this.ymd);
+		return __ymd_get_wday(that.ymd);
 	case DT_YMCW:
-		return __ymcw_get_wday(this.ymcw);
+		return __ymcw_get_wday(that.ymcw);
 	case DT_DAISY:
-		return __daisy_get_wday(this.daisy);
+		return __daisy_get_wday(that.daisy);
 	default:
 	case DT_UNK:
 		return DT_MIRACLEDAY;
@@ -814,14 +814,14 @@ dt_get_wday(struct dt_d_s this)
 }
 
 DEFUN int
-dt_get_mday(struct dt_d_s this)
+dt_get_mday(struct dt_d_s that)
 {
-	if (LIKELY(this.typ == DT_YMD)) {
-		return this.ymd.d;
+	if (LIKELY(that.typ == DT_YMD)) {
+		return that.ymd.d;
 	}
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMCW:
-		return __ymcw_get_mday(this.ymcw);
+		return __ymcw_get_mday(that.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
@@ -830,14 +830,14 @@ dt_get_mday(struct dt_d_s this)
 
 /* too exotic to be public */
 static int
-dt_get_count(struct dt_d_s this)
+dt_get_count(struct dt_d_s that)
 {
-	if (LIKELY(this.typ == DT_YMCW)) {
-		return this.ymcw.c;
+	if (LIKELY(that.typ == DT_YMCW)) {
+		return that.ymcw.c;
 	}
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		return __ymd_get_count(this.ymd);
+		return __ymd_get_count(that.ymd);
 	default:
 	case DT_UNK:
 		return 0;
@@ -845,13 +845,13 @@ dt_get_count(struct dt_d_s this)
 }
 
 DEFUN unsigned int
-dt_get_yday(struct dt_d_s this)
+dt_get_yday(struct dt_d_s that)
 {
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		return __ymd_get_yday(this.ymd);
+		return __ymd_get_yday(that.ymd);
 	case DT_YMCW:
-		return __ymcw_get_yday(this.ymcw);
+		return __ymcw_get_yday(that.ymcw);
 	default:
 	case DT_UNK:
 		return 0;
@@ -861,15 +861,15 @@ dt_get_yday(struct dt_d_s this)
 
 /* converters */
 static dt_daisy_t
-dt_conv_to_daisy(struct dt_d_s this)
+dt_conv_to_daisy(struct dt_d_s that)
 {
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		return __ymd_to_daisy(this.ymd);
+		return __ymd_to_daisy(that.ymd);
 	case DT_YMCW:
-		return __ymcw_to_daisy(this.ymcw);
+		return __ymcw_to_daisy(that.ymcw);
 	case DT_DAISY:
-		return this.daisy;
+		return that.daisy;
 	case DT_BIZDA:
 		break;
 	case DT_UNK:
@@ -880,15 +880,15 @@ dt_conv_to_daisy(struct dt_d_s this)
 }
 
 static dt_ymd_t
-dt_conv_to_ymd(struct dt_d_s this)
+dt_conv_to_ymd(struct dt_d_s that)
 {
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		return this.ymd;
+		return that.ymd;
 	case DT_YMCW:
-		return __ymcw_to_ymd(this.ymcw);
+		return __ymcw_to_ymd(that.ymcw);
 	case DT_DAISY:
-		return __daisy_to_ymd(this.daisy);
+		return __daisy_to_ymd(that.daisy);
 	case DT_BIZDA:
 		break;
 	case DT_UNK:
@@ -899,15 +899,15 @@ dt_conv_to_ymd(struct dt_d_s this)
 }
 
 static dt_ymcw_t
-dt_conv_to_ymcw(struct dt_d_s this)
+dt_conv_to_ymcw(struct dt_d_s that)
 {
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		return __ymd_to_ymcw(this.ymd);
+		return __ymd_to_ymcw(that.ymd);
 	case DT_YMCW:
-		return this.ymcw;
+		return that.ymcw;
 	case DT_DAISY:
-		return __daisy_to_ymcw(this.daisy);
+		return __daisy_to_ymcw(that.daisy);
 	case DT_BIZDA:
 		break;
 	case DT_UNK:
@@ -1118,7 +1118,7 @@ out:
 }
 
 static size_t
-__strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
+__strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 {
 	size_t res = 0;
 	unsigned int y;
@@ -1126,19 +1126,19 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
 	unsigned int d;
 	unsigned int c;
 
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		y = this.ymd.y;
-		m = this.ymd.m;
-		d = this.ymd.d;
+		y = that.ymd.y;
+		m = that.ymd.m;
+		d = that.ymd.d;
 		break;
 	case DT_YMCW:
-		y = this.ymcw.y;
-		m = this.ymcw.m;
-		d = __ymcw_get_mday(this.ymcw);
+		y = that.ymcw.y;
+		m = that.ymcw.m;
+		d = __ymcw_get_mday(that.ymcw);
 		break;
 	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
 		y = tmp.y;
 		m = tmp.m;
 		d = tmp.d;
@@ -1149,7 +1149,7 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
 		return 0;
 	}
 
-	if (this.typ != DT_YMD) {
+	if (that.typ != DT_YMD) {
 		/* not supported for non-ymds */
 		return res;
 	}
@@ -1168,7 +1168,7 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s this)
 		res = ui32tostrrom(buf, bsz, d);
 		break;
 	case 'c':
-		c = dt_get_count(this);
+		c = dt_get_count(that);
 		res = ui32tostrrom(buf, bsz, c);
 		break;
 	default:
@@ -1284,7 +1284,7 @@ dt_strpd(const char *str, const char *fmt)
 			break;
 		case '_':
 			switch (*++fp) {
-				char *pos;
+				const char *pos;
 			case 'b':
 				if ((pos = strchr(__abab_mon, *sp++))) {
 					m = pos - __abab_mon;
@@ -1369,7 +1369,7 @@ dt_strpd(const char *str, const char *fmt)
 }
 
 DEFUN size_t
-dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
+dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
 	size_t res = 0;
 	unsigned int y;
@@ -1381,25 +1381,25 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 		goto out;
 	}
 
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_YMD:
-		y = this.ymd.y;
-		m = this.ymd.m;
-		d = this.ymd.d;
+		y = that.ymd.y;
+		m = that.ymd.m;
+		d = that.ymd.d;
 		if (fmt == NULL) {
 			fmt = "%F\n";
 		}
 		break;
 	case DT_YMCW:
-		y = this.ymcw.y;
-		m = this.ymcw.m;
+		y = that.ymcw.y;
+		m = that.ymcw.m;
 		if (fmt == NULL) {
 			fmt = "%Y-%m-%c-%w\n";
 		}
 		d = 0;
 		break;
 	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
 		y = tmp.y;
 		m = tmp.m;
 		d = tmp.d;
@@ -1444,31 +1444,31 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			buf[res++] = '-';
 		case 'd':
 			/* ymd mode check? */
-			d = d ?: dt_get_mday(this);
+			d = d ?: dt_get_mday(that);
 			res += ui32tostr(buf + res, bsz - res, d, 2);
 			break;
 		case 'w':
 			/* ymcw mode check */
-			d = dt_get_wday(this);
+			d = dt_get_wday(that);
 			res += ui32tostr(buf + res, bsz - res, d, 2);
 			break;
 		case 'c':
 			/* ymcw mode check? */
-			c = dt_get_count(this);
+			c = dt_get_count(that);
 			res += ui32tostr(buf + res, bsz - res, c, 2);
 			break;
 		case 'a':
 			/* get the weekday in ymd mode!! */
 			res += arritostr(
 				buf + res, bsz - res,
-				dt_get_wday(this),
+				dt_get_wday(that),
 				__abbr_wday, countof(__abbr_wday));
 			break;
 		case 'A':
 			/* get the weekday in ymd mode!! */
 			res += arritostr(
 				buf + res, bsz - res,
-				dt_get_wday(this),
+				dt_get_wday(that),
 				__long_wday, countof(__long_wday));
 			break;
 		case 'b':
@@ -1495,7 +1495,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 				}
 				break;
 			case 'a': {
-				dt_dow_t wd = dt_get_wday(this);
+				dt_dow_t wd = dt_get_wday(that);
 				/* super abbrev'd wday */
 				if (wd < countof(__abab_wday)) {
 					buf[res++] = __abab_wday[wd];
@@ -1513,20 +1513,20 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this)
 			buf[res++] = '\n';
 			break;
 		case 'j':
-			if (this.typ == DT_YMD) {
-				int yd = __ymd_get_yday(this.ymd);
+			if (that.typ == DT_YMD) {
+				int yd = __ymd_get_yday(that.ymd);
 				res += ui32tostr(buf + res, bsz - res, yd, 3);
 			}
 			break;
 		case 'W':
-			if (this.typ == DT_YMCW) {
-				int yd = __ymcw_get_yday(this.ymcw);
+			if (that.typ == DT_YMCW) {
+				int yd = __ymcw_get_yday(that.ymcw);
 				res += ui32tostr(buf + res, bsz - res, yd, 2);
 			}
 			break;
 		case 'O':
 			/* o modifier for roman dates */
-			res += __strfd_O(buf + res, bsz - res, *++fp, this);
+			res += __strfd_O(buf + res, bsz - res, *++fp, that);
 			break;
 		}
 	}
@@ -1605,7 +1605,7 @@ out:
 }
 
 DEFUN size_t
-dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this)
+dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 {
 /* at the moment we allow only one format */
 	size_t res = 0;
@@ -1614,18 +1614,18 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s this)
 		goto out;
 	}
 
-	switch (this.typ) {
+	switch (that.typ) {
 	case DT_DUR_MD:
 		/* auto-newline */
-		res = snprintf(buf, bsz, "%dm%dd\n", this.md.m, this.md.d);
+		res = snprintf(buf, bsz, "%dm%dd\n", that.md.m, that.md.d);
 		break;
 	case DT_DUR_WD:
 		/* auto-newline */
-		res = snprintf(buf, bsz, "%dw%dd\n", this.wd.w, this.wd.d);
+		res = snprintf(buf, bsz, "%dw%dd\n", that.wd.w, that.wd.d);
 		break;
 	case DT_DUR_YM:
 		/* auto-newline */
-		res = snprintf(buf, bsz, "%dy%dm\n", this.ym.y, this.ym.m);
+		res = snprintf(buf, bsz, "%dy%dm\n", that.ym.y, that.ym.m);
 		break;
 	case DT_DUR_UNK:
 	default:
@@ -1734,13 +1734,15 @@ dt_add(struct dt_d_s d, struct dt_dur_s dur)
 DEFUN struct dt_dur_s
 dt_diff(struct dt_d_s d1, struct dt_d_s d2)
 {
-	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
+	struct dt_dur_s res = {.typ = DT_DUR_UNK};
+	return res;
 }
 
 DEFUN struct dt_dur_s
 dt_neg_dur(struct dt_dur_s dur)
 {
-	return (struct dt_dur_s){.typ = DT_DUR_UNK, .u = 0};
+	struct dt_dur_s res = {.typ = DT_DUR_UNK};
+	return res;
 }
 
 #endif	/* INCLUDED_date_core_c_ */
