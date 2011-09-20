@@ -1,0 +1,22 @@
+args "--unamed-opts --long-help"
+package "ddiff"
+usage "ddiff [OPTION]... DATE [DATEs]"
+description "Compute duration from DATE to the other DATEs given \
+and print the result as duration, if DATEs are omitted read a list \
+of DATEs from stdin."
+
+option "format" f
+	"output format as passed to dt_strfd()"
+	string optional
+
+option "input-format" i
+	"input format as passed to dt_strpd(), can be used multiple times.
+Each DATE will be passed to the input format parsers in the order they \
+are given, if DATE can be read successfully with a given input format \
+that value will be used."
+	string optional multiple
+
+option "backslash-escapes" e
+	"enable interpretation of backslash escapes in the output and \
+input format strings"
+	optional

@@ -43,6 +43,12 @@ dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dadd-clo.c dadd-clo.h
 
+bin_PROGRAMS += ddiff
+ddiff_SOURCES = ddiff.c ddiff-clo.ggo
+ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+ddiff_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
+
 
 ## ggo rule
 %.c %.h: %.ggo $(srcdir)/__gengetopt-mularg.sed
