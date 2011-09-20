@@ -52,7 +52,7 @@ struct __strpdur_st_s {
 	int sign;
 	const char *istr;
 	const char *cont;
-	struct dt_dur_s this;
+	struct dt_dur_s that;
 };
 
 static int
@@ -65,7 +65,7 @@ static int
 dadd_strpdur(struct __strpdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */
-	struct dt_dur_s this = {DT_DUR_UNK};
+	struct dt_dur_s that = {DT_DUR_UNK};
 	const char *sp = NULL;
 	int tmp;
 	int y = 0;
@@ -138,56 +138,56 @@ assess:
 	if (LIKELY((m && d) ||
 		   (y == 0 && m == 0 && w == 0) ||
 		   (y == 0 && w == 0 && d == 0))) {
-		this.typ = DT_DUR_MD;
+		that.typ = DT_DUR_MD;
 		switch (st->sign) {
 		case 0:
-			this.md.m = m;
-			this.md.d = d;
+			that.md.m = m;
+			that.md.d = d;
 			break;
 		case -1:
-			this.md.m = -m;
-			this.md.d = -d;
+			that.md.m = -m;
+			that.md.d = -d;
 			break;
 		case 1:
 			/* set mode */
-			this.md.m = 0;
-			this.md.d = 0;
+			that.md.m = 0;
+			that.md.d = 0;
 			break;
 		}
 		res = 1;
 	} else if (w) {
-		this.typ = DT_DUR_WD;
+		that.typ = DT_DUR_WD;
 		switch (st->sign) {
 		case 0:
-			this.wd.w = w;
-			this.wd.d = d;
+			that.wd.w = w;
+			that.wd.d = d;
 			break;
 		case -1:
-			this.wd.w = -w;
-			this.wd.d = -d;
+			that.wd.w = -w;
+			that.wd.d = -d;
 			break;
 		case 1:
 			/* set mode */
-			this.wd.w = 0;
-			this.wd.d = 0;
+			that.wd.w = 0;
+			that.wd.d = 0;
 			break;
 		}
 		res = 1;
 	} else if (y) {
-		this.typ = DT_DUR_YM;
+		that.typ = DT_DUR_YM;
 		switch (st->sign) {
 		case 0:
-			this.ym.y = y;
-			this.ym.m = m;
+			that.ym.y = y;
+			that.ym.m = m;
 			break;
 		case -1:
-			this.ym.y = -y;
-			this.ym.m = -m;
+			that.ym.y = -y;
+			that.ym.m = -m;
 			break;
 		case 1:
 			/* set mode */
-			this.ym.y = 0;
-			this.ym.m = 0;
+			that.ym.y = 0;
+			that.ym.m = 0;
 			break;
 		}
 		res = 1;
@@ -196,7 +196,7 @@ assess:
 		res = -1;		
 	}
 out:
-	st->this = this;
+	st->that = that;
 	if ((st->cont = sp) && *sp == '\0') {
 		st->sign = 0;
 		st->cont = NULL;
@@ -285,7 +285,7 @@ main(int argc, char *argv[])
 		do {
 			switch (dadd_strpdur(&st, inp)) {
 			case 1:
-				dur[ndur++] = st.this;
+				dur[ndur++] = st.that;
 				break;
 			case -1:
 				fprintf(stderr, "Error: \

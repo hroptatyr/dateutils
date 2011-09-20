@@ -56,9 +56,6 @@
 # pragma warning (default:181)
 #endif	/* __INTEL_COMPILER */
 
-DECLF size_t __attribute__((unused))
-dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s this);
-
 int
 main(int argc, char *argv[])
 {
