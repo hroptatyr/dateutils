@@ -101,3 +101,8 @@ The following tools are part of datetools:
       2001-01-04
       2000-12-31
 
+
+Notes
+=====
+- Supported compilers: gcc (>= 4.6.0), icc, clang, tcc
+
