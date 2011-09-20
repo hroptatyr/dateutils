@@ -1,7 +1,7 @@
 LANG = C
 LC_ALL = C
 
-SUBDIRS = lib src info
+SUBDIRS = lib src info test
 
 EXTRA_DIST = .version git-version-gen
 
