@@ -71,6 +71,7 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
+	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
@@ -79,20 +80,24 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	}
-	/* unescape sequences, maybe */
-	if (argi->backslash_escapes_given) {
-		dt_io_unescape(argi->format_arg);
-	}
-
+	/* init and unescape sequences, maybe */
+	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
+	if (argi->backslash_escapes_given) {
+		dt_io_unescape(argi->format_arg);
+		for (size_t i = 0; i < nfmt; i++) {
+			dt_io_unescape(fmt[i]);
+		}
+	}
+
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {
 			const char *inp = argi->inputs[i];
 			struct dt_d_s d;
 
 			if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
-				dcal_conv(d, argi->format_arg);
+				dcal_conv(d, ofmt);
 			}
 		}
 	} else {
@@ -117,7 +122,7 @@ main(int argc, char *argv[])
 			line[n - 1] = '\0';
 			/* check if line matches */
 			if ((d = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK) {
-				dcal_conv(d, argi->format_arg);
+				dcal_conv(d, ofmt);
 			}
 		}
 		/* get rid of resources */
