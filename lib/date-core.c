@@ -204,7 +204,7 @@ strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 	} else if (UNLIKELY(res < llim || res > ulim)) {
 		res = -1U;
 	}
-	*ep = __c2p(sp);
+	*ep = (char*)sp;
 	return res;
 }
 
@@ -294,7 +294,7 @@ romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 	} else if (UNLIKELY(res < llim || res > ulim)) {
 		res = -1U;
 	}
-	*ep = __c2p(sp);
+	*ep = (char*)sp;
 	return res;
 }
 
@@ -1218,7 +1218,7 @@ __strpd_std(const char *str, char **ep)
 	res = __guess_dtyp(d);
 out:
 	if (ep) {
-		*ep = __c2p(sp ?: str);
+		*ep = (char*)sp;
 	}
 	return res;
 }
@@ -1285,6 +1285,7 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
+	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
 	struct strpd_s d = {0};
 	const char *sp = str;
 
@@ -1300,7 +1301,8 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 		if (*fp != '%') {
 		literal:
 			if (*fp != *sp++) {
-				break;
+				sp = str;
+				goto out;
 			}
 			continue;
 		}
@@ -1380,11 +1382,13 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			break;
 		case 't':
 			if (*sp++ != '\t') {
+				sp = str;
 				goto out;
 			}
 			break;
 		case 'n':
 			if (*sp++ != '\n') {
+				sp = str;
 				goto out;
 			}
 			break;
@@ -1421,18 +1425,19 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				d.c = romstrtoui_lim(sp, &sp, 0, 5);
 				break;
 			default:
+				sp = str;
 				goto out;
 			}
 			break;
 		}
 	}
-out:
 	/* set the end pointer */
-	if (ep) {
-		*ep = __c2p(sp ?: str);
-	}
-	/* try and guess a date type */
 	return __guess_dtyp(d);
+out:
+	if (ep) {
+		*ep = (char*)sp;
+	}
+	return res;
 }
 
 DEFUN size_t
