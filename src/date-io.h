@@ -12,7 +12,7 @@
 #endif
 
 static struct dt_d_s
-dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
+dt_io_strpd_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 {
 	struct dt_d_s res = {DT_UNK};
 
@@ -36,7 +36,7 @@ dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 }
 
 static struct dt_d_s __attribute__((unused))
-dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
+dt_io_strpd(const char *input, char *const *fmt, size_t nfmt)
 {
 	return dt_io_strpd_ep(input, fmt, nfmt, NULL);
 }
