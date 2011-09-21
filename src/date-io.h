@@ -3,6 +3,8 @@
 #define INCLUDED_date_io_h_
 
 #include "date-core.h"
+#include <stdio.h>
+#include <stdio_ext.h>
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -39,6 +41,21 @@ static struct dt_d_s __attribute__((unused))
 dt_io_strpd(const char *input, char *const *fmt, size_t nfmt)
 {
 	return dt_io_strpd_ep(input, fmt, nfmt, NULL);
+}
+
+static struct dt_d_s  __attribute__((unused))
+dt_io_find_strpd(
+	const char *str, char *const *fmt, size_t nfmt,
+	const char *needle, size_t needlen, char **sp, char **ep)
+{
+	const char *__sp = str;
+	struct dt_d_s d;
+
+	while ((__sp = strstr(__sp, needle)) &&
+	       (d = dt_io_strpd_ep(
+			__sp += needlen, fmt, nfmt, ep)).typ == DT_UNK);
+	*sp = (char*)__sp;
+	return d;
 }
 
 static inline size_t
@@ -102,6 +119,37 @@ unfixup_arg(char *arg)
 		arg[0] = '-';
 	}
 	return arg;
+}
+
+
+static int __attribute__((unused))
+dt_io_write(struct dt_d_s d, const char *fmt)
+{
+	static char buf[64];
+	size_t n;
+
+	n = dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
+	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
+	return (n > 0) - 1;
+}
+
+static int __attribute__((unused))
+dt_io_write_sed(
+	struct dt_d_s d, const char *fmt,
+	const char *line, size_t llen, const char *sp, const char *ep)
+{
+	static char buf[64];
+	size_t n;
+
+	n = dt_strfd(buf, sizeof(buf), fmt, d);
+	if (sp) {
+		fwrite_unlocked(line, sizeof(char), sp - line, stdout);
+	}
+	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
+	if (ep) {
+		fwrite_unlocked(ep, sizeof(char), line + llen - ep, stdout);
+	}
+	return (n > 0 || sp < ep) - 1;
 }
 
 #endif	/* INCLUDED_date_io_h_ */

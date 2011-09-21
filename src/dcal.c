@@ -44,48 +44,6 @@
 #include "date-io.h"
 
 
-static int
-dcal_conv(struct dt_d_s d, const char *fmt)
-{
-	static char buf[64];
-	size_t n;
-
-	n = dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
-	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
-	return (n > 0) - 1;
-}
-
-static int
-dcal_conv_S(
-	struct dt_d_s d, const char *fmt,
-	const char *line, size_t llen, const char *sp, const char *ep)
-{
-	static char buf[64];
-	size_t n;
-
-	n = dt_strfd(buf, sizeof(buf), fmt, d);
-	fwrite_unlocked(line, sizeof(char), sp - line, stdout);
-	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
-	fwrite_unlocked(ep, sizeof(char), line + llen - ep, stdout);
-	return (n + sp + llen - ep > 0) - 1;
-}
-
-static struct dt_d_s
-find_strpd(
-	const char *str, char *const *fmt, size_t nfmt,
-	const char *needle, size_t needlen, char **sp, char **ep)
-{
-	const char *__sp = str;
-	struct dt_d_s d;
-
-	while ((__sp = strstr(__sp, needle)) &&
-	       (d = dt_io_strpd_ep(
-			__sp += needlen, fmt, nfmt, ep)).typ == DT_UNK);
-	*sp = (char*)__sp;
-	return d;
-}
-
-
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 # pragma warning (disable:181)
@@ -127,7 +85,7 @@ main(int argc, char *argv[])
 			struct dt_d_s d;
 
 			if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
-				dcal_conv(d, ofmt);
+				dt_io_write(d, ofmt);
 			}
 		}
 	} else {
@@ -161,16 +119,16 @@ main(int argc, char *argv[])
 				const char *sp = NULL;
 				const char *ep = NULL;
 
-				if ((d = find_strpd(
+				if ((d = dt_io_find_strpd(
 					     line, fmt, nfmt,
 					     needle, needlen,
 					     (char**)&sp, (char**)&ep)).typ) {
 					
-					dcal_conv_S(
+					dt_io_write_sed(
 						d, ofmt, line, n, sp, ep);
 				}
 			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
-				dcal_conv(d, ofmt);
+				dt_io_write(d, ofmt);
 			}
 		}
 		/* get rid of resources */
