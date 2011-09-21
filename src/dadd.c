@@ -219,7 +219,7 @@ dadd_prnt(struct dt_d_s d, const char *fmt)
 {
 	char buf[256];
 
-	dt_strfd(buf, sizeof(buf), fmt, d);
+	dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
 	fputs(buf, stdout);
 	return 0;
 }

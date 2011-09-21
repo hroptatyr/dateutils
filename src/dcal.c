@@ -50,8 +50,8 @@ dcal_conv(struct dt_d_s d, const char *fmt)
 	static char buf[64];
 	size_t n;
 
-	n = dt_strfd(buf, sizeof(buf), fmt, d);
-	fwrite(buf, sizeof(*buf), n, stdout);
+	n = dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
+	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
 	return (n > 0) - 1;
 }
 
