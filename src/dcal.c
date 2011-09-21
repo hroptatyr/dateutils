@@ -55,6 +55,36 @@ dcal_conv(struct dt_d_s d, const char *fmt)
 	return (n > 0) - 1;
 }
 
+static int
+dcal_conv_S(
+	struct dt_d_s d, const char *fmt,
+	const char *line, size_t llen, const char *sp, const char *ep)
+{
+	static char buf[64];
+	size_t n;
+
+	n = dt_strfd(buf, sizeof(buf), fmt, d);
+	fwrite_unlocked(line, sizeof(char), sp - line, stdout);
+	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
+	fwrite_unlocked(ep, sizeof(char), line + llen - ep, stdout);
+	return (n + sp + llen - ep > 0) - 1;
+}
+
+static struct dt_d_s
+find_strpd(
+	const char *str, char *const *fmt, size_t nfmt,
+	const char *needle, size_t needlen, char **sp, char **ep)
+{
+	const char *__sp = str;
+	struct dt_d_s d;
+
+	while ((__sp = strstr(__sp, needle)) &&
+	       (d = dt_io_strpd_ep(
+			__sp += needlen, fmt, nfmt, ep)).typ == DT_UNK);
+	*sp = (char*)__sp;
+	return d;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -105,10 +135,18 @@ main(int argc, char *argv[])
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
+		const char *needle = "\t";
+		size_t needlen = 1;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+		/* no threads reading this stream */
+		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
 
+		if (argi->sed_mode_given && argi->sed_mode_arg) {
+			needle = argi->sed_mode_arg;
+			needlen = strlen(needle);
+		}
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
 			size_t len;
@@ -118,10 +156,20 @@ main(int argc, char *argv[])
 			if (n < 0) {
 				break;
 			}
-			/* terminate the string accordingly */
-			line[n - 1] = '\0';
 			/* check if line matches */
-			if ((d = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK) {
+			if (argi->sed_mode_given) {
+				const char *sp = NULL;
+				const char *ep = NULL;
+
+				if ((d = find_strpd(
+					     line, fmt, nfmt,
+					     needle, needlen,
+					     (char**)&sp, (char**)&ep)).typ) {
+					
+					dcal_conv_S(
+						d, ofmt, line, n, sp, ep);
+				}
+			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
 				dcal_conv(d, ofmt);
 			}
 		}
