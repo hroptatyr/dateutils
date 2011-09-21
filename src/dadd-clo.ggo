@@ -17,17 +17,7 @@ Note that duration addition is not commutative!
 If there is any ambiguity between durations and dates, durations can \
 be prefixed with P as ISO 8601 suggests."
 
-option "format" f
-	"output format as passed to strftime()"
-	string optional
-
-option "input-format" i
-	"input format as passed to strptime(), can be used multiple times.
-If used dates can be specified on the command line, or if left empty they \
-are read from stdin"
-	string optional multiple
-
-option "backslash-escapes" e
-	"enable interpretation of backslash escapes in the output and \
-input format strings"
-	optional
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE

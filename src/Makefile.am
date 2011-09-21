@@ -3,12 +3,17 @@
 AM_CPPFLAGS = -D_GNU_SOURCE -D_POSIX_C_SOURCE=201001L -D__USE_XOPEN2K8
 AM_LDFLAGS =
 
+M4 = m4
+
 bin_PROGRAMS =
 noinst_PROGRAMS =
 BUILT_SOURCES =
 CLEANFILES =
-EXTRA_DIST = $(BUILT_SOURCES)
-EXTRA_DIST += __gengetopt-mularg.h __gengetopt-mularg.sed
+GGO_HELPERS =
+EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
+
+GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
+GGO_HELPERS += common.ggo.in
 
 DT_INCLUDES = -I$(top_srcdir)/lib
 noinst_HEADERS = date-io.h
@@ -51,14 +56,10 @@ BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
 
 
 ## ggo rule
-%.c %.h: %.ggo $(srcdir)/__gengetopt-mularg.sed
-	gengetopt -l -i $< -F $*
+%.c %.h: %.ggo $(GGO_HELPERS)
+	$(M4) -I $(srcdir) common.ggo.in $< | gengetopt -l -F $*
 ## patch the multiple arg thingie dingie
 	sed -i -f $(srcdir)/__gengetopt-mularg.sed -- $*.c
-
-## ggo rule without multiple patch
-%.c %.h: %.ggop
-	gengetopt -l -i $< -F $*
 
 # 
 # Help the developers get nice post-processed source files

@@ -217,7 +217,7 @@ static void
 prnt_date(struct dt_d_s d, const char *fmt)
 {
 	char buf[256];
-	size_t len = dt_strfd(buf, sizeof(buf), fmt, d);
+	size_t len = dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
 	fwrite(buf, sizeof(*buf), len, stdout);
 	return;
 }

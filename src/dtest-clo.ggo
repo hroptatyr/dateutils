@@ -3,9 +3,8 @@ package "dtest"
 usage "dtest [OPTION]... DATE1 OP DATE2"
 description "Like test(1) but for dates."
 
-option "input-format" i
-	"input format as passed to strptime(), can be used multiple times."
-	string optional multiple
+INPUT_FORMAT
+BACKSLASH_ESCAPES
 
 defgroup "op" groupdesc="Following operations are supported" required
 

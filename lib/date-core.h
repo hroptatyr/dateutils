@@ -201,13 +201,28 @@ struct dt_dur_s {
  * %d - day in ymd mode
  * %c - week of the month in ymcw mode
  * %w - numeric weekday in ymcw mode
+ * %B - for the month name
+ * %b - for the abbreviated month name
+ * %_b - for the one letter month code
+ * %A - for the weekday name
+ * %a - for the abbreviated weekday name
  *
  * If FMT is NULL the standard format for each calendric system is used,
  * that is:
  * - %Y-%m-%d for YMD dates
  * - %Y-%m-%c-%w for YMCW dates
- * - %Y-%m-%d%u for YMDU dates */
-DECLF struct dt_d_s dt_strpd(const char *str, const char *fmt);
+ * - %Y-%m-%d%u for bizda/YMDU dates
+ *
+ * FMT can also be the name of a calendar:
+ * - ymd for YMD dates
+ * - ymcw for YMCW dates
+ * - bizda for bizda/YMDU dates
+ *
+ * If optional EP is non-NULL it will point to the end of the parsed
+ * date string. */
+DECLF struct dt_d_s
+dt_strpd(const char *str, const char *fmt, char **ep);
+
 /**
  * Like strftime() for our dates */
 DECLF size_t
