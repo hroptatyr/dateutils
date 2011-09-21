@@ -153,6 +153,8 @@ assess:
 			that.md.m = 0;
 			that.md.d = 0;
 			break;
+		default:
+			break;
 		}
 		res = 1;
 	} else if (w) {
