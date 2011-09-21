@@ -1313,13 +1313,19 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			shaught = 1;
 		case 'Y':
 			d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0)) {
 				break;
+			} else if (UNLIKELY(*sp++ != '-')) {
+				sp = str;
+				goto out;
 			}
 		case 'm':
 			d.m = strtoui_lim(sp, &sp, 0, 12);
-			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
+			if (UNLIKELY(shaught == 0)) {
 				break;
+			} else if (UNLIKELY(*sp++ != '-')) {
+				sp = str;
+				goto out;
 			}
 		case 'd':
 			/* gregorian mode */
