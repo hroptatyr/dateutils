@@ -1456,14 +1456,14 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.m = that.ymd.m;
 		d.d = that.ymd.d;
 		if (fmt == NULL) {
-			fmt = "%F\n";
+			fmt = "%F";
 		}
 		break;
 	case DT_YMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
 		if (fmt == NULL) {
-			fmt = "%Y-%m-%c-%w\n";
+			fmt = "%Y-%m-%c-%w";
 		}
 		d.d = 0;
 		break;
@@ -1474,7 +1474,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.d = tmp.d;
 		if (fmt == NULL) {
 			/* subject to change */
-			fmt = "%F\n";
+			fmt = "%F";
 		}
 		break;
 	}
@@ -1598,10 +1598,6 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			res += __strfd_O(buf + res, bsz - res, *++fp, that);
 			break;
 		}
-	}
-	if (res > 0 && buf[res - 1] != '\n') {
-		/* auto-newline */
-		buf[res++] = '\n';
 	}
 out:
 	if (res < bsz) {

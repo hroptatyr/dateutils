@@ -41,6 +41,19 @@ dt_io_strpd(const char *input, char *const *fmt, size_t nfmt)
 	return dt_io_strpd_ep(input, fmt, nfmt, NULL);
 }
 
+static inline size_t
+dt_io_strfd_autonl(
+	char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
+{
+	size_t res = dt_strfd(buf, bsz, fmt, that);
+
+	if (res > 0 && buf[res - 1] != '\n') {
+		/* auto-newline */
+		buf[res++] = '\n';
+	}
+	return res;
+}
+
 static void __attribute__((unused))
 dt_io_unescape(char *s)
 {
