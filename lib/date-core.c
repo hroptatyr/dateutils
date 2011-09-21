@@ -1190,7 +1190,7 @@ __strpd_std(const char *str, char **ep)
 		goto out;
 	}
 	/* check the date type */
-	switch (*sp++) {
+	switch (*sp) {
 	case '\0':
 		/* it was a YMD date */
 		break;
@@ -1200,7 +1200,7 @@ __strpd_std(const char *str, char **ep)
 			/* nope, it was bollocks */
 			break;
 		}
-		if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
+		if ((d.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
 			/* didn't work, fuck off */
 			sp = str;
 		}
