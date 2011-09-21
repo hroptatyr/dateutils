@@ -44,18 +44,6 @@
 #include "date-io.h"
 
 
-static int
-dcal_conv(struct dt_d_s d, const char *fmt)
-{
-	static char buf[64];
-	size_t n;
-
-	n = dt_strfd(buf, sizeof(buf), fmt, d);
-	fwrite(buf, sizeof(*buf), n, stdout);
-	return (n > 0) - 1;
-}
-
-
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 # pragma warning (disable:181)
@@ -71,6 +59,7 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
+	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
@@ -79,20 +68,24 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	}
-	/* unescape sequences, maybe */
-	if (argi->backslash_escapes_given) {
-		dt_io_unescape(argi->format_arg);
-	}
-
+	/* init and unescape sequences, maybe */
+	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
+	if (argi->backslash_escapes_given) {
+		dt_io_unescape(argi->format_arg);
+		for (size_t i = 0; i < nfmt; i++) {
+			dt_io_unescape(fmt[i]);
+		}
+	}
+
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {
 			const char *inp = argi->inputs[i];
 			struct dt_d_s d;
 
 			if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
-				dcal_conv(d, argi->format_arg);
+				dt_io_write(d, ofmt);
 			}
 		}
 	} else {
@@ -100,10 +93,18 @@ main(int argc, char *argv[])
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
+		const char *needle = "\t";
+		size_t needlen = 1;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+		/* no threads reading this stream */
+		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
 
+		if (argi->sed_mode_given && argi->sed_mode_arg) {
+			needle = argi->sed_mode_arg;
+			needlen = strlen(needle);
+		}
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
 			size_t len;
@@ -113,11 +114,21 @@ main(int argc, char *argv[])
 			if (n < 0) {
 				break;
 			}
-			/* terminate the string accordingly */
-			line[n - 1] = '\0';
 			/* check if line matches */
-			if ((d = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK) {
-				dcal_conv(d, argi->format_arg);
+			if (argi->sed_mode_given) {
+				const char *sp = NULL;
+				const char *ep = NULL;
+
+				if ((d = dt_io_find_strpd(
+					     line, fmt, nfmt,
+					     needle, needlen,
+					     (char**)&sp, (char**)&ep)).typ) {
+					
+					dt_io_write_sed(
+						d, ofmt, line, n, sp, ep);
+				}
+			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
+				dt_io_write(d, ofmt);
 			}
 		}
 		/* get rid of resources */

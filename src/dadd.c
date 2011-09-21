@@ -153,6 +153,8 @@ assess:
 			that.md.m = 0;
 			that.md.d = 0;
 			break;
+		default:
+			break;
 		}
 		res = 1;
 	} else if (w) {
@@ -214,16 +216,6 @@ dadd_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
 	return d;
 }
 
-static int
-dadd_prnt(struct dt_d_s d, const char *fmt)
-{
-	char buf[256];
-
-	dt_strfd(buf, sizeof(buf), fmt, d);
-	fputs(buf, stdout);
-	return 0;
-}
-
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -262,14 +254,16 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	}
-	/* unescape sequences, maybe */
-	if (argi->backslash_escapes_given) {
-		dt_io_unescape(argi->format_arg);
-	}
-
+	/* init and unescape sequences, maybe */
 	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
+	if (argi->backslash_escapes_given) {
+		dt_io_unescape(argi->format_arg);
+		for (size_t i = 0; i < nfmt; i++) {
+			dt_io_unescape(fmt[i]);
+		}
+	}
 
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
@@ -307,7 +301,7 @@ cannot parse duration string `%s'\n", st.istr);
 	/* start the actual work */
 	if (beg_idx > 0) {
 		if ((d = dadd_add(d, dur, ndur)).typ > DT_UNK) {
-			dadd_prnt(d, ofmt);
+			dt_io_write(d, ofmt);
 			res = 0;
 		} else {
 			res = 1;
@@ -317,10 +311,18 @@ cannot parse duration string `%s'\n", st.istr);
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
+		const char *needle = "\t";
+		size_t needlen = 1;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+		/* no threads reading this stream */
+		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
 
+		if (argi->sed_mode_given && argi->sed_mode_arg) {
+			needle = argi->sed_mode_arg;
+			needlen = strlen(needle);
+		}
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
 			size_t len;
@@ -329,12 +331,22 @@ cannot parse duration string `%s'\n", st.istr);
 			if (n < 0) {
 				break;
 			}
-			/* terminate the string accordingly */
-			line[n - 1] = '\0';
 			/* perform addition now */
-			if ((d = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK) {
+			if (argi->sed_mode_given) {
+				const char *sp = NULL;
+				const char *ep = NULL;
+
+				if ((d = dt_io_find_strpd(
+					     line, fmt, nfmt,
+					     needle, needlen,
+					     (char**)&sp, (char**)&ep)).typ) {
+					d = dadd_add(d, dur, ndur);
+					dt_io_write_sed(
+						d, ofmt, line, n, sp, ep);
+				}
+			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
 				d = dadd_add(d, dur, ndur);
-				dadd_prnt(d, ofmt);
+				dt_io_write(d, ofmt);
 			}
 		}
 		/* get rid of resources */
