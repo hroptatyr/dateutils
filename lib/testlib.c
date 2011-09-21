@@ -23,16 +23,16 @@ test_strpd(size_t nruns)
 	struct dt_d_s s;
 
 	for (size_t i = 0; i < nruns; i++) {
-		if ((s = dt_strpd(test_ymd, "%F")).u == 0) {
+		if ((s = dt_strpd(test_ymd, "%F", NULL)).u == 0) {
 			break;
 		}
 	}
-	if ((s = dt_strpd(test_ymd, "%F")).typ) {
+	if ((s = dt_strpd(test_ymd, "%F", NULL)).typ) {
 		char buf[256];
 		dt_strfd(buf, sizeof(buf), "%F %a %A %b %B\n", s);
 		fputs(buf, stdout);
 	}
-	if ((s = dt_strpd(test_ybd, "%Y-%b-%d")).typ) {
+	if ((s = dt_strpd(test_ybd, "%Y-%b-%d", NULL)).typ) {
 		char buf[256];
 		dt_strfd(buf, sizeof(buf), "%F %a %A %b %B\n", s);
 		fputs(buf, stdout);

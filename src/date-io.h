@@ -13,10 +13,11 @@ dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
 	if (input == NULL || strcmp(input, "now") == 0) {
 		return dt_date(DT_YMD);
 	} else if (nfmt == 0) {
-		res = dt_strpd(input, NULL);
+		res = dt_strpd(input, NULL, NULL);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
-			if ((res = dt_strpd(input, fmt[i])).typ && res.u ) {
+			res = dt_strpd(input, fmt[i], NULL);
+			if (res.typ && res.u) {
 				break;
 			}
 		}

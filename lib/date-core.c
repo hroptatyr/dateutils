@@ -44,10 +44,10 @@
 #include "date-core.h"
 
 #if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect((_x), 1)
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
 #endif
 #if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect((_x), 0)
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*(x)))
@@ -174,31 +174,38 @@ static const char *__abbr_mon[] = {
 /* futures expiry codes, how convenient */
 static const char __abab_mon[] = "_FGHJKMNQUVXZ";
 
-/* stolen from Klaus Klein/David Laight's strptime() */
-static const char*
-strtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
+static inline char*
+__c2p(const char *p)
 {
-	uint32_t result = 0;
-	char ch;
-	/* The limit also determines the number of valid digits. */
-	int rulim = ulim > 10 ? ulim : 10;
+	union {
+		char *p;
+		const char *c;
+	} res = {.c = p};
+	return res.p;
+}
 
-	ch = *str;
-	if (ch < '0' || ch > '9') {
-		return NULL;
-	}
-	do {
-		result *= 10;
-		result += ch - '0';
-		rulim /= 10;
-		ch = *++str;
-	} while ((result * 10 <= ulim) && rulim && ch >= '0' && ch <= '9');
+/* stolen from Klaus Klein/David Laight's strptime() */
+static uint32_t
+strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+{
+	uint32_t res = 0;
+	const char *sp;
+	/* we keep track of the number of digits via rulim */
+	int rulim;
 
-	if (result < llim || result > ulim) {
-		return NULL;
+	for (sp = str, rulim = ulim > 10 ? ulim : 10;
+	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
+	     sp++, rulim /= 10) {
+		res *= 10;
+		res += *sp - '0';
 	}
-	*tgt = result;
-	return str;
+	if (UNLIKELY(sp == str)) {
+		res = -1U;
+	} else if (UNLIKELY(res < llim || res > ulim)) {
+		res = -1U;
+	}
+	*ep = __c2p(sp);
+	return res;
 }
 
 static size_t
@@ -262,8 +269,8 @@ __romstr_v(const char c)
 	}
 }
 
-static const char*
-romstrtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
+static uint32_t
+romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 {
 	uint32_t res = 0;
 	const char *sp;
@@ -282,11 +289,13 @@ romstrtoui_lim(uint32_t *tgt, const char *str, uint32_t llim, uint32_t ulim)
 		}
 		v = nv;
 	}
-	if (res < llim || res > ulim) {
-		res = 0;
+	if (UNLIKELY(sp == str)) {
+		res = -1U;
+	} else if (UNLIKELY(res < llim || res > ulim)) {
+		res = -1U;
 	}
-	*tgt = res;
-	return sp;
+	*ep = __c2p(sp);
+	return res;
 }
 
 static size_t
@@ -344,20 +353,21 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 	return res;
 }
 
-static const char*
-strtoarri(uint32_t *tgt, const char *buf, const char *const *arr, size_t narr)
+static uint32_t
+strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 	for (size_t i = 0; i < narr; i++) {
 		const char *chk = arr[i];
 		size_t len = strlen(chk);
 
 		if (strncasecmp(chk, buf, len) == 0) {
-			*tgt = i;
-			return buf + len;
+			*ep = buf + len;
+			return i;
 		}
 	}
 	/* no matches */
-	return NULL;
+	*ep = buf;
+	return -1U;
 }
 
 static size_t
@@ -1092,40 +1102,100 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 
 /* guessing parsers */
 static struct dt_d_s
-__strpd_std(const char *str)
+__guess_dtyp(struct strpd_s d)
 {
-	struct dt_d_s res = {DT_UNK};
-	const char *sp = str;
-	struct strpd_s d;
+	struct dt_d_s res;
 
-	if (sp == NULL) {
+	if (UNLIKELY(d.y == -1U)) {
+		d.y = 0;
+	}
+	if (UNLIKELY(d.m == -1U)) {
+		d.m = 0;
+	}
+	if (UNLIKELY(d.d == -1U)) {
+		d.d = 0;
+	}
+	if (UNLIKELY(d.w == -1U)) {
+		d.w = 0;
+	}
+	if (UNLIKELY(d.c == -1U)) {
+		d.c = 0;
+	}
+
+	if (LIKELY(d.y && (d.m == 0 || d.c == 0))) {
+		/* nearly all goes to ymd */
+		res.typ = DT_YMD;
+		res.ymd = (dt_ymd_t){
+			.y = d.y,
+			.m = d.m,
+			.d = d.d,
+		};
+	} else if (d.y && d.m && d.c) {
+		/* its legit for d.w to be naught */
+		res.typ = DT_YMCW;
+		res.ymcw = (dt_ymcw_t){
+			.y = d.y,
+			.m = d.m,
+			.c = d.c,
+			.w = d.w,
+		};
+	} else {
+		/* anything else is bollocks for now */
+		res.typ = DT_UNK;
+		res.u = 0;
+	}
+	return res;
+}
+
+static void
+__trans_fmt(const char **fmt)
+{
+	static char ymd_dflt[] = "%F";
+	static char ymcw_dflt[] = "%Y-%m-%c-%w";
+	
+	if (strcasecmp(*fmt, "ymd") == 0) {
+		*fmt = ymd_dflt;
+	} else if (strcasecmp(*fmt, "ymcw") == 0) {
+		*fmt = ymcw_dflt;
+	}
+	return;
+}
+
+static struct dt_d_s
+__strpd_std(const char *str, char **ep)
+{
+	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
+	struct strpd_s d = {0};
+	const char *sp;
+
+	if ((sp = str) == NULL) {
 		goto out;
 	}
 	/* read the year */
-	sp = strtoui_lim(&d.y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
-	if (sp == NULL || *sp++ != '-') {
+	if ((d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
+	    *sp++ != '-') {
+		sp = str;
 		goto out;
 	}
 	/* read the month */
-	sp = strtoui_lim(&d.m, sp, 0, 12);
-	if (sp == NULL || *sp++ != '-') {
+	if ((d.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
+	    *sp++ != '-') {
+		sp = str;
 		goto out;
 	}
 	/* read the day or the count */
-	sp = strtoui_lim(&d.d, sp, 0, 31);
-	if (sp == NULL) {
+	if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
 		/* didn't work, fuck off */
+		sp = str;
 		goto out;
 	}
 	/* check the date type */
 	switch (*sp++) {
 	case '\0':
 		/* it was a YMD date */
-		res.typ = DT_YMD;
 		goto assess;
 	case '-':
 		/* it is a YMCW date */
-		res.typ = DT_YMCW;
 		if ((d.c = d.d) > 5) {
 			/* nope, it was bollocks */
 			goto out;
@@ -1140,30 +1210,17 @@ __strpd_std(const char *str)
 		/* it's fuckered */
 		goto out;
 	}
-	sp = strtoui_lim(&d.w, sp, 0, 7);
-	if (sp == NULL) {
+	if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
 		/* didn't work, fuck off */
-		res.typ = DT_UNK;
+		sp = str;
 		goto out;
 	}
 assess:
-	switch (res.typ) {
-	default:
-	case DT_UNK:
-		break;
-	case DT_YMD:
-		res.ymd.y = d.y;
-		res.ymd.m = d.m;
-		res.ymd.d = d.d;
-		break;
-	case DT_YMCW:
-		res.ymcw.y = d.y;
-		res.ymcw.m = d.m;
-		res.ymcw.c = d.c;
-		res.ymcw.w = d.w;
-		break;
-	}
+	res = __guess_dtyp(d);
 out:
+	if (ep) {
+		*ep = __c2p(sp ?: str);
+	}
 	return res;
 }
 
@@ -1224,65 +1281,21 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 	return res;
 }
 
-static void
-__trans_fmt(const char **fmt)
-{
-	static char ymd_dflt[] = "%F";
-	static char ymcw_dflt[] = "%Y-%m-%c-%w";
-	
-	if (strcasecmp(*fmt, "ymd") == 0) {
-		*fmt = ymd_dflt;
-	} else if (strcasecmp(*fmt, "ymcw") == 0) {
-		*fmt = ymcw_dflt;
-	}
-	return;
-}
-
-static struct dt_d_s
-__guess_dtyp(struct strpd_s d)
-{
-	struct dt_d_s res;
-
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0))) {
-		/* nearly all goes to ymd */
-		res.typ = DT_YMD;
-		res.ymd = (dt_ymd_t){
-			.y = d.y,
-			.m = d.m,
-			.d = d.d,
-		};
-	} else if (d.y && d.m && d.c) {
-		/* its legit for d.w to be naught */
-		res.typ = DT_YMCW;
-		res.ymcw = (dt_ymcw_t){
-			.y = d.y,
-			.m = d.m,
-			.c = d.c,
-			.w = d.w,
-		};
-	} else {
-		/* anything else is bollocks for now */
-		res.typ = DT_UNK;
-		res.u = 0;
-	}
-	return res;
-}
-
 
 /* parser implementations */
 DEFUN struct dt_d_s
-dt_strpd(const char *str, const char *fmt)
+dt_strpd(const char *str, const char *fmt, char **ep)
 {
-	unsigned int dummy = 0;
 	struct strpd_s d = {0};
+	const char *sp = str;
 
 	if (UNLIKELY(fmt == NULL)) {
-		return __strpd_std(str);
+		return __strpd_std(str, ep);
 	}
 	/* translate high-level format names */
 	__trans_fmt(&fmt);
 
-	for (const char *fp = fmt, *sp = str; *fp && sp; fp++) {
+	for (const char *fp = fmt; *fp && *sp; fp++) {
 		int shaught = 0;
 
 		if (*fp != '%') {
@@ -1298,55 +1311,55 @@ dt_strpd(const char *str, const char *fmt)
 		case 'F':
 			shaught = 1;
 		case 'Y':
-			sp = strtoui_lim(&d.y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
-			if (UNLIKELY(shaught == 0 ||
-				     sp == NULL || *sp++ != '-')) {
+			d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
+			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
 				break;
 			}
 		case 'm':
-			sp = strtoui_lim(&d.m, sp, 0, 12);
-			if (UNLIKELY(shaught == 0 ||
-				     sp == NULL || *sp++ != '-')) {
+			d.m = strtoui_lim(sp, &sp, 0, 12);
+			if (UNLIKELY(shaught == 0 || *sp++ != '-')) {
 				break;
 			}
 		case 'd':
 			/* gregorian mode */
-			sp = strtoui_lim(&d.d, sp, 0, 31);
+			d.d = strtoui_lim(sp, &sp, 0, 31);
 			break;
 		case 'w':
 			/* ymcw mode */
-			sp = strtoui_lim(&d.w, sp, 0, 7);
+			d.w = strtoui_lim(sp, &sp, 0, 7);
 			break;
 		case 'c':
 			/* ymcw mode */
-			sp = strtoui_lim(&d.c, sp, 0, 5);
+			d.c = strtoui_lim(sp, &sp, 0, 5);
 			break;
 		case 'a':
 			/* ymcw mode! */
-			sp = strtoarri(
-				&d.w, sp,
+			d.w = strtoarri(
+				sp, &sp,
 				__abbr_wday, countof(__abbr_wday));
 			break;
 		case 'A':
 			/* ymcw mode! */
-			sp = strtoarri(
-				&d.w, sp,
+			d.w = strtoarri(
+				sp, &sp,
 				__long_wday, countof(__long_wday));
 			break;
 		case 'b':
 		case 'h':
-			sp = strtoarri(
-				&d.m, sp,
+			d.m = strtoarri(
+				sp, &sp,
 				__abbr_mon, countof(__abbr_mon));
 			break;
 		case 'B':
-			sp = strtoarri(
-				&d.m, sp,
+			d.m = strtoarri(
+				sp, &sp,
 				__long_mon, countof(__long_mon));
 			break;
 		case 'y':
-			sp = strtoui_lim(&d.y, sp, 0, 99);
-			if ((d.y += 2000) > 2068) {
+			d.y = strtoui_lim(sp, &sp, 0, 99);
+			if (UNLIKELY(d.y == -1U)) {
+				;
+			} else if ((d.y += 2000) > 2068) {
 				d.y -= 100;
 			}
 			break;
@@ -1356,66 +1369,68 @@ dt_strpd(const char *str, const char *fmt)
 			case 'b':
 				if ((pos = strchr(__abab_mon, *sp++))) {
 					d.m = pos - __abab_mon;
-				} else {
-					sp = NULL;
 				}
 				break;
 			case 'a':
 				if ((pos = strchr(__abab_wday, *sp++))) {
 					/* ymcw mode! */
 					d.w = pos - __abab_wday;
-				} else {
-					sp = NULL;
 				}
 				break;
 			}
 			break;
 		case 't':
 			if (*sp++ != '\t') {
-				sp = NULL;
+				goto out;
 			}
 			break;
 		case 'n':
 			if (*sp++ != '\n') {
-				sp = NULL;
+				goto out;
 			}
 			break;
 		case 'W':
 			/* cannot be used at the moment */
-			sp = strtoui_lim(&dummy, sp, 1, 366);
+			strtoui_lim(sp, &sp, 1, 366);
 			break;
 		case 'j':
 			/* cannot be used at the moment */
-			sp = strtoui_lim(&dummy, sp, 0, 53);
+			strtoui_lim(sp, &sp, 0, 53);
 			break;
 		case 'O':
 			/* roman numerals modifier */
 			switch (*++fp) {
 			case 'Y':
-				sp = romstrtoui_lim(
-					&d.y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
+				d.y = romstrtoui_lim(
+					sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 				break;
 			case 'y':
-				sp = romstrtoui_lim(&d.y, sp, 0, 99);
-				if ((d.y += 2000) > 2068) {
+				d.y = romstrtoui_lim(sp, &sp, 0, 99);
+				if (UNLIKELY(d.y == -1U)) {
+					;
+				} else if ((d.y += 2000) > 2068) {
 					d.y -= 100;
 				}
 				break;
 			case 'm':
-				sp = romstrtoui_lim(&d.m, sp, 0, 12);
+				d.m = romstrtoui_lim(sp, &sp, 0, 12);
 				break;
 			case 'd':
-				sp = romstrtoui_lim(&d.d, sp, 0, 31);
+				d.d = romstrtoui_lim(sp, &sp, 0, 31);
 				break;
 			case 'c':
-				sp = romstrtoui_lim(&d.c, sp, 0, 5);
+				d.c = romstrtoui_lim(sp, &sp, 0, 5);
 				break;
 			default:
-				sp = NULL;
-				break;
+				goto out;
 			}
 			break;
 		}
+	}
+out:
+	/* set the end pointer */
+	if (ep) {
+		*ep = __c2p(sp ?: str);
 	}
 	/* try and guess a date type */
 	return __guess_dtyp(d);
