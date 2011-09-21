@@ -4,28 +4,41 @@
 
 #include "date-core.h"
 
-static struct dt_d_s __attribute__((unused))
-dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
+#if !defined LIKELY
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
+#endif
+#if !defined UNLIKELY
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
+#endif
+
+static struct dt_d_s
+dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 {
 	struct dt_d_s res = {DT_UNK};
 
+	/* init */
+	if (ep) {
+		*ep = NULL;
+	}
 	/* basic sanity check */
-	if (input == NULL || strcmp(input, "now") == 0) {
-		return dt_date(DT_YMD);
+	if (str == NULL || strcmp(str, "now") == 0) {
+		res = dt_date(DT_YMD);
 	} else if (nfmt == 0) {
-		res = dt_strpd(input, NULL, NULL);
+		res = dt_strpd(str, NULL, ep);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
-			res = dt_strpd(input, fmt[i], NULL);
-			if (res.typ && res.u) {
+			if ((res = dt_strpd(str, fmt[i], ep)).typ > DT_UNK) {
 				break;
 			}
 		}
 	}
-	if (res.u == 0) {
-		res.typ = DT_UNK;
-	}
 	return res;
+}
+
+static struct dt_d_s __attribute__((unused))
+dt_io_strpd(const char *input, const char *const *fmt, size_t nfmt)
+{
+	return dt_io_strpd_ep(input, fmt, nfmt, NULL);
 }
 
 static void __attribute__((unused))
