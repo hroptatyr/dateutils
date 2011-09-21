@@ -1,5 +1,3 @@
-changequote(`[[', `]]')
-
 args "--unamed-opts --long-help"
 package "dadd"
 usage "dadd [OPTION]... [DATE] DURATION"
@@ -19,5 +17,7 @@ Note that duration addition is not commutative!
 If there is any ambiguity between durations and dates, durations can \
 be prefixed with P as ISO 8601 suggests."
 
-include([[common.ggo.in]])
-include([[format.ggo.in]])
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE

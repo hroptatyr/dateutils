@@ -1,5 +1,3 @@
-changequote(`[[', `]]')
-
 args "--unamed-opts=FMTs --long-help"
 package "strptime"
 description "Parse input from stdin according to one of the given formats FMTs.
@@ -9,5 +7,7 @@ option "time" t
 	"also display time in the output, default is to display the date"
 	optional
 
-include([[common.ggo.in]])
-include([[format.ggo.in]])
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE

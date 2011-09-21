@@ -1,11 +1,33 @@
+dnl -*- m4 -*-
+changequote(`[', `]')
+
+define([FORMAT], [dnl
+option "format" f
+	"Output format as passed to dt_strfd(), this can either be a \
+spec string (much like strftime()'s FMT) or the name of a calendar."
+	string optional
+])dnl FORMAT
+
+define([INPUT_FORMAT], [dnl
 option "input-format" i
 	"Input format as passed to dt_strpd(), can be used multiple times.
 Each DATE will be passed to the input format parsers in the order they \
 are given, if DATE can be read successfully with a given input format \
 that value will be used."
 	string optional multiple
+])dnl INPUT_FORMAT
 
+define([BACKSLASH_ESCAPES], [dnl
 option "backslash-escapes" e
 	"enable interpretation of backslash escapes in the output and \
 input format strings"
 	optional
+])dnl BACKSLASH_ESCAPES
+
+define([SED_MODE], [dnl
+option "sed-mode" S
+	"Copy parts from the input before and after the date string."
+	string optional typestr="DELIM" argoptional
+])dnl SED_MODE
+
+changequote([[]], [[]])

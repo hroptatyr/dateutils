@@ -1,16 +1,15 @@
-changequote(`[[[', `]]]')
-
 args "--unamed-opts --long-help"
 package "dseq"
 usage "dseq [OPTION]... FIRST [[INCREMENT] LAST]"
 description "Like seq(1) but for dates."
 
-include([[[common.ggo.in]]])
-include([[[format.ggo.in]]])
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
 
 option "skip" s
-	"skip weekday specified by STRING, use multiple times
-or comma separated to skip several days, use `ss' to skip
-weekends (sat+sun) altogether, date ranges can be specified
+	"skip weekday specified by STRING, use multiple times \
+or comma separated to skip several days, use `ss' to skip \
+weekends (sat+sun) altogether, date ranges can be specified \
 like `mo-we' for monday to wednesday"
 	string optional multiple

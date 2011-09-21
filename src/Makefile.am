@@ -13,7 +13,7 @@ GGO_HELPERS =
 EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
 
 GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
-GGO_HELPERS += common.ggo.in format.ggo.in
+GGO_HELPERS += common.ggo.in
 
 DT_INCLUDES = -I$(top_srcdir)/lib
 noinst_HEADERS = date-io.h
@@ -57,7 +57,7 @@ BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
-	$(M4) -I $(srcdir) $< | gengetopt -l -F $*
+	$(M4) -I $(srcdir) common.ggo.in $< | gengetopt -l -F $*
 ## patch the multiple arg thingie dingie
 	sed -i -f $(srcdir)/__gengetopt-mularg.sed -- $*.c
 

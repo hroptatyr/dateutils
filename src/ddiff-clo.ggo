@@ -1,5 +1,3 @@
-changequote(`[[', `]]')
-
 args "--unamed-opts --long-help"
 package "ddiff"
 usage "ddiff [OPTION]... DATE [DATEs]"
@@ -7,5 +5,7 @@ description "Compute duration from DATE to the other DATEs given \
 and print the result as duration, if DATEs are omitted read a list \
 of DATEs from stdin."
 
-include([[common.ggo.in]])
-include([[format.ggo.in]])
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE
