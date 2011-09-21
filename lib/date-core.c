@@ -1432,7 +1432,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 		}
 	}
 	/* set the end pointer */
-	return __guess_dtyp(d);
+	res = __guess_dtyp(d);
 out:
 	if (ep) {
 		*ep = (char*)sp;
