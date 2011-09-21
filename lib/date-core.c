@@ -1689,8 +1689,8 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 	switch (that.typ) {
 	case DT_DUR_MD:
 		/* auto-newline */
-		if (that.md.m >= 0 && that.md.d >= 0 ||
-		    that.md.m > 0 && that.md.d < 0) {
+		if ((that.md.m >= 0 && that.md.d >= 0) ||
+		    (that.md.m > 0 && that.md.d < 0)) {
 			res = snprintf(
 				buf, bsz, "%dm%dd\n", that.md.m, that.md.d);
 		} else if (that.md.m < 0 && that.md.d > 0) {
@@ -1703,8 +1703,8 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 		break;
 	case DT_DUR_WD:
 		/* auto-newline */
-		if (that.wd.w >= 0 && that.wd.d >= 0 ||
-		    that.wd.w > 0 && that.wd.d < 0) {
+		if ((that.wd.w >= 0 && that.wd.d >= 0) ||
+		    (that.wd.w > 0 && that.wd.d < 0)) {
 			res = snprintf(
 				buf, bsz, "%dw%dd\n", that.wd.w, that.wd.d);
 		} else if (that.wd.w < 0 && that.wd.d > 0) {
@@ -1717,8 +1717,8 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 		break;
 	case DT_DUR_YM:
 		/* auto-newline */
-		if (that.ym.y >= 0 && that.ym.m >= 0 ||
-		    that.ym.y > 0 && that.ym.m < 0) {
+		if ((that.ym.y >= 0 && that.ym.m >= 0) ||
+		    (that.ym.y > 0 && that.ym.m < 0)) {
 			res = snprintf(
 				buf, bsz, "%dy%dm\n", that.ym.y, that.ym.m);
 		} else if (that.ym.y < 0 && that.ym.m > 0) {
