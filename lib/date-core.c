@@ -79,6 +79,14 @@ typedef struct {
 #define A	(unsigned int)(DT_SATURDAY)
 #define S	(unsigned int)(DT_SUNDAY)
 
+struct strpd_s {
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+	unsigned int c;
+	unsigned int w;
+};
+
 
 /* helpers */
 #define SECS_PER_MINUTE	(60)
@@ -1088,27 +1096,23 @@ __strpd_std(const char *str)
 {
 	struct dt_d_s res = {DT_UNK};
 	const char *sp = str;
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-	unsigned int c;
-	unsigned int w;
+	struct strpd_s d;
 
 	if (sp == NULL) {
 		goto out;
 	}
 	/* read the year */
-	sp = strtoui_lim(&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
+	sp = strtoui_lim(&d.y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
 	if (sp == NULL || *sp++ != '-') {
 		goto out;
 	}
 	/* read the month */
-	sp = strtoui_lim(&m, sp, 0, 12);
+	sp = strtoui_lim(&d.m, sp, 0, 12);
 	if (sp == NULL || *sp++ != '-') {
 		goto out;
 	}
 	/* read the day or the count */
-	sp = strtoui_lim(&d, sp, 0, 31);
+	sp = strtoui_lim(&d.d, sp, 0, 31);
 	if (sp == NULL) {
 		/* didn't work, fuck off */
 		goto out;
@@ -1122,7 +1126,7 @@ __strpd_std(const char *str)
 	case '-':
 		/* it is a YMCW date */
 		res.typ = DT_YMCW;
-		if ((c = d) > 5) {
+		if ((d.c = d.d) > 5) {
 			/* nope, it was bollocks */
 			goto out;
 		}
@@ -1136,7 +1140,7 @@ __strpd_std(const char *str)
 		/* it's fuckered */
 		goto out;
 	}
-	sp = strtoui_lim(&w, sp, 0, 7);
+	sp = strtoui_lim(&d.w, sp, 0, 7);
 	if (sp == NULL) {
 		/* didn't work, fuck off */
 		res.typ = DT_UNK;
@@ -1148,15 +1152,15 @@ assess:
 	case DT_UNK:
 		break;
 	case DT_YMD:
-		res.ymd.y = y;
-		res.ymd.m = m;
-		res.ymd.d = d;
+		res.ymd.y = d.y;
+		res.ymd.m = d.m;
+		res.ymd.d = d.d;
 		break;
 	case DT_YMCW:
-		res.ymcw.y = y;
-		res.ymcw.m = m;
-		res.ymcw.c = c;
-		res.ymcw.w = w;
+		res.ymcw.y = d.y;
+		res.ymcw.m = d.m;
+		res.ymcw.c = d.c;
+		res.ymcw.w = d.w;
 		break;
 	}
 out:
@@ -1167,27 +1171,24 @@ static size_t
 __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 {
 	size_t res = 0;
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-	unsigned int c;
+	struct strpd_s d;
 
 	switch (that.typ) {
 	case DT_YMD:
-		y = that.ymd.y;
-		m = that.ymd.m;
-		d = that.ymd.d;
+		d.y = that.ymd.y;
+		d.m = that.ymd.m;
+		d.d = that.ymd.d;
 		break;
 	case DT_YMCW:
-		y = that.ymcw.y;
-		m = that.ymcw.m;
-		d = __ymcw_get_mday(that.ymcw);
+		d.y = that.ymcw.y;
+		d.m = that.ymcw.m;
+		d.d = __ymcw_get_mday(that.ymcw);
 		break;
 	case DT_DAISY: {
 		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		y = tmp.y;
-		m = tmp.m;
-		d = tmp.d;
+		d.y = tmp.y;
+		d.m = tmp.m;
+		d.d = tmp.d;
 		break;
 	}
 	case DT_BIZDA:
@@ -1202,20 +1203,20 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 
 	switch (spec) {
 	case 'Y':
-		res = ui32tostrrom(buf, bsz, y);
+		res = ui32tostrrom(buf, bsz, d.y);
 		break;
 	case 'y':
-		res = ui32tostrrom(buf, bsz, y % 100);
+		res = ui32tostrrom(buf, bsz, d.y % 100);
 		break;
 	case 'm':
-		res = ui32tostrrom(buf, bsz, m);
+		res = ui32tostrrom(buf, bsz, d.m);
 		break;
 	case 'd':
-		res = ui32tostrrom(buf, bsz, d);
+		res = ui32tostrrom(buf, bsz, d.d);
 		break;
 	case 'c':
-		c = dt_get_count(that);
-		res = ui32tostrrom(buf, bsz, c);
+		d.c = dt_get_count(that);
+		res = ui32tostrrom(buf, bsz, d.c);
 		break;
 	default:
 		break;
@@ -1237,18 +1238,43 @@ __trans_fmt(const char **fmt)
 	return;
 }
 
+static struct dt_d_s
+__guess_dtyp(struct strpd_s d)
+{
+	struct dt_d_s res;
+
+	if (LIKELY(d.y && (d.m == 0 || d.c == 0))) {
+		/* nearly all goes to ymd */
+		res.typ = DT_YMD;
+		res.ymd = (dt_ymd_t){
+			.y = d.y,
+			.m = d.m,
+			.d = d.d,
+		};
+	} else if (d.y && d.m && d.c) {
+		/* its legit for d.w to be naught */
+		res.typ = DT_YMCW;
+		res.ymcw = (dt_ymcw_t){
+			.y = d.y,
+			.m = d.m,
+			.c = d.c,
+			.w = d.w,
+		};
+	} else {
+		/* anything else is bollocks for now */
+		res.typ = DT_UNK;
+		res.u = 0;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt)
 {
-	struct dt_d_s res = {DT_UNK};
 	unsigned int dummy = 0;
-	unsigned int y = 0;
-	unsigned int m = 0;
-	unsigned int d = 0;
-	unsigned int c = 0;
-	unsigned int w = 0;
+	struct strpd_s d = {0};
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str);
@@ -1262,7 +1288,6 @@ dt_strpd(const char *str, const char *fmt)
 		if (*fp != '%') {
 		literal:
 			if (*fp != *sp++) {
-				res.typ = DT_UNK;
 				break;
 			}
 			continue;
@@ -1273,59 +1298,56 @@ dt_strpd(const char *str, const char *fmt)
 		case 'F':
 			shaught = 1;
 		case 'Y':
-			sp = strtoui_lim(&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
+			sp = strtoui_lim(&d.y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
 			if (UNLIKELY(shaught == 0 ||
 				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'm':
-			sp = strtoui_lim(&m, sp, 0, 12);
+			sp = strtoui_lim(&d.m, sp, 0, 12);
 			if (UNLIKELY(shaught == 0 ||
 				     sp == NULL || *sp++ != '-')) {
 				break;
 			}
 		case 'd':
 			/* gregorian mode */
-			res.typ = DT_YMD;
-			sp = strtoui_lim(&d, sp, 0, 31);
+			sp = strtoui_lim(&d.d, sp, 0, 31);
 			break;
 		case 'w':
 			/* ymcw mode */
-			res.typ = DT_YMCW;
-			sp = strtoui_lim(&w, sp, 0, 7);
+			sp = strtoui_lim(&d.w, sp, 0, 7);
 			break;
 		case 'c':
 			/* ymcw mode */
-			res.typ = DT_YMCW;
-			sp = strtoui_lim(&c, sp, 0, 5);
+			sp = strtoui_lim(&d.c, sp, 0, 5);
 			break;
 		case 'a':
 			/* ymcw mode! */
 			sp = strtoarri(
-				&w, sp,
+				&d.w, sp,
 				__abbr_wday, countof(__abbr_wday));
 			break;
 		case 'A':
 			/* ymcw mode! */
 			sp = strtoarri(
-				&w, sp,
+				&d.w, sp,
 				__long_wday, countof(__long_wday));
 			break;
 		case 'b':
 		case 'h':
 			sp = strtoarri(
-				&m, sp,
+				&d.m, sp,
 				__abbr_mon, countof(__abbr_mon));
 			break;
 		case 'B':
 			sp = strtoarri(
-				&m, sp,
+				&d.m, sp,
 				__long_mon, countof(__long_mon));
 			break;
 		case 'y':
-			sp = strtoui_lim(&y, sp, 0, 99);
-			if ((y += 2000) > 2068) {
-				y -= 100;
+			sp = strtoui_lim(&d.y, sp, 0, 99);
+			if ((d.y += 2000) > 2068) {
+				d.y -= 100;
 			}
 			break;
 		case '_':
@@ -1333,7 +1355,7 @@ dt_strpd(const char *str, const char *fmt)
 				const char *pos;
 			case 'b':
 				if ((pos = strchr(__abab_mon, *sp++))) {
-					m = pos - __abab_mon;
+					d.m = pos - __abab_mon;
 				} else {
 					sp = NULL;
 				}
@@ -1341,7 +1363,7 @@ dt_strpd(const char *str, const char *fmt)
 			case 'a':
 				if ((pos = strchr(__abab_wday, *sp++))) {
 					/* ymcw mode! */
-					w = pos - __abab_wday;
+					d.w = pos - __abab_wday;
 				} else {
 					sp = NULL;
 				}
@@ -1371,22 +1393,22 @@ dt_strpd(const char *str, const char *fmt)
 			switch (*++fp) {
 			case 'Y':
 				sp = romstrtoui_lim(
-					&y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
+					&d.y, sp, DT_MIN_YEAR, DT_MAX_YEAR);
 				break;
 			case 'y':
-				sp = romstrtoui_lim(&y, sp, 0, 99);
-				if ((y += 2000) > 2068) {
-					y -= 100;
+				sp = romstrtoui_lim(&d.y, sp, 0, 99);
+				if ((d.y += 2000) > 2068) {
+					d.y -= 100;
 				}
 				break;
 			case 'm':
-				sp = romstrtoui_lim(&m, sp, 0, 12);
+				sp = romstrtoui_lim(&d.m, sp, 0, 12);
 				break;
 			case 'd':
-				sp = romstrtoui_lim(&d, sp, 0, 31);
+				sp = romstrtoui_lim(&d.d, sp, 0, 31);
 				break;
 			case 'c':
-				sp = romstrtoui_lim(&c, sp, 0, 5);
+				sp = romstrtoui_lim(&d.c, sp, 0, 5);
 				break;
 			default:
 				sp = NULL;
@@ -1395,33 +1417,15 @@ dt_strpd(const char *str, const char *fmt)
 			break;
 		}
 	}
-	switch (res.typ) {
-	default:
-	case DT_UNK:
-		break;
-	case DT_YMD:
-		res.ymd.y = y;
-		res.ymd.m = m;
-		res.ymd.d = d;
-		break;
-	case DT_YMCW:
-		res.ymcw.y = y;
-		res.ymcw.m = m;
-		res.ymcw.c = c;
-		res.ymcw.w = w;
-		break;
-	}
-	return res;
+	/* try and guess a date type */
+	return __guess_dtyp(d);
 }
 
 DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
 	size_t res = 0;
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-	unsigned int c;
+	struct strpd_s d;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		goto out;
@@ -1429,26 +1433,26 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 
 	switch (that.typ) {
 	case DT_YMD:
-		y = that.ymd.y;
-		m = that.ymd.m;
-		d = that.ymd.d;
+		d.y = that.ymd.y;
+		d.m = that.ymd.m;
+		d.d = that.ymd.d;
 		if (fmt == NULL) {
 			fmt = "%F\n";
 		}
 		break;
 	case DT_YMCW:
-		y = that.ymcw.y;
-		m = that.ymcw.m;
+		d.y = that.ymcw.y;
+		d.m = that.ymcw.m;
 		if (fmt == NULL) {
 			fmt = "%Y-%m-%c-%w\n";
 		}
-		d = 0;
+		d.d = 0;
 		break;
 	case DT_DAISY: {
 		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		y = tmp.y;
-		m = tmp.m;
-		d = tmp.d;
+		d.y = tmp.y;
+		d.m = tmp.m;
+		d.d = tmp.d;
 		if (fmt == NULL) {
 			/* subject to change */
 			fmt = "%F\n";
@@ -1477,31 +1481,31 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case 'F':
 			shaught = 1;
 		case 'Y':
-			res += ui32tostr(buf + res, bsz - res, y, 4);
+			res += ui32tostr(buf + res, bsz - res, d.y, 4);
 			if (UNLIKELY(shaught == 0)) {
 				break;
 			}
 			buf[res++] = '-';
 		case 'm':
-			res += ui32tostr(buf + res, bsz - res, m, 2);
+			res += ui32tostr(buf + res, bsz - res, d.m, 2);
 			if (UNLIKELY(shaught == 0)) {
 				break;
 			}
 			buf[res++] = '-';
 		case 'd':
 			/* ymd mode check? */
-			d = d ?: dt_get_mday(that);
-			res += ui32tostr(buf + res, bsz - res, d, 2);
+			d.d = d.d ?: dt_get_mday(that);
+			res += ui32tostr(buf + res, bsz - res, d.d, 2);
 			break;
 		case 'w':
 			/* ymcw mode check */
-			d = dt_get_wday(that);
-			res += ui32tostr(buf + res, bsz - res, d, 2);
+			d.d = dt_get_wday(that);
+			res += ui32tostr(buf + res, bsz - res, d.d, 2);
 			break;
 		case 'c':
 			/* ymcw mode check? */
-			c = dt_get_count(that);
-			res += ui32tostr(buf + res, bsz - res, c, 2);
+			d.c = dt_get_count(that);
+			res += ui32tostr(buf + res, bsz - res, d.c, 2);
 			break;
 		case 'a':
 			/* get the weekday in ymd mode!! */
@@ -1520,24 +1524,24 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case 'b':
 		case 'h':
 			res += arritostr(
-				buf + res, bsz - res, m,
+				buf + res, bsz - res, d.m,
 				__abbr_mon, countof(__abbr_mon));
 			break;
 		case 'B':
 			res += arritostr(
-				buf + res, bsz - res, m,
+				buf + res, bsz - res, d.m,
 				__long_mon, countof(__long_mon));
 			break;
 		case 'y':
-			res += ui32tostr(buf + res, bsz - res, y, 2);
+			res += ui32tostr(buf + res, bsz - res, d.y, 2);
 			break;
 		case '_':
 			/* secret mode */
 			switch (*++fp) {
 			case 'b':
 				/* super abbrev'd month */
-				if (m < countof(__abab_mon)) {
-					buf[res++] = __abab_mon[m];
+				if (d.m < countof(__abab_mon)) {
+					buf[res++] = __abab_mon[d.m];
 				}
 				break;
 			case 'a': {
@@ -1594,10 +1598,7 @@ dt_strpdur(const char *str)
 	struct dt_dur_s res = {DT_DUR_UNK};
 	char *sp = ((union {char *p; const char *c;}){.c = str}).p;
 	int tmp;
-	int y = 0;
-	int m = 0;
-	int w = 0;
-	int d = 0;
+	struct strpd_s d = {0};
 
 	if (str == NULL) {
 		goto out;
@@ -1608,43 +1609,49 @@ dt_strpdur(const char *str)
 		switch (*sp++) {
 		case '\0':
 			/* must have been day then */
-			d = tmp;
+			d.d = tmp;
 			goto assess;
 		case 'd':
 		case 'D':
-			d = tmp;
+			d.d = tmp;
 			break;
 		case 'y':
 		case 'Y':
-			y = tmp;
+			d.y = tmp;
 			break;
 		case 'm':
 		case 'M':
-			m = tmp;
+			d.m = tmp;
 			break;
 		case 'w':
 		case 'W':
-			w = tmp;
+			d.w = tmp;
 			break;
 		default:
 			goto out;
 		}
 	} while (*sp);
 assess:
-	if (LIKELY((m && d) ||
-		   (y == 0 && m == 0 && w == 0) ||
-		   (y == 0 && w == 0 && d == 0))) {
+	if (LIKELY((d.m && d.d) ||
+		   (d.y == 0 && d.m == 0 && d.w == 0) ||
+		   (d.y == 0 && d.w == 0 && d.d == 0))) {
 		res.typ = DT_DUR_MD;
-		res.md.m = m;
-		res.md.d = d;
-	} else if (w) {
+		res.md = (dt_mddur_t){
+			.m = d.m,
+			.d = d.d,
+		};
+	} else if (d.w) {
 		res.typ = DT_DUR_WD;
-		res.wd.w = w;
-		res.wd.d = d;
-	} else if (y) {
+		res.wd = (dt_wddur_t){
+			.w = d.w,
+			.d = d.d,
+		};
+	} else if (d.y) {
 		res.typ = DT_DUR_YM;
-		res.ym.y = y;
-		res.ym.m = m;
+		res.ym = (dt_ymdur_t){
+			.y = d.y,
+			.m = d.m,
+		};
 	}
 out:
 	return res;
