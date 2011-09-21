@@ -1,3 +1,5 @@
+changequote(`[[', `]]')
+
 args "--unamed-opts=FMTs --long-help"
 package "strptime"
 description "Parse input from stdin according to one of the given formats FMTs.
@@ -7,17 +9,5 @@ option "time" t
 	"also display time in the output, default is to display the date"
 	optional
 
-option "format" f
-	"output format as passed to strftime()"
-	string optional
-
-option "input-format" i
-	"input format as passed to strptime(), can be used multiple times.
-If used dates can be specified on the command line, or if left empty they
-are read from stdin"
-	string optional multiple
-
-option "backslash-escapes" e
-	"enable interpretation of backslash escapes in the output and
-input format strings"
-	optional
+include([[common.ggo.in]])
+include([[format.ggo.in]])

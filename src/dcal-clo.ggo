@@ -1,3 +1,5 @@
+changequote(`[[', `]]')
+
 args "--unamed-opts --long-help"
 package "dcal"
 usage "dcal [OPTION]... DATEs"
@@ -5,19 +7,5 @@ description "Convert DATEs between calendrical systems.  If DATEs are \
 omitted they read from stdin, the special date `now' is interpreted as \
 the current date."
 
-option "format" f
-	"Output format as passed to strfd(), this can either be a \
-spec string (much like strftime()'s FMT) or the name of a calendar."
-	string optional
-
-option "input-format" i
-	"Input format as passed to strpd(), can be used multiple times.
-Each DATE will be passed to the input format parsers in the order they \
-are given, if DATE can be read successfully with a given input format \
-that value will be used."
-	string optional multiple
-
-option "backslash-escapes" e
-	"enable interpretation of backslash escapes in the output and \
-input format strings"
-	optional
+include([[common.ggo.in]])
+include([[format.ggo.in]])

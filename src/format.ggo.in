@@ -1,0 +1,5 @@
+option "format" f
+	"Output format as passed to dt_strfd(), this can either be a \
+spec string (much like strftime()'s FMT) or the name of a calendar."
+	string optional
+

@@ -1,11 +1,11 @@
+changequote(`[[', `]]')
+
 args "--unamed-opts --long-help"
 package "dtest"
 usage "dtest [OPTION]... DATE1 OP DATE2"
 description "Like test(1) but for dates."
 
-option "input-format" i
-	"input format as passed to strptime(), can be used multiple times."
-	string optional multiple
+include([[common.ggo.in]])
 
 defgroup "op" groupdesc="Following operations are supported" required
 

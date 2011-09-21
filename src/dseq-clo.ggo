@@ -1,15 +1,12 @@
+changequote(`[[[', `]]]')
+
 args "--unamed-opts --long-help"
 package "dseq"
 usage "dseq [OPTION]... FIRST [[INCREMENT] LAST]"
 description "Like seq(1) but for dates."
 
-option "format" f
-	"use printf style formatting"
-	string optional
-
-option "input-format" i
-	"inputs are specified in this format"
-	string optional multiple
+include([[[common.ggo.in]]])
+include([[[format.ggo.in]]])
 
 option "skip" s
 	"skip weekday specified by STRING, use multiple times
@@ -17,8 +14,3 @@ or comma separated to skip several days, use `ss' to skip
 weekends (sat+sun) altogether, date ranges can be specified
 like `mo-we' for monday to wednesday"
 	string optional multiple
-
-option "backslash-escapes" e
-	"enable interpretation of backslash escapes in the output and
-input format strings"
-	optional
