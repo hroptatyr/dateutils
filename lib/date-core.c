@@ -1193,12 +1193,16 @@ __strpd_std(const char *str, char **ep)
 	switch (*sp++) {
 	case '\0':
 		/* it was a YMD date */
-		goto assess;
+		break;
 	case '-':
 		/* it is a YMCW date */
 		if ((d.c = d.d) > 5) {
 			/* nope, it was bollocks */
-			goto out;
+			break;
+		}
+		if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
+			/* didn't work, fuck off */
+			sp = str;
 		}
 		break;
 	case '<':
@@ -1208,14 +1212,9 @@ __strpd_std(const char *str, char **ep)
 		break;
 	default:
 		/* it's fuckered */
-		goto out;
+		break;
 	}
-	if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
-		/* didn't work, fuck off */
-		sp = str;
-		goto out;
-	}
-assess:
+	/* guess what we're doing */
 	res = __guess_dtyp(d);
 out:
 	if (ep) {
