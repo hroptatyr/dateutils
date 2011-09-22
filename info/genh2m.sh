@@ -10,19 +10,6 @@ else
 	exit 1
 fi
 
-cat <<EOF
-@node ${BINNAME}
-@chapter ${BINNAME}
-@cindex invoking @command{${BINNAME}}
-
-@command{$BINNAME} may be invoked with the following command-line options:
-
-@verbatim
-$("${BINARY}" --help)
-@end verbatim
-
-EOF
-
 if test "${#}" -eq 0; then
 	exit 0
 fi
@@ -36,7 +23,7 @@ myexit()
 
 . $(dirname "${0}")"/genex"
 
-echo "@section Examples"
+echo "[EXAMPLES]"
 for i; do
 	. "${i}"
 
@@ -46,9 +33,8 @@ for i; do
 	fi
 
 	echo
-	echo "@example"
 	genex "${BINARY}" "${BINNAME}" "${CMDLINE}" "${stdin}"
-	echo "@end example"
+	echo
 done
 
 myexit 0
