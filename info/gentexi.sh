@@ -4,6 +4,7 @@
 if test -x "${1}"; then
 	BINARY="${1}"
 	BINNAME=$(basename "${BINARY}")
+	shift
 else
 	echo "${1} not a binary" >&2
 	exit 1
@@ -19,4 +20,41 @@ cat <<EOF
 @verbatim
 $("${BINARY}" --help)
 @end verbatim
+
 EOF
+
+if test "${#}" -eq 0; then
+	exit 0
+fi
+
+## now go for examples
+myexit()
+{
+	rm -f -- "${stdin}" "${stdout}" "${stderr}" "${tool_stdout}" "${tool_stderr}"
+	exit ${1:-1}
+}
+
+echo "@section Examples"
+for i; do
+	. "${i}"
+
+	## double check we're in the right tool
+	if test "${TOOL}" != "${BINNAME}"; then
+		continue
+	fi
+
+	echo
+	echo "@example"
+	echo -n "% ${BINNAME} ${CMDLINE}"
+	if test -r "${stdin}"; then
+		echo " <<EOF"
+		cat "${stdin}"
+		echo "EOF"
+	else
+		echo
+	fi
+eval "${BINARY}" "${CMDLINE}" < "${stdin:-/dev/null}"
+	echo "@end example"
+done
+
+myexit 0

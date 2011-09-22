@@ -13,6 +13,25 @@ datetools_TEXINFOS += ddiff.texi
 datetools_TEXINFOS += dseq.texi
 datetools_TEXINFOS += dtest.texi
 
+datetools_EXAMPLES =
+
+dcal_EXAMPLES =
+dcal_EXAMPLES += $(top_srcdir)/test/dcal.1.dt
+dcal_EXAMPLES += $(top_srcdir)/test/dcal.2.dt
+dcal_EXAMPLES += $(top_srcdir)/test/dcal.3.dt
+dcal_EXAMPLES += $(top_srcdir)/test/dcal.4.dt
+datetools_EXAMPLES += $(dcal_EXAMPLES)
+
+dseq_EXAMPLES =
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.1.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.2.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.3.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.4.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.5.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.6.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.7.dt
+datetools_EXAMPLES += $(dseq_EXAMPLES)
+
 BUILT_SOURCES = $(datetools_TEXINFOS)
 
 TEXI2DVI_TEX = latex
@@ -32,7 +51,8 @@ __bld_man_0 = @echo "  HELP2MAN" $*;
 my_bld_texi = $(__bld_texi_$(V))
 __bld_texi_ = $(__bld_texi_$(AM_DEFAULT_VERBOSITY))
 __bld_texi_0 = @echo "  GENTEXI " $*;
-%.texi: $(top_builddir)/src/%$(EXEEXT) datetools.texi
-	$(my_bld_texi) ${SHELL} $(srcdir)/gentexi.sh "$<" > "$@" || rm -f -- "${@}"
+%.texi: $(top_builddir)/src/%$(EXEEXT) $(datetools_EXAMPLES) datetools.texi
+	$(my_bld_texi) ${SHELL} \
+		$(srcdir)/gentexi.sh $< $($*_EXAMPLES) > $@ || rm -f -- $@
 
 ## Makefile.am ends here
