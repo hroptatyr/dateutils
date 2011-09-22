@@ -3,7 +3,7 @@
 AM_CPPFLAGS = -D_GNU_SOURCE -D_POSIX_C_SOURCE=201001L -D__USE_XOPEN2K8
 AM_LDFLAGS =
 
-headerdir = $(includedir)/datetools
+headerdir = $(includedir)/dateutils
 
 noinst_PROGRAMS =
 noinst_HEADERS =
