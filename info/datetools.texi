@@ -45,7 +45,7 @@ in the section entitled "GNU Free Documentation License".
 @end titlepage
 @page
 
-@node Top, Introduction,, (dir)
+@node Top
 @top datetools
 
 datetools are a bunch of tools that revolve around fiddling with dates
@@ -53,21 +53,25 @@ and times in the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
 
 @menu
-* Introduction::        
-* Calendars::           
+* Introduction::        Motivation, background, etc.
+* Calendars::           Calendar concepts and format specs
 * strptime::            Command line version of the C function
-* dseq::                Generate sequences of dates
 * dcal::                Convert dates between calendars
+* dadd::                Add durations to dates
+* ddiff::               Compute durations from dates
+* dseq::                Generate sequences of dates
 * dtest::               Compare dates
 @end menu
 
 @include strptime.texi
+@include dadd.texi
 @include dcal.texi
+@include ddiff.texi
 @include dseq.texi
 @include dtest.texi
 
-@c node, next, prev, up
-@node Introduction, Calendars, Top, Top
+@node Introduction
+@chapter Introduction
 
 The datetools package is an attempt to provide a comprehensive set of
 command line tools that behave intuitively, support a similar variety of
@@ -91,9 +95,8 @@ from external sources and have to be brought into shape before or whilst
 importing them into an integrated system.
 
 
-@c node, next, prev, up
-@node Calendars, strptime, Introduction, Top
-
+@node Calendars
+@chapter Calendars
 
 
 

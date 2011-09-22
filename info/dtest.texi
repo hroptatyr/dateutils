@@ -1,2 +1,0 @@
-@c node, next, prev, up
-@node dtest, , dseq, Top
