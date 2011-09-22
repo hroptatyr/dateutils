@@ -40,6 +40,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <time.h>
 #include "date-core.h"
 
@@ -89,9 +90,9 @@ struct strpd_s {
 
 
 /* helpers */
-#define SECS_PER_MINUTE	(60)
-#define SECS_PER_HOUR	(SECS_PER_MINUTE * 60)
-#define SECS_PER_DAY	(SECS_PER_HOUR * 24)
+#define SECS_PER_MINUTE	(60U)
+#define SECS_PER_HOUR	(SECS_PER_MINUTE * 60U)
+#define SECS_PER_DAY	(SECS_PER_HOUR * 24U)
 
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1970)
@@ -191,7 +192,7 @@ strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 	uint32_t res = 0;
 	const char *sp;
 	/* we keep track of the number of digits via rulim */
-	int rulim;
+	uint32_t rulim;
 
 	for (sp = str, rulim = ulim > 10 ? ulim : 10;
 	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
@@ -218,7 +219,7 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 	if (UNLIKELY(d > 10000)) {
 		return 0;
 	}
-	switch ((res = pad) < bsz ? res : bsz) {
+	switch ((res = (size_t)pad) < bsz ? res : bsz) {
 	case 4:
 		buf[pad - 4] = C(d, 1000);
 	case 3:
@@ -345,9 +346,9 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 		buf[res++] = 'M';
 	}
 
-	res += __rom_pr1(buf + res, bsz - res, d / 100, 'C', 'M', 'D');
+	res += __rom_pr1(buf + res, bsz - res, d / 100U, 'C', 'M', 'D');
 	d %= 100;
-	res += __rom_pr1(buf + res, bsz - res, d / 10, 'X', 'C', 'L');
+	res += __rom_pr1(buf + res, bsz - res, d / 10U, 'X', 'C', 'L');
 	d %= 10;
 	res += __rom_pr1(buf + res, bsz - res, d, 'I', 'X', 'V');
 	return res;
@@ -387,8 +388,8 @@ arritostr(
 	return ncp;
 }
 
-static inline int
-__leapp(int y)
+static inline bool
+__leapp(unsigned int y)
 {
 	return y % 4 == 0;
 }
@@ -396,11 +397,12 @@ __leapp(int y)
 static void
 ffff_gmtime(struct tm *tm, const time_t t)
 {
-	register int days, yy;
+	register int days;
+	register unsigned int yy;
 	const uint16_t *ip;
 
 	/* just go to day computation */
-	days = t / SECS_PER_DAY;
+	days = (typeof(days))(t / SECS_PER_DAY);
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
 	tm->tm_wday = (days + 4) % 7;
 
@@ -412,7 +414,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 #define LEAPS_TILL(y)		(DIV(y, 4))
 	while (days < 0 || days >= (!__leapp(yy) ? 365 : 366)) {
 		/* Guess a corrected year, assuming 365 days per year. */
-		register int yg = yy + days / 365 - (days % 365 < 0);
+		register unsigned int yg = yy + days / 365 - (days % 365 < 0);
 
 		/* Adjust DAYS and Y to match the guessed year.  */
 		days -= (yg - yy) * 365 +
@@ -420,7 +422,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 		yy = yg;
 	}
 	/* set the year */
-	tm->tm_year = yy;
+	tm->tm_year = (int)yy;
 
 	ip = __mon_yday;
 	/* unrolled */
@@ -441,7 +443,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	/* set the rest of the tm structure */
 	tm->tm_mday = days - ip[yy] + 1;
 	tm->tm_yday = days;
-	tm->tm_mon = yy;
+	tm->tm_mon = (int)yy;
 	/* fix up leap years */
 	if (UNLIKELY(__leapp(tm->tm_year))) {
 		if ((ip[0] >> (yy)) & 1) {
@@ -461,13 +463,13 @@ ffff_gmtime(struct tm *tm, const time_t t)
 
 /* converters and getters */
 static inline __jan01_wday_block_t
-__get_jan01_block(int year)
+__get_jan01_block(unsigned int year)
 {
 	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
 }
 
 static inline dt_daisy_t
-__jan00_daisy(int year)
+__jan00_daisy(unsigned int year)
 {
 /* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
 #define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
@@ -477,7 +479,7 @@ __jan00_daisy(int year)
 }
 
 static inline dt_dow_t
-__get_jan01_wday(int year)
+__get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR */
 	unsigned int res;
@@ -527,7 +529,7 @@ __get_jan01_wday(int year)
 }
 
 static dt_dow_t
-__get_m01_wday(int year, int mon)
+__get_m01_wday(unsigned int year, unsigned int mon)
 {
 /* get the weekday of the first of MONTH in YEAR */
 	unsigned int off;
@@ -548,7 +550,7 @@ __get_m01_wday(int year, int mon)
 static inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
-	int res;
+	unsigned int res;
 
 	if (UNLIKELY(m < 1 || m > 12)) {
 		return 0;
@@ -634,7 +636,7 @@ __ymcw_get_yday(dt_ymcw_t that)
 
 	switch (that.m) {
 	case 10:
-		ws += 3 + __leapp(that.y);
+		ws += 3 + (__leapp(that.y) ? 1 : 0);
 		break;
 	case 11:
 		ws++;
@@ -689,8 +691,8 @@ __ymcw_get_mday(dt_ymcw_t that)
 static dt_ymcw_t
 __ymd_to_ymcw(dt_ymd_t d)
 {
-	int c = __ymd_get_count(d);
-	int w = __ymd_get_wday(d);
+	unsigned int c = __ymd_get_count(d);
+	unsigned int w = __ymd_get_wday(d);
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
 }
 
@@ -742,7 +744,7 @@ __daisy_get_wday(dt_daisy_t d)
 	return (dt_dow_t)(d % 7);
 }
 
-static int
+static unsigned int
 __daisy_get_year(dt_daisy_t d)
 {
 /* given days since 1917-01-01 (Mon), compute a year */
@@ -759,10 +761,10 @@ static dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
 	dt_daisy_t j00;
-	int doy;
-	int y;
-	int m;
-	int d;
+	unsigned int doy;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
 
 	if (UNLIKELY(that == 0)) {
 		return (dt_ymd_t){.u = 0};
@@ -779,9 +781,9 @@ __daisy_to_ymd(dt_daisy_t that)
 			if (UNLIKELY(doy == 60)) {
 				m = 2;
 				d = 29;
-			} else if (UNLIKELY(doy == __mon_yday[m] + 1)) {
+			} else if (UNLIKELY(doy == __mon_yday[m] + 1U)) {
 				m--;
-				d = doy - __mon_yday[m] - 1;
+				d = doy - __mon_yday[m] - 1U;
 			} else {
 				d--;
 			}
@@ -794,8 +796,8 @@ static dt_ymcw_t
 __daisy_to_ymcw(dt_daisy_t that)
 {
 	dt_ymd_t tmp;
-	int c;
-	int w;
+	unsigned int c;
+	unsigned int w;
 
 	if (UNLIKELY(that == 0)) {
 		return (dt_ymcw_t){.u = 0};
@@ -809,7 +811,7 @@ __daisy_to_ymcw(dt_daisy_t that)
 static dt_ymd_t
 __ymcw_to_ymd(dt_ymcw_t d)
 {
-	int md = __ymcw_get_mday(d);
+	unsigned int md = __ymcw_get_mday(d);
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
 }
 

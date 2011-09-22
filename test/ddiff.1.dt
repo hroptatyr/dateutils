@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="2012-03-02 2012-03-02"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+0m0d
+EOF
+
+## ddiff.1.dt ends here
