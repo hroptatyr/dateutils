@@ -38,4 +38,10 @@ TESTS += dtest.3.dt
 TESTS += dtest.4.dt
 TESTS += dtest.5.dt
 
+TESTS += ddiff.1.dt
+TESTS += ddiff.2.dt
+TESTS += ddiff.3.dt
+TESTS += ddiff.4.dt
+TESTS += ddiff.5.dt
+
 ## Makefile.am ends here
