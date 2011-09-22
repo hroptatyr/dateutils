@@ -21,4 +21,10 @@ TESTS += dseq.5.dt
 TESTS += dseq.6.dt
 TESTS += dseq.7.dt
 
+TESTS += dcal.1.dt
+TESTS += dcal.2.dt
+TESTS += dcal.3.dt
+TESTS += dcal.4.dt
+TESTS += dcal.5.dt
+
 ## Makefile.am ends here
