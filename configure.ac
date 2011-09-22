@@ -8,7 +8,7 @@ pushdef([version], [m4_esyscmd([./git-version-gen])])[]dnl
 ifelse([]version[], [], [0.1.3-pre], []version[])[]dnl
 popdef([version])[]dnl
 ])
-AC_INIT([datetools], [GIT_VERSION_GEN], [https://github.com/hroptatyr/datetools])
+AC_INIT([dateutils], [GIT_VERSION_GEN], [https://github.com/hroptatyr/dateutils])
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
