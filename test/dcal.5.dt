@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dcal
+CMDLINE="-i \"%d/%b/%y\" -f \"%OY %Om %Od\" 17/Sep/98"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+MCMXCVIII IX XVII
+EOF
+
+## dcal.5.dt ends here

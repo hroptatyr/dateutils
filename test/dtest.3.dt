@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dtest
+CMDLINE="2012-03-01 --cmp 2012-03-02; echo \$?"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+2
+EOF
+
+## dtest.3.dt ends here
