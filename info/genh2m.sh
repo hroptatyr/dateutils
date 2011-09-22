@@ -33,7 +33,8 @@ for i; do
 	fi
 
 	echo
-	genex "${BINARY}" "${BINNAME}" "${CMDLINE}" "${stdin}"
+	genex "${BINARY}" "${BINNAME}" "${CMDLINE}" "${stdin}" | \
+		sed 's/^/  /'
 	echo
 done
 
