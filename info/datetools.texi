@@ -64,8 +64,8 @@ arise when dealing with large amounts of financial data.
 @end menu
 
 @include strptime.texi
-@include dadd.texi
 @include dcal.texi
+@include dadd.texi
 @include ddiff.texi
 @include dseq.texi
 @include dtest.texi
