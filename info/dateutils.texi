@@ -1,14 +1,14 @@
 \input texinfo  @c -*-texinfo-*-
-@setfilename datetools.info
+@setfilename dateutils.info
 @comment  node-name,  next,  previous,  up
 
 @ifinfo
-@dircategory datetools
+@dircategory dateutils
 @direntry
-* datetools: (datetools).	Command line tools to fiddle with dates.
+* dateutils: (dateutils).	Command line tools to fiddle with dates.
 @end direntry
 
-This manual documents the datetools package.
+This manual documents the dateutils package.
 
 Copyright @copyright{} 2011 Sebastian Freundt.
 
@@ -21,11 +21,11 @@ in the section entitled "GNU Free Documentation License".
 @end ifinfo
 @c
 @setchapternewpage odd
-@settitle datetools User's Manual
+@settitle dateutils User's Manual
 @c
 @titlepage
 @sp 6
-@center @titlefont{datetools User's Manual}
+@center @titlefont{dateutils User's Manual}
 @sp 4
 @sp 1
 @sp 1
@@ -46,9 +46,9 @@ in the section entitled "GNU Free Documentation License".
 @page
 
 @node Top
-@top datetools
+@top dateutils
 
-datetools are a bunch of tools that revolve around fiddling with dates
+dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
 
@@ -73,7 +73,7 @@ arise when dealing with large amounts of financial data.
 @node Introduction
 @chapter Introduction
 
-The datetools package is an attempt to provide a comprehensive set of
+The dateutils package is an attempt to provide a comprehensive set of
 command line tools that behave intuitively, support a similar variety of
 inputs, allow for normalised output and, most importantly, cover nearly
 all tasks that arise whilst dealing with huge amounts of dates and
