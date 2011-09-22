@@ -1,8 +1,8 @@
-datetools are a bunch of tools that revolve around fiddling with dates
+dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
 
-The following tools are part of datetools:
+The following tools are part of dateutils:
 
 + dseq
   A tool mimicking seq(1) but whose inputs are from the domain of dates
