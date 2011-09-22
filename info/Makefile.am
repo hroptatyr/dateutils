@@ -35,6 +35,32 @@ dseq_EXAMPLES += $(top_srcdir)/test/dseq.7.dt
 datetools_EXAMPLES += $(dseq_EXAMPLES)
 datetools_H2M_EX += dseq.h2m
 
+dadd_EXAMPLES =
+dadd_EXAMPLES += $(top_srcdir)/test/dadd.1.dt
+dadd_EXAMPLES += $(top_srcdir)/test/dadd.2.dt
+dadd_EXAMPLES += $(top_srcdir)/test/dadd.3.dt
+dadd_EXAMPLES += $(top_srcdir)/test/dadd.4.dt
+datetools_EXAMPLES += $(dadd_EXAMPLES)
+datetools_H2M_EX += dadd.h2m
+
+dtest_EXAMPLES =
+dtest_EXAMPLES += $(top_srcdir)/test/dtest.1.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dtest.2.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dtest.3.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dtest.4.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dtest.5.dt
+datetools_EXAMPLES += $(dtest_EXAMPLES)
+datetools_H2M_EX += dtest.h2m
+
+ddiff_EXAMPLES =
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.1.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.2.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.3.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.4.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
+datetools_EXAMPLES += $(ddiff_EXAMPLES)
+datetools_H2M_EX += ddiff.h2m
+
 BUILT_SOURCES = $(datetools_TEXINFOS) $(datetools_H2M_EX)
 
 TEXI2DVI_TEX = latex
