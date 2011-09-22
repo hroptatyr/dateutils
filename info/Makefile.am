@@ -66,7 +66,7 @@ BUILT_SOURCES = $(datetools_TEXINFOS) $(datetools_H2M_EX)
 TEXI2DVI_TEX = latex
 TEXI2DVI = TEX=$(TEXI2DVI_TEX) texi2dvi -c -s
 
-noinst_SCRIPTS = gentexi.sh genh2m.sh genex
+dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex
 
 man1_MANS = $(datetools_TEXINFOS:.texi=.man)
 
