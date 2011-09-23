@@ -122,6 +122,7 @@ typedef union {
 				unsigned int ba:1;
 #define BIZDA_AFTER	(0U)/*>*/
 #define BIZDA_BEFORE	(1U)/*<*/
+#define BIZDA_ULTIMO	(0U)
 			};
 		};
 		unsigned int m:4;
@@ -260,6 +261,10 @@ DECLF dt_dow_t dt_get_wday(struct dt_d_s);
 /**
  * Get the day of the month of a date. */
 DECLF int dt_get_mday(struct dt_d_s d);
+
+/**
+ * Get the business day count of a date in a month. */
+DECLF int dt_get_bday(struct dt_d_s d);
 
 /**
  * Get the day of the year of a date.
