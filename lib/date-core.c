@@ -894,7 +894,7 @@ __ymcw_to_ymd(dt_ymcw_t d)
 
 
 /* converting accessors */
-static unsigned int
+DEFUN int
 dt_get_year(struct dt_d_s that)
 {
 	switch (that.typ) {
@@ -912,7 +912,7 @@ dt_get_year(struct dt_d_s that)
 	}
 }
 
-static unsigned int
+DEFUN int
 dt_get_mon(struct dt_d_s that)
 {
 	switch (that.typ) {

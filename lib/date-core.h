@@ -255,6 +255,16 @@ DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
 DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s);
 
 /**
+ * Get the year count (gregorian) of a date,
+ * calendars without the notion of a year will return 0. */
+DECLF int dt_get_year(struct dt_d_s);
+
+/**
+ * Get the month within the year of a date,
+ * calendars without the notion of a month will return 0. */
+DECLF int dt_get_mon(struct dt_d_s);
+
+/**
  * Get the weekday of a date. */
 DECLF dt_dow_t dt_get_wday(struct dt_d_s);
 
