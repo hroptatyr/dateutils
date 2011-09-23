@@ -1344,7 +1344,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 			if (UNLIKELY(shaught == 0)) {
 				break;
-			} else if (UNLIKELY(*sp++ != '-')) {
+			} else if (UNLIKELY(d.y == -1U || *sp++ != '-')) {
 				sp = str;
 				goto out;
 			}
@@ -1352,21 +1352,30 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			d.m = strtoui_lim(sp, &sp, 0, 12);
 			if (UNLIKELY(shaught == 0)) {
 				break;
-			} else if (UNLIKELY(*sp++ != '-')) {
+			} else if (UNLIKELY(d.m == -1U || *sp++ != '-')) {
 				sp = str;
 				goto out;
 			}
 		case 'd':
 			/* gregorian mode */
-			d.d = strtoui_lim(sp, &sp, 0, 31);
+			if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+				sp = str;
+				goto out;
+			}
 			break;
 		case 'w':
 			/* ymcw mode */
-			d.w = strtoui_lim(sp, &sp, 0, 7);
+			if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
+				sp = str;
+				goto out;
+			}
 			break;
 		case 'c':
 			/* ymcw mode */
-			d.c = strtoui_lim(sp, &sp, 0, 5);
+			if ((d.c = strtoui_lim(sp, &sp, 0, 5)) == -1U) {
+				sp = str;
+				goto out;
+			}
 			break;
 		case 'a':
 			/* ymcw mode! */
