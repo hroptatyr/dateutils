@@ -764,46 +764,6 @@ __ymd_to_ymcw(dt_ymd_t d)
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
 }
 
-static dt_daisy_t
-__ymd_to_daisy(dt_ymd_t d)
-{
-/* compute days since 1917-01-01 (Mon),
- * if year slot is absent in D compute the day in the year of D instead. */
-	dt_daisy_t res;
-	int dy = TO_BASE(d.y);
-
-	if (UNLIKELY(dy < 0)) {
-		return 0;
-	}
-	res = __jan00_daisy(d.y);
-	res += __mon_yday[d.m] + d.d;
-	if (UNLIKELY(__leapp(d.y))) {
-		res += (__mon_yday[0] >> (d.m)) & 1;
-	}
-	return res;
-}
-
-static dt_daisy_t
-__ymcw_to_daisy(dt_ymcw_t d)
-{
-/* compute days since 1917-01-01 (Mon),
- * if year slot is absent in D compute the day in the year of D instead. */
-	dt_daisy_t res;
-	int dy = TO_BASE(d.y);
-
-	if (UNLIKELY(dy < 0)) {
-		return 0;
-	}
-	res = __jan00_daisy(d.y);
-	res += __mon_yday[d.m];
-	/* add up days too */
-	res += __ymcw_get_mday(d);
-	if (UNLIKELY(__leapp(d.y))) {
-		res += (__mon_yday[0] >> (d.m)) & 1;
-	}
-	return res;
-}
-
 static dt_dow_t
 __daisy_get_wday(dt_daisy_t d)
 {
@@ -885,6 +845,42 @@ __ymcw_to_ymd(dt_ymcw_t d)
 
 
 /* converting accessors */
+static unsigned int
+dt_get_year(struct dt_d_s that)
+{
+	switch (that.typ) {
+	case DT_YMD:
+		return that.ymd.y;
+	case DT_YMCW:
+		return that.ymcw.y;
+	case DT_DAISY:
+		return 0;
+	case DT_BIZDA:
+		return that.bizda.y;
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+static unsigned int
+dt_get_mon(struct dt_d_s that)
+{
+	switch (that.typ) {
+	case DT_YMD:
+		return that.ymd.m;
+	case DT_YMCW:
+		return that.ymcw.m;
+	case DT_DAISY:
+		return 0;
+	case DT_BIZDA:
+		return that.bizda.m;
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
 DEFUN dt_dow_t
 dt_get_wday(struct dt_d_s that)
 {
@@ -959,20 +955,32 @@ dt_get_yday(struct dt_d_s that)
 static dt_daisy_t
 dt_conv_to_daisy(struct dt_d_s that)
 {
-	switch (that.typ) {
-	case DT_YMD:
-		return __ymd_to_daisy(that.ymd);
-	case DT_YMCW:
-		return __ymcw_to_daisy(that.ymcw);
-	case DT_DAISY:
+	dt_daisy_t res;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+
+	if (that.typ == DT_DAISY) {
 		return that.daisy;
-	case DT_BIZDA:
-		break;
-	case DT_UNK:
-	default:
-		break;
+	} else if (that.typ == DT_UNK) {
+		return 0;
 	}
-	return 0;
+
+	y = dt_get_year(that);
+	m = dt_get_mon(that);
+	d = dt_get_mday(that);
+
+	if (UNLIKELY((signed int)TO_BASE(y) < 0)) {
+		return 0;
+	}
+	res = __jan00_daisy(y);
+	res += __mon_yday[m];
+	/* add up days too */
+	res += d;
+	if (UNLIKELY(__leapp(y))) {
+		res += (__mon_yday[0] >> (m)) & 1;
+	}
+	return res;
 }
 
 static dt_ymd_t
