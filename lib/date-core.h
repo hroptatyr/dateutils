@@ -122,6 +122,7 @@ typedef union {
 				unsigned int ba:1;
 #define BIZDA_AFTER	(0U)/*>*/
 #define BIZDA_BEFORE	(1U)/*<*/
+#define BIZDA_ULTIMO	(0U)
 			};
 		};
 		unsigned int m:4;
