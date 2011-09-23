@@ -894,7 +894,7 @@ __ymcw_to_ymd(dt_ymcw_t d)
 
 
 /* converting accessors */
-static unsigned int
+DEFUN int
 dt_get_year(struct dt_d_s that)
 {
 	switch (that.typ) {
@@ -912,7 +912,7 @@ dt_get_year(struct dt_d_s that)
 	}
 }
 
-static unsigned int
+DEFUN int
 dt_get_mon(struct dt_d_s that)
 {
 	switch (that.typ) {
@@ -1367,9 +1367,6 @@ __strpd_std(const char *str, char **ep)
 	}
 	/* check the date type */
 	switch (*sp) {
-	case '\0':
-		/* it was a YMD date */
-		break;
 	case '-':
 		/* it is a YMCW date */
 		if ((d.c = d.d) > 5) {
@@ -1397,11 +1394,11 @@ __strpd_std(const char *str, char **ep)
 		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) < -1U) {
 			break;
 		}
-		/*@fallthrough@*/
-	default:
-		/* it's fuckered */
 		sp = str;
 		goto out;
+	default:
+		/* we don't care */
+		break;
 	}
 	/* guess what we're doing */
 	res = __guess_dtyp(d);
