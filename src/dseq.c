@@ -213,15 +213,6 @@ set_skip(__skipspec_t ss, char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
-static void
-prnt_date(struct dt_d_s d, const char *fmt)
-{
-	char buf[256];
-	size_t len = dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
-	fwrite(buf, sizeof(*buf), len, stdout);
-	return;
-}
-
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -315,7 +306,7 @@ main(int argc, char *argv[])
 		}
 		do {
 			if (!skipp(ss, fst)) {
-				prnt_date(fst, ofmt);
+				dt_io_write(fst, ofmt);
 				fst.daisy += ite;
 			} else {
 				fst.daisy++;
@@ -340,7 +331,7 @@ main(int argc, char *argv[])
 		}
 		do {
 			if (!skipp(ss, fst)) {
-				prnt_date(fst, ofmt);
+				dt_io_write(fst, ofmt);
 				fst.daisy -= ite;
 			} else {
 				fst.daisy--;

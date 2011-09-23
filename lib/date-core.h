@@ -113,9 +113,18 @@ typedef union {
 	struct {
 		/* key day, use 00 for ultimo */
 		unsigned int x:5;
-		/* before or after */
-		unsigned int ba:1;
-		unsigned int bd:5;
+		union {
+			signed int bda;
+			struct {
+				/* business day */
+				unsigned int bd:5;
+				/* before or after */
+				unsigned int ba:1;
+#define BIZDA_AFTER	(0U)/*>*/
+#define BIZDA_BEFORE	(1U)/*<*/
+#define BIZDA_ULTIMO	(0U)
+			};
+		};
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 5 bits left */
@@ -252,6 +261,10 @@ DECLF dt_dow_t dt_get_wday(struct dt_d_s);
 /**
  * Get the day of the month of a date. */
 DECLF int dt_get_mday(struct dt_d_s d);
+
+/**
+ * Get the business day count of a date in a month. */
+DECLF int dt_get_bday(struct dt_d_s d);
 
 /**
  * Get the day of the year of a date.
