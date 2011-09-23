@@ -113,9 +113,17 @@ typedef union {
 	struct {
 		/* key day, use 00 for ultimo */
 		unsigned int x:5;
-		/* before or after */
-		unsigned int ba:1;
-		unsigned int bd:5;
+		union {
+			signed int bda;
+			struct {
+				/* business day */
+				unsigned int bd:5;
+				/* before or after */
+				unsigned int ba:1;
+#define BIZDA_AFTER	(0U)/*>*/
+#define BIZDA_BEFORE	(1U)/*<*/
+			};
+		};
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 5 bits left */
