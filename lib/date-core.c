@@ -694,6 +694,53 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
+static unsigned int
+__bizda_get_mday(dt_bizda_t that)
+{
+	dt_dow_t wd01;
+	unsigned int res;
+
+	/* find first of the month first */
+	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+	switch (wd01) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res = 1;
+		break;
+	case DT_SATURDAY:
+		wd01 = DT_MONDAY;
+		res = 3;
+		break;
+	case DT_SUNDAY:
+		wd01 = DT_MONDAY;
+		res = 2;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		res = 0;
+		break;
+	}
+	/* now just add up bdays */
+	{
+		unsigned int wk;
+		unsigned int nd;
+		unsigned int b = that.bd;
+		unsigned int magic = (b - 1 + wd01 - 1);
+
+		wk = magic / 5;
+		nd = magic % 5;
+		res += wk * 7 + nd - wd01 + 1;
+	}
+	/* fixup mdays */
+	if (res > __get_mdays(that.y, that.m)) {
+		res = 0;
+	}
+	return res;
+}
+
 static dt_ymcw_t
 __ymd_to_ymcw(dt_ymd_t d)
 {
@@ -848,6 +895,12 @@ dt_get_mday(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
+		return tmp.m;
+	}
+	case DT_BIZDA:
+		return __bizda_get_mday(that.bizda);;
 	default:
 	case DT_UNK:
 		return 0;
