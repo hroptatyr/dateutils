@@ -694,6 +694,55 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
+static int
+__ymd_get_bday(dt_ymd_t that, unsigned int ba, unsigned int ref)
+{
+	dt_dow_t wdd;
+	unsigned int wk;
+	int res;
+
+	if (ba != BIZDA_AFTER || ref != BIZDA_ULTIMO) {
+		/* no support yet */
+		return -1;
+	}
+
+	/* weekday the month started with */
+	switch ((wdd = __ymd_get_wday(that))) {
+	case DT_SUNDAY:
+	case DT_SATURDAY:
+		return -1;
+	default:
+		break;
+	}
+	wk = (that.d - 1) / 7; 
+	res = wk * 5 + (unsigned int)wdd;
+	return res;
+}
+
+static int
+__ymcw_get_bday(dt_ymcw_t that, unsigned int ba, unsigned int ref)
+{
+	dt_dow_t wd01;
+	int res;
+
+	switch (that.w) {
+	case DT_SUNDAY:
+	case DT_SATURDAY:
+		return -1;
+	default:
+		break;
+	}
+	if (ba != BIZDA_AFTER || ref != BIZDA_ULTIMO) {
+		/* no support yet */
+		return -1;
+	}
+
+	/* weekday the month started with */
+	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+	res = (signed int)(that.w - wd01) + 5 * (that.c) + 1;
+	return res;
+}
+
 static unsigned int
 __bizda_get_mday(dt_bizda_t that)
 {
@@ -944,6 +993,29 @@ dt_get_yday(struct dt_d_s that)
 		return __ymd_get_yday(that.ymd);
 	case DT_YMCW:
 		return __ymcw_get_yday(that.ymcw);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+DEFUN int
+dt_get_bday(struct dt_d_s that)
+{
+/* get N where N is the N-th business day Before/After REF */
+	switch (that.typ) {
+	case DT_BIZDA:
+		if (that.bizda.x == BIZDA_ULTIMO &&
+		    that.bizda.ba == BIZDA_AFTER) {
+			return that.bizda.bd;
+		}
+		return 0;
+	case DT_DAISY:
+		that.ymd = __daisy_to_ymd(that.daisy);
+	case DT_YMD:
+		return __ymd_get_bday(that.ymd, BIZDA_AFTER, BIZDA_ULTIMO);
+	case DT_YMCW:
+		return __ymcw_get_bday(that.ymcw, BIZDA_AFTER, BIZDA_ULTIMO);
 	default:
 	case DT_UNK:
 		return 0;
@@ -1783,7 +1855,13 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			}
 			case 'd':
 				/* get business days */
-				res += ui32tostr(buf + res, bsz - res, d.b, 2);
+				if ((d.b = d.b ?: dt_get_bday(that)) >= 0) {
+					res += ui32tostr(
+						buf + res, bsz - res, d.b, 2);
+				} else {
+					buf[res++] = '0';
+					buf[res++] = '0';
+				}
 				break;
 			}
 			break;

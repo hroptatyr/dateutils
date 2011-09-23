@@ -263,6 +263,10 @@ DECLF dt_dow_t dt_get_wday(struct dt_d_s);
 DECLF int dt_get_mday(struct dt_d_s d);
 
 /**
+ * Get the business day count of a date in a month. */
+DECLF int dt_get_bday(struct dt_d_s d);
+
+/**
  * Get the day of the year of a date.
  * This might only be intuitive for YMD dates.  The formal definition
  * is to find a representation of D that lacks the notion of a month,
