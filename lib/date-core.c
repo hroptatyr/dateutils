@@ -1252,7 +1252,10 @@ static char *bizda_ult[] = {"ultimo", "ult"};
 static void
 __trans_fmt(const char **fmt)
 {
-	if (strcasecmp(*fmt, "ymd") == 0) {
+	if (LIKELY(**fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else if (strcasecmp(*fmt, "ymd") == 0) {
 		*fmt = ymd_dflt;
 	} else if (strcasecmp(*fmt, "ymcw") == 0) {
 		*fmt = ymcw_dflt;
