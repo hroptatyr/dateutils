@@ -86,6 +86,12 @@ struct strpd_s {
 	unsigned int d;
 	unsigned int c;
 	unsigned int w;
+	/* for bizda and other parametrised cals */
+	signed int b;
+	unsigned int ref;
+#define STRPD_BIZDA_BIT	(1U)
+	/* general flags */
+	unsigned int flags;
 };
 
 
@@ -688,52 +694,74 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
+static unsigned int
+__bizda_get_mday(dt_bizda_t that)
+{
+	dt_dow_t wd01;
+	unsigned int res;
+
+	/* find first of the month first */
+	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+	switch (wd01) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res = 1;
+		break;
+	case DT_SATURDAY:
+		wd01 = DT_MONDAY;
+		res = 3;
+		break;
+	case DT_SUNDAY:
+		wd01 = DT_MONDAY;
+		res = 2;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		res = 0;
+		break;
+	}
+	/* now just add up bdays */
+	{
+		unsigned int wk;
+		unsigned int nd;
+		unsigned int b = that.bd;
+		unsigned int magic = (b - 1 + wd01 - 1);
+
+		wk = magic / 5;
+		nd = magic % 5;
+		res += wk * 7 + nd - wd01 + 1;
+	}
+	/* fixup mdays */
+	if (res > __get_mdays(that.y, that.m)) {
+		res = 0;
+	}
+	return res;
+}
+
+static dt_dow_t
+__bizda_get_wday(dt_bizda_t that)
+{
+	dt_dow_t wd01;
+	unsigned int b;
+	unsigned int magic;
+
+	/* find first of the month first */
+	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+	b = that.bd;
+	magic = (b - 1 + (wd01 ?: 6) - 1);
+	/* now just add up bdays */
+	return (dt_dow_t)((magic % 5) + DT_MONDAY);
+}
+
 static dt_ymcw_t
 __ymd_to_ymcw(dt_ymd_t d)
 {
 	unsigned int c = __ymd_get_count(d);
 	unsigned int w = __ymd_get_wday(d);
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
-}
-
-static dt_daisy_t
-__ymd_to_daisy(dt_ymd_t d)
-{
-/* compute days since 1917-01-01 (Mon),
- * if year slot is absent in D compute the day in the year of D instead. */
-	dt_daisy_t res;
-	int dy = TO_BASE(d.y);
-
-	if (UNLIKELY(dy < 0)) {
-		return 0;
-	}
-	res = __jan00_daisy(d.y);
-	res += __mon_yday[d.m] + d.d;
-	if (UNLIKELY(__leapp(d.y))) {
-		res += (__mon_yday[0] >> (d.m)) & 1;
-	}
-	return res;
-}
-
-static dt_daisy_t
-__ymcw_to_daisy(dt_ymcw_t d)
-{
-/* compute days since 1917-01-01 (Mon),
- * if year slot is absent in D compute the day in the year of D instead. */
-	dt_daisy_t res;
-	int dy = TO_BASE(d.y);
-
-	if (UNLIKELY(dy < 0)) {
-		return 0;
-	}
-	res = __jan00_daisy(d.y);
-	res += __mon_yday[d.m];
-	/* add up days too */
-	res += __ymcw_get_mday(d);
-	if (UNLIKELY(__leapp(d.y))) {
-		res += (__mon_yday[0] >> (d.m)) & 1;
-	}
-	return res;
 }
 
 static dt_dow_t
@@ -817,6 +845,42 @@ __ymcw_to_ymd(dt_ymcw_t d)
 
 
 /* converting accessors */
+static unsigned int
+dt_get_year(struct dt_d_s that)
+{
+	switch (that.typ) {
+	case DT_YMD:
+		return that.ymd.y;
+	case DT_YMCW:
+		return that.ymcw.y;
+	case DT_DAISY:
+		return 0;
+	case DT_BIZDA:
+		return that.bizda.y;
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+static unsigned int
+dt_get_mon(struct dt_d_s that)
+{
+	switch (that.typ) {
+	case DT_YMD:
+		return that.ymd.m;
+	case DT_YMCW:
+		return that.ymcw.m;
+	case DT_DAISY:
+		return 0;
+	case DT_BIZDA:
+		return that.bizda.m;
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
 DEFUN dt_dow_t
 dt_get_wday(struct dt_d_s that)
 {
@@ -827,6 +891,8 @@ dt_get_wday(struct dt_d_s that)
 		return __ymcw_get_wday(that.ymcw);
 	case DT_DAISY:
 		return __daisy_get_wday(that.daisy);
+	case DT_BIZDA:
+		return __bizda_get_wday(that.bizda);
 	default:
 	case DT_UNK:
 		return DT_MIRACLEDAY;
@@ -842,6 +908,12 @@ dt_get_mday(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
+		return tmp.m;
+	}
+	case DT_BIZDA:
+		return __bizda_get_mday(that.bizda);;
 	default:
 	case DT_UNK:
 		return 0;
@@ -883,20 +955,32 @@ dt_get_yday(struct dt_d_s that)
 static dt_daisy_t
 dt_conv_to_daisy(struct dt_d_s that)
 {
-	switch (that.typ) {
-	case DT_YMD:
-		return __ymd_to_daisy(that.ymd);
-	case DT_YMCW:
-		return __ymcw_to_daisy(that.ymcw);
-	case DT_DAISY:
+	dt_daisy_t res;
+	unsigned int y;
+	unsigned int m;
+	unsigned int d;
+
+	if (that.typ == DT_DAISY) {
 		return that.daisy;
-	case DT_BIZDA:
-		break;
-	case DT_UNK:
-	default:
-		break;
+	} else if (that.typ == DT_UNK) {
+		return 0;
 	}
-	return 0;
+
+	y = dt_get_year(that);
+	m = dt_get_mon(that);
+	d = dt_get_mday(that);
+
+	if (UNLIKELY((signed int)TO_BASE(y) < 0)) {
+		return 0;
+	}
+	res = __jan00_daisy(y);
+	res += __mon_yday[m];
+	/* add up days too */
+	res += d;
+	if (UNLIKELY(__leapp(y))) {
+		res += (__mon_yday[0] >> (m)) & 1;
+	}
+	return res;
 }
 
 static dt_ymd_t
@@ -1107,6 +1191,7 @@ static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
 	struct dt_d_s res;
+	bool bizdap;
 
 	if (UNLIKELY(d.y == -1U)) {
 		d.y = 0;
@@ -1124,7 +1209,8 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0))) {
+	bizdap = (d.flags & STRPD_BIZDA_BIT);
+	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !bizdap)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd = (dt_ymd_t){
@@ -1132,7 +1218,7 @@ __guess_dtyp(struct strpd_s d)
 			.m = d.m,
 			.d = d.d,
 		};
-	} else if (d.y && d.m && d.c) {
+	} else if (d.y && d.c && !bizdap) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw = (dt_ymcw_t){
@@ -1140,6 +1226,15 @@ __guess_dtyp(struct strpd_s d)
 			.m = d.m,
 			.c = d.c,
 			.w = d.w,
+		};
+	} else if (d.y && bizdap) {
+		/* d.c can be legit'ly naught */
+		res.typ = DT_BIZDA;
+		res.bizda = (dt_bizda_t){
+			.y = d.y,
+			.m = d.m,
+			.bda = d.b,
+			.x = d.ref,
 		};
 	} else {
 		/* anything else is bollocks for now */
@@ -1149,16 +1244,23 @@ __guess_dtyp(struct strpd_s d)
 	return res;
 }
 
+static char ymd_dflt[] = "%F";
+static char ymcw_dflt[] = "%Y-%m-%c-%w";
+static char bizda_dflt[] = "%Y-%m-%_d%q";
+static char *bizda_ult[] = {"ultimo", "ult"};
+
 static void
 __trans_fmt(const char **fmt)
 {
-	static char ymd_dflt[] = "%F";
-	static char ymcw_dflt[] = "%Y-%m-%c-%w";
-	
-	if (strcasecmp(*fmt, "ymd") == 0) {
+	if (LIKELY(**fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else if (strcasecmp(*fmt, "ymd") == 0) {
 		*fmt = ymd_dflt;
 	} else if (strcasecmp(*fmt, "ymcw") == 0) {
 		*fmt = ymcw_dflt;
+	} else if (strcasecmp(*fmt, "bizda") == 0) {
+		*fmt = bizda_dflt;
 	}
 	return;
 }
@@ -1202,19 +1304,32 @@ __strpd_std(const char *str, char **ep)
 			/* nope, it was bollocks */
 			break;
 		}
+		d.d = 0;
 		if ((d.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
 			/* didn't work, fuck off */
 			sp = str;
+			goto out;
 		}
 		break;
 	case '<':
+		/* it's a bizda/YMDU date */
+		d.b = -d.d;
+		goto on;
 	case '>':
-		/* it's a YMDU date */
-		;
-		break;
+		/* it's a bizda/YMDU date */
+		d.b = d.d;
+	on:
+		d.d = 0;
+		d.flags |= STRPD_BIZDA_BIT;
+		if (strtoarri(++sp, &sp, bizda_ult, countof(bizda_ult)) < -1U ||
+		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) < -1U) {
+			break;
+		}
+		/*@fallthrough@*/
 	default:
 		/* it's fuckered */
-		break;
+		sp = str;
+		goto out;
 	}
 	/* guess what we're doing */
 	res = __guess_dtyp(d);
@@ -1317,7 +1432,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 			if (UNLIKELY(shaught == 0)) {
 				break;
-			} else if (UNLIKELY(*sp++ != '-')) {
+			} else if (UNLIKELY(d.y == -1U || *sp++ != '-')) {
 				sp = str;
 				goto out;
 			}
@@ -1325,21 +1440,30 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			d.m = strtoui_lim(sp, &sp, 0, 12);
 			if (UNLIKELY(shaught == 0)) {
 				break;
-			} else if (UNLIKELY(*sp++ != '-')) {
+			} else if (UNLIKELY(d.m == -1U || *sp++ != '-')) {
 				sp = str;
 				goto out;
 			}
 		case 'd':
 			/* gregorian mode */
-			d.d = strtoui_lim(sp, &sp, 0, 31);
+			if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+				sp = str;
+				goto out;
+			}
 			break;
 		case 'w':
 			/* ymcw mode */
-			d.w = strtoui_lim(sp, &sp, 0, 7);
+			if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
+				sp = str;
+				goto out;
+			}
 			break;
 		case 'c':
 			/* ymcw mode */
-			d.c = strtoui_lim(sp, &sp, 0, 5);
+			if ((d.c = strtoui_lim(sp, &sp, 0, 5)) == -1U) {
+				sp = str;
+				goto out;
+			}
 			break;
 		case 'a':
 			/* ymcw mode! */
@@ -1372,6 +1496,31 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				d.y -= 100;
 			}
 			break;
+		case 'q':
+			/* bizda date and we take the arg from sp */
+			switch (*sp++) {
+			case '<':
+				/* it's a bizda/YMDU date */
+				d.flags |= BIZDA_BEFORE << 1;
+			case '>':
+				/* it's a bizda/YMDU date */
+				d.flags |= STRPD_BIZDA_BIT;
+				if (strtoarri(
+					    sp, &sp,
+					    bizda_ult,
+					    countof(bizda_ult)) < -1U ||
+				    (d.ref = strtoui_lim(
+					     sp, &sp, 0, 23)) < -1U) {
+					/* yay, it did work */
+					break;
+				}
+				/*@fallthrough@*/
+			default:
+				sp = str;
+				goto out;
+			}
+			break;
+
 		case '_':
 			switch (*++fp) {
 				const char *pos;
@@ -1386,6 +1535,43 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 					d.w = pos - __abab_wday;
 				}
 				break;
+			case 'd': {
+				const char *fp_sav = fp++;
+
+				/* business days */
+				d.flags |= STRPD_BIZDA_BIT;
+				if ((d.b = strtoui_lim(
+					     sp, &sp, 0, 23)) == -1U) {
+					sp = str;
+					goto out;
+				}
+				/* bizda handling, reference could be in fp */
+				switch (*fp++) {
+				case '<':
+					/* it's a bizda/YMDU date */
+					d.flags |= BIZDA_BEFORE << 1;
+				case '>':
+					/* it's a bizda/YMDU date */
+					if (strtoarri(
+						    fp, &fp,
+						    bizda_ult,
+						    countof(bizda_ult)) < -1U ||
+					    (d.ref = strtoui_lim(
+						     fp, &fp, 0, 23)) < -1U) {
+						/* worked, yippie, we have to
+						 * reset fp though, as it will
+						 * be advanced in the outer
+						 * loop */
+						fp--;
+						break;
+					}
+					/*@fallthrough@*/
+				default:
+					fp = fp_sav;
+					break;
+				}
+				break;
+			}
 			}
 			break;
 		case 't':
@@ -1464,14 +1650,14 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.m = that.ymd.m;
 		d.d = that.ymd.d;
 		if (fmt == NULL) {
-			fmt = "%F";
+			fmt = ymd_dflt;
 		}
 		break;
 	case DT_YMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
 		if (fmt == NULL) {
-			fmt = "%Y-%m-%c-%w";
+			fmt = ymcw_dflt;
 		}
 		d.d = 0;
 		break;
@@ -1487,7 +1673,15 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	case DT_BIZDA:
-		goto out;
+		d.y = that.bizda.y;
+		d.m = that.bizda.m;
+		d.b = that.bizda.bd;
+		d.ref = that.bizda.x;
+		d.flags = (that.bizda.ba << 1) | STRPD_BIZDA_BIT;
+		if (fmt == NULL) {
+			fmt = bizda_dflt;
+		}
+		break;
 	default:
 	case DT_UNK:
 		goto out;
@@ -1562,6 +1756,15 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case 'y':
 			res += ui32tostr(buf + res, bsz - res, d.y, 2);
 			break;
+		case 'q':
+			/* bizda mode check? */
+			if (((d.flags >> 1) & 1) == BIZDA_AFTER) {
+				buf[res++] = '>';
+			} else {
+				buf[res++] = '<';
+			}
+			res += ui32tostr(buf + res, bsz - res, d.ref, 2);
+			break;
 		case '_':
 			/* secret mode */
 			switch (*++fp) {
@@ -1579,6 +1782,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				}
 				break;
 			}
+			case 'd':
+				/* get business days */
+				res += ui32tostr(buf + res, bsz - res, d.b, 2);
+				break;
 			}
 			break;
 		case 't':
