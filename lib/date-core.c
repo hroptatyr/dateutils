@@ -1308,6 +1308,7 @@ __strpd_std(const char *str, char **ep)
 		if ((d.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
 			/* didn't work, fuck off */
 			sp = str;
+			goto out;
 		}
 		break;
 	case '<':
@@ -1319,16 +1320,16 @@ __strpd_std(const char *str, char **ep)
 		d.b = d.d;
 	on:
 		d.d = 0;
-		sp++;
-		if (strtoarri(sp, &sp, bizda_ult, countof(bizda_ult)) == -1U &&
-		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
-			/* obviously didn't work */
-			sp = str;
+		d.flags |= STRPD_BIZDA_BIT;
+		if (strtoarri(++sp, &sp, bizda_ult, countof(bizda_ult)) < -1U ||
+		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) < -1U) {
+			break;
 		}
-		break;
+		/*@fallthrough@*/
 	default:
 		/* it's fuckered */
-		break;
+		sp = str;
+		goto out;
 	}
 	/* guess what we're doing */
 	res = __guess_dtyp(d);
