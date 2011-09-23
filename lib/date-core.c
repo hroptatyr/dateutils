@@ -86,9 +86,12 @@ struct strpd_s {
 	unsigned int d;
 	unsigned int c;
 	unsigned int w;
-	/* flags to allow finer control */
-	unsigned int flags:32;
-#define STRPD_D_IS_BD	(1U)
+	/* for bizda and other parametrised cals */
+	signed int b;
+	unsigned int ref;
+#define STRPD_BIZDA_BIT	(1U)
+	/* general flags */
+	unsigned int flags;
 };
 
 
@@ -1110,6 +1113,7 @@ static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
 	struct dt_d_s res;
+	bool bizdap;
 
 	if (UNLIKELY(d.y == -1U)) {
 		d.y = 0;
@@ -1127,8 +1131,8 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0) &&
-		   !(d.flags & STRPD_D_IS_BD))) {
+	bizdap = (d.flags & STRPD_BIZDA_BIT);
+	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !bizdap)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd = (dt_ymd_t){
@@ -1136,8 +1140,7 @@ __guess_dtyp(struct strpd_s d)
 			.m = d.m,
 			.d = d.d,
 		};
-	} else if (d.y && d.c &&
-		   !(d.flags & STRPD_D_IS_BD)) {
+	} else if (d.y && d.c && !bizdap) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw = (dt_ymcw_t){
@@ -1146,15 +1149,14 @@ __guess_dtyp(struct strpd_s d)
 			.c = d.c,
 			.w = d.w,
 		};
-	} else if (d.y && (d.flags & STRPD_D_IS_BD)) {
+	} else if (d.y && bizdap) {
 		/* d.c can be legit'ly naught */
 		res.typ = DT_BIZDA;
 		res.bizda = (dt_bizda_t){
 			.y = d.y,
 			.m = d.m,
-			.ba = (d.flags >> 1) & 1,
-			.bd = (d.d),
-			.x = d.c,
+			.bda = d.b,
+			.x = d.ref,
 		};
 	} else {
 		/* anything else is bollocks for now */
@@ -1221,6 +1223,7 @@ __strpd_std(const char *str, char **ep)
 			/* nope, it was bollocks */
 			break;
 		}
+		d.d = 0;
 		if ((d.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
 			/* didn't work, fuck off */
 			sp = str;
@@ -1228,13 +1231,16 @@ __strpd_std(const char *str, char **ep)
 		break;
 	case '<':
 		/* it's a bizda/YMDU date */
-		d.flags |= BIZDA_BEFORE << 1;
+		d.b = -d.d;
+		goto on;
 	case '>':
 		/* it's a bizda/YMDU date */
-		d.flags |= STRPD_D_IS_BD;
+		d.b = d.d;
+	on:
+		d.d = 0;
 		sp++;
 		if (strtoarri(sp, &sp, bizda_ult, countof(bizda_ult)) == -1U &&
-		    (d.c = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
+		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
 			/* obviously didn't work */
 			sp = str;
 		}
@@ -1416,12 +1422,12 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				d.flags |= BIZDA_BEFORE << 1;
 			case '>':
 				/* it's a bizda/YMDU date */
-				d.flags |= STRPD_D_IS_BD;
+				d.flags |= STRPD_BIZDA_BIT;
 				if (strtoarri(
 					    sp, &sp,
 					    bizda_ult,
 					    countof(bizda_ult)) < -1U ||
-				    (d.c = strtoui_lim(
+				    (d.ref = strtoui_lim(
 					     sp, &sp, 0, 23)) < -1U) {
 					/* yay, it did work */
 					break;
@@ -1451,8 +1457,8 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				const char *fp_sav = fp++;
 
 				/* business days */
-				d.flags |= STRPD_D_IS_BD;
-				if ((d.d = strtoui_lim(
+				d.flags |= STRPD_BIZDA_BIT;
+				if ((d.b = strtoui_lim(
 					     sp, &sp, 0, 23)) == -1U) {
 					sp = str;
 					goto out;
@@ -1468,7 +1474,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 						    fp, &fp,
 						    bizda_ult,
 						    countof(bizda_ult)) < -1U ||
-					    (d.c = strtoui_lim(
+					    (d.ref = strtoui_lim(
 						     fp, &fp, 0, 23)) < -1U) {
 						/* worked, yippie, we have to
 						 * reset fp though, as it will
@@ -1587,9 +1593,9 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	case DT_BIZDA:
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
-		d.d = that.bizda.bd;
-		d.c = that.bizda.x;
-		d.flags = (that.bizda.ba << 1) | 1;
+		d.b = that.bizda.bd;
+		d.ref = that.bizda.x;
+		d.flags = (that.bizda.ba << 1) | STRPD_BIZDA_BIT;
 		if (fmt == NULL) {
 			fmt = bizda_dflt;
 		}
@@ -1675,7 +1681,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			} else {
 				buf[res++] = '<';
 			}
-			res += ui32tostr(buf + res, bsz - res, d.c, 2);
+			res += ui32tostr(buf + res, bsz - res, d.ref, 2);
 			break;
 		case '_':
 			/* secret mode */
@@ -1696,7 +1702,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			}
 			case 'd':
 				/* get business days */
-				res += ui32tostr(buf + res, bsz - res, d.d, 2);
+				res += ui32tostr(buf + res, bsz - res, d.b, 2);
 				break;
 			}
 			break;
