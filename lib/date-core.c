@@ -1638,7 +1638,7 @@ DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
 	size_t res = 0;
-	struct strpd_s d;
+	struct strpd_s d = {0};
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		goto out;
@@ -1659,7 +1659,6 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		if (fmt == NULL) {
 			fmt = ymcw_dflt;
 		}
-		d.d = 0;
 		break;
 	case DT_DAISY: {
 		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
