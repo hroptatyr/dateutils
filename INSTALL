@@ -1,0 +1,43 @@
+Installing dateutils from git tree
+==================================
+Requisites:
+-----------
+- compiler gcc >= 4.6.0 or compatible (icc, clang, ...)
+- autotools
+- gengetopt
+- texinfo
+
+Optional:
+---------
+- help2man
+
+Build and install:
+------------------
+- autoreconf -i
+- ./configure
+- make
+- [sudo] make install
+
+
+Installing dateutils from tarball
+=================================
+Requisites:
+-----------
+- compiler gcc >= 4.6.0 or compatible (icc, clang, ...)
+- texinfo
+
+Optional:
+---------
+- help2man (for man pages)
+
+Build and install:
+------------------
+- ./configure
+- make
+- [sudo] make install
+
+
+To run the test suite in either case invoke
+- make check
+after building the binaries
+

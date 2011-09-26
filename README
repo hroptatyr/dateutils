@@ -1,8 +1,18 @@
-dateutils are a bunch of tools that revolve around fiddling with dates
+Dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
 
-The following tools are part of dateutils:
+Dateutils are hosted primarily on github:
+
+  https://github.com/hroptatyr/dateutils
+
+Below is a short list of examples that demonstrate what dateutils can
+do, for full specs refer to the info and man pages.  For installation
+instructions refer to the INSTALL file.
+
+
+Examples
+========
 
 + dseq
   A tool mimicking seq(1) but whose inputs are from the domain of dates
@@ -30,25 +40,6 @@ The following tools are part of dateutils:
       2010-01-06
       2010-01-07
       2010-01-08
-
-+ strptime
-  A tool that brings the flexibility of strptime(3) to the command
-  line.  While date(1) has support for output formats, it lacks any kind
-  of support to read arbitrary input from the domain of dates, in
-  particular when the input format is specifically known beforehand and
-  only matching dates/times shall be considered.
-
-  Usually, to print something like `Mon, May-01/2000' in ISO 8601,
-  people come up with the most prolific recommendations like using perl
-  or sed or awk or any two of them, or they come up with a pageful of
-  shell code full of bashisms, and when sufficiently pestered they
-  `improve' their variant to a dozen pages of portable shell code.
-
-  The strptime tool does the job just fine
-
-    strptime -i "%a, %b-%d/%Y" "Mon, May-01/2000"
-    =>
-      2000-05-01
 
 + dcal
   A tool to convert dates between different calendric systems.  While
@@ -109,8 +100,21 @@ The following tools are part of dateutils:
     =>
       0m22d
 
-
-Notes
-=====
-- Supported compilers: gcc (>= 4.6.0), icc, clang, tcc
++ strptime
+  A tool that brings the flexibility of strptime(3) to the command
+  line.  While date(1) has support for output formats, it lacks any kind
+  of support to read arbitrary input from the domain of dates, in
+  particular when the input format is specifically known beforehand and
+  only matching dates/times shall be considered.
 
+  Usually, to print something like `Mon, May-01/2000' in ISO 8601,
+  people come up with the most prolific recommendations like using perl
+  or sed or awk or any two of them, or they come up with a pageful of
+  shell code full of bashisms, and when sufficiently pestered they
+  `improve' their variant to a dozen pages of portable shell code.
+
+  The strptime tool does the job just fine
+
+    strptime -i "%a, %b-%d/%Y" "Mon, May-01/2000"
+    =>
+      2000-05-01
