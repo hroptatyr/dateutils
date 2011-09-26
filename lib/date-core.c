@@ -2035,6 +2035,21 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 				buf, bsz, "%dy%dm\n", that.ym.m, -that.ym.m);
 		}
 		break;
+	case DT_DUR_QMB:
+		/* auto-newline */
+		if (that.qmb.q) {
+			res = snprintf(
+				buf, bsz, "%dq%dm%db\n",
+				that.qmb.q, that.qmb.m, that.qmb.b);
+		} else if (that.qmb.m) {
+			res = snprintf(
+				buf, bsz, "%dm%db\n",
+				that.qmb.m, that.qmb.b);
+		} else {
+			res = snprintf(
+				buf, bsz, "%db\n", that.qmb.b);
+		}
+		break;
 	case DT_DUR_UNK:
 	default:
 		buf[0] = '\0';
