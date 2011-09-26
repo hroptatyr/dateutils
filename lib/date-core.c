@@ -1106,6 +1106,10 @@ __daisy_add(dt_daisy_t d, struct dt_dur_s dur)
 		d += dur.wd.w * 7 + dur.wd.d;
 		break;
 	case DT_DUR_MD:
+		if (dur.md.m == 0) {
+			d += dur.md.d;
+			break;
+		}
 	case DT_DUR_YM:
 		/* daisies have no notion of years and months */
 	case DT_DUR_UNK:
