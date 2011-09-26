@@ -112,14 +112,9 @@ main(int argc, char *argv[])
 	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
-			switch (dt_io_strpdur(&st, inp)) {
-			case -1:
+			if (dt_io_strpdur(&st, inp) < 0) {
 				fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", st.istr);
-				break;
-			default:
-			case 0:
-				break;
 			}
 		} while (__strpdur_more_p(&st));
 	}
@@ -190,6 +185,8 @@ cannot parse duration string `%s'\n", st.istr);
 		free(line);
 		goto out;
 	}
+	/* free the strpdur status */
+	__strpdur_free(&st);
 
 out:
 	cmdline_parser_free(argi);

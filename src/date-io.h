@@ -263,6 +263,8 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 		} else {
 			st->durs[st->ndurs++] = st->curr;
 		}
+	} else {
+		res = -1;
 	}
 out:
 	if ((st->cont = sp) && *sp == '\0') {
