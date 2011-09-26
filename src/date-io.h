@@ -2,9 +2,10 @@
 #if !defined INCLUDED_date_io_h_
 #define INCLUDED_date_io_h_
 
-#include "date-core.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdio_ext.h>
+#include "date-core.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -181,6 +182,15 @@ static inline int
 __strpdur_more_p(struct __strpdur_st_s *st)
 {
 	return st->cont != NULL;
+}
+
+static inline void
+__strpdur_free(struct __strpdur_st_s *st)
+{
+	if (st->durs) {
+		free(st->durs);
+	}
+	return;
 }
 
 static int __attribute__((unused))
