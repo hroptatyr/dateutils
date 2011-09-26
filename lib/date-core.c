@@ -1105,7 +1105,33 @@ __daisy_add(dt_daisy_t d, struct dt_dur_s dur)
 	case DT_DUR_WD:
 		d += dur.wd.w * 7 + dur.wd.d;
 		break;
+	case DT_DUR_QMB:
+		if (dur.qmb.q == 0 && dur.qmb.m == 0) {
+			/* daisies can't handle business months and quarters */
+			switch (__daisy_get_wday(d += dur.qmb.b)) {
+			case DT_SATURDAY:
+				d++;
+				/*@fallthrough@*/
+			case DT_SUNDAY:
+				d++;
+				/*@fallthrough@*/
+			case DT_MONDAY:
+			case DT_TUESDAY:
+			case DT_WEDNESDAY:
+			case DT_THURSDAY:
+			case DT_FRIDAY:
+			case DT_MIRACLEDAY:
+			default:
+				break;
+			}
+		}
+		break;
 	case DT_DUR_MD:
+		if (dur.md.m == 0) {
+			/* daisies can handle days but not months */
+			d += dur.md.d;
+		}
+		break;
 	case DT_DUR_YM:
 		/* daisies have no notion of years and months */
 	case DT_DUR_UNK:
@@ -1947,7 +1973,14 @@ dt_strpdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	if (LIKELY((d.m && d.d) ||
+	if (d.b || d.q) {
+		res.typ = DT_DUR_QMB;
+		res.qmb = (dt_qmbdur_t){
+			.q = d.q,
+			.m = d.m,
+			.b = d.b,
+		};
+	} else if (LIKELY((d.m && d.d) ||
 		   (d.y == 0 && d.m == 0 && d.w == 0) ||
 		   (d.y == 0 && d.w == 0 && d.d == 0))) {
 		res.typ = DT_DUR_MD;
@@ -1966,13 +1999,6 @@ dt_strpdur(const char *str, char **ep)
 		res.ym = (dt_ymdur_t){
 			.y = d.y,
 			.m = d.m,
-		};
-	} else if (d.b || d.q) {
-		res.typ = DT_DUR_QMB;
-		res.qmb = (dt_qmbdur_t){
-			.q = d.q,
-			.m = d.m,
-			.b = d.b,
 		};
 	}
 out:
@@ -2214,7 +2240,7 @@ dt_dur_neg_p(struct dt_dur_s dur)
 	case DT_DUR_WD:
 		if (dur.wd.w == 0 ||
 		    dur.wd.w * 7 < dur.wd.d) {
-			return dur.wd.d < 0;
+			return dur.wd.d < 0 || dur.wd.w < 0;
 		} else {
 			return dur.wd.w < 0;
 		}
@@ -2223,7 +2249,7 @@ dt_dur_neg_p(struct dt_dur_s dur)
 		if (dur.md.m == 0 ||
 		    dur.md.m * 30 < dur.md.d) {
 			/* second case is undefined really */
-			return dur.md.d < 0;
+			return dur.md.d < 0 || dur.md.m < 0;
 		} else {
 			return dur.md.m < 0;
 		}
@@ -2231,7 +2257,7 @@ dt_dur_neg_p(struct dt_dur_s dur)
 	case DT_DUR_YM:
 		if (dur.ym.y == 0 ||
 		    dur.ym.y * 12 < dur.ym.m) {
-			return dur.ym.m < 0;
+			return dur.ym.m < 0 || dur.ym.y < 0;
 		} else {
 			return dur.ym.y < 0;
 		}
@@ -2239,10 +2265,10 @@ dt_dur_neg_p(struct dt_dur_s dur)
 	case DT_DUR_QMB:
 		if (dur.qmb.q == 0 && dur.qmb.m == 0 ||
 		    (dur.qmb.q * 3 + dur.qmb.m) * 23 < dur.qmb.b) {
-			return dur.qmb.b < 0;
+			return dur.qmb.b < 0 || dur.qmb.q < 0 || dur.qmb.m < 0;
 		} else if (dur.qmb.q == 0 ||
 			   dur.qmb.m * 23 > dur.qmb.b) {
-			return dur.qmb.m < 0;
+			return dur.qmb.m < 0 || dur.qmb.q < 0;
 		} else {
 			return dur.qmb.q < 0;
 		}

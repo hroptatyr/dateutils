@@ -198,6 +198,7 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */
 	const char *sp = NULL;
+	const char *ep = NULL;
 	int res = 0;
 
 	/* check if we should continue */
@@ -212,9 +213,10 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 	/* read over signs and prefixes */
 	sp = str;
 	while (1) {
-		switch (*sp) {
+		switch (*sp++) {
 		case '\0':
 			res = -1;
+			ep = sp;
 			goto out;
 		case '+':
 			st->sign = 1;
@@ -239,16 +241,19 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 			break;
 		case 'p':
 		case 'P':
+		case ' ':
+		case '\t':
+		case '\n':
 			continue;
 		default:
-			/* implicit + */
+			sp--;
 			break;
 		}
 		break;
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((st->curr = dt_strpdur(sp, (char**)&sp)).typ > DT_DUR_UNK) {
+	if ((st->curr = dt_strpdur(sp, (char**)&ep)).typ > DT_DUR_UNK) {
 		if (st->durs == NULL) {
 			st->durs = calloc(16, sizeof(*st->durs));
 		} else if ((st->ndurs % 16) == 0) {
@@ -267,7 +272,7 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 		res = -1;
 	}
 out:
-	if ((st->cont = sp) && *sp == '\0') {
+	if (((st->cont = ep) && *ep == '\0') || (sp == ep)) {
 		st->sign = 0;
 		st->cont = NULL;
 	}
