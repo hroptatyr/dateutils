@@ -106,8 +106,6 @@ main(int argc, char *argv[])
 	if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
 		/* ah good, it's a date */
 		beg_idx++;
-	} else if (!argi->quiet_given) {
-		dt_io_warn_strpd(inp);
 	}
 
 	/* check durations */
