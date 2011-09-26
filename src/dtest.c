@@ -80,12 +80,16 @@ main(int argc, char *argv[])
 	nifmt = argi->input_format_given;
 
 	if ((d1 = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ == DT_UNK) {
-		fputs("cannot read first date specified\n", stderr);
+		if (!argi->quiet_given) {
+			dt_io_warn_strpd(argi->inputs[0]);
+		}
 		res = 2;
 		goto out;
 	}
 	if ((d2 = dt_io_strpd(argi->inputs[1], ifmt, nifmt)).typ == DT_UNK) {
-		fputs("cannot read second date specified\n", stderr);
+		if (!argi->quiet_given) {
+			dt_io_warn_strpd(argi->inputs[1]);
+		}
 		res = 2;
 		goto out;
 	}

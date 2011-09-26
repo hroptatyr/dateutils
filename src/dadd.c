@@ -271,6 +271,8 @@ main(int argc, char *argv[])
 	if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
 		/* ah good, it's a date */
 		beg_idx++;
+	} else if (!argi->quiet_given) {
+		dt_io_warn_strpd(inp);
 	}
 
 	/* check durations */
@@ -343,10 +345,15 @@ cannot parse duration string `%s'\n", st.istr);
 					d = dadd_add(d, dur, ndur);
 					dt_io_write_sed(
 						d, ofmt, line, n, sp, ep);
+				} else if (!argi->quiet_given) {
+					goto warn;
 				}
 			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
 				d = dadd_add(d, dur, ndur);
 				dt_io_write(d, ofmt);
+			} else if (!argi->quiet_given) {
+			warn:
+				dt_io_warn_strpd(line);
 			}
 		}
 		/* get rid of resources */

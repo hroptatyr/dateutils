@@ -32,4 +32,10 @@ the tab character."
 	string optional typestr="DELIM" argoptional
 ])dnl SED_MODE
 
+define([QUIET], [dnl
+option "quiet" q
+	"Suppress message about date and duration parser errors."
+	optional
+])dnl QUIET
+
 changequote([[]], [[]])

@@ -98,6 +98,69 @@ importing them into an integrated system.
 @node Calendars
 @chapter Calendars
 
+All of the dateutils command line apps are built around a library,
+date-core.  The textual representation of dates is converted to an
+internal one first, then the date operation is performed and the
+internal representation in the end is converted back to a textual
+one.
+
+While many of the tools that provide date arithmetic or conversions
+employ a single standard internal representation (mostly days since a
+reference date, or seconds since the epoch), the date-core library
+provides a variety of calendars, each suitable for one or more
+specific tasks.
+
+Usually it's the tools' task to find out which calendar is the best
+for the task at hand, but to use the library directly we give an
+overview of the supported calendars here along with some of their
+properties.
+
+@section ymd, aka gregorian
+
+This is the `ordinary' calendar, holding a year, a month and the day
+of the month.  Years are subdivided into 12 months, months are
+subdivided into 28 to 31 days.
+
+@section ymcw
+
+This is a calendric system used at some security exchanges, it holds a
+year, a month, a weekday and the count of the weekday within the
+month.  This holds dates like the third Thursday in March 2011.  Years
+are subdivided into months as in the ymd calendar, months consist of
+at least 4 and up to 5 weeks and weeks are subdivided into weekdays,
+Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+
+@section daisy
+
+This is one of the most common calendric systems, it counts the days
+since (we originally went for daysi, short for days since, but after
+the 100th spelling mistake, because daisy is so much more natural, we
+decided to stick with daisy) a given reference date.  In the Julian
+calendar this was the founding of Rome, in many database systems this
+is the 1st Jan 1, or other convenient dates like the 1st Jan 1970 or
+1st Jan 1900.
+
+The dateutils reference day (at the moment) is the 31st Dec 1916, or
+equivalently the Naught-th of Jan 1917.  This may look like an
+arbitrary date but it has some interesting properties:
+- it is a Sunday, so weekday computation is easy as it is a mod 7
+  operation only
+- the year is 1 mod 4, so the number of leap years between 1917 and
+  another year Y is simply Y div 4.
+
+Actually any date that suffices these properties is fine but 1917 is
+the first after 1900, and dates <= 1900 that have different leap year
+rules so cannot be as easily used as our reference date.
+
+The daisy calendar has no notion of years or months.
+
+@section bizda
+
+This calendric system is actually a whole tribe of calendars, in its
+canonical form this tracks the number of business days after last
+month's ultimo.  Where business day means any non-weekend day.  Years
+are divided into 12 months, each of which consists of 20 to 23
+business days.
 
 
 @summarycontents

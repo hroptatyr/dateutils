@@ -152,4 +152,14 @@ dt_io_write_sed(
 	return (n > 0 || sp < ep) - 1;
 }
 
+
+/* error messages, warnings, etc. */
+static void
+dt_io_warn_strpd(const char *inp)
+{
+	fprintf(stderr, "\
+cannot make sense of `%s' using the given input formats\n", inp);
+	return;
+}
+
 #endif	/* INCLUDED_date_io_h_ */
