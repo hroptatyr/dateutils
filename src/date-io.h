@@ -202,18 +202,24 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 	/* read over signs and prefixes */
 	sp = str;
 	while (1) {
-		switch (*sp++) {
+		switch (*sp) {
 		case '\0':
 			res = -1;
 			goto out;
 		case '+':
-			st->sign = 0;
+			st->sign = 1;
 			break;
 		case '-':
 			st->sign = -1;
 			break;
 		case '=':
-			st->sign = 1;
+			if (st->sign > 0) {
+				st->sign++;
+			} else if (st->sign < 0) {
+				st->sign--;
+			} else {
+				st->sign = 0;
+			}
 			break;
 		case '>':
 			st->sign = 2;
@@ -226,8 +232,6 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 			continue;
 		default:
 			/* implicit + */
-			st->sign = 0;
-			sp--;
 			break;
 		}
 		break;
@@ -243,7 +247,12 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 				(16 + st->ndurs) * sizeof(*st->durs));
 			memset(st->durs + st->ndurs, 0, 16 * sizeof(*st->durs));
 		}
-		st->durs[st->ndurs++] = st->curr;
+		if ((st->sign == 1 && dt_dur_neg_p(st->curr)) ||
+		    (st->sign == -1 && !dt_dur_neg_p(st->curr))) {
+			st->durs[st->ndurs++] = dt_neg_dur(st->curr);
+		} else {
+			st->durs[st->ndurs++] = st->curr;
+		}
 	}
 out:
 	if ((st->cont = sp) && *sp == '\0') {
