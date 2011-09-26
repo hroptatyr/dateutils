@@ -88,7 +88,10 @@ struct strpd_s {
 	unsigned int w;
 	/* for bizda and other parametrised cals */
 	signed int b;
-	unsigned int ref;
+	union {
+		unsigned int ref;
+		signed int q;
+	};
 #define STRPD_BIZDA_BIT	(1U)
 	/* general flags */
 	unsigned int flags;
@@ -1896,46 +1899,54 @@ out:
 }
 
 DEFUN struct dt_dur_s
-dt_strpdur(const char *str)
+dt_strpdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
 	struct dt_dur_s res = {DT_DUR_UNK};
-	char *sp = ((union {char *p; const char *c;}){.c = str}).p;
+	const char *sp = str;
 	int tmp;
 	struct strpd_s d = {0};
 
 	if (str == NULL) {
 		goto out;
 	}
-	/* read the year */
-	do {
-		tmp = strtol(sp, &sp, 10);
-		switch (*sp++) {
-		case '\0':
-			/* must have been day then */
-			d.d = tmp;
-			goto assess;
-		case 'd':
-		case 'D':
-			d.d = tmp;
-			break;
-		case 'y':
-		case 'Y':
-			d.y = tmp;
-			break;
-		case 'm':
-		case 'M':
-			d.m = tmp;
-			break;
-		case 'w':
-		case 'W':
-			d.w = tmp;
-			break;
-		default:
-			goto out;
-		}
-	} while (*sp);
-assess:
+	/* read just one component */
+	tmp = strtol(sp, (char**)&sp, 10);
+	switch (*sp++) {
+	case '\0':
+		/* must have been day then */
+		d.d = tmp;
+		sp--;
+		break;
+	case 'd':
+	case 'D':
+		d.d = tmp;
+		break;
+	case 'y':
+	case 'Y':
+		d.y = tmp;
+		break;
+	case 'm':
+	case 'M':
+		d.m = tmp;
+		break;
+	case 'w':
+	case 'W':
+		d.w = tmp;
+		break;
+	case 'b':
+	case 'B':
+		d.b = tmp;
+		break;
+	case 'q':
+	case 'Q':
+		d.q = tmp;
+		break;
+	default:
+		sp = str;
+		goto out;
+	}
+	/* assess */
 	if (LIKELY((d.m && d.d) ||
 		   (d.y == 0 && d.m == 0 && d.w == 0) ||
 		   (d.y == 0 && d.w == 0 && d.d == 0))) {
@@ -1956,8 +1967,18 @@ assess:
 			.y = d.y,
 			.m = d.m,
 		};
+	} else if (d.b || d.q) {
+		res.typ = DT_DUR_QMB;
+		res.qmb = (dt_qmbdur_t){
+			.q = d.q,
+			.m = d.m,
+			.b = d.b,
+		};
 	}
 out:
+	if (ep) {
+		*ep = (char*)sp;
+	}
 	return res;
 }
 
@@ -2012,6 +2033,21 @@ dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
 		} else if (that.ym.y < 0 && that.ym.m < 0) {
 			res = snprintf(
 				buf, bsz, "%dy%dm\n", that.ym.m, -that.ym.m);
+		}
+		break;
+	case DT_DUR_QMB:
+		/* auto-newline */
+		if (that.qmb.q) {
+			res = snprintf(
+				buf, bsz, "%dq%dm%db\n",
+				that.qmb.q, that.qmb.m, that.qmb.b);
+		} else if (that.qmb.m) {
+			res = snprintf(
+				buf, bsz, "%dm%db\n",
+				that.qmb.m, that.qmb.b);
+		} else {
+			res = snprintf(
+				buf, bsz, "%db\n", that.qmb.b);
 		}
 		break;
 	case DT_DUR_UNK:
@@ -2158,12 +2194,64 @@ dt_neg_dur(struct dt_dur_s dur)
 		dur.ym.m = -dur.ym.m;
 		dur.ym.y = -dur.ym.y;
 		break;
+	case DT_DUR_QMB:
+		dur.qmb.q = -dur.qmb.q;
+		dur.qmb.m = -dur.qmb.m;
+		dur.qmb.b = -dur.qmb.b;
+		break;
 	case DT_DUR_UNK:
 	default:
 		dur.u = 0;
 		break;
 	}
 	return dur;
+}
+
+DEFUN int
+dt_dur_neg_p(struct dt_dur_s dur)
+{
+	switch (dur.typ) {
+	case DT_DUR_WD:
+		if (dur.wd.w == 0 ||
+		    dur.wd.w * 7 < dur.wd.d) {
+			return dur.wd.d < 0;
+		} else {
+			return dur.wd.w < 0;
+		}
+		break;
+	case DT_DUR_MD:
+		if (dur.md.m == 0 ||
+		    dur.md.m * 30 < dur.md.d) {
+			/* second case is undefined really */
+			return dur.md.d < 0;
+		} else {
+			return dur.md.m < 0;
+		}
+		break;
+	case DT_DUR_YM:
+		if (dur.ym.y == 0 ||
+		    dur.ym.y * 12 < dur.ym.m) {
+			return dur.ym.m < 0;
+		} else {
+			return dur.ym.y < 0;
+		}
+		break;
+	case DT_DUR_QMB:
+		if (dur.qmb.q == 0 && dur.qmb.m == 0 ||
+		    (dur.qmb.q * 3 + dur.qmb.m) * 23 < dur.qmb.b) {
+			return dur.qmb.b < 0;
+		} else if (dur.qmb.q == 0 ||
+			   dur.qmb.m * 23 > dur.qmb.b) {
+			return dur.qmb.m < 0;
+		} else {
+			return dur.qmb.q < 0;
+		}
+		break;
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	return 0;
 }
 
 #endif	/* INCLUDED_date_core_c_ */

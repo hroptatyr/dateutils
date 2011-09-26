@@ -70,6 +70,7 @@ typedef enum {
 	DT_DUR_MD,
 	DT_DUR_WD,
 	DT_DUR_YM,
+	DT_DUR_QMB,
 } dt_durtyp_t;
 
 #define DT_MIN_YEAR	(0)
@@ -186,6 +187,17 @@ typedef union {
 	};
 } dt_ymdur_t;
 
+/** qmbdur
+ * duration type in quarters, months and business days. */
+typedef union {
+	uint32_t u;
+	struct {
+		signed int b:16;
+		signed int m:8;
+		signed int q:8;
+	};
+} dt_qmbdur_t;
+
 /**
  * Collection of all duration types. */
 struct dt_dur_s {
@@ -195,6 +207,7 @@ struct dt_dur_s {
 		dt_mddur_t md;
 		dt_wddur_t wd;
 		dt_ymdur_t ym;
+		dt_qmbdur_t qmb;
 	};
 };
 
@@ -239,7 +252,8 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-DECLF struct dt_dur_s dt_strpdur(const char *str);
+DECLF struct dt_dur_s
+dt_strpdur(const char *str, char **ep);
 
 /**
  * Print a duration. */
@@ -306,6 +320,10 @@ dt_diff(struct dt_d_s d1, struct dt_d_s d2);
 /**
  * Negate the duration. */
 DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
+
+/**
+ * Is duration DUR negative? */
+DECLF int dt_dur_neg_p(struct dt_dur_s dur);
 
 
 #if defined INCLUDE_DATE_CORE_IMPL
