@@ -236,6 +236,7 @@ main(int argc, char *argv[])
 	char *ofmt;
 	int res = 0;
 	__skipspec_t ss = 0;
+	struct __strpdur_st_s st = {0};
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);
@@ -295,9 +296,10 @@ main(int argc, char *argv[])
 			goto out;
 		}
 		unfixup_arg(argi->inputs[1]);
-		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
+		if (dt_io_strpdur(&st, argi->inputs[1]) < 0) {
 			if (!argi->quiet_given) {
-				fputs("increment must not be naught\n", stderr);
+				fprintf(stderr, "Error: \
+cannot parse duration string `%s'\n", argi->inputs[1]);
 			}
 			res = 1;
 			goto out;
@@ -370,6 +372,8 @@ main(int argc, char *argv[])
 			}
 		} while (fst.daisy >= lst.daisy);
 	}
+	/* free strpdur resources */
+	__strpdur_free(&st);
 out:
 	cmdline_parser_free(argi);
 	return res;
