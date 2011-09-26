@@ -2194,12 +2194,64 @@ dt_neg_dur(struct dt_dur_s dur)
 		dur.ym.m = -dur.ym.m;
 		dur.ym.y = -dur.ym.y;
 		break;
+	case DT_DUR_QMB:
+		dur.qmb.q = -dur.qmb.q;
+		dur.qmb.m = -dur.qmb.m;
+		dur.qmb.b = -dur.qmb.b;
+		break;
 	case DT_DUR_UNK:
 	default:
 		dur.u = 0;
 		break;
 	}
 	return dur;
+}
+
+DEFUN int
+dt_dur_neg_p(struct dt_dur_s dur)
+{
+	switch (dur.typ) {
+	case DT_DUR_WD:
+		if (dur.wd.w == 0 ||
+		    dur.wd.w * 7 < dur.wd.d) {
+			return dur.wd.d < 0;
+		} else {
+			return dur.wd.w < 0;
+		}
+		break;
+	case DT_DUR_MD:
+		if (dur.md.m == 0 ||
+		    dur.md.m * 30 < dur.md.d) {
+			/* second case is undefined really */
+			return dur.md.d < 0;
+		} else {
+			return dur.md.m < 0;
+		}
+		break;
+	case DT_DUR_YM:
+		if (dur.ym.y == 0 ||
+		    dur.ym.y * 12 < dur.ym.m) {
+			return dur.ym.m < 0;
+		} else {
+			return dur.ym.y < 0;
+		}
+		break;
+	case DT_DUR_QMB:
+		if (dur.qmb.q == 0 && dur.qmb.m == 0 ||
+		    (dur.qmb.q * 3 + dur.qmb.m) * 23 < dur.qmb.b) {
+			return dur.qmb.b < 0;
+		} else if (dur.qmb.q == 0 ||
+			   dur.qmb.m * 23 > dur.qmb.b) {
+			return dur.qmb.m < 0;
+		} else {
+			return dur.qmb.q < 0;
+		}
+		break;
+	case DT_DUR_UNK:
+	default:
+		break;
+	}
+	return 0;
 }
 
 #endif	/* INCLUDED_date_core_c_ */

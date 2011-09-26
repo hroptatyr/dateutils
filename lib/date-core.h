@@ -321,6 +321,10 @@ dt_diff(struct dt_d_s d1, struct dt_d_s d2);
  * Negate the duration. */
 DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
 
+/**
+ * Is duration DUR negative? */
+DECLF int dt_dur_neg_p(struct dt_dur_s dur);
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"
