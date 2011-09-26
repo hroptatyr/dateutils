@@ -17,6 +17,7 @@ Note that duration addition is not commutative!
 If there is any ambiguity between durations and dates, durations can \
 be prefixed with P as ISO 8601 suggests."
 
+QUIET
 FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES

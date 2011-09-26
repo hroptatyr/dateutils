@@ -3,6 +3,7 @@ package "dseq"
 usage "dseq [OPTION]... FIRST [[INCREMENT] LAST]"
 description "Like seq(1) but for dates."
 
+QUIET
 FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES

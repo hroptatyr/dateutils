@@ -3,6 +3,7 @@ package "dtest"
 usage "dtest [OPTION]... DATE1 OP DATE2"
 description "Like test(1) but for dates."
 
+QUIET
 INPUT_FORMAT
 BACKSLASH_ESCAPES
 

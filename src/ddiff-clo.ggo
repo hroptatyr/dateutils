@@ -5,6 +5,7 @@ description "Compute duration from DATE to the other DATEs given \
 and print the result as duration, if DATEs are omitted read a list \
 of DATEs from stdin."
 
+QUIET
 FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES

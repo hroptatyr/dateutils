@@ -66,14 +66,17 @@ prnt_line(const char *ofmt, struct tm *tm)
 }
 
 static void
-proc_line(const char *ln, const char *const *fmt, size_t nfmt, const char *ofmt)
+proc_line(
+	const char *ln, const char *const *fmt, size_t nfmt,
+	const char *ofmt,
+	int quietp)
 {
 	struct tm tm = {0};
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
-		fputs("cannot parse line: ", stderr);
-		fputs(ln, stderr);
-		fputc('\n', stderr);
+		if (!quietp) {
+			dt_io_warn_strpd(ln);
+		}
 	} else {
 		prnt_line(ofmt, &tm);
 	}
@@ -81,7 +84,7 @@ proc_line(const char *ln, const char *const *fmt, size_t nfmt, const char *ofmt)
 }
 
 static void
-proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt)
+proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 {
 	FILE *fp = stdin;
 	char *line;
@@ -101,7 +104,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt)
 		/* terminate the string accordingly */
 		line[n - 1] = '\0';
 		/* check if line matches */
-		proc_line(line, fmt, nfmt, ofmt);
+		proc_line(line, fmt, nfmt, ofmt, quietp);
 	}
 	/* get rid of resources */
 	free(line);
@@ -130,6 +133,7 @@ main(int argc, char *argv[])
 	size_t ninfmt;
 	char **input;
 	size_t ninput;
+	int quietp;
 	int res = 0;
 
 	if (cmdline_parser(argc, argv, argi)) {
@@ -159,14 +163,16 @@ main(int argc, char *argv[])
 		input = argi->inputs;
 		ninput = argi->inputs_num;
 	}
+	/* get quiet predicate */
+	quietp = argi->quiet_given;
 
 	/* get lines one by one, apply format string and print date/time */
 	if (ninput == 0) {
 		/* read from stdin */
-		proc_lines(infmt, ninfmt, outfmt);
+		proc_lines(infmt, ninfmt, outfmt, quietp);
 	} else {
 		for (size_t i = 0; i < ninput; i++) {
-			proc_line(input[i], infmt, ninfmt, outfmt);
+			proc_line(input[i], infmt, ninfmt, outfmt, quietp);
 		}
 	}
 
