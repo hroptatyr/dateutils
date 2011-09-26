@@ -355,7 +355,7 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	}
 
 	/* convert to daisies */
-	if (nite = 1 && ite->typ == DT_DUR_MD &&
+	if (nite == 1 && ite->typ == DT_DUR_MD &&
 	    ite->md.m == 0 && ite->md.d != 0) {
 		if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
 		    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
@@ -367,8 +367,9 @@ cannot convert calendric system internally\n", stderr);
 			res = 1;
 			goto out;
 		}
-	} else if (nite == 1 && ite->typ == DT_DUR_MD &&
-		   ite->md.m == 0 && ite->md.d == 0) {
+	} else if ((nite == 1 && ite->typ == DT_DUR_MD &&
+		    ite->md.m == 0 && ite->md.d == 0) ||
+		   nite == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
 increment must not be naught\n", stderr);
@@ -385,7 +386,14 @@ increment must not be naught\n", stderr);
 
 			while (tmp.u >= fst.u) {
 				if (!skipp(ss, tmp)) {
-					tmp = date_add(tmp, ite, nite);
+					struct dt_d_s tm2;
+
+					tm2 = date_add(tmp, ite, nite);
+					if (tm2.u >= tmp.u) {
+						/* neg pred was wrong */
+						goto work_up;
+					}
+					tmp =  tm2;
 				} else {
 					tmp = dt_add(tmp, ite_m1);
 				}
@@ -393,6 +401,7 @@ increment must not be naught\n", stderr);
 			date_neg_dur(ite, nite);
 			fst = date_add(tmp, ite, nite);
 		}
+	work_up:
 		do {
 			if (!skipp(ss, fst)) {
 				dt_io_write(fst, ofmt);
@@ -409,7 +418,14 @@ increment must not be naught\n", stderr);
 
 			while (tmp.u <= fst.u) {
 				if (!skipp(ss, tmp)) {
-					tmp = date_add(tmp, ite, nite);
+					struct dt_d_s tm2;
+
+					tm2 = date_add(tmp, ite, nite);
+					if (tm2.u <= tmp.u) {
+						/* neg pred was wrong */
+						goto work_down;
+					}
+					tmp = tm2;
 				} else {
 					tmp = dt_add(tmp, ite_p1);
 				}
@@ -417,6 +433,7 @@ increment must not be naught\n", stderr);
 			date_neg_dur(ite, nite);
 			fst = date_add(tmp, ite, nite);
 		}
+	work_down:
 		do {
 			if (!skipp(ss, fst)) {
 				dt_io_write(fst, ofmt);
