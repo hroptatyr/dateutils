@@ -355,8 +355,12 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	}
 
 	/* convert to daisies */
-	if (nite == 1 && ite->typ == DT_DUR_MD &&
-	    ite->md.m == 0 && ite->md.d != 0) {
+	if (nite == 1 &&
+	    ((ite->typ == DT_DUR_MD &&
+	      ite->md.m == 0 && ite->md.d != 0) ||
+	     (ite->typ == DT_DUR_WD) ||
+	     (ite->typ == DT_DUR_QMB &&
+	      ite->qmb.q == 0 && ite->qmb.m == 0 && ite->qmb.b != 0))) {
 		if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
 		    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
 			res = 1;
