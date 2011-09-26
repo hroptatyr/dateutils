@@ -1973,7 +1973,14 @@ dt_strpdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	if (LIKELY((d.m && d.d) ||
+	if (d.b || d.q) {
+		res.typ = DT_DUR_QMB;
+		res.qmb = (dt_qmbdur_t){
+			.q = d.q,
+			.m = d.m,
+			.b = d.b,
+		};
+	} else if (LIKELY((d.m && d.d) ||
 		   (d.y == 0 && d.m == 0 && d.w == 0) ||
 		   (d.y == 0 && d.w == 0 && d.d == 0))) {
 		res.typ = DT_DUR_MD;
@@ -1992,13 +1999,6 @@ dt_strpdur(const char *str, char **ep)
 		res.ym = (dt_ymdur_t){
 			.y = d.y,
 			.m = d.m,
-		};
-	} else if (d.b || d.q) {
-		res.typ = DT_DUR_QMB;
-		res.qmb = (dt_qmbdur_t){
-			.q = d.q,
-			.m = d.m,
-			.b = d.b,
 		};
 	}
 out:
