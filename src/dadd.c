@@ -44,169 +44,6 @@
 #include "date-io.h"
 
 
-/* we parse durations ourselves so we can cope with the
- * non-commutativity of duration addition:
- * 2000-03-30 +1m -> 2000-04-30 +1d -> 2000-05-01
- * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
-struct __strpdur_st_s {
-	int sign;
-	const char *istr;
-	const char *cont;
-	struct dt_dur_s that;
-};
-
-static int
-__strpdur_more_p(struct __strpdur_st_s *st)
-{
-	return st->cont != NULL;
-}
-
-static int
-dadd_strpdur(struct __strpdur_st_s *st, const char *str)
-{
-/* at the moment we allow only one format */
-	struct dt_dur_s that = {DT_DUR_UNK};
-	const char *sp = NULL;
-	int tmp;
-	int y = 0;
-	int m = 0;
-	int w = 0;
-	int d = 0;
-	int res = 0;
-
-	/* check if we should continue */
-	if (st->cont) {
-		str = st->istr = st->cont;
-	} else if ((st->istr = str)) {
-		;
-	} else {
-		goto out;
-	}
-
-	/* read over signs and prefixes */
-	for (sp = str; ; sp++) {
-		switch (*sp) {
-		case '\0':
-			goto out;
-		case '+':
-			st->sign = 0;
-			continue;
-		case '-':
-			st->sign = -1;
-			continue;
-		case '=':
-			st->sign = 1;
-			continue;
-		case 'P':
-			continue;
-		default:
-			break;
-		}
-		break;
-	}
-
-	/* read the year */
-	do {
-		tmp = strtol(sp, (char**)&sp, 10);
-		switch (*sp++) {
-		case '\0':
-			/* must have been day then */
-			d = tmp;
-			goto assess;
-		case 'd':
-		case 'D':
-			d = tmp;
-			goto assess;
-		case 'y':
-		case 'Y':
-			y = tmp;
-			goto assess;
-		case 'm':
-		case 'M':
-			m = tmp;
-			goto assess;
-		case 'w':
-		case 'W':
-			w = tmp;
-			goto assess;
-		default:
-			res = -1;
-			goto out;
-		}
-	} while (1);
-assess:
-	if (LIKELY((m && d) ||
-		   (y == 0 && m == 0 && w == 0) ||
-		   (y == 0 && w == 0 && d == 0))) {
-		that.typ = DT_DUR_MD;
-		switch (st->sign) {
-		case 0:
-			that.md.m = m;
-			that.md.d = d;
-			break;
-		case -1:
-			that.md.m = -m;
-			that.md.d = -d;
-			break;
-		case 1:
-			/* set mode */
-			that.md.m = 0;
-			that.md.d = 0;
-			break;
-		default:
-			break;
-		}
-		res = 1;
-	} else if (w) {
-		that.typ = DT_DUR_WD;
-		switch (st->sign) {
-		case 0:
-			that.wd.w = w;
-			that.wd.d = d;
-			break;
-		case -1:
-			that.wd.w = -w;
-			that.wd.d = -d;
-			break;
-		case 1:
-			/* set mode */
-			that.wd.w = 0;
-			that.wd.d = 0;
-			break;
-		}
-		res = 1;
-	} else if (y) {
-		that.typ = DT_DUR_YM;
-		switch (st->sign) {
-		case 0:
-			that.ym.y = y;
-			that.ym.m = m;
-			break;
-		case -1:
-			that.ym.y = -y;
-			that.ym.m = -m;
-			break;
-		case 1:
-			/* set mode */
-			that.ym.y = 0;
-			that.ym.m = 0;
-			break;
-		}
-		res = 1;
-	} else {
-		sp = NULL;
-		res = -1;		
-	}
-out:
-	st->that = that;
-	if ((st->cont = sp) && *sp == '\0') {
-		st->sign = 0;
-		st->cont = NULL;
-	}
-	return res;
-}
-
-
 static struct dt_d_s
 dadd_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
 {
@@ -233,8 +70,6 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_d_s d;
-	struct dt_dur_s dur[32];
-	size_t ndur = 0;
 	struct __strpdur_st_s st = {0};
 	char *inp;
 	const char *ofmt;
@@ -279,10 +114,7 @@ main(int argc, char *argv[])
 	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
-			switch (dadd_strpdur(&st, inp)) {
-			case 1:
-				dur[ndur++] = st.that;
-				break;
+			switch (dt_io_strpdur(&st, inp)) {
 			case -1:
 				fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", st.istr);
@@ -293,7 +125,7 @@ cannot parse duration string `%s'\n", st.istr);
 			}
 		} while (__strpdur_more_p(&st));
 	}
-	if (ndur == 0) {
+	if (st.ndurs == 0) {
 		fputs("Error: no duration given\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
@@ -302,7 +134,7 @@ cannot parse duration string `%s'\n", st.istr);
 
 	/* start the actual work */
 	if (beg_idx > 0) {
-		if ((d = dadd_add(d, dur, ndur)).typ > DT_UNK) {
+		if ((d = dadd_add(d, st.durs, st.ndurs)).typ > DT_UNK) {
 			dt_io_write(d, ofmt);
 			res = 0;
 		} else {
@@ -342,14 +174,14 @@ cannot parse duration string `%s'\n", st.istr);
 					     line, fmt, nfmt,
 					     needle, needlen,
 					     (char**)&sp, (char**)&ep)).typ) {
-					d = dadd_add(d, dur, ndur);
+					d = dadd_add(d, st.durs, st.ndurs);
 					dt_io_write_sed(
 						d, ofmt, line, n, sp, ep);
 				} else if (!argi->quiet_given) {
 					goto warn;
 				}
 			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
-				d = dadd_add(d, dur, ndur);
+				d = dadd_add(d, st.durs, st.ndurs);
 				dt_io_write(d, ofmt);
 			} else if (!argi->quiet_given) {
 			warn:
