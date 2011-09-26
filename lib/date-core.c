@@ -1105,11 +1105,33 @@ __daisy_add(dt_daisy_t d, struct dt_dur_s dur)
 	case DT_DUR_WD:
 		d += dur.wd.w * 7 + dur.wd.d;
 		break;
+	case DT_DUR_QMB:
+		if (dur.qmb.q == 0 && dur.qmb.m == 0) {
+			/* daisies can't handle business months and quarters */
+			switch (__daisy_get_wday(d += dur.qmb.b)) {
+			case DT_SATURDAY:
+				d++;
+				/*@fallthrough@*/
+			case DT_SUNDAY:
+				d++;
+				/*@fallthrough@*/
+			case DT_MONDAY:
+			case DT_TUESDAY:
+			case DT_WEDNESDAY:
+			case DT_THURSDAY:
+			case DT_FRIDAY:
+			case DT_MIRACLEDAY:
+			default:
+				break;
+			}
+		}
+		break;
 	case DT_DUR_MD:
 		if (dur.md.m == 0) {
+			/* daisies can handle days but not months */
 			d += dur.md.d;
-			break;
 		}
+		break;
 	case DT_DUR_YM:
 		/* daisies have no notion of years and months */
 	case DT_DUR_UNK:
