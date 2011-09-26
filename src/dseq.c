@@ -261,22 +261,54 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	case 1:
-		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
-		lst = dt_date(DT_YMD);
-		break;
-	case 2:
-		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
-		lst = dt_io_strpd(argi->inputs[1], ifmt, nifmt);
-		break;
-	case 3:
-		fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt);
-		unfixup_arg(argi->inputs[1]);
-		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
-			fputs("increment must not be naught\n", stderr);
+		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
+			if (!argi->quiet_given) {
+				dt_io_warn_strpd(argi->inputs[0]);
+			}
 			res = 1;
 			goto out;
 		}
-		lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt);
+		lst = dt_date(DT_YMD);
+		break;
+	case 2:
+		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
+			if (!argi->quiet_given) {
+				dt_io_warn_strpd(argi->inputs[0]);
+			}
+			res = 1;
+			goto out;
+		}
+		if (!(lst = dt_io_strpd(argi->inputs[1], ifmt, nifmt)).typ) {
+			if (!argi->quiet_given) {
+				dt_io_warn_strpd(argi->inputs[1]);
+			}
+			res = 1;
+			goto out;
+		}
+		break;
+	case 3:
+		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
+			if (!argi->quiet_given) {
+				dt_io_warn_strpd(argi->inputs[0]);
+			}
+			res = 1;
+			goto out;
+		}
+		unfixup_arg(argi->inputs[1]);
+		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
+			if (!argi->quiet_given) {
+				fputs("increment must not be naught\n", stderr);
+			}
+			res = 1;
+			goto out;
+		}
+		if (!(lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt)).typ) {
+			if (!argi->quiet_given) {
+				dt_io_warn_strpd(argi->inputs[2]);
+			}
+			res = 1;
+			goto out;
+		}
 		break;
 	}
 

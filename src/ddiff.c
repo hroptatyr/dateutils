@@ -110,6 +110,8 @@ main(int argc, char *argv[])
 			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK &&
 			    (dur = dt_diff(d, d2)).typ > DT_DUR_UNK) {
 				ddiff_prnt(dur, ofmt);
+			} else if (!argi->quiet_given) {
+				dt_io_warn_strpd(inp);
 			}
 		}
 	} else {
@@ -137,6 +139,8 @@ main(int argc, char *argv[])
 			if ((d2 = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK &&
 			    (dur = dt_diff(d, d2)).typ > DT_DUR_UNK) {
 				ddiff_prnt(dur, ofmt);
+			} else if (!argi->quiet_given) {
+				dt_io_warn_strpd(line);
 			}
 		}
 		/* get rid of resources */
