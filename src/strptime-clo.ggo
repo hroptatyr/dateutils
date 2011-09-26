@@ -7,6 +7,7 @@ option "time" t
 	"also display time in the output, default is to display the date"
 	optional
 
+QUIET
 FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES
