@@ -213,6 +213,36 @@ set_skip(__skipspec_t ss, char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
+static struct dt_d_s
+date_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
+{
+	for (size_t i = 0; i < ndur; i++) {
+		d = dt_add(d, dur[i]);
+	}
+	return d;
+}
+
+static int
+date_dur_neg_p(struct dt_dur_s dur[], size_t ndur)
+{
+	int res = 0 == 0;
+	for (size_t i = 0; i < ndur; i++) {
+		if (!dt_dur_neg_p(dur[i])) {
+			return 0;
+		}
+	}
+	return res;
+}
+
+static void
+date_neg_dur(struct dt_dur_s dur[], size_t ndur)
+{
+	for (size_t i = 0; i < ndur; i++) {
+		dur[i] = dt_neg_dur(dur[i]);
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -228,6 +258,12 @@ set_skip(__skipspec_t ss, char *spec)
 int
 main(int argc, char *argv[])
 {
+	static struct dt_dur_s ite_p1 = {
+		.typ = DT_DUR_MD, .md.m = 0, .md.d = 1
+	};
+	static struct dt_dur_s ite_m1 = {
+		.typ = DT_DUR_MD, .md.m = 0, .md.d = -1
+	};
 	struct gengetopt_args_info argi[1];
 	struct dt_d_s fst, lst;
 	char **ifmt;
@@ -236,9 +272,8 @@ main(int argc, char *argv[])
 	int res = 0;
 	__skipspec_t ss = 0;
 	struct __strpdur_st_s st = {0};
-	struct dt_dur_s ite_p1 = {.typ = DT_DUR_MD, .md.m = 0, .md.d = 1};
-	struct dt_dur_s ite_m1 = {.typ = DT_DUR_MD, .md.m = 0, .md.d = -1};
-	struct dt_dur_s ite = ite_p1;
+	struct dt_dur_s *ite = &ite_p1;
+	size_t nite = 1;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);
@@ -306,6 +341,9 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 			res = 1;
 			goto out;
 		}
+		/* assign values */
+		ite = st.durs;
+		nite = st.ndurs;
 		if (!(lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt)).typ) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpd(argi->inputs[2]);
@@ -317,7 +355,8 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	}
 
 	/* convert to daisies */
-	if (ite.typ == DT_DUR_MD && ite.md.m == 0 && ite.md.d != 0) {
+	if (nite = 1 && ite->typ == DT_DUR_MD &&
+	    ite->md.m == 0 && ite->md.d != 0) {
 		if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
 		    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
 			res = 1;
@@ -328,7 +367,8 @@ cannot convert calendric system internally\n", stderr);
 			res = 1;
 			goto out;
 		}
-	} else if (ite.typ == DT_DUR_MD && ite.md.m == 0 && ite.md.d == 0) {
+	} else if (nite == 1 && ite->typ == DT_DUR_MD &&
+		   ite->md.m == 0 && ite->md.d == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
 increment must not be naught\n", stderr);
@@ -338,51 +378,49 @@ increment must not be naught\n", stderr);
 	}
 
 	if (fst.u <= lst.u) {
-		if (dt_dur_neg_p(ite)) {
+		if (date_dur_neg_p(ite, nite)) {
 			/* different meaning now, we need to compute the
 			 * beginning rather than the end */
 			struct dt_d_s tmp = lst;
-			struct dt_dur_s negite = ite;
 
-			ite = dt_neg_dur(ite);
 			while (tmp.u >= fst.u) {
 				if (!skipp(ss, tmp)) {
-					tmp = dt_add(tmp, negite);
+					tmp = date_add(tmp, ite, nite);
 				} else {
 					tmp = dt_add(tmp, ite_m1);
 				}
 			}
-			fst = dt_add(tmp, ite);
+			date_neg_dur(ite, nite);
+			fst = date_add(tmp, ite, nite);
 		}
 		do {
 			if (!skipp(ss, fst)) {
 				dt_io_write(fst, ofmt);
-				fst = dt_add(fst, ite);
+				fst = date_add(fst, ite, nite);
 			} else {
 				fst = dt_add(fst, ite_p1);
 			}
 		} while (fst.u <= lst.u);
 	} else {
-		if (!dt_dur_neg_p(ite)) {
+		if (!date_dur_neg_p(ite, nite)) {
 			/* different meaning now, we need to compute the
 			 * end rather than the beginning */
 			struct dt_d_s tmp = lst;
-			struct dt_dur_s posite = ite;
 
-			ite = dt_neg_dur(ite);
 			while (tmp.u <= fst.u) {
 				if (!skipp(ss, tmp)) {
-					tmp = dt_add(tmp, posite);
+					tmp = date_add(tmp, ite, nite);
 				} else {
 					tmp = dt_add(tmp, ite_p1);
 				}
 			}
-			fst = dt_add(tmp, ite);
+			date_neg_dur(ite, nite);
+			fst = date_add(tmp, ite, nite);
 		}
 		do {
 			if (!skipp(ss, fst)) {
 				dt_io_write(fst, ofmt);
-				fst = dt_add(fst, ite);
+				fst = date_add(fst, ite, nite);
 			} else {
 				fst = dt_add(fst, ite_m1);
 			}
