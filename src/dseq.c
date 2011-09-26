@@ -230,13 +230,15 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_d_s fst, lst;
-	iddur_t ite = 1;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
 	int res = 0;
 	__skipspec_t ss = 0;
 	struct __strpdur_st_s st = {0};
+	struct dt_dur_s ite_p1 = {.typ = DT_DUR_MD, .md.m = 0, .md.d = 1};
+	struct dt_dur_s ite_m1 = {.typ = DT_DUR_MD, .md.m = 0, .md.d = -1};
+	struct dt_dur_s ite = ite_p1;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);
@@ -314,67 +316,81 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 		break;
 	}
 
-	/* convert to bizdas */
-	if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
-	    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
+	/* convert to daisies */
+	if (ite.typ == DT_DUR_MD && ite.md.m == 0 && ite.md.d != 0) {
+		if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
+		    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
+			res = 1;
+			if (!argi->quiet_given) {
+				fputs("\
+cannot convert calendric system internally\n", stderr);
+			}
+			res = 1;
+			goto out;
+		}
+	} else if (ite.typ == DT_DUR_MD && ite.md.m == 0 && ite.md.d == 0) {
+		if (!argi->quiet_given) {
+			fputs("\
+increment must not be naught\n", stderr);
+		}
 		res = 1;
-		fputs("cannot convert calendric system internally\n", stderr);
 		goto out;
 	}
 
-	if (fst.daisy <= lst.daisy) {
-		if (ite < 0) {
+	if (fst.u <= lst.u) {
+		if (dt_dur_neg_p(ite)) {
 			/* different meaning now, we need to compute the
 			 * beginning rather than the end */
 			struct dt_d_s tmp = lst;
+			struct dt_dur_s negite = ite;
 
-			ite = -ite;
-			while (tmp.daisy >= fst.daisy) {
+			ite = dt_neg_dur(ite);
+			while (tmp.u >= fst.u) {
 				if (!skipp(ss, tmp)) {
-					tmp.daisy -= ite;
+					tmp = dt_add(tmp, negite);
 				} else {
-					tmp.daisy--;
+					tmp = dt_add(tmp, ite_m1);
 				}
 			}
-			fst.daisy = tmp.daisy + ite;
+			fst = dt_add(tmp, ite);
 		}
 		do {
 			if (!skipp(ss, fst)) {
 				dt_io_write(fst, ofmt);
-				fst.daisy += ite;
+				fst = dt_add(fst, ite);
 			} else {
-				fst.daisy++;
+				fst = dt_add(fst, ite_p1);
 			}
-		} while (fst.daisy <= lst.daisy);
+		} while (fst.u <= lst.u);
 	} else {
-		if (ite > 0) {
+		if (!dt_dur_neg_p(ite)) {
 			/* different meaning now, we need to compute the
 			 * end rather than the beginning */
 			struct dt_d_s tmp = lst;
+			struct dt_dur_s posite = ite;
 
-			while (tmp.daisy <= fst.daisy) {
+			ite = dt_neg_dur(ite);
+			while (tmp.u <= fst.u) {
 				if (!skipp(ss, tmp)) {
-					tmp.daisy += ite;
+					tmp = dt_add(tmp, posite);
 				} else {
-					tmp.daisy++;
+					tmp = dt_add(tmp, ite_p1);
 				}
 			}
-			fst.daisy = tmp.daisy - ite;
-		} else {
-			ite = -ite;
+			fst = dt_add(tmp, ite);
 		}
 		do {
 			if (!skipp(ss, fst)) {
 				dt_io_write(fst, ofmt);
-				fst.daisy -= ite;
+				fst = dt_add(fst, ite);
 			} else {
-				fst.daisy--;
+				fst = dt_add(fst, ite_m1);
 			}
-		} while (fst.daisy >= lst.daisy);
+		} while (fst.u >= lst.u);
 	}
+out:
 	/* free strpdur resources */
 	__strpdur_free(&st);
-out:
 	cmdline_parser_free(argi);
 	return res;
 }
