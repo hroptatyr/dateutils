@@ -88,7 +88,10 @@ struct strpd_s {
 	unsigned int w;
 	/* for bizda and other parametrised cals */
 	signed int b;
-	unsigned int ref;
+	union {
+		unsigned int ref;
+		signed int q;
+	};
 #define STRPD_BIZDA_BIT	(1U)
 	/* general flags */
 	unsigned int flags;
@@ -1896,46 +1899,54 @@ out:
 }
 
 DEFUN struct dt_dur_s
-dt_strpdur(const char *str)
+dt_strpdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
 	struct dt_dur_s res = {DT_DUR_UNK};
-	char *sp = ((union {char *p; const char *c;}){.c = str}).p;
+	const char *sp = str;
 	int tmp;
 	struct strpd_s d = {0};
 
 	if (str == NULL) {
 		goto out;
 	}
-	/* read the year */
-	do {
-		tmp = strtol(sp, &sp, 10);
-		switch (*sp++) {
-		case '\0':
-			/* must have been day then */
-			d.d = tmp;
-			goto assess;
-		case 'd':
-		case 'D':
-			d.d = tmp;
-			break;
-		case 'y':
-		case 'Y':
-			d.y = tmp;
-			break;
-		case 'm':
-		case 'M':
-			d.m = tmp;
-			break;
-		case 'w':
-		case 'W':
-			d.w = tmp;
-			break;
-		default:
-			goto out;
-		}
-	} while (*sp);
-assess:
+	/* read just one component */
+	tmp = strtol(sp, (char**)&sp, 10);
+	switch (*sp++) {
+	case '\0':
+		/* must have been day then */
+		d.d = tmp;
+		sp--;
+		break;
+	case 'd':
+	case 'D':
+		d.d = tmp;
+		break;
+	case 'y':
+	case 'Y':
+		d.y = tmp;
+		break;
+	case 'm':
+	case 'M':
+		d.m = tmp;
+		break;
+	case 'w':
+	case 'W':
+		d.w = tmp;
+		break;
+	case 'b':
+	case 'B':
+		d.b = tmp;
+		break;
+	case 'q':
+	case 'Q':
+		d.q = tmp;
+		break;
+	default:
+		sp = str;
+		goto out;
+	}
+	/* assess */
 	if (LIKELY((d.m && d.d) ||
 		   (d.y == 0 && d.m == 0 && d.w == 0) ||
 		   (d.y == 0 && d.w == 0 && d.d == 0))) {
@@ -1956,8 +1967,18 @@ assess:
 			.y = d.y,
 			.m = d.m,
 		};
+	} else if (d.b || d.q) {
+		res.typ = DT_DUR_QMB;
+		res.qmb = (dt_qmbdur_t){
+			.q = d.q,
+			.m = d.m,
+			.b = d.b,
+		};
 	}
 out:
+	if (ep) {
+		*ep = (char*)sp;
+	}
 	return res;
 }
 
