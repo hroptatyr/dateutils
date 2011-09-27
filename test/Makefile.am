@@ -33,6 +33,8 @@ TESTS += dadd.1.dt
 TESTS += dadd.2.dt
 TESTS += dadd.3.dt
 TESTS += dadd.4.dt
+TESTS += dadd.5.dt
+TESTS += dadd.6.dt
 
 TESTS += dtest.1.dt
 TESTS += dtest.2.dt
