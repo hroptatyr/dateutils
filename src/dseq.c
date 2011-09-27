@@ -216,7 +216,8 @@ set_skip(__skipspec_t ss, char *spec)
 static struct dt_d_s
 date_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
 {
-	for (size_t i = 0; i < ndur; i++) {
+	d = dt_add(d, dur[0]);
+	for (size_t i = 1; i < ndur; i++) {
 		d = dt_add(d, dur[i]);
 	}
 	return d;
