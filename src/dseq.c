@@ -224,18 +224,6 @@ date_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
 	return d;
 }
 
-static int
-date_dur_neg_p(struct dt_dur_s dur[], size_t ndur)
-{
-	int res = 0 == 0;
-	for (size_t i = 0; i < ndur; i++) {
-		if (!dt_dur_neg_p(dur[i])) {
-			return 0;
-		}
-	}
-	return res;
-}
-
 static void
 date_neg_dur(struct dt_dur_s dur[], size_t ndur)
 {
@@ -280,6 +268,80 @@ __durstack_naught_p(struct dt_dur_s dur[], size_t ndur)
 	return true;
 }
 
+static struct dt_d_s
+__seq_altnext(struct dt_d_s now, __skipspec_t ss, struct dt_dur_s ite1)
+{
+	struct dt_d_s new = now;
+	while (skipp(ss, new = dt_add(new, ite1)));
+	return new;
+}
+
+static struct dt_d_s
+__seq_next(
+	struct dt_d_s now,
+	struct dt_dur_s dur[], size_t ndur,
+	__skipspec_t ss, struct dt_dur_s ite1)
+{
+	struct dt_d_s new = date_add(now, dur, ndur);
+
+	if (skipp(ss, new)) {
+		new = __seq_altnext(new, ss, ite1);
+	}
+	/* another round */
+	return new;
+}
+
+static struct dt_d_s
+__fixup_fst(
+	struct dt_d_s fst, struct dt_d_s lst,
+	struct dt_dur_s dur[], size_t ndur,
+	__skipspec_t ss, struct dt_dur_s ite1)
+{
+	struct dt_d_s tmp;
+	struct dt_d_s old;
+
+	/* trial addition to to see where it goes */
+	if ((tmp = __seq_next(old = lst, dur, ndur, ss, ite1)).u > lst.u) {
+		/* wrong direction */
+		return fst;
+	} else if (tmp.u == lst.u) {
+		return (struct dt_d_s){.typ = DT_UNK, .u = 0};
+	} else if (ndur == 1) {
+		switch (dur->typ) {
+		case DT_DUR_MD:
+			if (dur->md.m == 0 &&
+			    (dur->md.d == 1 || dur->md.d == -1)) {
+				old = fst;
+				goto out;
+			}
+			break;
+		case DT_DUR_WD:
+			if (dur->wd.w == 0 &&
+			    (dur->wd.d == 1 || dur->wd.d == -1)) {
+				old = fst;
+				goto out;
+			}
+			break;
+		case DT_DUR_QMB:
+			if (dur->qmb.q == 0 && dur->qmb.m == 0 &&
+			    (dur->qmb.b == 1 || dur->qmb.b == -1)) {
+				old = fst;
+				goto out;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	while (tmp.u >= fst.u && tmp.u <= lst.u) {
+		old = tmp;
+		tmp = __seq_next(tmp, dur, ndur, ss, ite1);
+	}
+out:
+	date_neg_dur(dur, ndur);
+	return old;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -302,7 +364,7 @@ main(int argc, char *argv[])
 		.typ = DT_DUR_MD, .md.m = 0, .md.d = -1
 	};
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s fst, lst;
+	struct dt_d_s fst, lst, tmp;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
@@ -311,6 +373,7 @@ main(int argc, char *argv[])
 	struct __strpdur_st_s st = {0};
 	struct dt_dur_s *ite = &ite_p1;
 	size_t nite = 1;
+	struct dt_dur_s ite1;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);
@@ -410,71 +473,32 @@ increment must not be naught\n", stderr);
 		goto out;
 	}
 
+	/* the actual sequence now, this isn't high-performance so we
+	 * decided to go for readability */
 	if (fst.u <= lst.u) {
-		if (date_dur_neg_p(ite, nite)) {
-			/* different meaning now, we need to compute the
-			 * beginning rather than the end */
-			struct dt_d_s tmp = lst;
-
-			while (tmp.u >= fst.u) {
-				if (!skipp(ss, tmp)) {
-					struct dt_d_s tm2;
-
-					tm2 = date_add(tmp, ite, nite);
-					if (tm2.u >= tmp.u) {
-						/* neg pred was wrong */
-						goto work_up;
-					}
-					tmp =  tm2;
-				} else {
-					tmp = dt_add(tmp, ite_m1);
-				}
-			}
-			date_neg_dur(ite, nite);
-			fst = date_add(tmp, ite, nite);
-		}
-	work_up:
-		do {
-			if (!skipp(ss, fst)) {
-				dt_io_write(fst, ofmt);
-				fst = date_add(fst, ite, nite);
-			} else {
-				fst = dt_add(fst, ite_p1);
-			}
-		} while (fst.u <= lst.u);
+		tmp = fst = __fixup_fst(fst, lst, ite, nite, ss, ite1 = ite_p1);
 	} else {
-		if (!date_dur_neg_p(ite, nite)) {
-			/* different meaning now, we need to compute the
-			 * end rather than the beginning */
-			struct dt_d_s tmp = lst;
-
-			while (tmp.u <= fst.u) {
-				if (!skipp(ss, tmp)) {
-					struct dt_d_s tm2;
-
-					tm2 = date_add(tmp, ite, nite);
-					if (tm2.u <= tmp.u) {
-						/* neg pred was wrong */
-						goto work_down;
-					}
-					tmp = tm2;
-				} else {
-					tmp = dt_add(tmp, ite_p1);
-				}
-			}
-			date_neg_dur(ite, nite);
-			fst = date_add(tmp, ite, nite);
-		}
-	work_down:
-		do {
-			if (!skipp(ss, fst)) {
-				dt_io_write(fst, ofmt);
-				fst = date_add(fst, ite, nite);
-			} else {
-				fst = dt_add(fst, ite_m1);
-			}
-		} while (fst.u >= lst.u);
+		tmp = lst = __fixup_fst(lst, fst, ite, nite, ss, ite1 = ite_m1);
 	}
+	/* last checks */
+	if (tmp.u == 0) {
+		/* this is fucked */
+		if (!argi->quiet_given) {
+			fputs("\
+increment must not be naught\n", stderr);
+		}
+		res = 1;
+		goto out;
+	} else if (skipp(ss, tmp)) {
+		tmp = __seq_altnext(tmp, ss, ite1);
+	}
+
+	do {
+		dt_io_write(tmp, ofmt);
+		tmp = __seq_next(tmp, ite, nite, ss, ite1);
+	} while ((tmp.u > fst.u && tmp.u <= lst.u) ||
+		 (tmp.u < fst.u && tmp.u >= lst.u));
+
 out:
 	/* free strpdur resources */
 	__strpdur_free(&st);
