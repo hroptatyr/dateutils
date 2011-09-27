@@ -31,6 +31,7 @@ done
 fail=0
 tool_stdout=$(mktemp)
 tool_stderr=$(mktemp)
+pwd=$(pwd)
 
 ## source the check
 . "${1}" || fail=1
@@ -44,8 +45,28 @@ myexit()
 ## check if everything's set
 if test -z "${TOOL}"; then
 	echo "variable \${TOOL} not set" >&2
+	cd "${pwd}"
 	myexit 1
 fi
+
+## set finals
+if test -z "${srcdir}"; then
+	srcdir=$(dirname "${0}")
+fi
+if test -x "${builddir}/${TOOL}"; then
+	builddir=$(readlink -e "${builddir}")
+fi
+
+cd "${srcdir}"
+echo -n "${builddir}/${TOOL}" "${CMDLINE}"
+if test -r "${stdin}"; then
+	echo "<<EOF"
+	cat "${stdin:-/dev/null}"
+	echo "EOF"
+else
+	echo
+fi
+echo
 
 eval "${builddir}/${TOOL}" "${CMDLINE}" \
 	< "${stdin:-/dev/null}" \
