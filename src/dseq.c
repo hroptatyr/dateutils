@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <time.h>
 #include <string.h>
 #include "date-core.h"
@@ -244,6 +245,19 @@ date_neg_dur(struct dt_dur_s dur[], size_t ndur)
 	return;
 }
 
+static bool
+__daisy_feasible_p(struct dt_dur_s dur[], size_t ndur)
+{
+	if (ndur != 1) {
+		return false;
+	} else if (dur->typ == DT_DUR_MD && dur->md.m) {
+		return false;
+	} else if (dur->typ == DT_DUR_QMB && (dur->qmb.q || dur->qmb.m)) {
+		return false;
+	}
+	return true;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -356,12 +370,7 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	}
 
 	/* convert to daisies */
-	if (nite == 1 &&
-	    ((ite->typ == DT_DUR_MD &&
-	      ite->md.m == 0 && ite->md.d != 0) ||
-	     (ite->typ == DT_DUR_WD) ||
-	     (ite->typ == DT_DUR_QMB &&
-	      ite->qmb.q == 0 && ite->qmb.m == 0 && ite->qmb.b != 0))) {
+	if (__daisy_feasible_p(ite, nite)) {
 		if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
 		    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
 			res = 1;
