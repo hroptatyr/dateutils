@@ -455,14 +455,16 @@ main(int argc, char *argv[])
 		struct __strpdur_st_s st = {0};
 
 		unfixup_arg(argi->alt_inc_arg);
-		if (dt_io_strpdur(&st, argi->alt_inc_arg) < 0) {
-			if (!argi->quiet_given) {
-				fprintf(stderr, "Error: \
+		do {
+			if (dt_io_strpdur(&st, argi->alt_inc_arg) < 0) {
+				if (!argi->quiet_given) {
+					fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", argi->alt_inc_arg);
+				}
+				res = 1;
+				goto out;
 			}
-			res = 1;
-			goto out;
-		}
+		} while (__strpdur_more_p(&st));
 		/* assign values */
 		clo.altite = st.durs;
 		clo.naltite = st.ndurs;
@@ -509,14 +511,14 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			goto out;
 		}
 		unfixup_arg(argi->inputs[1]);
-		if (dt_io_strpdur(&st, argi->inputs[1]) < 0) {
-			if (!argi->quiet_given) {
+		do {
+			if (dt_io_strpdur(&st, argi->inputs[1]) < 0) {
 				fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", argi->inputs[1]);
+				res = 1;
+				goto out;
 			}
-			res = 1;
-			goto out;
-		}
+		} while (__strpdur_more_p(&st));
 		/* assign values */
 		clo.ite = st.durs;
 		clo.nite = st.ndurs;
