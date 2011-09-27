@@ -21,6 +21,7 @@ TESTS += dseq.5.dt
 TESTS += dseq.6.dt
 TESTS += dseq.7.dt
 TESTS += dseq.8.dt
+TESTS += dseq.9.dt
 
 TESTS += dcal.1.dt
 TESTS += dcal.2.dt
