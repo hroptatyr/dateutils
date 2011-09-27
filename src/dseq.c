@@ -283,13 +283,20 @@ __durstack_naught_p(struct dt_dur_s dur[], size_t ndur)
 	return true;
 }
 
+static bool
+__in_range_p(struct dt_d_s now, struct dseq_clo_s *clo)
+{
+	return (now.u >= clo->fst.u && now.u <= clo->lst.u) ||
+		(now.u <= clo->fst.u && now.u >= clo->lst.u);
+}
+
 static struct dt_d_s
 __seq_altnext(struct dt_d_s now, struct dseq_clo_s *clo)
 {
-	struct dt_d_s new = now;
-
-	while (skipp(clo->ss, new = date_add(new, clo->altite, clo->naltite)));
-	return new;
+	do {
+		now = date_add(now, clo->altite, clo->naltite);
+	} while (skipp(clo->ss, now) && __in_range_p(now, clo));
+	return now;
 }
 
 static struct dt_d_s
@@ -303,7 +310,7 @@ __seq_this(struct dt_d_s now, struct dseq_clo_s *clo)
 	} else if (clo->nite) {
 		do {
 			now = date_add(now, clo->ite, clo->nite);
-		} while (skipp(clo->ss, now));
+		} while (skipp(clo->ss, now) && __in_range_p(now, clo));
 	} else {
 		/* good question */
 		;
@@ -569,11 +576,10 @@ increment must not be naught\n", stderr);
 		goto out;
 	}
 
-	do {
+	while (__in_range_p(tmp, &clo)) {
 		dt_io_write(tmp, ofmt);
 		tmp = __seq_next(tmp, &clo);
-	} while ((tmp.u > fst.u && tmp.u <= lst.u) ||
-		 (tmp.u < fst.u && tmp.u >= lst.u));
+	}
 
 out:
 	/* free strpdur resources */
