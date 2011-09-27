@@ -258,6 +258,28 @@ __daisy_feasible_p(struct dt_dur_s dur[], size_t ndur)
 	return true;
 }
 
+static bool
+__dur_naught_p(struct dt_dur_s dur)
+{
+	return dur.u == 0;
+}
+
+static bool
+__durstack_naught_p(struct dt_dur_s dur[], size_t ndur)
+{
+	if (ndur == 0) {
+		return true;
+	} else if (ndur == 1) {
+		return __dur_naught_p(dur[0]);
+	}
+	for (size_t i = 0; i < ndur; i++) {
+		if (!__dur_naught_p(dur[i])) {
+		    return false;
+		}
+	}
+	return true;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -381,9 +403,7 @@ cannot convert calendric system internally\n", stderr);
 			res = 1;
 			goto out;
 		}
-	} else if ((nite == 1 && ite->typ == DT_DUR_MD &&
-		    ite->md.m == 0 && ite->md.d == 0) ||
-		   nite == 0) {
+	} else if (__durstack_naught_p(ite, nite)) {
 		if (!argi->quiet_given) {
 			fputs("\
 increment must not be naught\n", stderr);
