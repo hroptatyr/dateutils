@@ -392,17 +392,15 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	}
 
 	/* convert to daisies */
-	if (__daisy_feasible_p(ite, nite)) {
-		if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
-		    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
-			res = 1;
-			if (!argi->quiet_given) {
-				fputs("\
+	if (__daisy_feasible_p(ite, nite) &&
+	    ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
+	     (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY)) {
+		if (!argi->quiet_given) {
+			fputs("\
 cannot convert calendric system internally\n", stderr);
-			}
-			res = 1;
-			goto out;
 		}
+		res = 1;
+		goto out;
 	} else if (__durstack_naught_p(ite, nite)) {
 		if (!argi->quiet_given) {
 			fputs("\
