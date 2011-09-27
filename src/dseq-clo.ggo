@@ -14,3 +14,13 @@ or comma separated to skip several days, use `ss' to skip \
 weekends (sat+sun) altogether, date ranges can be specified \
 like `mo-we' for monday to wednesday"
 	string optional multiple
+
+option "alt-inc" -
+	"Alternative increment to use when a date is hit that is \
+skipped as per --skip.  This increment will be applied until a \
+non-skipped date is reached.  The special case `0' (default) \
+deactivates alternative incrementing.
+A useful value could be `1d' for increasing sequences and `-1d' for \
+decreasing sequences, so if a skipped date is encountered the next \
+non-skipped date after/before will be used."
+	string optional
