@@ -303,7 +303,7 @@ static struct dt_d_s
 __seq_this(struct dt_d_s now, struct dseq_clo_s *clo)
 {
 /* if NOW is on a skip date, find the next date according to ALTITE, then ITE */
-	if (!skipp(clo->ss, now)) {
+	if (!skipp(clo->ss, now) && __in_range_p(now, clo)) {
 		return now;
 	} else if (clo->naltite > 0) {
 		return __seq_altnext(now, clo);
@@ -394,6 +394,8 @@ out:
 	/* final checks */
 	old = __seq_this(old, clo);
 	date_neg_dur(clo->ite, clo->nite);
+	/* fixup again with negated dur */
+	old = __seq_this(old, clo);
 	return old;
 }
 

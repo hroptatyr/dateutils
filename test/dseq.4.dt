@@ -8,14 +8,12 @@ CMDLINE="2001-02-03 3 2001-03-03 --skip sat,fri -f \"%F %a\""
 ## STDOUT
 stdout=$(mktemp)
 cat > "${stdout}" <<EOF
-2001-02-04 Sun
-2001-02-07 Wed
-2001-02-11 Sun
-2001-02-14 Wed
+2001-02-06 Tue
+2001-02-12 Mon
+2001-02-15 Thu
 2001-02-18 Sun
 2001-02-21 Wed
-2001-02-25 Sun
-2001-02-28 Wed
+2001-02-27 Tue
 EOF
 
 ## dseq.4.dt ends here
