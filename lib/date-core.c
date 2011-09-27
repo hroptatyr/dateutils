@@ -1158,6 +1158,68 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	return res;
 }
 
+static int
+__get_tgtd(dt_ymd_t d, dt_qmbdur_t qmb)
+{
+	dt_dow_t tent = __ymd_get_wday(d);
+	int b = qmb.b;
+	int res = 0;
+
+	switch (tent) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res += 7 * (b / 5);
+		b = b % 5;
+		break;
+	case DT_SATURDAY:
+		res++;
+	case DT_SUNDAY:
+		res++;
+		b--;
+		res += 7 * (b / 5);
+		if ((b = b % 5) < 0) {
+			/* act as if we're on the monday after */
+			res++;
+		}
+		tent = DT_MONDAY;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		break;
+	}
+
+	/* fixup b */
+	if (b < 0) {
+		res -= 7;
+		b += 5;
+	}
+	/* b >= 0 && b < 5 */
+	switch (tent) {
+	case DT_SUNDAY:
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		if ((int)tent + b <= (int)DT_FRIDAY) {
+			res += b;
+		} else {
+			res += b + 2;
+		}
+		break;
+	case DT_SATURDAY:
+		res += b + 1;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		res = 0;
+	}
+	return res;
+}
+
 static dt_ymd_t
 __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 {
@@ -1170,6 +1232,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 		unsigned int mdays;
 	case DT_DUR_YM:
 	case DT_DUR_MD:
+	case DT_DUR_QMB:
 		/* init tmp */
 		switch (dur.typ) {
 		case DT_DUR_YM:
@@ -1177,6 +1240,11 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 			break;
 		case DT_DUR_MD:
 			tmp = dur.md.m;
+			break;
+		case DT_DUR_QMB:
+			tmp = dur.qmb.q * 3 + dur.qmb.m;
+			break;
+		default:
 			break;
 		}
 
@@ -1199,6 +1267,13 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 		if (dur.typ == DT_DUR_MD) {
 			/* fallthrough from above */
 			tgtd += dur.md.d;
+		} else if (dur.typ == DT_DUR_QMB) {
+			/* fallthrough from above */
+			/* construct a tentative result */
+			d.y = tgty;
+			d.m = tgtm;
+			d.d = tgtd;
+			tgtd += __get_tgtd(d, dur.qmb);
 		} else {
 			tgtd = d.d + dur.wd.w * 7 + dur.wd.d;
 			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
