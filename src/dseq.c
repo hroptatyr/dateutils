@@ -334,6 +334,34 @@ __get_dir(struct dt_d_s d, struct dseq_clo_s *clo)
 	}
 }
 
+static bool
+__ite_1step_p(struct dt_dur_s d)
+{
+	switch (d.typ) {
+	case DT_DUR_MD:
+		if (d.md.m == 0 &&
+		    (d.md.d == 1 || d.md.d == -1)) {
+			return true;
+		}
+		break;
+	case DT_DUR_WD:
+		if (d.wd.w == 0 &&
+		    (d.wd.d == 1 || d.wd.d == -1)) {
+			return true;
+		}
+		break;
+	case DT_DUR_QMB:
+		if (d.qmb.q == 0 && d.qmb.m == 0 &&
+		    (d.qmb.b == 1 || d.qmb.b == -1)) {
+			return true;
+		}
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
 static struct dt_d_s
 __fixup_fst(struct dseq_clo_s *clo)
 {
@@ -346,32 +374,9 @@ __fixup_fst(struct dseq_clo_s *clo)
 		return __seq_this(clo->fst, clo);
 	} else if (clo->dir == 0) {
 		return (struct dt_d_s){.typ = DT_UNK, .u = 0};
-	} else if (clo->nite == 1) {
-		switch (clo->ite->typ) {
-		case DT_DUR_MD:
-			if (clo->ite->md.m == 0 &&
-			    (clo->ite->md.d == 1 || clo->ite->md.d == -1)) {
-				old = clo->fst;
-				goto out;
-			}
-			break;
-		case DT_DUR_WD:
-			if (clo->ite->wd.w == 0 &&
-			    (clo->ite->wd.d == 1 || clo->ite->wd.d == -1)) {
-				old = clo->fst;
-				goto out;
-			}
-			break;
-		case DT_DUR_QMB:
-			if (clo->ite->qmb.q == 0 && clo->ite->qmb.m == 0 &&
-			    (clo->ite->qmb.b == 1 || clo->ite->qmb.b == -1)) {
-				old = clo->fst;
-				goto out;
-			}
-			break;
-		default:
-			break;
-		}
+	} else if (clo->nite == 1 && __ite_1step_p(clo->ite[0])) {
+		old = clo->fst;
+		goto out;
 	}
 	tmp = clo->lst;
 	while (tmp.u >= clo->fst.u && tmp.u <= clo->lst.u) {
