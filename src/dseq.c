@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <time.h>
 #include <string.h>
 #include "date-core.h"
@@ -51,6 +52,21 @@ typedef int32_t idate_t;
 typedef int32_t iddur_t;
 
 typedef uint8_t __skipspec_t;
+
+/* generic closure */
+struct dseq_clo_s {
+	struct dt_d_s fst;
+	struct dt_d_s lst;
+	struct dt_dur_s *ite;
+	size_t nite;
+	struct dt_dur_s *altite;
+	__skipspec_t ss;
+	size_t naltite;
+	/* direction, >0 if increasing, <0 if decreasing, 0 if undefined */
+	int dir;
+	int flags;
+#define CLO_FL_FREE_ITE		(1)
+};
 
 
 /* skip system */
@@ -213,6 +229,176 @@ set_skip(__skipspec_t ss, char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
+static struct dt_d_s
+date_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
+{
+	d = dt_add(d, dur[0]);
+	for (size_t i = 1; i < ndur; i++) {
+		d = dt_add(d, dur[i]);
+	}
+	return d;
+}
+
+static void
+date_neg_dur(struct dt_dur_s dur[], size_t ndur)
+{
+	for (size_t i = 0; i < ndur; i++) {
+		dur[i] = dt_neg_dur(dur[i]);
+	}
+	return;
+}
+
+static bool
+__daisy_feasible_p(struct dt_dur_s dur[], size_t ndur)
+{
+	if (ndur != 1) {
+		return false;
+	} else if (dur->typ == DT_DUR_MD && dur->md.m) {
+		return false;
+	} else if (dur->typ == DT_DUR_QMB && (dur->qmb.q || dur->qmb.m)) {
+		return false;
+	}
+	return true;
+}
+
+static bool
+__dur_naught_p(struct dt_dur_s dur)
+{
+	return dur.u == 0;
+}
+
+static bool
+__durstack_naught_p(struct dt_dur_s dur[], size_t ndur)
+{
+	if (ndur == 0) {
+		return true;
+	} else if (ndur == 1) {
+		return __dur_naught_p(dur[0]);
+	}
+	for (size_t i = 0; i < ndur; i++) {
+		if (!__dur_naught_p(dur[i])) {
+		    return false;
+		}
+	}
+	return true;
+}
+
+static bool
+__in_range_p(struct dt_d_s now, struct dseq_clo_s *clo)
+{
+	return (now.u >= clo->fst.u && now.u <= clo->lst.u) ||
+		(now.u <= clo->fst.u && now.u >= clo->lst.u);
+}
+
+static struct dt_d_s
+__seq_altnext(struct dt_d_s now, struct dseq_clo_s *clo)
+{
+	do {
+		now = date_add(now, clo->altite, clo->naltite);
+	} while (skipp(clo->ss, now) && __in_range_p(now, clo));
+	return now;
+}
+
+static struct dt_d_s
+__seq_this(struct dt_d_s now, struct dseq_clo_s *clo)
+{
+/* if NOW is on a skip date, find the next date according to ALTITE, then ITE */
+	if (!skipp(clo->ss, now) && __in_range_p(now, clo)) {
+		return now;
+	} else if (clo->naltite > 0) {
+		return __seq_altnext(now, clo);
+	} else if (clo->nite) {
+		do {
+			now = date_add(now, clo->ite, clo->nite);
+		} while (skipp(clo->ss, now) && __in_range_p(now, clo));
+	} else {
+		/* good question */
+		;
+	}
+	return now;
+}
+
+static struct dt_d_s
+__seq_next(struct dt_d_s now, struct dseq_clo_s *clo)
+{
+/* advance NOW, then fix it */
+	return __seq_this(date_add(now, clo->ite, clo->nite), clo);
+}
+
+static int
+__get_dir(struct dt_d_s d, struct dseq_clo_s *clo)
+{
+	struct dt_d_s tmp;
+
+	/* trial addition to to see where it goes */
+	tmp = __seq_next(d, clo);
+	if (tmp.u > d.u) {
+		return 1;
+	} else if (tmp.u < d.u) {
+		return -1;
+	} else {
+		return 0;
+	}
+}
+
+static bool
+__ite_1step_p(struct dt_dur_s d)
+{
+	switch (d.typ) {
+	case DT_DUR_MD:
+		if (d.md.m == 0 &&
+		    (d.md.d == 1 || d.md.d == -1)) {
+			return true;
+		}
+		break;
+	case DT_DUR_WD:
+		if (d.wd.w == 0 &&
+		    (d.wd.d == 1 || d.wd.d == -1)) {
+			return true;
+		}
+		break;
+	case DT_DUR_QMB:
+		if (d.qmb.q == 0 && d.qmb.m == 0 &&
+		    (d.qmb.b == 1 || d.qmb.b == -1)) {
+			return true;
+		}
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
+static struct dt_d_s
+__fixup_fst(struct dseq_clo_s *clo)
+{
+	struct dt_d_s tmp;
+	struct dt_d_s old;
+
+	/* get direction info first */
+	if ((clo->dir = __get_dir(clo->fst, clo)) > 0) {
+		/* wrong direction */
+		return __seq_this(clo->fst, clo);
+	} else if (clo->dir == 0) {
+		return (struct dt_d_s){.typ = DT_UNK, .u = 0};
+	} else if (clo->nite == 1 && __ite_1step_p(clo->ite[0])) {
+		old = clo->fst;
+		goto out;
+	}
+	tmp = clo->lst;
+	while (tmp.u >= clo->fst.u && tmp.u <= clo->lst.u) {
+		old = tmp;
+		tmp = __seq_next(tmp, clo);
+	}
+out:
+	/* final checks */
+	old = __seq_this(old, clo);
+	date_neg_dur(clo->ite, clo->nite);
+	/* fixup again with negated dur */
+	old = __seq_this(old, clo);
+	return old;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -228,14 +414,26 @@ set_skip(__skipspec_t ss, char *spec)
 int
 main(int argc, char *argv[])
 {
+	static struct dt_dur_s ite_p1 = {
+		.typ = DT_DUR_MD, .md.m = 0, .md.d = 1
+	};
+	static struct dt_dur_s ite_m1 = {
+		.typ = DT_DUR_MD, .md.m = 0, .md.d = -1
+	};
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s fst, lst;
-	iddur_t ite = 1;
+	struct dt_d_s fst, lst, tmp;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
 	int res = 0;
-	__skipspec_t ss = 0;
+	struct dseq_clo_s clo = {
+		.ite = &ite_p1,
+		.nite = 1,
+		.altite = NULL,
+		.naltite = 0,
+		.dir = 0,
+		.flags = 0,
+	};
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);
@@ -252,7 +450,26 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_arg;
 
 	for (size_t i = 0; i < argi->skip_given; i++) {
-		ss = set_skip(ss, argi->skip_arg[i]);
+		clo.ss = set_skip(clo.ss, argi->skip_arg[i]);
+	}
+
+	if (argi->alt_inc_given) {
+		struct __strpdur_st_s st = {0};
+
+		unfixup_arg(argi->alt_inc_arg);
+		do {
+			if (dt_io_strpdur(&st, argi->alt_inc_arg) < 0) {
+				if (!argi->quiet_given) {
+					fprintf(stderr, "Error: \
+cannot parse duration string `%s'\n", argi->alt_inc_arg);
+				}
+				res = 1;
+				goto out;
+			}
+		} while (__strpdur_more_p(&st));
+		/* assign values */
+		clo.altite = st.durs;
+		clo.naltite = st.ndurs;
 	}
 
 	switch (argi->inputs_num) {
@@ -286,7 +503,8 @@ main(int argc, char *argv[])
 			goto out;
 		}
 		break;
-	case 3:
+	case 3: {
+		struct __strpdur_st_s st = {0};
 		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpd(argi->inputs[0]);
@@ -295,13 +513,18 @@ main(int argc, char *argv[])
 			goto out;
 		}
 		unfixup_arg(argi->inputs[1]);
-		if ((ite = strtol(argi->inputs[1], NULL, 10)) == 0) {
-			if (!argi->quiet_given) {
-				fputs("increment must not be naught\n", stderr);
+		do {
+			if (dt_io_strpdur(&st, argi->inputs[1]) < 0) {
+				fprintf(stderr, "Error: \
+cannot parse duration string `%s'\n", argi->inputs[1]);
+				res = 1;
+				goto out;
 			}
-			res = 1;
-			goto out;
-		}
+		} while (__strpdur_more_p(&st));
+		/* assign values */
+		clo.ite = st.durs;
+		clo.nite = st.ndurs;
+		clo.flags |= CLO_FL_FREE_ITE;
 		if (!(lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt)).typ) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpd(argi->inputs[2]);
@@ -311,66 +534,65 @@ main(int argc, char *argv[])
 		}
 		break;
 	}
+	}
 
-	/* convert to bizdas */
-	if ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
-	    (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY) {
+	/* convert to daisies */
+	if (__daisy_feasible_p(clo.ite, clo.nite) &&
+	    ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
+	     (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY)) {
+		if (!argi->quiet_given) {
+			fputs("\
+cannot convert calendric system internally\n", stderr);
+		}
 		res = 1;
-		fputs("cannot convert calendric system internally\n", stderr);
+		goto out;
+	} else if (__durstack_naught_p(clo.ite, clo.nite)) {
+		if (!argi->quiet_given) {
+			fputs("\
+increment must not be naught\n", stderr);
+		}
+		res = 1;
 		goto out;
 	}
 
-	if (fst.daisy <= lst.daisy) {
-		if (ite < 0) {
-			/* different meaning now, we need to compute the
-			 * beginning rather than the end */
-			struct dt_d_s tmp = lst;
-
-			ite = -ite;
-			while (tmp.daisy >= fst.daisy) {
-				if (!skipp(ss, tmp)) {
-					tmp.daisy -= ite;
-				} else {
-					tmp.daisy--;
-				}
-			}
-			fst.daisy = tmp.daisy + ite;
-		}
-		do {
-			if (!skipp(ss, fst)) {
-				dt_io_write(fst, ofmt);
-				fst.daisy += ite;
-			} else {
-				fst.daisy++;
-			}
-		} while (fst.daisy <= lst.daisy);
+	/* the actual sequence now, this isn't high-performance so we
+	 * decided to go for readability */
+	if (fst.u <= lst.u) {
+		clo.fst = fst;
+		clo.lst = lst;
+		tmp = fst = __fixup_fst(&clo);
 	} else {
-		if (ite > 0) {
-			/* different meaning now, we need to compute the
-			 * end rather than the beginning */
-			struct dt_d_s tmp = lst;
-
-			while (tmp.daisy <= fst.daisy) {
-				if (!skipp(ss, tmp)) {
-					tmp.daisy += ite;
-				} else {
-					tmp.daisy++;
-				}
-			}
-			fst.daisy = tmp.daisy - ite;
-		} else {
-			ite = -ite;
+		if (clo.ite == &ite_p1) {
+			clo.ite = &ite_m1;
 		}
-		do {
-			if (!skipp(ss, fst)) {
-				dt_io_write(fst, ofmt);
-				fst.daisy -= ite;
-			} else {
-				fst.daisy--;
-			}
-		} while (fst.daisy >= lst.daisy);
+		clo.fst = lst;
+		clo.lst = fst;
+		tmp = lst = __fixup_fst(&clo);
 	}
+	/* last checks */
+	if (tmp.u == 0) {
+		/* this is fucked */
+		if (!argi->quiet_given) {
+			fputs("\
+increment must not be naught\n", stderr);
+		}
+		res = 1;
+		goto out;
+	}
+
+	while (__in_range_p(tmp, &clo)) {
+		dt_io_write(tmp, ofmt);
+		tmp = __seq_next(tmp, &clo);
+	}
+
 out:
+	/* free strpdur resources */
+	if (clo.ite && clo.flags & CLO_FL_FREE_ITE) {
+		free(clo.ite);
+	}
+	if (clo.altite) {
+		free(clo.altite);
+	}
 	cmdline_parser_free(argi);
 	return res;
 }

@@ -2,9 +2,10 @@
 #if !defined INCLUDED_date_io_h_
 #define INCLUDED_date_io_h_
 
-#include "date-core.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdio_ext.h>
+#include "date-core.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -160,6 +161,122 @@ dt_io_warn_strpd(const char *inp)
 	fprintf(stderr, "\
 cannot make sense of `%s' using the given input formats\n", inp);
 	return;
+}
+
+
+/* duration parser */
+/* we parse durations ourselves so we can cope with the
+ * non-commutativity of duration addition:
+ * 2000-03-30 +1m -> 2000-04-30 +1d -> 2000-05-01
+ * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
+struct __strpdur_st_s {
+	int sign;
+	const char *istr;
+	const char *cont;
+	struct dt_dur_s curr;
+	size_t ndurs;
+	struct dt_dur_s *durs;
+};
+
+static inline int
+__strpdur_more_p(struct __strpdur_st_s *st)
+{
+	return st->cont != NULL;
+}
+
+static inline void
+__strpdur_free(struct __strpdur_st_s *st)
+{
+	if (st->durs) {
+		free(st->durs);
+	}
+	return;
+}
+
+static int __attribute__((unused))
+dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
+{
+/* at the moment we allow only one format */
+	const char *sp = NULL;
+	const char *ep = NULL;
+	int res = 0;
+
+	/* check if we should continue */
+	if (st->cont) {
+		str = st->istr = st->cont;
+	} else if ((st->istr = str)) {
+		;
+	} else {
+		goto out;
+	}
+
+	/* read over signs and prefixes */
+	sp = str;
+	while (1) {
+		switch (*sp++) {
+		case '\0':
+			res = -1;
+			ep = sp;
+			goto out;
+		case '+':
+			st->sign = 1;
+			break;
+		case '-':
+			st->sign = -1;
+			break;
+		case '=':
+			if (st->sign > 0) {
+				st->sign++;
+			} else if (st->sign < 0) {
+				st->sign--;
+			} else {
+				st->sign = 0;
+			}
+			break;
+		case '>':
+			st->sign = 2;
+			break;
+		case '<':
+			st->sign = -2;
+			break;
+		case 'p':
+		case 'P':
+		case ' ':
+		case '\t':
+		case '\n':
+			continue;
+		default:
+			sp--;
+			break;
+		}
+		break;
+	}
+
+	/* try reading the stuff with our strpdur() */
+	if ((st->curr = dt_strpdur(sp, (char**)&ep)).typ > DT_DUR_UNK) {
+		if (st->durs == NULL) {
+			st->durs = calloc(16, sizeof(*st->durs));
+		} else if ((st->ndurs % 16) == 0) {
+			st->durs = realloc(
+				st->durs,
+				(16 + st->ndurs) * sizeof(*st->durs));
+			memset(st->durs + st->ndurs, 0, 16 * sizeof(*st->durs));
+		}
+		if ((st->sign == 1 && dt_dur_neg_p(st->curr)) ||
+		    (st->sign == -1 && !dt_dur_neg_p(st->curr))) {
+			st->durs[st->ndurs++] = dt_neg_dur(st->curr);
+		} else {
+			st->durs[st->ndurs++] = st->curr;
+		}
+	} else {
+		res = -1;
+	}
+out:
+	if (((st->cont = ep) && *ep == '\0') || (sp == ep)) {
+		st->sign = 0;
+		st->cont = NULL;
+	}
+	return res;
 }
 
 #endif	/* INCLUDED_date_io_h_ */
