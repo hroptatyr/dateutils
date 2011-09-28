@@ -334,6 +334,11 @@ DECLF int dt_dur_neg_p(struct dt_dur_s dur);
  * 1 if D1 is younger than the D2. */
 DECLF int dt_cmp(struct dt_d_s d1, struct dt_d_s d2);
 
+/**
+ * Check if D is in the interval spanned by D1 and D2,
+ * 1 if D1 is younger than the D2. */
+DECLF int dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"

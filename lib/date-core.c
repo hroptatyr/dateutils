@@ -2606,5 +2606,11 @@ dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
 	}
 }
 
+DEFUN int
+dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
+{
+	return dt_cmp(d, d1) >= 0 && dt_cmp(d, d2) <= 0;
+}
+
 #endif	/* INCLUDED_date_core_c_ */
 /* date-core.c ends here */
