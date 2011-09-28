@@ -104,8 +104,23 @@ struct strpd_s {
 #define SECS_PER_DAY	(SECS_PER_HOUR * 24U)
 
 static const __jan01_wday_block_t __jan01_wday[] = {
-#define __JAN01_WDAY_BEG	(1970)
+#define __JAN01_WDAY_BEG	(1920)
 	{
+		/* 1920 - 1929 */
+		R, A, S, M, T, R, F, A, S, T, 0,
+	}, {
+		/* 1930 - 1939 */
+		W, R, F, S, M, T, W, F, A, S, 0,
+	}, {
+		/* 1940 - 1949 */
+		M, W, R, F, A, M, T, W, R, A, 0,
+	}, {
+		/* 1950 - 1959 */
+		S, M, T, R, F, A, S, T, W, R, 0,
+	}, {
+		/* 1960 - 1969 */
+		F, S, M, T, W, F, A, S, M, W, 0,
+	}, {
 		/* 1970 - 1979 */
 		R, F, A, M, T, W, R, A, S, M, 0,
 	}, {
@@ -123,8 +138,18 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 	}, {
 		/* 2020 - 2029 */
 		W, F, A, S, M, W, R, F, A, M, 0,
+	}, {
+		/* 2030 - 2039 */
+		T, W, R, A, S, M, T, R, F, A, 0,
+	}, {
+		/* 2040 - 2049 */
+		S, T, W, R, F, S, M, T, W, F, 0,
+	}, {
+		/* 2050 - 2059 */
+		A, S, M, W, R, F, A, M, T, W, 0,
 	}
-#define __JAN01_WDAY_END	(2029)
+	/* 2060 - 2069 is 1920 - 1929 */
+#define __JAN01_WDAY_END	(2059)
 };
 
 static uint16_t __mon_yday[] = {
