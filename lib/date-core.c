@@ -960,10 +960,8 @@ dt_get_mday(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		return tmp.m;
-	}
+	case DT_DAISY:
+		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return __bizda_get_mday(that.bizda);;
 	default:
@@ -1194,6 +1192,7 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	int32_t diff = d2 - d1;
 
 #if 0
+/* this should be specifiable somehow */
 	res.wd.d = diff;
 	res.wd.w = 0;
 #elif 1
