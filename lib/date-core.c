@@ -2572,7 +2572,7 @@ dt_dur_neg_p(struct dt_dur_s dur)
 		}
 		break;
 	case DT_DUR_QMB:
-		if (dur.qmb.q == 0 && dur.qmb.m == 0 ||
+		if ((dur.qmb.q == 0 && dur.qmb.m == 0) ||
 		    (dur.qmb.q * 3 + dur.qmb.m) * 23 < dur.qmb.b) {
 			return dur.qmb.b < 0 || dur.qmb.q < 0 || dur.qmb.m < 0;
 		} else if (dur.qmb.q == 0 ||
