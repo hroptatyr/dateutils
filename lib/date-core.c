@@ -436,7 +436,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	const uint16_t *ip;
 
 	/* just go to day computation */
-	days = (typeof(days))(t / SECS_PER_DAY);
+	days = (int)(t / SECS_PER_DAY);
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
 	tm->tm_wday = (days + 4) % 7;
 
