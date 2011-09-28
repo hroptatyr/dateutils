@@ -1176,7 +1176,7 @@ dt_get_yday(struct dt_d_s that)
 DEFUN int
 dt_get_bday(struct dt_d_s that)
 {
-/* get N where N is the N-th business day Before/After REF */
+/* get N where N is the N-th business day after ultimo */
 	switch (that.typ) {
 	case DT_BIZDA:
 		if (that.bizda.x == BIZDA_ULTIMO &&
@@ -1190,6 +1190,28 @@ dt_get_bday(struct dt_d_s that)
 		return __ymd_get_bday(that.ymd, BIZDA_AFTER, BIZDA_ULTIMO);
 	case DT_YMCW:
 		return __ymcw_get_bday(that.ymcw, BIZDA_AFTER, BIZDA_ULTIMO);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+DEFUN int
+dt_get_bday_q(struct dt_d_s that, unsigned int ba, unsigned int ref)
+{
+/* get N where N is the N-th business day Before/After REF */
+	switch (that.typ) {
+	case DT_BIZDA:
+		if (that.bizda.x == ref && that.bizda.ba == ba) {
+			return that.bizda.bd;
+		}
+		return 0/*__bizda_to_bizda(that.bizda, ba, ref)*/;
+	case DT_DAISY:
+		that.ymd = __daisy_to_ymd(that.daisy);
+	case DT_YMD:
+		return __ymd_get_bday(that.ymd, ba, ref);
+	case DT_YMCW:
+		return __ymcw_get_bday(that.ymcw, ba, ref);
 	default:
 	case DT_UNK:
 		return 0;
