@@ -576,6 +576,56 @@ __get_mdays(unsigned int y, unsigned int m)
 }
 
 static unsigned int
+__get_bdays(unsigned int y, unsigned int m)
+{
+/* the 28th exists in every month, and it's exactly 20 bdays
+ * away from the first, oh and it's -1 mod 7
+ * then to get the number of bdays remaining in the month
+ * from the number of days remaining in the month R
+ * we use a multiplication table, downwards the weekday of the
+ * 28th, rightwards the days in excess of the 28th
+ * Miracleday is only there to make the left hand side of the
+ * multiplication 3 bits wide:
+ * 
+ * r->  0  1  2  3
+ * Sun  0  1  2  3
+ * Mon  0  1  2  3
+ * Tue  0  1  2  3
+ * Wed  0  1  2  2
+ * Thu  0  1  1  1
+ * Fri  0  0  0  1
+ * Sat  0  0  1  2
+ * Mir  0  0  0  0 
+ */
+	dt_dow_t m01wd = __get_m01_wday(y, m);
+	dt_dow_t m28wd = (dt_dow_t)((m01wd - DT_MONDAY/*1*/) % 7U);
+	unsigned int md = __get_mdays(y, m);
+	unsigned int rd = (unsigned int)(md - 28U);
+
+	if (LIKELY(rd > 0)) {
+		switch (m28wd) {
+		case DT_SUNDAY:
+		case DT_MONDAY:
+		case DT_TUESDAY:
+			return 20 + rd;
+		case DT_WEDNESDAY:
+			return 20 + rd - (rd == 3);
+		case DT_THURSDAY:
+			return 21;
+		case DT_FRIDAY:
+			return 20 + (rd == 3);
+		case DT_SATURDAY:
+			return 20 + rd - 1;
+		case DT_MIRACLEDAY:
+		default:
+			abort();
+		}
+	}
+	return 20U;
+}
+
+
+static unsigned int
 __ymd_get_yday(dt_ymd_t that)
 {
 	unsigned int res;
