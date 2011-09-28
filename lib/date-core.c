@@ -1289,6 +1289,25 @@ dt_conv_to_ymcw(struct dt_d_s that)
 	return (dt_ymcw_t){.u = 0};
 }
 
+static dt_bizda_t
+dt_conv_to_bizda(struct dt_d_s that)
+{
+	switch (that.typ) {
+	case DT_BIZDA:
+		return that.bizda;
+	case DT_YMD:
+		break;
+	case DT_YMCW:
+		break;
+	case DT_DAISY:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return (dt_bizda_t){.u = 0};
+}
+
 
 /* arithmetic */
 static int
@@ -2413,6 +2432,8 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		res.daisy = dt_conv_to_daisy(d);
 		break;
 	case DT_BIZDA:
+		/* actually this is a parametrised date */
+		res.bizda = dt_conv_to_bizda(d);
 		break;
 	case DT_UNK:
 	default:
