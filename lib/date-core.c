@@ -519,8 +519,12 @@ __get_jan01_wday(unsigned int year)
 	unsigned int res;
 	__jan01_wday_block_t j01b;
 
-	if (UNLIKELY(year < __JAN01_WDAY_BEG || year > __JAN01_WDAY_END)) {
-		return DT_MIRACLEDAY;
+	if (UNLIKELY(year < __JAN01_WDAY_BEG)) {
+		/* use the 140y period property */
+		while ((year += 140) < __JAN01_WDAY_BEG);
+	} else if (year > __JAN01_WDAY_END) {
+		/* use the 140y period property */
+		while ((year -= 140) > __JAN01_WDAY_END);
 	}
 	j01b = __get_jan01_block(year);
 
