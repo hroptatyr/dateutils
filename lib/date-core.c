@@ -2589,5 +2589,22 @@ dt_dur_neg_p(struct dt_dur_s dur)
 	return 0;
 }
 
+DEFUN int
+dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
+{
+/* for the moment D1 and D2 have to be of the same type. */
+	if (UNLIKELY(d1.typ != d2.typ)) {
+		/* always the left one */
+		return -2;
+	}
+	if (d1.u == d2.u) {
+		return 0;
+	} else if (d1.u < d2.u) {
+		return -1;
+	} else /*if (d1.u > d2.u)*/ {
+		return 1;
+	}
+}
+
 #endif	/* INCLUDED_date_core_c_ */
 /* date-core.c ends here */
