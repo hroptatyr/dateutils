@@ -960,10 +960,8 @@ dt_get_mday(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		return tmp.m;
-	}
+	case DT_DAISY:
+		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return __bizda_get_mday(that.bizda);;
 	default:
