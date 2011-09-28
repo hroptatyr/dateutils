@@ -291,6 +291,10 @@ DECLF int dt_get_mday(struct dt_d_s d);
 DECLF int dt_get_bday(struct dt_d_s d);
 
 /**
+ * Get the business day count of a date in a month Before/After REF. */
+DECLF int dt_get_bday_q(struct dt_d_s d, unsigned int ba, unsigned int ref);
+
+/**
  * Get the day of the year of a date.
  * This might only be intuitive for YMD dates.  The formal definition
  * is to find a representation of D that lacks the notion of a month,
@@ -324,6 +328,16 @@ DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
 /**
  * Is duration DUR negative? */
 DECLF int dt_dur_neg_p(struct dt_dur_s dur);
+
+/**
+ * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
+ * 1 if D1 is younger than the D2. */
+DECLF int dt_cmp(struct dt_d_s d1, struct dt_d_s d2);
+
+/**
+ * Check if D is in the interval spanned by D1 and D2,
+ * 1 if D1 is younger than the D2. */
+DECLF int dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 
 #if defined INCLUDE_DATE_CORE_IMPL

@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dcal
+CMDLINE="-f \"%Y-%_D\" \"2010-03-01>00\""
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+2010-042
+EOF
+
+## dcal.6.dt ends here

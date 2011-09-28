@@ -332,13 +332,7 @@ __get_dir(struct dt_d_s d, struct dseq_clo_s *clo)
 
 	/* trial addition to to see where it goes */
 	tmp = __seq_next(d, clo);
-	if (tmp.u > d.u) {
-		return 1;
-	} else if (tmp.u < d.u) {
-		return -1;
-	} else {
-		return 0;
-	}
+	return dt_cmp(tmp, d);
 }
 
 static bool
@@ -557,7 +551,7 @@ increment must not be naught\n", stderr);
 
 	/* the actual sequence now, this isn't high-performance so we
 	 * decided to go for readability */
-	if (fst.u <= lst.u) {
+	if (dt_cmp(fst, lst) <= 0) {
 		clo.fst = fst;
 		clo.lst = lst;
 		tmp = fst = __fixup_fst(&clo);

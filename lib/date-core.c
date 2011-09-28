@@ -104,8 +104,23 @@ struct strpd_s {
 #define SECS_PER_DAY	(SECS_PER_HOUR * 24U)
 
 static const __jan01_wday_block_t __jan01_wday[] = {
-#define __JAN01_WDAY_BEG	(1970)
+#define __JAN01_WDAY_BEG	(1920)
 	{
+		/* 1920 - 1929 */
+		R, A, S, M, T, R, F, A, S, T, 0,
+	}, {
+		/* 1930 - 1939 */
+		W, R, F, S, M, T, W, F, A, S, 0,
+	}, {
+		/* 1940 - 1949 */
+		M, W, R, F, A, M, T, W, R, A, 0,
+	}, {
+		/* 1950 - 1959 */
+		S, M, T, R, F, A, S, T, W, R, 0,
+	}, {
+		/* 1960 - 1969 */
+		F, S, M, T, W, F, A, S, M, W, 0,
+	}, {
 		/* 1970 - 1979 */
 		R, F, A, M, T, W, R, A, S, M, 0,
 	}, {
@@ -123,8 +138,18 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 	}, {
 		/* 2020 - 2029 */
 		W, F, A, S, M, W, R, F, A, M, 0,
+	}, {
+		/* 2030 - 2039 */
+		T, W, R, A, S, M, T, R, F, A, 0,
+	}, {
+		/* 2040 - 2049 */
+		S, T, W, R, F, S, M, T, W, F, 0,
+	}, {
+		/* 2050 - 2059 */
+		A, S, M, W, R, F, A, M, T, W, 0,
 	}
-#define __JAN01_WDAY_END	(2029)
+	/* 2060 - 2069 is 1920 - 1929 */
+#define __JAN01_WDAY_END	(2059)
 };
 
 static uint16_t __mon_yday[] = {
@@ -411,7 +436,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	const uint16_t *ip;
 
 	/* just go to day computation */
-	days = (typeof(days))(t / SECS_PER_DAY);
+	days = (int)(t / SECS_PER_DAY);
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
 	tm->tm_wday = (days + 4) % 7;
 
@@ -494,8 +519,12 @@ __get_jan01_wday(unsigned int year)
 	unsigned int res;
 	__jan01_wday_block_t j01b;
 
-	if (UNLIKELY(year < __JAN01_WDAY_BEG || year > __JAN01_WDAY_END)) {
-		return DT_MIRACLEDAY;
+	if (UNLIKELY(year < __JAN01_WDAY_BEG)) {
+		/* use the 140y period property */
+		while ((year += 140) < __JAN01_WDAY_BEG);
+	} else if (year > __JAN01_WDAY_END) {
+		/* use the 140y period property */
+		while ((year -= 140) > __JAN01_WDAY_END);
 	}
 	j01b = __get_jan01_block(year);
 
@@ -575,6 +604,56 @@ __get_mdays(unsigned int y, unsigned int m)
 	return res;
 }
 
+static unsigned int
+__get_bdays(unsigned int y, unsigned int m)
+{
+/* the 28th exists in every month, and it's exactly 20 bdays
+ * away from the first, oh and it's -1 mod 7
+ * then to get the number of bdays remaining in the month
+ * from the number of days remaining in the month R
+ * we use a multiplication table, downwards the weekday of the
+ * 28th, rightwards the days in excess of the 28th
+ * Miracleday is only there to make the left hand side of the
+ * multiplication 3 bits wide:
+ * 
+ * r->  0  1  2  3
+ * Sun  0  1  2  3
+ * Mon  0  1  2  3
+ * Tue  0  1  2  3
+ * Wed  0  1  2  2
+ * Thu  0  1  1  1
+ * Fri  0  0  0  1
+ * Sat  0  0  1  2
+ * Mir  0  0  0  0 
+ */
+	dt_dow_t m01wd = __get_m01_wday(y, m);
+	dt_dow_t m28wd = (dt_dow_t)((m01wd - DT_MONDAY/*1*/) % 7U);
+	unsigned int md = __get_mdays(y, m);
+	unsigned int rd = (unsigned int)(md - 28U);
+
+	if (LIKELY(rd > 0)) {
+		switch (m28wd) {
+		case DT_SUNDAY:
+		case DT_MONDAY:
+		case DT_TUESDAY:
+			return 20 + rd;
+		case DT_WEDNESDAY:
+			return 20 + rd - (rd == 3);
+		case DT_THURSDAY:
+			return 21;
+		case DT_FRIDAY:
+			return 20 + (rd == 3);
+		case DT_SATURDAY:
+			return 20 + rd - 1;
+		case DT_MIRACLEDAY:
+		default:
+			abort();
+		}
+	}
+	return 20U;
+}
+
+
 static unsigned int
 __ymd_get_yday(dt_ymd_t that)
 {
@@ -808,6 +887,119 @@ __bizda_get_wday(dt_bizda_t that)
 	return (dt_dow_t)((magic % 5) + DT_MONDAY);
 }
 
+static unsigned int
+__bizda_get_yday(dt_bizda_t that)
+{
+/* return the N-th business day in Y,
+ * the meaning of ultimo will be stretched to Y-ultimo, either last year's
+ * or this year's, other reference points are not yet supported
+ *
+ * we use the following table (days beyond 20 bdays per month (across)):
+ * Mon  3  0  2   1  3  1   2  3  0   3  2  1 
+ * Mon  3  1  1   rest like Tue
+ * Tue  3  0  1   2  3  0   3  2  1   3  1  2 
+ * Tue  3  1  1   rest like Wed
+ * Wed  3  0  1   2  2  1   3  1  2   3  0  3 
+ * Wed  3  0  2   rest like Thu
+ * Thu  2  0  2   2  1  2   3  1  2   2  1  3 
+ * Thu  2  0  3   rest like Fri
+ * Fri  1  0  3   2  1  2   2  2  2   1  2  3 
+ * Fri  1  1  3   rest like Sat
+ * Sat  1  0  3   1  2  2   1  3  2   1  2  2 
+ * Sat  1  1  3   rest like Sun
+ * Sun  2  0  3   0  3  2   1  3  1   2  2  1 
+ * Sun  2  1  2   rest like Mon
+ * */
+	struct __bdays_by_wday_s {
+		unsigned int jan:2;
+		unsigned int feb:2;
+		unsigned int mar:2;
+		unsigned int apr:2;
+		unsigned int may:2;
+		unsigned int jun:2;
+		unsigned int jul:2;
+		unsigned int aug:2;
+		unsigned int sep:2;
+		unsigned int oct:2;
+		unsigned int nov:2;
+		unsigned int dec:2;
+
+		unsigned int feb_leap:2;
+		unsigned int mar_leap:2;
+
+		/* 4 bits left */
+		unsigned int flags:4;
+	};
+	static struct __bdays_by_wday_s tbl[7] = {
+		{
+			/* DT_SUNDAY */
+			2, 0, 3,  0, 3, 2,  1, 3, 1,  2, 2, 1,  1, 2, 0
+		}, {
+			/* DT_MONDAY */
+			3, 0, 2,  1, 3, 1,  2, 3, 0,  3, 2, 1,  1, 1, 0
+		}, {
+			/* DT_TUESDAY */
+			3, 0, 1,  2, 3, 0,  3, 2, 1,  3, 1, 2,  1, 1, 0
+		}, {
+			/* DT_WEDNESDAY */
+			3, 0, 1,  2, 2, 1,  3, 1, 2,  3, 0, 3,  0, 2, 0
+		}, {
+			/* DT_THURSDAY */
+			2, 0, 2,  2, 1, 2,  3, 1, 2,  2, 1, 3,  0, 3, 0
+		}, {
+			/* DT_FRIDAY */
+			1, 0, 3,  2, 1, 2,  2, 2, 2,  1, 2, 3,  1, 3, 0
+		}, {
+			/* DT_SATURDAY */
+			1, 0, 3,  1, 2, 2,  1, 3, 2,  1, 2, 2,  1, 3, 0
+		},
+	};
+	dt_dow_t j01wd;
+	unsigned int y = that.y;
+	unsigned int m = that.m;
+	unsigned int accum = 0;
+
+	if (UNLIKELY(that.x != BIZDA_ULTIMO)) {
+		return 0;
+	}
+	j01wd = __get_jan01_wday(that.y);
+
+	if (LIKELY(!__leapp(y))) {
+		union {
+			uint32_t u;
+			struct __bdays_by_wday_s s;
+		} page = {
+			.s = tbl[j01wd],
+		};
+		for (unsigned int i = 0; i < m - 1; i++) {
+			accum += page.u & /*lower two bits*/3;
+			page.u >>= 2;
+		}
+	} else if (m > 1) {
+		union {
+			uint32_t u;
+			struct __bdays_by_wday_s s;
+		} page = {
+			.s = tbl[j01wd],
+		};
+		accum += page.u & /*lowe two bits*/3;
+		if (m > 2) {
+			accum += page.s.feb_leap;
+		}
+		if (m > 3) {
+			accum += page.s.mar_leap;
+		}
+		/* load a different page now, shift to the right month */
+		page.s = tbl[(j01wd + DT_MONDAY) % 7U];
+		page.u >>= 6;
+		for (unsigned int i = 4; i < m; i++) {
+			accum += page.u & /*lower two bits*/3;
+			page.u >>= 2;
+		}
+	}
+	return 20 * (m - 1) + accum + that.bd;
+}
+
 static dt_ymcw_t
 __ymd_to_ymcw(dt_ymd_t d)
 {
@@ -960,10 +1152,8 @@ dt_get_mday(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		return tmp.m;
-	}
+	case DT_DAISY:
+		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return __bizda_get_mday(that.bizda);;
 	default:
@@ -996,6 +1186,8 @@ dt_get_yday(struct dt_d_s that)
 		return __ymd_get_yday(that.ymd);
 	case DT_YMCW:
 		return __ymcw_get_yday(that.ymcw);
+	case DT_BIZDA:
+		return __bizda_get_yday(that.bizda);
 	default:
 	case DT_UNK:
 		return 0;
@@ -1005,7 +1197,7 @@ dt_get_yday(struct dt_d_s that)
 DEFUN int
 dt_get_bday(struct dt_d_s that)
 {
-/* get N where N is the N-th business day Before/After REF */
+/* get N where N is the N-th business day after ultimo */
 	switch (that.typ) {
 	case DT_BIZDA:
 		if (that.bizda.x == BIZDA_ULTIMO &&
@@ -1019,6 +1211,28 @@ dt_get_bday(struct dt_d_s that)
 		return __ymd_get_bday(that.ymd, BIZDA_AFTER, BIZDA_ULTIMO);
 	case DT_YMCW:
 		return __ymcw_get_bday(that.ymcw, BIZDA_AFTER, BIZDA_ULTIMO);
+	default:
+	case DT_UNK:
+		return 0;
+	}
+}
+
+DEFUN int
+dt_get_bday_q(struct dt_d_s that, unsigned int ba, unsigned int ref)
+{
+/* get N where N is the N-th business day Before/After REF */
+	switch (that.typ) {
+	case DT_BIZDA:
+		if (that.bizda.x == ref && that.bizda.ba == ba) {
+			return that.bizda.bd;
+		}
+		return 0/*__bizda_to_bizda(that.bizda, ba, ref)*/;
+	case DT_DAISY:
+		that.ymd = __daisy_to_ymd(that.daisy);
+	case DT_YMD:
+		return __ymd_get_bday(that.ymd, ba, ref);
+	case DT_YMCW:
+		return __ymcw_get_bday(that.ymcw, ba, ref);
 	default:
 	case DT_UNK:
 		return 0;
@@ -1094,6 +1308,25 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		break;
 	}
 	return (dt_ymcw_t){.u = 0};
+}
+
+static dt_bizda_t
+dt_conv_to_bizda(struct dt_d_s that)
+{
+	switch (that.typ) {
+	case DT_BIZDA:
+		return that.bizda;
+	case DT_YMD:
+		break;
+	case DT_YMCW:
+		break;
+	case DT_DAISY:
+		break;
+	case DT_UNK:
+	default:
+		break;
+	}
+	return (dt_bizda_t){.u = 0};
 }
 
 
@@ -1194,6 +1427,7 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	int32_t diff = d2 - d1;
 
 #if 0
+/* this should be specifiable somehow */
 	res.wd.d = diff;
 	res.wd.w = 0;
 #elif 1
@@ -1405,10 +1639,10 @@ __guess_dtyp(struct strpd_s d)
 	return res;
 }
 
-static char ymd_dflt[] = "%F";
-static char ymcw_dflt[] = "%Y-%m-%c-%w";
-static char bizda_dflt[] = "%Y-%m-%_d%q";
-static char *bizda_ult[] = {"ultimo", "ult"};
+static const char ymd_dflt[] = "%F";
+static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char bizda_dflt[] = "%Y-%m-%_d%q";
+static const char *bizda_ult[] = {"ultimo", "ult"};
 
 static void
 __trans_fmt(const char **fmt)
@@ -1949,6 +2183,19 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 					buf[res++] = '0';
 				}
 				break;
+			case 'D':
+				/* get business days */
+				if (that.typ == DT_BIZDA) {
+					unsigned int b =
+						__bizda_get_yday(that.bizda);
+					res += ui32tostr(
+						buf + res, bsz - res, b, 3);
+				} else {
+					buf[res++] = '0';
+					buf[res++] = '0';
+					buf[res++] = '0';
+				}
+				break;
 			}
 			break;
 		case 't':
@@ -2206,6 +2453,8 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		res.daisy = dt_conv_to_daisy(d);
 		break;
 	case DT_BIZDA:
+		/* actually this is a parametrised date */
+		res.bizda = dt_conv_to_bizda(d);
 		break;
 	case DT_UNK:
 	default:
@@ -2323,7 +2572,7 @@ dt_dur_neg_p(struct dt_dur_s dur)
 		}
 		break;
 	case DT_DUR_QMB:
-		if (dur.qmb.q == 0 && dur.qmb.m == 0 ||
+		if ((dur.qmb.q == 0 && dur.qmb.m == 0) ||
 		    (dur.qmb.q * 3 + dur.qmb.m) * 23 < dur.qmb.b) {
 			return dur.qmb.b < 0 || dur.qmb.q < 0 || dur.qmb.m < 0;
 		} else if (dur.qmb.q == 0 ||
@@ -2338,6 +2587,29 @@ dt_dur_neg_p(struct dt_dur_s dur)
 		break;
 	}
 	return 0;
+}
+
+DEFUN int
+dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
+{
+/* for the moment D1 and D2 have to be of the same type. */
+	if (UNLIKELY(d1.typ != d2.typ)) {
+		/* always the left one */
+		return -2;
+	}
+	if (d1.u == d2.u) {
+		return 0;
+	} else if (d1.u < d2.u) {
+		return -1;
+	} else /*if (d1.u > d2.u)*/ {
+		return 1;
+	}
+}
+
+DEFUN int
+dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
+{
+	return dt_cmp(d, d1) >= 0 && dt_cmp(d, d2) <= 0;
 }
 
 #endif	/* INCLUDED_date_core_c_ */
