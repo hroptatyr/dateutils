@@ -28,6 +28,9 @@ TESTS += dcal.2.dt
 TESTS += dcal.3.dt
 TESTS += dcal.4.dt
 TESTS += dcal.5.dt
+TESTS += dcal.6.dt
+TESTS += dcal.7.dt
+TESTS += dcal.8.dt
 
 TESTS += dadd.1.dt
 TESTS += dadd.2.dt
