@@ -975,6 +975,27 @@ __bizda_get_yday(dt_bizda_t that)
 			accum += page.u & /*lower two bits*/3;
 			page.u >>= 2;
 		}
+	} else if (m > 1) {
+		union {
+			uint32_t u;
+			struct __bdays_by_wday_s s;
+		} page = {
+			.s = tbl[j01wd],
+		};
+		accum += page.u & /*lowe two bits*/3;
+		if (m > 2) {
+			accum += page.s.feb_leap;
+		}
+		if (m > 3) {
+			accum += page.s.mar_leap;
+		}
+		/* load a different page now, shift to the right month */
+		page.s = tbl[(j01wd + DT_MONDAY) % 7U];
+		page.u >>= 6;
+		for (unsigned int i = 4; i < m; i++) {
+			accum += page.u & /*lower two bits*/3;
+			page.u >>= 2;
+		}
 	}
 	return 20 * (m - 1) + accum + that.bd;
 }
