@@ -887,6 +887,98 @@ __bizda_get_wday(dt_bizda_t that)
 	return (dt_dow_t)((magic % 5) + DT_MONDAY);
 }
 
+static unsigned int
+__bizda_get_yday(dt_bizda_t that)
+{
+/* return the N-th business day in Y,
+ * the meaning of ultimo will be stretched to Y-ultimo, either last year's
+ * or this year's, other reference points are not yet supported
+ *
+ * we use the following table (days beyond 20 bdays per month (across)):
+ * Mon  3  0  2   1  3  1   2  3  0   3  2  1 
+ * Mon  3  1  1   rest like Tue
+ * Tue  3  0  1   2  3  0   3  2  1   3  1  2 
+ * Tue  3  1  1   rest like Wed
+ * Wed  3  0  1   2  2  1   3  1  2   3  0  3 
+ * Wed  3  0  2   rest like Thu
+ * Thu  2  0  2   2  1  2   3  1  2   2  1  3 
+ * Thu  2  0  3   rest like Fri
+ * Fri  1  0  3   2  1  2   2  2  2   1  2  3 
+ * Fri  1  1  3   rest like Sat
+ * Sat  1  0  3   1  2  2   1  3  2   1  2  2 
+ * Sat  1  1  3   rest like Sun
+ * Sun  2  0  3   0  3  2   1  3  1   2  2  1 
+ * Sun  2  1  2   rest like Mon
+ * */
+	struct __bdays_by_wday_s {
+		unsigned int jan:2;
+		unsigned int feb:2;
+		unsigned int mar:2;
+		unsigned int apr:2;
+		unsigned int may:2;
+		unsigned int jun:2;
+		unsigned int jul:2;
+		unsigned int aug:2;
+		unsigned int sep:2;
+		unsigned int oct:2;
+		unsigned int nov:2;
+		unsigned int dec:2;
+
+		unsigned int feb_leap:2;
+		unsigned int mar_leap:2;
+
+		/* 4 bits left */
+		unsigned int flags:4;
+	};
+	static struct __bdays_by_wday_s tbl[7] = {
+		{
+			/* DT_SUNDAY */
+			2, 0, 3,  0, 3, 2,  1, 3, 1,  2, 2, 1,  1, 2, 0
+		}, {
+			/* DT_MONDAY */
+			3, 0, 2,  1, 3, 1,  2, 3, 0,  3, 2, 1,  1, 1, 0
+		}, {
+			/* DT_TUESDAY */
+			3, 0, 1,  2, 3, 0,  3, 2, 1,  3, 1, 2,  1, 1, 0
+		}, {
+			/* DT_WEDNESDAY */
+			3, 0, 1,  2, 2, 1,  3, 1, 2,  3, 0, 3,  0, 2, 0
+		}, {
+			/* DT_THURSDAY */
+			2, 0, 2,  2, 1, 2,  3, 1, 2,  2, 1, 3,  0, 3, 0
+		}, {
+			/* DT_FRIDAY */
+			1, 0, 3,  2, 1, 2,  2, 2, 2,  1, 2, 3,  1, 3, 0
+		}, {
+			/* DT_SATURDAY */
+			1, 0, 3,  1, 2, 2,  1, 3, 2,  1, 2, 2,  1, 3, 0
+		},
+	};
+	dt_dow_t j01wd;
+	unsigned int y = that.y;
+	unsigned int m = that.m;
+	unsigned int accum = 0;
+
+	if (UNLIKELY(that.x != BIZDA_ULTIMO)) {
+		return 0;
+	}
+	j01wd = __get_jan01_wday(that.y);
+
+	if (LIKELY(!__leapp(y))) {
+		union {
+			uint32_t u;
+			struct __bdays_by_wday_s s;
+		} page = {
+			.s = tbl[j01wd],
+		};
+		for (unsigned int i = 0; i < m - 1; i++) {
+			accum += page.u & /*lower two bits*/3;
+			page.u >>= 2;
+		}
+	}
+	return 20 * (m - 1) + accum + that.bd;
+}
+
 static dt_ymcw_t
 __ymd_to_ymcw(dt_ymd_t d)
 {
@@ -1073,6 +1165,8 @@ dt_get_yday(struct dt_d_s that)
 		return __ymd_get_yday(that.ymd);
 	case DT_YMCW:
 		return __ymcw_get_yday(that.ymcw);
+	case DT_BIZDA:
+		return __bizda_get_yday(that.bizda);
 	default:
 	case DT_UNK:
 		return 0;
@@ -2023,6 +2117,19 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 					res += ui32tostr(
 						buf + res, bsz - res, d.b, 2);
 				} else {
+					buf[res++] = '0';
+					buf[res++] = '0';
+				}
+				break;
+			case 'D':
+				/* get business days */
+				if (that.typ == DT_BIZDA) {
+					unsigned int b =
+						__bizda_get_yday(that.bizda);
+					res += ui32tostr(
+						buf + res, bsz - res, b, 3);
+				} else {
+					buf[res++] = '0';
 					buf[res++] = '0';
 					buf[res++] = '0';
 				}
