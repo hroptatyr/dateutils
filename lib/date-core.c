@@ -436,7 +436,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	const uint16_t *ip;
 
 	/* just go to day computation */
-	days = (typeof(days))(t / SECS_PER_DAY);
+	days = (int)(t / SECS_PER_DAY);
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
 	tm->tm_wday = (days + 4) % 7;
 
@@ -1639,10 +1639,10 @@ __guess_dtyp(struct strpd_s d)
 	return res;
 }
 
-static char ymd_dflt[] = "%F";
-static char ymcw_dflt[] = "%Y-%m-%c-%w";
-static char bizda_dflt[] = "%Y-%m-%_d%q";
-static char *bizda_ult[] = {"ultimo", "ult"};
+static const char ymd_dflt[] = "%F";
+static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char bizda_dflt[] = "%Y-%m-%_d%q";
+static const char *bizda_ult[] = {"ultimo", "ult"};
 
 static void
 __trans_fmt(const char **fmt)
@@ -2572,7 +2572,7 @@ dt_dur_neg_p(struct dt_dur_s dur)
 		}
 		break;
 	case DT_DUR_QMB:
-		if (dur.qmb.q == 0 && dur.qmb.m == 0 ||
+		if ((dur.qmb.q == 0 && dur.qmb.m == 0) ||
 		    (dur.qmb.q * 3 + dur.qmb.m) * 23 < dur.qmb.b) {
 			return dur.qmb.b < 0 || dur.qmb.q < 0 || dur.qmb.m < 0;
 		} else if (dur.qmb.q == 0 ||
