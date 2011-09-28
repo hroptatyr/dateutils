@@ -329,6 +329,11 @@ DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
  * Is duration DUR negative? */
 DECLF int dt_dur_neg_p(struct dt_dur_s dur);
 
+/**
+ * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
+ * 1 if D1 is younger than the D2. */
+DECLF int dt_cmp(struct dt_d_s d1, struct dt_d_s d2);
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"
