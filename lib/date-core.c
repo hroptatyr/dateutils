@@ -1192,6 +1192,7 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	int32_t diff = d2 - d1;
 
 #if 0
+/* this should be specifiable somehow */
 	res.wd.d = diff;
 	res.wd.w = 0;
 #elif 1
