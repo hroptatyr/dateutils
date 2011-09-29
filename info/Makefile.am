@@ -67,9 +67,6 @@ dateutils_H2M_EX += format.h2m
 BUILT_SOURCES = $(dateutils_TEXINFOS) $(dateutils_H2M_EX)
 EXTRA_DIST = $(BUILT_SOURCES)
 
-TEXI2DVI_TEX = latex
-TEXI2DVI = TEX=$(TEXI2DVI_TEX) texi2dvi -c -s
-
 dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex texi2h2m.sh
 
 man1_MANS =
