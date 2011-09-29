@@ -11,7 +11,9 @@ BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 
-header_HEADERS = date-core.h date-core.c
+header_HEADERS =
+header_HEADERS += date-core.h date-core.c
+header_HEADERS += time-core.h time-core.c
 
 noinst_PROGRAMS += testlib
 testlib_CPPFLAGS = $(AM_CPPFLAGS)
