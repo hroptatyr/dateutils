@@ -109,9 +109,18 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 		return 0;
 	}
 	switch ((res = (size_t)pad) < bsz ? res : bsz) {
-	case 4:
+	case 9:
+		/* for nanoseconds */
+		buf[pad - 9] = C(d, 100000000);
+		buf[pad - 8] = C(d, 10000000);
+		buf[pad - 7] = C(d, 1000000);
+	case 6:
+		/* for microseconds */
+		buf[pad - 6] = C(d, 100000);
+		buf[pad - 5] = C(d, 10000);
 		buf[pad - 4] = C(d, 1000);
 	case 3:
+		/* for milliseconds */
 		buf[pad - 3] = C(d, 100);
 	case 2:
 		buf[pad - 2] = C(d, 10);
