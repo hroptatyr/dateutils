@@ -37,6 +37,12 @@ dseq_EXAMPLES += $(top_srcdir)/test/dseq.4.dt
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.5.dt
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.6.dt
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.7.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.8.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.9.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.10.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.11.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.12.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.13.dt
 dateutils_EXAMPLES += $(dseq_EXAMPLES)
 dateutils_H2M_EX += dseq.h2m
 
@@ -65,6 +71,15 @@ ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.4.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
 dateutils_EXAMPLES += $(ddiff_EXAMPLES)
 dateutils_H2M_EX += ddiff.h2m
+
+tseq_EXAMPLES =
+tseq_EXAMPLES += $(top_srcdir)/test/tseq.1.dt
+tseq_EXAMPLES += $(top_srcdir)/test/tseq.2.dt
+tseq_EXAMPLES += $(top_srcdir)/test/tseq.3.dt
+tseq_EXAMPLES += $(top_srcdir)/test/tseq.4.dt
+dateutils_EXAMPLES += $(tseq_EXAMPLES)
+dateutils_H2M_EX += tseq.h2m
+
 
 dateutils_H2M_EX += format.h2m
 
