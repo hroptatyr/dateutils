@@ -85,9 +85,9 @@ struct dt_t_s {
 
 
 /* helpers */
-#if !defined SECS_PER_MINUTE
-# define SECS_PER_MINUTE	(60U)
-#endif	/* !SECS_PER_MINUTE */
+#if !defined SECS_PER_MIN
+# define SECS_PER_MIN		(60U)
+#endif	/* !SECS_PER_MIN */
 #if !defined MINS_PER_HOUR
 # define MINS_PER_HOUR		(60U)
 #endif	/* !MINS_PER_HOUR */
@@ -95,7 +95,7 @@ struct dt_t_s {
 # define HOURS_PER_DAY		(24U)
 #endif	/* !HOURS_PER_DAY */
 #if !defined SECS_PER_HOUR
-# define SECS_PER_HOUR		(SECS_PER_MINUTE * MINS_PER_HOUR)
+# define SECS_PER_HOUR		(SECS_PER_MIN * MINS_PER_HOUR)
 #endif	/* !SECS_PER_HOUR */
 #if !defined SECS_PER_DAY
 # define SECS_PER_DAY		(SECS_PER_HOUR * HOURS_PER_DAY)
@@ -118,6 +118,10 @@ dt_strpt(const char *str, const char *fmt, char **ep);
  * Like strftime() for our times. */
 DECLF size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s);
+
+/**
+ * Add DUR to T and return its result. */
+DEFUN struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur);
 
 
 #if defined INCLUDE_TIME_CORE_IMPL

@@ -223,7 +223,7 @@ dt_strptdur(const char *str, char **ep)
 		break;
 	case 'm':
 	case 'M':
-		tmp *= SECS_PER_MINUTE;
+		tmp *= SECS_PER_MIN;
 		break;
 	case 'h':
 	case 'H':
@@ -234,7 +234,7 @@ dt_strptdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	res.s += tmp;
+	res.sdur += tmp;
 out:
 	if (ep) {
 		*ep = (char*)sp;
@@ -304,7 +304,11 @@ dt_io_strptdur(struct __strptdur_st_s *st, const char *str)
 
 	/* try reading the stuff with our strpdur() */
 	if ((curr = dt_strptdur(sp, (char**)&ep)).s) {
-		st->curr.s += curr.s;
+		if (st->sign == 1) {
+			st->curr.sdur += curr.sdur;
+		} else if (st->sign == -1) {
+			st->curr.sdur -= curr.sdur;
+		}
 	} else {
 		res = -1;
 	}
