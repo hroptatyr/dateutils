@@ -30,7 +30,6 @@ Time specs:
   %N  The nanoseconds (range 000000000 to 999999999)
   %p  The string AM or PM, noon is PM and midnight is AM.
   %P  Like %p but in lowercase
-  %s  The number of seconds since the Epoch
   %S  The second (range 00 to 60, 60 is for leap seconds)
   %T  Equivalent to %H:%M:%S
 @end verbatim
