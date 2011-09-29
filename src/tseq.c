@@ -222,7 +222,7 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	struct dt_t_s fst, lst, tmp;
+	struct dt_t_s tmp;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
@@ -249,6 +249,7 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_arg;
 
 	switch (argi->inputs_num) {
+		struct dt_t_s fst, lst;
 	default:
 		cmdline_parser_print_help();
 		res = 1;
@@ -262,6 +263,8 @@ main(int argc, char *argv[])
 			goto out;
 		}
 		lst = dt_time();
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	case 2:
 		if ((fst = dt_io_strpt(argi->inputs[0], ifmt, nifmt)).s < 0) {
@@ -278,6 +281,8 @@ main(int argc, char *argv[])
 			res = 1;
 			goto out;
 		}
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	case 3: {
 		struct __strptdur_st_s st = {0};
@@ -306,26 +311,28 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 			res = 1;
 			goto out;
 		}
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	}
 	}
 
 	/* the actual sequence now, this isn't high-performance so we
 	 * decided to go for readability */
-	if (fst.u <= lst.u) {
+	if (clo.fst.u <= clo.lst.u) {
 		if (clo.ite.s == 0) {
-			clo.ite = tseq_guess_ite(fst, lst);
+			clo.ite = tseq_guess_ite(clo.fst, clo.lst);
 		}
-		clo.fst = fst;
-		clo.lst = lst;
-		tmp = fst = __fixup_fst(&clo);
+		tmp = clo.fst = __fixup_fst(&clo);
 	} else {
 		if (clo.ite.s == 0) {
-			clo.ite = tseq_guess_ite(fst, lst);
+			clo.ite = tseq_guess_ite(clo.fst, clo.lst);
 		}
-		clo.fst = lst;
-		clo.lst = fst;
-		tmp = lst = __fixup_fst(&clo);
+		/* swap lst and fst */
+		tmp = clo.fst;
+		clo.fst = clo.lst;
+		clo.lst = tmp;
+		clo.lst = __fixup_fst(&clo);
 	}
 	/* last checks */
 	if (tmp.u == 0) {
