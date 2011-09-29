@@ -55,4 +55,9 @@ TESTS += ddiff.3.dt
 TESTS += ddiff.4.dt
 TESTS += ddiff.5.dt
 
+TESTS += tseq.1.dt
+TESTS += tseq.2.dt
+TESTS += tseq.3.dt
+TESTS += tseq.4.dt
+
 ## Makefile.am ends here
