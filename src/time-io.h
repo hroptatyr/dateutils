@@ -223,7 +223,7 @@ dt_strptdur(const char *str, char **ep)
 		break;
 	case 'm':
 	case 'M':
-		tmp *= SECS_PER_MINUTE;
+		tmp *= SECS_PER_MIN;
 		break;
 	case 'h':
 	case 'H':
