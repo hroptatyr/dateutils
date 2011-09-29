@@ -37,6 +37,12 @@ dseq_EXAMPLES += $(top_srcdir)/test/dseq.4.dt
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.5.dt
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.6.dt
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.7.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.8.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.9.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.10.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.11.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.12.dt
+dseq_EXAMPLES += $(top_srcdir)/test/dseq.13.dt
 dateutils_EXAMPLES += $(dseq_EXAMPLES)
 dateutils_H2M_EX += dseq.h2m
 
