@@ -73,15 +73,15 @@ time_add(struct dt_t_s t, struct dt_t_s dur)
 	signed int ite;
 
 	ite = t.hms.s + dur.s;
-	t.hms.s = ite % SECS_PER_MINUTE;
-	ite /= SECS_PER_MINUTE;
+	t.hms.s = ite % (signed int)SECS_PER_MINUTE;
+	ite /= (signed int)SECS_PER_MINUTE;
 
 	ite += t.hms.m;
-	t.hms.m = ite % MINS_PER_HOUR;
-	ite /= MINS_PER_HOUR;
+	t.hms.m = ite % (signed int)MINS_PER_HOUR;
+	ite /= (signed int)MINS_PER_HOUR;
 
 	ite += t.hms.h;
-	t.hms.h = ite % HOURS_PER_DAY;
+	t.hms.h = ite % (signed int)HOURS_PER_DAY;
 	return t;
 }
 
@@ -185,22 +185,22 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 	    beg.hms.m == 0 && end.hms.m == 0&&
 	    beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.s = SECS_PER_HOUR;
+			res.sdur = SECS_PER_HOUR;
 		} else {
-			res.s = -SECS_PER_HOUR;
+			res.sdur = -SECS_PER_HOUR;
 		}
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.s = SECS_PER_MINUTE;
+			res.sdur = SECS_PER_MINUTE;
 		} else {
-			res.s = -SECS_PER_MINUTE;
+			res.sdur = -SECS_PER_MINUTE;
 		}
 	} else {
 		if (beg.u < end.u) {
-			res.s = 1;
+			res.sdur = 1L;
 		} else {
-			res.s = -1;
+			res.sdur = -1L;
 		}
 	}
 	return res;
@@ -229,6 +229,7 @@ main(int argc, char *argv[])
 	int res = 0;
 	struct tseq_clo_s clo = {
 		.ite.s = 0,
+		.altite.s = 0,
 		.dir = 0,
 		.flags = 0,
 	};
