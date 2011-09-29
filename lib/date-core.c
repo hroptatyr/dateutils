@@ -1978,7 +1978,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				goto out;
 			}
 			break;
-		case 'W':
+		case 'C':
 			/* cannot be used at the moment */
 			strtoui_lim(sp, &sp, 1, 366);
 			break;
@@ -2212,7 +2212,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				res += ui32tostr(buf + res, bsz - res, yd, 3);
 			}
 			break;
-		case 'W':
+		case 'C':
 			if (that.typ == DT_YMCW) {
 				int yd = __ymcw_get_yday(that.ymcw);
 				res += ui32tostr(buf + res, bsz - res, yd, 2);
