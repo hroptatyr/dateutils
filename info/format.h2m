@@ -1,0 +1,40 @@
+[FORMAT SPECS]
+
+Format specs in dateutils are similar to posix' strftime().
+
+However, due to a broader range of supported calendars dateutils must
+employ different rules.
+
+Date specs:
+  %a  The abbreviated weekday name
+  %A  The full weekday name
+  %b  The abbreviated month name
+  %B  The full month name
+  %c  The count of the weekday within the month (range 00 to 05)
+  %C  The count of the weekday within the year (range 00 to 53)
+  %d  The day of the month, 2 digits (range 00 to 31)
+  %F  Equivalent to %Y-%m-%d (ymd's canonical format)
+  %j  The day of the year
+  %m  The month in the current calendar (range 00 to 19)
+  %w  The weekday as number (range 00 to 06, Sunday being 00)
+  %y  The year without a century (range 00 to 99)
+  %Y  The year including the century
+
+Time specs:
+  %H  The hour of the day using a 24h clock, 2 digits (range 00 to 23)
+  %I  The hour of the day using a 12h clock, 2 digits (range 01 to 12)
+  %M  The minute (range 00 to 59)
+  %p  The string AM or PM, noon is PM and midnight is AM.
+  %P  Like %p but in lowercase
+  %s  The number of seconds since the Epoch
+  %S  The second (range 00 to 60, 60 is for leap seconds)
+  %T  Equivalent to %H:%M:%S
+
+General specs:
+  %n  A newline character
+  %t  A tab character
+  %%  A literal % character
+
+Modifiers:
+  %O  Modifier to turn decimal numbers to Roman numerals
+

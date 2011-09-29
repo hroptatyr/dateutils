@@ -73,9 +73,11 @@ man1_MANS = $(dateutils_TEXINFOS:.texi=.man)
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $*;
-%.man: $(top_builddir)/src/%$(EXEEXT) $(dateutils_H2M_EX)
+%.man: $(top_builddir)/src/%$(EXEEXT) $(dateutils_H2M_EX) format.h2m
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
-		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" -o "$@" "$<"
+		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" \
+		-I "$(srcdir)/format.h2m" \
+		-o "$@" "$<"
 
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
