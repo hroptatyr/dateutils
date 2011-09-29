@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=dseq
+CMDLINE="2001-01-01 2d 2001-01-08"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+2001-01-01
+2001-01-03
+2001-01-05
+2001-01-07
+EOF
+
+## dseq.10.dt ends here
