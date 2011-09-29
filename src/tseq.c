@@ -70,19 +70,7 @@ skipp(__skipspec_t UNUSED(ss), struct dt_t_s UNUSED(dt))
 static struct dt_t_s
 time_add(struct dt_t_s t, struct dt_t_s dur)
 {
-	signed int ite;
-
-	ite = t.hms.s + dur.s;
-	t.hms.s = ite % (signed int)SECS_PER_MINUTE;
-	ite /= (signed int)SECS_PER_MINUTE;
-
-	ite += t.hms.m;
-	t.hms.m = ite % (signed int)MINS_PER_HOUR;
-	ite /= (signed int)MINS_PER_HOUR;
-
-	ite += t.hms.h;
-	t.hms.h = ite % (signed int)HOURS_PER_DAY;
-	return t;
+	return dt_tadd(t, dur);
 }
 
 static struct dt_t_s
@@ -157,13 +145,22 @@ __fixup_fst(struct tseq_clo_s *clo)
 	struct dt_t_s old;
 
 	/* get direction info first */
-	if ((clo->dir = __get_dir(clo->fst, clo)) > 0) {
+	clo->dir = __get_dir(clo->fst, clo);
+	if (clo->dir == 0) {
+		/* always wrong */
+		return (struct dt_t_s){.u = 0};
+	} else if ((clo->dir > 0 && clo->fst.u <= clo->lst.u) ||
+		   (clo->dir < 0 && clo->fst.u >= clo->lst.u)) {
 		/* wrong direction */
 		return __seq_this(clo->fst, clo);
-	} else if (clo->dir == 0) {
-		return (struct dt_t_s){.u = 0};
+	} else if (clo->fst.u >= clo->lst.u) {
+		/* swap fst and lst */
+		tmp = clo->fst;
+		clo->fst = clo->lst;
+		clo->lst = tmp;
+	} else {
+		tmp = clo->lst;
 	}
-	tmp = clo->lst;
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
 		tmp = __seq_next(tmp, clo);
@@ -286,6 +283,9 @@ main(int argc, char *argv[])
 		break;
 	case 3: {
 		struct __strptdur_st_s st = {0};
+
+		/* initialise at least the sign */
+		st.sign = 1;
 		if ((fst = dt_io_strpt(argi->inputs[0], ifmt, nifmt)).s < 0) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpt(argi->inputs[0]);
@@ -319,23 +319,10 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 
 	/* the actual sequence now, this isn't high-performance so we
 	 * decided to go for readability */
-	if (clo.fst.u <= clo.lst.u) {
-		if (clo.ite.s == 0) {
-			clo.ite = tseq_guess_ite(clo.fst, clo.lst);
-		}
-		tmp = clo.fst = __fixup_fst(&clo);
-	} else {
-		if (clo.ite.s == 0) {
-			clo.ite = tseq_guess_ite(clo.fst, clo.lst);
-		}
-		/* swap lst and fst */
-		tmp = clo.fst;
-		clo.fst = clo.lst;
-		clo.lst = tmp;
-		clo.lst = __fixup_fst(&clo);
+	if (clo.ite.s == 0) {
+		clo.ite = tseq_guess_ite(clo.fst, clo.lst);
 	}
-	/* last checks */
-	if (tmp.u == 0) {
+	if ((tmp = __fixup_fst(&clo)).u == 0) {
 		/* this is fucked */
 		if (!argi->quiet_given) {
 			fputs("\
