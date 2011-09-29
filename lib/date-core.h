@@ -216,24 +216,8 @@ struct dt_dur_s {
 /**
  * Like strptime() for our dates.
  * The format characters are _NOT_ compatible with strptime().
- * This is what we support:
- * %F - alias for %Y-%m-%d
- * %Y - year in ymd and ymcw mode
- * %m - month in ymd and ymcw mode
- * %d - day in ymd mode
- * %c - week of the month in ymcw mode
- * %w - numeric weekday in ymcw mode
- * %B - for the month name
- * %b - for the abbreviated month name
- * %_b - for the one letter month code
- * %A - for the weekday name
- * %a - for the abbreviated weekday name
- *
  * If FMT is NULL the standard format for each calendric system is used,
- * that is:
- * - %Y-%m-%d for YMD dates
- * - %Y-%m-%c-%w for YMCW dates
- * - %Y-%m-%d%u for bizda/YMDU dates
+ * see format.texi or dateutils info page.
  *
  * FMT can also be the name of a calendar:
  * - ymd for YMD dates
