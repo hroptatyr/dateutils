@@ -286,8 +286,8 @@ __durstack_naught_p(struct dt_dur_s dur[], size_t ndur)
 static bool
 __in_range_p(struct dt_d_s now, struct dseq_clo_s *clo)
 {
-	return (now.u >= clo->fst.u && now.u <= clo->lst.u) ||
-		(now.u <= clo->fst.u && now.u >= clo->lst.u);
+	return (dt_in_range_p(now, clo->fst, clo->lst) ||
+		dt_in_range_p(now, clo->lst, clo->fst));
 }
 
 static struct dt_d_s
@@ -380,7 +380,7 @@ __fixup_fst(struct dseq_clo_s *clo)
 		goto out;
 	}
 	tmp = clo->lst;
-	while (tmp.u >= clo->fst.u && tmp.u <= clo->lst.u) {
+	while (__in_range_p(tmp, clo)) {
 		old = tmp;
 		tmp = __seq_next(tmp, clo);
 	}
@@ -425,6 +425,7 @@ main(int argc, char *argv[])
 		.nite = 1,
 		.altite = NULL,
 		.naltite = 0,
+		.ss = 0,
 		.dir = 0,
 		.flags = 0,
 	};
