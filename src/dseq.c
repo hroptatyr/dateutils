@@ -335,6 +335,7 @@ __get_dir(struct dt_d_s d, struct dseq_clo_s *clo)
 	return dt_cmp(tmp, d);
 }
 
+#if 0
 static bool
 __ite_1step_p(struct dt_dur_s d)
 {
@@ -362,6 +363,7 @@ __ite_1step_p(struct dt_dur_s d)
 	}
 	return false;
 }
+#endif
 
 static struct dt_d_s
 __fixup_fst(struct dseq_clo_s *clo)
@@ -370,21 +372,27 @@ __fixup_fst(struct dseq_clo_s *clo)
 	struct dt_d_s old;
 
 	/* get direction info first */
-	if ((clo->dir = __get_dir(clo->fst, clo)) > 0) {
+	clo->dir = __get_dir(clo->fst, clo); 
+
+	if (clo->dir == 0) {
+		return (struct dt_d_s){.typ = DT_UNK, .u = 0};
+	} else if ((clo->dir > 0 && dt_cmp(clo->fst, clo->lst) <= 0) ||
+		   (clo->dir < 0 && dt_cmp(clo->fst, clo->lst) >= 0)) {
 		/* wrong direction */
 		return __seq_this(clo->fst, clo);
-	} else if (clo->dir == 0) {
-		return (struct dt_d_s){.typ = DT_UNK, .u = 0};
-	} else if (clo->nite == 1 && __ite_1step_p(clo->ite[0])) {
-		old = clo->fst;
-		goto out;
+	} else if ((clo->dir < 0 && dt_cmp(clo->fst, clo->lst) <= 0) ||
+		   (clo->dir > 0 && dt_cmp(clo->fst, clo->lst) >= 0)) {
+		/* swap fst and lst */
+		tmp = clo->lst;
+		clo->lst = clo->fst;
+		clo->fst = tmp;
+	} else {
+		tmp = clo->lst;
 	}
-	tmp = clo->lst;
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
 		tmp = __seq_next(tmp, clo);
 	}
-out:
 	/* final checks */
 	old = __seq_this(old, clo);
 	date_neg_dur(clo->ite, clo->nite);
@@ -411,11 +419,8 @@ main(int argc, char *argv[])
 	static struct dt_dur_s ite_p1 = {
 		.typ = DT_DUR_MD, .md.m = 0, .md.d = 1
 	};
-	static struct dt_dur_s ite_m1 = {
-		.typ = DT_DUR_MD, .md.m = 0, .md.d = -1
-	};
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s fst, lst, tmp;
+	struct dt_d_s tmp;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
@@ -468,6 +473,7 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 	}
 
 	switch (argi->inputs_num) {
+		struct dt_d_s fst, lst;
 	default:
 		cmdline_parser_print_help();
 		res = 1;
@@ -481,6 +487,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			goto out;
 		}
 		lst = dt_date(DT_YMD);
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	case 2:
 		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
@@ -497,6 +505,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			res = 1;
 			goto out;
 		}
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	case 3: {
 		struct __strpdur_st_s st = {0};
@@ -527,14 +537,16 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 			res = 1;
 			goto out;
 		}
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	}
 	}
 
 	/* convert to daisies */
 	if (__daisy_feasible_p(clo.ite, clo.nite) &&
-	    ((fst = dt_conv(DT_DAISY, fst)).typ != DT_DAISY ||
-	     (lst = dt_conv(DT_DAISY, lst)).typ != DT_DAISY)) {
+	    ((clo.fst = dt_conv(DT_DAISY, clo.fst)).typ != DT_DAISY ||
+	     (clo.lst = dt_conv(DT_DAISY, clo.lst)).typ != DT_DAISY)) {
 		if (!argi->quiet_given) {
 			fputs("\
 cannot convert calendric system internally\n", stderr);
@@ -552,20 +564,7 @@ increment must not be naught\n", stderr);
 
 	/* the actual sequence now, this isn't high-performance so we
 	 * decided to go for readability */
-	if (dt_cmp(fst, lst) <= 0) {
-		clo.fst = fst;
-		clo.lst = lst;
-		tmp = fst = __fixup_fst(&clo);
-	} else {
-		if (clo.ite == &ite_p1) {
-			clo.ite = &ite_m1;
-		}
-		clo.fst = lst;
-		clo.lst = fst;
-		tmp = lst = __fixup_fst(&clo);
-	}
-	/* last checks */
-	if (tmp.u == 0) {
+	if ((tmp = __fixup_fst(&clo)).u == 0) {
 		/* this is fucked */
 		if (!argi->quiet_given) {
 			fputs("\
