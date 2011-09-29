@@ -376,5 +376,41 @@ out:
 	return res;
 }
 
+
+/* arith */
+DEFUN struct dt_t_s
+dt_tadd(struct dt_t_s t, struct dt_t_s dur)
+{
+	signed int sec;
+	signed int tmp;
+
+	sec = dur.sdur;
+	sec += t.hms.s;
+	if ((tmp = sec % (signed int)SECS_PER_MIN) >= 0) {
+		t.hms.s = tmp;
+	} else {
+		t.hms.s = tmp + SECS_PER_MIN;
+		sec -= SECS_PER_MIN;
+	}
+
+	sec /= (signed int)SECS_PER_MIN;
+	sec += t.hms.m;
+	if ((tmp = sec % (signed int)MINS_PER_HOUR) >= 0) {
+		t.hms.m = tmp;
+	} else {
+		t.hms.m = tmp + MINS_PER_HOUR;
+		sec -= MINS_PER_HOUR;
+	}
+
+	sec /= (signed int)MINS_PER_HOUR;
+	sec += t.hms.h;
+	if ((tmp = sec % (signed int)HOURS_PER_DAY) >= 0) {
+		t.hms.h = tmp;
+	} else {
+		t.hms.h = tmp + HOURS_PER_DAY;
+	}
+	return t;
+}
+
 #endif	/* INCLUDED_time_core_c_ */
 /* time-core.c ends here */
