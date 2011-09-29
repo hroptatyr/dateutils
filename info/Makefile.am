@@ -12,6 +12,7 @@ dateutils_TEXINFOS += dcal.texi
 dateutils_TEXINFOS += ddiff.texi
 dateutils_TEXINFOS += dseq.texi
 dateutils_TEXINFOS += dtest.texi
+dateutils_TEXINFOS += format.texi
 
 dateutils_EXAMPLES =
 dateutils_H2M_EX =
@@ -61,22 +62,31 @@ ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
 dateutils_EXAMPLES += $(ddiff_EXAMPLES)
 dateutils_H2M_EX += ddiff.h2m
 
+dateutils_H2M_EX += format.h2m
+
 BUILT_SOURCES = $(dateutils_TEXINFOS) $(dateutils_H2M_EX)
+EXTRA_DIST = $(BUILT_SOURCES)
 
 TEXI2DVI_TEX = latex
 TEXI2DVI = TEX=$(TEXI2DVI_TEX) texi2dvi -c -s
 
-dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex
+dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex texi2h2m.sh
 
-man1_MANS = $(dateutils_TEXINFOS:.texi=.man)
+man1_MANS =
+man1_MANS += strptime.man
+man1_MANS += dadd.man
+man1_MANS += dcal.man
+man1_MANS += ddiff.man
+man1_MANS += dseq.man
+man1_MANS += dtest.man
 
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $*;
-%.man: $(top_builddir)/src/%$(EXEEXT) $(dateutils_H2M_EX) format.h2m
+%.man: $(top_builddir)/src/%$(EXEEXT) $(dateutils_H2M_EX)
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" \
-		-I "$(srcdir)/format.h2m" \
+		-I "$(srcdir)/format.h2m" -I "$(builddir)/format.h2m" \
 		-o "$@" "$<"
 
 my_bld_h2m = $(__bld_h2m_$(V))
@@ -92,5 +102,9 @@ __bld_texi_0 = @echo "  GENTEXI " $*;
 %.texi: $(top_builddir)/src/%$(EXEEXT) $(dateutils_EXAMPLES) dateutils.texi
 	$(my_bld_texi) ${SHELL} \
 		$(srcdir)/gentexi.sh $< $($*_EXAMPLES) > $@ || rm -f -- $@
+
+%.h2m: %.texi
+	$(my_bld_h2m) ${SHELL} \
+		$(srcdir)/texi2h2m.sh $< > $@ || rm -f -- $@
 
 ## Makefile.am ends here
