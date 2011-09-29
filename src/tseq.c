@@ -192,9 +192,9 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.sdur = SECS_PER_MINUTE;
+			res.sdur = SECS_PER_MIN;
 		} else {
-			res.sdur = -SECS_PER_MINUTE;
+			res.sdur = -SECS_PER_MIN;
 		}
 	} else {
 		if (beg.u < end.u) {
