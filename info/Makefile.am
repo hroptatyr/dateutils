@@ -12,6 +12,7 @@ dateutils_TEXINFOS += dcal.texi
 dateutils_TEXINFOS += ddiff.texi
 dateutils_TEXINFOS += dseq.texi
 dateutils_TEXINFOS += dtest.texi
+dateutils_TEXINFOS += tseq.texi
 dateutils_TEXINFOS += format.texi
 
 dateutils_EXAMPLES =
@@ -76,6 +77,7 @@ man1_MANS += dcal.man
 man1_MANS += ddiff.man
 man1_MANS += dseq.man
 man1_MANS += dtest.man
+man1_MANS += tseq.man
 
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))

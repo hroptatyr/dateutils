@@ -54,6 +54,12 @@ ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
 
+bin_PROGRAMS += tseq
+tseq_SOURCES = tseq.c tseq-clo.ggo
+tseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+tseq_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += tseq-clo.c tseq-clo.h
+
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)

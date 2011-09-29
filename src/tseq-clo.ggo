@@ -1,0 +1,9 @@
+args "--unamed-opts --long-help"
+package "tseq"
+usage "tseq [OPTION]... FIRST [[INCREMENT] LAST]"
+description "Like seq(1) but for times."
+
+QUIET
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
