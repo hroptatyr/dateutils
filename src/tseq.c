@@ -70,19 +70,7 @@ skipp(__skipspec_t UNUSED(ss), struct dt_t_s UNUSED(dt))
 static struct dt_t_s
 time_add(struct dt_t_s t, struct dt_t_s dur)
 {
-	signed int ite;
-
-	ite = t.hms.s + dur.s;
-	t.hms.s = ite % SECS_PER_MINUTE;
-	ite /= SECS_PER_MINUTE;
-
-	ite += t.hms.m;
-	t.hms.m = ite % MINS_PER_HOUR;
-	ite /= MINS_PER_HOUR;
-
-	ite += t.hms.h;
-	t.hms.h = ite % HOURS_PER_DAY;
-	return t;
+	return dt_tadd(t, dur);
 }
 
 static struct dt_t_s
@@ -157,13 +145,22 @@ __fixup_fst(struct tseq_clo_s *clo)
 	struct dt_t_s old;
 
 	/* get direction info first */
-	if ((clo->dir = __get_dir(clo->fst, clo)) > 0) {
+	clo->dir = __get_dir(clo->fst, clo);
+	if (clo->dir == 0) {
+		/* always wrong */
+		return (struct dt_t_s){.u = 0};
+	} else if ((clo->dir > 0 && clo->fst.u <= clo->lst.u) ||
+		   (clo->dir < 0 && clo->fst.u >= clo->lst.u)) {
 		/* wrong direction */
 		return __seq_this(clo->fst, clo);
-	} else if (clo->dir == 0) {
-		return (struct dt_t_s){.u = 0};
+	} else if (clo->fst.u >= clo->lst.u) {
+		/* swap fst and lst */
+		tmp = clo->fst;
+		clo->fst = clo->lst;
+		clo->lst = tmp;
+	} else {
+		tmp = clo->lst;
 	}
-	tmp = clo->lst;
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
 		tmp = __seq_next(tmp, clo);
@@ -185,22 +182,22 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 	    beg.hms.m == 0 && end.hms.m == 0&&
 	    beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.s = SECS_PER_HOUR;
+			res.sdur = SECS_PER_HOUR;
 		} else {
-			res.s = -SECS_PER_HOUR;
+			res.sdur = -SECS_PER_HOUR;
 		}
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.s = SECS_PER_MINUTE;
+			res.sdur = SECS_PER_MIN;
 		} else {
-			res.s = -SECS_PER_MINUTE;
+			res.sdur = -SECS_PER_MIN;
 		}
 	} else {
 		if (beg.u < end.u) {
-			res.s = 1;
+			res.sdur = 1L;
 		} else {
-			res.s = -1;
+			res.sdur = -1L;
 		}
 	}
 	return res;
@@ -222,13 +219,14 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	struct dt_t_s fst, lst, tmp;
+	struct dt_t_s tmp;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
 	int res = 0;
 	struct tseq_clo_s clo = {
 		.ite.s = 0,
+		.altite.s = 0,
 		.dir = 0,
 		.flags = 0,
 	};
@@ -248,6 +246,7 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_arg;
 
 	switch (argi->inputs_num) {
+		struct dt_t_s fst, lst;
 	default:
 		cmdline_parser_print_help();
 		res = 1;
@@ -261,6 +260,8 @@ main(int argc, char *argv[])
 			goto out;
 		}
 		lst = dt_time();
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	case 2:
 		if ((fst = dt_io_strpt(argi->inputs[0], ifmt, nifmt)).s < 0) {
@@ -277,9 +278,14 @@ main(int argc, char *argv[])
 			res = 1;
 			goto out;
 		}
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	case 3: {
 		struct __strptdur_st_s st = {0};
+
+		/* initialise at least the sign */
+		st.sign = 1;
 		if ((fst = dt_io_strpt(argi->inputs[0], ifmt, nifmt)).s < 0) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpt(argi->inputs[0]);
@@ -305,29 +311,18 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 			res = 1;
 			goto out;
 		}
+		clo.fst = fst;
+		clo.lst = lst;
 		break;
 	}
 	}
 
 	/* the actual sequence now, this isn't high-performance so we
 	 * decided to go for readability */
-	if (fst.u <= lst.u) {
-		if (clo.ite.s == 0) {
-			clo.ite = tseq_guess_ite(fst, lst);
-		}
-		clo.fst = fst;
-		clo.lst = lst;
-		tmp = fst = __fixup_fst(&clo);
-	} else {
-		if (clo.ite.s == 0) {
-			clo.ite = tseq_guess_ite(fst, lst);
-		}
-		clo.fst = lst;
-		clo.lst = fst;
-		tmp = lst = __fixup_fst(&clo);
+	if (clo.ite.s == 0) {
+		clo.ite = tseq_guess_ite(clo.fst, clo.lst);
 	}
-	/* last checks */
-	if (tmp.u == 0) {
+	if ((tmp = __fixup_fst(&clo)).u == 0) {
 		/* this is fucked */
 		if (!argi->quiet_given) {
 			fputs("\
