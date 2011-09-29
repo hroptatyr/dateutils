@@ -99,9 +99,15 @@ struct strpd_s {
 
 
 /* helpers */
-#define SECS_PER_MINUTE	(60U)
-#define SECS_PER_HOUR	(SECS_PER_MINUTE * 60U)
-#define SECS_PER_DAY	(SECS_PER_HOUR * 24U)
+#if !defined SECS_PER_MINUTE
+# define SECS_PER_MINUTE	(60U)
+#endif	/* !SECS_PER_MINUTE */
+#if !defined SECS_PER_HOUR
+# define SECS_PER_HOUR		(SECS_PER_MINUTE * 60U)
+#endif	/* !SECS_PER_HOUR */
+#if !defined SECS_PER_DAY
+# define SECS_PER_DAY		(SECS_PER_HOUR * 24U)
+#endif	/* !SECS_PER_DAY */
 
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1920)
@@ -1645,7 +1651,7 @@ static const char bizda_dflt[] = "%Y-%m-%_d%q";
 static const char *bizda_ult[] = {"ultimo", "ult"};
 
 static void
-__trans_fmt(const char **fmt)
+__trans_dfmt(const char **fmt)
 {
 	if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
@@ -1802,7 +1808,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 		return __strpd_std(str, ep);
 	}
 	/* translate high-level format names */
-	__trans_fmt(&fmt);
+	__trans_dfmt(&fmt);
 
 	for (const char *fp = fmt; *fp && *sp; fp++) {
 		int shaught = 0;
@@ -2078,7 +2084,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		goto out;
 	}
 	/* translate high-level format names */
-	__trans_fmt(&fmt);
+	__trans_dfmt(&fmt);
 
 	for (const char *fp = fmt; *fp && res < bsz; fp++) {
 		int shaught = 0;
