@@ -153,11 +153,12 @@ __fixup_fst(struct tseq_clo_s *clo)
 		   (clo->dir < 0 && clo->fst.u >= clo->lst.u)) {
 		/* wrong direction */
 		return __seq_this(clo->fst, clo);
-	} else if (clo->fst.u >= clo->lst.u) {
+	} else if ((clo->dir > 0 && clo->fst.u >= clo->lst.u) ||
+		   (clo->dir < 0 && clo->fst.u <= clo->lst.u)) {
 		/* swap fst and lst */
-		tmp = clo->fst;
-		clo->fst = clo->lst;
-		clo->lst = tmp;
+		tmp = clo->lst;
+		clo->lst = clo->fst;
+		clo->fst = tmp;
 	} else {
 		tmp = clo->lst;
 	}
