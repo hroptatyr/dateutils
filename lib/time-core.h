@@ -84,6 +84,24 @@ struct dt_t_s {
 };
 
 
+/* helpers */
+#if !defined SECS_PER_MINUTE
+# define SECS_PER_MINUTE	(60U)
+#endif	/* !SECS_PER_MINUTE */
+#if !defined MINS_PER_HOUR
+# define MINS_PER_HOUR		(60U)
+#endif	/* !MINS_PER_HOUR */
+#if !defined HOURS_PER_DAY
+# define HOURS_PER_DAY		(24U)
+#endif	/* !HOURS_PER_DAY */
+#if !defined SECS_PER_HOUR
+# define SECS_PER_HOUR		(SECS_PER_MINUTE * MINS_PER_HOUR)
+#endif	/* !SECS_PER_HOUR */
+#if !defined SECS_PER_DAY
+# define SECS_PER_DAY		(SECS_PER_HOUR * HOURS_PER_DAY)
+#endif	/* !SECS_PER_DAY */
+
+
 /* decls */
 /**
  * Like strptime() for our times.

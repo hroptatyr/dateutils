@@ -59,20 +59,12 @@ struct strpt_s {
 	unsigned int m;
 	unsigned int s;
 	unsigned int ns;
+	unsigned int flags;
+#define STRPT_AM_PM_BIT	(1U)
 };
 
 
 /* helpers */
-#if !defined SECS_PER_MINUTE
-# define SECS_PER_MINUTE	(60U)
-#endif	/* !SECS_PER_MINUTE */
-#if !defined SECS_PER_HOUR
-# define SECS_PER_HOUR		(SECS_PER_MINUTE * 60U)
-#endif	/* !SECS_PER_HOUR */
-#if !defined SECS_PER_DAY
-# define SECS_PER_DAY		(SECS_PER_HOUR * 24U)
-#endif	/* !SECS_PER_DAY */
-
 static const char hms_dflt[] = "%H:%M:%S";
 
 static uint32_t
@@ -159,6 +151,12 @@ __guess_ttyp(struct strpt_s t)
 	res.hms.m = t.m;
 	res.hms.h = t.h;
 	res.hms.ns = t.ns;
+
+	if (t.flags & STRPT_AM_PM_BIT) {
+		/* pm */
+		res.hms.h += 12;
+		res.hms.h %= HOURS_PER_DAY;
+	}
 	return res;
 }
 
@@ -228,6 +226,13 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 				goto out;
 			}
 			break;
+		case 'I':
+			d.h = strtoui_lim(sp, &sp, 1, 12);
+			if (UNLIKELY(d.h == -1U)) {
+				sp = str;
+				goto out;
+			}
+			break;
 		case 'N':
 			/* nanoseconds */
 			d.ns = strtoui_lim(sp, &sp, 0, 999999999);
@@ -236,6 +241,24 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 				goto out;
 			}
 			break;
+		case 'P':
+		case 'p': {
+			unsigned int casebit = 0;
+
+			if (UNLIKELY(*fp == 'P')) {
+				casebit = 0x20;
+			}
+			if (sp[0] == ('A' | casebit) &&
+			    sp[1] == ('M' | casebit)) {
+				;
+			} else if (sp[0] == ('p' | casebit) &&
+				   sp[1] == ('m' | casebit)) {
+				d.flags |= STRPT_AM_PM_BIT;
+			} else {
+				sp = str;
+				goto out;
+			}
+		}
 		case 't':
 			if (*sp++ != '\t') {
 				sp = str;
@@ -306,6 +329,33 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 		case 'S':
 			res += ui32tostr(buf + res, bsz - res, d.s, 2);
 			break;
+		case 'I': {
+			unsigned int h;
+
+			if ((h = d.h) > 12) {
+				h -= 12;
+			} else if (h == 0) {
+				h = 12;
+			}
+			res += ui32tostr(buf + res, bsz - res, h, 2);
+			break;
+		}
+		case 'P':
+		case 'p': {
+			unsigned int casebit = 0;
+
+			if (UNLIKELY(*fp == 'P')) {
+				casebit = 0x20;
+			}
+			if (d.h >= 12) {
+				buf[res++] = (char)('P' | casebit);
+				buf[res++] = (char)('M' | casebit);
+			} else {
+				buf[res++] = (char)('A' | casebit);
+				buf[res++] = (char)('M' | casebit);
+			}
+			break;
+		}
 		case 'N':
 			res += ui32tostr(buf + res, bsz - res, d.ns, 9);
 			break;
