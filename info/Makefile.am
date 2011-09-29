@@ -4,6 +4,9 @@
 LANG=C
 LC_ALL=C
 
+BUILT_SOURCES =
+EXTRA_DIST = $(BUILT_SOURCES)
+
 info_TEXINFOS = dateutils.texi
 dateutils_TEXINFOS =
 dateutils_TEXINFOS += strptime.texi
@@ -65,8 +68,7 @@ dateutils_H2M_EX += ddiff.h2m
 
 dateutils_H2M_EX += format.h2m
 
-BUILT_SOURCES = $(dateutils_TEXINFOS) $(dateutils_H2M_EX)
-EXTRA_DIST = $(BUILT_SOURCES)
+BUILT_SOURCES += $(dateutils_TEXINFOS) $(dateutils_H2M_EX)
 
 dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex texi2h2m.sh
 
@@ -79,28 +81,32 @@ man1_MANS += dseq.man
 man1_MANS += dtest.man
 man1_MANS += tseq.man
 
+EXTRA_DIST += $(man1_MANS)
+
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $*;
-%.man: $(top_builddir)/src/%$(EXEEXT) $(dateutils_H2M_EX)
+%.man: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX)
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" \
 		-I "$(srcdir)/format.h2m" -I "$(builddir)/format.h2m" \
-		-o "$@" "$<"
+		-o $@ $(top_builddir)/src/$*
 
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
 __bld_h2m_0 = @echo "  GENH2M  " $*;
-%.h2m: $(top_builddir)/src/%$(EXEEXT) $(dateutils_EXAMPLES)
+%.h2m: $(top_srcdir)/src/%-clo.ggo $(dateutils_EXAMPLES)
 	$(my_bld_h2m) ${SHELL} \
-		$(srcdir)/genh2m.sh $< $($*_EXAMPLES) > $@ || rm -f -- $@
+		$(srcdir)/genh2m.sh $(top_builddir)/src/$* \
+		$($*_EXAMPLES) > $@ || rm -f -- $@
 
 my_bld_texi = $(__bld_texi_$(V))
 __bld_texi_ = $(__bld_texi_$(AM_DEFAULT_VERBOSITY))
 __bld_texi_0 = @echo "  GENTEXI " $*;
-%.texi: $(top_builddir)/src/%$(EXEEXT) $(dateutils_EXAMPLES) dateutils.texi
+%.texi: $(top_srcdir)/src/%-clo.ggo $(dateutils_EXAMPLES) dateutils.texi
 	$(my_bld_texi) ${SHELL} \
-		$(srcdir)/gentexi.sh $< $($*_EXAMPLES) > $@ || rm -f -- $@
+		$(srcdir)/gentexi.sh $(top_builddir)/src/$* \
+		$($*_EXAMPLES) > $@ || rm -f -- $@
 
 %.h2m: %.texi
 	$(my_bld_h2m) ${SHELL} \
