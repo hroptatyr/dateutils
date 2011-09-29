@@ -121,6 +121,8 @@ This is the `ordinary' calendar, holding a year, a month and the day
 of the month.  Years are subdivided into 12 months, months are
 subdivided into 28 to 31 days.
 
+The canonical input and output format is @code{%Y-%m-%d}.
+
 @section ymcw
 
 This is a calendric system used at some security exchanges, it holds a
@@ -129,6 +131,8 @@ month.  This holds dates like the third Thursday in March 2011.  Years
 are subdivided into months as in the ymd calendar, months consist of
 at least 4 and up to 5 weeks and weeks are subdivided into weekdays,
 Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+
+The canonical input and output format is @code{%Y-%m-%c-%w}.
 
 @section daisy
 
@@ -154,6 +158,11 @@ rules so cannot be as easily used as our reference date.
 
 The daisy calendar has no notion of years or months.
 
+The daisy calendar has no associated input or output format.  This is
+due to its nature that the reference date is arbitrary.  Outlook: As
+soon as Julian dates are supported, daisy will use its in/out format
+specs.
+
 @section bizda
 
 This calendric system is actually a whole tribe of calendars, in its
@@ -161,6 +170,8 @@ canonical form this tracks the number of business days after last
 month's ultimo.  Where business day means any non-weekend day.  Years
 are divided into 12 months, each of which consists of 20 to 23
 business days.
+
+The canonical input and output format is @code{%Y-%m-%_d>00}.
 
 
 @summarycontents
