@@ -88,6 +88,8 @@ to a given date.  Besides, most of the time those billions of dates come
 from external sources and have to be brought into shape before or whilst
 importing them into an integrated system.
 
+@include format.texi
+
 
 @node Calendars
 @chapter Calendars

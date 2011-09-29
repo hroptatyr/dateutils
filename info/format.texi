@@ -1,4 +1,4 @@
-[FORMAT SPECS]
+@section Format specs
 
 Format specs in dateutils are similar to posix' strftime().
 
@@ -6,6 +6,7 @@ However, due to a broader range of supported calendars dateutils must
 employ different rules.
 
 Date specs:
+@verbatim
   %a  The abbreviated weekday name
   %A  The full weekday name
   %b  The abbreviated month name
@@ -19,8 +20,10 @@ Date specs:
   %w  The weekday as number (range 00 to 06, Sunday being 00)
   %y  The year without a century (range 00 to 99)
   %Y  The year including the century
+@end verbatim
 
 Time specs:
+@verbatim
   %H  The hour of the day using a 24h clock, 2 digits (range 00 to 23)
   %I  The hour of the day using a 12h clock, 2 digits (range 01 to 12)
   %M  The minute (range 00 to 59)
@@ -29,12 +32,16 @@ Time specs:
   %s  The number of seconds since the Epoch
   %S  The second (range 00 to 60, 60 is for leap seconds)
   %T  Equivalent to %H:%M:%S
+@end verbatim
 
 General specs:
+@verbatim
   %n  A newline character
   %t  A tab character
   %%  A literal % character
+@end verbatim
 
 Modifiers:
+@verbatim
   %O  Modifier to turn decimal numbers to Roman numerals
-
+@end verbatim
