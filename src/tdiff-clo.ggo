@@ -1,0 +1,12 @@
+args "--unamed-opts --long-help"
+package "tdiff"
+usage "tdiff [OPTION]... TIME [TIMEs]"
+description "Compute duration from TIME to the other TIMEs given \
+and print the result as duration, if TIMEs are omitted read a list \
+of TIMEs from stdin."
+
+DT_TIME_MACROES
+QUIET
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
