@@ -3,6 +3,7 @@ package "tseq"
 usage "tseq [OPTION]... FIRST [[INCREMENT] LAST]"
 description "Like seq(1) but for times."
 
+DT_TIME_MACROES
 QUIET
 FORMAT
 INPUT_FORMAT
