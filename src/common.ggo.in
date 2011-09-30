@@ -1,19 +1,36 @@
 dnl -*- m4 -*-
 changequote(`[', `]')
 
+define([DT_DATE_MACROES], [
+	]define([DT_STRF_F], [dt_strfd])[
+	]define([DT_STRP_F], [dt_strpd])[
+	]define([DT_TYPE], [DATE])[
+	]define([DT_CAL], [calendar])[
+])
+define([DT_TIME_MACROES], [
+	]define([DT_STRF_F], [dt_strft])[
+	]define([DT_STRP_F], [dt_strpt])[
+	]define([DT_TYPE], [TIME])[
+	]define([DT_CAL], [time spec])[
+])
+
+dnl default to date macroes
+DT_DATE_MACROES
+
 define([FORMAT], [dnl
 option "format" f
-	"Output format as passed to dt_strfd(), this can either be a \
-spec string (much like strftime()'s FMT) or the name of a calendar."
+	"Output format as passed to ]DT_STRF_F[(), this can either be a \
+spec string (similar to strftime()'s FMT) or the name of a ]DT_CAL[."
 	string optional
 ])dnl FORMAT
 
 define([INPUT_FORMAT], [dnl
 option "input-format" i
-	"Input format as passed to dt_strpd(), can be used multiple times.
-Each DATE will be passed to the input format parsers in the order they \
-are given, if DATE can be read successfully with a given input format \
-that value will be used."
+	"Input format as passed to ]DT_STRP_F[(), can be used \
+multiple times.
+Each ]DT_TYPE[ will be passed to the input format parsers in the \
+order they are given, if ]DT_TYPE[ can be read successfully with \
+a given input format that value will be used."
 	string optional multiple
 ])dnl INPUT_FORMAT
 
