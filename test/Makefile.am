@@ -60,4 +60,8 @@ TESTS += tseq.2.dt
 TESTS += tseq.3.dt
 TESTS += tseq.4.dt
 
+TESTS += tdiff.1.dt
+TESTS += tdiff.2.dt
+TESTS += tdiff.3.dt
+
 ## Makefile.am ends here
