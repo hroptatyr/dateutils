@@ -19,7 +19,6 @@ do, for full specs refer to the info and man pages.  For installation
 instructions refer to the INSTALL file.
 
 Dateutils provides new commands:
-
 + strptime            Command line version of the C function
 + dcal                Convert dates between calendars
 + dadd                Add durations to dates
@@ -34,7 +33,8 @@ Dateutils provides new commands:
 Examples
 ========
 
-+ dseq
+dseq
+----
   A tool mimicking seq(1) but whose inputs are from the domain of dates
   rather than integers.  Typically scripts use something like
 
@@ -61,7 +61,8 @@ Examples
       2010-01-07
       2010-01-08
 
-+ dcal
+dcal
+----
   A tool to convert dates between different calendric systems.  While
   other such tools usually focus on converting Gregorian dates to, say,
   the Chinese calendar, dcal aims at supporting calendric systems which
@@ -81,7 +82,8 @@ Examples
   given year.  This is useful if dates are specified like, the third
   Thursday in May for instance.
 
-+ dtest
+dtest
+-----
   A tool to perform date comparison in the shell, it's modelled after
   test(1) but with proper command line options.
 
@@ -91,7 +93,8 @@ Examples
     =>
       yes
 
-+ dadd
+dadd
+----
   A tool to perform date/duration arithmetic in the shell.  Given a date
   and a a list of durations this will compute new dates.  Given a
   duration and a list of dates this will compute new dates.
@@ -112,7 +115,8 @@ Examples
       2001-01-04
       2000-12-31
 
-+ ddiff
+ddiff
+-----
   A tool to compute durations between two (or more) dates.  This is
   somewhat the converse of dadd.
 
@@ -120,7 +124,8 @@ Examples
     =>
       0m22d
 
-+ strptime
+strptime
+--------
   A tool that brings the flexibility of strptime(3) to the command
   line.  While date(1) has support for output formats, it lacks any kind
   of support to read arbitrary input from the domain of dates, in
