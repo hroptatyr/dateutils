@@ -1,3 +1,11 @@
+---
+title: dateutils
+layout: default
+---
+
+Dateutils
+=========
+
 Dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
@@ -11,14 +19,15 @@ do, for full specs refer to the info and man pages.  For installation
 instructions refer to the INSTALL file.
 
 Dateutils provides new commands:
-- strptime            Command line version of the C function
-- dcal                Convert dates between calendars
-- dadd                Add durations to dates
-- ddiff               Compute durations from dates
-- dseq                Generate sequences of dates
-- dtest               Compare dates
-- tdiff               Compute durations between times
-- tseq                Generate sequences of times
+
++ strptime            Command line version of the C function
++ dcal                Convert dates between calendars
++ dadd                Add durations to dates
++ ddiff               Compute durations from dates
++ dseq                Generate sequences of dates
++ dtest               Compare dates
++ tdiff               Compute durations between times
++ tseq                Generate sequences of times
 
 
 
