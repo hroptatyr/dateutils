@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=tdiff
+CMDLINE="10:00:00 10:00:00"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+0s
+EOF
+
+## tdiff.1.dt ends here
