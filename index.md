@@ -19,7 +19,9 @@ Below is a short list of examples that demonstrate what dateutils can
 do, for full specs refer to the info and man pages.  For installation
 instructions refer to the INSTALL file.
 
-Dateutils provides new commands:
+Dateutils commands are prefixed with a `d' for date fiddling and a `t'
+for time fiddling, the only exception being `strptime':
+
 + strptime            Command line version of the C function
 + dcal                Convert dates between calendars
 + dadd                Add durations to dates
@@ -33,6 +35,9 @@ Dateutils provides new commands:
 
 Examples
 ========
+
+I love everything to be explained by example to get a first
+impression.  So here it comes.
 
 dseq
 ----
