@@ -80,6 +80,13 @@ tseq_EXAMPLES += $(top_srcdir)/test/tseq.4.dt
 dateutils_EXAMPLES += $(tseq_EXAMPLES)
 dateutils_H2M_EX += tseq.h2m
 
+tdiff_EXAMPLES =
+tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.1.dt
+tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
+tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
+dateutils_EXAMPLES += $(tdiff_EXAMPLES)
+dateutils_H2M_EX += tdiff.h2m
+
 
 dateutils_H2M_EX += format.h2m
 

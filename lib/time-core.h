@@ -122,7 +122,7 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s);
 
 /**
  * Add DUR to T and return its result. */
-DEFUN struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur);
+DECLF struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur);
 
 
 #if defined INCLUDE_TIME_CORE_IMPL
