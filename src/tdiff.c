@@ -48,18 +48,6 @@
 #endif	/* !UNUSED */
 
 
-static struct dt_t_s
-dt_tdiff(struct dt_t_s t1, struct dt_t_s t2)
-{
-/* compute t2 - t1 */
-	struct dt_t_s dur = {.u = 0};
-
-	dur.sdur = (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
-	dur.sdur += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
-	dur.sdur += (t2.hms.s - t1.hms.s);
-	return dur;
-}
-
 static int
 tdiff_prnt(struct dt_t_s dur, const char *UNUSED(fmt))
 {
