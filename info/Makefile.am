@@ -16,6 +16,7 @@ dateutils_TEXINFOS += ddiff.texi
 dateutils_TEXINFOS += dseq.texi
 dateutils_TEXINFOS += dtest.texi
 dateutils_TEXINFOS += tseq.texi
+dateutils_TEXINFOS += tdiff.texi
 dateutils_TEXINFOS += format.texi
 
 dateutils_EXAMPLES =
