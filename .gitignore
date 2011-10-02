@@ -1,0 +1,14 @@
+Makefile*
+aclocal.m4
+autom4te.cache
+configure*
+depcomp
+info
+install-sh
+lib
+missing
+src
+test
+texinfo.tex
+build
+=build
