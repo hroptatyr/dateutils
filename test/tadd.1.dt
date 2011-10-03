@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=tadd
+CMDLINE="10:01:00 1h6m"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+11:07:00
+EOF
+
+## tadd.1.dt ends here
