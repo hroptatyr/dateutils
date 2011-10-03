@@ -303,14 +303,11 @@ dt_io_strptdur(struct __strptdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((curr = dt_strptdur(sp, (char**)&ep)).s) {
-		if (st->sign == 1) {
-			st->curr.sdur += curr.sdur;
-		} else if (st->sign == -1) {
-			st->curr.sdur -= curr.sdur;
-		}
-	} else {
-		res = -1;
+	curr = dt_strptdur(sp, (char**)&ep);
+	if (st->sign == 1) {
+		st->curr.sdur += curr.sdur;
+	} else if (st->sign == -1) {
+		st->curr.sdur -= curr.sdur;
 	}
 out:
 	if (((st->cont = ep) && *ep == '\0') || (sp == ep)) {
