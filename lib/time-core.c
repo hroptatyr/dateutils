@@ -412,5 +412,17 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur)
 	return t;
 }
 
+DEFUN struct dt_t_s
+dt_tdiff(struct dt_t_s t1, struct dt_t_s t2)
+{
+/* compute t2 - t1 */
+	struct dt_t_s dur = {.u = 0};
+
+	dur.sdur = (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
+	dur.sdur += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
+	dur.sdur += (t2.hms.s - t1.hms.s);
+	return dur;
+}
+
 #endif	/* INCLUDED_time_core_c_ */
 /* time-core.c ends here */

@@ -124,6 +124,11 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s);
  * Add DUR to T and return its result. */
 DECLF struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur);
 
+/**
+ * Compute the duration between T1 and T2 (as in T2 - T1) and return the
+ * result in the .sdur slot. */
+DECLF struct dt_t_s dt_tdiff(struct dt_t_s t1, struct dt_t_s t2);
+
 
 #if defined INCLUDE_TIME_CORE_IMPL
 # include "time-core.c"

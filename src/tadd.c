@@ -1,4 +1,4 @@
-/*** tdiff.c -- perform simple time arithmetic, time minus time
+/*** tadd.c -- perform simple time arithmetic, time plus duration
  *
  * Copyright (C) 2011 Sebastian Freundt
  *
@@ -43,19 +43,11 @@
 #include "time-core.h"
 #include "time-io.h"
 
-#if !defined UNUSED
-# define UNUSED(_x)	__attribute__((unused)) _x
-#endif	/* !UNUSED */
-
 
-static int
-tdiff_prnt(struct dt_t_s dur, const char *UNUSED(fmt))
+static struct dt_t_s
+tadd_add(struct dt_t_s d, struct dt_t_s dur)
 {
-	char buf[256];
-
-	snprintf(buf, sizeof(buf), "%ds\n", dur.sdur);
-	fputs(buf, stdout);
-	return 0;
+	return dt_tadd(d, dur);
 }
 
 
@@ -63,8 +55,8 @@ tdiff_prnt(struct dt_t_s dur, const char *UNUSED(fmt))
 # pragma warning (disable:593)
 # pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
-#include "tdiff-clo.h"
-#include "tdiff-clo.c"
+#include "tadd-clo.h"
+#include "tadd-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
@@ -75,71 +67,116 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_t_s t;
+	struct __strptdur_st_s st = {0};
+	char *inp;
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
+	size_t beg_idx = 0;
 
+	/* fixup negative numbers, A -1 B for dates A and B */
+	fixup_argv(argc, argv, "Pp+");
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
 		goto out;
+	} else if (argi->inputs_num == 0) {
+		fputs("Error: TIME or DURATION must be specified\n\n", stderr);
+		cmdline_parser_print_help();
+		res = 1;
+		goto out;
 	}
-	/* unescape sequences, maybe */
-	if (argi->backslash_escapes_given) {
-		dt_io_unescape(argi->format_arg);
-	}
-
+	/* init and unescape sequences, maybe */
 	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
+	if (argi->backslash_escapes_given) {
+		dt_io_unescape(argi->format_arg);
+		for (size_t i = 0; i < nfmt; i++) {
+			dt_io_unescape(fmt[i]);
+		}
+	}
 
-	if (argi->inputs_num == 0 ||
-	    (t = dt_io_strpt(argi->inputs[0], fmt, nfmt)).s < 0) {
-		fputs("Error: reference TIME must be specified\n\n", stderr);
+	/* check first arg, if it's a date the rest of the arguments are
+	 * durations, if not, dates must be read from stdin */
+	inp = unfixup_arg(argi->inputs[0]);
+	if ((t = dt_io_strpt(inp, fmt, nfmt)).s >= 0) {
+		/* ah good, it's a date */
+		beg_idx++;
+	}
+
+	/* check durations, assume addition */
+	st.sign = 1;
+	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
+		inp = unfixup_arg(argi->inputs[i]);
+		do {
+			if (dt_io_strptdur(&st, inp) < 0) {
+				fprintf(stderr, "Error: \
+cannot parse duration string `%s'\n", st.istr);
+			}
+		} while (__strptdur_more_p(&st));
+	}
+	if (st.curr.s == 0) {
+		fputs("Error: no duration given\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
 		goto out;
 	}
 
-	if (argi->inputs_num > 1) {
-		for (size_t i = 1; i < argi->inputs_num; i++) {
-			struct dt_t_s t2;
-			struct dt_t_s dur;
-			const char *inp = argi->inputs[i];
-
-			if ((t2 = dt_io_strpt(inp, fmt, nfmt)).s >= 0 &&
-			    (dur = dt_tdiff(t, t2)).s >= 0) {
-				tdiff_prnt(dur, ofmt);
-			} else if (!argi->quiet_given) {
-				dt_io_warn_strpt(inp);
-			}
+	/* start the actual work */
+	if (beg_idx > 0) {
+		if ((t = tadd_add(t, st.curr)).s >= 0) {
+			dt_io_write(t, ofmt);
+			res = 0;
+		} else {
+			res = 1;
 		}
 	} else {
 		/* read from stdin */
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
+		const char *needle = "\t";
+		size_t needlen = 1;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+		/* no threads reading this stream */
+		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
 
+		if (argi->sed_mode_given && argi->sed_mode_arg) {
+			needle = argi->sed_mode_arg;
+			needlen = strlen(needle);
+		}
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
 			size_t len;
-			struct dt_t_s t2;
-			struct dt_t_s dur;
 
 			n = getline(&line, &len, fp);
 			if (n < 0) {
 				break;
 			}
-			/* terminate the string accordingly */
-			line[n - 1] = '\0';
 			/* perform addition now */
-			if ((t2 = dt_io_strpt(line, fmt, nfmt)).s >= 0 &&
-			    (dur = dt_tdiff(t, t2)).s > 0) {
-				tdiff_prnt(dur, ofmt);
+			if (argi->sed_mode_given) {
+				const char *sp = NULL;
+				const char *ep = NULL;
+
+				if ((t = dt_io_find_strpt(
+					     line, fmt, nfmt,
+					     needle, needlen,
+					     (char**)&sp, (char**)&ep))
+				    .s >= 0) {
+					t = tadd_add(t, st.curr);
+					dt_io_write_sed(
+						t, ofmt, line, n, sp, ep);
+				} else if (!argi->quiet_given) {
+					goto warn;
+				}
+			} else if ((t = dt_io_strpt(line, fmt, nfmt)).s >= 0) {
+				t = tadd_add(t, st.curr);
+				dt_io_write(t, ofmt);
 			} else if (!argi->quiet_given) {
+			warn:
 				dt_io_warn_strpt(line);
 			}
 		}
@@ -147,10 +184,12 @@ main(int argc, char *argv[])
 		free(line);
 		goto out;
 	}
+	/* free the strpdur status */
+	__strptdur_free(&st);
 
 out:
 	cmdline_parser_free(argi);
 	return res;
 }
 
-/* tdiff.c ends here */
+/* dcal.c ends here */

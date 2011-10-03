@@ -66,6 +66,12 @@ tdiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tdiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tdiff-clo.c tdiff-clo.h
 
+bin_PROGRAMS += tadd
+tadd_SOURCES = tadd.c tadd-clo.ggo
+tadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+tadd_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += tadd-clo.c tadd-clo.h
+
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
