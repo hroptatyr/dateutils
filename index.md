@@ -28,6 +28,7 @@ for time fiddling, the only exception being `strptime`:
 + `ddiff`               Compute durations from dates
 + `dseq`                Generate sequences of dates
 + `dtest`               Compare dates
++ `tadd`                Add durations to times
 + `tdiff`               Compute durations between times
 + `tseq`                Generate sequences of times
 
@@ -129,6 +130,56 @@ ddiff
     ddiff 2001-02-08 2001-03-02
     =>
       0m22d
+
+tseq
+----
+  Quite like dseq but for times, and because times are generally less
+  intricate than dates, the usage is straight-forward:
+
+    tseq 12:00:00 5m 13:17:00
+    =>
+      12:00:00
+      12:05:00
+      12:10:00
+      12:15:00
+      12:20:00
+      12:25:00
+      12:30:00
+      12:35:00
+      12:40:00
+      12:45:00
+      12:50:00
+      12:55:00
+      13:00:00
+      13:05:00
+      13:10:00
+      13:15:00
+
+tadd
+----
+  This is tseq's complement as in one duration can be added to one or
+  number of time values:
+
+    tadd 12:00:00 17m
+    =>
+      12:17:00
+
+    tadd 12m34s <<EOF
+    12:10:05
+    12:50:52
+    EOF
+    =>
+      12:22:39
+      13:03:26
+
+tdiff
+-----
+  This is, in a way, the converse of tadd, as it computes the duration
+  between two time values:
+
+  tdiff 12:10:05 12:22:39
+  =>
+    754s
 
 strptime
 --------
