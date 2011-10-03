@@ -15,6 +15,7 @@ dateutils_TEXINFOS += dcal.texi
 dateutils_TEXINFOS += ddiff.texi
 dateutils_TEXINFOS += dseq.texi
 dateutils_TEXINFOS += dtest.texi
+dateutils_TEXINFOS += dadd.texi
 dateutils_TEXINFOS += tseq.texi
 dateutils_TEXINFOS += tdiff.texi
 dateutils_TEXINFOS += format.texi
@@ -87,6 +88,13 @@ tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
 tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
 dateutils_EXAMPLES += $(tdiff_EXAMPLES)
 dateutils_H2M_EX += tdiff.h2m
+
+tadd_EXAMPLES =
+tadd_EXAMPLES += $(top_srcdir)/test/tadd.1.dt
+tadd_EXAMPLES += $(top_srcdir)/test/tadd.2.dt
+tadd_EXAMPLES += $(top_srcdir)/test/tadd.3.dt
+dateutils_EXAMPLES += $(tadd_EXAMPLES)
+dateutils_H2M_EX += tadd.h2m
 
 
 dateutils_H2M_EX += format.h2m
