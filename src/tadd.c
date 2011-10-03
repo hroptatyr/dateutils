@@ -116,12 +116,6 @@ cannot parse duration string `%s'\n", st.istr);
 			}
 		} while (__strptdur_more_p(&st));
 	}
-	if (st.curr.s == 0) {
-		fputs("Error: no duration given\n\n", stderr);
-		cmdline_parser_print_help();
-		res = 1;
-		goto out;
-	}
 
 	/* start the actual work */
 	if (beg_idx > 0) {
