@@ -61,6 +61,7 @@ arise when dealing with large amounts of financial data.
 * ddiff::               Compute durations from dates
 * dseq::                Generate sequences of dates
 * dtest::               Compare dates
+* tadd::                Add durations to times
 * tdiff::               Compute durations between times
 * tseq::                Generate sequences of times
 @end menu
@@ -178,6 +179,7 @@ The canonical input and output format is @code{%Y-%m-%_d>00}.
 @include ddiff.texi
 @include dseq.texi
 @include dtest.texi
+@include tadd.texi
 @include tdiff.texi
 @include tseq.texi
 
