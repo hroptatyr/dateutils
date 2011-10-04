@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=tseq
-CMDLINE="10:00:00 -12m 11:20:00"
+CMDLINE="--compute-from-last 10:00:00 12m 11:20:00"
 
 ## STDIN
  
