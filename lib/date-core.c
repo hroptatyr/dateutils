@@ -1245,6 +1245,28 @@ dt_get_bday_q(struct dt_d_s that, unsigned int ba, unsigned int ref)
 	}
 }
 
+DEFUN int
+dt_get_quarter(struct dt_d_s that)
+{
+	int m;
+
+	switch (that.typ) {
+	case DT_YMD:
+		m = that.ymd.m;
+		break;
+	case DT_YMCW:
+		m = that.ymcw.m;
+		break;
+	case DT_BIZDA:
+		m = that.bizda.m;
+		break;
+	default:
+	case DT_UNK:
+		return 0;
+	}
+	return (m - 1) / 3 + 1;
+}
+
 
 /* converters */
 static dt_daisy_t
@@ -1894,7 +1916,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				d.y -= 100;
 			}
 			break;
-		case 'q':
+		case '>':
 			/* bizda date and we take the arg from sp */
 			switch (*sp++) {
 			case '<':
@@ -1991,6 +2013,16 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 		case 'j':
 			/* cannot be used at the moment */
 			strtoui_lim(sp, &sp, 0, 53);
+			break;
+		case 'Q':
+			if (*sp++ != 'Q') {
+				sp = str;
+				goto out;
+			}
+		case 'q':
+			if (d.m == 0) {
+				d.m = strtoui_lim(sp, &sp, 1, 4) * 3 - 2;
+			}
 			break;
 		case 'O':
 			/* roman numerals modifier */
@@ -2154,6 +2186,20 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			res += ui32tostr(buf + res, bsz - res, d.y, 2);
 			break;
 		case 'q':
+		case 'Q': {
+			int q = dt_get_quarter(that);
+
+			if (q <= 4) {
+				if (*fp == 'q') {
+					buf[res++] = '0';
+				} else if (*fp == 'Q') {
+					buf[res++] = 'Q';
+				}
+				buf[res++] = (char)(q + '0');
+			}
+			break;
+		}
+		case '>':
 			/* bizda mode check? */
 			if (((d.flags >> 1) & 1) == BIZDA_AFTER) {
 				buf[res++] = '>';

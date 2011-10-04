@@ -279,6 +279,10 @@ DECLF int dt_get_bday(struct dt_d_s d);
 DECLF int dt_get_bday_q(struct dt_d_s d, unsigned int ba, unsigned int ref);
 
 /**
+ * Get the quarter number of a date. */
+DECLF int dt_get_quarter(struct dt_d_s d);
+
+/**
  * Get the day of the year of a date.
  * This might only be intuitive for YMD dates.  The formal definition
  * is to find a representation of D that lacks the notion of a month,
