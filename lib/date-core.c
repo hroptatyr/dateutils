@@ -2015,13 +2015,14 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			strtoui_lim(sp, &sp, 0, 53);
 			break;
 		case 'Q':
-			/* cannot be used at the moment */
 			if (*sp++ != 'Q') {
 				sp = str;
 				goto out;
 			}
 		case 'q':
-			strtoui_lim(sp, &sp, 1, 4);
+			if (d.m == 0) {
+				d.m = strtoui_lim(sp, &sp, 1, 4) * 3 - 2;
+			}
 			break;
 		case 'O':
 			/* roman numerals modifier */
@@ -2186,13 +2187,16 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			break;
 		case 'q':
 		case 'Q': {
-			unsigned int q = dt_get_quarter(that);
-			if (*fp == 'q') {
-				buf[res++] = '0';
-			} else if (*fp == 'Q') {
-				buf[res++] = 'Q';
+			int q = dt_get_quarter(that);
+
+			if (q <= 4) {
+				if (*fp == 'q') {
+					buf[res++] = '0';
+				} else if (*fp == 'Q') {
+					buf[res++] = 'Q';
+				}
+				buf[res++] = (char)(q + '0');
 			}
-			buf[res++] = q + '0';
 			break;
 		}
 		case '>':

@@ -280,7 +280,7 @@ DECLF int dt_get_bday_q(struct dt_d_s d, unsigned int ba, unsigned int ref);
 
 /**
  * Get the quarter number of a date. */
-DECLF int dt_get_bday_q(struct dt_d_s d);
+DECLF int dt_get_quarter(struct dt_d_s d);
 
 /**
  * Get the day of the year of a date.
