@@ -177,9 +177,9 @@ tdiff
   This is, in a way, the converse of tadd, as it computes the duration
   between two time values:
 
-  tdiff 12:10:05 12:22:39
-  =>
-    754s
+    tdiff 12:10:05 12:22:39
+    =>
+      754s
 
 strptime
 --------
