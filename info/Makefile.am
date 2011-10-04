@@ -99,6 +99,7 @@ dateutils_H2M_EX += tadd.h2m
 
 
 dateutils_H2M_EX += format.h2m
+dateutils_H2M_EX += author.h2m
 
 BUILT_SOURCES += $(dateutils_TEXINFOS) $(dateutils_H2M_EX)
 
@@ -124,6 +125,7 @@ __bld_man_0 = @echo "  HELP2MAN" $*;
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" \
 		-I "$(srcdir)/format.h2m" -I "$(builddir)/format.h2m" \
+		-I "$(srcdir)/author.h2m" \
 		-o $@ $(top_builddir)/src/$*
 
 my_bld_h2m = $(__bld_h2m_$(V))
