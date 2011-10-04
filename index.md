@@ -214,8 +214,10 @@ In no particular order and without any claim to completeness:
 Use the one that best fits your purpose.  And in case you happen to like
 mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils2)
 
-## Local variables:
-## mode: auto-fill
-## fill-column: 72
-## filladapt-mode: t
-## End variables:
+<!--
+  Local variables:
+  mode: auto-fill
+  fill-column: 72
+  filladapt-mode: t
+  End variables:
+-->
