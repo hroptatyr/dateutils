@@ -1245,6 +1245,28 @@ dt_get_bday_q(struct dt_d_s that, unsigned int ba, unsigned int ref)
 	}
 }
 
+DEFUN int
+dt_get_quarter(struct dt_d_s that)
+{
+	int m;
+
+	switch (that.typ) {
+	case DT_YMD:
+		m = that.ymd.m;
+		break;
+	case DT_YMCW:
+		m = that.ymcw.m;
+		break;
+	case DT_BIZDA:
+		m = that.bizda.m;
+		break;
+	default:
+	case DT_UNK:
+		return 0;
+	}
+	return (m - 1) / 3 + 1;
+}
+
 
 /* converters */
 static dt_daisy_t
@@ -2153,6 +2175,17 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case 'y':
 			res += ui32tostr(buf + res, bsz - res, d.y, 2);
 			break;
+		case 'q':
+		case 'Q': {
+			unsigned int q = dt_get_quarter(that);
+			if (*fp == 'q') {
+				buf[res++] = '0';
+			} else if (*fp == 'Q') {
+				buf[res++] = 'Q';
+			}
+			buf[res++] = q + '0';
+			break;
+		}
 		case '>':
 			/* bizda mode check? */
 			if (((d.flags >> 1) & 1) == BIZDA_AFTER) {
