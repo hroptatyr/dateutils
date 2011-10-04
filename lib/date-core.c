@@ -2187,13 +2187,16 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			break;
 		case 'q':
 		case 'Q': {
-			unsigned int q = dt_get_quarter(that);
-			if (*fp == 'q') {
-				buf[res++] = '0';
-			} else if (*fp == 'Q') {
-				buf[res++] = 'Q';
+			int q = dt_get_quarter(that);
+
+			if (q <= 4) {
+				if (*fp == 'q') {
+					buf[res++] = '0';
+				} else if (*fp == 'Q') {
+					buf[res++] = 'Q';
+				}
+				buf[res++] = (char)(q + '0');
 			}
-			buf[res++] = q + '0';
 			break;
 		}
 		case '>':
