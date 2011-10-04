@@ -43,7 +43,7 @@ AC_PROG_CC_C99
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
-apps=" dadd dcal ddiff dseq dtest strptime"
+apps=" dadd dcal ddiff dseq dtest strptime tseq tadd tdiff"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
