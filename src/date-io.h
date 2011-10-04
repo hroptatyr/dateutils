@@ -50,7 +50,7 @@ dt_io_find_strpd(
 	const char *needle, size_t needlen, char **sp, char **ep)
 {
 	const char *__sp = str;
-	struct dt_d_s d;
+	struct dt_d_s d = {DT_UNK};
 
 	while ((__sp = strstr(__sp, needle)) &&
 	       (d = dt_io_strpd_ep(

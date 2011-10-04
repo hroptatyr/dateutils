@@ -66,7 +66,7 @@ dt_io_find_strpt(
 	const char *needle, size_t needlen, char **sp, char **ep)
 {
 	const char *__sp = str;
-	struct dt_t_s t;
+	struct dt_t_s t = {.s = -1};
 
 	while ((__sp = strstr(__sp, needle)) &&
 	       (t = dt_io_strpt_ep(
