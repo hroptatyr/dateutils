@@ -1,0 +1,22 @@
+## -*- shell-script -*-
+
+TOOL=tseq
+CMDLINE="23:20:00 20m 02:00:00"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+23:20:00
+23:40:00
+00:00:00
+00:20:00
+00:40:00
+01:00:00
+01:20:00
+01:40:00
+02:00:00
+EOF
+
+## tseq.7.dt ends here

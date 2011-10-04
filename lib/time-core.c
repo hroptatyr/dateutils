@@ -180,7 +180,7 @@ __trans_tfmt(const char **fmt)
 DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_t_s res = {.u = 0};
+	struct dt_t_s res = {.s = -1};
 	struct strpt_s d = {0};
 	const char *sp = str;
 

@@ -17,6 +17,7 @@ dateutils_TEXINFOS += dseq.texi
 dateutils_TEXINFOS += dtest.texi
 dateutils_TEXINFOS += dadd.texi
 dateutils_TEXINFOS += tseq.texi
+dateutils_TEXINFOS += tadd.texi
 dateutils_TEXINFOS += tdiff.texi
 dateutils_TEXINFOS += format.texi
 
@@ -111,6 +112,8 @@ man1_MANS += ddiff.man
 man1_MANS += dseq.man
 man1_MANS += dtest.man
 man1_MANS += tseq.man
+man1_MANS += tadd.man
+man1_MANS += tdiff.man
 
 EXTRA_DIST += $(man1_MANS)
 
