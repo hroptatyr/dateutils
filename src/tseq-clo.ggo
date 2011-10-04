@@ -1,10 +1,17 @@
 args "--unamed-opts --long-help"
 package "tseq"
 usage "tseq [OPTION]... FIRST [[INCREMENT] LAST]"
-description "Like seq(1) but for times."
+description "Like seq(1) but for times.
+
+If INCREMENT is positive consider FIRST to be the older and LAST to \
+be the younger time, and vice versa for negative INCREMENT."
 
 DT_TIME_MACROES
 QUIET
 FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES
+
+option "compute-from-last" -
+	"Compute the value of FIRST from LAST using INCREMENT."
+	optional

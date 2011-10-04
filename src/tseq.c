@@ -80,11 +80,20 @@ time_neg_dur(struct dt_t_s dur)
 	return res;
 }
 
-static bool
+static inline bool
 __in_range_p(struct dt_t_s now, struct tseq_clo_s *clo)
 {
-	return (now.u >= clo->fst.u && now.u <= clo->lst.u) ||
-		(now.u <= clo->fst.u && now.u >= clo->lst.u);
+	if (clo->dir > 0 && clo->fst.u < clo->lst.u) {
+		return (now.u >= clo->fst.u && now.u <= clo->lst.u);
+	} else if (clo->dir < 0 && clo->fst.u > clo->lst.u) {
+		return (now.u <= clo->fst.u && now.u >= clo->lst.u);
+	} else if (clo->dir > 0) {
+		return (now.u >= clo->fst.u || now.u <= clo->lst.u);
+	} else if (clo->dir < 0) {
+		return (now.u <= clo->fst.u || now.u >= clo->lst.u);
+	} else {
+		return false;
+	}
 }
 
 static struct dt_t_s
@@ -123,15 +132,11 @@ __seq_next(struct dt_t_s now, struct tseq_clo_s *clo)
 }
 
 static int
-__get_dir(struct dt_t_s t, struct tseq_clo_s *clo)
+__get_dir(struct dt_t_s UNUSED(t), struct tseq_clo_s *clo)
 {
-	struct dt_t_s tmp;
-
-	/* trial addition to to see where it goes */
-	tmp = __seq_next(t, clo);
-	if (tmp.u > t.u) {
+	if (clo->ite.sdur > 0) {
 		return 1;
-	} else if (tmp.u < t.u) {
+	} else if (clo->ite.sdur < 0) {
 		return -1;
 	} else {
 		return 0;
@@ -143,32 +148,18 @@ __fixup_fst(struct tseq_clo_s *clo)
 {
 	struct dt_t_s tmp;
 	struct dt_t_s old;
+	struct dt_t_s savite;
 
-	/* get direction info first */
-	clo->dir = __get_dir(clo->fst, clo);
-	if (clo->dir == 0) {
-		/* always wrong */
-		return (struct dt_t_s){.u = 0};
-	} else if ((clo->dir > 0 && clo->fst.u <= clo->lst.u) ||
-		   (clo->dir < 0 && clo->fst.u >= clo->lst.u)) {
-		/* wrong direction */
-		return __seq_this(clo->fst, clo);
-	} else if ((clo->dir > 0 && clo->fst.u >= clo->lst.u) ||
-		   (clo->dir < 0 && clo->fst.u <= clo->lst.u)) {
-		/* swap fst and lst */
-		tmp = clo->lst;
-		clo->lst = clo->fst;
-		clo->fst = tmp;
-	} else {
-		tmp = clo->lst;
-	}
+	/* assume clo->dir has been computed already */
+	tmp = clo->lst;
+	clo->ite = time_neg_dur(savite = clo->ite);
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
 		tmp = __seq_next(tmp, clo);
 	}
 	/* final checks */
 	old = __seq_this(old, clo);
-	clo->ite = time_neg_dur(clo->ite);
+	clo->ite = savite;
 	/* fixup again with negated dur */
 	old = __seq_this(old, clo);
 	return old;
@@ -322,26 +313,20 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	 * decided to go for readability */
 	if (clo.ite.s == 0) {
 		clo.ite = tseq_guess_ite(clo.fst, clo.lst);
-	}
-	if ((tmp = __fixup_fst(&clo)).u == 0) {
-		/* this is fucked */
+	} else if ((clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
 increment must not be naught\n", stderr);
 		}
 		res = 1;
 		goto out;
-	} else if (clo.ite.s == 0) {
-		if (!argi->quiet_given) {
-			fputs("\
-increment must not be naught\n", stderr);
-		}
-		res = 1;
-		goto out;
+	} else if (argi->compute_from_last_given) {
+		tmp = __fixup_fst(&clo);
+	} else {
+		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	while ((clo.fst.u <= tmp.u && tmp.u <= clo.lst.u) ||
-	       (clo.fst.u >= tmp.u && tmp.u >= clo.lst.u)) {
+	while (__in_range_p(tmp, &clo)) {
 		dt_io_write(tmp, ofmt);
 		tmp = __seq_next(tmp, &clo);
 	}
