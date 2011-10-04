@@ -33,7 +33,7 @@ dt_time(void)
 static struct dt_t_s
 dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 {
-	struct dt_t_s res = {.u = 0};
+	struct dt_t_s res = {.s = -1};
 
 	/* init */
 	if (ep) {
