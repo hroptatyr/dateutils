@@ -102,8 +102,8 @@ dtest
 
 dadd
 ----
-  A tool to perform date/duration arithmetic in the shell.  Given a date
-  and a a list of durations this will compute new dates.  Given a
+  A tool to perform date arithmetic (date maths) in the shell.  Given
+  a date and a list of durations this will compute new dates.  Given a
   duration and a list of dates this will compute new dates.
 
     dadd 2010-02-02 +4d
@@ -157,8 +157,8 @@ tseq
 
 tadd
 ----
-  This is tseq's complement as in one duration can be added to one or
-  number of time values:
+  This is tseq's complement as in a duration can be added to one or more
+  time values, making this the tool of choice for time arithmetic:
 
     tadd 12:00:00 17m
     =>
