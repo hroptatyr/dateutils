@@ -2014,6 +2014,15 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			/* cannot be used at the moment */
 			strtoui_lim(sp, &sp, 0, 53);
 			break;
+		case 'Q':
+			/* cannot be used at the moment */
+			if (*sp++ != 'Q') {
+				sp = str;
+				goto out;
+			}
+		case 'q':
+			strtoui_lim(sp, &sp, 1, 4);
+			break;
 		case 'O':
 			/* roman numerals modifier */
 			switch (*++fp) {
