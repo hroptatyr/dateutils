@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dseq
+CMDLINE="2001-02-03 -1 2001-03-03 -f \"%F %a\""
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+2001-02-03 Sat
+EOF
+
+## dseq.16.dt ends here

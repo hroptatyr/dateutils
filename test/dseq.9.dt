@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dseq
-CMDLINE="--alt-inc 1d 2001-02-03 -3 2001-03-03 --skip sat,fri -f \"%F %a\""
+CMDLINE="--compute-from-last --alt-inc 1d 2001-02-03 3 2001-03-03 --skip sat,fri -f \"%F %a\""
 
 ## STDIN
  
