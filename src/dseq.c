@@ -371,24 +371,9 @@ __fixup_fst(struct dseq_clo_s *clo)
 	struct dt_d_s tmp;
 	struct dt_d_s old;
 
-	/* get direction info first */
-	clo->dir = __get_dir(clo->fst, clo); 
-
-	if (clo->dir == 0) {
-		return (struct dt_d_s){.typ = DT_UNK, .u = 0};
-	} else if ((clo->dir > 0 && dt_cmp(clo->fst, clo->lst) <= 0) ||
-		   (clo->dir < 0 && dt_cmp(clo->fst, clo->lst) >= 0)) {
-		/* wrong direction */
-		return __seq_this(clo->fst, clo);
-	} else if ((clo->dir < 0 && dt_cmp(clo->fst, clo->lst) <= 0) ||
-		   (clo->dir > 0 && dt_cmp(clo->fst, clo->lst) >= 0)) {
-		/* swap fst and lst */
-		tmp = clo->lst;
-		clo->lst = clo->fst;
-		clo->fst = tmp;
-	} else {
-		tmp = clo->lst;
-	}
+	/* assume clo->dir has been computed already */
+	tmp = clo->lst;
+	date_neg_dur(clo->ite, clo->nite);
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
 		tmp = __seq_next(tmp, clo);
@@ -553,25 +538,18 @@ cannot convert calendric system internally\n", stderr);
 		}
 		res = 1;
 		goto out;
-	} else if (__durstack_naught_p(clo.ite, clo.nite)) {
+	} else if (__durstack_naught_p(clo.ite, clo.nite) ||
+		   (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
 increment must not be naught\n", stderr);
 		}
 		res = 1;
 		goto out;
-	}
-
-	/* the actual sequence now, this isn't high-performance so we
-	 * decided to go for readability */
-	if ((tmp = __fixup_fst(&clo)).u == 0) {
-		/* this is fucked */
-		if (!argi->quiet_given) {
-			fputs("\
-increment must not be naught\n", stderr);
-		}
-		res = 1;
-		goto out;
+	} else if (argi->compute_from_last_given) {
+		tmp = __fixup_fst(&clo);
+	} else {
+		tmp = __seq_this(clo.fst, &clo);
 	}
 
 	while (__in_range_p(tmp, &clo)) {
