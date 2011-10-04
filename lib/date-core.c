@@ -1894,7 +1894,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				d.y -= 100;
 			}
 			break;
-		case 'q':
+		case '>':
 			/* bizda date and we take the arg from sp */
 			switch (*sp++) {
 			case '<':
@@ -2153,7 +2153,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case 'y':
 			res += ui32tostr(buf + res, bsz - res, d.y, 2);
 			break;
-		case 'q':
+		case '>':
 			/* bizda mode check? */
 			if (((d.flags >> 1) & 1) == BIZDA_AFTER) {
 				buf[res++] = '>';
