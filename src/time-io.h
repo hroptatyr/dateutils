@@ -70,7 +70,7 @@ dt_io_find_strpt(
 
 	while ((__sp = strstr(__sp, needle)) &&
 	       (t = dt_io_strpt_ep(
-			__sp += needlen, fmt, nfmt, ep)).s >= 0);
+			__sp += needlen, fmt, nfmt, ep)).s < 0);
 	*sp = (char*)__sp;
 	return t;
 }
