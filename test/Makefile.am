@@ -71,5 +71,6 @@ TESTS += tdiff.3.dt
 TESTS += tadd.1.dt
 TESTS += tadd.2.dt
 TESTS += tadd.3.dt
+TESTS += tadd.4.dt
 
 ## Makefile.am ends here

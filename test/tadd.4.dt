@@ -1,0 +1,20 @@
+## -*- shell-script -*-
+
+TOOL=tadd
+CMDLINE="12m"
+
+## STDIN
+stdin=$(mktemp)
+cat > "${stdin}" <<EOF
+12:02:00
+14:20:20
+EOF
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+12:14:00
+14:32:20
+EOF
+
+## tadd.4.dt ends here

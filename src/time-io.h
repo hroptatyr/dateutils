@@ -33,7 +33,7 @@ dt_time(void)
 static struct dt_t_s
 dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 {
-	struct dt_t_s res = {.u = 0};
+	struct dt_t_s res = {.s = -1};
 
 	/* init */
 	if (ep) {
@@ -70,7 +70,7 @@ dt_io_find_strpt(
 
 	while ((__sp = strstr(__sp, needle)) &&
 	       (t = dt_io_strpt_ep(
-			__sp += needlen, fmt, nfmt, ep)).s >= 0);
+			__sp += needlen, fmt, nfmt, ep)).s < 0);
 	*sp = (char*)__sp;
 	return t;
 }
