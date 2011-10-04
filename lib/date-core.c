@@ -2020,7 +2020,9 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				goto out;
 			}
 		case 'q':
-			d.m = strtoui_lim(sp, &sp, 1, 4) * 3 - 2;
+			if (d.m == 0) {
+				d.m = strtoui_lim(sp, &sp, 1, 4) * 3 - 2;
+			}
 			break;
 		case 'O':
 			/* roman numerals modifier */
