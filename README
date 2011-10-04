@@ -195,3 +195,24 @@ strptime
     strptime -i "%a, %b-%d/%Y" "Mon, May-01/2000"
     =>
       2000-05-01
+
+
+
+Similar projects
+================
+
+In no particular order and without any claim to completeness:
+
++ dateexpr: <http://www.eskimo.com/~scs/src/#dateexpr>
++ allanfalloon's dateutils: <https://github.com/alanfalloon/dateutils>
+
+Use the one that best fits your purpose.  And in case you happen to like
+mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils2)
+
+<!--
+  Local variables:
+  mode: auto-fill
+  fill-column: 72
+  filladapt-mode: t
+  End variables:
+-->
