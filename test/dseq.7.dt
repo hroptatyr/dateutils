@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dseq
-CMDLINE="2001-02-05 -4 2001-03-04 -f \"%F %a\""
+CMDLINE="--compute-from-last 2001-02-05 4 2001-03-04 -f \"%F %a\""
 
 ## STDIN
  

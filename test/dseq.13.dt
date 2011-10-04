@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dseq
-CMDLINE="2001-01-08 2d 2001-01-01"
+CMDLINE="--compute-from-last 2001-01-08 -2d 2001-01-01"
 
 ## STDIN
  

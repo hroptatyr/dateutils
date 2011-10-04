@@ -1,17 +1,14 @@
 ## -*- shell-script -*-
 
 TOOL=dseq
-CMDLINE="--compute-from-last 2001-01-01 2d 2001-01-08"
+CMDLINE="2001-01-08 2d 2001-01-01"
 
 ## STDIN
  
 ## STDOUT
 stdout=$(mktemp)
 cat > "${stdout}" <<EOF
-2001-01-02
-2001-01-04
-2001-01-06
 2001-01-08
 EOF
 
-## dseq.11.dt ends here
+## dseq.18.dt ends here
