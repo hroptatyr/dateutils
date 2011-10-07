@@ -128,7 +128,26 @@ find_oper(const char *s, char **ep)
 static bool
 matchp(struct dt_d_s lined, struct dt_d_s refd, oper_t o)
 {
-	return true;
+	int cmp = dt_cmp(lined, refd);
+
+	switch (o) {
+	case OP_EQ:
+		return cmp == 0;
+	case OP_LT:
+		return cmp < 0;
+	case OP_LE:
+		return cmp <= 0;
+	case OP_GT:
+		return cmp > 0;
+	case OP_GE:
+		return cmp >= 0;
+	case OP_NE:
+	case OP_FUCKED:
+		return cmp != 0;
+	case OP_UNK:
+	default:
+		return false;
+	}
 }
 
 
@@ -211,7 +230,6 @@ main(int argc, char *argv[])
 			struct dt_d_s d;
 			const char *sp = NULL;
 			const char *ep = NULL;
-			int cmp;
 
 			n = getline(&line, &len, fp);
 			if (n < 0) {
