@@ -9,7 +9,6 @@ newer-equal, newer, or not equal respectively.  By default dgrep looks
 for equality."
 
 QUIET
-FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES
 

@@ -167,7 +167,6 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_d_s refd;
-	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	char *inp;
@@ -180,11 +179,9 @@ main(int argc, char *argv[])
 	}
 
 	/* init and unescape sequences, maybe */
-	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
 	if (argi->backslash_escapes_given) {
-		dt_io_unescape(argi->format_arg);
 		for (size_t i = 0; i < nfmt; i++) {
 			dt_io_unescape(fmt[i]);
 		}
