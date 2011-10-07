@@ -203,8 +203,8 @@ main(int argc, char *argv[])
 	} else {
 		o = OP_EQ;
 	}
-	o |= find_oper(argi->inputs[0], &inp);
 	if (argi->inputs_num != 1 ||
+	    (o |= find_oper(argi->inputs[0], &inp)) == OP_UNK ||
 	    ((refd = dt_io_strpd(inp, fmt, nfmt)).typ == DT_UNK)) {
 		res = 1;
 		fputs("need a DATE to grep\n", stderr);
