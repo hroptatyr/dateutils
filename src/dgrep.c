@@ -128,7 +128,11 @@ find_oper(const char *s, char **ep)
 static bool
 matchp(struct dt_d_s lined, struct dt_d_s refd, oper_t o)
 {
-	int cmp = dt_cmp(lined, refd);
+	int cmp;
+
+	if ((cmp = dt_cmp(lined, refd)) == -2) {
+		return false;
+	}
 
 	switch (o) {
 	case OP_EQ:
