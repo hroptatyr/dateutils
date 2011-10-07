@@ -1,6 +1,8 @@
 LANG = C
 LC_ALL = C
 
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = lib src info test
 
 EXTRA_DIST = .version git-version-gen
