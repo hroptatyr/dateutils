@@ -54,6 +54,12 @@ ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
 
+bin_PROGRAMS += dgrep
+dgrep_SOURCES = dgrep.c dgrep-clo.ggo
+dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+dgrep_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += dgrep-clo.c dgrep-clo.h
+
 bin_PROGRAMS += tseq
 tseq_SOURCES = tseq.c tseq-clo.ggo
 tseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
