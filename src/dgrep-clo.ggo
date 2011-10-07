@@ -14,7 +14,7 @@ BACKSLASH_ESCAPES
 
 option "only-matching" o
 	"Show only the part of a line matching DATE."
-	string optional
+	optional
 
 defgroup "op" groupdesc="Operations can be specified by options as well"
 
