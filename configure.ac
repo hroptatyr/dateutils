@@ -38,12 +38,13 @@ fi
 
 ## the build chain
 AC_PROG_CC([icc gcc tcc cc])
-AC_PROG_CC_C99
+SXE_CHECK_CC
+SXE_CHECK_CFLAGS
 
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
-apps=" dadd dcal ddiff dseq dtest strptime tseq tadd tdiff"
+apps=" dadd dcal ddiff dgrep dseq dtest strptime tseq tadd tdiff"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])

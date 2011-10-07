@@ -1,0 +1,52 @@
+args "--unamed-opts --long-help"
+package "dgrep"
+usage "dgrep [OPTION]... DATE"
+description "Grep DATE in stdin.
+DATE may be prefixed with an operator \
+`<', `<=', '=', '>=', '>', `!=', `<>' \
+meaning, also find lines whose dates are older, older-equal, equal, \
+newer-equal, newer, or not equal respectively.  By default dgrep looks
+for equality."
+
+QUIET
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+
+option "only-matching" o
+	"Show only the part of a line matching DATE."
+	optional
+
+defgroup "op" groupdesc="Operations can be specified by options as well"
+
+groupoption "eq" -
+	"DATE1 is the same as DATE2"
+	group="op"
+
+groupoption "ne" -
+	"DATE1 is not the same as DATE2"
+	group="op"
+
+groupoption "gt" -
+	"DATE1 is newer than DATE2"
+	group="op"
+
+groupoption "lt" -
+	"DATE1 is older than DATE2"
+	group="op"
+
+groupoption "ge" -
+	"DATE1 is newer than or equals DATE2"
+	group="op"
+
+groupoption "le" -
+	"DATE1 is older than or equals DATE2"
+	group="op"
+
+## convenience
+groupoption "nt" -
+	"DATE1 is newer than DATE2"
+	group="op"
+
+groupoption "ot" -
+	"DATE1 is older than DATE2"
+	group="op"

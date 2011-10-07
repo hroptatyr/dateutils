@@ -1490,6 +1490,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 			tmp = dur.qmb.q * 3 + dur.qmb.m;
 			break;
 		default:
+			tmp = 0;
 			break;
 		}
 
@@ -1613,7 +1614,7 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
-	struct dt_d_s res;
+	struct dt_d_s res = {.u = 0};
 	bool bizdap;
 
 	if (UNLIKELY(d.y == -1U)) {
@@ -1636,29 +1637,23 @@ __guess_dtyp(struct strpd_s d)
 	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !bizdap)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
-		res.ymd = (dt_ymd_t){
-			.y = d.y,
-			.m = d.m,
-			.d = d.d,
-		};
+		res.ymd.y = d.y;
+		res.ymd.m = d.m;
+		res.ymd.d = d.d;
 	} else if (d.y && d.c && !bizdap) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
-		res.ymcw = (dt_ymcw_t){
-			.y = d.y,
-			.m = d.m,
-			.c = d.c,
-			.w = d.w,
-		};
+		res.ymcw.y = d.y;
+		res.ymcw.m = d.m;
+		res.ymcw.c = d.c;
+		res.ymcw.w = d.w;
 	} else if (d.y && bizdap) {
 		/* d.c can be legit'ly naught */
 		res.typ = DT_BIZDA;
-		res.bizda = (dt_bizda_t){
-			.y = d.y,
-			.m = d.m,
-			.bda = d.b,
-			.x = d.ref,
-		};
+		res.bizda.y = d.y;
+		res.bizda.m = d.m;
+		res.bizda.bda = d.b;
+		res.bizda.x = d.ref;
 	} else {
 		/* anything else is bollocks for now */
 		res.typ = DT_UNK;

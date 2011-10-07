@@ -62,6 +62,17 @@ TESTS += ddiff.3.dt
 TESTS += ddiff.4.dt
 TESTS += ddiff.5.dt
 
+TESTS += dgrep.1.dt
+TESTS += dgrep.2.dt
+TESTS += dgrep.3.dt
+TESTS += dgrep.4.dt
+TESTS += dgrep.5.dt
+TESTS += dgrep.6.dt
+TESTS += dgrep.7.dt
+TESTS += dgrep.8.dt
+TESTS += dgrep.9.dt
+TESTS += dgrep.10.dt
+
 TESTS += tseq.1.dt
 TESTS += tseq.2.dt
 TESTS += tseq.3.dt

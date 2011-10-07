@@ -70,7 +70,11 @@ echo
 
 eval "${builddir}/${TOOL}" "${CMDLINE}" \
 	< "${stdin:-/dev/null}" \
-	> "${tool_stdout}" 2> "${tool_stderr}" || myexit 1
+	> "${tool_stdout}" 2> "${tool_stderr}" || fail=${?}
+
+if test "${EXPECT_EXIT_CODE}" = "${fail}"; then
+	fail=0
+fi
 
 if test -r "${stdout}"; then
 	diff -u "${stdout}" "${tool_stdout}" || fail=1
