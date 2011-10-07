@@ -201,13 +201,15 @@ main(int argc, char *argv[])
 		o = OP_GE;
 	}
 	if (argi->inputs_num != 1 ||
-	    (o |= find_oper(argi->inputs[0], &inp)) == OP_UNK ||
-	    ((refd = dt_io_strpd(inp, fmt, nfmt)).typ == DT_UNK)) {
+	    (o |= find_oper(argi->inputs[0], &inp)) == OP_FUCKED ||
+	    (refd = dt_io_strpd(inp, fmt, nfmt)).typ == DT_UNK) {
 		res = 1;
 		fputs("need a DATE to grep\n", stderr);
 		goto out;
 	}
 
+	/* fixup o, default is OP_EQ */
+	o = o ?: OP_EQ;
 	{
 		/* read from stdin */
 		FILE *fp = stdin;
