@@ -170,7 +170,7 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	char *inp;
-	oper_t o;
+	oper_t o = OP_UNK;
 	int res = 0;
 
 	if (cmdline_parser(argc, argv, argi)) {
@@ -187,7 +187,9 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (argi->ne_given) {
+	if (argi->eq_given) {
+		o = OP_EQ;
+	} else if (argi->ne_given) {
 		o = OP_NE;
 	} else if (argi->lt_given || argi->ot_given) {
 		o = OP_LT;
@@ -197,8 +199,6 @@ main(int argc, char *argv[])
 		o = OP_GT;
 	} else if (argi->ge_given) {
 		o = OP_GE;
-	} else {
-		o = OP_EQ;
 	}
 	if (argi->inputs_num != 1 ||
 	    (o |= find_oper(argi->inputs[0], &inp)) == OP_UNK ||
