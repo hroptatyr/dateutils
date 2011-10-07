@@ -85,6 +85,7 @@ typedef union {
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 11 bits left */
+		unsigned int pad:11;
 	};
 } dt_ymd_t;
 
@@ -98,6 +99,7 @@ typedef union {
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 10 bits left */
+		unsigned int pad:10;
 	};
 } dt_ymcw_t;
 
@@ -129,6 +131,7 @@ typedef union {
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 5 bits left */
+		unsigned int pad:5;
 	};
 } dt_bizda_t;
 
