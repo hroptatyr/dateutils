@@ -1490,6 +1490,7 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 			tmp = dur.qmb.q * 3 + dur.qmb.m;
 			break;
 		default:
+			tmp = 0;
 			break;
 		}
 

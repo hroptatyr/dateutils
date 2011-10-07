@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
-#include "date-core.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
