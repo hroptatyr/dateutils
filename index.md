@@ -28,6 +28,7 @@ for time fiddling, the only exception being `strptime`:
 + `ddiff`               Compute durations from dates
 + `dseq`                Generate sequences of dates
 + `dtest`               Compare dates
++ `dgrep`               Grep dates in input streams
 + `tadd`                Add durations to times
 + `tdiff`               Compute durations between times
 + `tseq`                Generate sequences of times
@@ -130,6 +131,21 @@ ddiff
     ddiff 2001-02-08 2001-03-02
     =>
       0m22d
+
+dgrep
+-----
+  A tool to extract lines from an input stream that match certain
+  criteria, showing either the line or the match:
+
+    dgrep '<2012-03-01' <<EOF
+    Feb	2012-02-28
+    Feb	2012-02-29	leap day
+    Mar	2012-03-01
+    Mar	2012-03-02
+    EOF
+    =>
+      Feb	2012-02-28
+      Feb	2012-02-29	leap day
 
 tseq
 ----
