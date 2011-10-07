@@ -52,9 +52,11 @@ dt_io_find_strpd(
 	const char *__sp = str;
 	struct dt_d_s d = {DT_UNK};
 
-	while ((__sp = strstr(__sp, needle)) &&
-	       (d = dt_io_strpd_ep(
-			__sp += needlen, fmt, nfmt, ep)).typ == DT_UNK);
+	if ((d = dt_io_strpd_ep(__sp, fmt, nfmt, ep)).typ == DT_UNK) {
+		while ((__sp = strstr(__sp, needle)) &&
+		       (d = dt_io_strpd_ep(
+				__sp += needlen, fmt, nfmt, ep)).typ == DT_UNK);
+	}
 	*sp = (char*)__sp;
 	return d;
 }
