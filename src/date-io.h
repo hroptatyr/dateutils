@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdio_ext.h>
 #include "date-core.h"
+#include "strops.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -64,6 +65,113 @@ dt_io_find_strpd(
 	return d;
 }
 
+
+/* needles for the grep mode */
+typedef struct grep_atom_s *grep_atom_t;
+typedef const struct grep_atom_s *const_grep_atom_t;
+
+struct grep_atom_s {
+	/* 4 bytes */
+	char needle;
+	int8_t off_min;
+	int8_t off_max;
+	uint8_t pad;
+	/* 8 bytes */
+	const char *fmt;
+};
+
+struct grep_atom_soa_s {
+	size_t natoms;
+	char *needle;
+	int8_t *off_min;
+	int8_t *off_max;
+	const char **fmt;
+};
+
+static struct grep_atom_s
+calc_grep_atom(const char *fmt)
+{
+	struct grep_atom_s res = {.needle = '\0'};
+
+	/* init */
+	if (fmt == NULL) {
+		/* standard format, %Y-%m-%d */
+		res.needle = '-';
+		res.off_min = -4;
+		res.off_max = -4;
+		res.fmt = NULL;
+		goto out;
+	}
+	/* rest here ... */
+out:
+	return res;
+}
+
+static struct grep_atom_soa_s __attribute__((unused))
+build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
+{
+	struct grep_atom_soa_s res = {.natoms = 0};
+
+	res.needle = (char*)atoms;
+	res.off_min = (int8_t*)(res.needle + natoms);
+	res.off_max = (int8_t*)(res.off_min + natoms);
+	res.fmt = (const char**)(res.off_max + natoms);
+
+	if (nfmt == 0) {
+		size_t idx = res.natoms++;
+		struct grep_atom_s a = calc_grep_atom(NULL);
+		res.needle[idx] = a.needle;
+		res.off_min[idx] = a.off_min;
+		res.off_max[idx] = a.off_max;
+		res.fmt[idx] = a.fmt;
+		goto out;
+	}
+	/* otherwise collect needles from all formats */
+	for (size_t i = 0; i < nfmt && res.natoms < natoms; i++) {
+		size_t idx;
+		struct grep_atom_s a;
+
+		if ((a = calc_grep_atom(fmt[i])).needle) {
+			idx = res.natoms++;
+			res.needle[idx] = a.needle;
+			res.off_min[idx] = a.off_min;
+			res.off_max[idx] = a.off_max;
+			res.fmt[idx] = a.fmt;
+		}
+	}
+out:
+	/* terminate needle with \0 */
+	res.needle[res.natoms] = '\0';
+	return res;
+}
+
+static struct dt_d_s  __attribute__((unused))
+dt_io_find_strpd2(
+	const char *str,
+	const struct grep_atom_soa_s *needles,
+	char **sp, char **ep)
+{
+	const char *__sp = str;
+	struct dt_d_s d = {DT_UNK};
+	const char *const *fmt = needles->fmt;
+	size_t nfmt = needles->natoms;
+
+	if ((d = dt_io_strpd_ep(__sp, fmt, nfmt, ep)).typ == DT_UNK) {
+		size_t noff;
+		while (*(__sp = xstrpbrkp(__sp, needles->needle, &noff)) &&
+		       (d = dt_io_strpd_ep(
+				__sp + needles->off_min[noff],
+				fmt, nfmt, ep)).typ == DT_UNK) {
+			/* avoid inf loops */
+			__sp++;
+		}
+		__sp += needles->off_min[noff];
+	}
+	*sp = (char*)__sp;
+	return d;
+}
+
+/* formatter */
 static inline size_t
 dt_io_strfd_autonl(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
