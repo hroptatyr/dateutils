@@ -266,4 +266,70 @@ arritostr(
 	return ncp;
 }
 
+
+/* faster strpbrk, strspn and strcspn, code by Richard A. O'Keefe
+ * comp.unix.programmer Message-ID: <5449jv$p21$1@goanna.cs.rmit.edu.au>#1/1 */
+
+#define ALPHABET_SIZE	(256)
+
+/* not reentrant */
+static unsigned char table[ALPHABET_SIZE];
+static unsigned char cycle = 0;
+
+static inline void
+set_up_table(const unsigned char *set, bool include_NUL)
+{
+	if (LIKELY(set != NULL)) {
+		/* useful for strtok() too */
+                if (cycle == ALPHABET_SIZE - 1) {
+			memset(table, 0, sizeof(table));
+			cycle = (unsigned char)1;
+                } else {
+			cycle = (unsigned char)(cycle + 1);
+                }
+                while (*set) {
+			table[*set++] = cycle;
+		}
+	}
+	table[0] = (unsigned char)(include_NUL ? cycle : 0);
+	return;
+}
+
+static inline bool
+in_current_set(unsigned char c)
+{
+	return table[c] == cycle;
+}
+
+static size_t
+xstrspn(const char *src, const char *set)
+{
+	size_t i;
+
+	set_up_table((const unsigned char*)set, false);
+	for (i = 0; in_current_set((unsigned char)src[i]); i++);
+	return i;
+}
+
+static size_t
+xstrcspn(const char *src, const char *set)
+{
+	size_t i;
+
+	set_up_table((const unsigned char*)set, true);
+	for (i = 0; !in_current_set((unsigned char)src[i]); i++);
+	return i;
+}
+
+static char*
+xstrpbrk(const char *src, const char *set)
+{
+	const char *p;
+
+	set_up_table((const unsigned char*)set, true);
+	for (p = src; !in_current_set((unsigned char)*p); p++);
+	return (char*)p;
+}
+
+
 #endif	/* INCLUDED_strops_c_ */

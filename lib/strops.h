@@ -77,6 +77,21 @@ arritostr(
 	char *restrict buf, size_t bsz, size_t i,
 	const char *const *arr, size_t narr);
 
+/**
+ * Faster strspn(). */
+static size_t
+xstrspn(const char *src, const char *set);
+
+/**
+ * Faster strcspn(). */
+static size_t
+xstrcspn(const char *src, const char *set);
+
+/**
+ * Faster strpbrk(). */
+static char*
+xstrpbrk(const char *src, const char *set);
+
 
 static inline char*
 __c2p(const char *p)
