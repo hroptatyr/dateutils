@@ -41,55 +41,66 @@
 extern "C" {
 #endif	/* __cplusplus */
 
+#if !defined DECLF
+# define DECLF	static __attribute__((unused))
+# define DEFUN	static
+# define INCLUDE_DATE_CORE_IMPL
+#elif !defined DEFUN
+# define DEFUN
+#endif	/* !DECLF */
+#if !defined restrict
+# define restrict	__restrict
+#endif	/* !restrict */
+
 /* stolen from Klaus Klein/David Laight's strptime() */
 /**
  * Convert STR to ui32 and point to the end of the string in EP. */
-static uint32_t
+DECLF uint32_t
 strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim);
 
 /**
  * Convert D (padded with at most PAD zeroes) into BUF and return the size. */
-static size_t
+DECLF size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad);
 
 /**
  * Convert roman numeral (string) to ui32 and point to its end in EP. */
-static uint32_t
+DECLF uint32_t
 romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim);
 
 /**
  * Convert D to a roman numeral string and put it into BUF, return the size. */
-static size_t
+DECLF size_t
 ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d);
 
 /**
  * Take a string S, (case-insensitively) compare it to an array of strings ARR
  * of size NARR and return its index if found or -1U if not.
  * If S could be found in the array, point to the end of the string S in EP. */
-static uint32_t
+DECLF uint32_t
 strtoarri(const char *s, const char **ep, const char *const *arr, size_t narr);
 
 /**
  * Take a string array ARR (of size NARR) and an index I into the array, print
  * the string ARR[I] into BUF and return the number of bytes copied. */
-static size_t
+DECLF size_t
 arritostr(
 	char *restrict buf, size_t bsz, size_t i,
 	const char *const *arr, size_t narr);
 
 /**
  * Faster strspn(). */
-static size_t
+DECLF size_t
 xstrspn(const char *src, const char *set);
 
 /**
  * Faster strcspn(). */
-static size_t
+DECLF size_t
 xstrcspn(const char *src, const char *set);
 
 /**
  * Faster strpbrk(). */
-static char*
+DECLF char*
 xstrpbrk(const char *src, const char *set);
 
 

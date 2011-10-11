@@ -46,7 +46,7 @@
 #endif	/* !UNLIKELY */
 
 /* stolen from Klaus Klein/David Laight's strptime() */
-static uint32_t
+DEFUN uint32_t
 strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 {
 	uint32_t res = 0;
@@ -69,7 +69,7 @@ strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 	return res;
 }
 
-static size_t
+DEFUN size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 {
 /* all strings should be little */
@@ -143,7 +143,7 @@ __romstr_v(const char c)
 	}
 }
 
-static uint32_t
+DEFUN uint32_t
 romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 {
 	uint32_t res = 0;
@@ -210,7 +210,7 @@ __rom_pr1(char *buf, size_t bsz, unsigned int i, char cnt, char hi, char lo)
 	return res;
 }
 
-static size_t
+DEFUN size_t
 ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 {
 	size_t res;
@@ -228,7 +228,7 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 }
 
 /* string array funs */
-static uint32_t
+DEFUN uint32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 /* take a string, compare it to an array of string (case-insensitively) and
@@ -247,7 +247,7 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 	return -1U;
 }
 
-static size_t
+DEFUN size_t
 arritostr(
 	char *restrict buf, size_t bsz, size_t i,
 	const char *const *arr, size_t narr)
@@ -301,7 +301,7 @@ in_current_set(unsigned char c)
 	return table[c] == cycle;
 }
 
-static size_t
+DEFUN size_t
 xstrspn(const char *src, const char *set)
 {
 	size_t i;
@@ -311,7 +311,7 @@ xstrspn(const char *src, const char *set)
 	return i;
 }
 
-static size_t
+DEFUN size_t
 xstrcspn(const char *src, const char *set)
 {
 	size_t i;
@@ -321,7 +321,7 @@ xstrcspn(const char *src, const char *set)
 	return i;
 }
 
-static char*
+DEFUN char*
 xstrpbrk(const char *src, const char *set)
 {
 	const char *p;
