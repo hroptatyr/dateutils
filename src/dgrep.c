@@ -219,13 +219,23 @@ main(int argc, char *argv[])
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
-		const char *needle = "\t";
-		size_t needlen = 1;
+		struct grep_atom_s __nstk[16], *needle = __nstk;
+		size_t nneedle = countof(__nstk);
+		struct grep_atom_soa_s ndlsoa;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
 		/* no threads reading this stream */
 		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
+
+		/* lest we overflow the stack */
+		if (nfmt >= nneedle) {
+			/* round to the nearest 8-multiple */
+			nneedle = (nfmt | 7) + 1;
+			needle = calloc(nneedle, sizeof(*needle));
+		}
+		/* and now build the needle */
+		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
@@ -240,10 +250,8 @@ main(int argc, char *argv[])
 			}
 			/* check if line matches,
 			 * there is currently no way to specify NEEDLE */
-			d = dt_io_find_strpd(
-				line, fmt, nfmt,
-				needle, needlen,
-				(char**)&sp, (char**)&ep);
+			d = dt_io_find_strpd2(
+				line, &ndlsoa, (char**)&sp, (char**)&ep);
 			if (d.typ && matchp(d, refd, o)) {
 				if (!argi->only_matching_given) {
 					sp = line;
@@ -255,6 +263,9 @@ main(int argc, char *argv[])
 		}
 		/* get rid of resources */
 		free(line);
+		if (needle != __nstk) {
+			free(needle);
+		}
 	}
 
 out:
