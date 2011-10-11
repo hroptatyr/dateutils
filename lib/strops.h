@@ -103,6 +103,12 @@ xstrcspn(const char *src, const char *set);
 DECLF char*
 xstrpbrk(const char *src, const char *set);
 
+/**
+ * Like xstrpbrk() but also return the offset to the character in set
+ * that caused the match. */
+DECLF char*
+xstrpbrkp(const char *src, const char *set, size_t *set_offs);
+
 
 static inline char*
 __c2p(const char *p)
