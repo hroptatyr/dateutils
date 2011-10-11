@@ -13,9 +13,12 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif
+#if !defined UNUSED
+# define UNUSED(x)	__attribute__((unused)) x##_unused
+#endif
 
 static struct dt_d_s
-dt_io_strpd_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
+dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 {
 	struct dt_d_s res = {DT_UNK};
 
