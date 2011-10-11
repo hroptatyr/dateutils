@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include "strops.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -63,71 +64,9 @@ struct strpt_s {
 };
 
 
-/* helpers */
+/* guessing parsers */
 static const char hms_dflt[] = "%H:%M:%S";
 
-static uint32_t
-strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
-{
-	uint32_t res = 0;
-	const char *sp;
-	/* we keep track of the number of digits via rulim */
-	uint32_t rulim;
-
-	for (sp = str, rulim = ulim > 10 ? ulim : 10;
-	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
-	     sp++, rulim /= 10) {
-		res *= 10;
-		res += *sp - '0';
-	}
-	if (UNLIKELY(sp == str)) {
-		res = -1U;
-	} else if (UNLIKELY(res < llim || res > ulim)) {
-		res = -1U;
-	}
-	*ep = (char*)sp;
-	return res;
-}
-
-static size_t
-ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
-{
-/* all strings should be little */
-#define C(x, d)	(char)((x) / (d) % 10 + '0')
-	size_t res;
-
-	if (UNLIKELY(d > 10000)) {
-		return 0;
-	}
-	switch ((res = (size_t)pad) < bsz ? res : bsz) {
-	case 9:
-		/* for nanoseconds */
-		buf[pad - 9] = C(d, 100000000);
-		buf[pad - 8] = C(d, 10000000);
-		buf[pad - 7] = C(d, 1000000);
-	case 6:
-		/* for microseconds */
-		buf[pad - 6] = C(d, 100000);
-		buf[pad - 5] = C(d, 10000);
-		buf[pad - 4] = C(d, 1000);
-	case 3:
-		/* for milliseconds */
-		buf[pad - 3] = C(d, 100);
-	case 2:
-		buf[pad - 2] = C(d, 10);
-	case 1:
-		buf[pad - 1] = C(d, 1);
-		break;
-	default:
-	case 0:
-		res = 0;
-		break;
-	}
-	return res;
-}
-
-
-/* guessing parsers */
 static struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
