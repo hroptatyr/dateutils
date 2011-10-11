@@ -72,6 +72,7 @@ TESTS += dgrep.7.dt
 TESTS += dgrep.8.dt
 TESTS += dgrep.9.dt
 TESTS += dgrep.10.dt
+TESTS += dgrep.11.dt
 
 TESTS += tseq.1.dt
 TESTS += tseq.2.dt
