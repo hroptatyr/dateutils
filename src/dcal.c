@@ -95,51 +95,54 @@ main(int argc, char *argv[])
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
-		const char *needle = "\t";
-		size_t needlen = 1;
+		struct grep_atom_s __nstk[16], *needle = __nstk;
+		size_t nneedle = countof(__nstk);
+		struct grep_atom_soa_s ndlsoa;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
 		/* no threads reading this stream */
 		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
 
-		if (argi->sed_mode_given && argi->sed_mode_arg) {
-			needle = argi->sed_mode_arg;
-			needlen = strlen(needle);
+		/* lest we overflow the stack */
+		if (nfmt >= nneedle) {
+			/* round to the nearest 8-multiple */
+			nneedle = (nfmt | 7) + 1;
+			needle = calloc(nneedle, sizeof(*needle));
 		}
+		/* and now build the needles */
+		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
+
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
 			size_t len;
 			struct dt_d_s d;
+			const char *sp = NULL;
+			const char *ep = NULL;
 
 			n = getline(&line, &len, fp);
 			if (n < 0) {
 				break;
 			}
 			/* check if line matches */
-			if (argi->sed_mode_given) {
-				const char *sp = NULL;
-				const char *ep = NULL;
-
-				if ((d = dt_io_find_strpd(
-					     line, fmt, nfmt,
-					     needle, needlen,
-					     (char**)&sp, (char**)&ep)).typ) {
-					
+			d = dt_io_find_strpd2(
+				line, &ndlsoa, (char**)&sp, (char**)&ep);
+			if (d.typ) {
+				if (argi->sed_mode_given) {
 					dt_io_write_sed(
 						d, ofmt, line, n, sp, ep);
-				} else if (!argi->quiet_given) {
-					goto warn;
+				} else {
+					dt_io_write(d, ofmt);
 				}
-			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
-				dt_io_write(d, ofmt);
 			} else if (!argi->quiet_given) {
-			warn:
 				dt_io_warn_strpd(line);
 			}
 		}
 		/* get rid of resources */
 		free(line);
+		if (needle != __nstk) {
+			free(needle);
+		}
 	}
 
 out:
