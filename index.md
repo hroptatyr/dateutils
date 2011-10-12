@@ -197,6 +197,21 @@ tdiff
     =>
       754s
 
+tgrep
+-----
+  A tool to extract lines from an input stream that match certain
+  criteria, showing either the line or the match:
+
+    tgrep '>=12:00:00' <<EOF
+    fileA	11:59:58
+    fileB	11:59:59	leap second?
+    fileNOON	12:00:00	new version
+    fileC	12:03:12
+    EOF
+    =>
+      fileNOON	12:00:00	new version
+      fileC	12:03:12
+
 strptime
 --------
   A tool that brings the flexibility of strptime(3) to the command
