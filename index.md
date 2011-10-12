@@ -95,7 +95,7 @@ dtest
   A tool to perform date comparison in the shell, it's modelled after
   test(1) but with proper command line options.
 
-    if src/dtest now --gt 2010-01-01; then
+    if dtest now --gt 2010-01-01; then
       echo "yes"
     fi
     =>
