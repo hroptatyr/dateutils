@@ -592,6 +592,12 @@ __ymd_get_bday(dt_ymd_t that, unsigned int ba, unsigned int ref)
 	case DT_SUNDAY:
 	case DT_SATURDAY:
 		return -1;
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+	case DT_MIRACLEDAY:
 	default:
 		break;
 	}
