@@ -1,0 +1,22 @@
+## -*- shell-script -*-
+
+TOOL=tgrep
+CMDLINE="'>=12:00:00'"
+
+## STDIN
+stdin=$(mktemp)
+cat > "${stdin}" <<EOF
+fileA	11:59:58
+fileB	11:59:59	leap second?
+fileNOON	12:00:00	new version
+fileC	12:03:12
+EOF
+
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+fileNOON	12:00:00	new version
+fileC	12:03:12
+EOF
+
+## tgrep.1.dt ends here

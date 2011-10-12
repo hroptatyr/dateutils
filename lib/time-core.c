@@ -362,5 +362,17 @@ dt_tdiff(struct dt_t_s t1, struct dt_t_s t2)
 	return dur;
 }
 
+DEFUN int
+dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
+{
+	if (t1.u < t2.u) {
+		return -1;
+	} else if (t1.u > t2.u) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 #endif	/* INCLUDED_time_core_c_ */
 /* time-core.c ends here */
