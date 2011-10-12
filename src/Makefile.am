@@ -84,6 +84,12 @@ tgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tgrep_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tgrep-clo.c tgrep-clo.h
 
+bin_PROGRAMS += ttest
+ttest_SOURCES = ttest.c ttest-clo.ggo
+ttest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+ttest_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += ttest-clo.c ttest-clo.h
+
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)

@@ -66,6 +66,7 @@ arise when dealing with large amounts of financial data.
 * tdiff::               Compute durations between times
 * tgrep::               Find time matches in input stream
 * tseq::                Generate sequences of times
+* ttest::               Compare times
 @end menu
 
 
@@ -186,6 +187,7 @@ The canonical input and output format is @code{%Y-%m-%_d>00}.
 @include tdiff.texi
 @include tgrep.texi
 @include tseq.texi
+@include ttest.texi
 
 @summarycontents
 @contents
