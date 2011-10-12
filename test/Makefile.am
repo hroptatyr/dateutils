@@ -94,4 +94,6 @@ TESTS += tadd.3.dt
 TESTS += tadd.4.dt
 TESTS += tadd.5.dt
 
+TESTS += tgrep.1.dt
+
 ## Makefile.am ends here
