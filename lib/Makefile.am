@@ -14,6 +14,7 @@ EXTRA_DIST = $(BUILT_SOURCES)
 header_HEADERS =
 header_HEADERS += date-core.h date-core.c
 header_HEADERS += time-core.h time-core.c
+header_HEADERS += strops.h strops.c
 
 noinst_PROGRAMS += testlib
 testlib_CPPFLAGS = $(AM_CPPFLAGS)
