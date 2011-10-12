@@ -138,51 +138,56 @@ cannot parse duration string `%s'\n", st.istr);
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
-		const char *needle = "\t";
-		size_t needlen = 1;
+		struct grep_atom_s __nstk[16], *needle = __nstk;
+		size_t nneedle = countof(__nstk);
+		struct grep_atom_soa_s ndlsoa;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
 		/* no threads reading this stream */
 		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
 
-		if (argi->sed_mode_given && argi->sed_mode_arg) {
-			needle = argi->sed_mode_arg;
-			needlen = strlen(needle);
+		/* lest we overflow the stack */
+		if (nfmt >= nneedle) {
+			/* round to the nearest 8-multiple */
+			nneedle = (nfmt | 7) + 1;
+			needle = calloc(nneedle, sizeof(*needle));
 		}
+		/* and now build the needle */
+		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
+
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;
 			size_t len;
+			const char *sp = NULL;
+			const char *ep = NULL;
 
 			n = getline(&line, &len, fp);
 			if (n < 0) {
 				break;
 			}
-			/* perform addition now */
-			if (argi->sed_mode_given) {
-				const char *sp = NULL;
-				const char *ep = NULL;
+			/* check if line matches, */
+			d = dt_io_find_strpd2(
+				line, &ndlsoa, (char**)&sp, (char**)&ep);
+			if (d.typ) {
+				/* perform addition now */
+				d = dadd_add(d, st.durs, st.ndurs);
 
-				if ((d = dt_io_find_strpd(
-					     line, fmt, nfmt,
-					     needle, needlen,
-					     (char**)&sp, (char**)&ep)).typ) {
-					d = dadd_add(d, st.durs, st.ndurs);
+				if (argi->sed_mode_given) {
 					dt_io_write_sed(
 						d, ofmt, line, n, sp, ep);
-				} else if (!argi->quiet_given) {
-					goto warn;
+				} else {
+					dt_io_write(d, ofmt);
 				}
-			} else if ((d = dt_io_strpd(line, fmt, nfmt)).typ) {
-				d = dadd_add(d, st.durs, st.ndurs);
-				dt_io_write(d, ofmt);
 			} else if (!argi->quiet_given) {
-			warn:
 				dt_io_warn_strpd(line);
 			}
 		}
 		/* get rid of resources */
 		free(line);
+		if (needle != __nstk) {
+			free(needle);
+		}
 		goto out;
 	}
 	/* free the strpdur status */
