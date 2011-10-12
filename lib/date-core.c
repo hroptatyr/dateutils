@@ -534,7 +534,10 @@ __ymcw_get_yday(dt_ymcw_t that)
 	case 2:
 		ws++;
 	case 1:
+	case 12:
 		break;
+	default:
+		return 0U;
 	}
 	/* now find the count of the last W before/eq today */
 	if (m01w <= j01w &&
