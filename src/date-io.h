@@ -91,7 +91,7 @@ struct grep_atom_soa_s {
 static struct grep_atom_s
 calc_grep_atom(const char *fmt)
 {
-	struct grep_atom_s res = {.needle = '\0'};
+	struct grep_atom_s res = {0};
 
 	/* init */
 	if (fmt == NULL) {
@@ -99,11 +99,87 @@ calc_grep_atom(const char *fmt)
 		res.needle = '-';
 		res.off_min = -4;
 		res.off_max = -4;
-		res.fmt = NULL;
 		goto out;
 	}
 	/* rest here ... */
+	for (const char *fp = fmt; *fp; fp++) {
+		if (*fp != '%') {
+		literal:
+			/* found a non-spec character that can be
+			 * used as needle, we should check for the
+			 * character's suitability though, a space is not
+			 * the best needle to find in a haystack of
+			 * english text, in fact it's more like a haystack
+			 * itself */
+			res.needle = *fp;
+			goto out;
+		}
+		/* otherwise it's a %, read next char */
+		switch (*++fp) {
+		default:
+			break;
+		case '%':
+			/* very good needle character methinks */
+			goto literal;
+		case 'n':
+			/* quite good needle characters */
+			res.needle = '\n';
+			goto out;
+		case 't':
+			res.needle = '\t';
+			goto out;
+		case 'F':
+			res.needle = '-';
+			/* fall-through */
+		case 'Y':
+			res.off_min += -4;
+			res.off_max += -4;
+			break;
+		case 'm':
+		case 'd':
+		case 'w':
+		case 'c':
+		case 'C':
+		case 'q':
+			res.off_min += -2;
+			res.off_max += -1;
+			break;
+		case 'y':
+			res.off_min += -2;
+			res.off_max += -2;
+			break;
+		case 'a':
+		case 'b':
+		case 'h':
+			res.off_min += -3;
+			res.off_max += -3;
+			break;
+		case 'j':
+			res.off_min += -3;
+			res.off_max += -1;
+			break;
+		case 'A':
+			/* Wednesday */
+			res.off_min += -9;
+			/* Friday */
+			res.off_max += -6;
+			break;
+		case 'B':
+			/* September */
+			res.off_min += -9;
+			/* May */
+			res.off_max += -3;
+			break;
+		case 'Q':
+			res.needle = 'Q';
+			goto out;
+		}
+	}
 out:
+	/* finally assign the format */
+	if (res.needle) {
+		res.fmt = fmt;
+	}
 	return res;
 }
 
