@@ -78,6 +78,12 @@ tadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tadd_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tadd-clo.c tadd-clo.h
 
+bin_PROGRAMS += tgrep
+tgrep_SOURCES = tgrep.c tgrep-clo.ggo
+tgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+tgrep_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += tgrep-clo.c tgrep-clo.h
+
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
