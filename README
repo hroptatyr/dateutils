@@ -207,6 +207,17 @@ tgrep
       fileNOON	12:00:00	new version
       fileC	12:03:12
 
+ttest
+-----
+  A tool to perform time value comparison in the shell, it's modelled after
+  test(1) but with proper command line options.
+
+    if ttest 12:00:04 --gt 11:22:33; then
+      echo "it's later than 11:22:33"
+    fi
+    =>
+      it's later than 11:22:33
+
 strptime
 --------
   A tool that brings the flexibility of strptime(3) to the command
