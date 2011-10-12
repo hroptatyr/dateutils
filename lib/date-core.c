@@ -559,9 +559,7 @@ __ymcw_get_mday(dt_ymcw_t that)
 	/* weekday the year started with */
 	wd_jan01 = __get_jan01_wday(that.y);
 	/* see what weekday the first of the month was*/
-#if defined HAVE_ANON_STRUCTS
 	wd01 = __ymd_get_yday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#endif	/* C1X */
 	wd01 = (wd_jan01 - 1 + wd01) % 7;
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
@@ -625,9 +623,7 @@ __ymcw_get_bday(dt_ymcw_t that, unsigned int ba, unsigned int ref)
 	}
 
 	/* weekday the month started with */
-#if defined HAVE_ANON_STRUCTS
 	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#endif	/* HAVE_ANON_STRUCTS */
 	res = (signed int)(that.w - wd01) + 5 * (that.c) + 1;
 	return res;
 }
@@ -639,9 +635,7 @@ __bizda_get_mday(dt_bizda_t that)
 	unsigned int res;
 
 	/* find first of the month first */
-#if defined HAVE_ANON_STRUCTS
 	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#endif	/* HAVE_ANON_STRUCTS */
 	switch (wd01) {
 	case DT_MONDAY:
 	case DT_TUESDAY:
@@ -689,9 +683,7 @@ __bizda_get_wday(dt_bizda_t that)
 	unsigned int magic;
 
 	/* find first of the month first */
-#if defined HAVE_ANON_STRUCTS
 	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#endif	/* HAVE_ANON_STRUCTS */
 	b = that.bd;
 	magic = (b - 1 + (wd01 ?: 6) - 1);
 	/* now just add up bdays */
@@ -816,9 +808,7 @@ __ymd_to_ymcw(dt_ymd_t d)
 {
 	unsigned int c = __ymd_get_count(d);
 	unsigned int w = __ymd_get_wday(d);
-#if defined HAVE_ANON_STRUCTS
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
-#endif	/* HAVE_ANON_STRUCTS */
 }
 
 static dt_dow_t
@@ -874,9 +864,7 @@ __daisy_to_ymd(dt_daisy_t that)
 			}
 		}
 	}
-#if defined HAVE_ANON_STRUCTS
 	return (dt_ymd_t){.y = y, .m = m, .d = d};
-#endif	/* HAVE_ANON_STRUCTS */
 }
 
 static dt_ymcw_t
@@ -892,18 +880,14 @@ __daisy_to_ymcw(dt_daisy_t that)
 	tmp = __daisy_to_ymd(that);
 	c = __ymd_get_count(tmp);
 	w = __daisy_get_wday(that);
-#if defined HAVE_ANON_STRUCTS
 	return (dt_ymcw_t){.y = tmp.y, .m = tmp.m, .c = c, .w = w};
-#endif	/* HAVE_ANON_STRUCTS */
 }
 
 static dt_ymd_t
 __ymcw_to_ymd(dt_ymcw_t d)
 {
 	unsigned int md = __ymcw_get_mday(d);
-#if defined HAVE_ANON_STRUCTS
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
-#endif	/* HAVE_ANON_STRUCTS */
 }
 
 
@@ -1427,9 +1411,7 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
-#if defined HAVE_ANON_STRUCTS
 	struct dt_d_s res = {.u = 0};
-#endif	/* HAVE_ANON_STRUCTS */
 	bool bizdap;
 
 	if (UNLIKELY(d.y == -1U)) {
@@ -1501,9 +1483,7 @@ __trans_dfmt(const char **fmt)
 static struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
-#if defined HAVE_ANON_STRUCTS
 	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
-#endif	/* HAVE_ANON_STRUCTS */
 	struct strpd_s d = {0};
 	const char *sp;
 
@@ -2146,23 +2126,31 @@ dt_strpdur(const char *str, char **ep)
 	/* assess */
 	if (d.b || d.q) {
 		res.typ = DT_DUR_QMB;
-		res.qmb.q = d.q;
-		res.qmb.m = d.m;
-		res.qmb.b = d.b;
+		res.qmb = (dt_qmbdur_t){
+			.q = d.q,
+			.m = d.m,
+			.b = d.b,
+		};
 	} else if (LIKELY((d.m && d.d) ||
 		   (d.y == 0 && d.m == 0 && d.w == 0) ||
 		   (d.y == 0 && d.w == 0 && d.d == 0))) {
 		res.typ = DT_DUR_MD;
-		res.md.m = d.m;
-		res.md.d = d.d;
+		res.md = (dt_mddur_t){
+			.m = d.m,
+			.d = d.d,
+		};
 	} else if (d.w) {
 		res.typ = DT_DUR_WD;
-		res.wd.w = d.w;
-		res.wd.d = d.d;
+		res.wd = (dt_wddur_t){
+			.w = d.w,
+			.d = d.d,
+		};
 	} else if (d.y) {
 		res.typ = DT_DUR_YM;
-		res.ym.y = d.y;
-		res.ym.m = d.m;
+		res.ym = (dt_ymdur_t){
+			.y = d.y,
+			.m = d.m,
+		};
 	}
 out:
 	if (ep) {
@@ -2268,13 +2256,11 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymd.d = tm.tm_mday;
 			break;
 		case DT_YMCW: {
-#if defined HAVE_ANON_STRUCTS
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
 				.m = tm.tm_mon,
 				.d = tm.tm_mday,
 			};
-#endif	/* HAVE_ANON_STRUCTS */
 			res.ymcw.y = tm.tm_year;
 			res.ymcw.m = tm.tm_mon;
 			res.ymcw.c = __ymd_get_count(tmp);
