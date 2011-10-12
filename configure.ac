@@ -41,6 +41,16 @@ AC_PROG_CC([icc gcc tcc cc])
 SXE_CHECK_CC
 SXE_CHECK_CFLAGS
 
+## check for working c1x features
+SXE_CHECK_ANON_STRUCTS([:], [
+	AC_MSG_ERROR([C compiler unusable
+
+dateutils make extensive use of c1x anonymous structs/unions but your
+compiler does not fully support them.
+Change either the CFLAGS or the compiler.
+Good day.
+])])
+
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
