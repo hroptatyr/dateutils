@@ -46,7 +46,7 @@ option "sed-mode" S
 	"Copy parts from the input before and after the date string.  \
 Optional DELIM specifies where the date input starts and defaults to \
 the tab character."
-	string optional typestr="DELIM" argoptional
+	optional
 ])dnl SED_MODE
 
 define([QUIET], [dnl
