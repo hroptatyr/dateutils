@@ -151,23 +151,27 @@ dt_io_find_strpd2(
 	const struct grep_atom_soa_s *needles,
 	char **sp, char **ep)
 {
-	const char *__sp = str;
 	struct dt_d_s d = {DT_UNK};
+	const char *needle = needles->needle;
 	const char *const *fmt = needles->fmt;
 	size_t nfmt = needles->natoms;
+	int8_t *off_min = needles->off_min;
+	int8_t *off_max = needles->off_max;
+	const char *p = str;
 
-	if ((d = dt_io_strpd_ep(__sp, fmt, nfmt, ep)).typ == DT_UNK) {
-		size_t noff;
-		while (*(__sp = xstrpbrkp(__sp, needles->needle, &noff)) &&
-		       (d = dt_io_strpd_ep(
-				__sp + needles->off_min[noff],
-				fmt, nfmt, ep)).typ == DT_UNK) {
-			/* avoid inf loops */
-			__sp++;
+	for (size_t noff; *(p = xstrpbrkp(p, needle, &noff)); p++) {
+		/* check p + min_off .. p + max_off for dates */
+		for (int8_t i = off_min[noff]; i <= off_max[noff]; i++) {
+			if ((d = dt_io_strpd_ep(p + i, fmt, nfmt, ep)).typ) {
+				p += i;
+				goto found;
+			}
 		}
-		__sp += needles->off_min[noff];
 	}
-	*sp = (char*)__sp;
+	/* reset to some sane defaults */
+	*ep = (char*)(p = str);
+found:
+	*sp = (char*)p;
 	return d;
 }
 
