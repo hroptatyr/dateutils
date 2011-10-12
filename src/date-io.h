@@ -153,16 +153,17 @@ dt_io_find_strpd2(
 {
 	struct dt_d_s d = {DT_UNK};
 	const char *needle = needles->needle;
-	const char *const *fmt = needles->fmt;
-	size_t nfmt = needles->natoms;
+	const char *const *fmts = needles->fmt;
 	int8_t *off_min = needles->off_min;
 	int8_t *off_max = needles->off_max;
 	const char *p = str;
 
 	for (size_t noff; *(p = xstrpbrkp(p, needle, &noff)); p++) {
 		/* check p + min_off .. p + max_off for dates */
+		const char *fmt = fmts[noff];
+
 		for (int8_t i = off_min[noff]; i <= off_max[noff]; i++) {
-			if ((d = dt_io_strpd_ep(p + i, fmt, nfmt, ep)).typ) {
+			if ((d = dt_strpd(p + i, fmt, ep)).typ) {
 				p += i;
 				goto found;
 			}
