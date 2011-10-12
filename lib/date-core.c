@@ -2126,31 +2126,23 @@ dt_strpdur(const char *str, char **ep)
 	/* assess */
 	if (d.b || d.q) {
 		res.typ = DT_DUR_QMB;
-		res.qmb = (dt_qmbdur_t){
-			.q = d.q,
-			.m = d.m,
-			.b = d.b,
-		};
+		res.qmb.q = d.q;
+		res.qmb.m = d.m;
+		res.qmb.b = d.b;
 	} else if (LIKELY((d.m && d.d) ||
 		   (d.y == 0 && d.m == 0 && d.w == 0) ||
 		   (d.y == 0 && d.w == 0 && d.d == 0))) {
 		res.typ = DT_DUR_MD;
-		res.md = (dt_mddur_t){
-			.m = d.m,
-			.d = d.d,
-		};
+		res.md.m = d.m;
+		res.md.d = d.d;
 	} else if (d.w) {
 		res.typ = DT_DUR_WD;
-		res.wd = (dt_wddur_t){
-			.w = d.w,
-			.d = d.d,
-		};
+		res.wd.w = d.w;
+		res.wd.d = d.d;
 	} else if (d.y) {
 		res.typ = DT_DUR_YM;
-		res.ym = (dt_ymdur_t){
-			.y = d.y,
-			.m = d.m,
-		};
+		res.ym.y = d.y;
+		res.ym.m = d.m;
 	}
 out:
 	if (ep) {
