@@ -206,6 +206,9 @@ __rom_pr1(char *buf, size_t bsz, unsigned int i, char cnt, char hi, char lo)
 	case 1:
 		buf[res++] = cnt;
 		break;
+	default:
+		buf[res] = '\0';
+		break;
 	}
 	return res;
 }
