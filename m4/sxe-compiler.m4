@@ -295,4 +295,38 @@ AC_DEFUN([SXE_CHECK_CC], [dnl
 	CC="${CC} ${std}"
 ])dnl SXE_CHECK_CC
 
+AC_DEFUN([SXE_CHECK_ANON_STRUCTS], [
+	AC_MSG_CHECKING([whether C compiler can cope with anonymous structures])
+	AC_LANG_PUSH(C)
+	AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[
+union __test_u {
+	int i;
+	struct {
+		char c;
+		char padc;
+		short int pads;
+	};
+};
+	]], [[
+	union __test_u tmp = {.c = '4'};
+	]]), [
+		sxe_cv_have_anon_structs="yes"
+	], [
+		sxe_cv_have_anon_structs="no"
+	])
+	AC_MSG_RESULT([${sxe_cv_have_anon_structs}])
+
+	if test "${sxe_cv_have_anon_structs}" = "yes"; then
+		AC_DEFINE([HAVE_ANON_STRUCTS], [1], [
+			Whether c1x anon structs work])
+		$1
+		:
+	else
+		$2
+		:
+	fi
+	AC_LANG_POP()
+])dnl SXE_CHECK_ANON_STRUCTS
+
+
 dnl sxe-compiler.m4 ends here
