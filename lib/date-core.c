@@ -1596,7 +1596,7 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 		d.d = tmp.d;
 		break;
 	}
-	case DT_BIZDA:
+	case DT_UNK:
 	default:
 		return 0;
 	}
