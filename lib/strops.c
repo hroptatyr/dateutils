@@ -1,0 +1,356 @@
+/*** strops.c -- useful string operations
+ *
+ * Copyright (C) 2011 Sebastian Freundt
+ *
+ * Author:  Sebastian Freundt <freundt@ga-group.nl>
+ *
+ * This file is part of dateutils.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the author nor the names of any contributors
+ *    may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ **/
+/* implementation part of strops.h */
+#if !defined INCLUDED_strops_c_
+#define INCLUDED_strops_c_
+
+#if !defined LIKELY
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
+#endif	/* !LIKELY */
+#if !defined UNLIKELY
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
+#endif	/* !UNLIKELY */
+
+/* stolen from Klaus Klein/David Laight's strptime() */
+DEFUN uint32_t
+strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+{
+	uint32_t res = 0;
+	const char *sp;
+	/* we keep track of the number of digits via rulim */
+	uint32_t rulim;
+
+	for (sp = str, rulim = ulim > 10 ? ulim : 10;
+	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
+	     sp++, rulim /= 10) {
+		res *= 10;
+		res += *sp - '0';
+	}
+	if (UNLIKELY(sp == str)) {
+		res = -1U;
+	} else if (UNLIKELY(res < llim || res > ulim)) {
+		res = -1U;
+	}
+	*ep = (char*)sp;
+	return res;
+}
+
+DEFUN size_t
+ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
+{
+/* all strings should be little */
+#define C(x, d)	(char)((x) / (d) % 10 + '0')
+	size_t res;
+
+	if (UNLIKELY(d > 1000000000)) {
+		return 0;
+	}
+	switch ((res = (size_t)pad) < bsz ? res : bsz) {
+	case 9:
+		/* for nanoseconds */
+		buf[pad - 9] = C(d, 100000000);
+		buf[pad - 8] = C(d, 10000000);
+		buf[pad - 7] = C(d, 1000000);
+	case 6:
+		/* for microseconds */
+		buf[pad - 6] = C(d, 100000);
+		buf[pad - 5] = C(d, 10000);
+	case 4:
+		/* for western year numbers */
+		buf[pad - 4] = C(d, 1000);
+	case 3:
+		/* for milliseconds or doy et al. numbers */
+		buf[pad - 3] = C(d, 100);
+	case 2:
+		/* hours, mins, secs, doms, moys, etc. */
+		buf[pad - 2] = C(d, 10);
+	case 1:
+		buf[pad - 1] = C(d, 1);
+		break;
+	default:
+	case 0:
+		res = 0;
+		break;
+	}
+	return res;
+}
+
+/* roman numerals */
+static uint32_t
+__romstr_v(const char c)
+{
+	switch (c) {
+	case 'n':
+	case 'N':
+		return 0;
+	case 'i':
+	case 'I':
+		return 1;
+	case 'v':
+	case 'V':
+		return 5;
+	case 'x':
+	case 'X':
+		return 10;
+	case 'l':
+	case 'L':
+		return 50;
+	case 'c':
+	case 'C':
+		return 100;
+	case 'd':
+	case 'D':
+		return 500;
+	case 'm':
+	case 'M':
+		return 1000;
+	default:
+		return -1U;
+	}
+}
+
+DEFUN uint32_t
+romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+{
+	uint32_t res = 0;
+	const char *sp;
+	uint32_t v;
+
+	/* loops through characters */
+	for (sp = str, v = __romstr_v(*sp); *sp; sp++) {
+		uint32_t nv = __romstr_v(sp[1]);
+
+		if (UNLIKELY(v == -1U)) {
+			break;
+		} else if (LIKELY(nv == -1U || v >= nv)) {
+			res += v;
+		} else {
+			res -= v;
+		}
+		v = nv;
+	}
+	if (UNLIKELY(sp == str)) {
+		res = -1U;
+	} else if (UNLIKELY(res < llim || res > ulim)) {
+		res = -1U;
+	}
+	*ep = (char*)sp;
+	return res;
+}
+
+static size_t
+__rom_pr1(char *buf, size_t bsz, unsigned int i, char cnt, char hi, char lo)
+{
+	size_t res = 0;
+
+	if (UNLIKELY(bsz < 4)) {
+		return 0;
+	}
+	switch (i) {
+	case 9:
+		buf[res++] = cnt;
+		buf[res++] = hi;
+		break;
+	case 4:
+		buf[res++] = cnt;
+		buf[res++] = lo;
+		break;
+	case 8:
+		buf[++res] = cnt;
+	case 7:
+		buf[++res] = cnt;
+	case 6:
+		buf[++res] = cnt;
+	case 5:
+		buf[0] = lo;
+		res++;
+		break;
+	case 3:
+		buf[res++] = cnt;
+	case 2:
+		buf[res++] = cnt;
+	case 1:
+		buf[res++] = cnt;
+		break;
+	}
+	return res;
+}
+
+DEFUN size_t
+ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
+{
+	size_t res;
+
+	for (res = 0; d >= 1000 && res < bsz; d -= 1000) {
+		buf[res++] = 'M';
+	}
+
+	res += __rom_pr1(buf + res, bsz - res, d / 100U, 'C', 'M', 'D');
+	d %= 100;
+	res += __rom_pr1(buf + res, bsz - res, d / 10U, 'X', 'C', 'L');
+	d %= 10;
+	res += __rom_pr1(buf + res, bsz - res, d, 'I', 'X', 'V');
+	return res;
+}
+
+/* string array funs */
+DEFUN uint32_t
+strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
+{
+/* take a string, compare it to an array of string (case-insensitively) and
+ * return its index if found or -1U if not */
+	for (size_t i = 0; i < narr; i++) {
+		const char *chk = arr[i];
+		size_t len = strlen(chk);
+
+		if (strncasecmp(chk, buf, len) == 0) {
+			*ep = buf + len;
+			return i;
+		}
+	}
+	/* no matches */
+	*ep = buf;
+	return -1U;
+}
+
+DEFUN size_t
+arritostr(
+	char *restrict buf, size_t bsz, size_t i,
+	const char *const *arr, size_t narr)
+{
+/* take a string array, an index into the array and print the string
+ * behind it into BUF, return the number of bytes copied */
+	size_t ncp;
+	size_t len;
+
+	if (i > narr) {
+		return 0;
+	}
+	len = strlen(arr[i]);
+	ncp = bsz > len ? len : bsz;
+	memcpy(buf, arr[i], ncp);
+	return ncp;
+}
+
+
+/* faster strpbrk, strspn and strcspn, code by Richard A. O'Keefe
+ * comp.unix.programmer Message-ID: <5449jv$p21$1@goanna.cs.rmit.edu.au>#1/1 */
+
+#define ALPHABET_SIZE	(256)
+
+/* not reentrant */
+static unsigned char table[ALPHABET_SIZE];
+static unsigned char tblidx[ALPHABET_SIZE];
+static unsigned char cycle = 0;
+
+static inline void
+set_up_table(const unsigned char *set, bool include_NUL, bool build_idx)
+{
+	unsigned char i = 0;
+
+	if (LIKELY(set != NULL)) {
+		/* useful for strtok() too */
+                if (UNLIKELY(cycle == ALPHABET_SIZE - 1)) {
+			memset(table, 0, sizeof(table));
+			cycle = (unsigned char)1;
+                } else {
+			cycle = (unsigned char)(cycle + 1);
+                }
+                while (*set) {
+			if (build_idx) {
+				tblidx[*set] = i++;
+			}
+			table[*set++] = cycle;
+		}
+	}
+	if (build_idx) {
+		tblidx[0] = (unsigned char)(include_NUL ? i : 0);
+	}
+	table[0] = (unsigned char)(include_NUL ? cycle : 0);
+	return;
+}
+
+static inline bool
+in_current_set(unsigned char c)
+{
+	return table[c] == cycle;
+}
+
+DEFUN size_t
+xstrspn(const char *src, const char *set)
+{
+	size_t i;
+
+	set_up_table((const unsigned char*)set, false, false);
+	for (i = 0; in_current_set((unsigned char)src[i]); i++);
+	return i;
+}
+
+DEFUN size_t
+xstrcspn(const char *src, const char *set)
+{
+	size_t i;
+
+	set_up_table((const unsigned char*)set, true, false);
+	for (i = 0; !in_current_set((unsigned char)src[i]); i++);
+	return i;
+}
+
+DEFUN char*
+xstrpbrk(const char *src, const char *set)
+{
+	const char *p;
+
+	set_up_table((const unsigned char*)set, true, false);
+	for (p = src; !in_current_set((unsigned char)*p); p++);
+	return (char*)p;
+}
+
+DEFUN char*
+xstrpbrkp(const char *src, const char *set, size_t *set_offs)
+{
+	const char *p;
+
+	set_up_table((const unsigned char*)set, true, true);
+	for (p = src; !in_current_set((unsigned char)*p); p++);
+	if (LIKELY(set_offs)) {
+		*set_offs = tblidx[(unsigned char)*p];
+	}
+	return (char*)p;
+}
+
+#endif	/* INCLUDED_strops_c_ */
