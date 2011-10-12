@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=ttest
+CMDLINE="12:00:04 --gt 11:22:33 && echo \"true\""
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+true
+EOF
+
+## ttest.1.dt ends here
