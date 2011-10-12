@@ -129,6 +129,11 @@ DECLF struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur);
  * result in the .sdur slot. */
 DECLF struct dt_t_s dt_tdiff(struct dt_t_s t1, struct dt_t_s t2);
 
+/**
+ * Compare two time values, yielding 0 if they are equal, -1 if T1 is older,
+ * 1 if T1 is younger than the T2. */
+DECLF int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
+
 
 #if defined INCLUDE_TIME_CORE_IMPL
 # include "time-core.c"

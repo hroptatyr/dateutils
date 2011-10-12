@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdio_ext.h>
 #include "time-core.h"
+#include "strops.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
