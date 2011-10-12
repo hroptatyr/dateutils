@@ -298,7 +298,7 @@ AC_DEFUN([SXE_CHECK_CC], [dnl
 AC_DEFUN([SXE_CHECK_ANON_STRUCTS], [
 	AC_MSG_CHECKING([whether C compiler can cope with anonymous structures])
 	AC_LANG_PUSH(C)
-	AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 union __test_u {
 	int i;
 	struct {
@@ -309,7 +309,7 @@ union __test_u {
 };
 	]], [[
 	union __test_u tmp = {.c = '4'};
-	]]), [
+	]])], [
 		sxe_cv_have_anon_structs="yes"
 	], [
 		sxe_cv_have_anon_structs="no"
