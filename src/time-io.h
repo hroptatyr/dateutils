@@ -75,6 +75,169 @@ dt_io_find_strpt(
 	return t;
 }
 
+
+/* needles for the grep mode */
+typedef struct grep_atom_s *grep_atom_t;
+typedef const struct grep_atom_s *const_grep_atom_t;
+
+struct grep_atom_s {
+	/* 4 bytes */
+	char needle;
+	int8_t off_min;
+	int8_t off_max;
+	uint8_t pad;
+	/* 8 bytes */
+	const char *fmt;
+};
+
+struct grep_atom_soa_s {
+	size_t natoms;
+	char *needle;
+	int8_t *off_min;
+	int8_t *off_max;
+	const char **fmt;
+};
+
+static struct grep_atom_s
+calc_grep_atom(const char *fmt)
+{
+	struct grep_atom_s res = {0};
+
+	/* init */
+	if (fmt == NULL) {
+		/* standard format, %H:%M:%S */
+		res.needle = ':';
+		res.off_min = -2;
+		res.off_max = -1;
+		goto out;
+	}
+	/* rest here ... */
+	for (const char *fp = fmt; *fp; fp++) {
+		if (*fp != '%') {
+		literal:
+			/* found a non-spec character that can be
+			 * used as needle, we should check for the
+			 * character's suitability though, a space is not
+			 * the best needle to find in a haystack of
+			 * english text, in fact it's more like a haystack
+			 * itself */
+			res.needle = *fp;
+			goto out;
+		}
+		/* otherwise it's a %, read next char */
+		switch (*++fp) {
+		default:
+			break;
+		case '%':
+			/* very good needle character methinks */
+			goto literal;
+		case 'n':
+			/* quite good needle characters */
+			res.needle = '\n';
+			goto out;
+		case 't':
+			res.needle = '\t';
+			goto out;
+		case 'T':
+			res.needle = ':';
+			/* fall-through */
+		case 'H':
+		case 'M':
+		case 'S':
+		case 'I':
+			res.off_min += -2;
+			res.off_max += -1;
+			break;
+		case 'P':
+		case 'p':
+			res.off_min += -2;
+			res.off_max += -2;
+			break;
+		case 'N':
+			res.off_min += -9;
+			res.off_min += -1;
+			break;
+		}
+	}
+out:
+	/* finally assign the format */
+	if (res.needle) {
+		res.fmt = fmt;
+	}
+	return res;
+}
+
+static struct grep_atom_soa_s __attribute__((unused))
+build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
+{
+	struct grep_atom_soa_s res = {.natoms = 0};
+
+	res.needle = (char*)atoms;
+	res.off_min = (int8_t*)(res.needle + natoms);
+	res.off_max = (int8_t*)(res.off_min + natoms);
+	res.fmt = (const char**)(res.off_max + natoms);
+
+	if (nfmt == 0) {
+		size_t idx = res.natoms++;
+		struct grep_atom_s a = calc_grep_atom(NULL);
+		res.needle[idx] = a.needle;
+		res.off_min[idx] = a.off_min;
+		res.off_max[idx] = a.off_max;
+		res.fmt[idx] = a.fmt;
+		goto out;
+	}
+	/* otherwise collect needles from all formats */
+	for (size_t i = 0; i < nfmt && res.natoms < natoms; i++) {
+		size_t idx;
+		struct grep_atom_s a;
+
+		if ((a = calc_grep_atom(fmt[i])).needle) {
+			idx = res.natoms++;
+			res.needle[idx] = a.needle;
+			res.off_min[idx] = a.off_min;
+			res.off_max[idx] = a.off_max;
+			res.fmt[idx] = a.fmt;
+		}
+	}
+out:
+	/* terminate needle with \0 */
+	res.needle[res.natoms] = '\0';
+	return res;
+}
+
+static struct dt_t_s  __attribute__((unused))
+dt_io_find_strpt2(
+	const char *str,
+	const struct grep_atom_soa_s *needles,
+	char **sp, char **ep)
+{
+	struct dt_t_s t = {.s = -1};
+	const char *needle = needles->needle;
+	const char *const *fmts = needles->fmt;
+	int8_t *off_min = needles->off_min;
+	int8_t *off_max = needles->off_max;
+	const char *p = str;
+
+	for (size_t noff; *(p = xstrpbrkp(p, needle, &noff)); p++) {
+		/* check p + min_off .. p + max_off for dates */
+		const char *fmt = fmts[noff];
+
+		for (int8_t i = off_min[noff]; i <= off_max[noff]; i++) {
+			if ((t = dt_strpt(p + i, fmt, ep)).s >= 0) {
+				p += i;
+				goto found;
+			}
+		}
+	}
+	/* reset to some sane defaults */
+	*ep = (char*)(p = str);
+found:
+	*sp = (char*)p;
+	return t;
+}
+
+
+/* formatter */
 static inline size_t
 dt_io_strft_autonl(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
