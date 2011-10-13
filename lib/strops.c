@@ -280,6 +280,12 @@ static unsigned char table[ALPHABET_SIZE];
 static unsigned char tblidx[ALPHABET_SIZE];
 static unsigned char cycle = 0;
 
+static inline bool
+in_current_set(unsigned char c)
+{
+	return table[c] == cycle;
+}
+
 static inline void
 set_up_table(const unsigned char *set, bool include_NUL, bool build_idx)
 {
@@ -294,7 +300,7 @@ set_up_table(const unsigned char *set, bool include_NUL, bool build_idx)
 			cycle = (unsigned char)(cycle + 1);
                 }
                 while (*set) {
-			if (build_idx) {
+			if (build_idx && !in_current_set(*set)) {
 				tblidx[*set] = i++;
 			}
 			table[*set++] = cycle;
@@ -305,12 +311,6 @@ set_up_table(const unsigned char *set, bool include_NUL, bool build_idx)
 	}
 	table[0] = (unsigned char)(include_NUL ? cycle : 0);
 	return;
-}
-
-static inline bool
-in_current_set(unsigned char c)
-{
-	return table[c] == cycle;
 }
 
 DEFUN size_t
