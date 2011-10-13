@@ -32,6 +32,8 @@ for time fiddling, the only exception being `strptime`:
 + `tadd`                Add durations to times
 + `tdiff`               Compute durations between times
 + `tseq`                Generate sequences of times
++ `ttest`               Compare time values
++ `tgrep`               Grep time values in input streams
 
 
 
