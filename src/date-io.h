@@ -101,6 +101,8 @@ make_grep_atom_soa(grep_atom_t atoms, size_t natoms)
 	return res;
 }
 
+#define GRPATM_NEEDLELESS_MODE_CHAR	(1)
+
 static struct grep_atom_s
 calc_grep_atom(const char *fmt)
 {
@@ -198,7 +200,14 @@ calc_grep_atom(const char *fmt)
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
 		if (res.pl.flags == GRPATM_DIGITS) {
 			/* ah, only digits, thats good */
-			res.needle = -1;
+			int8_t tmp = (int8_t)-res.pl.off_min;
+
+			/* swap-invert min and max */
+			res.pl.off_min = (int8_t)-res.pl.off_max;
+			res.pl.off_max = tmp;
+			/* use a needle that is unlikely to occur and
+			 * that will bubble to the front of the needlestack */
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
 			goto out;
 		}
 	}
@@ -283,6 +292,28 @@ dt_io_find_strpd2(
 					goto found;
 				}
 			}
+		}
+	}
+	/* otherwise check character classes */
+	for (size_t i = 0; needle[i] == GRPATM_NEEDLELESS_MODE_CHAR; i++) {
+		struct grpatm_payload_s f = needles->flesh[i];
+		const char *fmt = f.fmt;
+
+		/* look out for char classes*/
+		switch (f.flags) {
+		case GRPATM_DIGITS:
+			/* yay, look for all digits */
+			for (p = str; *p && !(*p >= '0' && *p <= '9'); p++);
+			for (const char *q = p;
+			     *q && *q >= '0' && *q <= '9'; q++) {
+				if ((--f.off_min <= 0) &&
+				    (d = dt_strpd(p, fmt, ep)).typ) {
+					goto found;
+				}
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	/* reset to some sane defaults */
