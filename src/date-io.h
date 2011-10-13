@@ -70,23 +70,35 @@ dt_io_find_strpd(
 typedef struct grep_atom_s *grep_atom_t;
 typedef const struct grep_atom_s *const_grep_atom_t;
 
-struct grep_atom_s {
-	/* 4 bytes */
-	char needle;
+struct grpatm_payload_s {
+	uint8_t flags;
+#define GRPATM_DIGITS_ONLY	(1)
 	int8_t off_min;
 	int8_t off_max;
-	uint8_t pad;
-	/* 8 bytes */
 	const char *fmt;
+};
+
+/* atoms are maps needle-character -> payload */
+struct grep_atom_s {
+	char needle;
+	struct grpatm_payload_s pl;
 };
 
 struct grep_atom_soa_s {
 	size_t natoms;
 	char *needle;
-	int8_t *off_min;
-	int8_t *off_max;
-	const char **fmt;
+	struct grpatm_payload_s *flesh;
 };
+
+static struct grep_atom_soa_s
+make_grep_atom_soa(grep_atom_t atoms, size_t natoms)
+{
+	struct grep_atom_soa_s res = {.natoms = 0};
+
+	res.needle = (char*)atoms;
+	res.flesh = (void*)(res.needle + natoms);
+	return res;
+}
 
 static struct grep_atom_s
 calc_grep_atom(const char *fmt)
@@ -97,8 +109,8 @@ calc_grep_atom(const char *fmt)
 	if (fmt == NULL) {
 		/* standard format, %Y-%m-%d */
 		res.needle = '-';
-		res.off_min = -4;
-		res.off_max = -4;
+		res.pl.off_min = -4;
+		res.pl.off_max = -4;
 		goto out;
 	}
 	/* rest here ... */
@@ -132,8 +144,8 @@ calc_grep_atom(const char *fmt)
 			res.needle = '-';
 			/* fall-through */
 		case 'Y':
-			res.off_min += -4;
-			res.off_max += -4;
+			res.pl.off_min += -4;
+			res.pl.off_max += -4;
 			break;
 		case 'm':
 		case 'd':
@@ -141,44 +153,47 @@ calc_grep_atom(const char *fmt)
 		case 'c':
 		case 'C':
 		case 'q':
-			res.off_min += -2;
-			res.off_max += -1;
+			res.pl.off_min += -2;
+			res.pl.off_max += -1;
 			break;
 		case 'y':
-			res.off_min += -2;
-			res.off_max += -2;
+			res.pl.off_min += -2;
+			res.pl.off_max += -2;
 			break;
 		case 'a':
 		case 'b':
 		case 'h':
-			res.off_min += -3;
-			res.off_max += -3;
+			res.pl.off_min += -3;
+			res.pl.off_max += -3;
 			break;
 		case 'j':
-			res.off_min += -3;
-			res.off_max += -1;
+			res.pl.off_min += -3;
+			res.pl.off_max += -1;
 			break;
 		case 'A':
 			/* Wednesday */
-			res.off_min += -9;
+			res.pl.off_min += -9;
 			/* Friday */
-			res.off_max += -6;
+			res.pl.off_max += -6;
 			break;
 		case 'B':
 			/* September */
-			res.off_min += -9;
+			res.pl.off_min += -9;
 			/* May */
-			res.off_max += -3;
+			res.pl.off_max += -3;
 			break;
 		case 'Q':
 			res.needle = 'Q';
 			goto out;
 		}
 	}
+	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
+		;
+	}
 out:
 	/* finally assign the format */
 	if (res.needle) {
-		res.fmt = fmt;
+		res.pl.fmt = fmt;
 	}
 	return res;
 }
@@ -186,33 +201,38 @@ out:
 static struct grep_atom_soa_s __attribute__((unused))
 build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 {
-	struct grep_atom_soa_s res = {.natoms = 0};
-
-	res.needle = (char*)atoms;
-	res.off_min = (int8_t*)(res.needle + natoms);
-	res.off_max = (int8_t*)(res.off_min + natoms);
-	res.fmt = (const char**)(res.off_max + natoms);
+	struct grep_atom_soa_s res = make_grep_atom_soa(atoms, natoms);
+	struct grep_atom_s a;
 
 	if (nfmt == 0) {
-		size_t idx = res.natoms++;
-		struct grep_atom_s a = calc_grep_atom(NULL);
-		res.needle[idx] = a.needle;
-		res.off_min[idx] = a.off_min;
-		res.off_max[idx] = a.off_max;
-		res.fmt[idx] = a.fmt;
+
+		if ((a = calc_grep_atom(NULL)).needle) {
+			size_t idx = res.natoms++;
+			res.needle[idx] = a.needle;
+			res.flesh[idx] = a.pl;
+		}
 		goto out;
 	}
 	/* otherwise collect needles from all formats */
 	for (size_t i = 0; i < nfmt && res.natoms < natoms; i++) {
-		size_t idx;
-		struct grep_atom_s a;
-
 		if ((a = calc_grep_atom(fmt[i])).needle) {
-			idx = res.natoms++;
-			res.needle[idx] = a.needle;
-			res.off_min[idx] = a.off_min;
-			res.off_max[idx] = a.off_max;
-			res.fmt[idx] = a.fmt;
+			const char *ndl = res.needle;
+			size_t idx = res.natoms++;
+			size_t j;
+
+			/* stable insertion sort, find the slot first ... */
+			for (j = 0; j < idx && ndl[j] <= a.needle; j++);
+			/* ... j now points to where we insert, so move
+			 * everything behind j */
+			if (j < idx) {
+				memmove(res.needle + j, ndl + j + 1, idx - j);
+				memmove(
+					res.flesh + j,
+					res.flesh + j + 1,
+					(idx - j) * sizeof(*res.flesh));
+			}
+			res.needle[j] = a.needle;
+			res.flesh[j] = a.pl;
 		}
 	}
 out:
@@ -229,16 +249,14 @@ dt_io_find_strpd2(
 {
 	struct dt_d_s d = {DT_UNK};
 	const char *needle = needles->needle;
-	const char *const *fmts = needles->fmt;
-	int8_t *off_min = needles->off_min;
-	int8_t *off_max = needles->off_max;
 	const char *p = str;
 
 	for (size_t noff; *(p = xstrpbrkp(p, needle, &noff)); p++) {
 		/* check p + min_off .. p + max_off for dates */
-		const char *fmt = fmts[noff];
+		struct grpatm_payload_s flesh = needles->flesh[noff];
+		const char *fmt = flesh.fmt;
 
-		for (int8_t i = off_min[noff]; i <= off_max[noff]; i++) {
+		for (int8_t i = flesh.off_min; i <= flesh.off_max; i++) {
 			if ((d = dt_strpd(p + i, fmt, ep)).typ) {
 				p += i;
 				goto found;
