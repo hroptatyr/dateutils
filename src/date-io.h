@@ -225,10 +225,10 @@ build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 			/* ... j now points to where we insert, so move
 			 * everything behind j */
 			if (j < idx) {
-				memmove(res.needle + j, ndl + j + 1, idx - j);
+				memmove(res.needle + j + 1, ndl + j, idx - j);
 				memmove(
-					res.flesh + j,
 					res.flesh + j + 1,
+					res.flesh + j,
 					(idx - j) * sizeof(*res.flesh));
 			}
 			res.needle[j] = a.needle;
