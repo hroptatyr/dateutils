@@ -45,6 +45,9 @@ TESTS += dcal.10.dt
 TESTS += dcal.11.dt
 TESTS += dcal.12.dt
 TESTS += dcal.13.dt
+TESTS += dcal.14.dt
+TESTS += dcal.15.dt
+TESTS += dcal.16.dt
 
 TESTS += dadd.1.dt
 TESTS += dadd.2.dt
