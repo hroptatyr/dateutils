@@ -72,7 +72,8 @@ typedef const struct grep_atom_s *const_grep_atom_t;
 
 struct grpatm_payload_s {
 	uint8_t flags;
-#define GRPATM_DIGITS_ONLY	(1)
+#define GRPATM_DIGITS	(1)
+#define GRPATM_ALPHA	(2)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
@@ -146,6 +147,7 @@ calc_grep_atom(const char *fmt)
 		case 'Y':
 			res.pl.off_min += -4;
 			res.pl.off_max += -4;
+			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case 'm':
 		case 'd':
@@ -155,32 +157,38 @@ calc_grep_atom(const char *fmt)
 		case 'q':
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
+			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case 'y':
 			res.pl.off_min += -2;
 			res.pl.off_max += -2;
+			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case 'a':
 		case 'b':
 		case 'h':
 			res.pl.off_min += -3;
 			res.pl.off_max += -3;
+			res.pl.flags |= GRPATM_ALPHA;
 			break;
 		case 'j':
 			res.pl.off_min += -3;
 			res.pl.off_max += -1;
+			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case 'A':
 			/* Wednesday */
 			res.pl.off_min += -9;
 			/* Friday */
 			res.pl.off_max += -6;
+			res.pl.flags |= GRPATM_ALPHA;
 			break;
 		case 'B':
 			/* September */
 			res.pl.off_min += -9;
 			/* May */
 			res.pl.off_max += -3;
+			res.pl.flags |= GRPATM_ALPHA;
 			break;
 		case 'Q':
 			res.needle = 'Q';
@@ -188,11 +196,17 @@ calc_grep_atom(const char *fmt)
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
-		;
+		if (res.pl.flags == GRPATM_DIGITS) {
+			/* ah, only digits, thats good */
+			res.needle = -1;
+			goto out;
+		}
 	}
+	/* naught flags mean the usual needle char search */
+	res.pl.flags = 0;
 out:
 	/* finally assign the format */
-	if (res.needle) {
+	if (res.needle || res.pl.flags) {
 		res.pl.fmt = fmt;
 	}
 	return res;
