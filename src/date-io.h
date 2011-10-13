@@ -241,6 +241,12 @@ out:
 	return res;
 }
 
+static char*
+__strndlbrk(const char *s, const struct grep_atom_soa_s *needles)
+{
+	return xstrpbrk(s, needles->needle);
+}
+
 static struct dt_d_s  __attribute__((unused))
 dt_io_find_strpd2(
 	const char *str,
@@ -251,7 +257,7 @@ dt_io_find_strpd2(
 	const char *needle = needles->needle;
 	const char *p = str;
 
-	for (; *(p = xstrpbrk(p, needle)); p++) {
+	for (; *(p = __strndlbrk(p, needles)); p++) {
 		/* find the offset */
 		const struct grpatm_payload_s *fp;
 		const char *np;
