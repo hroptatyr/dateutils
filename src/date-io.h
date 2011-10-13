@@ -251,15 +251,23 @@ dt_io_find_strpd2(
 	const char *needle = needles->needle;
 	const char *p = str;
 
-	for (size_t noff; *(p = xstrpbrkp(p, needle, &noff)); p++) {
-		/* check p + min_off .. p + max_off for dates */
-		struct grpatm_payload_s flesh = needles->flesh[noff];
-		const char *fmt = flesh.fmt;
+	for (; *(p = xstrpbrk(p, needle)); p++) {
+		/* find the offset */
+		const struct grpatm_payload_s *fp;
+		const char *np;
 
-		for (int8_t i = flesh.off_min; i <= flesh.off_max; i++) {
-			if ((d = dt_strpd(p + i, fmt, ep)).typ) {
-				p += i;
-				goto found;
+		for (np = needle, fp = needles->flesh; *np < *p; np++, fp++);
+		/* nc points to the first occurrence of *p in needle,
+		 * f is the associated grpatm payload */
+		while (*np++ == *p) {
+			const struct grpatm_payload_s f = *fp++;
+			const char *fmt = f.fmt;
+
+			for (int8_t i = f.off_min; i <= f.off_max; i++) {
+				if ((d = dt_strpd(p + i, fmt, ep)).typ) {
+					p += i;
+					goto found;
+				}
 			}
 		}
 	}
