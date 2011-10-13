@@ -42,6 +42,9 @@ TESTS += dcal.7.dt
 TESTS += dcal.8.dt
 TESTS += dcal.9.dt
 TESTS += dcal.10.dt
+TESTS += dcal.11.dt
+TESTS += dcal.12.dt
+TESTS += dcal.13.dt
 
 TESTS += dadd.1.dt
 TESTS += dadd.2.dt
@@ -74,6 +77,7 @@ TESTS += dgrep.9.dt
 TESTS += dgrep.10.dt
 TESTS += dgrep.11.dt
 TESTS += dgrep.12.dt
+TESTS += dgrep.13.dt
 
 TESTS += tseq.1.dt
 TESTS += tseq.2.dt
