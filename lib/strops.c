@@ -277,7 +277,6 @@ arritostr(
 
 /* not reentrant */
 static unsigned char table[ALPHABET_SIZE];
-static unsigned char tblidx[ALPHABET_SIZE];
 static unsigned char cycle = 0;
 
 static inline bool
@@ -287,7 +286,7 @@ in_current_set(unsigned char c)
 }
 
 static inline void
-set_up_table(const unsigned char *set, bool include_NUL, bool build_idx)
+set_up_table(const unsigned char *set, bool include_NUL)
 {
 	unsigned char i = 0;
 
@@ -300,14 +299,8 @@ set_up_table(const unsigned char *set, bool include_NUL, bool build_idx)
 			cycle = (unsigned char)(cycle + 1);
                 }
                 while (*set) {
-			if (build_idx && !in_current_set(*set)) {
-				tblidx[*set] = i++;
-			}
 			table[*set++] = cycle;
 		}
-	}
-	if (build_idx) {
-		tblidx[0] = (unsigned char)(include_NUL ? i : 0);
 	}
 	table[0] = (unsigned char)(include_NUL ? cycle : 0);
 	return;
@@ -318,7 +311,7 @@ xstrspn(const char *src, const char *set)
 {
 	size_t i;
 
-	set_up_table((const unsigned char*)set, false, false);
+	set_up_table((const unsigned char*)set, false);
 	for (i = 0; in_current_set((unsigned char)src[i]); i++);
 	return i;
 }
@@ -328,7 +321,7 @@ xstrcspn(const char *src, const char *set)
 {
 	size_t i;
 
-	set_up_table((const unsigned char*)set, true, false);
+	set_up_table((const unsigned char*)set, true);
 	for (i = 0; !in_current_set((unsigned char)src[i]); i++);
 	return i;
 }
@@ -338,7 +331,7 @@ xstrpbrk(const char *src, const char *set)
 {
 	const char *p;
 
-	set_up_table((const unsigned char*)set, true, false);
+	set_up_table((const unsigned char*)set, true);
 	for (p = src; !in_current_set((unsigned char)*p); p++);
 	return (char*)p;
 }
@@ -348,10 +341,12 @@ xstrpbrkp(const char *src, const char *set, size_t *set_offs)
 {
 	const char *p;
 
-	set_up_table((const unsigned char*)set, true, true);
+	set_up_table((const unsigned char*)set, true);
 	for (p = src; !in_current_set((unsigned char)*p); p++);
 	if (LIKELY(set_offs)) {
-		*set_offs = tblidx[(unsigned char)*p];
+		size_t idx;
+		for (idx = 0; set[idx] != *p; idx++);
+		*set_offs = idx;
 	}
 	return (char*)p;
 }
