@@ -98,4 +98,7 @@ TESTS += tgrep.1.dt
 
 TESTS += ttest.1.dt
 
+TESTS += tcal.1.dt
+TESTS += tcal.2.dt
+
 ## Makefile.am ends here

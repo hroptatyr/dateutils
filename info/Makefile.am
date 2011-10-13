@@ -21,6 +21,7 @@ dateutils_TEXINFOS += tadd.texi
 dateutils_TEXINFOS += tdiff.texi
 dateutils_TEXINFOS += tgrep.texi
 dateutils_TEXINFOS += ttest.texi
+dateutils_TEXINFOS += tcal.texi
 dateutils_TEXINFOS += format.texi
 
 dateutils_EXAMPLES =
@@ -118,6 +119,12 @@ ttest_EXAMPLES += $(top_srcdir)/test/ttest.1.dt
 dateutils_EXAMPLES += $(ttest_EXAMPLES)
 dateutils_H2M_EX += ttest.h2m
 
+tcal_EXAMPLES =
+tcal_EXAMPLES += $(top_srcdir)/test/tcal.1.dt
+tcal_EXAMPLES += $(top_srcdir)/test/tcal.2.dt
+dateutils_EXAMPLES += $(tcal_EXAMPLES)
+dateutils_H2M_EX += tcal.h2m
+
 
 dateutils_H2M_EX += format.h2m
 dateutils_H2M_EX += author.h2m
@@ -139,6 +146,7 @@ man1_MANS += tadd.man
 man1_MANS += tdiff.man
 man1_MANS += tgrep.man
 man1_MANS += ttest.man
+man1_MANS += tcal.man
 
 EXTRA_DIST += $(man1_MANS)
 

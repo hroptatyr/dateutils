@@ -62,6 +62,7 @@ arise when dealing with large amounts of financial data.
 * dgrep::               Find date matches in input stream
 * dseq::                Generate sequences of dates
 * dtest::               Compare dates
+* tcal::                Convert time representations
 * tadd::                Add durations to times
 * tdiff::               Compute durations between times
 * tgrep::               Find time matches in input stream
@@ -183,6 +184,7 @@ The canonical input and output format is @code{%Y-%m-%_d>00}.
 @include dgrep.texi
 @include dseq.texi
 @include dtest.texi
+@include tcal.texi
 @include tadd.texi
 @include tdiff.texi
 @include tgrep.texi

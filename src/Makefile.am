@@ -90,6 +90,12 @@ ttest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ttest_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += ttest-clo.c ttest-clo.h
 
+bin_PROGRAMS += tcal
+tcal_SOURCES = tcal.c tcal-clo.ggo
+tcal_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+tcal_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += tcal-clo.c tcal-clo.h
+
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
