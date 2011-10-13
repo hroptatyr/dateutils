@@ -29,6 +29,7 @@ for time fiddling, the only exception being `strptime`:
 + `dseq`                Generate sequences of dates
 + `dtest`               Compare dates
 + `dgrep`               Grep dates in input streams
++ `tcal`                Convert time representations
 + `tadd`                Add durations to times
 + `tdiff`               Compute durations between times
 + `tseq`                Generate sequences of times
@@ -224,6 +225,16 @@ ttest
     fi
     =>
       it's later than 11:22:33
+
+tcal
+----
+  A tool to convert time strings to other representations or normalise
+  them, it's quite like dcal (see above) but with less calendrical
+  systems:
+
+    tcal "23:12:45" -f "%I:%M%P"
+    =>
+      11:12pm
 
 strptime
 --------
