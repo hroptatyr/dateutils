@@ -288,8 +288,6 @@ in_current_set(unsigned char c)
 static inline void
 set_up_table(const unsigned char *set, bool include_NUL)
 {
-	unsigned char i = 0;
-
 	if (LIKELY(set != NULL)) {
 		/* useful for strtok() too */
                 if (UNLIKELY(cycle == ALPHABET_SIZE - 1)) {
