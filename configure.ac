@@ -54,7 +54,10 @@ Good day.
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
-apps=" dadd dcal ddiff dgrep dseq dtest strptime tadd tdiff tgrep tseq ttest"
+dapps="dadd dcal ddiff dgrep dseq dtest"
+tapps="tadd tcal tdiff tgrep tseq ttest"
+dtapps=""
+miscapps="strptime"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
@@ -63,12 +66,16 @@ AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 AC_OUTPUT
 
-echo
-echo
-echo "Build summary"
-echo "============="
-echo
-echo "Build apps:${apps}"
-echo
+cat <<EOF
+
+
+Build summary
+=============
+Build date apps:	${dapps}
+Build time apps:	${tapps}
+Build date/time apps:	${dtapps}
+Build misc apps:	${miscapps}
+
+EOF
 
 dnl configure.ac ends here
