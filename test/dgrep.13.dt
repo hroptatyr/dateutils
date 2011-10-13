@@ -1,0 +1,19 @@
+## -*- shell-script -*-
+
+TOOL=dgrep
+CMDLINE="-i \"%Y%m%d\" -i \"%F\" 2012-03-03"
+
+## STDIN
+stdin=$(mktemp)
+cat > "${stdin}" <<EOF
+this line was created on 20120303 and should match
+whereas this line is as of 20120304 and shouldn't
+EOF
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+this line was created on 20120303 and should match
+EOF
+
+## dgrep.13.dt ends here

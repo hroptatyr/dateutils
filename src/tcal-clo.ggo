@@ -1,0 +1,12 @@
+args "--unamed-opts --long-help"
+package "tcal"
+usage "tcal [OPTION]... TIMESs"
+description "Convert TIMEs between calendrical systems.  If TIMEs are \
+omitted they are read from stdin, the special time `now' is \
+interpreted as the current (UTC) time."
+
+QUIET
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE

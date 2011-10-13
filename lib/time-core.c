@@ -189,13 +189,14 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 			if (sp[0] == ('A' | casebit) &&
 			    sp[1] == ('M' | casebit)) {
 				;
-			} else if (sp[0] == ('p' | casebit) &&
-				   sp[1] == ('m' | casebit)) {
+			} else if (sp[0] == ('P' | casebit) &&
+				   sp[1] == ('M' | casebit)) {
 				d.flags |= STRPT_AM_PM_BIT;
 			} else {
 				sp = str;
 				goto out;
 			}
+			break;
 		}
 		case 't':
 			if (*sp++ != '\t') {

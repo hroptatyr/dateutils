@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=tcal
+CMDLINE="12:03:01"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+12:03:01
+EOF
+
+## tcal.1.dt ends here

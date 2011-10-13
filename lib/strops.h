@@ -37,6 +37,8 @@
 #if !defined INCLUDED_strops_h_
 #define INCLUDED_strops_h_
 
+#include <stdint.h>
+
 #if defined __cplusplus
 extern "C" {
 #endif	/* __cplusplus */
