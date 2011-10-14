@@ -218,9 +218,9 @@ main(int argc, char *argv[])
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
-		struct grep_atom_s __nstk[16], *needle = __nstk;
+		struct tgrep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
-		struct grep_atom_soa_s ndlsoa;
+		struct tgrep_atom_soa_s ndlsoa;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
