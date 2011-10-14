@@ -73,11 +73,17 @@ typedef const struct grep_atom_s *const_grep_atom_t;
 struct grpatm_payload_s {
 	uint8_t flags;
 #define GRPATM_DIGITS	(1)
-#define GRPATM_ALPHA	(2)
+#define GRPATM_A_SPEC	(2)
+#define GRPATM_B_SPEC	(4)
+#define GRPATM_O_SPEC	(8)
+#define GRPATM_T_FLAG	(16)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
 };
+/* combos */
+#define GRPATM_TINY_A_SPEC	(GRPATM_T_FLAG | GRPATM_A_SPEC)
+#define GRPATM_TINY_B_SPEC	(GRPATM_T_FLAG | GRPATM_B_SPEC)
 
 /* atoms are maps needle-character -> payload */
 struct grep_atom_s {
@@ -107,6 +113,8 @@ static struct grep_atom_s
 calc_grep_atom(const char *fmt)
 {
 	struct grep_atom_s res = {0};
+	int8_t andl_idx = 0;
+	int8_t bndl_idx = 0;
 
 	/* init */
 	if (fmt == NULL) {
@@ -130,7 +138,27 @@ calc_grep_atom(const char *fmt)
 			goto out;
 		}
 		/* otherwise it's a %, read next char */
-		switch (*++fp) {
+		fp++;
+		switch (*fp) {
+		default:
+			break;
+		case 'a':
+		case 'A':
+			res.pl.flags |= GRPATM_A_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				andl_idx = res.pl.off_min;
+			}
+			break;
+		case 'b':
+		case 'B':
+		case 'h':
+			res.pl.flags |= GRPATM_B_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				bndl_idx = res.pl.off_min;
+			}
+			break;
+		}
+		switch (*fp) {
 		default:
 			break;
 		case '%':
@@ -171,7 +199,6 @@ calc_grep_atom(const char *fmt)
 		case 'h':
 			res.pl.off_min += -3;
 			res.pl.off_max += -3;
-			res.pl.flags |= GRPATM_ALPHA;
 			break;
 		case 'j':
 			res.pl.off_min += -3;
@@ -183,14 +210,12 @@ calc_grep_atom(const char *fmt)
 			res.pl.off_min += -9;
 			/* Friday */
 			res.pl.off_max += -6;
-			res.pl.flags |= GRPATM_ALPHA;
 			break;
 		case 'B':
 			/* September */
 			res.pl.off_min += -9;
 			/* May */
 			res.pl.off_max += -3;
-			res.pl.flags |= GRPATM_ALPHA;
 			break;
 		case 'Q':
 			res.needle = 'Q';
@@ -209,6 +234,18 @@ calc_grep_atom(const char *fmt)
 			 * that will bubble to the front of the needlestack */
 			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
 			goto out;
+		} else if (res.pl.flags & GRPATM_A_SPEC) {
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
+			res.pl.off_min = res.pl.off_max = andl_idx;
+			res.pl.flags = GRPATM_A_SPEC;
+			goto out;
+		} else if (res.pl.flags & GRPATM_B_SPEC) {
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
+			res.pl.off_min = res.pl.off_max = bndl_idx;
+			res.pl.flags = GRPATM_B_SPEC;
+			goto out;
+		} else if (res.pl.flags & GRPATM_O_SPEC) {
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
 		}
 	}
 	/* naught flags mean the usual needle char search */
@@ -298,9 +335,33 @@ dt_io_find_strpd2(
 	for (size_t i = 0; needle[i] == GRPATM_NEEDLELESS_MODE_CHAR; i++) {
 		struct grpatm_payload_s f = needles->flesh[i];
 		const char *fmt = f.fmt;
+		const char *ndl;
 
 		/* look out for char classes*/
 		switch (f.flags) {
+			/* this isn't the bestest of approaches as it involves
+			 * details about the contents behind the specifiers */
+			static const char a_needle[] = "FMSTWfmstw";
+			static const char ta_needle[] = "MTWRFAS";
+			static const char b_needle[] = "ADFJMNOSadfjmnos";
+			static const char tb_needle[] = "FGHJKMNQUVXZ";
+			static const char o_needle[] = "CDILMVXcdilmvx";
+		case GRPATM_A_SPEC:
+			ndl = a_needle;
+			break;
+		case GRPATM_B_SPEC:
+			ndl = b_needle;
+			break;
+		case GRPATM_TINY_A_SPEC:
+			ndl = ta_needle;
+			break;
+		case GRPATM_TINY_B_SPEC:
+			ndl = tb_needle;
+			break;
+		case GRPATM_O_SPEC:
+			ndl = o_needle;
+			break;
+
 		case GRPATM_DIGITS:
 			/* yay, look for all digits */
 			for (p = str; *p && !(*p >= '0' && *p <= '9'); p++);
@@ -311,9 +372,17 @@ dt_io_find_strpd2(
 					goto found;
 				}
 			}
-			break;
 		default:
-			break;
+			continue;
+		}
+		/* not reached unless ndl is set */
+		for (p = str; *(p = xstrpbrk(p, ndl)); p++) {
+			for (int8_t j = f.off_min; j <= f.off_max; j++) {
+				if ((d = dt_strpd(p + j, fmt, ep)).typ) {
+					p += j;
+					goto found;
+				}
+			}
 		}
 	}
 	/* reset to some sane defaults */
