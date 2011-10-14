@@ -146,7 +146,7 @@ cannot parse duration string `%s'\n", st.istr);
 			needle = calloc(nneedle, sizeof(*needle));
 		}
 		/* and now build the needles */
-		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
+		ndlsoa = build_tneedle(needle, nneedle, fmt, nfmt);
 
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;

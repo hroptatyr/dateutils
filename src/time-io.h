@@ -220,7 +220,7 @@ out:
 }
 
 static __attribute__((unused)) struct tgrep_atom_soa_s
-build_needle(tgrep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
+build_tneedle(tgrep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 {
 	struct tgrep_atom_soa_s res = make_tgrep_atom_soa(atoms, natoms);
 	struct tgrep_atom_s a;;
