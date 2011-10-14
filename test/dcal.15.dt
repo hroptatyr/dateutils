@@ -14,6 +14,7 @@ EOF
 stdout=$(mktemp)
 cat > "${stdout}" <<EOF
 this line was created on 2012-05-23 and should match
+whereas this line 12Maybe shouldn't
 EOF
 
 ## dcal.15.dt ends here
