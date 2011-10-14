@@ -1,0 +1,18 @@
+## -*- shell-script -*-
+
+TOOL=dgrep
+CMDLINE="-i '%Y%m%d-00' 20120303-00 -o"
+
+## STDIN
+stdin=$(mktemp)
+cat > "${stdin}" <<EOF
+- <- illegal 20120303-00
+EOF
+ 
+## STDOUT
+stdout=$(mktemp)
+cat > "${stdout}" <<EOF
+20120303-00
+EOF
+
+## dgrep.14.dt ends here
