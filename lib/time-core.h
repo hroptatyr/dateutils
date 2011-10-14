@@ -134,6 +134,10 @@ DECLF struct dt_t_s dt_tdiff(struct dt_t_s t1, struct dt_t_s t2);
  * 1 if T1 is younger than the T2. */
 DECLF int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
 
+/**
+ * Like time() but always return the current UTC time. */
+DECLF struct dt_t_s dt_time(void);
+
 
 #if defined INCLUDE_TIME_CORE_IMPL
 # include "time-core.c"

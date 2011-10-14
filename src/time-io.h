@@ -18,19 +18,6 @@
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
 
-static struct dt_t_s
-dt_time(void)
-{
-/* get the current time, will wander into time-core.c */
-	struct dt_t_s res;
-
-	res.hms.h = 12;
-	res.hms.m = 34;
-	res.hms.s = 56;
-	res.hms.ns = 0;
-	return res;
-}
-
 static bool
 dt_io_now_p(const char *str)
 {

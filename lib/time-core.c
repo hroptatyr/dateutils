@@ -375,5 +375,21 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 	}
 }
 
+static struct dt_t_s
+dt_time(void)
+{
+	struct dt_t_s res;
+	time_t t = time(NULL);
+	unsigned int tonly = t % 86400;
+
+	res.hms.h = tonly / SECS_PER_HOUR;
+	tonly %= SECS_PER_HOUR;
+	res.hms.m = tonly / SECS_PER_MIN;
+	tonly %= SECS_PER_MIN;
+	res.hms.s = tonly;
+	res.hms.ns = 0;
+	return res;
+}
+
 #endif	/* INCLUDED_time_core_c_ */
 /* time-core.c ends here */
