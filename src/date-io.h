@@ -317,6 +317,7 @@ dt_io_find_strpd2(
 		const char *np;
 
 		for (np = needle, fp = needles->flesh; *np < *p; np++, fp++);
+
 		/* nc points to the first occurrence of *p in needle,
 		 * f is the associated grpatm payload */
 		while (*np++ == *p) {
