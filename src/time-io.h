@@ -41,7 +41,7 @@ dt_io_now_p(const char *str)
 	default:
 		return false;
 	case 'n':
-		return strcasecmp(str, "now");
+		return strcasecmp(str, "now") == 0;
 	}
 }
 
