@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dcal
-CMDLINE="-i \"%y%b%d\""
+CMDLINE="-S -i \"%y%b%d\""
 
 ## STDIN
 stdin=$(mktemp)

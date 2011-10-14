@@ -13,7 +13,7 @@ EOF
 ## STDOUT
 stdout=$(mktemp)
 cat > "${stdout}" <<EOF
-this line was created on 2011-10-13 and should match
+2011-10-13
 EOF
 
 ## dcal.16.dt ends here
