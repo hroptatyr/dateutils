@@ -323,6 +323,9 @@ dt_io_find_strpd2(
 			const struct grpatm_payload_s f = *fp++;
 			const char *fmt = f.fmt;
 
+			if (p + f.off_min < str /*|| p + f.off_max > ?*/) {
+				continue;
+			}
 			for (int8_t i = f.off_min; i <= f.off_max; i++) {
 				if ((d = dt_strpd(p + i, fmt, ep)).typ) {
 					p += i;
@@ -377,6 +380,9 @@ dt_io_find_strpd2(
 		}
 		/* not reached unless ndl is set */
 		for (p = str; *(p = xstrpbrk(p, ndl)); p++) {
+			if (p + f.off_min < str /*|| p + f.off_max > ?*/) {
+				continue;
+			}
 			for (int8_t j = f.off_min; j <= f.off_max; j++) {
 				if ((d = dt_strpd(p + j, fmt, ep)).typ) {
 					p += j;
