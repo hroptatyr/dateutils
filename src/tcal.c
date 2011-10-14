@@ -134,6 +134,8 @@ main(int argc, char *argv[])
 				} else {
 					dt_io_write(t, ofmt);
 				}
+			} else if (argi->sed_mode_given) {
+				__io_write(line, n, stdout);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpt(line);
 			}
