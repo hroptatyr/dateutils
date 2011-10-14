@@ -341,7 +341,7 @@ dt_io_write_sed(
 
 
 /* error messages, warnings, etc. */
-static void
+static __attribute__((unused)) void
 dt_io_warn_strpt(const char *inp)
 {
 	fprintf(stderr, "\
