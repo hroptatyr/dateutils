@@ -31,6 +31,20 @@ dt_time(void)
 	return res;
 }
 
+static bool
+dt_io_now_p(const char *str)
+{
+	if (str == NULL) {
+		return true;
+	}
+	switch ((char)(*str | 0x20)) {
+	default:
+		return false;
+	case 'n':
+		return strcasecmp(str, "now");
+	}
+}
+
 static struct dt_t_s
 dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 {
@@ -41,7 +55,7 @@ dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 		*ep = NULL;
 	}
 	/* basic sanity check */
-	if (str == NULL || strcmp(str, "now") == 0) {
+	if (UNLIKELY(dt_io_now_p(str))) {
 		res = dt_time();
 	} else if (nfmt == 0) {
 		res = dt_strpt(str, NULL, ep);
