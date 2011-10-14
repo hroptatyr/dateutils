@@ -58,7 +58,7 @@ enum {
 	/* bits 2 and 3 set */
 	OP_NE,
 	/* bits 1, 2 and 3 set */
-	OP_FUCKED,
+	OP_TRUE,
 };
 
 
@@ -142,8 +142,9 @@ matchp(struct dt_t_s linet, struct dt_t_s reft, oper_t o)
 	case OP_GE:
 		return cmp >= 0;
 	case OP_NE:
-	case OP_FUCKED:
 		return cmp != 0;
+	case OP_TRUE:
+		return true;
 	case OP_UNK:
 	default:
 		return false;
@@ -200,8 +201,10 @@ main(int argc, char *argv[])
 	} else if (argi->ge_given) {
 		o = OP_GE;
 	}
-	if (argi->inputs_num != 1 ||
-	    (o |= find_oper(argi->inputs[0], &inp)) == OP_FUCKED ||
+	if (UNLIKELY(argi->inputs_num == 0)) {
+		o = OP_TRUE;
+	} else if (argi->inputs_num != 1 ||
+	    (o |= find_oper(argi->inputs[0], &inp)) == OP_TRUE ||
 	    (reft = dt_io_strpt(inp, fmt, nfmt)).s < 0) {
 		res = 1;
 		fputs("need a TIME to grep\n", stderr);
@@ -215,9 +218,9 @@ main(int argc, char *argv[])
 		FILE *fp = stdin;
 		char *line;
 		size_t lno = 0;
-		struct grep_atom_s __nstk[16], *needle = __nstk;
+		struct tgrep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
-		struct grep_atom_soa_s ndlsoa;
+		struct tgrep_atom_soa_s ndlsoa;
 
 		/* no threads reading this stream */
 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
@@ -231,7 +234,7 @@ main(int argc, char *argv[])
 			needle = calloc(nneedle, sizeof(*needle));
 		}
 		/* and now build the needle */
-		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
+		ndlsoa = build_tneedle(needle, nneedle, fmt, nfmt);
 
 		for (line = NULL; !feof_unlocked(fp); lno++) {
 			ssize_t n;

@@ -58,7 +58,7 @@ enum {
 	/* bits 2 and 3 set */
 	OP_NE,
 	/* bits 1, 2 and 3 set */
-	OP_FUCKED,
+	OP_TRUE,
 };
 
 
@@ -130,7 +130,7 @@ matchp(struct dt_d_s lined, struct dt_d_s refd, oper_t o)
 {
 	int cmp;
 
-	if ((cmp = dt_cmp(lined, refd)) == -2) {
+	if ((cmp = dt_cmp(lined, refd)) == -2 && o != OP_TRUE) {
 		return false;
 	}
 
@@ -146,8 +146,9 @@ matchp(struct dt_d_s lined, struct dt_d_s refd, oper_t o)
 	case OP_GE:
 		return cmp >= 0;
 	case OP_NE:
-	case OP_FUCKED:
 		return cmp != 0;
+	case OP_TRUE:
+		return true;
 	case OP_UNK:
 	default:
 		return false;
@@ -204,8 +205,10 @@ main(int argc, char *argv[])
 	} else if (argi->ge_given) {
 		o = OP_GE;
 	}
-	if (argi->inputs_num != 1 ||
-	    (o |= find_oper(argi->inputs[0], &inp)) == OP_FUCKED ||
+	if (UNLIKELY(argi->inputs_num == 0)) {
+		o = OP_TRUE;
+	} else if (argi->inputs_num > 1 ||
+	    (o |= find_oper(argi->inputs[0], &inp)) == OP_TRUE ||
 	    (refd = dt_io_strpd(inp, fmt, nfmt)).typ == DT_UNK) {
 		res = 1;
 		fputs("need a DATE to grep\n", stderr);
