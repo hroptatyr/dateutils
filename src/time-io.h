@@ -18,17 +18,18 @@
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
 
-static struct dt_t_s
-dt_time(void)
+static bool
+dt_io_now_p(const char *str)
 {
-/* get the current time, will wander into time-core.c */
-	struct dt_t_s res;
-
-	res.hms.h = 12;
-	res.hms.m = 34;
-	res.hms.s = 56;
-	res.hms.ns = 0;
-	return res;
+	if (str == NULL) {
+		return true;
+	}
+	switch ((char)(*str | 0x20)) {
+	default:
+		return false;
+	case 'n':
+		return strcasecmp(str, "now") == 0;
+	}
 }
 
 static struct dt_t_s
@@ -41,7 +42,7 @@ dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 		*ep = NULL;
 	}
 	/* basic sanity check */
-	if (str == NULL || strcmp(str, "now") == 0) {
+	if (UNLIKELY(dt_io_now_p(str))) {
 		res = dt_time();
 	} else if (nfmt == 0) {
 		res = dt_strpt(str, NULL, ep);
