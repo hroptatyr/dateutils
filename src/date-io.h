@@ -18,6 +18,22 @@
 # define UNUSED(x)	__attribute__((unused)) x##_unused
 #endif
 
+static bool
+dt_io_today_p(const char *str)
+{
+	if (str == NULL) {
+		return true;
+	}
+	switch ((char)(*str | 0x20)) {
+	default:
+		return false;
+	case 'n':
+		return strcasecmp(str, "now") == 0;
+	case 't':
+		return strcasecmp(str, "today") == 0;
+	}
+}
+
 static struct dt_d_s
 dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 {
@@ -28,7 +44,7 @@ dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 		*ep = NULL;
 	}
 	/* basic sanity check */
-	if (str == NULL || strcmp(str, "now") == 0) {
+	if (UNLIKELY(dt_io_today_p(str))) {
 		res = dt_date(DT_YMD);
 	} else if (nfmt == 0) {
 		res = dt_strpd(str, NULL, ep);
