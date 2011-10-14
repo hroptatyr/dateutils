@@ -179,6 +179,8 @@ cannot parse duration string `%s'\n", st.istr);
 				} else {
 					dt_io_write(d, ofmt);
 				}
+			} else if (argi->sed_mode_given) {
+				__io_write(line, n, stdout);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(line);
 			}
