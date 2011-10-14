@@ -457,6 +457,12 @@ unfixup_arg(char *arg)
 }
 
 
+static __attribute__((unused)) size_t
+__io_write(const char *line, size_t llen, FILE *where)
+{
+	return fwrite_unlocked(line, sizeof(*line), llen, where);
+}
+
 static int __attribute__((unused))
 dt_io_write(struct dt_d_s d, const char *fmt)
 {
@@ -464,7 +470,7 @@ dt_io_write(struct dt_d_s d, const char *fmt)
 	size_t n;
 
 	n = dt_io_strfd_autonl(buf, sizeof(buf), fmt, d);
-	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
+	__io_write(buf, n, stdout);
 	return (n > 0) - 1;
 }
 
@@ -478,11 +484,11 @@ dt_io_write_sed(
 
 	n = dt_strfd(buf, sizeof(buf), fmt, d);
 	if (sp) {
-		fwrite_unlocked(line, sizeof(char), sp - line, stdout);
+		__io_write(line, sp - line, stdout);
 	}
-	fwrite_unlocked(buf, sizeof(*buf), n, stdout);
+	__io_write(buf, n, stdout);
 	if (ep) {
-		fwrite_unlocked(ep, sizeof(char), line + llen - ep, stdout);
+		__io_write(ep, line + llen - ep, stdout);
 	}
 	return (n > 0 || sp < ep) - 1;
 }
