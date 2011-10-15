@@ -24,11 +24,6 @@ Installing dateutils from tarball
 Requisites:
 -----------
 - compiler gcc >= 4.6.0 or compatible (icc, clang, ...)
-- texinfo
-
-Optional:
----------
-- help2man (for man pages)
 
 Build and install:
 ------------------
