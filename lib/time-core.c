@@ -119,9 +119,18 @@ __trans_tfmt(const char **fmt)
 DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
+#if defined __C1X
 	struct dt_t_s res = {.s = -1};
+#else
+	struct dt_t_s res;
+#endif
 	struct strpt_s d = {0};
 	const char *sp = str;
+
+#if !defined __C1X
+/* thanks gcc */
+	res.s = -1;
+#endif
 
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
@@ -356,8 +365,16 @@ DEFUN struct dt_t_s
 dt_tdiff(struct dt_t_s t1, struct dt_t_s t2)
 {
 /* compute t2 - t1 */
+#if defined __C1X
 	struct dt_t_s dur = {.u = 0};
+#else
+	struct dt_t_s dur;
+#endif
 
+#if !defined __C1X
+/* thanks gcc */
+	dur.u = 0;
+#endif
 	dur.sdur = (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
 	dur.sdur += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
 	dur.sdur += (t2.hms.s - t1.hms.s);
@@ -379,10 +396,18 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 static struct dt_t_s
 dt_time(void)
 {
+#if defined __C1X
 	struct dt_t_s res = {.u = 0};
+#else
+	struct dt_t_s res;
+#endif
 	struct timeval tv;
 	unsigned int tonly;
 
+#if !defined __C1X
+/* thanks gcc */
+	res.u = 0;
+#endif
 	if (gettimeofday(&tv, NULL) < 0) {
 		return res;
 	}
