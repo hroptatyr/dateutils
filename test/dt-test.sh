@@ -95,9 +95,9 @@ find_file()
 	elif test -r "${file}"; then
 		echo "${file}"
 	elif test -r "${builddir}/${file}"; then
-		readlink -e "${builddir}/${file}"
+		readlink -f "${builddir}/${file}"
 	elif test -r "${srcdir}/${file}"; then
-		readlink -e "${srcdir}/${file}"
+		readlink -f "${srcdir}/${file}"
 	fi
 }
 
@@ -130,7 +130,7 @@ fi
 
 ## set finals
 if test -x "${builddir}/${TOOL}"; then
-	TOOL=$(readlink -e "${builddir}/${TOOL}")
+	TOOL=$(readlink -f "${builddir}/${TOOL}")
 fi
 if test -z "${srcdir}"; then
 	srcdir=$(dirname "${0}")
