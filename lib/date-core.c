@@ -54,6 +54,12 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*(x)))
 #endif	/* !countof */
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 /* weekdays of the first day of the year,
  * 3 bits per year, times 10 years makes 1 uint32_t */
@@ -2557,6 +2563,12 @@ dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 {
 	return dt_cmp(d, d1) >= 0 && dt_cmp(d, d2) <= 0;
 }
+
+#if defined __INTEL_COMPILER
+# pragma warning (default:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 #endif	/* INCLUDED_date_core_c_ */
 /* date-core.c ends here */
