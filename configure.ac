@@ -5,7 +5,7 @@ dnl -------------------------------------------------------------------------
 AC_PREREQ([2.63])
 m4_define([GIT_VERSION_GEN], [dnl
 pushdef([version], [m4_esyscmd([./git-version-gen])])[]dnl
-ifelse([]version[], [], [0.1.5], []version[])[]dnl
+ifelse([]version[], [], [0.1.6-pre], []version[])[]dnl
 popdef([version])[]dnl
 ])
 AC_INIT([dateutils], [GIT_VERSION_GEN], [https://github.com/hroptatyr/dateutils])
@@ -63,6 +63,8 @@ AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
+AC_CONFIG_FILES([libdudcore.pc])
+AC_CONFIG_FILES([libdutcore.pc])
 AC_OUTPUT
 
 cat <<EOF

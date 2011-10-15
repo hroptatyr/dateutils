@@ -7,6 +7,11 @@ SUBDIRS = lib src info test
 
 EXTRA_DIST = .version git-version-gen
 
+pkgconfigdir = @libdir@/pkgconfig
+pkgconfig_DATA =
+pkgconfig_DATA += libdudcore.pc
+pkgconfig_DATA += libdutcore.pc
+
 # Version string management.  There are two files to be aware of:
 # .tarball-version - present only in a distribution tarball, and not in
 #   a checked-out repository.  Created with contents that were learned at
