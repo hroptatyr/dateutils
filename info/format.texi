@@ -22,6 +22,11 @@ Date specs:
   %w  The weekday as number (range 00 to 06, Sunday being 00)
   %y  The year without a century (range 00 to 99)
   %Y  The year including the century
+
+  %Od The day as roman numerals
+  %Om The month as roman numerals
+  %Oy The two digit year as roman numerals
+  %OY The year including the century as roman numerals
 @end verbatim
 
 Time specs:

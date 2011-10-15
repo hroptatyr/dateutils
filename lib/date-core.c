@@ -54,6 +54,12 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*(x)))
 #endif	/* !countof */
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 /* weekdays of the first day of the year,
  * 3 bits per year, times 10 years makes 1 uint32_t */
@@ -559,7 +565,17 @@ __ymcw_get_mday(dt_ymcw_t that)
 	/* weekday the year started with */
 	wd_jan01 = __get_jan01_wday(that.y);
 	/* see what weekday the first of the month was*/
+#if defined __C1X
 	wd01 = __ymd_get_yday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+#else
+	{
+		dt_ymd_t tmp;
+		tmp.y = that.y;
+		tmp.m = that.m;
+		tmp.d = 01;
+		wd01 = __ymd_get_yday(tmp);
+	}
+#endif
 	wd01 = (wd_jan01 - 1 + wd01) % 7;
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
@@ -623,7 +639,17 @@ __ymcw_get_bday(dt_ymcw_t that, unsigned int ba, unsigned int ref)
 	}
 
 	/* weekday the month started with */
+#if defined __C1X
 	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+#else
+	{
+		dt_ymd_t tmp;
+		tmp.y = that.y;
+		tmp.m = that.m;
+		tmp.d = 01;
+		wd01 = __ymd_get_wday(tmp);
+	}
+#endif
 	res = (signed int)(that.w - wd01) + 5 * (that.c) + 1;
 	return res;
 }
@@ -635,7 +661,17 @@ __bizda_get_mday(dt_bizda_t that)
 	unsigned int res;
 
 	/* find first of the month first */
+#if defined __C1X
 	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+#else
+	{
+		dt_ymd_t tmp;
+		tmp.y = that.y;
+		tmp.m = that.m;
+		tmp.d = 01;
+		wd01 = __ymd_get_wday(tmp);
+	}
+#endif
 	switch (wd01) {
 	case DT_MONDAY:
 	case DT_TUESDAY:
@@ -683,7 +719,17 @@ __bizda_get_wday(dt_bizda_t that)
 	unsigned int magic;
 
 	/* find first of the month first */
+#if defined __C1X
 	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
+#else
+	{
+		dt_ymd_t tmp;
+		tmp.y = that.y;
+		tmp.m = that.m;
+		tmp.d = 01;
+		wd01 = __ymd_get_wday(tmp);
+	}
+#endif
 	b = that.bd;
 	magic = (b - 1 + (wd01 ?: 6) - 1);
 	/* now just add up bdays */
@@ -808,7 +854,16 @@ __ymd_to_ymcw(dt_ymd_t d)
 {
 	unsigned int c = __ymd_get_count(d);
 	unsigned int w = __ymd_get_wday(d);
+#if defined __C1X
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
+#else
+	dt_ymcw_t res;
+	res.y = d.y;
+	res.m = d.m;
+	res.c = c;
+	res.w = w;
+	return res;
+#endif
 }
 
 static dt_dow_t
@@ -864,7 +919,17 @@ __daisy_to_ymd(dt_daisy_t that)
 			}
 		}
 	}
+#if defined __C1X
 	return (dt_ymd_t){.y = y, .m = m, .d = d};
+#else
+	{
+		dt_ymd_t res;
+		res.y = y;
+		res.m = m;
+		res.d = d;
+		return res;
+	}
+#endif
 }
 
 static dt_ymcw_t
@@ -880,14 +945,33 @@ __daisy_to_ymcw(dt_daisy_t that)
 	tmp = __daisy_to_ymd(that);
 	c = __ymd_get_count(tmp);
 	w = __daisy_get_wday(that);
+#if defined __C1X
 	return (dt_ymcw_t){.y = tmp.y, .m = tmp.m, .c = c, .w = w};
+#else
+	{
+		dt_ymcw_t res;
+		res.y = tmp.y;
+		res.m = tmp.m;
+		res.c = c;
+		res.w = w;
+		return res;
+	}
+#endif
 }
 
 static dt_ymd_t
 __ymcw_to_ymd(dt_ymcw_t d)
 {
 	unsigned int md = __ymcw_get_mday(d);
+#if defined __C1X
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
+#else
+	dt_ymd_t res;
+	res.y = d.y;
+	res.m = d.m;
+	res.d = md;
+	return res;
+#endif
 }
 
 
@@ -1411,9 +1495,16 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
+#if defined __C1X
 	struct dt_d_s res = {.u = 0};
+#else
+	struct dt_d_s res;
+#endif
 	bool bizdap;
 
+#if !defined __C1X
+	res.u = 0;
+#endif
 	if (UNLIKELY(d.y == -1U)) {
 		d.y = 0;
 	}
@@ -1483,9 +1574,18 @@ __trans_dfmt(const char **fmt)
 static struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
+#if defined __C1X
 	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
+#else
+	struct dt_d_s res;
+#endif
 	struct strpd_s d = {0};
 	const char *sp;
+
+#if !defined __C1X
+	res.typ = DT_UNK;
+	res.u = 0;
+#endif
 
 	if ((sp = str) == NULL) {
 		goto out;
@@ -1614,9 +1714,18 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
+#if defined __C1X
 	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
+#else
+	struct dt_d_s res;
+#endif
 	struct strpd_s d = {0};
 	const char *sp = str;
+
+#if !defined __C1X
+	res.typ = DT_UNK;
+	res.u = 0;
+#endif
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str, ep);
@@ -2248,11 +2357,18 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymd.d = tm.tm_mday;
 			break;
 		case DT_YMCW: {
+#if defined __C1X
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
 				.m = tm.tm_mon,
 				.d = tm.tm_mday,
 			};
+#else
+			dt_ymd_t tmp;
+			tmp.y = tm.tm_year,
+			tmp.m = tm.tm_mon,
+			tmp.d = tm.tm_mday,
+#endif
 			res.ymcw.y = tm.tm_year;
 			res.ymcw.m = tm.tm_mon;
 			res.ymcw.c = __ymd_get_count(tmp);
@@ -2447,6 +2563,12 @@ dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 {
 	return dt_cmp(d, d1) >= 0 && dt_cmp(d, d2) <= 0;
 }
+
+#if defined __INTEL_COMPILER
+# pragma warning (default:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 #endif	/* INCLUDED_date_core_c_ */
 /* date-core.c ends here */

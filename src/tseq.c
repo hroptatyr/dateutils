@@ -76,7 +76,12 @@ time_add(struct dt_t_s t, struct dt_t_s dur)
 static struct dt_t_s
 time_neg_dur(struct dt_t_s dur)
 {
+#if defined __C1X
 	struct dt_t_s res = {.s = -dur.s};
+#else
+	struct dt_t_s res;
+	res.s = -dur.s;
+#endif
 	return res;
 }
 
@@ -168,7 +173,12 @@ __fixup_fst(struct tseq_clo_s *clo)
 static struct dt_t_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
+#if defined __C1X
 	struct dt_t_s res = {.s = 0};
+#else
+	struct dt_t_s res;
+	res.s = 0;
+#endif
 
 	if (beg.hms.h != end.hms.h &&
 	    beg.hms.m == 0 && end.hms.m == 0&&
@@ -217,11 +227,19 @@ main(int argc, char *argv[])
 	char *ofmt;
 	int res = 0;
 	struct tseq_clo_s clo = {
+#if defined __C1X
 		.ite.s = 0,
 		.altite.s = 0,
+#endif
 		.dir = 0,
 		.flags = 0,
 	};
+
+#if !defined __C1X
+/* thanks gcc :( */
+	clo.ite.s = 0;
+	clo.altite.s = 0;
+#endif
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);

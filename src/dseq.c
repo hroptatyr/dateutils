@@ -401,9 +401,13 @@ __fixup_fst(struct dseq_clo_s *clo)
 int
 main(int argc, char *argv[])
 {
+#if defined __C1X
 	static struct dt_dur_s ite_p1 = {
 		.typ = DT_DUR_MD, .md.m = 0, .md.d = 1
 	};
+#else
+	static struct dt_dur_s ite_p1;
+#endif
 	struct gengetopt_args_info argi[1];
 	struct dt_d_s tmp;
 	char **ifmt;
@@ -419,6 +423,13 @@ main(int argc, char *argv[])
 		.dir = 0,
 		.flags = 0,
 	};
+
+#if !defined __C1X
+	/* set up static ite_p1 which the compiler failed to do above */
+	ite_p1.typ = DT_DUR_MD;
+	ite_p1.md.m = 0;
+	ite_p1.md.d = 1;
+#endif
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);

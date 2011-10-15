@@ -44,6 +44,12 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif	/* !UNLIKELY */
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 /* stolen from Klaus Klein/David Laight's strptime() */
 DEFUN uint32_t
@@ -348,5 +354,11 @@ xstrpbrkp(const char *src, const char *set, size_t *set_offs)
 	}
 	return (char*)p;
 }
+
+#if defined __INTEL_COMPILER
+# pragma warning (default:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 #endif	/* INCLUDED_strops_c_ */
