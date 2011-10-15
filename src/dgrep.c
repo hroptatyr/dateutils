@@ -68,8 +68,6 @@ find_oper(const char *s, char **ep)
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 	oper_t res = OP_UNK;
 
@@ -131,8 +129,6 @@ find_oper(const char *s, char **ep)
 	return res;
 #if defined __INTEL_COMPILER
 # pragma warning (default:2203)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 }
 
