@@ -35,7 +35,15 @@ dt_io_now_p(const char *str)
 static struct dt_t_s
 dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 {
+#if defined __C1X
 	struct dt_t_s res = {.s = -1};
+#else
+	struct dt_t_s res;
+#endif
+
+#if !defined __C1X
+	res.s = -1;
+#endif
 
 	/* init */
 	if (ep) {
@@ -68,8 +76,15 @@ dt_io_find_strpt(
 	const char *needle, size_t needlen, char **sp, char **ep)
 {
 	const char *__sp = str;
+#if defined __C1X
 	struct dt_t_s t = {.s = -1};
+#else
+	struct dt_t_s t;
+#endif
 
+#if !defined __C1X
+	t.s = -1;
+#endif
 	while ((__sp = strstr(__sp, needle)) &&
 	       (t = dt_io_strpt_ep(
 			__sp += needlen, fmt, nfmt, ep)).s < 0);
@@ -268,10 +283,17 @@ dt_io_find_strpt2(
 	const struct tgrep_atom_soa_s *needles,
 	char **sp, char **ep)
 {
+#if defined __C1X
 	struct dt_t_s t = {.s = -1};
+#else
+	struct dt_t_s t;
+#endif
 	const char *needle = needles->needle;
 	const char *p;
 
+#if !defined __C1X
+	t.s = -1;
+#endif
 	for (p = str; *(p = xstrpbrk(p, needle)); p++) {
 		/* find the offset */
 		const struct tgrpatm_payload_s *fp;
@@ -484,10 +506,18 @@ DEFUN struct dt_t_s
 dt_strptdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
+#if defined __C1X
 	struct dt_t_s res = {.s = 0};
+#else
+	struct dt_t_s res;
+#endif
 	const char *sp = str;
 	int tmp;
 
+
+#if !defined __C1X
+	res.s = 0;
+#endif
 	if (str == NULL) {
 		goto out;
 	}
