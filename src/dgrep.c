@@ -65,6 +65,10 @@ enum {
 static oper_t
 find_oper(const char *s, char **ep)
 {
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#endif	/* __INTEL_COMPILER */
 	oper_t res = OP_UNK;
 
 	switch (*s) {
@@ -123,6 +127,9 @@ find_oper(const char *s, char **ep)
 		*ep = (char*)s;
 	}
 	return res;
+#if defined __INTEL_COMPILER
+# pragma warning (default:2203)
+#endif	/* __INTEL_COMPILER */
 }
 
 static bool

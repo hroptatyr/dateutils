@@ -17,6 +17,10 @@
 #if !defined UNUSED
 # define UNUSED(x)	__attribute__((unused)) x##_unused
 #endif
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#endif	/* __INTEL_COMPILER */
 
 static bool
 dt_io_today_p(const char *str)
@@ -641,5 +645,9 @@ out:
 	}
 	return res;
 }
+
+#if defined __INTEL_COMPILER
+# pragma warning (default:2203)
+#endif	/* __INTEL_COMPILER */
 
 #endif	/* INCLUDED_date_io_h_ */
