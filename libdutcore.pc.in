@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=@libdir@
+libexecdir=@libexecdir@
+
+Name: libdutcore
+Description: dateutils' time routines
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags: -I${includedir} -DINCLUDE_TIME_CORE_IMPL
+

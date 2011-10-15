@@ -63,6 +63,8 @@ AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
+AC_CONFIG_FILES([libdudcore.pc])
+AC_CONFIG_FILES([libdutcore.pc])
 AC_OUTPUT
 
 cat <<EOF
