@@ -32,7 +32,12 @@ Build and install:
 - [sudo] make install
 
 
+Notes
+=====
 To run the test suite in either case invoke
 - make check
 after building the binaries
+
+To kick off adoption, currently old/buggy gcc compilers are supported
+as well, however this might change in the future.
 
