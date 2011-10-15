@@ -41,6 +41,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <sys/time.h>
 #include <time.h>
 #include "strops.h"
 
