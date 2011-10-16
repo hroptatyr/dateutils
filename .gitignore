@@ -27,3 +27,8 @@ stamp-h1
 .libs
 texinfo.tex
 *.info
+test/*.log
+*.pc
+src/*-clo.[ch]
+info/*.h2m
+info/*.man
