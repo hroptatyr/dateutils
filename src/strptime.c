@@ -40,7 +40,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <sys/time.h>
 #include <time.h>
 #include "date-io.h"
