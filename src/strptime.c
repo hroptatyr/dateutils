@@ -91,9 +91,9 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 	size_t lno = 0;
 
 	/* no threads reading this stream */
-	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+	__io_setlocking_bycaller(fp);
 
-	for (line = NULL; !feof_unlocked(fp); lno++) {
+	for (line = NULL; !__io_eof_p(fp); lno++) {
 		ssize_t n;
 		size_t len;
 

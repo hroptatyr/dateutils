@@ -549,6 +549,30 @@ __io_write(const char *line, size_t llen, FILE *where)
 #endif	/* __GLIBC__ */
 }
 
+static inline __attribute__((unused)) void
+#if defined __GLIBC__
+__io_setlocking_bycaller(FILE *fp)
+{
+	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+	return;
+}
+#else  /* !__GLIBC__ */
+__io_setlocking_bycaller(FILE *__attribute__((unused)) fp)
+{
+	return;
+}
+#endif	/* __GLIBC__ */
+
+static inline __attribute__((unused)) int
+__io_eof_p(FILE *fp)
+{
+#if defined __GLIBC__
+	return feof_unlocked(fp);
+#else  /* !__GLIBC__ */
+	return feof(fp);
+#endif	/* __GLIBC__ */
+}
+
 static int __attribute__((unused))
 dt_io_write(struct dt_d_s d, const char *fmt)
 {
