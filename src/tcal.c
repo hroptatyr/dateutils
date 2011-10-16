@@ -35,7 +35,6 @@
  *
  **/
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/time.h>
@@ -100,9 +99,8 @@ main(int argc, char *argv[])
 		struct tgrep_atom_soa_s ndlsoa;
 
 		/* no threads reading this stream */
-		__fsetlocking(fp, FSETLOCKING_BYCALLER);
-		/* no threads reading this stream */
-		__fsetlocking(stdout, FSETLOCKING_BYCALLER);
+		__io_setlocking_bycaller(fp);
+		__io_setlocking_bycaller(stdout);
 
 		/* lest we overflow the stack */
 		if (nfmt >= nneedle) {
@@ -113,7 +111,7 @@ main(int argc, char *argv[])
 		/* and now build the needles */
 		ndlsoa = build_tneedle(needle, nneedle, fmt, nfmt);
 
-		for (line = NULL; !feof_unlocked(fp); lno++) {
+		for (line = NULL; !__io_eof_p(fp); lno++) {
 			ssize_t n;
 			size_t len;
 			struct dt_t_s t;
