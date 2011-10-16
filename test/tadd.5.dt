@@ -4,14 +4,14 @@ TOOL=tadd
 CMDLINE="-S 12m"
 
 ## STDIN
-stdin=$(mktemp)
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
 it's	12:02:00 now
 and now	14:20:20
 EOF
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 it's	12:14:00 now
 and now	14:32:20

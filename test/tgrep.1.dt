@@ -4,7 +4,7 @@ TOOL=tgrep
 CMDLINE="'>=12:00:00'"
 
 ## STDIN
-stdin=$(mktemp)
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
 fileA	11:59:58
 fileB	11:59:59	leap second?
@@ -13,7 +13,7 @@ fileC	12:03:12
 EOF
 
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 fileNOON	12:00:00	new version
 fileC	12:03:12

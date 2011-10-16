@@ -4,7 +4,7 @@ TOOL=dcal
 CMDLINE="-f \"ymd\" -S -i \"%d/%b/%Y\""
 
 ## STDIN
-stdin=$(mktemp)
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
 EONIA	06/Oct/2011	0.947
 EURIBOR1W	06/Oct/2011	1.155
@@ -46,7 +46,7 @@ EUREPO12M	06/Oct/2011	0.501
 EOF
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 EONIA	2011-10-06	0.947
 EURIBOR1W	2011-10-06	1.155

@@ -4,7 +4,7 @@ TOOL=dgrep
 CMDLINE="\\<=2012-03-01"
 
 ## STDIN
-stdin=$(mktemp)
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
 2012-02-28
 2012-02-29
@@ -13,7 +13,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 2012-02-28
 2012-02-29
