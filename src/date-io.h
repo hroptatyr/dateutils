@@ -258,7 +258,7 @@ calc_grep_atom(const char *fmt)
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
-		if (res.pl.flags == GRPATM_DIGITS) {
+		if ((res.pl.flags & ~(GRPATM_DIGITS | GRPATM_ORDINALS)) == 0) {
 			/* ah, only digits, thats good */
 			int8_t tmp = (int8_t)-res.pl.off_min;
 
@@ -411,6 +411,40 @@ dt_io_find_strpd2(
 					goto found;
 				}
 			}
+			continue;
+
+		case GRPATM_DIGITS | GRPATM_ORDINALS:
+			/* yay, look for all digits and ordinals */
+			for (p = str; *p && !(*p >= '0' && *p <= '9'); p++);
+			for (const char *q = p; *q; q++) {
+				switch (*q) {
+				case '0' ... '9':
+					break;
+				case 't':
+					if (*++q == 'h') {
+						break;
+					}
+					goto bugger;
+				case 's':
+					if (*++q == 't') {
+						break;
+					}
+					goto bugger;
+				case 'n':
+				case 'r':
+					if (*++q == 'd') {
+						break;
+					}
+					goto bugger;
+				default:
+					goto bugger;
+				}
+				if ((--f.off_min <= 0) &&
+				    (d = dt_strpd(p, fmt, ep)).typ) {
+					goto found;
+				}
+			}
+		bugger:
 		default:
 			continue;
 		}
