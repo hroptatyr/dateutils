@@ -53,8 +53,8 @@ done
 
 ## setup
 fail=0
-tool_stdout=$(mktemp)
-tool_stderr=$(mktemp)
+tool_stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+tool_stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 pwd=$(pwd)
 
 ## source the check
@@ -111,7 +111,7 @@ eval_echo()
 		echo >&3
 	else
 		echo "<<EOF" >&3
-		tmpf=$(mktemp)
+		tmpf=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 		tee "${tmpf}" >&3
 		echo "EOF" >&3
 	fi
