@@ -1709,6 +1709,54 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 	return res;
 }
 
+static int
+__ordinalp(unsigned int d, const char *str, char **ep)
+{
+#define __tolower(c)	(c | 0x20)
+#define ILEA(a, b)	(((a) << 8) | (b))
+	const char *p = str;
+	int res = 0;
+	int p2 = ILEA(__tolower(p[0]), __tolower(p[1]));
+
+	if (LIKELY(p2 == ILEA('t', 'h'))) {
+		/* we accept 1th 2th 3th */
+		p += 2;
+		goto yep;
+	}
+	/* check the number */
+	switch ((d % 10)) {
+	case 1:
+		if (p2 == ILEA('s', 't') && (d % 100 != 11)) {
+			p += 2;
+		} else {
+			res = -1;
+		}
+		break;
+	case 2:
+		if (p2 == ILEA('n', 'd') && (d % 100 != 12)) {
+			p += 2;
+		} else {
+			res = -1;
+		}
+		break;
+	case 3:
+		if (p2 == ILEA('r', 'd') && (d % 100 != 13)) {
+			p += 2;
+		} else {
+			res = -1;
+		}
+		break;
+	default:
+		res = -1;
+		break;
+	}
+yep:
+	*ep = (char*)p;
+	return res;
+#undef ILEA
+#undef __tolower
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -1770,6 +1818,11 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
 				sp = str;
 				goto out;
+			}
+			/* check for ordinals */
+			if (fp[1] == 't' && fp[2] == 'h' &&
+			    __ordinalp(d.d, sp, (char**)&sp) == 0) {
+				fp += 2;
 			}
 			break;
 		case 'w':
