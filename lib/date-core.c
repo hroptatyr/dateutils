@@ -1709,6 +1709,7 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 	return res;
 }
 
+/* belong in strops? */
 static int
 __ordinalp(unsigned int d, const char *str, char **ep)
 {
@@ -1755,6 +1756,41 @@ yep:
 	return res;
 #undef ILEA
 #undef __tolower
+}
+
+static size_t
+__ordtostr(char *buf, size_t bsz, unsigned int d)
+{
+	size_t res = 2;
+	switch ((d % 10)) {
+	default:
+	teens:
+		buf[0] = 't';
+		buf[1] = 'h';
+		break;
+	case 1:
+		if (UNLIKELY((d % 100) == 11)) {
+			goto teens;
+		}
+		buf[0] = 's';
+		buf[1] = 't';
+		break;
+	case 2:
+		if (UNLIKELY((d % 100) == 12)) {
+			goto teens;
+		}
+		buf[0] = 'n';
+		buf[1] = 'd';
+		break;
+	case 3:
+		if (UNLIKELY((d % 100) == 13)) {
+			goto teens;
+		}
+		buf[0] = 'r';
+		buf[1] = 'd';
+		break;
+	}
+	return res;
 }
 
 
@@ -2100,6 +2136,11 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			/* ymd mode check? */
 			d.d = d.d ?: dt_get_mday(that);
 			res += ui32tostr(buf + res, bsz - res, d.d, 2);
+			/* check for ordinals */
+			if (fp[1] == 't' && fp[2] == 'h') {
+				res += __ordtostr(buf + res, bsz - res, d.d);
+				fp += 2;
+			}
 			break;
 		case 'w':
 			/* ymcw mode check */
