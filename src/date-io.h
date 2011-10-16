@@ -95,10 +95,11 @@ typedef const struct grep_atom_s *const_grep_atom_t;
 struct grpatm_payload_s {
 	uint8_t flags;
 #define GRPATM_DIGITS	(1)
-#define GRPATM_A_SPEC	(2)
-#define GRPATM_B_SPEC	(4)
-#define GRPATM_O_SPEC	(8)
-#define GRPATM_T_FLAG	(16)
+#define GRPATM_ORDINALS	(2)
+#define GRPATM_A_SPEC	(4)
+#define GRPATM_B_SPEC	(8)
+#define GRPATM_O_SPEC	(16)
+#define GRPATM_T_FLAG	(32)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
@@ -202,7 +203,6 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case 'm':
-		case 'd':
 		case 'w':
 		case 'c':
 		case 'C':
@@ -210,6 +210,20 @@ calc_grep_atom(const char *fmt)
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
+			break;
+		case 'd':
+			/* has to be extra because we allow ordinals */
+			if (UNLIKELY(fp[1] == 't' && fp[2] == 'h')) {
+				fprintf(stderr, "in here\n");
+				fp += 2;
+				res.pl.off_min += -4;
+				res.pl.off_max += -3;
+				res.pl.flags |= GRPATM_DIGITS | GRPATM_ORDINALS;
+			} else {
+				res.pl.off_min += -2;
+				res.pl.off_max += -1;
+				res.pl.flags |= GRPATM_DIGITS;
+			}
 			break;
 		case 'y':
 			res.pl.off_min += -2;
