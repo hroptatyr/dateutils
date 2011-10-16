@@ -358,13 +358,16 @@ dt_io_find_strpd2(
 		while (*np++ == *p) {
 			const struct grpatm_payload_s f = *fp++;
 			const char *fmt = f.fmt;
+			const char *q;
 
-			if (p + f.off_min < str /*|| p + f.off_max > ?*/) {
-				continue;
+			if (UNLIKELY((p + f.off_min) <= str)) {
+				q = str;
+			} else {
+				q = p + f.off_min;
 			}
-			for (int8_t i = f.off_min; i <= f.off_max; i++) {
-				if ((d = dt_strpd(p + i, fmt, ep)).typ) {
-					p += i;
+			for (const char *r = p + f.off_max; *q && q <= r; q++) {
+				if ((d = dt_strpd(q, fmt, ep)).typ) {
+					p = q;
 					goto found;
 				}
 			}
