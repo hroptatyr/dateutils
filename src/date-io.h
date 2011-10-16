@@ -4,7 +4,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdio_ext.h>
+#if defined __GLIBC__
+/* for *_unlocked protos */
+# include <stdio_ext.h>
+#endif	/* __GLIBC__ */
 #include "date-core.h"
 #include "strops.h"
 
@@ -539,7 +542,35 @@ unfixup_arg(char *arg)
 static __attribute__((unused)) size_t
 __io_write(const char *line, size_t llen, FILE *where)
 {
+#if defined __GLIBC__
 	return fwrite_unlocked(line, sizeof(*line), llen, where);
+#else  /* !__GLIBC__ */
+	return fwrite(line, sizeof(*line), llen, where);
+#endif	/* __GLIBC__ */
+}
+
+static inline __attribute__((unused)) void
+#if defined __GLIBC__
+__io_setlocking_bycaller(FILE *fp)
+{
+	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+	return;
+}
+#else  /* !__GLIBC__ */
+__io_setlocking_bycaller(FILE *__attribute__((unused)) fp)
+{
+	return;
+}
+#endif	/* __GLIBC__ */
+
+static inline __attribute__((unused)) int
+__io_eof_p(FILE *fp)
+{
+#if defined __GLIBC__
+	return feof_unlocked(fp);
+#else  /* !__GLIBC__ */
+	return feof(fp);
+#endif	/* __GLIBC__ */
 }
 
 static int __attribute__((unused))
