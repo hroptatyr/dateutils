@@ -214,7 +214,6 @@ calc_grep_atom(const char *fmt)
 		case 'd':
 			/* has to be extra because we allow ordinals */
 			if (UNLIKELY(fp[1] == 't' && fp[2] == 'h')) {
-				fprintf(stderr, "in here\n");
 				fp += 2;
 				res.pl.off_min += -4;
 				res.pl.off_max += -3;
