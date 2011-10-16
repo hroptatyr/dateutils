@@ -1,25 +1,21 @@
 #!/bin/sh
 
-CLINE=$(getopt -o h \
-	--long help,builddir:,srcdir:,hash:,husk: -n "${0}" -- "${@}")
-eval set -- "${CLINE}"
-
 usage()
 {
 	cat <<EOF 
 $(basename ${0}) [OPTION] TEST_FILE
 
---builddir=DIR  specify where tools can be found
---srcdir=DIR    specify where the source tree resides
---hash=PROG     use hasher PROG instead of md5sum
---husk=PROG     use husk around tool, e.g. 'valgrind -v'
+--builddir DIR  specify where tools can be found
+--srcdir DIR    specify where the source tree resides
+--hash PROG     use hasher PROG instead of md5sum
+--husk PROG     use husk around tool, e.g. 'valgrind -v'
 
 -h, --help      print a short help screen
 EOF
 }
 
-while true; do
-	case "${1}" in
+for arg; do
+	case "${arg}" in
 	"-h"|"--help")
 		usage
 		exit 0
@@ -42,11 +38,15 @@ while true; do
 		;;
 	--)
 		shift
+		testfile="${1}"
 		break
 		;;
+	"-"*)
+		echo "unknown option ${arg}" >&2
+		shift
+		;;
 	*)
-		echo "could not parse options" >&2
-		exit 1
+		testfile="${1}"
 		;;
 	esac
 done
@@ -55,10 +55,9 @@ done
 fail=0
 tool_stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 tool_stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
-pwd=$(pwd)
 
 ## source the check
-. "${1}" || fail=1
+. "${testfile}" || fail=1
 
 rm_if_not_src()
 {
