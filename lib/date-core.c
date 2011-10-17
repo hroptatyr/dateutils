@@ -486,6 +486,7 @@ __ymd_get_wday(dt_ymd_t that)
 static unsigned int
 __ymd_get_count(dt_ymd_t that)
 {
+/* get N where N is the N-th occurrence of wday in the month of that year */
 	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
@@ -734,6 +735,16 @@ __bizda_get_wday(dt_bizda_t that)
 	magic = (b - 1 + (wd01 ?: 6) - 1);
 	/* now just add up bdays */
 	return (dt_dow_t)((magic % 5) + DT_MONDAY);
+}
+
+static unsigned int
+__bizda_get_count(dt_bizda_t that)
+{
+/* get N where N is the N-th occurrence of wday in the month of that year */
+	if (UNLIKELY(that.bd + 5U > __get_bdays(that.y, that.m))) {
+		return 5;
+	}
+	return (that.bd - 1U) / 5U + 1U;
 }
 
 static unsigned int
@@ -1043,6 +1054,8 @@ dt_get_mday(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return __bizda_get_mday(that.bizda);;
+	case DT_YMD:
+		/* to shut gcc up */
 	default:
 	case DT_UNK:
 		return 0;
@@ -1059,6 +1072,14 @@ dt_get_count(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMD:
 		return __ymd_get_count(that.ymd);
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
+		return __ymd_get_count(tmp);
+	}
+	case DT_BIZDA:
+		return __bizda_get_count(that.bizda);
+	case DT_YMCW:
+		/* to shut gcc up */
 	default:
 	case DT_UNK:
 		return 0;
