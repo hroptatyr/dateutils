@@ -1051,7 +1051,7 @@ dt_get_mday(struct dt_d_s that)
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
 	case DT_DAISY:
-		return __daisy_to_ymd(that.daisy).m;
+		return __daisy_to_ymd(that.daisy).d;
 	case DT_BIZDA:
 		return __bizda_get_mday(that.bizda);;
 	case DT_YMD:
