@@ -4,7 +4,7 @@ TOOL=dadd
 CMDLINE="2w2d"
 
 ## STDIN
-stdin=$(mktemp)
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
 2012-03-01
 2012-03-02
@@ -14,7 +14,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 2012-03-17
 2012-03-18

@@ -101,7 +101,8 @@ BUILT_SOURCES += tcal-clo.c tcal-clo.h
 %.c %.h: %.ggo $(GGO_HELPERS)
 	$(M4) -I $(srcdir) common.ggo.in $< | gengetopt -l -F $*
 ## patch the multiple arg thingie dingie
-	sed -i -f $(srcdir)/__gengetopt-mularg.sed -- $*.c
+	sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.c > $*.c.sed && \
+		mv $*.c.sed $*.c
 
 # 
 # Help the developers get nice post-processed source files

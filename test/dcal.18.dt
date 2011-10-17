@@ -1,0 +1,49 @@
+## -*- shell-script -*-
+
+TOOL=dcal
+CMDLINE="-i '%dth%m%Y' -f '%b %dth %Y'"
+## very artificial :\
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+1st102011
+2nd102011
+3rd102011
+4th102011
+10th102011
+11th102011
+12th102011
+13th102011
+14th102011
+20th102011
+21st102011
+22nd102011
+23rd102011
+24th102011
+30th102011
+31st102011 
+EOF
+ 
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+Oct 01st 2011
+Oct 02nd 2011
+Oct 03rd 2011
+Oct 04th 2011
+Oct 10th 2011
+Oct 11th 2011
+Oct 12th 2011
+Oct 13th 2011
+Oct 14th 2011
+Oct 20th 2011
+Oct 21st 2011
+Oct 22nd 2011
+Oct 23rd 2011
+Oct 24th 2011
+Oct 30th 2011
+Oct 31st 2011
+EOF
+
+## dcal.18.dt ends here

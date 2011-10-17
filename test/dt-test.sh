@@ -1,25 +1,21 @@
 #!/bin/sh
 
-CLINE=$(getopt -o h \
-	--long help,builddir:,srcdir:,hash:,husk: -n "${0}" -- "${@}")
-eval set -- "${CLINE}"
-
 usage()
 {
 	cat <<EOF 
 $(basename ${0}) [OPTION] TEST_FILE
 
---builddir=DIR  specify where tools can be found
---srcdir=DIR    specify where the source tree resides
---hash=PROG     use hasher PROG instead of md5sum
---husk=PROG     use husk around tool, e.g. 'valgrind -v'
+--builddir DIR  specify where tools can be found
+--srcdir DIR    specify where the source tree resides
+--hash PROG     use hasher PROG instead of md5sum
+--husk PROG     use husk around tool, e.g. 'valgrind -v'
 
 -h, --help      print a short help screen
 EOF
 }
 
-while true; do
-	case "${1}" in
+for arg; do
+	case "${arg}" in
 	"-h"|"--help")
 		usage
 		exit 0
@@ -42,23 +38,26 @@ while true; do
 		;;
 	--)
 		shift
+		testfile="${1}"
 		break
 		;;
+	"-"*)
+		echo "unknown option ${arg}" >&2
+		shift
+		;;
 	*)
-		echo "could not parse options" >&2
-		exit 1
+		testfile="${1}"
 		;;
 	esac
 done
 
 ## setup
 fail=0
-tool_stdout=$(mktemp)
-tool_stderr=$(mktemp)
-pwd=$(pwd)
+tool_stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+tool_stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 
 ## source the check
-. "${1}" || fail=1
+. "${testfile}" || fail=1
 
 rm_if_not_src()
 {
@@ -86,6 +85,12 @@ myexit()
 	exit ${1:-1}
 }
 
+xrealpath()
+{
+	readlink -f "${1}" 2>/dev/null || \
+		realpath "${1}" 2>/dev/null
+}
+
 find_file()
 {
 	file="${1}"
@@ -95,9 +100,9 @@ find_file()
 	elif test -r "${file}"; then
 		echo "${file}"
 	elif test -r "${builddir}/${file}"; then
-		readlink -f "${builddir}/${file}"
+		xrealpath "${builddir}/${file}"
 	elif test -r "${srcdir}/${file}"; then
-		readlink -f "${srcdir}/${file}"
+		xrealpath "${srcdir}/${file}"
 	fi
 }
 
@@ -111,7 +116,7 @@ eval_echo()
 		echo >&3
 	else
 		echo "<<EOF" >&3
-		tmpf=$(mktemp)
+		tmpf=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 		tee "${tmpf}" >&3
 		echo "EOF" >&3
 	fi
@@ -130,7 +135,7 @@ fi
 
 ## set finals
 if test -x "${builddir}/${TOOL}"; then
-	TOOL=$(readlink -f "${builddir}/${TOOL}")
+	TOOL=$(xrealpath "${builddir}/${TOOL}")
 fi
 if test -z "${srcdir}"; then
 	srcdir=$(dirname "${0}")

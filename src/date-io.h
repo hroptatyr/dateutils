@@ -4,7 +4,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdio_ext.h>
+#if defined __GLIBC__
+/* for *_unlocked protos */
+# include <stdio_ext.h>
+#endif	/* __GLIBC__ */
 #include "date-core.h"
 #include "strops.h"
 
@@ -95,10 +98,11 @@ typedef const struct grep_atom_s *const_grep_atom_t;
 struct grpatm_payload_s {
 	uint8_t flags;
 #define GRPATM_DIGITS	(1)
-#define GRPATM_A_SPEC	(2)
-#define GRPATM_B_SPEC	(4)
-#define GRPATM_O_SPEC	(8)
-#define GRPATM_T_FLAG	(16)
+#define GRPATM_ORDINALS	(2)
+#define GRPATM_A_SPEC	(4)
+#define GRPATM_B_SPEC	(8)
+#define GRPATM_O_SPEC	(16)
+#define GRPATM_T_FLAG	(32)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
@@ -202,7 +206,6 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case 'm':
-		case 'd':
 		case 'w':
 		case 'c':
 		case 'C':
@@ -210,6 +213,19 @@ calc_grep_atom(const char *fmt)
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
+			break;
+		case 'd':
+			/* has to be extra because we allow ordinals */
+			if (UNLIKELY(fp[1] == 't' && fp[2] == 'h')) {
+				fp += 2;
+				res.pl.off_min += -4;
+				res.pl.off_max += -3;
+				res.pl.flags |= GRPATM_DIGITS | GRPATM_ORDINALS;
+			} else {
+				res.pl.off_min += -2;
+				res.pl.off_max += -1;
+				res.pl.flags |= GRPATM_DIGITS;
+			}
 			break;
 		case 'y':
 			res.pl.off_min += -2;
@@ -245,7 +261,7 @@ calc_grep_atom(const char *fmt)
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
-		if (res.pl.flags == GRPATM_DIGITS) {
+		if ((res.pl.flags & ~(GRPATM_DIGITS | GRPATM_ORDINALS)) == 0) {
 			/* ah, only digits, thats good */
 			int8_t tmp = (int8_t)-res.pl.off_min;
 
@@ -345,13 +361,16 @@ dt_io_find_strpd2(
 		while (*np++ == *p) {
 			const struct grpatm_payload_s f = *fp++;
 			const char *fmt = f.fmt;
+			const char *q;
 
-			if (p + f.off_min < str /*|| p + f.off_max > ?*/) {
-				continue;
+			if (UNLIKELY((p + f.off_min) <= str)) {
+				q = str;
+			} else {
+				q = p + f.off_min;
 			}
-			for (int8_t i = f.off_min; i <= f.off_max; i++) {
-				if ((d = dt_strpd(p + i, fmt, ep)).typ) {
-					p += i;
+			for (const char *r = p + f.off_max; *q && q <= r; q++) {
+				if ((d = dt_strpd(q, fmt, ep)).typ) {
+					p = q;
 					goto found;
 				}
 			}
@@ -398,6 +417,40 @@ dt_io_find_strpd2(
 					goto found;
 				}
 			}
+			continue;
+
+		case GRPATM_DIGITS | GRPATM_ORDINALS:
+			/* yay, look for all digits and ordinals */
+			for (p = str; *p && !(*p >= '0' && *p <= '9'); p++);
+			for (const char *q = p; *q; q++) {
+				switch (*q) {
+				case '0' ... '9':
+					break;
+				case 't':
+					if (*++q == 'h') {
+						break;
+					}
+					goto bugger;
+				case 's':
+					if (*++q == 't') {
+						break;
+					}
+					goto bugger;
+				case 'n':
+				case 'r':
+					if (*++q == 'd') {
+						break;
+					}
+					goto bugger;
+				default:
+					goto bugger;
+				}
+				if ((--f.off_min <= 0) &&
+				    (d = dt_strpd(p, fmt, ep)).typ) {
+					goto found;
+				}
+			}
+		bugger:
 		default:
 			continue;
 		}
@@ -489,7 +542,35 @@ unfixup_arg(char *arg)
 static __attribute__((unused)) size_t
 __io_write(const char *line, size_t llen, FILE *where)
 {
+#if defined __GLIBC__
 	return fwrite_unlocked(line, sizeof(*line), llen, where);
+#else  /* !__GLIBC__ */
+	return fwrite(line, sizeof(*line), llen, where);
+#endif	/* __GLIBC__ */
+}
+
+static inline __attribute__((unused)) void
+#if defined __GLIBC__
+__io_setlocking_bycaller(FILE *fp)
+{
+	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+	return;
+}
+#else  /* !__GLIBC__ */
+__io_setlocking_bycaller(FILE *__attribute__((unused)) fp)
+{
+	return;
+}
+#endif	/* __GLIBC__ */
+
+static inline __attribute__((unused)) int
+__io_eof_p(FILE *fp)
+{
+#if defined __GLIBC__
+	return feof_unlocked(fp);
+#else  /* !__GLIBC__ */
+	return feof(fp);
+#endif	/* __GLIBC__ */
 }
 
 static int __attribute__((unused))

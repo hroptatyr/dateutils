@@ -9,20 +9,11 @@ EXTRA_DIST = $(BUILT_SOURCES)
 
 info_TEXINFOS = dateutils.texi
 dateutils_TEXINFOS =
-dateutils_TEXINFOS += strptime.texi
-dateutils_TEXINFOS += dadd.texi
-dateutils_TEXINFOS += dcal.texi
-dateutils_TEXINFOS += ddiff.texi
-dateutils_TEXINFOS += dseq.texi
-dateutils_TEXINFOS += dtest.texi
-dateutils_TEXINFOS += dgrep.texi
-dateutils_TEXINFOS += tseq.texi
-dateutils_TEXINFOS += tadd.texi
-dateutils_TEXINFOS += tdiff.texi
-dateutils_TEXINFOS += tgrep.texi
-dateutils_TEXINFOS += ttest.texi
-dateutils_TEXINFOS += tcal.texi
+dateutils_TEXINFOS += $(built_texis)
 dateutils_TEXINFOS += format.texi
+
+man1_MANS =
+man1_MANS += $(built_mans)
 
 dateutils_EXAMPLES =
 dateutils_H2M_EX =
@@ -125,30 +116,45 @@ tcal_EXAMPLES += $(top_srcdir)/test/tcal.2.dt
 dateutils_EXAMPLES += $(tcal_EXAMPLES)
 dateutils_H2M_EX += tcal.h2m
 
-
 dateutils_H2M_EX += format.h2m
-dateutils_H2M_EX += author.h2m
 
-BUILT_SOURCES += $(dateutils_TEXINFOS) $(dateutils_H2M_EX)
+EXTRA_DIST += author.h2m $(dateutils_H2M_EX)
+BUILT_SOURCES += $(built_texis) $(dateutils_H2M_EX) $(built_mans)
 
 dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex texi2h2m.sh
 
-man1_MANS =
-man1_MANS += strptime.man
-man1_MANS += dadd.man
-man1_MANS += dcal.man
-man1_MANS += ddiff.man
-man1_MANS += dgrep.man
-man1_MANS += dseq.man
-man1_MANS += dtest.man
-man1_MANS += tseq.man
-man1_MANS += tadd.man
-man1_MANS += tdiff.man
-man1_MANS += tgrep.man
-man1_MANS += ttest.man
-man1_MANS += tcal.man
+built_texis =
+built_texis += strptime.texi
+built_texis += dadd.texi
+built_texis += dcal.texi
+built_texis += ddiff.texi
+built_texis += dseq.texi
+built_texis += dtest.texi
+built_texis += dgrep.texi
+built_texis += tseq.texi
+built_texis += tadd.texi
+built_texis += tdiff.texi
+built_texis += tgrep.texi
+built_texis += ttest.texi
+built_texis += tcal.texi
+
+built_mans =
+built_mans += strptime.man
+built_mans += dadd.man
+built_mans += dcal.man
+built_mans += ddiff.man
+built_mans += dgrep.man
+built_mans += dseq.man
+built_mans += dtest.man
+built_mans += tseq.man
+built_mans += tadd.man
+built_mans += tdiff.man
+built_mans += tgrep.man
+built_mans += ttest.man
+built_mans += tcal.man
 
 EXTRA_DIST += $(man1_MANS)
+EXTRA_DIST += $(dateutils_TEXINFOS)
 
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))

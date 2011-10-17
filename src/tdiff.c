@@ -35,7 +35,6 @@
  *
  **/
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/time.h>
@@ -121,9 +120,10 @@ main(int argc, char *argv[])
 		size_t lno = 0;
 
 		/* no threads reading this stream */
-		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+		__io_setlocking_bycaller(fp);
+		__io_setlocking_bycaller(stdout);
 
-		for (line = NULL; !feof_unlocked(fp); lno++) {
+		for (line = NULL; !__io_eof_p(fp); lno++) {
 			ssize_t n;
 			size_t len;
 			struct dt_t_s t2;

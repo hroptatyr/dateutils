@@ -6,7 +6,7 @@ CMDLINE="-f \"%Y-%_D\" \"2010-03-01>00\""
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 2010-042
 EOF

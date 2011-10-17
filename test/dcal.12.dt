@@ -4,7 +4,7 @@ TOOL=dcal
 CMDLINE='-S -i "%Y-%m-%d" -i "%d %b %Y" -i "%d-%b-%Y"'
 
 ## STDIN
-stdin=$(mktemp)
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
 1 week (act/360)	2011-10-12	1.186
 1 week (act/365)	2011-10-12	1.202
@@ -39,7 +39,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 1 week (act/360)	2011-10-12	1.186
 1 week (act/365)	2011-10-12	1.202

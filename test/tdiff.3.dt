@@ -6,7 +6,7 @@ CMDLINE="10:06:00 10:01:00"
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 -300s
 EOF
