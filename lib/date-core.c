@@ -996,7 +996,7 @@ dt_get_year(struct dt_d_s that)
 	case DT_YMCW:
 		return that.ymcw.y;
 	case DT_DAISY:
-		return 0;
+		return __daisy_to_ymd(that.daisy).y;
 	case DT_BIZDA:
 		return that.bizda.y;
 	default:
