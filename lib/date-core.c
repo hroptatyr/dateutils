@@ -1014,7 +1014,7 @@ dt_get_mon(struct dt_d_s that)
 	case DT_YMCW:
 		return that.ymcw.m;
 	case DT_DAISY:
-		return 0;
+		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
 	default:
