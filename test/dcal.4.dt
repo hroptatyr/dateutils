@@ -6,7 +6,7 @@ CMDLINE="-f \"%d/%b/%y\" -i \"%OY %Om %Od\" \"MCMXCVIII IX XVII\""
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 17/Sep/98
 EOF

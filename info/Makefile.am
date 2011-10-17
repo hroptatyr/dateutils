@@ -123,6 +123,7 @@ BUILT_SOURCES += $(built_texis) $(dateutils_H2M_EX) $(built_mans)
 
 dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex texi2h2m.sh
 
+built_texis =
 built_texis += strptime.texi
 built_texis += dadd.texi
 built_texis += dcal.texi
@@ -137,6 +138,7 @@ built_texis += tgrep.texi
 built_texis += ttest.texi
 built_texis += tcal.texi
 
+built_mans =
 built_mans += strptime.man
 built_mans += dadd.man
 built_mans += dcal.man

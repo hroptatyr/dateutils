@@ -6,7 +6,7 @@ CMDLINE="--compute-from-last 2001-02-03 3 2001-03-03 --skip sat,fri -f \"%F %a\"
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 2001-02-04 Sun
 2001-02-07 Wed

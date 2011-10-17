@@ -6,7 +6,7 @@ CMDLINE="2012-03-12 2012-04-02"
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp)
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 0m21d
 EOF
