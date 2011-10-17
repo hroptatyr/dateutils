@@ -1072,10 +1072,8 @@ dt_get_count(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMD:
 		return __ymd_get_count(that.ymd);
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		return __ymd_get_count(tmp);
-	}
+	case DT_DAISY:
+		return __ymd_get_count(__daisy_to_ymd(that.daisy));
 	case DT_BIZDA:
 		return __bizda_get_count(that.bizda);
 	case DT_YMCW:
