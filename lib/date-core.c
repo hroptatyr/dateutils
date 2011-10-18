@@ -1784,94 +1784,6 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 	return res;
 }
 
-/* belong in strops? */
-static int
-__ordinalp(unsigned int d, const char *str, char **ep)
-{
-#define __tolower(c)	(c | 0x20)
-#define ILEA(a, b)	(((a) << 8) | (b))
-	const char *p = str;
-	int res = 0;
-	int p2 = ILEA(__tolower(p[0]), __tolower(p[1]));
-
-	if (LIKELY(p2 == ILEA('t', 'h'))) {
-		/* we accept 1th 2th 3th */
-		p += 2;
-		goto yep;
-	}
-	/* check the number */
-	switch ((d % 10)) {
-	case 1:
-		if (p2 == ILEA('s', 't') && (d % 100 != 11)) {
-			p += 2;
-		} else {
-			res = -1;
-		}
-		break;
-	case 2:
-		if (p2 == ILEA('n', 'd') && (d % 100 != 12)) {
-			p += 2;
-		} else {
-			res = -1;
-		}
-		break;
-	case 3:
-		if (p2 == ILEA('r', 'd') && (d % 100 != 13)) {
-			p += 2;
-		} else {
-			res = -1;
-		}
-		break;
-	default:
-		res = -1;
-		break;
-	}
-yep:
-	*ep = (char*)p;
-	return res;
-#undef ILEA
-#undef __tolower
-}
-
-static size_t
-__ordtostr(char *buf, size_t bsz, unsigned int d)
-{
-	size_t res = 2;
-
-	if (bsz < 2) {
-		return 0;
-	}
-	switch ((d % 10)) {
-	default:
-	teens:
-		buf[0] = 't';
-		buf[1] = 'h';
-		break;
-	case 1:
-		if (UNLIKELY((d % 100) == 11)) {
-			goto teens;
-		}
-		buf[0] = 's';
-		buf[1] = 't';
-		break;
-	case 2:
-		if (UNLIKELY((d % 100) == 12)) {
-			goto teens;
-		}
-		buf[0] = 'n';
-		buf[1] = 'd';
-		break;
-	case 3:
-		if (UNLIKELY((d % 100) == 13)) {
-			goto teens;
-		}
-		buf[0] = 'r';
-		buf[1] = 'd';
-		break;
-	}
-	return res;
-}
-
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -1928,18 +1840,21 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
-		case 'd':
+		case 'd': {
+			const char *tmp;
 			/* gregorian mode */
-			if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+			if ((d.d = strtoui_lim(sp, &tmp, 0, 31)) == -1U) {
 				sp = str;
 				goto out;
 			}
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(d.d, sp, (char**)&sp) == 0) {
+			    __ordinalp(sp, tmp - sp, (char**)&tmp) == 0) {
 				fp += 2;
 			}
+			sp = tmp;
 			break;
+		}
 		case 'w':
 			/* ymcw mode */
 			if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
@@ -2026,19 +1941,21 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				break;
 			case 'd': {
 				const char *fp_sav = fp++;
+				const char *tp;
 
 				/* business days */
 				d.flags |= STRPD_BIZDA_BIT;
 				if ((d.b = strtoui_lim(
-					     sp, &sp, 0, 23)) == -1U) {
+					     sp, &tp, 0, 23)) == -1U) {
 					sp = str;
 					goto out;
 				}
 				/* check for ordinals */
 				if (fp[1] == 't' && fp[2] == 'h' &&
-				    __ordinalp(d.b, sp, (char**)&sp) == 0) {
+				    __ordinalp(sp, tp - sp, (char**)&tp) == 0) {
 					fp += 2;
 				}
+				sp = tp;
 				/* bizda handling, reference could be in fp */
 				switch (*fp++) {
 				case '<':
@@ -2094,16 +2011,18 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				goto out;
 			}
 		case 'q': {
-			unsigned int q;
+			const char *tmp;
 			if (d.m == 0) {
-				q = strtoui_lim(sp, &sp, 1, 4);
+				unsigned int q;
+				q = strtoui_lim(sp, &tmp, 1, 4);
+				d.m = q * 3 - 2;
 			}
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(q, sp, (char**)&sp) == 0) {
+			    __ordinalp(sp, tmp - sp, (char**)&tmp) == 0) {
 				fp += 2;
 			}
-			d.m = q * 3 - 2;
+			sp = tmp;
 			break;
 		}
 		case 'O':
@@ -2236,7 +2155,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			res += ui32tostr(buf + res, bsz - res, d.d, 2);
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h') {
-				res += __ordtostr(buf + res, bsz - res, d.d);
+				res += __ordtostr(buf + res, bsz - res);
 				fp += 2;
 			}
 			break;
@@ -2293,7 +2212,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			buf[res++] = (char)(q + '0');
 			/* check for ordinals in %q */
 			if (fp[0] == 'q' && fp[1] == 't' && fp[2] == 'h') {
-				res += __ordtostr(buf + res, bsz - res, q);
+				res += __ordtostr(buf + res, bsz - res);
 				fp += 2;
 			}
 			break;
@@ -2335,8 +2254,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				}
 				/* check for ordinals */
 				if (fp[1] == 't' && fp[2] == 'h') {
-					res += __ordtostr(
-						buf + res, bsz - res, d.b);
+					res += __ordtostr(buf + res, bsz - res);
 					fp += 2;
 				}
 				break;
