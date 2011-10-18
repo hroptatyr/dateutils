@@ -289,40 +289,40 @@ yep:
 DEFUN size_t
 __ordtostr(char *buf, size_t bsz, unsigned int d)
 {
-	size_t res = 2;
+	char *p = buf;
 
 	if (UNLIKELY(bsz < 2)) {
 		return 0;
 	}
-	switch ((d % 10)) {
+	/* assumes the actual number is printed in BUF already, 2 digits long */
+	if (UNLIKELY(p[-2] == '1')) {
+		/* must be 11, 12, or 13 then */
+		goto teens;
+	} else if (p[-2] == '0') {
+		/* discard */
+		p[-2] = p[-1];
+		p--;
+	}
+	switch (p[-1]) {
 	default:
 	teens:
-		buf[0] = 't';
-		buf[1] = 'h';
+		*p++ = 't';
+		*p++ = 'h';
 		break;
-	case 1:
-		if (UNLIKELY((d % 100) == 11)) {
-			goto teens;
-		}
-		buf[0] = 's';
-		buf[1] = 't';
+	case '1':
+		*p++ = 's';
+		*p++ = 't';
 		break;
-	case 2:
-		if (UNLIKELY((d % 100) == 12)) {
-			goto teens;
-		}
-		buf[0] = 'n';
-		buf[1] = 'd';
+	case '2':
+		*p++ = 'n';
+		*p++ = 'd';
 		break;
-	case 3:
-		if (UNLIKELY((d % 100) == 13)) {
-			goto teens;
-		}
-		buf[0] = 'r';
-		buf[1] = 'd';
+	case '3':
+		*p++ = 'r';
+		*p++ = 'd';
 		break;
 	}
-	return res;
+	return p - buf;
 }
 
 
