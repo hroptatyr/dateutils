@@ -114,20 +114,11 @@ typedef uint32_t dt_daisy_t;
 typedef union {
 	uint32_t u;
 	struct {
-		/* key day, use 00 for ultimo */
-		unsigned int x:5;
-		union {
-			signed int bda;
-			struct {
-				/* business day */
-				unsigned int bd:5;
-				/* before or after */
-				unsigned int ba:1;
 #define BIZDA_AFTER	(0U)/*>*/
 #define BIZDA_BEFORE	(1U)/*<*/
 #define BIZDA_ULTIMO	(0U)
-			};
-		};
+		/* business day */
+		unsigned int bd:5;
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 5 bits left */
@@ -135,15 +126,28 @@ typedef union {
 	};
 } dt_bizda_t;
 
+typedef union {
+	uint32_t u:16;
+	struct {
+		/* before or after */
+		unsigned int ab:1;
+		/* reference day, use 00 for ultimo */
+		unsigned int ref:5;
+	};
+} dt_bizda_param_t;
+
 /**
  * Collection of all date types. */
 struct dt_d_s {
-	dt_dtyp_t typ;
+	/* for parametrised types */
+	dt_dtyp_t typ:16;
+	uint32_t param:16;
 	union {
 		uint32_t u;
 		dt_ymd_t ymd;
 		dt_ymcw_t ymcw;
 		dt_daisy_t daisy;
+		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
 	};
 };
@@ -279,7 +283,7 @@ DECLF int dt_get_bday(struct dt_d_s d);
 
 /**
  * Get the business day count of a date in a month Before/After REF. */
-DECLF int dt_get_bday_q(struct dt_d_s d, unsigned int ba, unsigned int ref);
+DECLF int dt_get_bday_q(struct dt_d_s d, dt_bizda_param_t bp);
 
 /**
  * Get the quarter number of a date. */

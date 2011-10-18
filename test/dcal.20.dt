@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dcal
+CMDLINE="-f \"%_dth business day in %B %Y\" \"2010-03-01>00\""
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+01st business day in March 2010
+EOF
+
+## dcal.20.dt ends here
