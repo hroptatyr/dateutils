@@ -115,6 +115,7 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 	return res;
 }
 
+
 /* roman numerals */
 static uint32_t
 __romstr_v(const char c)
@@ -236,6 +237,95 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 	return res;
 }
 
+
+DEFUN int
+__ordinalp(unsigned int d, const char *str, char **ep)
+{
+#define __tolower(c)	(c | 0x20)
+#define ILEA(a, b)	(((a) << 8) | (b))
+	const char *p = str;
+	int res = 0;
+	int p2 = ILEA(__tolower(p[0]), __tolower(p[1]));
+
+	if (LIKELY(p2 == ILEA('t', 'h'))) {
+		/* we accept 1th 2th 3th */
+		p += 2;
+		goto yep;
+	}
+	/* check the number */
+	switch ((d % 10)) {
+	case 1:
+		if (p2 == ILEA('s', 't') && (d % 100 != 11)) {
+			p += 2;
+		} else {
+			res = -1;
+		}
+		break;
+	case 2:
+		if (p2 == ILEA('n', 'd') && (d % 100 != 12)) {
+			p += 2;
+		} else {
+			res = -1;
+		}
+		break;
+	case 3:
+		if (p2 == ILEA('r', 'd') && (d % 100 != 13)) {
+			p += 2;
+		} else {
+			res = -1;
+		}
+		break;
+	default:
+		res = -1;
+		break;
+	}
+yep:
+	*ep = (char*)p;
+	return res;
+#undef ILEA
+#undef __tolower
+}
+
+DEFUN size_t
+__ordtostr(char *buf, size_t bsz, unsigned int d)
+{
+	size_t res = 2;
+
+	if (bsz < 2) {
+		return 0;
+	}
+	switch ((d % 10)) {
+	default:
+	teens:
+		buf[0] = 't';
+		buf[1] = 'h';
+		break;
+	case 1:
+		if (UNLIKELY((d % 100) == 11)) {
+			goto teens;
+		}
+		buf[0] = 's';
+		buf[1] = 't';
+		break;
+	case 2:
+		if (UNLIKELY((d % 100) == 12)) {
+			goto teens;
+		}
+		buf[0] = 'n';
+		buf[1] = 'd';
+		break;
+	case 3:
+		if (UNLIKELY((d % 100) == 13)) {
+			goto teens;
+		}
+		buf[0] = 'r';
+		buf[1] = 'd';
+		break;
+	}
+	return res;
+}
+
+
 /* string array funs */
 DEFUN uint32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
