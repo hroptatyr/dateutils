@@ -594,13 +594,13 @@ __ymcw_get_mday(dt_ymcw_t that)
 }
 
 static int
-__ymd_get_bday(dt_ymd_t that, unsigned int ba, unsigned int ref)
+__ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 {
 	dt_dow_t wdd;
 	unsigned int wk;
 	int res;
 
-	if (ba != BIZDA_AFTER || ref != BIZDA_ULTIMO) {
+	if (bp.ab != BIZDA_AFTER || bp.ref != BIZDA_ULTIMO) {
 		/* no support yet */
 		return -1;
 	}
@@ -625,7 +625,7 @@ __ymd_get_bday(dt_ymd_t that, unsigned int ba, unsigned int ref)
 }
 
 static int
-__ymcw_get_bday(dt_ymcw_t that, unsigned int ba, unsigned int ref)
+__ymcw_get_bday(dt_ymcw_t that, dt_bizda_param_t bp)
 {
 	dt_dow_t wd01;
 	int res;
@@ -637,7 +637,7 @@ __ymcw_get_bday(dt_ymcw_t that, unsigned int ba, unsigned int ref)
 	default:
 		break;
 	}
-	if (ba != BIZDA_AFTER || ref != BIZDA_ULTIMO) {
+	if (bp.ab != BIZDA_AFTER || bp.ref != BIZDA_ULTIMO) {
 		/* no support yet */
 		return -1;
 	}
@@ -751,7 +751,7 @@ __bizda_get_count(dt_bizda_t that)
 }
 
 static unsigned int
-__bizda_get_yday(dt_bizda_t that)
+__bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 {
 /* return the N-th business day in Y,
  * the meaning of ultimo will be stretched to Y-ultimo, either last year's
@@ -822,7 +822,7 @@ __bizda_get_yday(dt_bizda_t that)
 	unsigned int m = that.m;
 	unsigned int accum = 0;
 
-	if (UNLIKELY(that.x != BIZDA_ULTIMO)) {
+	if (UNLIKELY(param.ref != BIZDA_ULTIMO)) {
 		return 0;
 	}
 	j01wd = __get_jan01_wday(that.y);
@@ -861,6 +861,31 @@ __bizda_get_yday(dt_bizda_t that)
 		}
 	}
 	return 20 * (m - 1) + accum + that.bd;
+}
+
+static inline dt_bizda_param_t
+__get_bizda_param(struct dt_d_s that)
+{
+#if defined __C1X
+	dt_bizda_param_t p = {.u = that.param};
+#else  /* !__C1X */
+	dt_bizda_param_t p;
+	p.u = that.param;
+#endif	/* __C1X */
+	return p;
+}
+
+static inline dt_bizda_param_t
+__make_bizda_param(unsigned int ab, unsigned int ref)
+{
+#if defined __C1X
+	dt_bizda_param_t p = {.ab = ab, .ref = ref};
+#else  /* !__C1X */
+	dt_bizda_param_t p;
+	p.ab = ab;
+	p.ref = ref;
+#endif	/* __C1X */
+	return p;
 }
 
 static dt_ymcw_t
@@ -1112,7 +1137,7 @@ dt_get_yday(struct dt_d_s that)
 	case DT_DAISY:
 		return __daisy_get_yday(that.daisy);
 	case DT_BIZDA:
-		return __bizda_get_yday(that.bizda);
+		return __bizda_get_yday(that.bizda, __get_bizda_param(that));
 	default:
 	case DT_UNK:
 		return 0;
@@ -1124,18 +1149,23 @@ dt_get_bday(struct dt_d_s that)
 {
 /* get N where N is the N-th business day after ultimo */
 	switch (that.typ) {
-	case DT_BIZDA:
-		if (that.bizda.x == BIZDA_ULTIMO &&
-		    that.bizda.ba == BIZDA_AFTER) {
+	case DT_BIZDA: {
+		dt_bizda_param_t p = __get_bizda_param(that);
+		if (p.ab == BIZDA_AFTER && p.ref == BIZDA_ULTIMO) {
 			return that.bizda.bd;
 		}
 		return 0;
+	}
 	case DT_DAISY:
 		that.ymd = __daisy_to_ymd(that.daisy);
 	case DT_YMD:
-		return __ymd_get_bday(that.ymd, BIZDA_AFTER, BIZDA_ULTIMO);
+		return __ymd_get_bday(
+			that.ymd,
+			__make_bizda_param(BIZDA_AFTER, BIZDA_ULTIMO));
 	case DT_YMCW:
-		return __ymcw_get_bday(that.ymcw, BIZDA_AFTER, BIZDA_ULTIMO);
+		return __ymcw_get_bday(
+			that.ymcw,
+			__make_bizda_param(BIZDA_AFTER, BIZDA_ULTIMO));
 	default:
 	case DT_UNK:
 		return 0;
@@ -1143,21 +1173,23 @@ dt_get_bday(struct dt_d_s that)
 }
 
 DEFUN int
-dt_get_bday_q(struct dt_d_s that, unsigned int ba, unsigned int ref)
+dt_get_bday_q(struct dt_d_s that, dt_bizda_param_t bp)
 {
 /* get N where N is the N-th business day Before/After REF */
 	switch (that.typ) {
-	case DT_BIZDA:
-		if (that.bizda.x == ref && that.bizda.ba == ba) {
+	case DT_BIZDA: {
+		dt_bizda_param_t thatp = __get_bizda_param(that);
+		if (thatp.ref == bp.ref && thatp.ab == bp.ab) {
 			return that.bizda.bd;
 		}
 		return 0/*__bizda_to_bizda(that.bizda, ba, ref)*/;
+	}
 	case DT_DAISY:
 		that.ymd = __daisy_to_ymd(that.daisy);
 	case DT_YMD:
-		return __ymd_get_bday(that.ymd, ba, ref);
+		return __ymd_get_bday(that.ymd, bp);
 	case DT_YMCW:
-		return __ymcw_get_bday(that.ymcw, ba, ref);
+		return __ymcw_get_bday(that.ymcw, bp);
 	default:
 	case DT_UNK:
 		return 0;
@@ -1575,11 +1607,11 @@ __guess_dtyp(struct strpd_s d)
 		res.ymcw.w = d.w;
 	} else if (d.y && bizdap) {
 		/* d.c can be legit'ly naught */
+		dt_bizda_param_t bp = __make_bizda_param(d.b <= 0, d.ref);
+		res.param = bp.u;
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
-		res.bizda.bda = d.b;
-		res.bizda.x = d.ref;
 	} else {
 		/* anything else is bollocks for now */
 		res.typ = DT_UNK;
@@ -2133,16 +2165,22 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
-	case DT_BIZDA:
+	case DT_BIZDA: {
+		dt_bizda_param_t bp = __get_bizda_param(that);
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
-		d.b = that.bizda.bd;
-		d.ref = that.bizda.x;
-		d.flags = (that.bizda.ba << 1) | STRPD_BIZDA_BIT;
+		if (LIKELY(bp.ab == BIZDA_AFTER)) {
+			d.b = that.bizda.bd;
+		} else {
+			d.b = -that.bizda.bd;
+		}
+		d.ref = bp.ref;
+		d.flags = (bp.ab << 1) | STRPD_BIZDA_BIT;
 		if (fmt == NULL) {
 			fmt = bizda_dflt;
 		}
 		break;
+	}
 	default:
 	case DT_UNK:
 		goto out;
@@ -2276,7 +2314,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				/* get business days */
 				if (that.typ == DT_BIZDA) {
 					unsigned int b =
-						__bizda_get_yday(that.bizda);
+						__bizda_get_yday(
+							that.bizda,
+							__get_bizda_param(
+								that));
 					res += ui32tostr(
 						buf + res, bsz - res, b, 3);
 				} else {
