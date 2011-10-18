@@ -898,6 +898,20 @@ __daisy_get_year(dt_daisy_t d)
 	return TO_YEAR(by);
 }
 
+static unsigned int
+__daisy_get_yday(dt_daisy_t d)
+{
+	dt_daisy_t j00;
+	unsigned int y;
+
+	if (UNLIKELY(d == 0)) {
+		return 0U;
+	}
+	y = __daisy_get_year(d);
+	j00 = __jan00_daisy(y);
+	return d - j00;
+}
+
 static dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
@@ -1092,6 +1106,8 @@ dt_get_yday(struct dt_d_s that)
 		return __ymd_get_yday(that.ymd);
 	case DT_YMCW:
 		return __ymcw_get_yday(that.ymcw);
+	case DT_DAISY:
+		return __daisy_get_yday(that.daisy);
 	case DT_BIZDA:
 		return __bizda_get_yday(that.bizda);
 	default:
