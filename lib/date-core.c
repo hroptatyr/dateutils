@@ -1848,7 +1848,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			}
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(d.d, sp, (char**)&sp) == 0) {
+			    __ordinalp(sp, (char**)&sp) == 0) {
 				fp += 2;
 			}
 			break;
@@ -1948,7 +1948,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				}
 				/* check for ordinals */
 				if (fp[1] == 't' && fp[2] == 'h' &&
-				    __ordinalp(d.b, sp, (char**)&sp) == 0) {
+				    __ordinalp(sp, (char**)&sp) == 0) {
 					fp += 2;
 				}
 				/* bizda handling, reference could be in fp */
@@ -2005,19 +2005,18 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
-		case 'q': {
-			unsigned int q;
+		case 'q':
 			if (d.m == 0) {
+				unsigned int q;
 				q = strtoui_lim(sp, &sp, 1, 4);
+				d.m = q * 3 - 2;
 			}
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(q, sp, (char**)&sp) == 0) {
+			    __ordinalp(sp, (char**)&sp) == 0) {
 				fp += 2;
 			}
-			d.m = q * 3 - 2;
 			break;
-		}
 		case 'O':
 			/* roman numerals modifier */
 			switch (*++fp) {

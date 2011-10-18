@@ -239,7 +239,7 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 
 
 DEFUN int
-__ordinalp(unsigned int d, const char *str, char **ep)
+__ordinalp(const char *str, char **ep)
 {
 #define __tolower(c)	(c | 0x20)
 #define ILEA(a, b)	(((a) << 8) | (b))
@@ -253,23 +253,23 @@ __ordinalp(unsigned int d, const char *str, char **ep)
 		goto yep;
 	}
 	/* check the number */
-	switch ((d % 10)) {
-	case 1:
-		if (p2 == ILEA('s', 't') && (d % 100 != 11)) {
+	switch (str[-1]) {
+	case '1':
+		if (p2 == ILEA('s', 't') && (str[-2] != '1')) {
 			p += 2;
 		} else {
 			res = -1;
 		}
 		break;
-	case 2:
-		if (p2 == ILEA('n', 'd') && (d % 100 != 12)) {
+	case '2':
+		if (p2 == ILEA('n', 'd') && (str[-2] != '1')) {
 			p += 2;
 		} else {
 			res = -1;
 		}
 		break;
-	case 3:
-		if (p2 == ILEA('r', 'd') && (d % 100 != 13)) {
+	case '3':
+		if (p2 == ILEA('r', 'd') && (str[-2] != '1')) {
 			p += 2;
 		} else {
 			res = -1;
