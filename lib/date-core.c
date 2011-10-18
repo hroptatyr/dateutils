@@ -2093,11 +2093,19 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
-		case 'q':
+		case 'q': {
+			unsigned int q;
 			if (d.m == 0) {
-				d.m = strtoui_lim(sp, &sp, 1, 4) * 3 - 2;
+				q = strtoui_lim(sp, &sp, 1, 4);
 			}
+			/* check for ordinals */
+			if (fp[1] == 't' && fp[2] == 'h' &&
+			    __ordinalp(q, sp, (char**)&sp) == 0) {
+				fp += 2;
+			}
+			d.m = q * 3 - 2;
 			break;
+		}
 		case 'O':
 			/* roman numerals modifier */
 			switch (*++fp) {
@@ -2274,13 +2282,19 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case 'Q': {
 			int q = dt_get_quarter(that);
 
-			if (q <= 4) {
-				if (*fp == 'q') {
-					buf[res++] = '0';
-				} else if (*fp == 'Q') {
-					buf[res++] = 'Q';
-				}
-				buf[res++] = (char)(q + '0');
+			if (UNLIKELY(q > 4)) {
+				break;
+			}
+			if (*fp == 'q') {
+				buf[res++] = '0';
+			} else if (*fp == 'Q') {
+				buf[res++] = 'Q';
+			}
+			buf[res++] = (char)(q + '0');
+			/* check for ordinals in %q */
+			if (fp[0] == 'q' && fp[1] == 't' && fp[2] == 'h') {
+				res += __ordtostr(buf + res, bsz - res, q);
+				fp += 2;
 			}
 			break;
 		}
