@@ -287,7 +287,7 @@ yep:
 }
 
 DEFUN size_t
-__ordtostr(char *buf, size_t bsz, unsigned int d)
+__ordtostr(char *buf, size_t bsz)
 {
 	char *p = buf;
 

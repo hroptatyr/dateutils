@@ -2148,7 +2148,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			res += ui32tostr(buf + res, bsz - res, d.d, 2);
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h') {
-				res += __ordtostr(buf + res, bsz - res, d.d);
+				res += __ordtostr(buf + res, bsz - res);
 				fp += 2;
 			}
 			break;
@@ -2205,7 +2205,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			buf[res++] = (char)(q + '0');
 			/* check for ordinals in %q */
 			if (fp[0] == 'q' && fp[1] == 't' && fp[2] == 'h') {
-				res += __ordtostr(buf + res, bsz - res, q);
+				res += __ordtostr(buf + res, bsz - res);
 				fp += 2;
 			}
 			break;
@@ -2247,8 +2247,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				}
 				/* check for ordinals */
 				if (fp[1] == 't' && fp[2] == 'h') {
-					res += __ordtostr(
-						buf + res, bsz - res, d.b);
+					res += __ordtostr(buf + res, bsz - res);
 					fp += 2;
 				}
 				break;
