@@ -27,10 +27,10 @@ EOF
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-Oct 01st 2011
-Oct 02nd 2011
-Oct 03rd 2011
-Oct 04th 2011
+Oct 1st 2011
+Oct 2nd 2011
+Oct 3rd 2011
+Oct 4th 2011
 Oct 10th 2011
 Oct 11th 2011
 Oct 12th 2011
