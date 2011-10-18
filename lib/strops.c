@@ -291,7 +291,7 @@ __ordtostr(char *buf, size_t bsz, unsigned int d)
 {
 	size_t res = 2;
 
-	if (bsz < 2) {
+	if (UNLIKELY(bsz < 2)) {
 		return 0;
 	}
 	switch ((d % 10)) {
