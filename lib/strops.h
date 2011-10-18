@@ -76,6 +76,15 @@ DECLF size_t
 ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d);
 
 /**
+ * Find and skip ordinal suffixes in STR that could correspond to D. */
+DEFUN int __ordinalp(unsigned int d, const char *str, char **ep);
+
+/**
+ * Append ordinal suffix to the most recently printed number in BUF,
+ * eating away a leading 0. */
+DECLF size_t __ordtostr(char *buf, size_t bsz);
+
+/**
  * Take a string S, (case-insensitively) compare it to an array of strings ARR
  * of size NARR and return its index if found or -1U if not.
  * If S could be found in the array, point to the end of the string S in EP. */
