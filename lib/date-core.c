@@ -1612,6 +1612,11 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
+		if (d.b >= 0) {
+			res.bizda.bd = d.b;
+		} else {
+			res.bizda.bd = -d.b;
+		}
 	} else {
 		/* anything else is bollocks for now */
 		res.typ = DT_UNK;
