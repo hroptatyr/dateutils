@@ -38,6 +38,9 @@
 #if !defined INCLUDED_date_core_c_
 #define INCLUDED_date_core_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
