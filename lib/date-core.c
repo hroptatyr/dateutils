@@ -486,6 +486,7 @@ __ymd_get_wday(dt_ymd_t that)
 static unsigned int
 __ymd_get_count(dt_ymd_t that)
 {
+/* get N where N is the N-th occurrence of wday in the month of that year */
 	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
@@ -737,6 +738,16 @@ __bizda_get_wday(dt_bizda_t that)
 }
 
 static unsigned int
+__bizda_get_count(dt_bizda_t that)
+{
+/* get N where N is the N-th occurrence of wday in the month of that year */
+	if (UNLIKELY(that.bd + 5U > __get_bdays(that.y, that.m))) {
+		return 5;
+	}
+	return (that.bd - 1U) / 5U + 1U;
+}
+
+static unsigned int
 __bizda_get_yday(dt_bizda_t that)
 {
 /* return the N-th business day in Y,
@@ -887,6 +898,20 @@ __daisy_get_year(dt_daisy_t d)
 	return TO_YEAR(by);
 }
 
+static unsigned int
+__daisy_get_yday(dt_daisy_t d)
+{
+	dt_daisy_t j00;
+	unsigned int y;
+
+	if (UNLIKELY(d == 0)) {
+		return 0U;
+	}
+	y = __daisy_get_year(d);
+	j00 = __jan00_daisy(y);
+	return d - j00;
+}
+
 static dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
@@ -985,7 +1010,7 @@ dt_get_year(struct dt_d_s that)
 	case DT_YMCW:
 		return that.ymcw.y;
 	case DT_DAISY:
-		return 0;
+		return __daisy_to_ymd(that.daisy).y;
 	case DT_BIZDA:
 		return that.bizda.y;
 	default:
@@ -1003,7 +1028,7 @@ dt_get_mon(struct dt_d_s that)
 	case DT_YMCW:
 		return that.ymcw.m;
 	case DT_DAISY:
-		return 0;
+		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
 	default:
@@ -1040,9 +1065,11 @@ dt_get_mday(struct dt_d_s that)
 	case DT_YMCW:
 		return __ymcw_get_mday(that.ymcw);
 	case DT_DAISY:
-		return __daisy_to_ymd(that.daisy).m;
+		return __daisy_to_ymd(that.daisy).d;
 	case DT_BIZDA:
 		return __bizda_get_mday(that.bizda);;
+	case DT_YMD:
+		/* to shut gcc up */
 	default:
 	case DT_UNK:
 		return 0;
@@ -1059,6 +1086,12 @@ dt_get_count(struct dt_d_s that)
 	switch (that.typ) {
 	case DT_YMD:
 		return __ymd_get_count(that.ymd);
+	case DT_DAISY:
+		return __ymd_get_count(__daisy_to_ymd(that.daisy));
+	case DT_BIZDA:
+		return __bizda_get_count(that.bizda);
+	case DT_YMCW:
+		/* to shut gcc up */
 	default:
 	case DT_UNK:
 		return 0;
@@ -1073,6 +1106,8 @@ dt_get_yday(struct dt_d_s that)
 		return __ymd_get_yday(that.ymd);
 	case DT_YMCW:
 		return __ymcw_get_yday(that.ymcw);
+	case DT_DAISY:
+		return __daisy_get_yday(that.daisy);
 	case DT_BIZDA:
 		return __bizda_get_yday(that.bizda);
 	default:
