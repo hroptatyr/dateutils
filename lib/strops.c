@@ -253,26 +253,24 @@ __ordinalp(const char *str, char **ep)
 		goto yep;
 	}
 	/* check the number */
+	if (UNLIKELY(str[-2] == '1')) {
+		res = -1;
+		goto yep;
+	}
 	switch (str[-1]) {
 	case '1':
-		if (p2 == ILEA('s', 't') && (str[-2] != '1')) {
+		if (p2 == ILEA('s', 't')) {
 			p += 2;
-		} else {
-			res = -1;
 		}
 		break;
 	case '2':
-		if (p2 == ILEA('n', 'd') && (str[-2] != '1')) {
+		if (p2 == ILEA('n', 'd')) {
 			p += 2;
-		} else {
-			res = -1;
 		}
 		break;
 	case '3':
-		if (p2 == ILEA('r', 'd') && (str[-2] != '1')) {
+		if (p2 == ILEA('r', 'd')) {
 			p += 2;
-		} else {
-			res = -1;
 		}
 		break;
 	default:
