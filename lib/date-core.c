@@ -2034,6 +2034,11 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 					sp = str;
 					goto out;
 				}
+				/* check for ordinals */
+				if (fp[1] == 't' && fp[2] == 'h' &&
+				    __ordinalp(d.b, sp, (char**)&sp) == 0) {
+					fp += 2;
+				}
 				/* bizda handling, reference could be in fp */
 				switch (*fp++) {
 				case '<':
@@ -2313,6 +2318,12 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				} else {
 					buf[res++] = '0';
 					buf[res++] = '0';
+				}
+				/* check for ordinals */
+				if (fp[1] == 't' && fp[2] == 'h') {
+					res += __ordtostr(
+						buf + res, bsz - res, d.b);
+					fp += 2;
 				}
 				break;
 			case 'D':
