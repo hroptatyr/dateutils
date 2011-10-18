@@ -245,12 +245,13 @@ __ordinalp(const char *num, size_t off_suf, char **ep)
 #define ILEA(a, b)	(((a) << 8) | (b))
 	const char *p = num + off_suf;
 	int res = 0;
-	int p2 = ILEA(__tolower(p[0]), __tolower(p[1]));
+	int p2;
 
-	if (UNLIKELY(off_suf == 0)) {
+	if (UNLIKELY(off_suf == 0 || p[0] == '\0')) {
 		res = -1;
 		goto yep;
-	} else if (LIKELY(p2 == ILEA('t', 'h'))) {
+	} else if ((p2 = ILEA(__tolower(p[0]), __tolower(p[1]))),
+		   LIKELY(p2 == ILEA('t', 'h'))) {
 		/* we accept 1th 2th 3th */
 		p += 2;
 		goto yep;
