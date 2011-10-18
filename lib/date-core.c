@@ -1622,7 +1622,7 @@ __guess_dtyp(struct strpd_s d)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char bizda_dflt[] = "%Y-%m-%_d%q";
+static const char bizda_dflt[] = "%Y-%m-%_d%>";
 static const char *bizda_ult[] = {"ultimo", "ult"};
 
 static void
