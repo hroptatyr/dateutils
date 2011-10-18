@@ -76,8 +76,8 @@ DECLF size_t
 ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d);
 
 /**
- * Find and skip ordinal suffixes in STR, point to the end of the suffix. */
-DECLF int __ordinalp(const char *str, char **ep);
+ * Find and skip ordinal suffixes in SUF, point to the end of the suffix. */
+DECLF int __ordinalp(const char *num, size_t off_suf, char **ep);
 
 /**
  * Append ordinal suffix to the most recently printed number in BUF,

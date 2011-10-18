@@ -1840,18 +1840,21 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
-		case 'd':
+		case 'd': {
+			const char *tmp;
 			/* gregorian mode */
-			if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+			if ((d.d = strtoui_lim(sp, &tmp, 0, 31)) == -1U) {
 				sp = str;
 				goto out;
 			}
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(sp, (char**)&sp) == 0) {
+			    __ordinalp(sp, tmp - sp, (char**)&tmp) == 0) {
 				fp += 2;
 			}
+			sp = tmp;
 			break;
+		}
 		case 'w':
 			/* ymcw mode */
 			if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
@@ -1938,19 +1941,21 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				break;
 			case 'd': {
 				const char *fp_sav = fp++;
+				const char *tp;
 
 				/* business days */
 				d.flags |= STRPD_BIZDA_BIT;
 				if ((d.b = strtoui_lim(
-					     sp, &sp, 0, 23)) == -1U) {
+					     sp, &tp, 0, 23)) == -1U) {
 					sp = str;
 					goto out;
 				}
 				/* check for ordinals */
 				if (fp[1] == 't' && fp[2] == 'h' &&
-				    __ordinalp(sp, (char**)&sp) == 0) {
+				    __ordinalp(sp, tp - sp, (char**)&tp) == 0) {
 					fp += 2;
 				}
+				sp = tp;
 				/* bizda handling, reference could be in fp */
 				switch (*fp++) {
 				case '<':
@@ -2005,18 +2010,21 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
-		case 'q':
+		case 'q': {
+			const char *tmp;
 			if (d.m == 0) {
 				unsigned int q;
-				q = strtoui_lim(sp, &sp, 1, 4);
+				q = strtoui_lim(sp, &tmp, 1, 4);
 				d.m = q * 3 - 2;
 			}
 			/* check for ordinals */
 			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(sp, (char**)&sp) == 0) {
+			    __ordinalp(sp, tmp - sp, (char**)&tmp) == 0) {
 				fp += 2;
 			}
+			sp = tmp;
 			break;
+		}
 		case 'O':
 			/* roman numerals modifier */
 			switch (*++fp) {

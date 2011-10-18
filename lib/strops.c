@@ -239,25 +239,27 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 
 
 DEFUN int
-__ordinalp(const char *str, char **ep)
+__ordinalp(const char *num, size_t off_suf, char **ep)
 {
 #define __tolower(c)	(c | 0x20)
 #define ILEA(a, b)	(((a) << 8) | (b))
-	const char *p = str;
+	const char *p = num + off_suf;
 	int res = 0;
 	int p2 = ILEA(__tolower(p[0]), __tolower(p[1]));
 
-	if (LIKELY(p2 == ILEA('t', 'h'))) {
+	if (UNLIKELY(off_suf == 0)) {
+		res = -1;
+		goto yep;
+	} else if (LIKELY(p2 == ILEA('t', 'h'))) {
 		/* we accept 1th 2th 3th */
 		p += 2;
 		goto yep;
-	}
-	/* check the number */
-	if (UNLIKELY(str[-2] == '1')) {
+	} else if (UNLIKELY(off_suf >= 2 && p[-2] == '1')) {
 		res = -1;
 		goto yep;
 	}
-	switch (str[-1]) {
+	/* irregular ordinals */
+	switch (p[-1]) {
 	case '1':
 		if (p2 == ILEA('s', 't')) {
 			p += 2;
