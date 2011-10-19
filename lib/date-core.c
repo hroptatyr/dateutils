@@ -1561,6 +1561,144 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 }
 
 
+/* spec tokenisers */
+static struct dt_spec_s
+__tok_spec(const char *fp, char **ep)
+{
+	struct dt_spec_s res = {0};
+
+	if (*fp != '%') {
+		goto out;
+	}
+
+next:
+	switch (*++fp) {
+	default:
+		goto out;
+	case 'F':
+		res.spfl = DT_SPFL_N_STD;
+		break;
+	case 'y':
+		res.abbr = DT_SPMOD_ABBR;
+	case 'Y':
+		res.spfl = DT_SPFL_N_YEAR;
+		break;
+	case 'm':
+		res.spfl = DT_SPFL_N_MON;
+		break;
+	case 'd':
+		res.spfl = DT_SPFL_N_MDAY;
+		break;
+	case 'w':
+		res.spfl = DT_SPFL_N_CNT_WEEK;
+		break;
+	case 'c':
+		res.spfl = DT_SPFL_N_CNT_MON;
+		break;
+	case 'A':
+		res.abbr = DT_SPMOD_LONG;
+	case 'a':
+		res.spfl = DT_SPFL_S_WDAY;
+		break;
+	case 'B':
+		res.abbr = DT_SPMOD_LONG;
+	case 'b':
+	case 'h':
+		res.spfl = DT_SPFL_S_MON;
+		break;
+	case '>':
+		res.spfl = DT_SPFL_PARAM_BIZDA;
+		break;
+
+		/* abbrev modifier */
+	case '_':
+#if 0
+		switch (*++fp) {
+		case 'b':
+			res.spfl = DT_SPFL_S_MON;
+			res.abbr = DT_SPMOD_ABBR;
+			break;
+		case 'a':
+			res.spfl = DT_SPFL_S_WDAY;
+			res.abbr = DT_SPMOD_ABBR;
+			break;
+		case 'd': {
+			const char *fp_sav = fp++;
+
+			/* business days */
+			d.flags |= STRPD_BIZDA_BIT;
+			if ((d.b = strtoui_lim(
+				     sp, &sp, 0, 23)) == -1U) {
+				sp = str;
+				goto out;
+			}
+			/* bizda handling, reference could be in fp */
+			switch (*fp++) {
+			case '<':
+				/* it's a bizda/YMDU date */
+				d.flags |= BIZDA_BEFORE << 1;
+			case '>':
+				/* it's a bizda/YMDU date */
+				if (strtoarri(
+					    fp, &fp,
+					    bizda_ult,
+					    countof(bizda_ult)) < -1U ||
+				    (d.ref = strtoui_lim(
+					     fp, &fp, 0, 23)) < -1U) {
+					/* worked, yippie, we have to
+					 * reset fp though, as it will
+					 * be advanced in the outer
+					 * loop */
+					fp--;
+					break;
+				}
+				/*@fallthrough@*/
+			default:
+				fp = fp_sav;
+				break;
+			}
+			break;
+		}
+		}
+		break;
+#else
+		res.abbr = DT_SPMOD_ABBR;
+		goto next;
+#endif
+	case 't':
+		res.spfl = DT_SPFL_LIT_TAB;
+		break;
+	case 'n':
+		res.spfl = DT_SPFL_LIT_NL;
+		break;
+	case 'C':
+	case 'j':
+		res.spfl = DT_SPFL_N_CNT_YEAR;
+		break;
+	case 'Q':
+		res.spfl = DT_SPFL_S_QTR;
+		break;
+	case 'q':
+		res.spfl = DT_SPFL_N_QTR;
+		break;
+	case 'O':
+		/* roman numerals modifier */
+		res.rom = 1;
+		goto next;
+	}
+	/* check for ordinals */
+	if (res.spfl > DT_SPFL_UNK && res.spfl < DT_SPFL_N_LAST &&
+	    fp[1] == 't' && fp[2] == 'h' &&
+	    !res.rom) {
+		res.ord = 1;
+		fp += 2;
+	}
+out:
+	*ep = (char*)(fp + 1);
+	return res;
+}
+
+
 /* guessing parsers */
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
