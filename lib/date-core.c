@@ -1687,7 +1687,7 @@ next:
 		goto next;
 	}
 	/* check for ordinals */
-	if (res.spfl > DT_SPFL_UNK && res.spfl < DT_SPFL_N_LAST &&
+	if (res.spfl > DT_SPFL_UNK && res.spfl <= DT_SPFL_N_LAST &&
 	    fp[1] == 't' && fp[2] == 'h' &&
 	    !res.rom) {
 		res.ord = 1;
