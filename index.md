@@ -23,13 +23,13 @@ Dateutils commands are prefixed with a `d` for date fiddling and a `t`
 for time fiddling, the only exception being `strptime`:
 
 + `strptime`            Command line version of the C function
-+ `dcal`                Convert dates between calendars
++ `dconv`               Convert dates between calendars
 + `dadd`                Add durations to dates
 + `ddiff`               Compute durations from dates
 + `dseq`                Generate sequences of dates
 + `dtest`               Compare dates
 + `dgrep`               Grep dates in input streams
-+ `tcal`                Convert time representations
++ `tconv`               Convert time representations
 + `tadd`                Add durations to times
 + `tdiff`               Compute durations between times
 + `tseq`                Generate sequences of times
@@ -72,20 +72,20 @@ dseq
       2010-01-07
       2010-01-08
 
-dcal
-----
+dconv
+-----
   A tool to convert dates between different calendric systems.  While
   other such tools usually focus on converting Gregorian dates to, say,
-  the Chinese calendar, dcal aims at supporting calendric systems which
+  the Chinese calendar, dconv aims at supporting calendric systems which
   are essential in financial contexts.
 
   To convert a (Gregorian) date into the so called ymcw representation:
-    dcal 2012-03-04 -f "%Y-%m-%c-%w"
+    dconv 2012-03-04 -f "%Y-%m-%c-%w"
     =>
       2012-03-01-00
 
   and vice versa:
-    dcal 2012-03-01-Sun -i "%Y-%m-%c-%a"
+    dconv 2012-03-01-Sun -i "%Y-%m-%c-%a"
     =>
       2012-03-04
 
@@ -226,13 +226,13 @@ ttest
     =>
       it's later than 11:22:33
 
-tcal
-----
+tconv
+-----
   A tool to convert time strings to other representations or normalise
-  them, it's quite like dcal (see above) but with less calendrical
+  them, it's quite like dconv (see above) but with less calendrical
   systems:
 
-    tcal "23:12:45" -f "%I:%M%P"
+    tconv "23:12:45" -f "%I:%M%P"
     =>
       11:12pm
 
