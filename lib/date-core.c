@@ -1561,6 +1561,144 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 }
 
 
+/* spec tokenisers */
+static struct dt_spec_s
+__tok_spec(const char *fp, char **ep)
+{
+	struct dt_spec_s res = {0};
+
+	if (*fp != '%') {
+		goto out;
+	}
+
+next:
+	switch (*++fp) {
+	default:
+		goto out;
+	case 'F':
+		res.spfl = DT_SPFL_N_STD;
+		break;
+	case 'y':
+		res.abbr = DT_SPMOD_ABBR;
+	case 'Y':
+		res.spfl = DT_SPFL_N_YEAR;
+		break;
+	case 'm':
+		res.spfl = DT_SPFL_N_MON;
+		break;
+	case 'd':
+		res.spfl = DT_SPFL_N_MDAY;
+		break;
+	case 'w':
+		res.spfl = DT_SPFL_N_CNT_WEEK;
+		break;
+	case 'c':
+		res.spfl = DT_SPFL_N_CNT_MON;
+		break;
+	case 'A':
+		res.abbr = DT_SPMOD_LONG;
+	case 'a':
+		res.spfl = DT_SPFL_S_WDAY;
+		break;
+	case 'B':
+		res.abbr = DT_SPMOD_LONG;
+	case 'b':
+	case 'h':
+		res.spfl = DT_SPFL_S_MON;
+		break;
+	case '>':
+		res.spfl = DT_SPFL_PARAM_BIZDA;
+		break;
+
+		/* abbrev modifier */
+	case '_':
+#if 0
+		switch (*++fp) {
+		case 'b':
+			res.spfl = DT_SPFL_S_MON;
+			res.abbr = DT_SPMOD_ABBR;
+			break;
+		case 'a':
+			res.spfl = DT_SPFL_S_WDAY;
+			res.abbr = DT_SPMOD_ABBR;
+			break;
+		case 'd': {
+			const char *fp_sav = fp++;
+
+			/* business days */
+			d.flags |= STRPD_BIZDA_BIT;
+			if ((d.b = strtoui_lim(
+				     sp, &sp, 0, 23)) == -1U) {
+				sp = str;
+				goto out;
+			}
+			/* bizda handling, reference could be in fp */
+			switch (*fp++) {
+			case '<':
+				/* it's a bizda/YMDU date */
+				d.flags |= BIZDA_BEFORE << 1;
+			case '>':
+				/* it's a bizda/YMDU date */
+				if (strtoarri(
+					    fp, &fp,
+					    bizda_ult,
+					    countof(bizda_ult)) < -1U ||
+				    (d.ref = strtoui_lim(
+					     fp, &fp, 0, 23)) < -1U) {
+					/* worked, yippie, we have to
+					 * reset fp though, as it will
+					 * be advanced in the outer
+					 * loop */
+					fp--;
+					break;
+				}
+				/*@fallthrough@*/
+			default:
+				fp = fp_sav;
+				break;
+			}
+			break;
+		}
+		}
+		break;
+#else
+		res.abbr = DT_SPMOD_ABBR;
+		goto next;
+#endif
+	case 't':
+		res.spfl = DT_SPFL_LIT_TAB;
+		break;
+	case 'n':
+		res.spfl = DT_SPFL_LIT_NL;
+		break;
+	case 'C':
+	case 'j':
+		res.spfl = DT_SPFL_N_CNT_YEAR;
+		break;
+	case 'Q':
+		res.spfl = DT_SPFL_S_QTR;
+		break;
+	case 'q':
+		res.spfl = DT_SPFL_N_QTR;
+		break;
+	case 'O':
+		/* roman numerals modifier */
+		res.rom = 1;
+		goto next;
+	}
+	/* check for ordinals */
+	if (res.spfl > DT_SPFL_UNK && res.spfl <= DT_SPFL_N_LAST &&
+	    fp[1] == 't' && fp[2] == 'h' &&
+	    !res.rom) {
+		res.ord = 1;
+		fp += 2;
+	}
+out:
+	*ep = (char*)(fp + 1);
+	return res;
+}
+
+
 /* guessing parsers */
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
@@ -1784,6 +1922,273 @@ __strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
 	return res;
 }
 
+static int
+__strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
+{
+	int res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		res = -1;
+		break;
+	case DT_SPFL_N_STD:
+		if ((d->y = strtoui_lim(
+			     sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
+		    *sp++ != '-' ||
+		    (d->m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
+		    *sp++ != '-' ||
+		    (d->d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_N_YEAR:
+		if (s.abbr == DT_SPMOD_NORM) {
+			d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
+		} else if (s.abbr == DT_SPMOD_ABBR) {
+			d->y = strtoui_lim(sp, &sp, 0, 99);
+			if (UNLIKELY(d->y == -1U)) {
+				;
+			} else if ((d->y += 2000) > 2068) {
+				d->y -= 100;
+			}
+		}
+		if (UNLIKELY(d->y == -1U)) {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_N_MON:
+		if ((d->m = strtoui_lim(sp, &sp, 0, 12)) == -1U) {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_N_MDAY:
+		/* ymd mode? */
+		if ((d->d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+		/* ymcw mode? */
+		if ((d->w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_N_CNT_MON:
+		/* ymcw mode? */
+		if ((d->c = strtoui_lim(sp, &sp, 0, 5)) == -1U) {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_S_WDAY:
+		/* ymcw mode? */
+		switch (s.abbr) {
+		case DT_SPMOD_NORM:
+			if ((d->w = strtoarri(
+				     sp, &sp,
+				     __abbr_wday,
+				     countof(__abbr_wday))) == -1U) {
+				res = -1;
+			}
+			break;
+		case DT_SPMOD_LONG:
+			if ((d->w = strtoarri(
+				     sp, &sp,
+				     __long_wday,
+				     countof(__long_wday))) == -1U) {
+				res = -1;
+			}
+			break;
+		case DT_SPMOD_ABBR: {
+			const char *pos;
+			if ((pos = strchr(__abab_wday, *sp++))) {
+				d->w = pos - __abab_wday;
+				break;
+			}
+		}
+		case DT_SPMOD_ILL:
+		default:
+			res = -1;
+			break;
+		}
+		break;
+	case DT_SPFL_S_MON:
+		switch (s.abbr) {
+		case DT_SPMOD_NORM:
+			if ((d->m = strtoarri(
+				     sp, &sp,
+				     __abbr_mon,
+				     countof(__abbr_mon))) == -1U) {
+				res = -1;
+			}
+			break;
+		case DT_SPMOD_LONG:
+			if ((d->m = strtoarri(
+				     sp, &sp,
+				     __long_mon,
+				     countof(__long_mon))) == -1U) {
+				res = -1;
+			}
+			break;
+		case DT_SPMOD_ABBR: {
+			const char *pos;
+			if ((pos = strchr(__abab_mon, *sp++))) {
+				d->m = pos - __abab_mon;
+				break;
+			}
+		}
+		case DT_SPMOD_ILL:
+		default:
+			res = -1;
+			break;
+		}
+		break;
+	case DT_SPFL_S_QTR:
+		if (*sp++ != 'Q') {
+			res = -1;
+			break;
+		}
+	case DT_SPFL_N_QTR:
+		if (d->m == 0) {
+			unsigned int q;
+			if ((q = strtoui_lim(sp, &sp, 1, 4)) == -1U) {
+				res = -1;
+			} else {
+				d->m = q * 3 - 2;
+			}
+		}
+		break;
+
+	case DT_SPFL_PARAM_BIZDA:
+		/* bizda date and we take the arg from sp */
+		switch (*sp++) {
+		case '<':
+			/* it's a bizda/YMDU date */
+			d->flags |= BIZDA_BEFORE << 1;
+		case '>':
+			/* it's a bizda/YMDU date */
+			d->flags |= STRPD_BIZDA_BIT;
+			if (strtoarri(
+				    sp, &sp,
+				    bizda_ult,
+				    countof(bizda_ult)) < -1U ||
+			    (d->ref = strtoui_lim(
+				     sp, &sp, 0, 23)) < -1U) {
+				/* yay, it did work */
+				break;
+			}
+			/*@fallthrough@*/
+		default:
+			res = -1;
+			break;
+		}
+		break;
+
+#if 0
+	case '_':
+		switch (*++fp) {
+			const char *pos;
+		case 'd': {
+			const char *fp_sav = fp++;
+
+			/* business days */
+			d->flags |= STRPD_BIZDA_BIT;
+			if ((d->b = strtoui_lim(
+				     sp, &sp, 0, 23)) == -1U) {
+				res = -1;
+				goto out;
+			}
+			/* bizda handling, reference could be in fp */
+			switch (*fp++) {
+			case '<':
+				/* it's a bizda/YMDU date */
+				d->flags |= BIZDA_BEFORE << 1;
+			case '>':
+				/* it's a bizda/YMDU date */
+				if (strtoarri(
+					    fp, &fp,
+					    bizda_ult,
+					    countof(bizda_ult)) < -1U ||
+				    (d->ref = strtoui_lim(
+					     fp, &fp, 0, 23)) < -1U) {
+					/* worked, yippie, we have to
+					 * reset fp though, as it will
+					 * be advanced in the outer
+					 * loop */
+					fp--;
+					break;
+				}
+				/*@fallthrough@*/
+			default:
+				fp = fp_sav;
+				break;
+			}
+			break;
+		}
+		}
+		break;
+#endif
+	case DT_SPFL_LIT_TAB:
+		if (*sp++ != '\t') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_NL:
+		if (*sp++ != '\n') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_N_CNT_YEAR:
+		/* was %C and %j, cannot be used at the moment */
+		(void)strtoui_lim(sp, &sp, 1, 366);
+		break;
+	}
+	if (ep) {
+		*ep = (char*)sp;
+	}
+	return res;
+}
+
+static int
+__strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
+{
+	int res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		res = -1;
+		break;
+
+	case DT_SPFL_N_YEAR:
+		if (s.abbr == DT_SPMOD_NORM) {
+			d->y = romstrtoui_lim(
+				sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
+		} else if (s.abbr == DT_SPMOD_ABBR) {
+			d->y = romstrtoui_lim(sp, &sp, 0, 99);
+			if (UNLIKELY(d->y == -1U)) {
+				;
+			} else if ((d->y += 2000) > 2068) {
+				d->y -= 100;
+			}
+		}
+		break;
+	case DT_SPFL_N_MON:
+		d->m = romstrtoui_lim(sp, &sp, 0, 12);
+		break;
+	case DT_SPFL_N_MDAY:
+		d->d = romstrtoui_lim(sp, &sp, 0, 31);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		d->c = romstrtoui_lim(sp, &sp, 0, 5);
+		break;
+	}
+	if (ep) {
+		*ep = (char*)sp;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -1796,6 +2201,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 #endif
 	struct strpd_s d = {0};
 	const char *sp = str;
+	const char *fp = fmt;
 
 #if !defined __C1X
 	res.typ = DT_UNK;
@@ -1808,248 +2214,32 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names */
 	__trans_dfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && *sp; fp++) {
-		int shaught = 0;
-		const char *sp_sav = sp;
+	while (*fp && *sp) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
-		if (*fp != '%') {
-		literal:
-			if (*fp != *sp++) {
+		if (spec.spfl == DT_SPFL_UNK) {
+			/* must be literal */
+			if (*fp_sav != *sp++) {
 				sp = str;
 				goto out;
 			}
-			continue;
-		}
-		switch (*++fp) {
-		default:
-			goto literal;
-		case 'F':
-			shaught = 1;
-		case 'Y':
-			d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			} else if (UNLIKELY(d.y == -1U || *sp++ != '-')) {
+		} else if (LIKELY(!spec.rom)) {
+			const char *sp_sav = sp;
+			if (__strpd_card(&d, sp, spec, (char**)&sp) < 0) {
 				sp = str;
 				goto out;
 			}
-		case 'm':
-			d.m = strtoui_lim(sp, &sp, 0, 12);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			} else if (UNLIKELY(d.m == -1U || *sp++ != '-')) {
+			if (spec.ord &&
+			    __ordinalp(sp_sav, sp - sp_sav, (char**)&sp) < 0) {
 				sp = str;
 				goto out;
 			}
-		case 'd':
-			/* gregorian mode */
-			if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+		} else if (UNLIKELY(spec.rom)) {
+			if (__strpd_rom(&d, sp, spec, (char**)&sp) < 0) {
 				sp = str;
 				goto out;
 			}
-			break;
-		case 'w':
-			/* ymcw mode */
-			if ((d.w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'c':
-			/* ymcw mode */
-			if ((d.c = strtoui_lim(sp, &sp, 0, 5)) == -1U) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'a':
-			/* ymcw mode! */
-			d.w = strtoarri(
-				sp, &sp,
-				__abbr_wday, countof(__abbr_wday));
-			break;
-		case 'A':
-			/* ymcw mode! */
-			d.w = strtoarri(
-				sp, &sp,
-				__long_wday, countof(__long_wday));
-			break;
-		case 'b':
-		case 'h':
-			d.m = strtoarri(
-				sp, &sp,
-				__abbr_mon, countof(__abbr_mon));
-			break;
-		case 'B':
-			d.m = strtoarri(
-				sp, &sp,
-				__long_mon, countof(__long_mon));
-			break;
-		case 'y':
-			d.y = strtoui_lim(sp, &sp, 0, 99);
-			if (UNLIKELY(d.y == -1U)) {
-				;
-			} else if ((d.y += 2000) > 2068) {
-				d.y -= 100;
-			}
-			break;
-		case '>':
-			/* bizda date and we take the arg from sp */
-			switch (*sp++) {
-			case '<':
-				/* it's a bizda/YMDU date */
-				d.flags |= BIZDA_BEFORE << 1;
-			case '>':
-				/* it's a bizda/YMDU date */
-				d.flags |= STRPD_BIZDA_BIT;
-				if (strtoarri(
-					    sp, &sp,
-					    bizda_ult,
-					    countof(bizda_ult)) < -1U ||
-				    (d.ref = strtoui_lim(
-					     sp, &sp, 0, 23)) < -1U) {
-					/* yay, it did work */
-					break;
-				}
-				/*@fallthrough@*/
-			default:
-				sp = str;
-				goto out;
-			}
-			break;
-
-		case '_':
-			switch (*++fp) {
-				const char *pos;
-			case 'b':
-				if ((pos = strchr(__abab_mon, *sp++))) {
-					d.m = pos - __abab_mon;
-				}
-				break;
-			case 'a':
-				if ((pos = strchr(__abab_wday, *sp++))) {
-					/* ymcw mode! */
-					d.w = pos - __abab_wday;
-				}
-				break;
-			case 'd': {
-				const char *fp_sav = fp++;
-
-				/* business days */
-				d.flags |= STRPD_BIZDA_BIT;
-				if ((d.b = strtoui_lim(
-					     sp, &sp, 0, 23)) == -1U) {
-					sp = str;
-					goto out;
-				}
-				/* bizda handling, reference could be in fp */
-				switch (*fp++) {
-				case '<':
-					/* it's a bizda/YMDU date */
-					d.flags |= BIZDA_BEFORE << 1;
-				case '>':
-					/* it's a bizda/YMDU date */
-					if (strtoarri(
-						    fp, &fp,
-						    bizda_ult,
-						    countof(bizda_ult)) < -1U ||
-					    (d.ref = strtoui_lim(
-						     fp, &fp, 0, 23)) < -1U) {
-						/* worked, yippie, we have to
-						 * reset fp though, as it will
-						 * be advanced in the outer
-						 * loop */
-						fp--;
-						break;
-					}
-					/*@fallthrough@*/
-				default:
-					fp = fp_sav;
-					break;
-				}
-				break;
-			}
-			}
-			break;
-		case 't':
-			if (*sp++ != '\t') {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'n':
-			if (*sp++ != '\n') {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'C':
-			/* cannot be used at the moment */
-			strtoui_lim(sp, &sp, 1, 366);
-			break;
-		case 'j':
-			/* cannot be used at the moment */
-			strtoui_lim(sp, &sp, 0, 53);
-			break;
-		case 'Q':
-			if (*sp++ != 'Q') {
-				sp = str;
-				goto out;
-			}
-		case 'q':
-			if (d.m == 0) {
-				unsigned int q;
-				q = strtoui_lim(sp, &sp, 1, 4);
-				d.m = q * 3 - 2;
-			}
-			break;
-		case 'O':
-			/* roman numerals modifier */
-			switch (*++fp) {
-			case 'Y':
-				d.y = romstrtoui_lim(
-					sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-				break;
-			case 'y':
-				d.y = romstrtoui_lim(sp, &sp, 0, 99);
-				if (UNLIKELY(d.y == -1U)) {
-					;
-				} else if ((d.y += 2000) > 2068) {
-					d.y -= 100;
-				}
-				break;
-			case 'm':
-				d.m = romstrtoui_lim(sp, &sp, 0, 12);
-				break;
-			case 'd':
-				d.d = romstrtoui_lim(sp, &sp, 0, 31);
-				break;
-			case 'c':
-				d.c = romstrtoui_lim(sp, &sp, 0, 5);
-				break;
-			default:
-				sp = str;
-				goto out;
-			}
-			break;
-		}
-		/* check for ordinals */
-		switch (*fp) {
-		case 'c':
-		case 'C':
-		case 'd':
-		case 'D':
-		case 'm':
-		case 'j':
-		case 'y':
-		case 'Y':
-		case 'q':
-			if (fp[1] == 't' && fp[2] == 'h' &&
-			    __ordinalp(sp_sav, sp - sp_sav, (char**)&sp) == 0) {
-				fp += 2;
-			}
-		default:
-			break;
 		}
 	}
 	/* set the end pointer */
