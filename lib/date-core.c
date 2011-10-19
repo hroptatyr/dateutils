@@ -1865,63 +1865,6 @@ out:
 	return res;
 }
 
-static size_t
-__strfd_O(char *buf, size_t bsz, const char spec, struct dt_d_s that)
-{
-	size_t res = 0;
-	struct strpd_s d;
-
-	switch (that.typ) {
-	case DT_YMD:
-		d.y = that.ymd.y;
-		d.m = that.ymd.m;
-		d.d = that.ymd.d;
-		break;
-	case DT_YMCW:
-		d.y = that.ymcw.y;
-		d.m = that.ymcw.m;
-		d.d = __ymcw_get_mday(that.ymcw);
-		break;
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		d.y = tmp.y;
-		d.m = tmp.m;
-		d.d = tmp.d;
-		break;
-	}
-	case DT_UNK:
-	default:
-		return 0;
-	}
-
-	if (that.typ != DT_YMD) {
-		/* not supported for non-ymds */
-		return res;
-	}
-
-	switch (spec) {
-	case 'Y':
-		res = ui32tostrrom(buf, bsz, d.y);
-		break;
-	case 'y':
-		res = ui32tostrrom(buf, bsz, d.y % 100);
-		break;
-	case 'm':
-		res = ui32tostrrom(buf, bsz, d.m);
-		break;
-	case 'd':
-		res = ui32tostrrom(buf, bsz, d.d);
-		break;
-	case 'c':
-		d.c = dt_get_count(that);
-		res = ui32tostrrom(buf, bsz, d.c);
-		break;
-	default:
-		break;
-	}
-	return res;
-}
-
 static int
 __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 {
@@ -2175,6 +2118,213 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	return res;
 }
 
+static size_t
+__strfd_card(
+	char *buf, size_t bsz, struct dt_spec_s s,
+	struct strpd_s *d, struct dt_d_s that)
+{
+	size_t res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		break;
+	case DT_SPFL_N_STD:
+		d->d = d->d ?: dt_get_mday(that);
+		if (LIKELY(bsz >= 10)) {
+			ui32tostr(buf + 0, bsz, d->y, 4);
+			buf[4] = '-';
+			res = ui32tostr(buf + 5, bsz, d->m, 2);
+			buf[7] = '-';
+			ui32tostr(buf + 8, bsz, d->d, 2);
+			res = 10;
+		}
+		break;
+	case DT_SPFL_N_YEAR:
+		if (s.abbr == DT_SPMOD_NORM) {
+			res = ui32tostr(buf, bsz, d->y, 4);
+		} else if (s.abbr == DT_SPMOD_ABBR) {
+			res = ui32tostr(buf, bsz, d->y, 2);
+		}
+		break;
+	case DT_SPFL_N_MON:
+		res = ui32tostr(buf, bsz, d->m, 2);
+		break;
+	case DT_SPFL_N_MDAY:
+		/* ymd mode check? */
+		d->d = d->d ?: dt_get_mday(that);
+		res = ui32tostr(buf, bsz, d->d, 2);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+		/* ymcw mode check */
+		d->w = d->w ?: dt_get_wday(that);
+		res = ui32tostr(buf, bsz, d->w, 2);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		/* ymcw mode check? */
+		d->c = d->c ?: dt_get_count(that);
+		res = ui32tostr(buf, bsz, d->c, 2);
+		break;
+	case DT_SPFL_S_WDAY:
+		/* get the weekday in ymd mode!! */
+		d->w = d->w ?: dt_get_wday(that);
+		switch (s.abbr) {
+		case DT_SPMOD_NORM:
+			res = arritostr(
+				buf, bsz, d->w,
+				__abbr_wday, countof(__abbr_wday));
+			break;
+		case DT_SPMOD_LONG:
+			res = arritostr(
+				buf, bsz, d->w,
+				__long_wday, countof(__long_wday));
+			break;
+		case DT_SPMOD_ABBR:
+			/* super abbrev'd wday */
+			if (d->w < countof(__abab_wday)) {
+				buf[res++] = __abab_wday[d->w];
+			}
+			break;
+		case DT_SPMOD_ILL:
+		default:
+			break;
+		}
+		break;
+	case DT_SPFL_S_MON:
+		switch (s.abbr) {
+		case DT_SPMOD_NORM:
+			res = arritostr(
+				buf, bsz, d->m,
+				__abbr_mon, countof(__abbr_mon));
+			break;
+		case DT_SPMOD_LONG:
+			res = arritostr(
+				buf, bsz, d->m,
+				__long_mon, countof(__long_mon));
+			break;
+		case DT_SPMOD_ABBR:
+			/* super abbrev'd month */
+			if (d->m < countof(__abab_mon)) {
+				buf[res++] = __abab_mon[d->m];
+			}
+			break;
+		case DT_SPMOD_ILL:
+		default:
+			break;
+		}
+		break;
+	case DT_SPFL_S_QTR:
+		buf[res++] = 'Q';
+		buf[res++] = (char)(dt_get_quarter(that) + '0');
+		break;
+	case DT_SPFL_N_QTR:
+		buf[res++] = '0';
+		buf[res++] = (char)(dt_get_quarter(that) + '0');
+		break;
+
+	case DT_SPFL_PARAM_BIZDA:
+		/* bizda mode check? */
+		if (((d->flags >> 1) & 1) == BIZDA_AFTER) {
+			buf[res++] = '>';
+		} else {
+			buf[res++] = '<';
+		}
+		res += ui32tostr(buf, bsz - 1, d->ref, 2);
+		break;
+#if 0
+	case '_':
+		/* secret mode */
+		case 'd':
+			/* get business days */
+			if ((d.b = d.b ?: dt_get_bday(that)) >= 0) {
+				res += ui32tostr(
+					buf + res, bsz - res, d.b, 2);
+			} else {
+				buf[res++] = '0';
+				buf[res++] = '0';
+			}
+			break;
+		case 'D':
+			/* get business days */
+			if (that.typ == DT_BIZDA) {
+				unsigned int b =
+					__bizda_get_yday(
+						that.bizda,
+						__get_bizda_param(
+							that));
+				res += ui32tostr(
+					buf + res, bsz - res, b, 3);
+			} else {
+				buf[res++] = '0';
+				buf[res++] = '0';
+				buf[res++] = '0';
+			}
+			break;
+#endif
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		buf[res++] = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		buf[res++] = '\n';
+		break;
+
+	case DT_SPFL_N_CNT_YEAR: {
+		if (that.typ == DT_YMD) {
+			/* %j */
+			int yd = __ymd_get_yday(that.ymd);
+			res = ui32tostr(buf, bsz, yd, 3);
+		} else if (that.typ == DT_YMCW) {
+			/* %C */
+			int yd = __ymcw_get_yday(that.ymcw);
+			res = ui32tostr(buf, bsz, yd, 2);
+		}
+		break;
+	}
+	}
+	return res;
+}
+
+static size_t
+__strfd_rom(
+	char *buf, size_t bsz, struct dt_spec_s s,
+	struct strpd_s *d, struct dt_d_s that)
+{
+	size_t res = 0;
+
+	if (that.typ != DT_YMD) {
+		/* not supported for non-ymds */
+		return res;
+	}
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		break;
+	case DT_SPFL_N_YEAR:
+		if (s.abbr == DT_SPMOD_NORM) {
+			res = ui32tostrrom(buf, bsz, d->y);
+			break;
+		} else if (s.abbr == DT_SPMOD_ABBR) {
+			res = ui32tostrrom(buf, bsz, d->y % 100);
+			break;
+		}
+		break;
+	case DT_SPFL_N_MON:
+		res = ui32tostrrom(buf, bsz, d->m);
+		break;
+	case DT_SPFL_N_MDAY:
+		res = ui32tostrrom(buf, bsz, d->d);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		d->c = d->c ?: dt_get_count(that);
+		res = ui32tostrrom(buf, bsz, d->c);
+		break;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -2240,8 +2390,9 @@ out:
 DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-	size_t res = 0;
 	struct strpd_s d = {0};
+	const char *fp;
+	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		goto out;
@@ -2259,6 +2410,8 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	case DT_YMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
+		d.c = that.ymcw.c;
+		d.w = that.ymcw.w;
 		if (fmt == NULL) {
 			fmt = ymcw_dflt;
 		}
@@ -2275,16 +2428,16 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	case DT_BIZDA: {
-		dt_bizda_param_t bp = __get_bizda_param(that);
+		dt_bizda_param_t bparam = __get_bizda_param(that);
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
-		if (LIKELY(bp.ab == BIZDA_AFTER)) {
+		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
 			d.b = that.bizda.bd;
 		} else {
 			d.b = -that.bizda.bd;
 		}
-		d.ref = bp.ref;
-		d.flags = (bp.ab << 1) | STRPD_BIZDA_BIT;
+		d.ref = bparam.ref;
+		d.flags = (bparam.ab << 1) | STRPD_BIZDA_BIT;
 		if (fmt == NULL) {
 			fmt = bizda_dflt;
 		}
@@ -2297,191 +2450,30 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	/* translate high-level format names */
 	__trans_dfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && res < bsz; fp++) {
-		int shaught = 0;
-		if (*fp != '%') {
-		literal:
-			buf[res++] = *fp;
-			continue;
-		}
-		switch (*++fp) {
-		default:
-			goto literal;
-		case 'F':
-			shaught = 1;
-		case 'Y':
-			res += ui32tostr(buf + res, bsz - res, d.y, 4);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			}
-			buf[res++] = '-';
-		case 'm':
-			res += ui32tostr(buf + res, bsz - res, d.m, 2);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			}
-			buf[res++] = '-';
-		case 'd':
-			/* ymd mode check? */
-			d.d = d.d ?: dt_get_mday(that);
-			res += ui32tostr(buf + res, bsz - res, d.d, 2);
-			break;
-		case 'w':
-			/* ymcw mode check */
-			d.d = dt_get_wday(that);
-			res += ui32tostr(buf + res, bsz - res, d.d, 2);
-			break;
-		case 'c':
-			/* ymcw mode check? */
-			d.c = dt_get_count(that);
-			res += ui32tostr(buf + res, bsz - res, d.c, 2);
-			break;
-		case 'a':
-			/* get the weekday in ymd mode!! */
-			res += arritostr(
-				buf + res, bsz - res,
-				dt_get_wday(that),
-				__abbr_wday, countof(__abbr_wday));
-			break;
-		case 'A':
-			/* get the weekday in ymd mode!! */
-			res += arritostr(
-				buf + res, bsz - res,
-				dt_get_wday(that),
-				__long_wday, countof(__long_wday));
-			break;
-		case 'b':
-		case 'h':
-			res += arritostr(
-				buf + res, bsz - res, d.m,
-				__abbr_mon, countof(__abbr_mon));
-			break;
-		case 'B':
-			res += arritostr(
-				buf + res, bsz - res, d.m,
-				__long_mon, countof(__long_mon));
-			break;
-		case 'y':
-			res += ui32tostr(buf + res, bsz - res, d.y, 2);
-			break;
-		case 'q':
-		case 'Q': {
-			int q = dt_get_quarter(that);
+	/* assign and go */
+	bp = buf;
+	fp = fmt;
+	for (char *const eo = buf + bsz; *fp && bp < eo;) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
-			if (UNLIKELY(q > 4)) {
-				break;
+		if (spec.spfl == DT_SPFL_UNK) {
+			/* must be literal then */
+			*bp++ = *fp_sav;
+		} else if (LIKELY(!spec.rom)) {
+			bp += __strfd_card(bp, eo - bp, spec, &d, that);
+			if (spec.ord) {
+				bp += __ordtostr(bp, eo - bp);
 			}
-			if (*fp == 'q') {
-				buf[res++] = '0';
-			} else if (*fp == 'Q') {
-				buf[res++] = 'Q';
-			}
-			buf[res++] = (char)(q + '0');
-			break;
-		}
-		case '>':
-			/* bizda mode check? */
-			if (((d.flags >> 1) & 1) == BIZDA_AFTER) {
-				buf[res++] = '>';
-			} else {
-				buf[res++] = '<';
-			}
-			res += ui32tostr(buf + res, bsz - res, d.ref, 2);
-			break;
-		case '_':
-			/* secret mode */
-			switch (*++fp) {
-			case 'b':
-				/* super abbrev'd month */
-				if (d.m < countof(__abab_mon)) {
-					buf[res++] = __abab_mon[d.m];
-				}
-				break;
-			case 'a': {
-				dt_dow_t wd = dt_get_wday(that);
-				/* super abbrev'd wday */
-				if (wd < countof(__abab_wday)) {
-					buf[res++] = __abab_wday[wd];
-				}
-				break;
-			}
-			case 'd':
-				/* get business days */
-				if ((d.b = d.b ?: dt_get_bday(that)) >= 0) {
-					res += ui32tostr(
-						buf + res, bsz - res, d.b, 2);
-				} else {
-					buf[res++] = '0';
-					buf[res++] = '0';
-				}
-				break;
-			case 'D':
-				/* get business days */
-				if (that.typ == DT_BIZDA) {
-					unsigned int b =
-						__bizda_get_yday(
-							that.bizda,
-							__get_bizda_param(
-								that));
-					res += ui32tostr(
-						buf + res, bsz - res, b, 3);
-				} else {
-					buf[res++] = '0';
-					buf[res++] = '0';
-					buf[res++] = '0';
-				}
-				break;
-			}
-			break;
-		case 't':
-			/* literal tab */
-			buf[res++] = '\t';
-			break;
-		case 'n':
-			/* literal \n */
-			buf[res++] = '\n';
-			break;
-		case 'j':
-			if (that.typ == DT_YMD) {
-				int yd = __ymd_get_yday(that.ymd);
-				res += ui32tostr(buf + res, bsz - res, yd, 3);
-			}
-			break;
-		case 'C':
-			if (that.typ == DT_YMCW) {
-				int yd = __ymcw_get_yday(that.ymcw);
-				res += ui32tostr(buf + res, bsz - res, yd, 2);
-			}
-			break;
-		case 'O':
-			/* o modifier for roman dates */
-			res += __strfd_O(buf + res, bsz - res, *++fp, that);
-			break;
-		}
-		/* check for ordinals */
-		switch (*fp) {
-		case 'c':
-		case 'C':
-		case 'd':
-		case 'D':
-		case 'm':
-		case 'j':
-		case 'y':
-		case 'Y':
-		case 'q':
-			if (fp[1] == 't' && fp[2] == 'h') {
-				res += __ordtostr(buf + res, bsz - res);
-				fp += 2;
-			}
-		default:
-			break;
+		} else if (UNLIKELY(spec.rom)) {
+			bp += __strfd_rom(bp, eo - bp, spec, &d, that);
 		}
 	}
 out:
-	if (res < bsz) {
-		buf[res] = '\0';
+	if (bp < buf + bsz) {
+		*bp = '\0';
 	}
-	return res;
+	return bp - buf;
 }
 
 DEFUN struct dt_dur_s
