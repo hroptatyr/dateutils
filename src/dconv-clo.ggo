@@ -1,6 +1,6 @@
 args "--unamed-opts --long-help"
-package "dcal"
-usage "dcal [OPTION]... DATEs"
+package "dconv"
+usage "dconv [OPTION]... DATEs"
 description "Convert DATEs between calendrical systems.  If DATEs are \
 omitted they are read from stdin, the special date `now' is \
 interpreted as the current (UTC) date."

@@ -30,11 +30,11 @@ strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
-bin_PROGRAMS += dcal
-dcal_SOURCES = dcal.c dcal-clo.ggo
-dcal_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
-dcal_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += dcal-clo.c dcal-clo.h
+bin_PROGRAMS += dconv
+dconv_SOURCES = dconv.c dconv-clo.ggo
+dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+dconv_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += dconv-clo.c dconv-clo.h
 
 bin_PROGRAMS += dtest
 dtest_SOURCES = dtest.c dtest-clo.ggo
@@ -90,11 +90,11 @@ ttest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ttest_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += ttest-clo.c ttest-clo.h
 
-bin_PROGRAMS += tcal
-tcal_SOURCES = tcal.c tcal-clo.ggo
-tcal_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
-tcal_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += tcal-clo.c tcal-clo.h
+bin_PROGRAMS += tconv
+tconv_SOURCES = tconv.c tconv-clo.ggo
+tconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+tconv_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += tconv-clo.c tconv-clo.h
 
 
 ## ggo rule

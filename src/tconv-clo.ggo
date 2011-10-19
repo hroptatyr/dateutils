@@ -1,6 +1,6 @@
 args "--unamed-opts --long-help"
-package "tcal"
-usage "tcal [OPTION]... TIMESs"
+package "tconv"
+usage "tconv [OPTION]... TIMESs"
 description "Convert TIMEs between calendrical systems.  If TIMEs are \
 omitted they are read from stdin, the special time `now' is \
 interpreted as the current (UTC) time."

@@ -1,28 +1,27 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
-CMDLINE="-i '%dth%m%Y' -f '%b %dth %Y'"
-## very artificial :\
+TOOL=dconv
+CMDLINE="-i '%dth of %b %Y' -f '%b %dth %Y'"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
-1st102011
-2nd102011
-3rd102011
-4th102011
-10th102011
-11th102011
-12th102011
-13th102011
-14th102011
-20th102011
-21st102011
-22nd102011
-23rd102011
-24th102011
-30th102011
-31st102011 
+1st of Oct 2011
+2nd of Oct 2011
+3rd of Oct 2011
+4th of Oct 2011
+10th of Oct 2011
+11th of Oct 2011
+12th of Oct 2011
+13th of Oct 2011
+14th of Oct 2011
+20th of Oct 2011
+21st of Oct 2011
+22nd of Oct 2011
+23rd of Oct 2011
+24th of Oct 2011
+30th of Oct 2011
+31st of Oct 2011 
 EOF
  
 ## STDOUT
@@ -46,4 +45,4 @@ Oct 30th 2011
 Oct 31st 2011
 EOF
 
-## dcal.18.dt ends here
+## dconv.17.dt ends here

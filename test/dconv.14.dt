@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
+TOOL=dconv
 CMDLINE="-i \"%b%Y%d\""
 
 ## STDIN
@@ -16,4 +16,4 @@ cat > "${stdout}" <<EOF
 2012-05-23
 EOF
 
-## dcal.14.dt ends here
+## dconv.14.dt ends here

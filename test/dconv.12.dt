@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
+TOOL=dconv
 CMDLINE='-S -i "%Y-%m-%d" -i "%d %b %Y" -i "%d-%b-%Y"'
 
 ## STDIN
@@ -73,4 +73,4 @@ cat > "${stdout}" <<EOF
 12 month (act/365)	2011-10-12	2.138
 EOF
 
-## dcal.11.dt ends here
+## dconv.11.dt ends here
