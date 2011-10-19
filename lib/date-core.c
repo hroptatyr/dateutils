@@ -2175,6 +2175,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 #endif
 	struct strpd_s d = {0};
 	const char *sp = str;
+	const char *fp = fmt;
 
 #if !defined __C1X
 	res.typ = DT_UNK;
@@ -2187,7 +2188,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names */
 	__trans_dfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && *sp; fp++) {
+	while (*fp && *sp) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
