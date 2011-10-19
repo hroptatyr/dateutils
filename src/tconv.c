@@ -1,4 +1,4 @@
-/*** tcal.c -- convert calendrical systems
+/*** tconv.c -- convert calendrical systems
  *
  * Copyright (C) 2011 Sebastian Freundt
  *
@@ -47,8 +47,8 @@
 # pragma warning (disable:593)
 # pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
-#include "tcal-clo.h"
-#include "tcal-clo.c"
+#include "tconv-clo.h"
+#include "tconv-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
@@ -150,4 +150,4 @@ out:
 	return res;
 }
 
-/* tcal.c ends here */
+/* tconv.c ends here */

@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
+TOOL=dconv
 CMDLINE="-f \"ymd\" -S -i \"%d/%b/%Y\""
 
 ## STDIN
@@ -87,4 +87,4 @@ cat > "${stdout}" <<EOF
 2011-10-06	0.501
 EOF
 
-## dcal.10.dt ends here
+## dconv.10.dt ends here

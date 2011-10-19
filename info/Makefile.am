@@ -18,13 +18,13 @@ man1_MANS += $(built_mans)
 dateutils_EXAMPLES =
 dateutils_H2M_EX =
 
-dcal_EXAMPLES =
-dcal_EXAMPLES += $(top_srcdir)/test/dcal.1.dt
-dcal_EXAMPLES += $(top_srcdir)/test/dcal.2.dt
-dcal_EXAMPLES += $(top_srcdir)/test/dcal.3.dt
-dcal_EXAMPLES += $(top_srcdir)/test/dcal.4.dt
-dateutils_EXAMPLES += $(dcal_EXAMPLES)
-dateutils_H2M_EX += dcal.h2m
+dconv_EXAMPLES =
+dconv_EXAMPLES += $(top_srcdir)/test/dconv.1.dt
+dconv_EXAMPLES += $(top_srcdir)/test/dconv.2.dt
+dconv_EXAMPLES += $(top_srcdir)/test/dconv.3.dt
+dconv_EXAMPLES += $(top_srcdir)/test/dconv.4.dt
+dateutils_EXAMPLES += $(dconv_EXAMPLES)
+dateutils_H2M_EX += dconv.h2m
 
 dseq_EXAMPLES =
 dseq_EXAMPLES += $(top_srcdir)/test/dseq.1.dt
@@ -110,11 +110,11 @@ ttest_EXAMPLES += $(top_srcdir)/test/ttest.1.dt
 dateutils_EXAMPLES += $(ttest_EXAMPLES)
 dateutils_H2M_EX += ttest.h2m
 
-tcal_EXAMPLES =
-tcal_EXAMPLES += $(top_srcdir)/test/tcal.1.dt
-tcal_EXAMPLES += $(top_srcdir)/test/tcal.2.dt
-dateutils_EXAMPLES += $(tcal_EXAMPLES)
-dateutils_H2M_EX += tcal.h2m
+tconv_EXAMPLES =
+tconv_EXAMPLES += $(top_srcdir)/test/tconv.1.dt
+tconv_EXAMPLES += $(top_srcdir)/test/tconv.2.dt
+dateutils_EXAMPLES += $(tconv_EXAMPLES)
+dateutils_H2M_EX += tconv.h2m
 
 dateutils_H2M_EX += format.h2m
 
@@ -126,7 +126,7 @@ dist_noinst_SCRIPTS = gentexi.sh genh2m.sh genex texi2h2m.sh
 built_texis =
 built_texis += strptime.texi
 built_texis += dadd.texi
-built_texis += dcal.texi
+built_texis += dconv.texi
 built_texis += ddiff.texi
 built_texis += dseq.texi
 built_texis += dtest.texi
@@ -136,12 +136,12 @@ built_texis += tadd.texi
 built_texis += tdiff.texi
 built_texis += tgrep.texi
 built_texis += ttest.texi
-built_texis += tcal.texi
+built_texis += tconv.texi
 
 built_mans =
 built_mans += strptime.man
 built_mans += dadd.man
-built_mans += dcal.man
+built_mans += dconv.man
 built_mans += ddiff.man
 built_mans += dgrep.man
 built_mans += dseq.man
@@ -151,7 +151,7 @@ built_mans += tadd.man
 built_mans += tdiff.man
 built_mans += tgrep.man
 built_mans += ttest.man
-built_mans += tcal.man
+built_mans += tconv.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)

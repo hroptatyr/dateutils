@@ -53,8 +53,8 @@ Good day.
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
 ## trivial, no special stuff needed
-dapps="dadd dcal ddiff dgrep dseq dtest"
-tapps="tadd tcal tdiff tgrep tseq ttest"
+dapps="dadd dconv ddiff dgrep dseq dtest"
+tapps="tadd tconv tdiff tgrep tseq ttest"
 dtapps=""
 miscapps="strptime"
 

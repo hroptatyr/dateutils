@@ -1,18 +1,19 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
-CMDLINE="-i \"%Y%d%m\""
+TOOL=dconv
+CMDLINE="-i \"%a%y%m%d\""
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
-this line was created on 20122303.
+this line was created on Thu111013 and should match
+whereas this line Thu1110 shouldn't
 EOF
  
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2012-03-23
+2011-10-13
 EOF
 
-## dcal.13.dt ends here
+## dconv.16.dt ends here
