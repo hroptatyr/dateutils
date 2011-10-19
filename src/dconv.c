@@ -1,4 +1,4 @@
-/*** dcal.c -- convert calendrical systems
+/*** dconv.c -- convert calendrical systems
  *
  * Copyright (C) 2011 Sebastian Freundt
  *
@@ -47,8 +47,8 @@
 # pragma warning (disable:593)
 # pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
-#include "dcal-clo.h"
-#include "dcal-clo.c"
+#include "dconv-clo.h"
+#include "dconv-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
@@ -150,4 +150,4 @@ out:
 	return res;
 }
 
-/* dcal.c ends here */
+/* dconv.c ends here */

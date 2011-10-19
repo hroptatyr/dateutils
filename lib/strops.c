@@ -115,6 +115,7 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 	return res;
 }
 
+
 /* roman numerals */
 static uint32_t
 __romstr_v(const char c)
@@ -236,6 +237,96 @@ ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d)
 	return res;
 }
 
+
+DEFUN int
+__ordinalp(const char *num, size_t off_suf, char **ep)
+{
+#define __tolower(c)	(c | 0x20)
+#define ILEA(a, b)	(((a) << 8) | (b))
+	const char *p = num + off_suf;
+	int res = 0;
+	int p2;
+
+	if (UNLIKELY(off_suf == 0 || p[0] == '\0')) {
+		res = -1;
+		goto yep;
+	} else if ((p2 = ILEA(__tolower(p[0]), __tolower(p[1]))),
+		   LIKELY(p2 == ILEA('t', 'h'))) {
+		/* we accept 1th 2th 3th */
+		p += 2;
+		goto yep;
+	} else if (UNLIKELY(off_suf >= 2 && p[-2] == '1')) {
+		res = -1;
+		goto yep;
+	}
+	/* irregular ordinals */
+	switch (p[-1]) {
+	case '1':
+		if (p2 == ILEA('s', 't')) {
+			p += 2;
+		}
+		break;
+	case '2':
+		if (p2 == ILEA('n', 'd')) {
+			p += 2;
+		}
+		break;
+	case '3':
+		if (p2 == ILEA('r', 'd')) {
+			p += 2;
+		}
+		break;
+	default:
+		res = -1;
+		break;
+	}
+yep:
+	*ep = (char*)p;
+	return res;
+#undef ILEA
+#undef __tolower
+}
+
+DEFUN size_t
+__ordtostr(char *buf, size_t bsz)
+{
+	char *p = buf;
+
+	if (UNLIKELY(bsz < 2)) {
+		return 0;
+	}
+	/* assumes the actual number is printed in BUF already, 2 digits long */
+	if (UNLIKELY(p[-2] == '1')) {
+		/* must be 11, 12, or 13 then */
+		goto teens;
+	} else if (p[-2] == '0') {
+		/* discard */
+		p[-2] = p[-1];
+		p--;
+	}
+	switch (p[-1]) {
+	default:
+	teens:
+		*p++ = 't';
+		*p++ = 'h';
+		break;
+	case '1':
+		*p++ = 's';
+		*p++ = 't';
+		break;
+	case '2':
+		*p++ = 'n';
+		*p++ = 'd';
+		break;
+	case '3':
+		*p++ = 'r';
+		*p++ = 'd';
+		break;
+	}
+	return p - buf;
+}
+
+
 /* string array funs */
 DEFUN uint32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)

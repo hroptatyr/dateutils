@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
+TOOL=dconv
 CMDLINE="-f \"%Y-%_D\" \"2012-05-02>00\""
 
 ## STDIN
@@ -11,4 +11,4 @@ cat > "${stdout}" <<EOF
 2012-088
 EOF
 
-## dcal.8.dt ends here
+## dconv.8.dt ends here

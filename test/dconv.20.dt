@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
+TOOL=dconv
 CMDLINE="-f \"%_dth business day in %B %Y\" \"2010-03-01>00\""
 
 ## STDIN
@@ -8,7 +8,7 @@ CMDLINE="-f \"%_dth business day in %B %Y\" \"2010-03-01>00\""
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-01st business day in March 2010
+1st business day in March 2010
 EOF
 
-## dcal.20.dt ends here
+## dconv.20.dt ends here

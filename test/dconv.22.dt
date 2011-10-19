@@ -1,14 +1,14 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
-CMDLINE="-i \"%d/%b/%y\" -f \"%OY %Om %Od\" 17/Sep/98"
+TOOL=dconv
+CMDLINE="-f '%Y-%Q' -i '%Y %qth quarter' '2010 2nd quarter'"
 
 ## STDIN
- 
+
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-MCMXCVIII IX XVII
+2010-Q2
 EOF
 
-## dcal.5.dt ends here
+## dconv.22.dt ends here

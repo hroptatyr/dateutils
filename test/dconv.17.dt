@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dcal
+TOOL=dconv
 CMDLINE="-i '%dth of %b %Y' -f '%b %dth %Y'"
 
 ## STDIN
@@ -27,10 +27,10 @@ EOF
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-Oct 01st 2011
-Oct 02nd 2011
-Oct 03rd 2011
-Oct 04th 2011
+Oct 1st 2011
+Oct 2nd 2011
+Oct 3rd 2011
+Oct 4th 2011
 Oct 10th 2011
 Oct 11th 2011
 Oct 12th 2011
@@ -45,4 +45,4 @@ Oct 30th 2011
 Oct 31st 2011
 EOF
 
-## dcal.17.dt ends here
+## dconv.17.dt ends here
