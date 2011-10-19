@@ -1933,14 +1933,11 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = -1;
 		break;
 	case DT_SPFL_N_STD:
-		if ((d->y = strtoui_lim(
-			     sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
-		    *sp++ != '-' ||
-		    (d->m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
-		    *sp++ != '-' ||
-		    (d->d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
-			res = -1;
-		}
+		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
+		*sp++;
+		d->m = strtoui_lim(sp, &sp, 0, 12);
+		*sp++;
+		d->d = strtoui_lim(sp, &sp, 0, 31);
 		break;
 	case DT_SPFL_N_YEAR:
 		if (s.abbr == DT_SPMOD_NORM) {
@@ -1953,51 +1950,35 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				d->y -= 100;
 			}
 		}
-		if (UNLIKELY(d->y == -1U)) {
-			res = -1;
-		}
 		break;
 	case DT_SPFL_N_MON:
-		if ((d->m = strtoui_lim(sp, &sp, 0, 12)) == -1U) {
-			res = -1;
-		}
+		d->m = strtoui_lim(sp, &sp, 0, 12);
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode? */
-		if ((d->d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
-			res = -1;
-		}
+		d->d = strtoui_lim(sp, &sp, 0, 31);
 		break;
 	case DT_SPFL_N_CNT_WEEK:
 		/* ymcw mode? */
-		if ((d->w = strtoui_lim(sp, &sp, 0, 7)) == -1U) {
-			res = -1;
-		}
+		d->w = strtoui_lim(sp, &sp, 0, 7);
 		break;
 	case DT_SPFL_N_CNT_MON:
 		/* ymcw mode? */
-		if ((d->c = strtoui_lim(sp, &sp, 0, 5)) == -1U) {
-			res = -1;
-		}
+		d->c = strtoui_lim(sp, &sp, 0, 5);
 		break;
 	case DT_SPFL_S_WDAY:
 		/* ymcw mode? */
 		switch (s.abbr) {
 		case DT_SPMOD_NORM:
-			if ((d->w = strtoarri(
-				     sp, &sp,
-				     __abbr_wday,
-				     countof(__abbr_wday))) == -1U) {
-				res = -1;
-			}
+			d->w = strtoarri(
+				sp, &sp,
+				__abbr_wday, countof(__abbr_wday));
 			break;
 		case DT_SPMOD_LONG:
-			if ((d->w = strtoarri(
-				     sp, &sp,
-				     __long_wday,
-				     countof(__long_wday))) == -1U) {
-				res = -1;
-			}
+			d->w = strtoarri(
+				sp, &sp,
+				__long_wday,
+				countof(__long_wday));
 			break;
 		case DT_SPMOD_ABBR: {
 			const char *pos;
@@ -2015,20 +1996,16 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_S_MON:
 		switch (s.abbr) {
 		case DT_SPMOD_NORM:
-			if ((d->m = strtoarri(
-				     sp, &sp,
-				     __abbr_mon,
-				     countof(__abbr_mon))) == -1U) {
-				res = -1;
-			}
+			d->m = strtoarri(
+				sp, &sp,
+				__abbr_mon,
+				countof(__abbr_mon));
 			break;
 		case DT_SPMOD_LONG:
-			if ((d->m = strtoarri(
-				     sp, &sp,
-				     __long_mon,
-				     countof(__long_mon))) == -1U) {
-				res = -1;
-			}
+			d->m = strtoarri(
+				sp, &sp,
+				__long_mon,
+				countof(__long_mon));
 			break;
 		case DT_SPMOD_ABBR: {
 			const char *pos;
@@ -2143,6 +2120,15 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		(void)strtoui_lim(sp, &sp, 1, 366);
 		break;
 	}
+	/* quickly check if any of the conversions has gone wrong */
+	if (d->y == -1U ||
+	    d->m == -1U ||
+	    d->d == -1U ||
+	    d->c == -1U ||
+	    d->w == -1U) {
+		res = -1;
+	}
+	/* assign end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
