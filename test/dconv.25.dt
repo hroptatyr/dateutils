@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="-i '%Y-%m-%db' -f 'ymd'"
+CMDLINE="-i '%Y-%m-%db'"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
@@ -21,16 +21,16 @@ EOF
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2010-03-01
-2010-03-02
-2010-03-03
-2010-03-04
-2010-03-05
-2010-03-08
-2010-03-09
-2010-03-10
-2010-03-11
-2010-03-12
+2010-03-01b
+2010-03-02b
+2010-03-03b
+2010-03-04b
+2010-03-05b
+2010-03-06b
+2010-03-07b
+2010-03-08b
+2010-03-09b
+2010-03-10b
 EOF
 
-## dconv.23.dt ends here
+## dconv.25.dt ends here
