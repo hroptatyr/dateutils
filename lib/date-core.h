@@ -261,6 +261,11 @@ struct dt_spec_s {
 			DT_SPMOD_LONG,
 			DT_SPMOD_ILL,
 		} abbr:2;
+		/* for directions a(fter)/b(efore) */
+		unsigned int ab:1;
+		unsigned int pad:3;
+		/* for BIZDA_PARAMS */
+		unsigned int bparam:8;
 	};
 	dt_spfl_t spfl;
 };

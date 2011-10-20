@@ -225,6 +225,9 @@ static const char *__abbr_mon[] = {
 /* futures expiry codes, how convenient */
 static const char __abab_mon[] = "_FGHJKMNQUVXZ";
 
+/* bizda definitions, reference dates */
+static const char *bizda_ult[] = {"ultimo", "ult"};
+
 static inline bool
 __leapp(unsigned int y)
 {
@@ -1606,65 +1609,24 @@ next:
 	case 'h':
 		res.spfl = DT_SPFL_S_MON;
 		break;
-	case '>':
+	case '<':
+		res.ab = 1;
+	case '>': {
+		unsigned int bparam = 0;
 		res.spfl = DT_SPFL_PARAM_BIZDA;
-		break;
 
-		/* abbrev modifier */
+		/* check for optional date */
+		if (strtoarri(++fp, &fp, bizda_ult, countof(bizda_ult)) < -1U ||
+		    (bparam = strtoui_lim(fp, &fp, 0, 23)) < -1U) {
+			/* worked, yippie */
+			res.bparam = bparam;
+		}
+		break;
+	}
 	case '_':
-#if 0
-		switch (*++fp) {
-		case 'b':
-			res.spfl = DT_SPFL_S_MON;
-			res.abbr = DT_SPMOD_ABBR;
-			break;
-		case 'a':
-			res.spfl = DT_SPFL_S_WDAY;
-			res.abbr = DT_SPMOD_ABBR;
-			break;
-		case 'd': {
-			const char *fp_sav = fp++;
-
-			/* business days */
-			d.flags |= STRPD_BIZDA_BIT;
-			if ((d.b = strtoui_lim(
-				     sp, &sp, 0, 23)) == -1U) {
-				sp = str;
-				goto out;
-			}
-			/* bizda handling, reference could be in fp */
-			switch (*fp++) {
-			case '<':
-				/* it's a bizda/YMDU date */
-				d.flags |= BIZDA_BEFORE << 1;
-			case '>':
-				/* it's a bizda/YMDU date */
-				if (strtoarri(
-					    fp, &fp,
-					    bizda_ult,
-					    countof(bizda_ult)) < -1U ||
-				    (d.ref = strtoui_lim(
-					     fp, &fp, 0, 23)) < -1U) {
-					/* worked, yippie, we have to
-					 * reset fp though, as it will
-					 * be advanced in the outer
-					 * loop */
-					fp--;
-					break;
-				}
-				/*@fallthrough@*/
-			default:
-				fp = fp_sav;
-				break;
-			}
-			break;
-		}
-		}
-		break;
-#else
+		/* abbrev modifier */
 		res.abbr = DT_SPMOD_ABBR;
 		goto next;
-#endif
 	case 't':
 		res.spfl = DT_SPFL_LIT_TAB;
 		break;
@@ -1766,7 +1728,6 @@ __guess_dtyp(struct strpd_s d)
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
 static const char bizda_dflt[] = "%Y-%m-%_d%>";
-static const char *bizda_ult[] = {"ultimo", "ult"};
 
 static void
 __trans_dfmt(const char **fmt)
@@ -1899,7 +1860,11 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode? */
-		d->d = strtoui_lim(sp, &sp, 0, 31);
+		if (LIKELY(!s.abbr)) {
+			d->d = strtoui_lim(sp, &sp, 0, 31);
+		} else {
+			d->d = strtoui_lim(sp, &sp, 0, 31);
+		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
 		/* ymcw mode? */
@@ -2152,8 +2117,17 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode check? */
-		d->d = d->d ?: dt_get_mday(that);
-		res = ui32tostr(buf, bsz, d->d, 2);
+		if (LIKELY(!s.abbr)) {
+			d->d = d->d ?: dt_get_mday(that);
+			res = ui32tostr(buf, bsz, d->d, 2);
+		} else {
+			if ((d->b = d->b ?: dt_get_bday(that)) >= 0) {
+				res = ui32tostr(buf, bsz, d->b, 2);
+			} else {
+				buf[res++] = '0';
+				buf[res++] = '0';
+			}
+		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
 		/* ymcw mode check */
@@ -2234,16 +2208,6 @@ __strfd_card(
 #if 0
 	case '_':
 		/* secret mode */
-		case 'd':
-			/* get business days */
-			if ((d.b = d.b ?: dt_get_bday(that)) >= 0) {
-				res += ui32tostr(
-					buf + res, bsz - res, d.b, 2);
-			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
-			}
-			break;
 		case 'D':
 			/* get business days */
 			if (that.typ == DT_BIZDA) {
