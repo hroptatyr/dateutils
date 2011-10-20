@@ -243,9 +243,6 @@ typedef enum {
 
 	DT_SPFL_LIT_TAB,
 	DT_SPFL_LIT_NL,
-
-	/* not too happy about this one */
-	DT_SPFL_PARAM_BIZDA,
 } dt_spfl_t;
 
 struct dt_spec_s {

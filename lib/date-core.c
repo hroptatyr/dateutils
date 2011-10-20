@@ -224,7 +224,7 @@ static const char *__abbr_mon[] = {
 static const char __abab_mon[] = "_FGHJKMNQUVXZ";
 
 /* bizda definitions, reference dates */
-static const char *bizda_ult[] = {"ultimo", "ult"};
+static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 
 static inline bool
 __leapp(unsigned int y)
@@ -1639,6 +1639,19 @@ next:
 		res.ord = 1;
 		fp += 2;
 	}
+	/* check for bizda suffix */
+	if (res.spfl == DT_SPFL_N_MDAY || res.spfl == DT_SPFL_N_CNT_YEAR) {
+		switch (*++fp) {
+		case 'B':
+			res.ab = BIZDA_BEFORE;
+		case 'b':
+			res.bizda = 1;
+			break;
+		default:
+			fp--;
+			break;
+		}
+	}
 out:
 	*ep = (char*)(fp + 1);
 	return res;
@@ -1654,7 +1667,6 @@ __guess_dtyp(struct strpd_s d)
 #else
 	struct dt_d_s res;
 #endif
-	bool bizdap;
 
 #if !defined __C1X
 	res.u = 0;
@@ -1838,7 +1850,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		if (LIKELY(!s.bizda)) {
 			d->d = strtoui_lim(sp, &sp, 0, 31);
 		} else {
-			d->b = strtoui_lim(sp, &sp, 0, 31);
+			d->b = strtoui_lim(sp, &sp, 0, 23);
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
@@ -1919,75 +1931,6 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		}
 		break;
 
-	case DT_SPFL_PARAM_BIZDA:
-		/* bizda date and we take the arg from sp */
-		switch (*sp++) {
-		case '<':
-			/* it's a bizda/YMDU date */
-			d->flags |= BIZDA_BEFORE << 1;
-		case '>':
-			/* it's a bizda/YMDU date */
-			d->flags |= STRPD_BIZDA_BIT;
-			if (strtoarri(
-				    sp, &sp,
-				    bizda_ult,
-				    countof(bizda_ult)) < -1U ||
-			    (d->ref = strtoui_lim(
-				     sp, &sp, 0, 23)) < -1U) {
-				/* yay, it did work */
-				break;
-			}
-			/*@fallthrough@*/
-		default:
-			res = -1;
-			break;
-		}
-		break;
-
-#if 0
-	case '_':
-		switch (*++fp) {
-			const char *pos;
-		case 'd': {
-			const char *fp_sav = fp++;
-
-			/* business days */
-			d->flags |= STRPD_BIZDA_BIT;
-			if ((d->b = strtoui_lim(
-				     sp, &sp, 0, 23)) == -1U) {
-				res = -1;
-				goto out;
-			}
-			/* bizda handling, reference could be in fp */
-			switch (*fp++) {
-			case '<':
-				/* it's a bizda/YMDU date */
-				d->flags |= BIZDA_BEFORE << 1;
-			case '>':
-				/* it's a bizda/YMDU date */
-				if (strtoarri(
-					    fp, &fp,
-					    bizda_ult,
-					    countof(bizda_ult)) < -1U ||
-				    (d->ref = strtoui_lim(
-					     fp, &fp, 0, 23)) < -1U) {
-					/* worked, yippie, we have to
-					 * reset fp though, as it will
-					 * be advanced in the outer
-					 * loop */
-					fp--;
-					break;
-				}
-				/*@fallthrough@*/
-			default:
-				fp = fp_sav;
-				break;
-			}
-			break;
-		}
-		}
-		break;
-#endif
 	case DT_SPFL_LIT_TAB:
 		if (*sp++ != '\t') {
 			res = -1;
@@ -2176,35 +2119,6 @@ __strfd_card(
 		buf[res++] = (char)(dt_get_quarter(that) + '0');
 		break;
 
-	case DT_SPFL_PARAM_BIZDA:
-		/* bizda mode check? */
-		if (((d->flags >> 1) & 1) == BIZDA_AFTER) {
-			buf[res++] = '>';
-		} else {
-			buf[res++] = '<';
-		}
-		res += ui32tostr(buf, bsz - 1, d->ref, 2);
-		break;
-#if 0
-	case '_':
-		/* secret mode */
-		case 'D':
-			/* get business days */
-			if (that.typ == DT_BIZDA) {
-				unsigned int b =
-					__bizda_get_yday(
-						that.bizda,
-						__get_bizda_param(
-							that));
-				res += ui32tostr(
-					buf + res, bsz - res, b, 3);
-			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
-				buf[res++] = '0';
-			}
-			break;
-#endif
 	case DT_SPFL_LIT_TAB:
 		/* literal tab */
 		buf[res++] = '\t';
@@ -2214,18 +2128,34 @@ __strfd_card(
 		buf[res++] = '\n';
 		break;
 
-	case DT_SPFL_N_CNT_YEAR: {
-		if (that.typ == DT_YMD) {
+	case DT_SPFL_N_CNT_YEAR:
+		if (that.typ == DT_YMD || that.typ == DT_BIZDA) {
 			/* %j */
-			int yd = __ymd_get_yday(that.ymd);
-			res = ui32tostr(buf, bsz, yd, 3);
+			int yd;
+			if (LIKELY(!s.bizda)) {
+				yd = __ymd_get_yday(that.ymd);
+			} else {
+				yd = __bizda_get_yday(
+					that.bizda, __get_bizda_param(that));
+			}
+			if (yd >= 0) {
+				res = ui32tostr(buf, bsz, yd, 3);
+			} else {
+				buf[res++] = '0';
+				buf[res++] = '0';
+				buf[res++] = '0';
+			}
+			if (s.bizda && s.ab == BIZDA_AFTER) {
+				buf[res++] = 'b';
+			} else if (s.bizda) {
+				buf[res++] = 'B';
+			}
 		} else if (that.typ == DT_YMCW) {
 			/* %C */
 			int yd = __ymcw_get_yday(that.ymcw);
 			res = ui32tostr(buf, bsz, yd, 2);
 		}
 		break;
-	}
 	}
 	return res;
 }
