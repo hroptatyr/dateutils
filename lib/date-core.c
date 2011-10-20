@@ -96,15 +96,13 @@ struct strpd_s {
 	unsigned int d;
 	unsigned int c;
 	unsigned int w;
-	/* for bizda and other parametrised cals */
-	signed int b;
-	union {
-		unsigned int ref;
-		signed int q;
-	};
-#define STRPD_BIZDA_BIT	(1U)
 	/* general flags */
-	unsigned int flags;
+	struct {
+		unsigned int ab:1;
+		unsigned int bizda:1;
+	} flags;
+	unsigned int b;
+	unsigned int q;
 };
 
 
@@ -226,7 +224,7 @@ static const char *__abbr_mon[] = {
 static const char __abab_mon[] = "_FGHJKMNQUVXZ";
 
 /* bizda definitions, reference dates */
-static const char *bizda_ult[] = {"ultimo", "ult"};
+static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 
 static inline bool
 __leapp(unsigned int y)
@@ -1609,23 +1607,6 @@ next:
 	case 'h':
 		res.spfl = DT_SPFL_S_MON;
 		break;
-	case '<':
-		res.ab = 1;
-	case '>': {
-		unsigned int bparam = 0;
-		res.spfl = DT_SPFL_PARAM_BIZDA;
-
-		/* check for optional date */
-		fp++;
-		if (strtoarri(fp, &fp, bizda_ult, countof(bizda_ult)) < -1U ||
-		    (bparam = strtoui_lim(fp, &fp, 0, 23)) < -1U) {
-			/* worked, yippie */
-			res.bparam = bparam;
-		}
-		/* fp will be advanced later, so decrement it here */
-		fp--;
-		break;
-	}
 	case '_':
 		/* abbrev modifier */
 		res.abbr = DT_SPMOD_ABBR;
@@ -1658,6 +1639,19 @@ next:
 		res.ord = 1;
 		fp += 2;
 	}
+	/* check for bizda suffix */
+	if (res.spfl == DT_SPFL_N_MDAY || res.spfl == DT_SPFL_N_CNT_YEAR) {
+		switch (*++fp) {
+		case 'B':
+			res.ab = BIZDA_BEFORE;
+		case 'b':
+			res.bizda = 1;
+			break;
+		default:
+			fp--;
+			break;
+		}
+	}
 out:
 	*ep = (char*)(fp + 1);
 	return res;
@@ -1673,7 +1667,6 @@ __guess_dtyp(struct strpd_s d)
 #else
 	struct dt_d_s res;
 #endif
-	bool bizdap;
 
 #if !defined __C1X
 	res.u = 0;
@@ -1694,32 +1687,27 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	bizdap = (d.flags & STRPD_BIZDA_BIT);
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !bizdap)) {
+	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.m;
 		res.ymd.d = d.d;
-	} else if (d.y && d.c && !bizdap) {
+	} else if (d.y && d.c && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;
 		res.ymcw.m = d.m;
 		res.ymcw.c = d.c;
 		res.ymcw.w = d.w;
-	} else if (d.y && bizdap) {
+	} else if (d.y && d.flags.bizda) {
 		/* d.c can be legit'ly naught */
-		dt_bizda_param_t bp = __make_bizda_param(d.b <= 0, d.ref);
+		dt_bizda_param_t bp = __make_bizda_param(d.flags.ab, 0);
 		res.param = bp.u;
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
-		if (d.b >= 0) {
-			res.bizda.bd = d.b;
-		} else {
-			res.bizda.bd = -d.b;
-		}
+		res.bizda.bd = d.b;
 	} else {
 		/* anything else is bollocks for now */
 		res.typ = DT_UNK;
@@ -1800,22 +1788,16 @@ __strpd_std(const char *str, char **ep)
 			goto out;
 		}
 		break;
-	case '<':
-		/* it's a bizda/YMDU date */
-		d.b = -d.d;
-		goto on;
-	case '>':
-		/* it's a bizda/YMDU date */
+	case 'B':
+		/* it's a bizda/YMDU before ultimo date */
+		d.flags.ab = BIZDA_BEFORE;
+	case 'b':
+		/* it's a bizda/YMDU after ultimo date */
+		d.flags.bizda = 1;
 		d.b = d.d;
-	on:
 		d.d = 0;
-		d.flags |= STRPD_BIZDA_BIT;
-		if (strtoarri(++sp, &sp, bizda_ult, countof(bizda_ult)) < -1U ||
-		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) < -1U) {
-			break;
-		}
-		sp = str;
-		goto out;
+		sp++;
+		break;
 	default:
 		/* we don't care */
 		break;
@@ -1863,10 +1845,10 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode? */
-		if (LIKELY(!s.abbr)) {
+		if (LIKELY(!s.bizda)) {
 			d->d = strtoui_lim(sp, &sp, 0, 31);
 		} else {
-			d->d = strtoui_lim(sp, &sp, 0, 31);
+			d->b = strtoui_lim(sp, &sp, 0, 23);
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
@@ -1947,75 +1929,6 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		}
 		break;
 
-	case DT_SPFL_PARAM_BIZDA:
-		/* bizda date and we take the arg from sp */
-		switch (*sp++) {
-		case '<':
-			/* it's a bizda/YMDU date */
-			d->flags |= BIZDA_BEFORE << 1;
-		case '>':
-			/* it's a bizda/YMDU date */
-			d->flags |= STRPD_BIZDA_BIT;
-			if (strtoarri(
-				    sp, &sp,
-				    bizda_ult,
-				    countof(bizda_ult)) < -1U ||
-			    (d->ref = strtoui_lim(
-				     sp, &sp, 0, 23)) < -1U) {
-				/* yay, it did work */
-				break;
-			}
-			/*@fallthrough@*/
-		default:
-			res = -1;
-			break;
-		}
-		break;
-
-#if 0
-	case '_':
-		switch (*++fp) {
-			const char *pos;
-		case 'd': {
-			const char *fp_sav = fp++;
-
-			/* business days */
-			d->flags |= STRPD_BIZDA_BIT;
-			if ((d->b = strtoui_lim(
-				     sp, &sp, 0, 23)) == -1U) {
-				res = -1;
-				goto out;
-			}
-			/* bizda handling, reference could be in fp */
-			switch (*fp++) {
-			case '<':
-				/* it's a bizda/YMDU date */
-				d->flags |= BIZDA_BEFORE << 1;
-			case '>':
-				/* it's a bizda/YMDU date */
-				if (strtoarri(
-					    fp, &fp,
-					    bizda_ult,
-					    countof(bizda_ult)) < -1U ||
-				    (d->ref = strtoui_lim(
-					     fp, &fp, 0, 23)) < -1U) {
-					/* worked, yippie, we have to
-					 * reset fp though, as it will
-					 * be advanced in the outer
-					 * loop */
-					fp--;
-					break;
-				}
-				/*@fallthrough@*/
-			default:
-				fp = fp_sav;
-				break;
-			}
-			break;
-		}
-		}
-		break;
-#endif
 	case DT_SPFL_LIT_TAB:
 		if (*sp++ != '\t') {
 			res = -1;
@@ -2120,15 +2033,16 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode check? */
-		if (LIKELY(!s.abbr)) {
+		if (LIKELY(!s.bizda)) {
 			d->d = d->d ?: dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
 		} else {
-			if ((d->b = d->b ?: dt_get_bday(that)) >= 0) {
-				res = ui32tostr(buf, bsz, d->b, 2);
+			d->b = d->b ?: dt_get_bday(that);
+			res = ui32tostr(buf, bsz, d->b, 2);
+			if (d->flags.ab == BIZDA_AFTER) {
+				buf[res++] = 'b';
 			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
+				buf[res++] = 'B';
 			}
 		}
 		break;
@@ -2199,35 +2113,6 @@ __strfd_card(
 		buf[res++] = (char)(dt_get_quarter(that) + '0');
 		break;
 
-	case DT_SPFL_PARAM_BIZDA:
-		/* bizda mode check? */
-		if (((d->flags >> 1) & 1) == BIZDA_AFTER) {
-			buf[res++] = '>';
-		} else {
-			buf[res++] = '<';
-		}
-		res += ui32tostr(buf, bsz - 1, d->ref, 2);
-		break;
-#if 0
-	case '_':
-		/* secret mode */
-		case 'D':
-			/* get business days */
-			if (that.typ == DT_BIZDA) {
-				unsigned int b =
-					__bizda_get_yday(
-						that.bizda,
-						__get_bizda_param(
-							that));
-				res += ui32tostr(
-					buf + res, bsz - res, b, 3);
-			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
-				buf[res++] = '0';
-			}
-			break;
-#endif
 	case DT_SPFL_LIT_TAB:
 		/* literal tab */
 		buf[res++] = '\t';
@@ -2237,18 +2122,34 @@ __strfd_card(
 		buf[res++] = '\n';
 		break;
 
-	case DT_SPFL_N_CNT_YEAR: {
-		if (that.typ == DT_YMD) {
+	case DT_SPFL_N_CNT_YEAR:
+		if (that.typ == DT_YMD || that.typ == DT_BIZDA) {
 			/* %j */
-			int yd = __ymd_get_yday(that.ymd);
-			res = ui32tostr(buf, bsz, yd, 3);
+			int yd;
+			if (LIKELY(!s.bizda)) {
+				yd = __ymd_get_yday(that.ymd);
+			} else {
+				yd = __bizda_get_yday(
+					that.bizda, __get_bizda_param(that));
+			}
+			if (yd >= 0) {
+				res = ui32tostr(buf, bsz, yd, 3);
+			} else {
+				buf[res++] = '0';
+				buf[res++] = '0';
+				buf[res++] = '0';
+			}
+			if (s.bizda && s.ab == BIZDA_AFTER) {
+				buf[res++] = 'b';
+			} else if (s.bizda) {
+				buf[res++] = 'B';
+			}
 		} else if (that.typ == DT_YMCW) {
 			/* %C */
 			int yd = __ymcw_get_yday(that.ymcw);
 			res = ui32tostr(buf, bsz, yd, 2);
 		}
 		break;
-	}
 	}
 	return res;
 }
@@ -2338,6 +2239,18 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
+			if (spec.bizda) {
+				switch (*sp++) {
+				case 'B':
+					d.flags.ab = BIZDA_BEFORE;
+				case 'b':
+					d.flags.bizda = 1;
+					break;
+				default:
+					sp = str;
+					goto out;
+				}
+			}
 		} else if (UNLIKELY(spec.rom)) {
 			if (__strpd_rom(&d, sp, spec, (char**)&sp) < 0) {
 				sp = str;
@@ -2398,13 +2311,13 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		dt_bizda_param_t bparam = __get_bizda_param(that);
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
+		d.b = that.bizda.bd;
 		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
-			d.b = that.bizda.bd;
+			d.flags.ab = BIZDA_AFTER;
 		} else {
-			d.b = -that.bizda.bd;
+			d.flags.ab = BIZDA_BEFORE;
 		}
-		d.ref = bparam.ref;
-		d.flags = (bparam.ab << 1) | STRPD_BIZDA_BIT;
+		d.flags.bizda = 1;
 		if (fmt == NULL) {
 			fmt = bizda_dflt;
 		}
