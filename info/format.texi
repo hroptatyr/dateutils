@@ -30,6 +30,9 @@ Date specs:
 
   %dth  The day of the month as an ordinal number, 1st, 2nd, 3rd, etc.
   %mth  The month of the year as an ordinal number, 1st, 2nd, 3rd, etc.
+
+  %db The business day of the month (since last month's ultimo)
+  %dB Number of business days until this month's ultimo
 @end verbatim
 
 Time specs:
@@ -55,4 +58,5 @@ Modifiers:
 @verbatim
   %O  Modifier to turn decimal numbers into Roman numerals
   th  Suffix.  Read and print ordinal numbers
+  b   Treat date as business date
 @end verbatim

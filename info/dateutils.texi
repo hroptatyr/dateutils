@@ -174,7 +174,10 @@ month's ultimo.  Where business day means any non-weekend day.  Years
 are divided into 12 months, each of which consists of 20 to 23
 business days.
 
-The canonical input and output format is @code{%Y-%m-%_d>00}.
+The canonical input and output format is @code{%Y-%m-%db}, where
+@code{b} is a suffix modifier meaning business days since last month's
+ultimo.  Similarly, @code{%Y-%m-%dB} stands for the business days until
+this month's ultimo.
 
 
 @include strptime.texi
