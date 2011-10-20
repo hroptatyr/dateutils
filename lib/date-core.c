@@ -1718,7 +1718,7 @@ __guess_dtyp(struct strpd_s d)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char bizda_dflt[] = "%Y-%m-%_d%>";
+static const char bizda_dflt[] = "%Y-%m-%db";
 
 static void
 __trans_dfmt(const char **fmt)
@@ -2039,11 +2039,6 @@ __strfd_card(
 		} else {
 			d->b = d->b ?: dt_get_bday(that);
 			res = ui32tostr(buf, bsz, d->b, 2);
-			if (d->flags.ab == BIZDA_AFTER) {
-				buf[res++] = 'b';
-			} else {
-				buf[res++] = 'B';
-			}
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
@@ -2139,11 +2134,6 @@ __strfd_card(
 				buf[res++] = '0';
 				buf[res++] = '0';
 			}
-			if (s.bizda && s.ab == BIZDA_AFTER) {
-				buf[res++] = 'b';
-			} else if (s.bizda) {
-				buf[res++] = 'B';
-			}
 		} else if (that.typ == DT_YMCW) {
 			/* %C */
 			int yd = __ymcw_get_yday(that.ymcw);
@@ -2236,8 +2226,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			}
 			if (spec.ord &&
 			    __ordinalp(sp_sav, sp - sp_sav, (char**)&sp) < 0) {
-				sp = str;
-				goto out;
+				;
 			}
 			if (spec.bizda) {
 				switch (*sp++) {
@@ -2247,8 +2236,10 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 					d.flags.bizda = 1;
 					break;
 				default:
-					sp = str;
-					goto out;
+					/* it's a bizda anyway */
+					d.flags.bizda = 1;
+					sp--;
+					break;
 				}
 			}
 		} else if (UNLIKELY(spec.rom)) {
@@ -2344,6 +2335,13 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			bp += __strfd_card(bp, eo - bp, spec, &d, that);
 			if (spec.ord) {
 				bp += __ordtostr(bp, eo - bp);
+			} else if (spec.bizda) {
+				/* don't print the b after an ordinal */
+				if (d.flags.ab == BIZDA_AFTER) {
+					*bp++ = 'b';
+				} else {
+					*bp++ = 'B';
+				}
 			}
 		} else if (UNLIKELY(spec.rom)) {
 			bp += __strfd_rom(bp, eo - bp, spec, &d, that);
