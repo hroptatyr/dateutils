@@ -96,15 +96,13 @@ struct strpd_s {
 	unsigned int d;
 	unsigned int c;
 	unsigned int w;
-	/* for bizda and other parametrised cals */
-	signed int b;
-	union {
-		unsigned int ref;
-		signed int q;
-	};
-#define STRPD_BIZDA_BIT	(1U)
 	/* general flags */
-	unsigned int flags;
+	struct {
+		unsigned int ab:1;
+		unsigned int bizda:1;
+	} flags;
+	signed int b;
+	unsigned int q;
 };
 
 
@@ -1609,23 +1607,6 @@ next:
 	case 'h':
 		res.spfl = DT_SPFL_S_MON;
 		break;
-	case '<':
-		res.ab = 1;
-	case '>': {
-		unsigned int bparam = 0;
-		res.spfl = DT_SPFL_PARAM_BIZDA;
-
-		/* check for optional date */
-		fp++;
-		if (strtoarri(fp, &fp, bizda_ult, countof(bizda_ult)) < -1U ||
-		    (bparam = strtoui_lim(fp, &fp, 0, 23)) < -1U) {
-			/* worked, yippie */
-			res.bparam = bparam;
-		}
-		/* fp will be advanced later, so decrement it here */
-		fp--;
-		break;
-	}
 	case '_':
 		/* abbrev modifier */
 		res.abbr = DT_SPMOD_ABBR;
@@ -1694,28 +1675,27 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	bizdap = (d.flags & STRPD_BIZDA_BIT);
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !bizdap)) {
+	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.m;
 		res.ymd.d = d.d;
-	} else if (d.y && d.c && !bizdap) {
+	} else if (d.y && d.c && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;
 		res.ymcw.m = d.m;
 		res.ymcw.c = d.c;
 		res.ymcw.w = d.w;
-	} else if (d.y && bizdap) {
+	} else if (d.y && d.flags.bizda) {
 		/* d.c can be legit'ly naught */
-		dt_bizda_param_t bp = __make_bizda_param(d.b <= 0, d.ref);
+		dt_bizda_param_t bp = __make_bizda_param(d.flags.ab, 0);
 		res.param = bp.u;
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
-		if (d.b >= 0) {
+		if (d.flags.ab == BIZDA_AFTER) {
 			res.bizda.bd = d.b;
 		} else {
 			res.bizda.bd = -d.b;
@@ -1800,22 +1780,14 @@ __strpd_std(const char *str, char **ep)
 			goto out;
 		}
 		break;
-	case '<':
-		/* it's a bizda/YMDU date */
-		d.b = -d.d;
-		goto on;
-	case '>':
-		/* it's a bizda/YMDU date */
-		d.b = d.d;
-	on:
-		d.d = 0;
-		d.flags |= STRPD_BIZDA_BIT;
-		if (strtoarri(++sp, &sp, bizda_ult, countof(bizda_ult)) < -1U ||
-		    (d.ref = strtoui_lim(sp, &sp, 0, 23)) < -1U) {
-			break;
-		}
-		sp = str;
-		goto out;
+	case 'B':
+		/* it's a bizda/YMDU before ultimo date */
+		d.d = -d.d;
+		d.flags.ab = BIZDA_BEFORE;
+	case 'b':
+		/* it's a bizda/YMDU after ultimo date */
+		d.flags.bizda = 1;
+		break;
 	default:
 		/* we don't care */
 		break;
@@ -1863,10 +1835,10 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode? */
-		if (LIKELY(!s.abbr)) {
+		if (LIKELY(!s.bizda)) {
 			d->d = strtoui_lim(sp, &sp, 0, 31);
 		} else {
-			d->d = strtoui_lim(sp, &sp, 0, 31);
+			d->b = strtoui_lim(sp, &sp, 0, 31);
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
@@ -2120,7 +2092,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode check? */
-		if (LIKELY(!s.abbr)) {
+		if (LIKELY(!s.bizda)) {
 			d->d = d->d ?: dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
 		} else {
@@ -2129,6 +2101,11 @@ __strfd_card(
 			} else {
 				buf[res++] = '0';
 				buf[res++] = '0';
+			}
+			if (d->flags.ab == BIZDA_AFTER) {
+				buf[res++] = 'b';
+			} else {
+				buf[res++] = 'B';
 			}
 		}
 		break;
@@ -2338,6 +2315,18 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 				sp = str;
 				goto out;
 			}
+			if (spec.bizda) {
+				switch (*sp++) {
+				case 'B':
+					d.flags.ab = BIZDA_BEFORE;
+				case 'b':
+					d.flags.bizda = 1;
+					break;
+				default:
+					sp = str;
+					goto out;
+				}
+			}
 		} else if (UNLIKELY(spec.rom)) {
 			if (__strpd_rom(&d, sp, spec, (char**)&sp) < 0) {
 				sp = str;
@@ -2400,11 +2389,12 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.m = that.bizda.m;
 		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
 			d.b = that.bizda.bd;
+			d.flags.ab = BIZDA_AFTER;
 		} else {
 			d.b = -that.bizda.bd;
+			d.flags.ab = BIZDA_BEFORE;
 		}
-		d.ref = bparam.ref;
-		d.flags = (bparam.ab << 1) | STRPD_BIZDA_BIT;
+		d.flags.bizda = 1;
 		if (fmt == NULL) {
 			fmt = bizda_dflt;
 		}
