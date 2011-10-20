@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="-f \"%Y-%_D\" \"2010-03-01>00\""
+CMDLINE="-f \"%Y-%jb\" \"2010-03-01b\""
 
 ## STDIN
  

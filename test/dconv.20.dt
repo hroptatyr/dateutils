@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="-f \"%_dth business day in %B %Y\" \"2010-03-01>00\""
+CMDLINE="-f \"%dbth business day in %B %Y\" \"2010-03-01b\""
 
 ## STDIN
  
