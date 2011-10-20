@@ -1799,6 +1799,7 @@ __strpd_std(const char *str, char **ep)
 	case 'b':
 		/* it's a bizda/YMDU after ultimo date */
 		d.flags.bizda = 1;
+		sp++;
 		break;
 	default:
 		/* we don't care */
