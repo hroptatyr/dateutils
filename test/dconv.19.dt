@@ -8,7 +8,7 @@ CMDLINE="-f \"%Y %db %b\" \"2010-03-01b\""
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2010 01 Mar
+2010 01b Mar
 EOF
 
 ## dconv.19.dt ends here

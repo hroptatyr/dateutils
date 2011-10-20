@@ -8,7 +8,7 @@ CMDLINE="-f \"%Y-%jb\" \"2012-05-02b\""
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2012-088
+2012-088b
 EOF
 
 ## dconv.8.dt ends here
