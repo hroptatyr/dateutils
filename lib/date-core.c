@@ -101,7 +101,7 @@ struct strpd_s {
 		unsigned int ab:1;
 		unsigned int bizda:1;
 	} flags;
-	signed int b;
+	unsigned int b;
 	unsigned int q;
 };
 
@@ -1707,11 +1707,7 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
-		if (d.flags.ab == BIZDA_AFTER) {
-			res.bizda.bd = d.b;
-		} else {
-			res.bizda.bd = -d.b;
-		}
+		res.bizda.bd = d.b;
 	} else {
 		/* anything else is bollocks for now */
 		res.typ = DT_UNK;
@@ -1794,11 +1790,12 @@ __strpd_std(const char *str, char **ep)
 		break;
 	case 'B':
 		/* it's a bizda/YMDU before ultimo date */
-		d.d = -d.d;
 		d.flags.ab = BIZDA_BEFORE;
 	case 'b':
 		/* it's a bizda/YMDU after ultimo date */
 		d.flags.bizda = 1;
+		d.b = d.d;
+		d.d = 0;
 		sp++;
 		break;
 	default:
@@ -2040,12 +2037,8 @@ __strfd_card(
 			d->d = d->d ?: dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
 		} else {
-			if ((d->b = d->b ?: dt_get_bday(that)) >= 0) {
-				res = ui32tostr(buf, bsz, d->b, 2);
-			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
-			}
+			d->b = d->b ?: dt_get_bday(that);
+			res = ui32tostr(buf, bsz, d->b, 2);
 			if (d->flags.ab == BIZDA_AFTER) {
 				buf[res++] = 'b';
 			} else {
@@ -2318,11 +2311,10 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		dt_bizda_param_t bparam = __get_bizda_param(that);
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
+		d.b = that.bizda.bd;
 		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
-			d.b = that.bizda.bd;
 			d.flags.ab = BIZDA_AFTER;
 		} else {
-			d.b = -that.bizda.bd;
 			d.flags.ab = BIZDA_BEFORE;
 		}
 		d.flags.bizda = 1;
