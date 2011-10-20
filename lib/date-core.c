@@ -1616,11 +1616,14 @@ next:
 		res.spfl = DT_SPFL_PARAM_BIZDA;
 
 		/* check for optional date */
-		if (strtoarri(++fp, &fp, bizda_ult, countof(bizda_ult)) < -1U ||
+		fp++;
+		if (strtoarri(fp, &fp, bizda_ult, countof(bizda_ult)) < -1U ||
 		    (bparam = strtoui_lim(fp, &fp, 0, 23)) < -1U) {
 			/* worked, yippie */
 			res.bparam = bparam;
 		}
+		/* fp will be advanced later, so decrement it here */
+		fp--;
 		break;
 	}
 	case '_':
