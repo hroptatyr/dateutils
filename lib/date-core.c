@@ -2039,11 +2039,6 @@ __strfd_card(
 		} else {
 			d->b = d->b ?: dt_get_bday(that);
 			res = ui32tostr(buf, bsz, d->b, 2);
-			if (d->flags.ab == BIZDA_AFTER) {
-				buf[res++] = 'b';
-			} else {
-				buf[res++] = 'B';
-			}
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
@@ -2138,11 +2133,6 @@ __strfd_card(
 				buf[res++] = '0';
 				buf[res++] = '0';
 				buf[res++] = '0';
-			}
-			if (s.bizda && s.ab == BIZDA_AFTER) {
-				buf[res++] = 'b';
-			} else if (s.bizda) {
-				buf[res++] = 'B';
 			}
 		} else if (that.typ == DT_YMCW) {
 			/* %C */
@@ -2344,6 +2334,13 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			bp += __strfd_card(bp, eo - bp, spec, &d, that);
 			if (spec.ord) {
 				bp += __ordtostr(bp, eo - bp);
+			} else if (spec.bizda) {
+				/* don't print the b after an ordinal */
+				if (d.flags.ab == BIZDA_AFTER) {
+					*bp++ = 'b';
+				} else {
+					*bp++ = 'B';
+				}
 			}
 		} else if (UNLIKELY(spec.rom)) {
 			bp += __strfd_rom(bp, eo - bp, spec, &d, that);
