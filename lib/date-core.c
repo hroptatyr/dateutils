@@ -1718,7 +1718,7 @@ __guess_dtyp(struct strpd_s d)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char bizda_dflt[] = "%Y-%m-%_d%>";
+static const char bizda_dflt[] = "%Y-%m-%db";
 
 static void
 __trans_dfmt(const char **fmt)
