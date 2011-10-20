@@ -15,7 +15,7 @@ Date specs:
   %C  The count of the weekday within the year (range 00 to 53)
   %d  The day of the month, 2 digits (range 00 to 31)
   %F  Equivalent to %Y-%m-%d (ymd's canonical format)
-  %j  The day of the year
+  %j  The day of the year, see ISO 8601 ordinal date
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)
   %q  The number of the quarter (range 01 to 04)
@@ -27,6 +27,9 @@ Date specs:
   %Om The month as roman numerals
   %Oy The two digit year as roman numerals
   %OY The year including the century as roman numerals
+
+  %dth  The day of the month as an ordinal number, 1st, 2nd, 3rd, etc.
+  %mth  The month of the year as an ordinal number, 1st, 2nd, 3rd, etc.
 @end verbatim
 
 Time specs:
@@ -50,5 +53,6 @@ General specs:
 
 Modifiers:
 @verbatim
-  %O  Modifier to turn decimal numbers to Roman numerals
+  %O  Modifier to turn decimal numbers into Roman numerals
+  th  Suffix.  Read and print ordinal numbers
 @end verbatim
