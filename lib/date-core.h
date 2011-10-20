@@ -243,9 +243,6 @@ typedef enum {
 
 	DT_SPFL_LIT_TAB,
 	DT_SPFL_LIT_NL,
-
-	/* not too happy about this one */
-	DT_SPFL_PARAM_BIZDA,
 } dt_spfl_t;
 
 struct dt_spec_s {
@@ -261,6 +258,12 @@ struct dt_spec_s {
 			DT_SPMOD_LONG,
 			DT_SPMOD_ILL,
 		} abbr:2;
+		/* for directions a(fter 0)/b(efore 1) */
+		unsigned int ab:1;
+		/* bizda */
+		unsigned int bizda:1;
+		/* pad to the next byte */
+		unsigned int pad:2;
 	};
 	dt_spfl_t spfl;
 };

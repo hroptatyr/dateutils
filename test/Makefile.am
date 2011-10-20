@@ -54,6 +54,10 @@ TESTS += dconv.19.dt
 TESTS += dconv.20.dt
 TESTS += dconv.21.dt
 TESTS += dconv.22.dt
+TESTS += dconv.23.dt
+TESTS += dconv.24.dt
+TESTS += dconv.25.dt
+TESTS += dconv.26.dt
 
 TESTS += dadd.1.dt
 TESTS += dadd.2.dt
