@@ -2226,8 +2226,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			}
 			if (spec.ord &&
 			    __ordinalp(sp_sav, sp - sp_sav, (char**)&sp) < 0) {
-				sp = str;
-				goto out;
+				;
 			}
 			if (spec.bizda) {
 				switch (*sp++) {
@@ -2237,8 +2236,10 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 					d.flags.bizda = 1;
 					break;
 				default:
-					sp = str;
-					goto out;
+					/* it's a bizda anyway */
+					d.flags.bizda = 1;
+					sp--;
+					break;
 				}
 			}
 		} else if (UNLIKELY(spec.rom)) {
