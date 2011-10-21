@@ -1,0 +1,36 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="-S -i '%Y-%m-%db'"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+x 2010-03-01b y
+x 2010-03-02b y
+x 2010-03-03b y
+x 2010-03-04b y
+x 2010-03-05b y
+x 2010-03-06b y
+x 2010-03-07b y
+x 2010-03-08b y
+x 2010-03-09b y
+x 2010-03-10b y
+EOF
+ 
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+x 2010-03-01b y
+x 2010-03-02b y
+x 2010-03-03b y
+x 2010-03-04b y
+x 2010-03-05b y
+x 2010-03-06b y
+x 2010-03-07b y
+x 2010-03-08b y
+x 2010-03-09b y
+x 2010-03-10b y
+EOF
+
+## dconv.27.dt ends here
