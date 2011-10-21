@@ -3,10 +3,6 @@ title: dateutils
 layout: default
 ---
 
-<div id="rtop" class="sidebar-widget">
-  <script type="text/javascript" src="http://www.ohloh.net/p/586399/widgets/project_languages.js"></script>
-</div>
-
 Dateutils
 =========
 
