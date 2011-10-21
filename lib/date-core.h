@@ -241,6 +241,7 @@ typedef enum {
 	DT_SPFL_S_QTR,
 	DT_SPFL_S_LAST = DT_SPFL_S_QTR,
 
+	DT_SPFL_LIT_PERCENT,
 	DT_SPFL_LIT_TAB,
 	DT_SPFL_LIT_NL,
 } dt_spfl_t;

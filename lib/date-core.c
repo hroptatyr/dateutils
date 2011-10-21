@@ -1611,6 +1611,9 @@ next:
 		/* abbrev modifier */
 		res.abbr = DT_SPMOD_ABBR;
 		goto next;
+	case '%':
+		res.spfl = DT_SPFL_LIT_PERCENT;
+		break;
 	case 't':
 		res.spfl = DT_SPFL_LIT_TAB;
 		break;
@@ -1929,6 +1932,11 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		}
 		break;
 
+	case DT_SPFL_LIT_PERCENT:
+		if (*sp++ != '%') {
+			res = -1;
+		}
+		break;
 	case DT_SPFL_LIT_TAB:
 		if (*sp++ != '\t') {
 			res = -1;
@@ -2108,6 +2116,10 @@ __strfd_card(
 		buf[res++] = (char)(dt_get_quarter(that) + '0');
 		break;
 
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		buf[res++] = '%';
+		break;
 	case DT_SPFL_LIT_TAB:
 		/* literal tab */
 		buf[res++] = '\t';
