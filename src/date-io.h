@@ -99,10 +99,11 @@ struct grpatm_payload_s {
 	uint8_t flags;
 #define GRPATM_DIGITS	(1)
 #define GRPATM_ORDINALS	(2)
-#define GRPATM_A_SPEC	(4)
-#define GRPATM_B_SPEC	(8)
-#define GRPATM_O_SPEC	(16)
-#define GRPATM_T_FLAG	(32)
+#define GRPATM_SUFFIX	(4)
+#define GRPATM_A_SPEC	(8)
+#define GRPATM_B_SPEC	(16)
+#define GRPATM_O_SPEC	(32)
+#define GRPATM_T_FLAG	(64)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
@@ -141,9 +142,11 @@ calc_grep_atom(const char *fmt)
 	struct grep_atom_s res = {0};
 	int8_t andl_idx = 0;
 	int8_t bndl_idx = 0;
+	const char *fp = fmt;
 
 	/* init */
 	if (fmt == NULL) {
+	std:
 		/* standard format, %Y-%m-%d */
 		res.needle = '-';
 		res.pl.off_min = -4;
@@ -151,111 +154,117 @@ calc_grep_atom(const char *fmt)
 		goto out;
 	}
 	/* rest here ... */
-	for (const char *fp = fmt; *fp; fp++) {
-		if (*fp != '%') {
-		literal:
+	while (*fp) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+
+		/* pre checks */
+		switch (spec.spfl) {
+		case DT_SPFL_S_WDAY:
+			res.pl.flags |= GRPATM_A_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				andl_idx = res.pl.off_min;
+			}
+			break;
+		case DT_SPFL_S_MON:
+			res.pl.flags |= GRPATM_B_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				bndl_idx = res.pl.off_min;
+			}
+			break;
+		default:
+			break;
+		}
+		if (spec.ord) {
+			/* account for the extra 2 letters, but they're
+			 * optional now, so don't fiddle with the max bit */
+			res.pl.off_min -= 2;
+			res.pl.flags |= GRPATM_ORDINALS;
+		}
+		if (spec.bizda) {
+			/* account for the extra suffix character, it's
+			 * optional again */
+			res.pl.off_min -= 1;
+			res.pl.flags |= GRPATM_SUFFIX;
+		}
+		switch (spec.spfl) {
+		case DT_SPFL_UNK:
 			/* found a non-spec character that can be
 			 * used as needle, we should check for the
 			 * character's suitability though, a space is not
 			 * the best needle to find in a haystack of
 			 * english text, in fact it's more like a haystack
 			 * itself */
-			res.needle = *fp;
+			res.needle = *fp_sav;
 			goto out;
-		}
-		/* otherwise it's a %, read next char */
-		fp++;
-		switch (*fp) {
-		default:
-			break;
-		case 'a':
-		case 'A':
-			res.pl.flags |= GRPATM_A_SPEC;
-			if (res.pl.off_min == res.pl.off_max) {
-				andl_idx = res.pl.off_min;
-			}
-			break;
-		case 'b':
-		case 'B':
-		case 'h':
-			res.pl.flags |= GRPATM_B_SPEC;
-			if (res.pl.off_min == res.pl.off_max) {
-				bndl_idx = res.pl.off_min;
-			}
-			break;
-		}
-		switch (*fp) {
-		default:
-			break;
-		case '%':
+		case DT_SPFL_LIT_PERCENT:
 			/* very good needle character methinks */
-			goto literal;
-		case 'n':
+			res.needle = '%';
+			goto out;
+		case DT_SPFL_LIT_NL:
 			/* quite good needle characters */
 			res.needle = '\n';
 			goto out;
-		case 't':
+		case DT_SPFL_LIT_TAB:
 			res.needle = '\t';
 			goto out;
-		case 'F':
-			res.needle = '-';
-			/* fall-through */
-		case 'Y':
-			res.pl.off_min += -4;
-			res.pl.off_max += -4;
-			res.pl.flags |= GRPATM_DIGITS;
-			break;
-		case 'm':
-		case 'w':
-		case 'c':
-		case 'C':
-		case 'q':
-			res.pl.off_min += -2;
-			res.pl.off_max += -1;
-			res.pl.flags |= GRPATM_DIGITS;
-			break;
-		case 'd':
-			/* has to be extra because we allow ordinals */
-			if (UNLIKELY(fp[1] == 't' && fp[2] == 'h')) {
-				fp += 2;
+		case DT_SPFL_N_STD:
+			goto std;
+		case DT_SPFL_N_YEAR:
+			if (spec.abbr != DT_SPMOD_ABBR) {
 				res.pl.off_min += -4;
-				res.pl.off_max += -3;
-				res.pl.flags |= GRPATM_DIGITS | GRPATM_ORDINALS;
+				res.pl.off_max += -4;
 			} else {
 				res.pl.off_min += -2;
-				res.pl.off_max += -1;
-				res.pl.flags |= GRPATM_DIGITS;
+				res.pl.off_max += -2;
 			}
-			break;
-		case 'y':
-			res.pl.off_min += -2;
-			res.pl.off_max += -2;
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
-		case 'a':
-		case 'b':
-		case 'h':
-			res.pl.off_min += -3;
-			res.pl.off_max += -3;
+		case DT_SPFL_N_MON:
+		case DT_SPFL_N_CNT_WEEK:
+		case DT_SPFL_N_CNT_MON:
+		case DT_SPFL_N_QTR:
+		case DT_SPFL_N_MDAY:
+			res.pl.off_min += -2;
+			res.pl.off_max += -1;
+			res.pl.flags |= GRPATM_DIGITS;
 			break;
-		case 'j':
+		case DT_SPFL_S_WDAY:
+			if (spec.abbr == DT_SPMOD_LONG) {
+				/* Wednesday */
+				res.pl.off_min += -9;
+				/* Friday */
+				res.pl.off_max += -6;
+				break;
+			}
+		case DT_SPFL_S_MON:
+			if (spec.abbr == DT_SPMOD_LONG) {
+				/* September */
+				res.pl.off_min += -9;
+				/* May */
+				res.pl.off_max += -3;
+				break;
+			}
+			switch (spec.abbr) {
+			case DT_SPMOD_NORM:
+				res.pl.off_min += -3;
+				res.pl.off_max += -3;
+				break;
+			case DT_SPMOD_ABBR:
+				res.pl.off_min += -1;
+				res.pl.off_max += -1;
+				res.pl.flags |= GRPATM_T_FLAG;
+				break;
+			default:
+				break;
+			}
+			break;
+		case DT_SPFL_N_CNT_YEAR:
 			res.pl.off_min += -3;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
-		case 'A':
-			/* Wednesday */
-			res.pl.off_min += -9;
-			/* Friday */
-			res.pl.off_max += -6;
-			break;
-		case 'B':
-			/* September */
-			res.pl.off_min += -9;
-			/* May */
-			res.pl.off_max += -3;
-			break;
-		case 'Q':
+		case DT_SPFL_S_QTR:
 			res.needle = 'Q';
 			goto out;
 		}
