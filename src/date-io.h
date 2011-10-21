@@ -99,10 +99,11 @@ struct grpatm_payload_s {
 	uint8_t flags;
 #define GRPATM_DIGITS	(1)
 #define GRPATM_ORDINALS	(2)
-#define GRPATM_A_SPEC	(4)
-#define GRPATM_B_SPEC	(8)
-#define GRPATM_O_SPEC	(16)
-#define GRPATM_T_FLAG	(32)
+#define GRPATM_SUFFIX	(4)
+#define GRPATM_A_SPEC	(8)
+#define GRPATM_B_SPEC	(16)
+#define GRPATM_O_SPEC	(32)
+#define GRPATM_T_FLAG	(64)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
@@ -157,16 +158,8 @@ calc_grep_atom(const char *fmt)
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
+		/* pre checks */
 		switch (spec.spfl) {
-		case DT_SPFL_UNK:
-			/* found a non-spec character that can be
-			 * used as needle, we should check for the
-			 * character's suitability though, a space is not
-			 * the best needle to find in a haystack of
-			 * english text, in fact it's more like a haystack
-			 * itself */
-			res.needle = *fp_sav;
-			goto out;
 		case DT_SPFL_S_WDAY:
 			res.pl.flags |= GRPATM_A_SPEC;
 			if (res.pl.off_min == res.pl.off_max) {
@@ -182,9 +175,28 @@ calc_grep_atom(const char *fmt)
 		default:
 			break;
 		}
+		if (spec.ord) {
+			/* account for the extra 2 letters, but they're
+			 * optional now, so don't fiddle with the max bit */
+			res.pl.off_min -= 2;
+			res.pl.flags |= GRPATM_ORDINALS;
+		}
+		if (spec.bizda) {
+			/* account for the extra suffix character, it's
+			 * optional again */
+			res.pl.off_min -= 1;
+			res.pl.flags |= GRPATM_SUFFIX;
+		}
 		switch (spec.spfl) {
-		default:
-			break;
+		case DT_SPFL_UNK:
+			/* found a non-spec character that can be
+			 * used as needle, we should check for the
+			 * character's suitability though, a space is not
+			 * the best needle to find in a haystack of
+			 * english text, in fact it's more like a haystack
+			 * itself */
+			res.needle = *fp_sav;
+			goto out;
 		case DT_SPFL_LIT_PERCENT:
 			/* very good needle character methinks */
 			res.needle = '%';
@@ -212,22 +224,10 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_N_CNT_WEEK:
 		case DT_SPFL_N_CNT_MON:
 		case DT_SPFL_N_QTR:
+		case DT_SPFL_N_MDAY:
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
-			break;
-		case DT_SPFL_N_MDAY:
-			/* has to be extra because we allow ordinals */
-			if (UNLIKELY(fp[1] == 't' && fp[2] == 'h')) {
-				fp += 2;
-				res.pl.off_min += -4;
-				res.pl.off_max += -3;
-				res.pl.flags |= GRPATM_DIGITS | GRPATM_ORDINALS;
-			} else {
-				res.pl.off_min += -2;
-				res.pl.off_max += -1;
-				res.pl.flags |= GRPATM_DIGITS;
-			}
 			break;
 		case DT_SPFL_S_WDAY:
 			if (spec.abbr == DT_SPMOD_LONG) {
@@ -253,6 +253,7 @@ calc_grep_atom(const char *fmt)
 			case DT_SPMOD_ABBR:
 				res.pl.off_min += -1;
 				res.pl.off_max += -1;
+				res.pl.flags |= GRPATM_T_FLAG;
 				break;
 			default:
 				break;
