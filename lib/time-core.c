@@ -103,9 +103,9 @@ __tok_tspec(const char *fp, char **ep)
 		res.spfl = DT_SPFL_N_NANO;
 		break;
 
-	case 'P':
-		res.cap = 1;
 	case 'p':
+		res.cap = 1;
+	case 'P':
 		res.spfl = DT_SPFL_S_AMPM;
 		break;
 	case '%':
@@ -173,6 +173,84 @@ __trans_tfmt(const char **fmt)
 	return;
 }
 
+static int
+__strpt_card(struct strpt_s *d, const char *sp, struct dt_tspec_s s, char **ep)
+{
+	int res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_TUNK:
+		res = -1;
+		break;
+	case DT_SPFL_N_TSTD:
+		d->h = strtoui_lim(sp, &sp, 0, 23);
+		*sp++;
+		d->m = strtoui_lim(sp, &sp, 0, 59);
+		*sp++;
+		d->s = strtoui_lim(sp, &sp, 0, 60);
+		break;
+	case DT_SPFL_N_HOUR:
+		if (!s.sc12) {
+			d->h = strtoui_lim(sp, &sp, 0, 23);
+		} else {
+			d->h = strtoui_lim(sp, &sp, 1, 12);
+		}
+		break;
+	case DT_SPFL_N_MIN:
+		d->m = strtoui_lim(sp, &sp, 0, 59);
+		break;
+	case DT_SPFL_N_SEC:
+		d->s = strtoui_lim(sp, &sp, 0, 60);
+		break;
+	case DT_SPFL_N_NANO:
+		/* nanoseconds */
+		d->ns = strtoui_lim(sp, &sp, 0, 999999999);
+		break;
+	case DT_SPFL_S_AMPM: {
+		const unsigned int casebit = 0x20;
+
+		if ((sp[0] | casebit) == 'a' &&
+		    (sp[1] | casebit) == 'm') {
+			;
+		} else if ((sp[0] | casebit) == 'p' &&
+			   (sp[1] | casebit) == 'm') {
+			d->flags |= STRPT_AM_PM_BIT;
+		} else {
+			res = -1;
+		}
+		break;
+	}
+	case DT_SPFL_LIT_PERCENT:
+		if (*sp++ != '%') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_TAB:
+		if (*sp++ != '\t') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_NL:
+		if (*sp++ != '\n') {
+			res = -1;
+		}
+		break;
+	}
+	/* quickly check if any of the conversions has gone wrong */
+	if (d->h == -1U ||
+	    d->m == -1U ||
+	    d->s == -1U ||
+	    d->ns == -1U) {
+		res = -1;
+	}
+	/* assign end pointer */
+	if (ep) {
+		*ep = (char*)sp;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_t_s
@@ -184,7 +262,8 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	struct dt_t_s res;
 #endif
 	struct strpt_s d = {0};
-	const char *sp = str;
+	const char *sp;
+	const char *fp;
 
 #if !defined __C1X
 /* thanks gcc */
@@ -194,93 +273,24 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && *sp; fp++) {
-		int shaught = 0;
+	fp = fmt;
+	sp = str;
+	while (*fp && *sp) {
+		const char *fp_sav = fp;
+		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
 
-		if (*fp != '%') {
-		literal:
-			if (*fp != *sp++) {
+		if (spec.spfl == DT_SPFL_TUNK) {
+			/* must be literal */
+			if (*fp_sav != *sp++) {
 				sp = str;
 				goto out;
 			}
-			continue;
-		}
-		switch (*++fp) {
-		default:
-			goto literal;
-		case 'T':
-			shaught = 1;
-		case 'H':
-			d.h = strtoui_lim(sp, &sp, 0, 23);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			} else if (UNLIKELY(d.h == -1U || *sp++ != ':')) {
-				sp = str;
-				goto out;
-			}
-		case 'M':
-			d.m = strtoui_lim(sp, &sp, 0, 59);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			} else if (UNLIKELY(d.m == -1U || *sp++ != ':')) {
-				sp = str;
-				goto out;
-			}
-		case 'S':
-			d.s = strtoui_lim(sp, &sp, 0, 60);
-			if (UNLIKELY(d.s == -1U)) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'I':
-			d.h = strtoui_lim(sp, &sp, 1, 12);
-			if (UNLIKELY(d.h == -1U)) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'N':
-			/* nanoseconds */
-			d.ns = strtoui_lim(sp, &sp, 0, 999999999);
-			if (UNLIKELY(d.ns == -1U)) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'P':
-		case 'p': {
-			unsigned int casebit = 0;
-
-			if (UNLIKELY(*fp == 'P')) {
-				casebit = 0x20;
-			}
-			if (sp[0] == ('A' | casebit) &&
-			    sp[1] == ('M' | casebit)) {
-				;
-			} else if (sp[0] == ('P' | casebit) &&
-				   sp[1] == ('M' | casebit)) {
-				d.flags |= STRPT_AM_PM_BIT;
-			} else {
-				sp = str;
-				goto out;
-			}
-			break;
-		}
-		case 't':
-			if (*sp++ != '\t') {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'n':
-			if (*sp++ != '\n') {
-				sp = str;
-				goto out;
-			}
-			break;
+		} else if (__strpt_card(&d, sp, spec, (char**)&sp) < 0) {
+			sp = str;
+			goto out;
 		}
 	}
+		
 	/* set the end pointer */
 	res = __guess_ttyp(d);
 out:
