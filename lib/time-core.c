@@ -71,6 +71,59 @@ struct strpt_s {
 };
 
 
+/* spec tokenisers */
+static struct dt_tspec_s
+__tok_tspec(const char *fp, char **ep)
+{
+	struct dt_tspec_s res = {0};
+
+	if (*fp != '%') {
+		goto out;
+	}
+
+	switch (*++fp) {
+	default:
+		goto out;
+	case 'T':
+		res.spfl = DT_SPFL_N_TSTD;
+		break;
+	case 'I':
+		res.sc12 = 1;
+	case 'H':
+		res.spfl = DT_SPFL_N_HOUR;
+		break;
+	case 'M':
+		res.spfl = DT_SPFL_N_MIN;
+		break;
+	case 'S':
+		res.spfl = DT_SPFL_N_SEC;
+		break;
+
+	case 'N':
+		res.spfl = DT_SPFL_N_NANO;
+		break;
+
+	case 'P':
+		res.cap = 1;
+	case 'p':
+		res.spfl = DT_SPFL_S_AMPM;
+		break;
+	case '%':
+		res.spfl = DT_SPFL_LIT_PERCENT;
+		break;
+	case 't':
+		res.spfl = DT_SPFL_LIT_TAB;
+		break;
+	case 'n':
+		res.spfl = DT_SPFL_LIT_NL;
+		break;
+	}
+out:
+	*ep = (char*)(fp + 1);
+	return res;
+}
+
+
 /* guessing parsers */
 static const char hms_dflt[] = "%H:%M:%S";
 
