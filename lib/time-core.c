@@ -54,6 +54,9 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*(x)))
 #endif	/* !countof */
+#if !defined UNUSED
+# define UNUSED(x)	__attribute__((unused)) x
+#endif	/* !UNUSED */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -251,6 +254,76 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_tspec_s s, char **ep)
 	return res;
 }
 
+static size_t
+__strft_card(
+	char *buf, size_t bsz, struct dt_tspec_s s,
+	struct strpt_s *d, struct dt_t_s UNUSED(that))
+{
+	size_t res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_TUNK:
+		break;
+	case DT_SPFL_N_TSTD:
+		if (LIKELY(bsz >= 8)) {
+			ui32tostr(buf + 0, bsz, d->h, 2);
+			buf[2] = ':';
+			ui32tostr(buf + 3, bsz, d->m, 2);
+			buf[5] = ':';
+			ui32tostr(buf + 6, bsz, d->s, 2);
+			res = 8;
+		}
+		break;
+	case DT_SPFL_N_HOUR:
+		if (!s.sc12 || (d->h >= 1 && d->h <= 12)) {
+			res = ui32tostr(buf, bsz, d->h, 2);
+		} else {
+			unsigned int h = d->h ? d->h - 12 : 12;
+			res = ui32tostr(buf, bsz, h, 2);
+		}
+		break;
+	case DT_SPFL_N_MIN:
+		res = ui32tostr(buf, bsz, d->m, 2);
+		break;
+	case DT_SPFL_N_SEC:
+		res = ui32tostr(buf, bsz, d->s, 2);
+		break;
+	case DT_SPFL_S_AMPM: {
+		unsigned int casebit = 0;
+
+		if (UNLIKELY(!s.cap)) {
+			casebit = 0x20;
+		}
+		if (d->h >= 12) {
+			buf[res++] = (char)('P' | casebit);
+			buf[res++] = (char)('M' | casebit);
+		} else {
+			buf[res++] = (char)('A' | casebit);
+			buf[res++] = (char)('M' | casebit);
+		}
+		break;
+	}
+	case DT_SPFL_N_NANO:
+		res = ui32tostr(buf, bsz, d->ns, 9);
+		break;
+
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		buf[res++] = '%';
+		break;
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		buf[res++] = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		buf[res++] = '\n';
+		break;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_t_s
@@ -303,8 +376,9 @@ out:
 DEFUN size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 {
-	size_t res = 0;
 	struct strpt_s d = {0};
+	const char *fp;
+	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		goto out;
@@ -320,78 +394,25 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && res < bsz; fp++) {
-		int shaught = 0;
-		if (*fp != '%') {
-		literal:
-			buf[res++] = *fp;
-			continue;
-		}
-		switch (*++fp) {
-		default:
-			goto literal;
-		case 'T':
-			shaught = 1;
-		case 'H':
-			res += ui32tostr(buf + res, bsz - res, d.h, 2);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			}
-			buf[res++] = ':';
-		case 'M':
-			res += ui32tostr(buf + res, bsz - res, d.m, 2);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			}
-			buf[res++] = ':';
-		case 'S':
-			res += ui32tostr(buf + res, bsz - res, d.s, 2);
-			break;
-		case 'I': {
-			unsigned int h;
+	/* assign and go */
+	bp = buf;
+	fp = fmt;
+	for (char *const eo = buf + bsz; *fp && bp < eo;) {
+		const char *fp_sav = fp;
+		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
 
-			if ((h = d.h) > 12) {
-				h -= 12;
-			} else if (h == 0) {
-				h = 12;
-			}
-			res += ui32tostr(buf + res, bsz - res, h, 2);
-			break;
-		}
-		case 'P':
-		case 'p': {
-			unsigned int casebit = 0;
-
-			if (UNLIKELY(*fp == 'P')) {
-				casebit = 0x20;
-			}
-			if (d.h >= 12) {
-				buf[res++] = (char)('P' | casebit);
-				buf[res++] = (char)('M' | casebit);
-			} else {
-				buf[res++] = (char)('A' | casebit);
-				buf[res++] = (char)('M' | casebit);
-			}
-			break;
-		}
-		case 'N':
-			res += ui32tostr(buf + res, bsz - res, d.ns, 9);
-			break;
-		case 't':
-			/* literal tab */
-			buf[res++] = '\t';
-			break;
-		case 'n':
-			/* literal \n */
-			buf[res++] = '\n';
-			break;
+		if (spec.spfl == DT_SPFL_TUNK) {
+			/* must be literal then */
+			*bp++ = *fp_sav;
+		} else {
+			bp += __strft_card(bp, eo - bp, spec, &d, that);
 		}
 	}
 out:
-	if (res < bsz) {
-		buf[res] = '\0';
+	if (bp < buf + bsz) {
+		*bp = '\0';
 	}
-	return res;
+	return bp - buf;
 }
 
 
