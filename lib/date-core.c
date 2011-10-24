@@ -1399,21 +1399,19 @@ __daisy_add(dt_daisy_t d, struct dt_dur_s dur)
 	return d;
 }
 
-static struct dt_dur_s
+static struct dt_d_s
 __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 {
 /* compute d2 - d1 */
-	struct dt_dur_s res = {.typ = DT_DUR_WD};
+	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
 	int32_t diff = d2 - d1;
 
-#if 0
-/* this should be specifiable somehow */
-	res.wd.d = diff;
-	res.wd.w = 0;
-#elif 1
-	res.wd.w = diff / 7;
-	res.wd.d = diff % 7;
-#endif
+	if (diff >= 0) {
+		res.daisy = diff;
+	} else {
+		res.daisy = -diff;
+		res.neg = 1;
+	}
 	return res;
 }
 
@@ -1507,13 +1505,21 @@ __ymd_add(dt_ymd_t d, struct dt_dur_s dur)
 	return d;
 }
 
-static struct dt_dur_s
+static struct dt_d_s
 __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 {
 /* compute d2 - d1 entirely in terms of ymd */
-	struct dt_dur_s res = {.typ = DT_DUR_MD};
-	signed int tgtd = 0;
-	signed int tgtm = 0;
+	struct dt_d_s res = {.typ = DT_YMD, .dur = 1};
+	signed int tgtd;
+	signed int tgtm;
+
+	if (d1.u > d2.u) {
+		/* swap d1 and d2 */
+		dt_ymd_t tmp = d1;
+		res.neg = 1;
+		d1 = d2;
+		d2 = tmp;
+	}
 
 	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
 	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
@@ -1531,8 +1537,9 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 		tgtm--;
 	}
 	/* fill in the results */
-	res.md.m = tgtm;
-	res.md.d = tgtd;
+	res.ymd.y = tgtm / 12;
+	res.ymd.m = tgtm % 12;
+	res.ymd.d = tgtd;
 	return res;
 }
 
@@ -2624,30 +2631,6 @@ dt_add(struct dt_d_s d, struct dt_dur_s dur)
 }
 
 DEFUN struct dt_dur_s
-dt_diff(struct dt_d_s d1, struct dt_d_s d2)
-{
-	struct dt_dur_s res = {.typ = DT_DUR_UNK};
-
-	switch (d1.typ) {
-	case DT_DAISY: {
-		dt_daisy_t tmp = dt_conv_to_daisy(d2);
-		res = __daisy_diff(d1.daisy, tmp);
-		break;
-	}
-	case DT_YMD: {
-		dt_ymd_t tmp = dt_conv_to_ymd(d2);
-		res = __ymd_diff(d1.ymd, tmp);
-		break;
-	}
-	case DT_UNK:
-	default:
-		res.u = 0;
-		break;
-	}
-	return res;
-}
-
-DEFUN struct dt_dur_s
 dt_neg_dur(struct dt_dur_s dur)
 {
 	switch (dur.typ) {
@@ -2721,6 +2704,33 @@ dt_dur_neg_p(struct dt_dur_s dur)
 		break;
 	}
 	return 0;
+}
+
+DEFUN struct dt_d_s
+dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
+{
+	struct dt_d_s res = {.typ = DT_UNK};
+
+	switch (tgttyp) {
+	case DT_DAISY: {
+		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
+		dt_daisy_t tmp2 = dt_conv_to_daisy(d2);
+		res = __daisy_diff(tmp1, tmp2);
+		break;
+	}
+	case DT_YMD: {
+		dt_ymd_t tmp1 = dt_conv_to_ymd(d1);
+		dt_ymd_t tmp2 = dt_conv_to_ymd(d2);
+		res = __ymd_diff(tmp1, tmp2);
+		break;
+	}
+	case DT_UNK:
+	default:
+		res.typ = DT_UNK;
+		res.u = 0;
+		break;
+	}
+	return res;
 }
 
 DEFUN int

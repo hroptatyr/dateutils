@@ -61,8 +61,9 @@ typedef enum {
 	DT_UNK,
 	DT_YMD,
 	DT_YMCW,
-	DT_DAISY,
 	DT_BIZDA,
+	DT_DAISY,
+	DT_BIZSI,
 } dt_dtyp_t;
 
 typedef enum {
@@ -140,7 +141,9 @@ typedef union {
  * Collection of all date types. */
 struct dt_d_s {
 	/* for parametrised types */
-	dt_dtyp_t typ:16;
+	dt_dtyp_t typ:14;
+	uint16_t dur:1;
+	uint16_t neg:1;
 	uint32_t param:16;
 	union {
 		uint32_t u;
@@ -163,6 +166,9 @@ typedef enum {
 	DT_SATURDAY,
 	DT_MIRACLEDAY
 } dt_dow_t;
+
+/* durations are handled by the above structs with the DUR bit set,
+ * the stuff below is historical */
 
 /** mddur
  * duration type for calendars where 1 year = 12 months and 1 week = 7 days */
@@ -358,22 +364,22 @@ DECLF struct dt_d_s
 dt_add(struct dt_d_s d, struct dt_dur_s dur);
 
 /**
- * Get duration between D1 and D2.
- * The result will be in the duration type as specified by TGTTYP,
- * the calendar of D1 will be used, e.g. its month-per-year, days-per-week,
- * etc. conventions count.
- * If instead D2 should count, swap D1 and D2 and negate the duration
- * using `dt_neg_dur()'. */
-DECLF struct dt_dur_s
-dt_diff(struct dt_d_s d1, struct dt_d_s d2);
-
-/**
  * Negate the duration. */
 DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
 
 /**
  * Is duration DUR negative? */
 DECLF int dt_dur_neg_p(struct dt_dur_s dur);
+
+/**
+ * Get duration between D1 and D2.
+ * The result will be of type TGTTYP,
+ * the calendar of D1 will be used, e.g. its month-per-year, days-per-week,
+ * etc. conventions count.
+ * If instead D2 should count, swap D1 and D2 and negate the duration
+ * by setting/clearing the neg bit. */
+DECLF struct dt_d_s
+dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,

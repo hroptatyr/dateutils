@@ -48,11 +48,35 @@
 
 
 static int
-ddiff_prnt(struct dt_dur_s dur, const char *UNUSED(fmt))
+ddiff_prnt(struct dt_d_s dur, const char *UNUSED(fmt))
 {
 	char buf[256];
 
-	dt_strfdur(buf, sizeof(buf), dur);
+	if (!dur.dur) {
+		return -1;
+	}
+	switch (dur.typ) {
+	case DT_DAISY: {
+		signed int tmp = dur.neg ? -dur.daisy : dur.daisy;
+		snprintf(buf, sizeof(buf), "%d\n", tmp);
+		break;
+	}
+	case DT_YMD: {
+		if (!dur.neg) {
+			snprintf(
+				buf, sizeof(buf), "%dy%dm%dd\n",
+				dur.ymd.y, dur.ymd.m, dur.ymd.d);
+		} else {
+			snprintf(
+				buf, sizeof(buf), "-%dy%dm%dd\n",
+				dur.ymd.y, dur.ymd.m, dur.ymd.d);
+		}
+		break;
+	}
+	case DT_UNK:
+	default:
+		return -1;
+	}
 	fputs(buf, stdout);
 	return 0;
 }
@@ -103,11 +127,11 @@ main(int argc, char *argv[])
 	if (argi->inputs_num > 1) {
 		for (size_t i = 1; i < argi->inputs_num; i++) {
 			struct dt_d_s d2;
-			struct dt_dur_s dur;
+			struct dt_d_s dur;
 			const char *inp = argi->inputs[i];
 
 			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_diff(d, d2)).typ > DT_DUR_UNK) {
+			    (dur = dt_ddiff(DT_DAISY, d, d2)).typ > DT_DUR_UNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(inp);
@@ -127,7 +151,7 @@ main(int argc, char *argv[])
 			ssize_t n;
 			size_t len;
 			struct dt_d_s d2;
-			struct dt_dur_s dur;
+			struct dt_d_s dur;
 
 			n = getline(&line, &len, fp);
 			if (n < 0) {
@@ -137,7 +161,7 @@ main(int argc, char *argv[])
 			line[n - 1] = '\0';
 			/* perform addition now */
 			if ((d2 = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_diff(d, d2)).typ > DT_DUR_UNK) {
+			    (dur = dt_ddiff(DT_DAISY, d, d2)).typ > DT_DUR_UNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(line);
