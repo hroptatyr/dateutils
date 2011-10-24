@@ -8,7 +8,7 @@ CMDLINE="2012-03-02 2012-04-12"
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-1m10d
+41
 EOF
 
 ## ddiff.3.dt ends here

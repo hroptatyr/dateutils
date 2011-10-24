@@ -143,9 +143,11 @@ calc_tgrep_atom(const char *fmt)
 {
 	struct tgrep_atom_s res = {0};
 	int8_t pndl_idx = 0;
+	const char *fp = fmt;
 
 	/* init */
 	if (fmt == NULL) {
+	std:
 		/* standard format, %H:%M:%S */
 		res.needle = ':';
 		res.pl.off_min = -2;
@@ -153,61 +155,58 @@ calc_tgrep_atom(const char *fmt)
 		goto out;
 	}
 	/* rest here ... */
-	for (const char *fp = fmt; *fp; fp++) {
-		if (*fp != '%') {
-		literal:
+	while (*fp) {
+		const char *fp_sav = fp;
+		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
+
+		/* pre checks */
+		switch (spec.spfl) {
+		case DT_SPFL_S_AMPM:
+			res.pl.flags |= TGRPATM_P_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				pndl_idx = res.pl.off_min;
+			}
+			break;
+		default:
+			break;
+		}
+		/* real checks now */
+		switch (spec.spfl) {
+		case DT_SPFL_TUNK:
 			/* found a non-spec character that can be
 			 * used as needle, we should check for the
 			 * character's suitability though, a space is not
 			 * the best needle to find in a haystack of
 			 * english text, in fact it's more like a haystack
 			 * itself */
-			res.needle = *fp;
+			res.needle = *fp_sav;
 			goto out;
-		}
-		/* otherwise it's a %, read next char */
-		fp++;
-		switch (*fp) {
-		default:
-			break;
-		case 'p':
-		case 'P':
-			res.pl.flags |= TGRPATM_P_SPEC;
-			if (res.pl.off_min == res.pl.off_max) {
-				pndl_idx = res.pl.off_min;
-			}
-			break;
-		}
-		switch (*fp) {
-		default:
-			break;
-		case '%':
+		case DT_SPFL_LIT_PERCENT:
 			/* very good needle character methinks */
-			goto literal;
-		case 'n':
+			res.needle = '%';
+			goto out;
+		case DT_SPFL_LIT_NL:
 			/* quite good needle characters */
 			res.needle = '\n';
 			goto out;
-		case 't':
+		case DT_SPFL_LIT_TAB:
 			res.needle = '\t';
 			goto out;
-		case 'T':
-			res.needle = ':';
-			/* fall-through */
-		case 'H':
-		case 'M':
-		case 'S':
-		case 'I':
+		case DT_SPFL_N_TSTD:
+			goto std;
+
+		case DT_SPFL_N_HOUR:
+		case DT_SPFL_N_MIN:
+		case DT_SPFL_N_SEC:
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
 			res.pl.flags |= TGRPATM_DIGITS;
 			break;
-		case 'P':
-		case 'p':
+		case DT_SPFL_S_AMPM:
 			res.pl.off_min += -2;
 			res.pl.off_max += -2;
 			break;
-		case 'N':
+		case DT_SPFL_N_NANO:
 			res.pl.off_min += -9;
 			res.pl.off_min += -1;
 			res.pl.flags |= TGRPATM_DIGITS;

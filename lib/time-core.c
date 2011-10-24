@@ -54,6 +54,9 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*(x)))
 #endif	/* !countof */
+#if !defined UNUSED
+# define UNUSED(x)	__attribute__((unused)) x
+#endif	/* !UNUSED */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -69,6 +72,59 @@ struct strpt_s {
 	unsigned int flags;
 #define STRPT_AM_PM_BIT	(1U)
 };
+
+
+/* spec tokenisers */
+static struct dt_tspec_s
+__tok_tspec(const char *fp, char **ep)
+{
+	struct dt_tspec_s res = {0};
+
+	if (*fp != '%') {
+		goto out;
+	}
+
+	switch (*++fp) {
+	default:
+		goto out;
+	case 'T':
+		res.spfl = DT_SPFL_N_TSTD;
+		break;
+	case 'I':
+		res.sc12 = 1;
+	case 'H':
+		res.spfl = DT_SPFL_N_HOUR;
+		break;
+	case 'M':
+		res.spfl = DT_SPFL_N_MIN;
+		break;
+	case 'S':
+		res.spfl = DT_SPFL_N_SEC;
+		break;
+
+	case 'N':
+		res.spfl = DT_SPFL_N_NANO;
+		break;
+
+	case 'p':
+		res.cap = 1;
+	case 'P':
+		res.spfl = DT_SPFL_S_AMPM;
+		break;
+	case '%':
+		res.spfl = DT_SPFL_LIT_PERCENT;
+		break;
+	case 't':
+		res.spfl = DT_SPFL_LIT_TAB;
+		break;
+	case 'n':
+		res.spfl = DT_SPFL_LIT_NL;
+		break;
+	}
+out:
+	*ep = (char*)(fp + 1);
+	return res;
+}
 
 
 /* guessing parsers */
@@ -120,6 +176,154 @@ __trans_tfmt(const char **fmt)
 	return;
 }
 
+static int
+__strpt_card(struct strpt_s *d, const char *sp, struct dt_tspec_s s, char **ep)
+{
+	int res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_TUNK:
+		res = -1;
+		break;
+	case DT_SPFL_N_TSTD:
+		d->h = strtoui_lim(sp, &sp, 0, 23);
+		*sp++;
+		d->m = strtoui_lim(sp, &sp, 0, 59);
+		*sp++;
+		d->s = strtoui_lim(sp, &sp, 0, 60);
+		break;
+	case DT_SPFL_N_HOUR:
+		if (!s.sc12) {
+			d->h = strtoui_lim(sp, &sp, 0, 23);
+		} else {
+			d->h = strtoui_lim(sp, &sp, 1, 12);
+		}
+		break;
+	case DT_SPFL_N_MIN:
+		d->m = strtoui_lim(sp, &sp, 0, 59);
+		break;
+	case DT_SPFL_N_SEC:
+		d->s = strtoui_lim(sp, &sp, 0, 60);
+		break;
+	case DT_SPFL_N_NANO:
+		/* nanoseconds */
+		d->ns = strtoui_lim(sp, &sp, 0, 999999999);
+		break;
+	case DT_SPFL_S_AMPM: {
+		const unsigned int casebit = 0x20;
+
+		if ((sp[0] | casebit) == 'a' &&
+		    (sp[1] | casebit) == 'm') {
+			;
+		} else if ((sp[0] | casebit) == 'p' &&
+			   (sp[1] | casebit) == 'm') {
+			d->flags |= STRPT_AM_PM_BIT;
+		} else {
+			res = -1;
+		}
+		break;
+	}
+	case DT_SPFL_LIT_PERCENT:
+		if (*sp++ != '%') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_TAB:
+		if (*sp++ != '\t') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_NL:
+		if (*sp++ != '\n') {
+			res = -1;
+		}
+		break;
+	}
+	/* quickly check if any of the conversions has gone wrong */
+	if (d->h == -1U ||
+	    d->m == -1U ||
+	    d->s == -1U ||
+	    d->ns == -1U) {
+		res = -1;
+	}
+	/* assign end pointer */
+	if (ep) {
+		*ep = (char*)sp;
+	}
+	return res;
+}
+
+static size_t
+__strft_card(
+	char *buf, size_t bsz, struct dt_tspec_s s,
+	struct strpt_s *d, struct dt_t_s UNUSED(that))
+{
+	size_t res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_TUNK:
+		break;
+	case DT_SPFL_N_TSTD:
+		if (LIKELY(bsz >= 8)) {
+			ui32tostr(buf + 0, bsz, d->h, 2);
+			buf[2] = ':';
+			ui32tostr(buf + 3, bsz, d->m, 2);
+			buf[5] = ':';
+			ui32tostr(buf + 6, bsz, d->s, 2);
+			res = 8;
+		}
+		break;
+	case DT_SPFL_N_HOUR:
+		if (!s.sc12 || (d->h >= 1 && d->h <= 12)) {
+			res = ui32tostr(buf, bsz, d->h, 2);
+		} else {
+			unsigned int h = d->h ? d->h - 12 : 12;
+			res = ui32tostr(buf, bsz, h, 2);
+		}
+		break;
+	case DT_SPFL_N_MIN:
+		res = ui32tostr(buf, bsz, d->m, 2);
+		break;
+	case DT_SPFL_N_SEC:
+		res = ui32tostr(buf, bsz, d->s, 2);
+		break;
+	case DT_SPFL_S_AMPM: {
+		unsigned int casebit = 0;
+
+		if (UNLIKELY(!s.cap)) {
+			casebit = 0x20;
+		}
+		if (d->h >= 12) {
+			buf[res++] = (char)('P' | casebit);
+			buf[res++] = (char)('M' | casebit);
+		} else {
+			buf[res++] = (char)('A' | casebit);
+			buf[res++] = (char)('M' | casebit);
+		}
+		break;
+	}
+	case DT_SPFL_N_NANO:
+		res = ui32tostr(buf, bsz, d->ns, 9);
+		break;
+
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		buf[res++] = '%';
+		break;
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		buf[res++] = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		buf[res++] = '\n';
+		break;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_t_s
@@ -131,7 +335,8 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	struct dt_t_s res;
 #endif
 	struct strpt_s d = {0};
-	const char *sp = str;
+	const char *sp;
+	const char *fp;
 
 #if !defined __C1X
 /* thanks gcc */
@@ -141,93 +346,24 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && *sp; fp++) {
-		int shaught = 0;
+	fp = fmt;
+	sp = str;
+	while (*fp && *sp) {
+		const char *fp_sav = fp;
+		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
 
-		if (*fp != '%') {
-		literal:
-			if (*fp != *sp++) {
+		if (spec.spfl == DT_SPFL_TUNK) {
+			/* must be literal */
+			if (*fp_sav != *sp++) {
 				sp = str;
 				goto out;
 			}
-			continue;
-		}
-		switch (*++fp) {
-		default:
-			goto literal;
-		case 'T':
-			shaught = 1;
-		case 'H':
-			d.h = strtoui_lim(sp, &sp, 0, 23);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			} else if (UNLIKELY(d.h == -1U || *sp++ != ':')) {
-				sp = str;
-				goto out;
-			}
-		case 'M':
-			d.m = strtoui_lim(sp, &sp, 0, 59);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			} else if (UNLIKELY(d.m == -1U || *sp++ != ':')) {
-				sp = str;
-				goto out;
-			}
-		case 'S':
-			d.s = strtoui_lim(sp, &sp, 0, 60);
-			if (UNLIKELY(d.s == -1U)) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'I':
-			d.h = strtoui_lim(sp, &sp, 1, 12);
-			if (UNLIKELY(d.h == -1U)) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'N':
-			/* nanoseconds */
-			d.ns = strtoui_lim(sp, &sp, 0, 999999999);
-			if (UNLIKELY(d.ns == -1U)) {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'P':
-		case 'p': {
-			unsigned int casebit = 0;
-
-			if (UNLIKELY(*fp == 'P')) {
-				casebit = 0x20;
-			}
-			if (sp[0] == ('A' | casebit) &&
-			    sp[1] == ('M' | casebit)) {
-				;
-			} else if (sp[0] == ('P' | casebit) &&
-				   sp[1] == ('M' | casebit)) {
-				d.flags |= STRPT_AM_PM_BIT;
-			} else {
-				sp = str;
-				goto out;
-			}
-			break;
-		}
-		case 't':
-			if (*sp++ != '\t') {
-				sp = str;
-				goto out;
-			}
-			break;
-		case 'n':
-			if (*sp++ != '\n') {
-				sp = str;
-				goto out;
-			}
-			break;
+		} else if (__strpt_card(&d, sp, spec, (char**)&sp) < 0) {
+			sp = str;
+			goto out;
 		}
 	}
+		
 	/* set the end pointer */
 	res = __guess_ttyp(d);
 out:
@@ -240,8 +376,9 @@ out:
 DEFUN size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 {
-	size_t res = 0;
 	struct strpt_s d = {0};
+	const char *fp;
+	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		goto out;
@@ -257,78 +394,25 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
 
-	for (const char *fp = fmt; *fp && res < bsz; fp++) {
-		int shaught = 0;
-		if (*fp != '%') {
-		literal:
-			buf[res++] = *fp;
-			continue;
-		}
-		switch (*++fp) {
-		default:
-			goto literal;
-		case 'T':
-			shaught = 1;
-		case 'H':
-			res += ui32tostr(buf + res, bsz - res, d.h, 2);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			}
-			buf[res++] = ':';
-		case 'M':
-			res += ui32tostr(buf + res, bsz - res, d.m, 2);
-			if (UNLIKELY(shaught == 0)) {
-				break;
-			}
-			buf[res++] = ':';
-		case 'S':
-			res += ui32tostr(buf + res, bsz - res, d.s, 2);
-			break;
-		case 'I': {
-			unsigned int h;
+	/* assign and go */
+	bp = buf;
+	fp = fmt;
+	for (char *const eo = buf + bsz; *fp && bp < eo;) {
+		const char *fp_sav = fp;
+		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
 
-			if ((h = d.h) > 12) {
-				h -= 12;
-			} else if (h == 0) {
-				h = 12;
-			}
-			res += ui32tostr(buf + res, bsz - res, h, 2);
-			break;
-		}
-		case 'P':
-		case 'p': {
-			unsigned int casebit = 0;
-
-			if (UNLIKELY(*fp == 'P')) {
-				casebit = 0x20;
-			}
-			if (d.h >= 12) {
-				buf[res++] = (char)('P' | casebit);
-				buf[res++] = (char)('M' | casebit);
-			} else {
-				buf[res++] = (char)('A' | casebit);
-				buf[res++] = (char)('M' | casebit);
-			}
-			break;
-		}
-		case 'N':
-			res += ui32tostr(buf + res, bsz - res, d.ns, 9);
-			break;
-		case 't':
-			/* literal tab */
-			buf[res++] = '\t';
-			break;
-		case 'n':
-			/* literal \n */
-			buf[res++] = '\n';
-			break;
+		if (spec.spfl == DT_SPFL_TUNK) {
+			/* must be literal then */
+			*bp++ = *fp_sav;
+		} else {
+			bp += __strft_card(bp, eo - bp, spec, &d, that);
 		}
 	}
 out:
-	if (res < bsz) {
-		buf[res] = '\0';
+	if (bp < buf + bsz) {
+		*bp = '\0';
 	}
-	return res;
+	return bp - buf;
 }
 
 
