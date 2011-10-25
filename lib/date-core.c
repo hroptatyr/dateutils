@@ -2291,6 +2291,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
+		bp = buf;
 		goto out;
 	}
 
