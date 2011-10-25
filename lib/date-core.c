@@ -491,9 +491,12 @@ static unsigned int
 __ymd_get_count(dt_ymd_t that)
 {
 /* get N where N is the N-th occurrence of wday in the month of that year */
+#if 0
+/* this proves to be a disaster when comparing ymcw dates */
 	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
+#endif
 	return (that.d - 1U) / 7U + 1U;
 }
 
