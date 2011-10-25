@@ -412,6 +412,105 @@ __get_mdays(unsigned int y, unsigned int m)
 }
 
 static unsigned int
+__get_nbdays(unsigned int dur, dt_dow_t wd)
+{
+/* get the number of business days in a sequence of DUR days starting on WD */
+	/* (min) number of sats n suns between tmp1 and tmp2 */
+	unsigned int nss = (dur / 7) * 2;
+
+	switch (dur % 7) {
+	case 6:
+		switch (wd) {
+		case DT_MONDAY:
+		case DT_TUESDAY:
+		case DT_WEDNESDAY:
+		case DT_THURSDAY:
+		case DT_FRIDAY:
+		case DT_SUNDAY:
+			nss += 1;
+			break;
+		case DT_SATURDAY:
+			nss += 2;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 5:
+		switch (wd) {
+		case DT_TUESDAY:
+		case DT_WEDNESDAY:
+		case DT_THURSDAY:
+		case DT_FRIDAY:
+		case DT_SUNDAY:
+			nss += 1;
+			break;
+		case DT_SATURDAY:
+			nss += 2;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 4:
+		switch (wd) {
+		case DT_WEDNESDAY:
+		case DT_THURSDAY:
+		case DT_FRIDAY:
+		case DT_SUNDAY:
+			nss += 1;
+			break;
+		case DT_SATURDAY:
+			nss += 2;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 3:
+		switch (wd) {
+		case DT_THURSDAY:
+		case DT_FRIDAY:
+		case DT_SUNDAY:
+			nss += 1;
+			break;
+		case DT_SATURDAY:
+			nss += 2;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 2:
+		switch (wd) {
+		case DT_FRIDAY:
+		case DT_SUNDAY:
+			nss += 1;
+			break;
+		case DT_SATURDAY:
+			nss += 2;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 1:
+		switch (wd) {
+		case DT_SUNDAY:
+		case DT_SATURDAY:
+			nss += 1;
+		default:
+			break;
+		}
+		break;
+	default:
+	case 0:
+		break;
+	}
+	return dur - nss;
+}
+
+static unsigned int
 __get_bdays(unsigned int y, unsigned int m)
 {
 /* the 28th exists in every month, and it's exactly 20 bdays
@@ -626,6 +725,8 @@ __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 	default:
 		break;
 	}
+	/* get the number of business days between 1 and that.d */
+	/* FORMULA IS WRONG */
 	wk = (that.d - 1) / 7; 
 	res = wk * 5 + (unsigned int)wdd;
 	return res;
@@ -1869,6 +1970,7 @@ __guess_dtyp(struct strpd_s d)
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
 static const char daisy_dflt[] = "%d";
+static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
 
 static void
@@ -1885,6 +1987,8 @@ __trans_dfmt(const char **fmt)
 		*fmt = bizda_dflt;
 	} else if (strcasecmp(*fmt, "daisy") == 0) {
 		*fmt = daisy_dflt;
+	} else if (strcasecmp(*fmt, "bizsi") == 0) {
+		*fmt = bizsi_dflt;
 	}
 	return;
 }
@@ -2680,6 +2784,13 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = daisy_dflt;
 		}
 		break;
+	case DT_BIZSI:
+		d.d = that.bizsi;
+		if (fmt == NULL) {
+			/* subject to change */
+			fmt = bizsi_dflt;
+		}
+		break;
 	case DT_BIZDA: {
 		dt_bizda_param_t bparam = __get_bizda_param(that);
 		d.y = that.bizda.y;
@@ -2921,10 +3032,17 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	struct dt_d_s res = {.typ = DT_UNK};
 
 	switch (tgttyp) {
+	case DT_BIZSI:
 	case DT_DAISY: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
 		dt_daisy_t tmp2 = dt_conv_to_daisy(d2);
 		res = __daisy_diff(tmp1, tmp2);
+
+		/* fix up result in case it's bizsi, i.e. kick weekends */
+		if (tgttyp == DT_BIZSI) {
+			dt_dow_t wdb = __daisy_get_wday(tmp1);
+			res.bizsi = __get_nbdays(res.daisy, wdb);
+		}
 		break;
 	}
 	case DT_YMD: {
@@ -2939,6 +3057,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymcw_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_BIZDA:
 	case DT_UNK:
 	default:
 		res.typ = DT_UNK;
