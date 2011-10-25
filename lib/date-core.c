@@ -491,9 +491,12 @@ static unsigned int
 __ymd_get_count(dt_ymd_t that)
 {
 /* get N where N is the N-th occurrence of wday in the month of that year */
+#if 0
+/* this proves to be a disaster when comparing ymcw dates */
 	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
+#endif
 	return (that.d - 1U) / 7U + 1U;
 }
 
@@ -1026,6 +1029,63 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	res.d = md;
 	return res;
 #endif
+}
+
+static inline unsigned int
+__uimod(signed int x, signed int m)
+{
+	int res = x % m;
+	return res >= 0 ? res : res + m;
+}
+
+static int
+__ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
+{
+	if (d1.y < d2.y) {
+		return -1;
+	} else if (d1.y > d2.y) {
+		return 1;
+	} else if (d1.m < d2.m) {
+		return -1;
+	} else if (d1.m > d2.m) {
+		return 1;
+	}
+
+	/* we're down to counts, however, the last W of a month is always
+	 * count 5, even though counting forward it would be 4 */
+	if (d1.c < d2.c) {
+		return -1;
+	} else if (d1.c > d2.c) {
+		return 1;
+	}
+	/* now it's up to the first of the month */
+	{
+		dt_dow_t wd01;
+		unsigned int off1;
+		unsigned int off2;
+#if defined __C1X
+		wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
+#else  /* !__C1X */
+		{
+			dt_ymd_t tmp;
+			tmp.y = d1.y;
+			tmp.m = d1.m;
+			tmp.d = 1;
+			wd01 = __ymd_get_wday(tmp);
+		}
+#endif	/* __C1X */
+		/* represent cw as C-th WD01 + OFF */
+		off1 = __uimod(d1.w - wd01, 7U);
+		off2 = __uimod(d2.w - wd01, 7U);
+
+		if (off1 < off2) {
+			return -1;
+		} else if (off1 > off2) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 }
 
 
@@ -1566,6 +1626,83 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 		break;
 	}
 	return d;
+}
+
+static struct dt_d_s
+__ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
+{
+/* compute d2 - d1 entirely in terms of ymd */
+	struct dt_d_s res = {.typ = DT_YMCW, .dur = 1};
+	signed int tgtd;
+	signed int tgtm;
+	dt_dow_t wd01, wd02;
+
+	if (__ymcw_cmp(d1, d2) > 0) {
+		dt_ymcw_t tmp = d1;
+		d1 = d2;
+		d2 = tmp;
+		res.neg = 1;
+	}
+
+#if defined __C1X
+	wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
+	if (d2.y != d1.y || d2.m != d1.m) {
+		wd02 = __ymd_get_wday((dt_ymd_t){.y = d2.y, .m = d2.m, .d = 1});
+	} else {
+		wd02 = wd01;
+	}
+#else  /* !__C1X */
+	{
+		dt_ymd_t tmp;
+		tmp.y = d1.y;
+		tmp.m = d1.m;
+		tmp.d = 01;
+		wd01 = __ymd_get_wday(tmp);
+
+		if (d2.y != d1.y || d2.m != d1.m) {
+			tmp.y = d2.y;
+			tmp.m = d2.m;
+			wd02 = __ymd_get_wday(tmp);
+		} else {
+			wd02 = wd01;
+		}
+	}
+#endif	/* __C1X */
+
+	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
+	/* using the firsts of the month WD01, represent d1 and d2 as
+	 * the C-th WD01 plus OFF */
+	{
+		unsigned int off1;
+		unsigned int off2;
+
+		off1 = __uimod(d1.w - wd01, 7U);
+		off2 = __uimod(d2.w - wd02, 7U);
+		tgtd = off2 - off1 + 7 * (d2.c - d1.c);
+	}
+
+	/* fixups */
+	if (tgtd < 7 && tgtm > 0) {
+		/* if tgtm is 0 it remains 0 and tgtd remains negative */
+		/* get the target month's mdays */
+		unsigned int d2m = d2.m;
+		unsigned int d2y = d2.y;
+
+		if (--d2m < 1) {
+			d2m = 12;
+			d2y--;
+		}
+		tgtd += __get_mdays(d2y, d2m);
+		tgtm--;
+	}
+
+	/* fill in the results */
+	res.ymcw.y = tgtm / 12;
+	res.ymcw.m = tgtm % 12;
+	res.ymcw.c = tgtd / 7;
+	res.ymcw.w = tgtd % 7;
+	return res;
 }
 
 
@@ -2724,6 +2861,12 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymd_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_YMCW: {
+		dt_ymcw_t tmp1 = dt_conv_to_ymcw(d1);
+		dt_ymcw_t tmp2 = dt_conv_to_ymcw(d2);
+		res = __ymcw_diff(tmp1, tmp2);
+		break;
+	}
 	case DT_UNK:
 	default:
 		res.typ = DT_UNK;
@@ -2741,12 +2884,25 @@ dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
 		/* always the left one */
 		return -2;
 	}
-	if (d1.u == d2.u) {
-		return 0;
-	} else if (d1.u < d2.u) {
-		return -1;
-	} else /*if (d1.u > d2.u)*/ {
-		return 1;
+	switch (d1.typ) {
+	case DT_UNK:
+	default:
+		return -2;
+	case DT_YMD:
+	case DT_DAISY:
+	case DT_BIZDA:
+		/* use arithmetic comparison */
+		if (d1.u == d2.u) {
+			return 0;
+		} else if (d1.u < d2.u) {
+			return -1;
+		} else /*if (d1.u > d2.u)*/ {
+			return 1;
+		}
+	case DT_YMCW:
+		/* use designated thing since ymcw dates aren't
+		 * increasing */
+		return __ymcw_cmp(d1.ymcw, d2.ymcw);
 	}
 }
 
