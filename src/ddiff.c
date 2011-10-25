@@ -55,6 +55,7 @@ determine_durtype(const char *fmt)
 		unsigned int has_mon:1;
 		unsigned int has_week:1;
 		unsigned int has_day:1;
+		unsigned int has_biz:1;
 	} flags = {0};
 
 	if (fmt == NULL) {
@@ -88,6 +89,9 @@ determine_durtype(const char *fmt)
 			flags.has_mon = 1;
 			break;
 		case DT_SPFL_N_MDAY:
+			if (spec.bizda) {
+				flags.has_biz = 1;
+			}
 		case DT_SPFL_N_STD:
 		case DT_SPFL_N_CNT_YEAR:
 			flags.has_day = 1;
@@ -103,6 +107,8 @@ determine_durtype(const char *fmt)
 		return DT_YMCW;
 	} else if (flags.has_mon || flags.has_year) {
 		return DT_YMD;
+	} else if (flags.has_day && flags.has_biz) {
+		return DT_BIZSI;
 	} else if (flags.has_day) {
 		return DT_DAISY;
 	} else {
