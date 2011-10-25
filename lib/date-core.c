@@ -2861,6 +2861,12 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymd_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_YMCW: {
+		dt_ymcw_t tmp1 = dt_conv_to_ymcw(d1);
+		dt_ymcw_t tmp2 = dt_conv_to_ymcw(d2);
+		res = __ymcw_diff(tmp1, tmp2);
+		break;
+	}
 	case DT_UNK:
 	default:
 		res.typ = DT_UNK;
