@@ -1731,6 +1731,7 @@ __guess_dtyp(struct strpd_s d)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char daisy_dflt[] = "%d";
 static const char bizda_dflt[] = "%Y-%m-%db";
 
 static void
@@ -1745,6 +1746,8 @@ __trans_dfmt(const char **fmt)
 		*fmt = ymcw_dflt;
 	} else if (strcasecmp(*fmt, "bizda") == 0) {
 		*fmt = bizda_dflt;
+	} else if (strcasecmp(*fmt, "daisy") == 0) {
+		*fmt = daisy_dflt;
 	}
 	return;
 }
