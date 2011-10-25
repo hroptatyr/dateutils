@@ -111,54 +111,19 @@ determine_durtype(const char *fmt)
 }
 
 static int
-ddiff_prnt(struct dt_d_s dur, const char *UNUSED(fmt))
+ddiff_prnt(struct dt_d_s dur, const char *fmt)
 {
 	char buf[256];
+	size_t res = dt_strfddur(buf, sizeof(buf), fmt, dur);
 
-	if (!dur.dur) {
-		return -1;
+	if (res > 0 && buf[res - 1] != '\n') {
+		/* auto-newline */
+		buf[res++] = '\n';
 	}
-	switch (dur.typ) {
-	case DT_DAISY: {
-		signed int tmp = dur.neg ? -dur.daisy : dur.daisy;
-		snprintf(buf, sizeof(buf), "%d\n", tmp);
-		break;
+	if (res > 0) {
+		__io_write(buf, res, stdout);
 	}
-	case DT_BIZSI: {
-		signed int tmp = dur.neg ? -dur.daisy : dur.daisy;
-		snprintf(buf, sizeof(buf), "%db\n", tmp);
-		break;
-	}
-	case DT_YMD: {
-		if (!dur.neg) {
-			snprintf(
-				buf, sizeof(buf), "%dy%dm%dd\n",
-				dur.ymd.y, dur.ymd.m, dur.ymd.d);
-		} else {
-			snprintf(
-				buf, sizeof(buf), "-%dy%dm%dd\n",
-				dur.ymd.y, dur.ymd.m, dur.ymd.d);
-		}
-		break;
-	}
-	case DT_YMCW: {
-		if (!dur.neg) {
-			snprintf(
-				buf, sizeof(buf), "%dy%dm%dw%dd\n",
-				dur.ymcw.y, dur.ymcw.m, dur.ymcw.c, dur.ymcw.w);
-		} else {
-			snprintf(
-				buf, sizeof(buf), "-%dy%dm%dw%dd\n",
-				dur.ymcw.y, dur.ymcw.m, dur.ymcw.c, dur.ymcw.w);
-		}
-		break;
-	}
-	case DT_UNK:
-	default:
-		return -1;
-	}
-	fputs(buf, stdout);
-	return 0;
+	return (res > 0) - 1;
 }
 
 
