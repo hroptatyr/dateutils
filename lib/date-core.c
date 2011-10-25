@@ -57,6 +57,9 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*(x)))
 #endif	/* !countof */
+#if !defined UNUSED
+# define UNUSED(_x)	__attribute__((unused)) _x
+#endif	/* !UNUSED */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -491,9 +494,12 @@ static unsigned int
 __ymd_get_count(dt_ymd_t that)
 {
 /* get N where N is the N-th occurrence of wday in the month of that year */
+#if 0
+/* this proves to be a disaster when comparing ymcw dates */
 	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
+#endif
 	return (that.d - 1U) / 7U + 1U;
 }
 
@@ -1026,6 +1032,63 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	res.d = md;
 	return res;
 #endif
+}
+
+static inline unsigned int
+__uimod(signed int x, signed int m)
+{
+	int res = x % m;
+	return res >= 0 ? res : res + m;
+}
+
+static int
+__ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
+{
+	if (d1.y < d2.y) {
+		return -1;
+	} else if (d1.y > d2.y) {
+		return 1;
+	} else if (d1.m < d2.m) {
+		return -1;
+	} else if (d1.m > d2.m) {
+		return 1;
+	}
+
+	/* we're down to counts, however, the last W of a month is always
+	 * count 5, even though counting forward it would be 4 */
+	if (d1.c < d2.c) {
+		return -1;
+	} else if (d1.c > d2.c) {
+		return 1;
+	}
+	/* now it's up to the first of the month */
+	{
+		dt_dow_t wd01;
+		unsigned int off1;
+		unsigned int off2;
+#if defined __C1X
+		wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
+#else  /* !__C1X */
+		{
+			dt_ymd_t tmp;
+			tmp.y = d1.y;
+			tmp.m = d1.m;
+			tmp.d = 1;
+			wd01 = __ymd_get_wday(tmp);
+		}
+#endif	/* __C1X */
+		/* represent cw as C-th WD01 + OFF */
+		off1 = __uimod(d1.w - wd01, 7U);
+		off2 = __uimod(d2.w - wd01, 7U);
+
+		if (off1 < off2) {
+			return -1;
+		} else if (off1 > off2) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 }
 
 
@@ -1568,6 +1631,83 @@ __ymcw_add(dt_ymcw_t d, struct dt_dur_s dur)
 	return d;
 }
 
+static struct dt_d_s
+__ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
+{
+/* compute d2 - d1 entirely in terms of ymd */
+	struct dt_d_s res = {.typ = DT_YMCW, .dur = 1};
+	signed int tgtd;
+	signed int tgtm;
+	dt_dow_t wd01, wd02;
+
+	if (__ymcw_cmp(d1, d2) > 0) {
+		dt_ymcw_t tmp = d1;
+		d1 = d2;
+		d2 = tmp;
+		res.neg = 1;
+	}
+
+#if defined __C1X
+	wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
+	if (d2.y != d1.y || d2.m != d1.m) {
+		wd02 = __ymd_get_wday((dt_ymd_t){.y = d2.y, .m = d2.m, .d = 1});
+	} else {
+		wd02 = wd01;
+	}
+#else  /* !__C1X */
+	{
+		dt_ymd_t tmp;
+		tmp.y = d1.y;
+		tmp.m = d1.m;
+		tmp.d = 01;
+		wd01 = __ymd_get_wday(tmp);
+
+		if (d2.y != d1.y || d2.m != d1.m) {
+			tmp.y = d2.y;
+			tmp.m = d2.m;
+			wd02 = __ymd_get_wday(tmp);
+		} else {
+			wd02 = wd01;
+		}
+	}
+#endif	/* __C1X */
+
+	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
+	/* using the firsts of the month WD01, represent d1 and d2 as
+	 * the C-th WD01 plus OFF */
+	{
+		unsigned int off1;
+		unsigned int off2;
+
+		off1 = __uimod(d1.w - wd01, 7U);
+		off2 = __uimod(d2.w - wd02, 7U);
+		tgtd = off2 - off1 + 7 * (d2.c - d1.c);
+	}
+
+	/* fixups */
+	if (tgtd < 7 && tgtm > 0) {
+		/* if tgtm is 0 it remains 0 and tgtd remains negative */
+		/* get the target month's mdays */
+		unsigned int d2m = d2.m;
+		unsigned int d2y = d2.y;
+
+		if (--d2m < 1) {
+			d2m = 12;
+			d2y--;
+		}
+		tgtd += __get_mdays(d2y, d2m);
+		tgtm--;
+	}
+
+	/* fill in the results */
+	res.ymcw.y = tgtm / 12;
+	res.ymcw.m = tgtm % 12;
+	res.ymcw.c = tgtd / 7;
+	res.ymcw.w = tgtd % 7;
+	return res;
+}
+
 
 /* spec tokenisers */
 static struct dt_spec_s
@@ -1728,6 +1868,7 @@ __guess_dtyp(struct strpd_s d)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char daisy_dflt[] = "%d";
 static const char bizda_dflt[] = "%Y-%m-%db";
 
 static void
@@ -1742,6 +1883,8 @@ __trans_dfmt(const char **fmt)
 		*fmt = ymcw_dflt;
 	} else if (strcasecmp(*fmt, "bizda") == 0) {
 		*fmt = bizda_dflt;
+	} else if (strcasecmp(*fmt, "daisy") == 0) {
+		*fmt = daisy_dflt;
 	}
 	return;
 }
@@ -2202,6 +2345,56 @@ __strfd_rom(
 	return res;
 }
 
+static size_t
+__strfd_dur(
+	char *buf, size_t bsz, struct dt_spec_s s,
+	struct strpd_s *d, struct dt_d_s UNUSED(that))
+{
+	size_t res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		break;
+	case DT_SPFL_N_STD:
+	case DT_SPFL_N_MDAY:
+		res = snprintf(buf, bsz, "%u", d->d);
+		break;
+	case DT_SPFL_N_YEAR:
+		res = snprintf(buf, bsz, "%u", d->y);
+		break;
+	case DT_SPFL_N_MON:
+		res = snprintf(buf, bsz, "%u", d->m);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+		res = snprintf(buf, bsz, "%u", d->w);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		res = snprintf(buf, bsz, "%u", d->c);
+		break;
+	case DT_SPFL_S_WDAY:
+	case DT_SPFL_S_MON:
+	case DT_SPFL_S_QTR:
+	case DT_SPFL_N_QTR:
+	case DT_SPFL_N_CNT_YEAR:
+		break;
+
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		buf[res++] = '%';
+		break;
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		buf[res++] = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		buf[res++] = '\n';
+		break;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -2285,6 +2478,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
+		bp = buf;
 		goto out;
 	}
 
@@ -2450,80 +2644,95 @@ out:
 }
 
 DEFUN size_t
-dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
+dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-/* at the moment we allow only one format */
-	size_t res = 0;
+	struct strpd_s d = {0};
+	const char *fp;
+	char *bp;
 
-	if (UNLIKELY(buf == NULL || bsz == 0)) {
+	if (UNLIKELY(buf == NULL || bsz == 0 || !that.dur)) {
+		bp = buf;
 		goto out;
 	}
 
 	switch (that.typ) {
-	case DT_DUR_MD:
-		/* auto-newline */
-		if ((that.md.m >= 0 && that.md.d >= 0) ||
-		    (that.md.m > 0 && that.md.d < 0)) {
-			res = snprintf(
-				buf, bsz, "%dm%dd\n", that.md.m, that.md.d);
-		} else if (that.md.m < 0 && that.md.d > 0) {
-			res = snprintf(
-				buf, bsz, "%dm+%dd\n", that.md.m, that.md.d);
-		} else if (that.md.m < 0 && that.md.d < 0) {
-			res = snprintf(
-				buf, bsz, "%dm%dd\n", that.md.m, -that.md.d);
+	case DT_YMD:
+		d.y = that.ymd.y;
+		d.m = that.ymd.m;
+		d.d = that.ymd.d;
+		if (fmt == NULL) {
+			fmt = ymd_dflt;
 		}
 		break;
-	case DT_DUR_WD:
-		/* auto-newline */
-		if ((that.wd.w >= 0 && that.wd.d >= 0) ||
-		    (that.wd.w > 0 && that.wd.d < 0)) {
-			res = snprintf(
-				buf, bsz, "%dw%dd\n", that.wd.w, that.wd.d);
-		} else if (that.wd.w < 0 && that.wd.d > 0) {
-			res = snprintf(
-				buf, bsz, "%dw+%dd\n", that.wd.w, that.wd.d);
-		} else if (that.wd.w < 0 && that.wd.d < 0) {
-			res = snprintf(
-				buf, bsz, "%dw%dd\n", that.wd.w, -that.wd.d);
+	case DT_YMCW:
+		d.y = that.ymcw.y;
+		d.m = that.ymcw.m;
+		d.c = that.ymcw.c;
+		d.w = that.ymcw.w;
+		if (fmt == NULL) {
+			fmt = ymcw_dflt;
 		}
 		break;
-	case DT_DUR_YM:
-		/* auto-newline */
-		if ((that.ym.y >= 0 && that.ym.m >= 0) ||
-		    (that.ym.y > 0 && that.ym.m < 0)) {
-			res = snprintf(
-				buf, bsz, "%dy%dm\n", that.ym.y, that.ym.m);
-		} else if (that.ym.y < 0 && that.ym.m > 0) {
-			res = snprintf(
-				buf, bsz, "%dy+%dm\n", that.ym.y, that.ym.m);
-		} else if (that.ym.y < 0 && that.ym.m < 0) {
-			res = snprintf(
-				buf, bsz, "%dy%dm\n", that.ym.m, -that.ym.m);
+	case DT_DAISY:
+		d.d = that.daisy;
+		if (fmt == NULL) {
+			/* subject to change */
+			fmt = daisy_dflt;
 		}
 		break;
-	case DT_DUR_QMB:
-		/* auto-newline */
-		if (that.qmb.q) {
-			res = snprintf(
-				buf, bsz, "%dq%dm%db\n",
-				that.qmb.q, that.qmb.m, that.qmb.b);
-		} else if (that.qmb.m) {
-			res = snprintf(
-				buf, bsz, "%dm%db\n",
-				that.qmb.m, that.qmb.b);
+	case DT_BIZDA: {
+		dt_bizda_param_t bparam = __get_bizda_param(that);
+		d.y = that.bizda.y;
+		d.m = that.bizda.m;
+		d.b = that.bizda.bd;
+		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
+			d.flags.ab = BIZDA_AFTER;
 		} else {
-			res = snprintf(
-				buf, bsz, "%db\n", that.qmb.b);
+			d.flags.ab = BIZDA_BEFORE;
 		}
-		break;
-	case DT_DUR_UNK:
-	default:
-		buf[0] = '\0';
+		d.flags.bizda = 1;
+		if (fmt == NULL) {
+			fmt = bizda_dflt;
+		}
 		break;
 	}
+	default:
+	case DT_UNK:
+		goto out;
+	}
+	/* translate high-level format names */
+	__trans_dfmt(&fmt);
+
+	/* assign and go */
+	bp = buf;
+	fp = fmt;
+	if (that.neg) {
+		*bp++ = '-';
+	}
+	for (char *const eo = buf + bsz; *fp && bp < eo;) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+
+		if (spec.spfl == DT_SPFL_UNK) {
+			/* must be literal then */
+			*bp++ = *fp_sav;
+		} else if (LIKELY(!spec.rom)) {
+			bp += __strfd_dur(bp, eo - bp, spec, &d, that);
+			if (spec.bizda) {
+				/* don't print the b after an ordinal */
+				if (d.flags.ab == BIZDA_AFTER) {
+					*bp++ = 'b';
+				} else {
+					*bp++ = 'B';
+				}
+			}
+		}
+	}
 out:
-	return res;
+	if (bp < buf + bsz) {
+		*bp = '\0';
+	}
+	return bp - buf;
 }
 
 
@@ -2724,6 +2933,12 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymd_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_YMCW: {
+		dt_ymcw_t tmp1 = dt_conv_to_ymcw(d1);
+		dt_ymcw_t tmp2 = dt_conv_to_ymcw(d2);
+		res = __ymcw_diff(tmp1, tmp2);
+		break;
+	}
 	case DT_UNK:
 	default:
 		res.typ = DT_UNK;
@@ -2741,12 +2956,25 @@ dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
 		/* always the left one */
 		return -2;
 	}
-	if (d1.u == d2.u) {
-		return 0;
-	} else if (d1.u < d2.u) {
-		return -1;
-	} else /*if (d1.u > d2.u)*/ {
-		return 1;
+	switch (d1.typ) {
+	case DT_UNK:
+	default:
+		return -2;
+	case DT_YMD:
+	case DT_DAISY:
+	case DT_BIZDA:
+		/* use arithmetic comparison */
+		if (d1.u == d2.u) {
+			return 0;
+		} else if (d1.u < d2.u) {
+			return -1;
+		} else /*if (d1.u > d2.u)*/ {
+			return 1;
+		}
+	case DT_YMCW:
+		/* use designated thing since ymcw dates aren't
+		 * increasing */
+		return __ymcw_cmp(d1.ymcw, d2.ymcw);
 	}
 }
 

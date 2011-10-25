@@ -47,38 +47,83 @@
 #endif	/* !UNUSED */
 
 
+static dt_dtyp_t
+determine_durtype(const char *fmt)
+{
+	struct {
+		unsigned int has_year:1;
+		unsigned int has_mon:1;
+		unsigned int has_week:1;
+		unsigned int has_day:1;
+	} flags = {0};
+
+	if (fmt == NULL) {
+		return DT_DAISY;
+	} else if (strcasecmp(fmt, "ymd") == 0) {
+		return DT_YMD;
+	} else if (strcasecmp(fmt, "ymcw") == 0) {
+		return DT_YMCW;
+	} else if (strcasecmp(fmt, "daisy") == 0) {
+		return DT_DAISY;
+	} else if (strcasecmp(fmt, "bizda") == 0) {
+		return DT_BIZDA;
+	} else if (strcasecmp(fmt, "bizsi") == 0) {
+		return DT_BIZSI;
+	}
+	/* go through the fmt specs */
+	for (const char *fp = fmt; *fp;) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+
+		switch (spec.spfl) {
+		case DT_SPFL_UNK:
+		default:
+			/* nothing changes */
+			break;
+		case DT_SPFL_N_YEAR:
+			flags.has_year = 1;
+			break;
+		case DT_SPFL_N_MON:
+		case DT_SPFL_S_MON:
+			flags.has_mon = 1;
+			break;
+		case DT_SPFL_N_MDAY:
+		case DT_SPFL_N_STD:
+		case DT_SPFL_N_CNT_YEAR:
+			flags.has_day = 1;
+			break;
+		case DT_SPFL_N_CNT_MON:
+		case DT_SPFL_N_CNT_WEEK:
+		case DT_SPFL_S_WDAY:
+			flags.has_week = 1;
+			break;
+		}
+	}
+	if (flags.has_week) {
+		return DT_YMCW;
+	} else if (flags.has_mon || flags.has_year) {
+		return DT_YMD;
+	} else if (flags.has_day) {
+		return DT_DAISY;
+	} else {
+		return DT_UNK;
+	}
+}
+
 static int
-ddiff_prnt(struct dt_d_s dur, const char *UNUSED(fmt))
+ddiff_prnt(struct dt_d_s dur, const char *fmt)
 {
 	char buf[256];
+	size_t res = dt_strfddur(buf, sizeof(buf), fmt, dur);
 
-	if (!dur.dur) {
-		return -1;
+	if (res > 0 && buf[res - 1] != '\n') {
+		/* auto-newline */
+		buf[res++] = '\n';
 	}
-	switch (dur.typ) {
-	case DT_DAISY: {
-		signed int tmp = dur.neg ? -dur.daisy : dur.daisy;
-		snprintf(buf, sizeof(buf), "%d\n", tmp);
-		break;
+	if (res > 0) {
+		__io_write(buf, res, stdout);
 	}
-	case DT_YMD: {
-		if (!dur.neg) {
-			snprintf(
-				buf, sizeof(buf), "%dy%dm%dd\n",
-				dur.ymd.y, dur.ymd.m, dur.ymd.d);
-		} else {
-			snprintf(
-				buf, sizeof(buf), "-%dy%dm%dd\n",
-				dur.ymd.y, dur.ymd.m, dur.ymd.d);
-		}
-		break;
-	}
-	case DT_UNK:
-	default:
-		return -1;
-	}
-	fputs(buf, stdout);
-	return 0;
+	return (res > 0) - 1;
 }
 
 
@@ -102,6 +147,7 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
+	dt_dtyp_t difftyp;
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
@@ -124,6 +170,9 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
+	/* try and guess the diff tgttype most suitable for user's FMT */
+	difftyp = determine_durtype(ofmt);
+
 	if (argi->inputs_num > 1) {
 		for (size_t i = 1; i < argi->inputs_num; i++) {
 			struct dt_d_s d2;
@@ -131,7 +180,7 @@ main(int argc, char *argv[])
 			const char *inp = argi->inputs[i];
 
 			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_ddiff(DT_DAISY, d, d2)).typ > DT_DUR_UNK) {
+			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_DUR_UNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(inp);
@@ -161,7 +210,7 @@ main(int argc, char *argv[])
 			line[n - 1] = '\0';
 			/* perform addition now */
 			if ((d2 = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_ddiff(DT_DAISY, d, d2)).typ > DT_DUR_UNK) {
+			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_DUR_UNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(line);
