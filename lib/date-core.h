@@ -306,7 +306,7 @@ dt_strpdur(const char *str, char **ep);
 /**
  * Print a duration. */
 DECLF size_t
-dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s);
+dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Like time() but return the current date in the desired format. */
