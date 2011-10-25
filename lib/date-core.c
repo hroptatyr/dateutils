@@ -2208,6 +2208,56 @@ __strfd_rom(
 	return res;
 }
 
+static size_t
+__strfd_dur(
+	char *buf, size_t bsz, struct dt_spec_s s,
+	struct strpd_s *d, struct dt_d_s UNUSED(that))
+{
+	size_t res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		break;
+	case DT_SPFL_N_STD:
+	case DT_SPFL_N_MDAY:
+		res = snprintf(buf, bsz, "%u", d->d);
+		break;
+	case DT_SPFL_N_YEAR:
+		res = snprintf(buf, bsz, "%u", d->y);
+		break;
+	case DT_SPFL_N_MON:
+		res = snprintf(buf, bsz, "%u", d->m);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+		res = snprintf(buf, bsz, "%u", d->w);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		res = snprintf(buf, bsz, "%u", d->c);
+		break;
+	case DT_SPFL_S_WDAY:
+	case DT_SPFL_S_MON:
+	case DT_SPFL_S_QTR:
+	case DT_SPFL_N_QTR:
+	case DT_SPFL_N_CNT_YEAR:
+		break;
+
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		buf[res++] = '%';
+		break;
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		buf[res++] = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		buf[res++] = '\n';
+		break;
+	}
+	return res;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_d_s
@@ -2457,80 +2507,95 @@ out:
 }
 
 DEFUN size_t
-dt_strfdur(char *restrict buf, size_t bsz, struct dt_dur_s that)
+dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-/* at the moment we allow only one format */
-	size_t res = 0;
+	struct strpd_s d = {0};
+	const char *fp;
+	char *bp;
 
-	if (UNLIKELY(buf == NULL || bsz == 0)) {
+	if (UNLIKELY(buf == NULL || bsz == 0 || !that.dur)) {
+		bp = buf;
 		goto out;
 	}
 
 	switch (that.typ) {
-	case DT_DUR_MD:
-		/* auto-newline */
-		if ((that.md.m >= 0 && that.md.d >= 0) ||
-		    (that.md.m > 0 && that.md.d < 0)) {
-			res = snprintf(
-				buf, bsz, "%dm%dd\n", that.md.m, that.md.d);
-		} else if (that.md.m < 0 && that.md.d > 0) {
-			res = snprintf(
-				buf, bsz, "%dm+%dd\n", that.md.m, that.md.d);
-		} else if (that.md.m < 0 && that.md.d < 0) {
-			res = snprintf(
-				buf, bsz, "%dm%dd\n", that.md.m, -that.md.d);
+	case DT_YMD:
+		d.y = that.ymd.y;
+		d.m = that.ymd.m;
+		d.d = that.ymd.d;
+		if (fmt == NULL) {
+			fmt = ymd_dflt;
 		}
 		break;
-	case DT_DUR_WD:
-		/* auto-newline */
-		if ((that.wd.w >= 0 && that.wd.d >= 0) ||
-		    (that.wd.w > 0 && that.wd.d < 0)) {
-			res = snprintf(
-				buf, bsz, "%dw%dd\n", that.wd.w, that.wd.d);
-		} else if (that.wd.w < 0 && that.wd.d > 0) {
-			res = snprintf(
-				buf, bsz, "%dw+%dd\n", that.wd.w, that.wd.d);
-		} else if (that.wd.w < 0 && that.wd.d < 0) {
-			res = snprintf(
-				buf, bsz, "%dw%dd\n", that.wd.w, -that.wd.d);
+	case DT_YMCW:
+		d.y = that.ymcw.y;
+		d.m = that.ymcw.m;
+		d.c = that.ymcw.c;
+		d.w = that.ymcw.w;
+		if (fmt == NULL) {
+			fmt = ymcw_dflt;
 		}
 		break;
-	case DT_DUR_YM:
-		/* auto-newline */
-		if ((that.ym.y >= 0 && that.ym.m >= 0) ||
-		    (that.ym.y > 0 && that.ym.m < 0)) {
-			res = snprintf(
-				buf, bsz, "%dy%dm\n", that.ym.y, that.ym.m);
-		} else if (that.ym.y < 0 && that.ym.m > 0) {
-			res = snprintf(
-				buf, bsz, "%dy+%dm\n", that.ym.y, that.ym.m);
-		} else if (that.ym.y < 0 && that.ym.m < 0) {
-			res = snprintf(
-				buf, bsz, "%dy%dm\n", that.ym.m, -that.ym.m);
+	case DT_DAISY:
+		d.d = that.daisy;
+		if (fmt == NULL) {
+			/* subject to change */
+			fmt = daisy_dflt;
 		}
 		break;
-	case DT_DUR_QMB:
-		/* auto-newline */
-		if (that.qmb.q) {
-			res = snprintf(
-				buf, bsz, "%dq%dm%db\n",
-				that.qmb.q, that.qmb.m, that.qmb.b);
-		} else if (that.qmb.m) {
-			res = snprintf(
-				buf, bsz, "%dm%db\n",
-				that.qmb.m, that.qmb.b);
+	case DT_BIZDA: {
+		dt_bizda_param_t bparam = __get_bizda_param(that);
+		d.y = that.bizda.y;
+		d.m = that.bizda.m;
+		d.b = that.bizda.bd;
+		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
+			d.flags.ab = BIZDA_AFTER;
 		} else {
-			res = snprintf(
-				buf, bsz, "%db\n", that.qmb.b);
+			d.flags.ab = BIZDA_BEFORE;
 		}
-		break;
-	case DT_DUR_UNK:
-	default:
-		buf[0] = '\0';
+		d.flags.bizda = 1;
+		if (fmt == NULL) {
+			fmt = bizda_dflt;
+		}
 		break;
 	}
+	default:
+	case DT_UNK:
+		goto out;
+	}
+	/* translate high-level format names */
+	__trans_dfmt(&fmt);
+
+	/* assign and go */
+	bp = buf;
+	fp = fmt;
+	if (that.neg) {
+		*bp++ = '-';
+	}
+	for (char *const eo = buf + bsz; *fp && bp < eo;) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+
+		if (spec.spfl == DT_SPFL_UNK) {
+			/* must be literal then */
+			*bp++ = *fp_sav;
+		} else if (LIKELY(!spec.rom)) {
+			bp += __strfd_dur(bp, eo - bp, spec, &d, that);
+			if (spec.bizda) {
+				/* don't print the b after an ordinal */
+				if (d.flags.ab == BIZDA_AFTER) {
+					*bp++ = 'b';
+				} else {
+					*bp++ = 'B';
+				}
+			}
+		}
+	}
 out:
-	return res;
+	if (bp < buf + bsz) {
+		*bp = '\0';
+	}
+	return bp - buf;
 }
 
 
