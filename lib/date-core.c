@@ -2801,12 +2801,25 @@ dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
 		/* always the left one */
 		return -2;
 	}
-	if (d1.u == d2.u) {
-		return 0;
-	} else if (d1.u < d2.u) {
-		return -1;
-	} else /*if (d1.u > d2.u)*/ {
-		return 1;
+	switch (d1.typ) {
+	case DT_UNK:
+	default:
+		return -2;
+	case DT_YMD:
+	case DT_DAISY:
+	case DT_BIZDA:
+		/* use arithmetic comparison */
+		if (d1.u == d2.u) {
+			return 0;
+		} else if (d1.u < d2.u) {
+			return -1;
+		} else /*if (d1.u > d2.u)*/ {
+			return 1;
+		}
+	case DT_YMCW:
+		/* use designated thing since ymcw dates aren't
+		 * increasing */
+		return __ymcw_cmp(d1.ymcw, d2.ymcw);
 	}
 }
 
