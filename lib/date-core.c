@@ -1031,6 +1031,63 @@ __ymcw_to_ymd(dt_ymcw_t d)
 #endif
 }
 
+static inline unsigned int
+__uimod(signed int x, signed int m)
+{
+	int res = x % m;
+	return res >= 0 ? res : res + m;
+}
+
+static int
+__ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
+{
+	if (d1.y < d2.y) {
+		return -1;
+	} else if (d1.y > d2.y) {
+		return 1;
+	} else if (d1.m < d2.m) {
+		return -1;
+	} else if (d1.m > d2.m) {
+		return 1;
+	}
+
+	/* we're down to counts, however, the last W of a month is always
+	 * count 5, even though counting forward it would be 4 */
+	if (d1.c < d2.c) {
+		return -1;
+	} else if (d1.c > d2.c) {
+		return 1;
+	}
+	/* now it's up to the first of the month */
+	{
+		dt_dow_t wd01;
+		unsigned int off1;
+		unsigned int off2;
+#if defined __C1X
+		wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
+#else  /* !__C1X */
+		{
+			dt_ymd_t tmp;
+			tmp.y = d1.y;
+			tmp.m = d1.m;
+			tmp.d = 1;
+			wd01 = __ymd_get_wday(tmp);
+		}
+#endif	/* __C1X */
+		/* represent cw as C-th WD01 + OFF */
+		off1 = __uimod(d1.w - wd01, 7U);
+		off2 = __uimod(d2.w - wd01, 7U);
+
+		if (off1 < off2) {
+			return -1;
+		} else if (off1 > off2) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+}
+
 
 /* converting accessors */
 DEFUN int
