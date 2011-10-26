@@ -1893,7 +1893,14 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.m;
+#if defined WITH_FAST_ARITH
 		res.ymd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+		/* check for illegal dates, like 31st of April */
+		if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
+			res.ymd.d = d.d;
+		}
+#endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.c && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
