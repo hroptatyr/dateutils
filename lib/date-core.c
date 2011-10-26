@@ -232,7 +232,11 @@ static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 static inline bool
 __leapp(unsigned int y)
 {
+#if defined WITH_FAST_ARITH
 	return y % 4 == 0;
+#else  /* !WITH_FAST_ARITH */
+	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+#endif	/* WITH_FAST_ARITH */
 }
 
 static void
@@ -1347,7 +1351,17 @@ dt_conv_to_daisy(struct dt_d_s that)
 
 	y = dt_get_year(that);
 	m = dt_get_mon(that);
+#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
+	/* the non-fast arith has done the fixup already */
 	d = dt_get_mday(that);
+#else  /* WITH_FAST_ARITH && !OMIT_FIXUPS */
+	{
+		unsigned int tmp = __get_mdays(y, m);
+		if (UNLIKELY((d = dt_get_mday(that)) > tmp)) {
+			d = tmp;
+		}
+	}
+#endif	/* !WITH_FAST_ARITH || OMIT_FIXUPS */
 
 	if (UNLIKELY((signed int)TO_BASE(y) < 0)) {
 		return 0;
@@ -1645,6 +1659,14 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 		}
 		tgtd += __get_mdays(d2y, d2m);
 		tgtm--;
+#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
+		/* the non-fast arith has done the fixup already */
+#else  /* WITH_FAST_ARITH && !defined OMIT_FIXUPS */
+	} else if (tgtm == 0) {
+		/* check if we're not diffing two lazy representations
+		 * e.g. 2010-02-28 and 2010-02-31 */
+		;
+#endif	/* !OMIT_FIXUPS */
 	}
 	/* fill in the results */
 	res.ymd.y = tgtm / 12;
@@ -1889,7 +1911,14 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.m;
+#if defined WITH_FAST_ARITH
 		res.ymd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+		/* check for illegal dates, like 31st of April */
+		if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
+			res.ymd.d = d.d;
+		}
+#endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.c && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;

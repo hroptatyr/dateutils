@@ -52,6 +52,21 @@ Good day.
 
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
+AC_ARG_ENABLE([fast-arith],
+	[AS_HELP_STRING([--enable-fast-arith], [
+Whether to enable fast date handling and arithmetic routines at the cost
+of strictness.  For instance the leap year rule used is incorrect for
+years before 1901 and after 2100, or every month can have a 31st to
+denote the last day of the month.])
+AS_HELP_STRING([], [Default: disabled])],
+	[enable_fast_arith="${enableval}"], [enable_fast_arith="no"])
+
+## checks
+if test "${enable_fast_arith}" = "yes"; then
+	AC_DEFINE([WITH_FAST_ARITH], [1],
+		[whether to use fast but incorrect date routines])
+fi
+
 ## trivial, no special stuff needed
 dapps="dadd dconv ddiff dgrep dseq dtest"
 tapps="tadd tconv tdiff tgrep tseq ttest"
