@@ -412,102 +412,53 @@ __get_mdays(unsigned int y, unsigned int m)
 }
 
 static unsigned int
+__get_nwedays(unsigned int dur, dt_dow_t wd)
+{
+/* get the number of weekend days in a sequence of DUR days ending on WD
+ * The minimum number of weekend days is simply 2 for every 7 days
+ * to get the exact number observe the following:
+ *
+ * The number of remaining weekend days depends on the remaining number
+ * of days and the DOW of the end point.
+ *
+ * here's the matrix, mod7 down, WD right:
+ *    S M T W R F A
+ * 0  0 0 0 0 0 0 0
+ * 1  1 0 0 0 0 0 1
+ * 2  2 1 0 0 0 0 1
+ * 3  2 2 1 0 0 0 1
+ * 4  2 2 2 1 0 0 1
+ * 5  2 2 2 2 1 0 1
+ * 6  2 2 2 2 2 1 1
+ *
+ * That means
+ * (mod7 == 0) -> 0
+ * (WD == SAT) -> 1
+ * (mod7 - WD) > 1 -> 2
+ * (mod7 - WD) > 0 -> 1
+ * 
+ * and that's all the magic behind the following code */
+	unsigned int nss = (dur / 7) * 2;
+	unsigned int mod = (dur % 7);
+
+	if (mod == 0) {
+		return nss;
+	} else if (wd == DT_SATURDAY) {
+		return nss + 1;
+	} else if (((signed)mod - (int)wd) > 1) {
+		return nss + 2;
+	} else if (((signed)mod - (int)wd) > 0) {
+		return nss + 1;
+	}
+	return nss;
+}
+
+static unsigned int
 __get_nbdays(unsigned int dur, dt_dow_t wd)
 {
-/* get the number of business days in a sequence of DUR days starting on WD */
-	/* (min) number of sats n suns between tmp1 and tmp2 */
-	unsigned int nss = (dur / 7) * 2;
-
-	switch (dur % 7) {
-	case 6:
-		switch (wd) {
-		case DT_MONDAY:
-		case DT_TUESDAY:
-		case DT_WEDNESDAY:
-		case DT_THURSDAY:
-		case DT_FRIDAY:
-		case DT_SUNDAY:
-			nss += 1;
-			break;
-		case DT_SATURDAY:
-			nss += 2;
-			break;
-		default:
-			break;
-		}
-		break;
-	case 5:
-		switch (wd) {
-		case DT_TUESDAY:
-		case DT_WEDNESDAY:
-		case DT_THURSDAY:
-		case DT_FRIDAY:
-		case DT_SUNDAY:
-			nss += 1;
-			break;
-		case DT_SATURDAY:
-			nss += 2;
-			break;
-		default:
-			break;
-		}
-		break;
-	case 4:
-		switch (wd) {
-		case DT_WEDNESDAY:
-		case DT_THURSDAY:
-		case DT_FRIDAY:
-		case DT_SUNDAY:
-			nss += 1;
-			break;
-		case DT_SATURDAY:
-			nss += 2;
-			break;
-		default:
-			break;
-		}
-		break;
-	case 3:
-		switch (wd) {
-		case DT_THURSDAY:
-		case DT_FRIDAY:
-		case DT_SUNDAY:
-			nss += 1;
-			break;
-		case DT_SATURDAY:
-			nss += 2;
-			break;
-		default:
-			break;
-		}
-		break;
-	case 2:
-		switch (wd) {
-		case DT_FRIDAY:
-		case DT_SUNDAY:
-			nss += 1;
-			break;
-		case DT_SATURDAY:
-			nss += 2;
-			break;
-		default:
-			break;
-		}
-		break;
-	case 1:
-		switch (wd) {
-		case DT_SUNDAY:
-		case DT_SATURDAY:
-			nss += 1;
-		default:
-			break;
-		}
-		break;
-	default:
-	case 0:
-		break;
-	}
-	return dur - nss;
+/* get the number of business days in a sequence of DUR days ending on WD
+ * which is simply the number of days minus the number of weekend-days */
+	return dur - __get_nwedays(dur, wd);
 }
 
 static unsigned int
@@ -703,8 +654,6 @@ static int
 __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 {
 	dt_dow_t wdd;
-	unsigned int wk;
-	int res;
 
 	if (bp.ab != BIZDA_AFTER || bp.ref != BIZDA_ULTIMO) {
 		/* no support yet */
@@ -726,10 +675,7 @@ __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 		break;
 	}
 	/* get the number of business days between 1 and that.d */
-	/* FORMULA IS WRONG */
-	wk = (that.d - 1) / 7; 
-	res = wk * 5 + (unsigned int)wdd;
-	return res;
+	return __get_nbdays(that.d, wdd);
 }
 
 static int
@@ -3040,8 +2986,12 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 
 		/* fix up result in case it's bizsi, i.e. kick weekends */
 		if (tgttyp == DT_BIZSI) {
-			dt_dow_t wdb = __daisy_get_wday(tmp1);
-			res.bizsi = __get_nbdays(res.daisy, wdb);
+			dt_dow_t wdb = __daisy_get_wday(tmp2);
+			res.bizsi = __get_nbdays(res.daisy + 1, wdb);
+			/* don't count initial day if wdb is bizday */
+			if (wdb >= DT_MONDAY && wdb <= DT_FRIDAY) {
+				res.bizsi--;
+			}
 		}
 		break;
 	}
