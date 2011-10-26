@@ -150,6 +150,7 @@ struct dt_d_s {
 		dt_ymd_t ymd;
 		dt_ymcw_t ymcw;
 		dt_daisy_t daisy;
+		dt_daisy_t bizsi;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
 	};

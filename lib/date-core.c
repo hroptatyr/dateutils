@@ -232,7 +232,11 @@ static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 static inline bool
 __leapp(unsigned int y)
 {
+#if defined WITH_FAST_ARITH
 	return y % 4 == 0;
+#else  /* !WITH_FAST_ARITH */
+	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+#endif	/* WITH_FAST_ARITH */
 }
 
 static void
@@ -409,6 +413,56 @@ __get_mdays(unsigned int y, unsigned int m)
 		res++;
 	}
 	return res;
+}
+
+static unsigned int
+__get_nwedays(unsigned int dur, dt_dow_t wd)
+{
+/* get the number of weekend days in a sequence of DUR days ending on WD
+ * The minimum number of weekend days is simply 2 for every 7 days
+ * to get the exact number observe the following:
+ *
+ * The number of remaining weekend days depends on the remaining number
+ * of days and the DOW of the end point.
+ *
+ * here's the matrix, mod7 down, WD right:
+ *    S M T W R F A
+ * 0  0 0 0 0 0 0 0
+ * 1  1 0 0 0 0 0 1
+ * 2  2 1 0 0 0 0 1
+ * 3  2 2 1 0 0 0 1
+ * 4  2 2 2 1 0 0 1
+ * 5  2 2 2 2 1 0 1
+ * 6  2 2 2 2 2 1 1
+ *
+ * That means
+ * (mod7 == 0) -> 0
+ * (WD == SAT) -> 1
+ * (mod7 - WD) > 1 -> 2
+ * (mod7 - WD) > 0 -> 1
+ * 
+ * and that's all the magic behind the following code */
+	unsigned int nss = (dur / 7) * 2;
+	unsigned int mod = (dur % 7);
+
+	if (mod == 0) {
+		return nss;
+	} else if (wd == DT_SATURDAY) {
+		return nss + 1;
+	} else if (((signed)mod - (int)wd) > 1) {
+		return nss + 2;
+	} else if (((signed)mod - (int)wd) > 0) {
+		return nss + 1;
+	}
+	return nss;
+}
+
+static unsigned int
+__get_nbdays(unsigned int dur, dt_dow_t wd)
+{
+/* get the number of business days in a sequence of DUR days ending on WD
+ * which is simply the number of days minus the number of weekend-days */
+	return dur - __get_nwedays(dur, wd);
 }
 
 static unsigned int
@@ -604,8 +658,6 @@ static int
 __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 {
 	dt_dow_t wdd;
-	unsigned int wk;
-	int res;
 
 	if (bp.ab != BIZDA_AFTER || bp.ref != BIZDA_ULTIMO) {
 		/* no support yet */
@@ -626,9 +678,8 @@ __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 	default:
 		break;
 	}
-	wk = (that.d - 1) / 7; 
-	res = wk * 5 + (unsigned int)wdd;
-	return res;
+	/* get the number of business days between 1 and that.d */
+	return __get_nbdays(that.d, wdd);
 }
 
 static int
@@ -1300,7 +1351,17 @@ dt_conv_to_daisy(struct dt_d_s that)
 
 	y = dt_get_year(that);
 	m = dt_get_mon(that);
+#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
+	/* the non-fast arith has done the fixup already */
 	d = dt_get_mday(that);
+#else  /* WITH_FAST_ARITH && !OMIT_FIXUPS */
+	{
+		unsigned int tmp = __get_mdays(y, m);
+		if (UNLIKELY((d = dt_get_mday(that)) > tmp)) {
+			d = tmp;
+		}
+	}
+#endif	/* !WITH_FAST_ARITH || OMIT_FIXUPS */
 
 	if (UNLIKELY((signed int)TO_BASE(y) < 0)) {
 		return 0;
@@ -1598,6 +1659,14 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 		}
 		tgtd += __get_mdays(d2y, d2m);
 		tgtm--;
+#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
+		/* the non-fast arith has done the fixup already */
+#else  /* WITH_FAST_ARITH && !defined OMIT_FIXUPS */
+	} else if (tgtm == 0) {
+		/* check if we're not diffing two lazy representations
+		 * e.g. 2010-02-28 and 2010-02-31 */
+		;
+#endif	/* !OMIT_FIXUPS */
 	}
 	/* fill in the results */
 	res.ymd.y = tgtm / 12;
@@ -1842,7 +1911,14 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.m;
+#if defined WITH_FAST_ARITH
 		res.ymd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+		/* check for illegal dates, like 31st of April */
+		if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
+			res.ymd.d = d.d;
+		}
+#endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.c && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
@@ -1869,6 +1945,7 @@ __guess_dtyp(struct strpd_s d)
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
 static const char daisy_dflt[] = "%d";
+static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
 
 static void
@@ -1885,6 +1962,8 @@ __trans_dfmt(const char **fmt)
 		*fmt = bizda_dflt;
 	} else if (strcasecmp(*fmt, "daisy") == 0) {
 		*fmt = daisy_dflt;
+	} else if (strcasecmp(*fmt, "bizsi") == 0) {
+		*fmt = bizsi_dflt;
 	}
 	return;
 }
@@ -2680,6 +2759,13 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = daisy_dflt;
 		}
 		break;
+	case DT_BIZSI:
+		d.d = that.bizsi;
+		if (fmt == NULL) {
+			/* subject to change */
+			fmt = bizsi_dflt;
+		}
+		break;
 	case DT_BIZDA: {
 		dt_bizda_param_t bparam = __get_bizda_param(that);
 		d.y = that.bizda.y;
@@ -2921,10 +3007,17 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	struct dt_d_s res = {.typ = DT_UNK};
 
 	switch (tgttyp) {
+	case DT_BIZSI:
 	case DT_DAISY: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
 		dt_daisy_t tmp2 = dt_conv_to_daisy(d2);
 		res = __daisy_diff(tmp1, tmp2);
+
+		/* fix up result in case it's bizsi, i.e. kick weekends */
+		if (tgttyp == DT_BIZSI) {
+			dt_dow_t wdb = __daisy_get_wday(tmp2);
+			res.bizsi = __get_nbdays(res.daisy, wdb);
+		}
 		break;
 	}
 	case DT_YMD: {
@@ -2939,6 +3032,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymcw_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_BIZDA:
 	case DT_UNK:
 	default:
 		res.typ = DT_UNK;
