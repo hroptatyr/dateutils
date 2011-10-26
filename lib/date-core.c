@@ -2987,11 +2987,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		/* fix up result in case it's bizsi, i.e. kick weekends */
 		if (tgttyp == DT_BIZSI) {
 			dt_dow_t wdb = __daisy_get_wday(tmp2);
-			res.bizsi = __get_nbdays(res.daisy + 1, wdb);
-			/* don't count initial day if wdb is bizday */
-			if (wdb >= DT_MONDAY && wdb <= DT_FRIDAY) {
-				res.bizsi--;
-			}
+			res.bizsi = __get_nbdays(res.daisy, wdb);
 		}
 		break;
 	}
