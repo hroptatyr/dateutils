@@ -232,7 +232,11 @@ static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 static inline bool
 __leapp(unsigned int y)
 {
+#if defined WITH_FAST_ARITH
 	return y % 4 == 0;
+#else  /* !WITH_FAST_ARITH */
+	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+#endif	/* WITH_FAST_ARITH */
 }
 
 static void
