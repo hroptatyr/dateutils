@@ -632,9 +632,9 @@ struct __strpdur_st_s {
 	int sign;
 	const char *istr;
 	const char *cont;
-	struct dt_dur_s curr;
+	struct dt_d_s curr;
 	size_t ndurs;
-	struct dt_dur_s *durs;
+	struct dt_d_s *durs;
 };
 
 static inline int
@@ -712,7 +712,7 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((st->curr = dt_strpdur(sp, (char**)&ep)).typ > DT_DUR_UNK) {
+	if ((st->curr = dt_strpdur(sp, (char**)&ep)).typ > DT_UNK) {
 		if (st->durs == NULL) {
 			st->durs = calloc(16, sizeof(*st->durs));
 		} else if ((st->ndurs % 16) == 0) {

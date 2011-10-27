@@ -66,14 +66,6 @@ typedef enum {
 	DT_BIZSI,
 } dt_dtyp_t;
 
-typedef enum {
-	DT_DUR_UNK,
-	DT_DUR_MD,
-	DT_DUR_WD,
-	DT_DUR_YM,
-	DT_DUR_QMB,
-} dt_durtyp_t;
-
 #define DT_MIN_YEAR	(0)
 #define DT_MAX_YEAR	(4095)
 
@@ -168,63 +160,6 @@ typedef enum {
 	DT_MIRACLEDAY
 } dt_dow_t;
 
-/* durations are handled by the above structs with the DUR bit set,
- * the stuff below is historical */
-
-/** mddur
- * duration type for calendars where 1 year = 12 months and 1 week = 7 days */
-typedef union {
-	uint32_t u;
-	struct {
-		signed int d:16;
-		signed int m:16;
-	};
-} dt_mddur_t;
-
-/** wddur
- * duration type in weeks and days. */
-typedef union {
-	uint32_t u;
-	struct {
-		signed int d:16;
-		signed int w:16;
-	};
-} dt_wddur_t;
-
-/** ymdur
- * duration type in years and months. */
-typedef union {
-	uint32_t u;
-	struct {
-		signed int m:16;
-		signed int y:16;
-	};
-} dt_ymdur_t;
-
-/** qmbdur
- * duration type in quarters, months and business days. */
-typedef union {
-	uint32_t u;
-	struct {
-		signed int b:16;
-		signed int m:8;
-		signed int q:8;
-	};
-} dt_qmbdur_t;
-
-/**
- * Collection of all duration types. */
-struct dt_dur_s {
-	dt_durtyp_t typ;
-	union {
-		uint32_t u;
-		dt_mddur_t md;
-		dt_wddur_t wd;
-		dt_ymdur_t ym;
-		dt_qmbdur_t qmb;
-	};
-};
-
 /* spec tokeniser, spec flags plus modifiers and stuff */
 typedef enum {
 	DT_SPFL_UNK,
@@ -301,7 +236,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-DECLF struct dt_dur_s
+DECLF struct dt_d_s
 dt_strpdur(const char *str, char **ep);
 
 /**
@@ -362,15 +297,15 @@ DECLF unsigned int dt_get_yday(struct dt_d_s d);
  * The result will be in the calendar as specified by TGTTYP, or if
  * DT_UNK is given, the calendar of D will be used. */
 DECLF struct dt_d_s
-dt_add(struct dt_d_s d, struct dt_dur_s dur);
+dt_add(struct dt_d_s d, struct dt_d_s dur);
 
 /**
  * Negate the duration. */
-DECLF struct dt_dur_s dt_neg_dur(struct dt_dur_s);
+DECLF struct dt_d_s dt_neg_dur(struct dt_d_s);
 
 /**
  * Is duration DUR negative? */
-DECLF int dt_dur_neg_p(struct dt_dur_s dur);
+DECLF int dt_dur_neg_p(struct dt_d_s dur);
 
 /**
  * Get duration between D1 and D2.
