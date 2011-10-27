@@ -108,6 +108,13 @@ struct strpd_s {
 	unsigned int q;
 };
 
+struct strpdi_s {
+	signed int m;
+	signed int d;
+	signed int w;
+	signed int b;
+};
+
 
 /* helpers */
 #if !defined SECS_PER_MINUTE
@@ -1092,6 +1099,13 @@ __uimod(signed int x, signed int m)
 	return res >= 0 ? res : res + m;
 }
 
+static inline unsigned int
+__uidiv(signed int x, signed int m)
+{
+	int res = x / m;
+	return x >= 0 ? res : res - 1;
+}
+
 static int
 __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
 {
@@ -1549,33 +1563,51 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	unsigned int tgty = 0;
 	unsigned int tgtm = 0;
 	int tgtd = 0;
+	struct strpdi_s durcch = {0};
 
 	switch (dur.typ) {
-		int tmp;
+	case DT_YMD:
+		durcch.m = dur.ymd.y * 12 + dur.ymd.m;
+		durcch.d = dur.ymd.d;
+		break;
+	case DT_DAISY:
+		durcch.d = dur.daisy;
+		break;
+	case DT_BIZSI:
+		durcch.b = dur.bizsi;
+		break;
+	case DT_BIZDA:
+		durcch.m = dur.bizda.y * 12 + dur.bizda.m;
+		durcch.b = dur.bizda.bd;
+		break;
+	case DT_YMCW:
+#if 0
+/* doesn't happen as the dur parser won't hand out durs of type YMCW */
+		durcch.m = dur.ymcw.y * 12 + dur.ymcw.m;
+		durcch.w = dur.ymcw.c;
+		durcch.d = dur.ymcw.w;
+		break;
+#endif	/* 0 */
+	default:
+		break;
+	}
+
+	if (UNLIKELY(dur.neg)) {
+		durcch.m = -durcch.m;
+		durcch.d = -durcch.d;
+		durcch.w = -durcch.w;
+		durcch.b = -durcch.b;
+	}
+
+	switch (dur.typ) {
 		unsigned int mdays;
 	case DT_YMD:
 	case DT_YMCW:
 	case DT_BIZDA:
-		/* init tmp */
-		switch (dur.typ) {
-		case DT_YMD:
-			tmp = dur.ymd.y * 12 + dur.ymd.m;
-			break;
-		case DT_YMCW:
-			tmp = dur.ymcw.y * 12 + dur.ymcw.m;
-			break;
-		case DT_BIZDA:
-			tmp = dur.bizda.y * 12 + dur.bizda.m;
-			break;
-		default:
-			tmp = 0;
-			break;
-		}
-
 		/* construct new month */
-		tmp += d.m - 1;
-		tgty = tmp / 12 + d.y;
-		tgtm = tmp % 12 + 1;
+		durcch.m += d.m - 1;
+		tgty = __uidiv(durcch.m, 12) + d.y;
+		tgtm = __uimod(durcch.m, 12) + 1;
 
 		/* fixup day */
 		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
@@ -1588,29 +1620,35 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 		switch (dur.typ) {
 		case DT_YMD:
 			/* fallthrough from above */
-			tgtd += dur.ymd.d;
+			tgtd += durcch.d;
+			break;
+		case DT_DAISY:
+			tgtd = d.d + durcch.d;
+			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
 			break;
 		case DT_BIZDA: {
 			/* fallthrough from above */
 			/* construct a tentative result */
-			dt_dow_t tent;
+			dt_dow_t tent = __ymd_get_wday(d);
 			d.y = tgty;
 			d.m = tgtm;
 			d.d = tgtd;
-			tent = __ymd_get_wday(d);
-			tgtd += __get_d_equiv(tent, dur.bizda.bd);
+			tgtd += __get_d_equiv(tent, durcch.b);
+			break;
+		}
+		case DT_BIZSI: {
+			/* construct a tentative result */
+			dt_dow_t tent = __ymd_get_wday(d);
+			tgtd = d.d + __get_d_equiv(tent, durcch.b);
+			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
 			break;
 		}
 		case DT_YMCW:
-			tgtd += dur.ymcw.c * 7 + dur.ymcw.w;
+#if 0
+/* doesn't happen as the dur parser won't hand out durs of type YMCW */
+			tgtd += durcch.d;
 			break;
-		case DT_DAISY:
-		case DT_BIZSI:
-			/* we use the fact here, that the daisy and bizsi
-			 * slots are the same */
-			tgtd = d.d + dur.daisy;
-			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
-			break;
+#endif	/* 0 */
 		default:
 			tgtd = 0;
 			break;
