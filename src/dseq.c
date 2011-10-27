@@ -57,9 +57,9 @@ typedef uint8_t __skipspec_t;
 struct dseq_clo_s {
 	struct dt_d_s fst;
 	struct dt_d_s lst;
-	struct dt_dur_s *ite;
+	struct dt_d_s *ite;
 	size_t nite;
-	struct dt_dur_s *altite;
+	struct dt_d_s *altite;
 	__skipspec_t ss;
 	size_t naltite;
 	/* direction, >0 if increasing, <0 if decreasing, 0 if undefined */
@@ -230,7 +230,7 @@ set_skip(__skipspec_t ss, char *spec)
 }
 
 static struct dt_d_s
-date_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
+date_add(struct dt_d_s d, struct dt_d_s dur[], size_t ndur)
 {
 	d = dt_add(d, dur[0]);
 	for (size_t i = 1; i < ndur; i++) {
@@ -240,7 +240,7 @@ date_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
 }
 
 static void
-date_neg_dur(struct dt_dur_s dur[], size_t ndur)
+date_neg_dur(struct dt_d_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		dur[i] = dt_neg_dur(dur[i]);
@@ -249,26 +249,26 @@ date_neg_dur(struct dt_dur_s dur[], size_t ndur)
 }
 
 static bool
-__daisy_feasible_p(struct dt_dur_s dur[], size_t ndur)
+__daisy_feasible_p(struct dt_d_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->typ == DT_DUR_MD && dur->md.m) {
+	} else if (dur->typ == DT_YMD && dur->ymd.m) {
 		return false;
-	} else if (dur->typ == DT_DUR_QMB && (dur->qmb.q || dur->qmb.m)) {
+	} else if (dur->typ == DT_BIZDA && (dur->bizda.bd)) {
 		return false;
 	}
 	return true;
 }
 
 static bool
-__dur_naught_p(struct dt_dur_s dur)
+__dur_naught_p(struct dt_d_s dur)
 {
 	return dur.u == 0;
 }
 
 static bool
-__durstack_naught_p(struct dt_dur_s dur[], size_t ndur)
+__durstack_naught_p(struct dt_d_s dur[], size_t ndur)
 {
 	if (ndur == 0) {
 		return true;
@@ -402,11 +402,11 @@ int
 main(int argc, char *argv[])
 {
 #if defined __C1X
-	static struct dt_dur_s ite_p1 = {
-		.typ = DT_DUR_MD, .md.m = 0, .md.d = 1
+	static struct dt_d_s ite_p1 = {
+		.typ = DT_DAISY, .daisy = 1
 	};
 #else
-	static struct dt_dur_s ite_p1;
+	static struct dt_d_s ite_p1;
 #endif
 	struct gengetopt_args_info argi[1];
 	struct dt_d_s tmp;
@@ -426,9 +426,8 @@ main(int argc, char *argv[])
 
 #if !defined __C1X
 	/* set up static ite_p1 which the compiler failed to do above */
-	ite_p1.typ = DT_DUR_MD;
-	ite_p1.md.m = 0;
-	ite_p1.md.d = 1;
+	ite_p1.typ = DT_DAISY;
+	ite_p1.daisy = 1;
 #endif
 
 	/* fixup negative numbers, A -1 B for dates A and B */

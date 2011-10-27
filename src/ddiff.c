@@ -186,7 +186,7 @@ main(int argc, char *argv[])
 			const char *inp = argi->inputs[i];
 
 			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_DUR_UNK) {
+			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_UNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(inp);
@@ -216,7 +216,7 @@ main(int argc, char *argv[])
 			line[n - 1] = '\0';
 			/* perform addition now */
 			if ((d2 = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_DUR_UNK) {
+			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_UNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(line);

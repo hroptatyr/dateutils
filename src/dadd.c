@@ -44,7 +44,7 @@
 
 
 static struct dt_d_s
-dadd_add(struct dt_d_s d, struct dt_dur_s dur[], size_t ndur)
+dadd_add(struct dt_d_s d, struct dt_d_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_add(d, dur[i]);
