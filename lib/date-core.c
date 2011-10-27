@@ -1521,14 +1521,13 @@ __daisy_add(dt_daisy_t d, struct dt_d_s dur)
 			d -= dur.daisy;
 		}
 		break;
-	case DT_BIZSI:
-		if (!dur.neg) {
-			d += dur.bizsi;
-		} else {
-			d -= dur.bizsi;
-		}
+	case DT_BIZSI: {
+		dt_dow_t dow = __daisy_get_wday(d);
+		int dequiv = __get_d_equiv(
+			dow, !dur.neg ? dur.bizsi : -dur.bizsi);
+		d += dequiv;
 		break;
-
+	}
 	case DT_YMD:
 	case DT_YMCW:
 	case DT_BIZDA:
