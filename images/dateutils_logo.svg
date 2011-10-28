@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  id="dateutils_logo_0.1.7"
+  version="1.1">
+  <defs>
+    <linearGradient
+      id="lin_grad">
+      <stop style="stop-color:#ffffff;stop-opacity:1;" offset="0"/>
+      <stop style="stop-color:#404080;stop-opacity:1;" offset="1"/>
+    </linearGradient>
+    <radialGradient
+      xlink:href="#lin_grad"
+      id="rad_grad"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="matrix(1.0,-2.0,4.3,2.2,-1500,2.0)"
+      cx="296.0"
+      cy="362.0"
+      fx="296.0"
+      fy="362.0"
+      r="128"/>
+  </defs>
+  <g transform="translate(206.0,-779.0)">
+    <!-- bottom thing bg -->
+    <g transform="matrix(0.5,0,0,0.5,-231.0,518.0)">
+      <path
+        d="m 168.91114,580.08315 200.53662,0 0,188.65785 -200.53662,0 0,-188.65785 z"
+        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#c0c0f0;stroke-width:5.48931646;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"/>
+      <path
+        transform="matrix(0.7404443,0,0,0.7488117,30.75636,429.89837)"
+        style="fill:url(#rad_grad);fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3.29898834;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+        d="m 191,204.19812 262,0 0,244.16406 -262,0 0,-244.16406 z"
+        id="path16103-5-3"/>
+    </g>
+    <!-- top thing bg -->
+    <g transform="matrix(0.5,0,0,0.5,-348.0,526.0)">
+      <path
+        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#9090d0;stroke-width:5.48931646;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+        d="m 402.91114,512.08315 200.53662,0 0,48.65785 -200.53662,0 0,-48.65785 z"/>
+      <path
+        d="m 191,391.16101 262,0 0,57.20117 -262,0 0,-57.20117 z"
+        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3.29898834;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+        transform="matrix(0.7404443,0,0,0.7488117,264.75636,221.89837)"/>
+    </g>
+    <!-- bottom thing fg -->
+    <g transform="matrix(0.5,0,0,0.5,-234.0,515.0)">
+      <path
+        style="fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:#c0c0f0;stroke-width:5.48931646;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+        d="m 168.91114,580.08315 200.53662,0 0,188.65785 -200.53662,0 0,-188.65785 z"/>
+      <path
+        d="m 191,204.19812 262,0 0,244.16406 -262,0 0,-244.16406 z"
+        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3.29898834;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+        transform="matrix(0.7404443,0,0,0.7488117,30.75636,429.89837)"/>
+    </g>
+    <!-- top thing fg -->
+    <g transform="matrix(0.5,0,0,0.5,-351.0,524.0)">
+      <path
+        d="m 402.91114,512.08315 200.53662,0 0,48.65785 -200.53662,0 0,-48.65785 z"
+        style="fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:#8080c0;stroke-width:5.48931646;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"/>
+      <path
+        transform="matrix(0.7404443,0,0,0.7488117,264.75636,221.89837)"
+        style="fill:url(#rad_grad);fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:3.29898834;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+        d="m 191,391.16101 262,0 0,57.20117 -262,0 0,-57.20117 z"/>
+    </g>
+  </g>
+
+  <g>
+    <text
+      id="text1"
+      style="font-size:48px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Droid Serif">
+      <tspan y="44.0" x="81.0" style="font-size:24px;fill:#8080a0">mon</tspan>
+      <tspan y="86.0" x="0.0" style="fill:#000000">da</tspan>
+      <tspan y="86.0" x="66.0" style="fill:#000080">tue</tspan>
+      <tspan y="86.0" x="147.0" style="fill:#000000">tils</tspan>
+      <tspan y="112.0" x="81.0" style="font-size:24px;fill:#8080a0">wed</tspan>
+    </text>
+  </g>
+</svg>
+<!--
+  Local variables:
+  mode: xml
+  indent-tabs-mode: nil
+  sgml-indent-step: 2
+  End variables
+ -->
