@@ -10,6 +10,11 @@ Dateutils
   <script type="text/javascript"
     src="http://www.ohloh.net/p/586399/widgets/project_languages.js">
   </script>
+  <ul>
+    <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
+    <li><a href="/dateutils">project homepage</a></li>
+    <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
+  </ul>
 </div>
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
