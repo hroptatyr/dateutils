@@ -7,11 +7,13 @@ Binaries
 ========
 
 <div id="rtop" class="sidebar-widget">
-  <ul>
-    <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
-    <li><a href="/dateutils">project homepage</a></li>
-    <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
-  </ul>
+  <div class="sidebar-stack">
+    <ul>
+      <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
+      <li><a href="/dateutils">project homepage</a></li>
+      <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
+    </ul>
+  </div>
 </div>
 
 <object

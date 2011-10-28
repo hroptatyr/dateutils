@@ -7,14 +7,22 @@ Dateutils
 =========
 
 <div id="rtop" class="sidebar-widget">
-  <script type="text/javascript"
-    src="http://www.ohloh.net/p/586399/widgets/project_languages.js">
-  </script>
-  <ul>
-    <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
-    <li><a href="/dateutils">project homepage</a></li>
-    <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
-  </ul>
+  <div class="sidebar-stack">
+    <ul>
+      <li>
+        <script type="text/javascript"
+          src="http://www.ohloh.net/p/586399/widgets/project_languages.js">
+        </script>
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-stack">
+    <ul>
+      <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
+      <li><a href="/dateutils">project homepage</a></li>
+      <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
+    </ul>
+  </div>
 </div>
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
