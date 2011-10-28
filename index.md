@@ -3,14 +3,14 @@ title: dateutils
 layout: default
 ---
 
+Dateutils
+=========
+
 <div id="rtop" class="sidebar-widget">
   <script type="text/javascript"
     src="http://www.ohloh.net/p/586399/widgets/project_languages.js">
   </script>
 </div>
-
-Dateutils
-=========
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
