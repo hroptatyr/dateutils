@@ -6,6 +6,14 @@ layout: default
 Binaries
 ========
 
+<div id="rtop" class="sidebar-widget">
+  <ul>
+    <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
+    <li><a href="/dateutils">project homepage</a></li>
+    <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
+  </ul>
+</div>
+
 <object
   type="text/html"
   data="http://software.opensuse.org/download.html?project=utilities&package=dateutils"
