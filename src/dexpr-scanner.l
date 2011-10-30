@@ -1,11 +1,11 @@
-/*** dexpr-parser.y -- parsing date expressions -*- c -*-
+/*** dexpr.l -- date/time expressions for dateutils -*- C -*-
  *
  * Copyright (C) 2002-2011 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@fresse.org>
  *
  * This file is part of dateutils.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -35,79 +35,53 @@
  *
  ***/
 
-%defines
-%output="y.tab.c"
-%pure-parser
-%lex-param{void *scanner}
-%parse-param{void *scanner}
-
 %{
-#include <stdlib.h>
-
-int
-yyerror(void *scanner, const char *errmsg)
-{
-	return 0;
-}
-
+#include "dexpr-parser.h"
 %}
 
-%expect 0
+%option noyywrap
+%option warn
+%option yylineno
+%option nounput
+%option noinput
+%option bison-bridge
+%option header-file="lex.yy.h"
+%option outfile="lex.yy.c"
+%option pointer
+%option nodebug
 
-%start stmt
+%{
+#define RETURN_TOKEN(_x)			\
+	do {					\
+		return _x;			\
+	} while (0)
 
-%token TOK_EQ
-%token TOK_NE
-%token TOK_LT
-%token TOK_LE
-%token TOK_GT
-%token TOK_GE
+/* turn off tedious warnings */
+#if defined __INTEL_COMPILER
+# pragma warning (disable:593)
+# pragma warning (disable:869)
+# pragma warning (disable:1419)
+# pragma warning (disable:2259)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wswitch-default"
+# pragma GCC diagnostic ignored "-Wsign-compare"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif	/* __GNUC__ || __INTEL_COMPILER */
+%}
 
-%token TOK_SPEC
-%token TOK_STRING
-%token TOK_DATE
-%token TOK_TIME
+%%
+"=="	{ RETURN_TOKEN(TOK_EQ); }
+"!="	{ RETURN_TOKEN(TOK_NE); }
+"<"	{ RETURN_TOKEN(TOK_LT); }
+"<="	{ RETURN_TOKEN(TOK_LE); }
+">"	{ RETURN_TOKEN(TOK_GT); }
+">="	{ RETURN_TOKEN(TOK_GE); }
 
-%token TOK_OR
-%token TOK_AND
-%token TOK_NOT
+"%".	{ RETURN_TOKEN(TOK_SPEC); }
 
-%left TOK_OR
-%left TOK_AND
-%left TOK_NOT
+\"(\\.|[^\\\"])*\"	{ RETURN_TOKEN(TOK_STRING); }
+[ \t\v\n\f]	{ /* ignore whitespace */ }
 
 %%
 
-
-stmt
-	: exp	{ ; }
-	| stmt TOK_OR stmt
-	| stmt TOK_AND stmt
-	| TOK_NOT stmt
-	| '(' stmt ')'
-	;
-
-exp
-	: rhs
-	| spec TOK_LT rhs
-	| spec TOK_GT rhs
-	| spec TOK_LE rhs
-	| spec TOK_GE rhs
-	| spec TOK_EQ rhs
-	| spec TOK_NE rhs
-	;
-
-spec
-	:
-	| TOK_SPEC
-	;
-
-rhs
-	: TOK_DATE
-	| TOK_TIME
-	| TOK_STRING
-	;
-
-%%
-
-/* dexpr-parser.y ends here */
+/* dexpr.l ends here */

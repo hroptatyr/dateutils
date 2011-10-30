@@ -96,6 +96,12 @@ tconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tconv-clo.c tconv-clo.h
 
+noinst_PROGRAMS += dexpr
+dexpr_SOURCES = dexpr.c
+dexpr_SOURCES += dexpr-scanner.l
+dexpr_SOURCES += dexpr-parser.y
+BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c
+
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
