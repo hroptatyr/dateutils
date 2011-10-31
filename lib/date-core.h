@@ -208,7 +208,7 @@ struct dt_spec_s {
 		/* pad to the next byte */
 		unsigned int pad:2;
 	};
-	dt_spfl_t spfl;
+	dt_spfl_t spfl:8;
 };
 
 
