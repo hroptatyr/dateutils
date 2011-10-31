@@ -38,8 +38,6 @@
 %{
 #include "dexpr.h"
 #include "dexpr-parser.h"
-
-#define YYSTYPE		dexpr_t
 %}
 
 %option noyywrap
@@ -77,6 +75,13 @@
 "<="	{ RETURN_TOKEN(TOK_LE); }
 ">"	{ RETURN_TOKEN(TOK_GT); }
 ">="	{ RETURN_TOKEN(TOK_GE); }
+
+"||"	{ RETURN_TOKEN(TOK_OR); }
+"&&"	{ RETURN_TOKEN(TOK_AND); }
+"!"	{ RETURN_TOKEN(TOK_NOT); }
+
+"("	{ RETURN_TOKEN(TOK_LPAREN); }
+")"	{ RETURN_TOKEN(TOK_RPAREN); }
 
 "%".	{ RETURN_TOKEN(TOK_SPEC); }
 

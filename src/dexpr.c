@@ -15,13 +15,15 @@ free_dexpr(dexpr_t root)
 	if (root->value) {
 		switch (root->type) {
 		case DEX_VAL:
-		case DEX_NOT:
-			free(root->value);
-			break;
+			if (root->value) {
+				free(root->value);
+			}
 		case DEX_CONJ:
 		case DEX_DISJ:
-			free_dexpr(root->right);
-			free(root->right);
+			if (root->right) {
+				free_dexpr(root->right);
+				free(root->right);
+			}
 			break;
 		case DEX_UNK:
 		default:
@@ -45,20 +47,22 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		fprintf(stdout, "VAL %p\n", root->value);
-		break;
-	case DEX_NOT:
-		for (size_t i = 0; i < ind; i++) {
-			fputc(' ', stdout);
+		if (!root->nega) {
+			fprintf(stdout, "VAL %p\n", root->value);
+		} else {
+			fprintf(stdout, "!VAL %p\n", root->value);
 		}
-		fprintf(stdout, "NOT %p\n", root->value);
 		break;
 
 	case DEX_CONJ:
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		fprintf(stdout, "AND\n");
+		if (!root->nega) {
+			fputs("AND\n", stdout);
+		} else {
+			fputs("NAND\n", stdout);
+		}
 		__pr(root->left, ind + 2);
 		__pr(root->right, ind + 2);
 		break;
@@ -67,7 +71,11 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		fprintf(stdout, "OR\n");
+		if (!root->nega) {
+			fputs("OR\n", stdout);
+		} else {
+			fputs("NOR\n", stdout);
+		}
 		__pr(root->left, ind + 2);
 		__pr(root->right, ind + 2);
 		break;
@@ -77,7 +85,11 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		fprintf(stdout, "UNK\n");
+		if (root->left) {
+			fputs("ROOT\n", stderr);
+			__pr(root->left, ind + 2);
+			break;
+		}
 		break;
 	}
 	return;

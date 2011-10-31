@@ -55,12 +55,11 @@ yyerror(dexpr_t __attribute__((unused)) cur, const char *errmsg)
 	fputc('\n', stderr);
 	return -1;
 }
-
 %}
 
 %expect 0
 
-%start stmt
+%start root
 
 %token TOK_EQ
 %token TOK_NE
@@ -78,32 +77,44 @@ yyerror(dexpr_t __attribute__((unused)) cur, const char *errmsg)
 %token TOK_AND
 %token TOK_NOT
 
+%token TOK_LPAREN
+%token TOK_RPAREN
+
 %left TOK_OR
 %left TOK_AND
 %left TOK_NOT
 
 %%
 
+root:
+	stmt {
+		cur->type = DEX_UNK;
+		cur->left = $$;
+		YYACCEPT;
+	}
 
 stmt
 	: exp {
 		$$ = calloc(1, sizeof(struct dexpr_s));
+		$$->type = DEX_VAL;
 	}
 	| stmt TOK_OR stmt {
-		cur->type = DEX_DISJ;
-		cur->left = $1;
-		cur->right = $3;
+		$$ = calloc(1, sizeof(struct dexpr_s));
+		$$->type = DEX_DISJ;
+		$$->left = $1;
+		$$->right = $3;
 	}
 	| stmt TOK_AND stmt {
-		cur->type = DEX_CONJ;
-		cur->left = $1;
-		cur->right = $3;
+		$$ = calloc(1, sizeof(struct dexpr_s));
+		$$->type = DEX_CONJ;
+		$$->left = $1;
+		$$->right = $3;
 	}
 	| TOK_NOT stmt {
-		cur->type = DEX_NOT;
-		cur->value = $2;
+		$$ = $2;
+		$2->nega = 1;
 	}
-	| '(' stmt ')' {
+	| TOK_LPAREN stmt TOK_RPAREN {
 		$$ = $2;
 	}
 	;
