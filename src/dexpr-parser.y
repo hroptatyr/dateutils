@@ -114,7 +114,8 @@ stmt
 	: exp {
 		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
 		$<dex>$->type = DEX_VAL;
-		*($<dex>$->kv) = *ckv;
+		$<dex>$->kv[0] = *ckv;
+		memset(ckv, 0, sizeof(*ckv));
 	}
 	| stmt TOK_OR stmt {
 		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
