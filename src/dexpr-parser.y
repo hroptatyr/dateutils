@@ -38,7 +38,7 @@
 %defines
 %output="y.tab.c"
 %pure-parser
-%parse-param{dexpr_t cur}
+%parse-param{dexpr_t *cur}
 
 %{
 #include <stdlib.h>
@@ -49,7 +49,7 @@ extern int yylex();
 extern int yyerror();
 
 int
-yyerror(dexpr_t __attribute__((unused)) cur, const char *errmsg)
+yyerror(dexpr_t *__attribute__((unused)) cur, const char *errmsg)
 {
 	fputs(errmsg, stderr);
 	fputc('\n', stderr);
@@ -88,8 +88,7 @@ yyerror(dexpr_t __attribute__((unused)) cur, const char *errmsg)
 
 root:
 	stmt {
-		cur->type = DEX_UNK;
-		cur->left = $$;
+		*cur = $$;
 		YYACCEPT;
 	}
 

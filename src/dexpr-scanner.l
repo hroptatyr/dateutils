@@ -93,7 +93,7 @@
 %%
 
 int
-dexpr_parse(dexpr_t root, char *s, size_t l)
+dexpr_parse(dexpr_t *root, char *s, size_t l)
 {
 	YY_BUFFER_STATE buf;
 	int res;

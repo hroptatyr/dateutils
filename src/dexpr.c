@@ -98,11 +98,11 @@ __pr(dexpr_t root, size_t ind)
 int
 main(int argc, char *argv[])
 {
-	struct dexpr_s root[1];
+	dexpr_t root;
 
 	for (int i = 1; i < argc; i++) {
-		memset(root, 0, sizeof(root));
-		dexpr_parse(root, argv[i], strlen(argv[i]));
+		root = NULL;
+		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
 		free_dexpr(root);
 	}

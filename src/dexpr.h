@@ -23,7 +23,9 @@ struct dexpr_s {
 };
 
 /* parser routine */
-extern int dexpr_parse(dexpr_t root, char *s, size_t l);
+extern int dexpr_parse(dexpr_t *root, char *s, size_t l);
+
+extern int yyparse(dexpr_t *cur);
 
 #define YYSTYPE		dexpr_t
 
