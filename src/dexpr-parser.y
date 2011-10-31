@@ -197,6 +197,7 @@ rhs
 				ckv->s = -1;
 				break;
 			}
+			break;
 		case DT_SPFL_S_MON:
 			switch (ckv->sp.abbr) {
 			case DT_SPMOD_NORM:
