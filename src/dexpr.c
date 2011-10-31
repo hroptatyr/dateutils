@@ -42,9 +42,9 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		fprintf(stdout, "%cVAL %u %u %s\n",
+		fprintf(stdout, "%cVAL %u %u %d\n",
 			!root->nega ? ' ' : '!',
-			root->kv->sp.spfl, root->kv->op, root->kv->val);
+			root->kv->sp.spfl, root->kv->op, root->kv->s);
 		break;
 
 	case DEX_CONJ:

@@ -156,19 +156,75 @@ spec
 
 rhs
 	: TOK_DATE {
-#if 0
-/* parsing later might be just as good */
 		struct dt_d_s d = dt_strpd($<sval>1, NULL, NULL);
 		ckv->d = d;
-#else
-		ckv->val = $<sval>1;
-#endif
+		ckv->sp.spfl = DT_SPFL_N_STD;
 	}
 	| TOK_TIME {
 		/* no support yet */
 	}
 	| TOK_STRING {
-		ckv->val = $<sval>1;
+		switch (ckv->sp.spfl) {
+		case DT_SPFL_N_MDAY:
+		case DT_SPFL_N_MON:
+		case DT_SPFL_N_YEAR:
+		case DT_SPFL_N_CNT_WEEK:
+		case DT_SPFL_N_CNT_MON:
+		case DT_SPFL_N_CNT_YEAR:
+			ckv->s = strtol($<sval>1, NULL, 10);
+			break;
+		case DT_SPFL_S_WDAY:
+			switch (ckv->sp.abbr) {
+			case DT_SPMOD_NORM:
+				ckv->s = strtoarri(
+					$<sval>1, NULL,
+					__abbr_wday, countof(__abbr_wday));
+				break;
+			case DT_SPMOD_LONG:
+				ckv->s = strtoarri(
+					$<sval>1, NULL,
+					__long_wday, countof(__long_wday));
+				break;
+			case DT_SPMOD_ABBR: {
+				const char *pos;
+				if ((pos = strchr(__abab_wday, *$<sval>1))) {
+					ckv->s = pos - __abab_wday;
+					break;
+				}
+			}
+			case DT_SPMOD_ILL:
+			default:
+				ckv->s = -1;
+				break;
+			}
+		case DT_SPFL_S_MON:
+			switch (ckv->sp.abbr) {
+			case DT_SPMOD_NORM:
+				ckv->s = strtoarri(
+					$<sval>1, NULL,
+					__abbr_mon, countof(__abbr_mon));
+				break;
+			case DT_SPMOD_LONG:
+				ckv->s = strtoarri(
+					$<sval>1, NULL,
+					__long_mon, countof(__long_mon));
+				break;
+			case DT_SPMOD_ABBR: {
+				const char *pos;
+				if ((pos = strchr(__abab_mon, *$<sval>1))) {
+					ckv->s = pos - __abab_mon;
+					break;
+				}
+			}
+			case DT_SPMOD_ILL:
+			default:
+				ckv->s = -1;
+				break;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 	;
 

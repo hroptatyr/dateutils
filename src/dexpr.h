@@ -20,6 +20,7 @@ struct dexkv_s {
 	union {
 		char *val;
 		struct dt_d_s d;
+		signed int s;
 	};
 };
 
