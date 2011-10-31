@@ -343,7 +343,9 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 		}
 	}
 	/* no matches */
-	*ep = buf;
+	if (ep) {
+		*ep = buf;
+	}
 	return -1U;
 }
 
