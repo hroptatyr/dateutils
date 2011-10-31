@@ -36,12 +36,13 @@
  ***/
 
 %{
+#include "dexpr.h"
 #include "dexpr-parser.h"
+
+#define YYSTYPE		dexpr_t
 %}
 
 %option noyywrap
-%option warn
-%option yylineno
 %option nounput
 %option noinput
 %option bison-bridge
@@ -80,8 +81,28 @@
 "%".	{ RETURN_TOKEN(TOK_SPEC); }
 
 \"(\\.|[^\\\"])*\"	{ RETURN_TOKEN(TOK_STRING); }
+'(\\.|[^\\\'])*'	{ RETURN_TOKEN(TOK_STRING); }
 [ \t\v\n\f]	{ /* ignore whitespace */ }
+.	{ /* ignore */fprintf(stderr, "%s\n", yytext); }
 
 %%
+
+int
+dexpr_parse(dexpr_t root, char *s, size_t l)
+{
+	YY_BUFFER_STATE buf;
+	int res;
+
+	/* hack to avoid string dup'ing, we assume, that l can take
+	 * at least 2 more bytes */
+	s[l++] = '\0';
+	s[l++] = '\0';
+	buf = yy_scan_buffer(s, l);
+
+	/* parse them */
+	res = yyparse(root);
+	yy_delete_buffer(buf);
+	return (res == 0) - 1;
+}
 
 /* dexpr.l ends here */

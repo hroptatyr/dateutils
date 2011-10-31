@@ -8,16 +8,21 @@ typedef const struct dexpr_s *const_dexpr_t;
 typedef enum {
 	DEX_UNK,
 	DEX_VAL,
+	DEX_NOT,
 	DEX_CONJ,
 	DEX_DISJ,
-	DEX_NEGA,
 } dex_type_t;
 
 struct dexpr_s {
 	dex_type_t type;
-	void *value;
 	dexpr_t left;
-	dexpr_t right;
+	union {
+		void *value;
+		dexpr_t right;
+	};
 };
+
+/* parser routine */
+extern int dexpr_parse(dexpr_t root, char *s, size_t l);
 
 #endif	/* INCLUDED_dexpr_h_ */

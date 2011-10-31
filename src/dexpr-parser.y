@@ -38,16 +38,22 @@
 %defines
 %output="y.tab.c"
 %pure-parser
-%lex-param{void *scanner}
-%parse-param{void *scanner}
+%parse-param{dexpr_t cur}
 
 %{
 #include <stdlib.h>
+#include <stdio.h>
+#include "dexpr.h"
+
+extern int yylex();
+extern int yyerror();
 
 int
-yyerror(void *scanner, const char *errmsg)
+yyerror(dexpr_t __attribute__((unused)) cur, const char *errmsg)
 {
-	return 0;
+	fputs(errmsg, stderr);
+	fputc('\n', stderr);
+	return -1;
 }
 
 %}
@@ -80,11 +86,26 @@ yyerror(void *scanner, const char *errmsg)
 
 
 stmt
-	: exp	{ ; }
-	| stmt TOK_OR stmt
-	| stmt TOK_AND stmt
-	| TOK_NOT stmt
-	| '(' stmt ')'
+	: exp {
+		$$ = calloc(1, sizeof(struct dexpr_s));
+	}
+	| stmt TOK_OR stmt {
+		cur->type = DEX_DISJ;
+		cur->left = $1;
+		cur->right = $3;
+	}
+	| stmt TOK_AND stmt {
+		cur->type = DEX_CONJ;
+		cur->left = $1;
+		cur->right = $3;
+	}
+	| TOK_NOT stmt {
+		cur->type = DEX_NOT;
+		cur->value = $2;
+	}
+	| '(' stmt ')' {
+		$$ = $2;
+	}
 	;
 
 exp
