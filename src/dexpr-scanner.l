@@ -91,7 +91,7 @@ time	[0-2][0-9]:[0-5][0-9]:[0-6][0-9]
 "("	{ RETURN_TOKEN(TOK_LPAREN); }
 ")"	{ RETURN_TOKEN(TOK_RPAREN); }
 
-"%".	{
+"%"[_a-zA-Z]*	{
 	yylval->sval = yytext;
 	RETURN_TOKEN(TOK_SPEC);
 }
