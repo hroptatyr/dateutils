@@ -8,27 +8,22 @@ static void
 free_dexpr(dexpr_t root)
 {
 /* recursive free :( */
-	if (root->left) {
-		free_dexpr(root->left);
-		free(root->left);
-	}
-	if (root->value) {
-		switch (root->type) {
-		case DEX_VAL:
-			if (root->value) {
-				free(root->value);
-			}
-		case DEX_CONJ:
-		case DEX_DISJ:
-			if (root->right) {
-				free_dexpr(root->right);
-				free(root->right);
-			}
-			break;
-		case DEX_UNK:
-		default:
-			break;
+	switch (root->type) {
+	case DEX_CONJ:
+	case DEX_DISJ:
+		if (root->left) {
+			free_dexpr(root->left);
+			free(root->left);
 		}
+		if (root->right) {
+			free_dexpr(root->right);
+			free(root->right);
+		}
+		break;
+	case DEX_UNK:
+	case DEX_VAL:
+	default:
+		break;
 	}
 	return;
 }
@@ -47,11 +42,9 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		if (!root->nega) {
-			fprintf(stdout, "VAL %p\n", root->value);
-		} else {
-			fprintf(stdout, "!VAL %p\n", root->value);
-		}
+		fprintf(stdout, "%cVAL %u %u %s\n",
+			!root->nega ? ' ' : '!',
+			root->kv->sp.spfl, root->kv->op, root->kv->val);
 		break;
 
 	case DEX_CONJ:

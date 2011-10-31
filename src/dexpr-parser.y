@@ -39,6 +39,7 @@
 %output="y.tab.c"
 %pure-parser
 %parse-param{dexpr_t *cur}
+%parse-param{struct dexkv_s *ckv}
 
 %{
 #include <stdlib.h>
@@ -47,15 +48,32 @@
 
 extern int yylex();
 extern int yyerror();
+extern char *yytext;
+
+/* grrrrr, bug in bison */
+extern int yyparse();
+
+#if !defined UNUSED
+# define UNUSED(x)	__attribute__((unused)) x
+#endif	/* !UNUSED */
+
+#define YYENABLE_NLS		0
+#define YYLTYPE_IS_TRIVIAL	1
+#define YYSTACK_USE_ALLOCA	1
 
 int
-yyerror(dexpr_t *__attribute__((unused)) cur, const char *errmsg)
+yyerror(dexpr_t *UNUSED(cur), struct dexkv_s *UNUSED(ckv), const char *errmsg)
 {
 	fputs(errmsg, stderr);
 	fputc('\n', stderr);
 	return -1;
 }
 %}
+
+%union {
+	dexpr_t dex;
+	char *sval;
+}
 
 %expect 0
 
@@ -88,55 +106,70 @@ yyerror(dexpr_t *__attribute__((unused)) cur, const char *errmsg)
 
 root:
 	stmt {
-		*cur = $$;
+		*cur = $<dex>$;
 		YYACCEPT;
 	}
 
 stmt
 	: exp {
-		$$ = calloc(1, sizeof(struct dexpr_s));
-		$$->type = DEX_VAL;
+		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
+		$<dex>$->type = DEX_VAL;
+		*($<dex>$->kv) = *ckv;
 	}
 	| stmt TOK_OR stmt {
-		$$ = calloc(1, sizeof(struct dexpr_s));
-		$$->type = DEX_DISJ;
-		$$->left = $1;
-		$$->right = $3;
+		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
+		$<dex>$->type = DEX_DISJ;
+		$<dex>$->left = $<dex>1;
+		$<dex>$->right = $<dex>3;
 	}
 	| stmt TOK_AND stmt {
-		$$ = calloc(1, sizeof(struct dexpr_s));
-		$$->type = DEX_CONJ;
-		$$->left = $1;
-		$$->right = $3;
+		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
+		$<dex>$->type = DEX_CONJ;
+		$<dex>$->left = $<dex>1;
+		$<dex>$->right = $<dex>3;
 	}
 	| TOK_NOT stmt {
-		$$ = $2;
-		$2->nega = 1;
+		($<dex>$ = $<dex>2)->nega = 1;
 	}
 	| TOK_LPAREN stmt TOK_RPAREN {
-		$$ = $2;
+		$<dex>$ = $<dex>2;
 	}
 	;
 
 exp
 	: rhs
-	| spec TOK_LT rhs
-	| spec TOK_GT rhs
-	| spec TOK_LE rhs
-	| spec TOK_GE rhs
-	| spec TOK_EQ rhs
-	| spec TOK_NE rhs
+	| spec TOK_LT { ckv->op = TOK_LT; } rhs
+	| spec TOK_GT { ckv->op = TOK_GT; } rhs
+	| spec TOK_LE { ckv->op = TOK_LE; } rhs
+	| spec TOK_GE { ckv->op = TOK_GE; } rhs
+	| spec TOK_EQ { ckv->op = TOK_EQ; } rhs
+	| spec TOK_NE { ckv->op = TOK_NE; } rhs
 	;
 
 spec
 	:
-	| TOK_SPEC
+	| TOK_SPEC {
+		struct dt_spec_s sp = __tok_spec($<sval>1, NULL);
+		ckv->sp = sp;
+	}
 	;
 
 rhs
-	: TOK_DATE
-	| TOK_TIME
-	| TOK_STRING
+	: TOK_DATE {
+#if 0
+/* parsing later might be just as good */
+		struct dt_d_s d = dt_strpd($<sval>1, NULL, NULL);
+		ckv->d = d;
+#else
+		ckv->val = $<sval>1;
+#endif
+	}
+	| TOK_TIME {
+		/* no support yet */
+	}
+	| TOK_STRING {
+		ckv->val = $<sval>1;
+	}
 	;
 
 %%

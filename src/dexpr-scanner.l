@@ -38,6 +38,9 @@
 %{
 #include "dexpr.h"
 #include "dexpr-parser.h"
+
+/* grrrrr, bug in bison */
+extern int yyparse();
 %}
 
 %option noyywrap
@@ -68,6 +71,11 @@
 #endif	/* __GNUC__ || __INTEL_COMPILER */
 %}
 
+string	\"(\\.|[^\\\"])*\"|'(\\.|[^\\\'])*'
+/* only canonical dates are allowed */
+date	[0-9]{4,4}-[01][0-9]-[0-3][0-9]
+time	[0-2][0-9]:[0-5][0-9]:[0-6][0-9]
+
 %%
 "=="	{ RETURN_TOKEN(TOK_EQ); }
 "!="	{ RETURN_TOKEN(TOK_NE); }
@@ -83,10 +91,29 @@
 "("	{ RETURN_TOKEN(TOK_LPAREN); }
 ")"	{ RETURN_TOKEN(TOK_RPAREN); }
 
-"%".	{ RETURN_TOKEN(TOK_SPEC); }
+"%".	{
+	yylval->sval = yytext;
+	RETURN_TOKEN(TOK_SPEC);
+}
 
-\"(\\.|[^\\\"])*\"	{ RETURN_TOKEN(TOK_STRING); }
-'(\\.|[^\\\'])*'	{ RETURN_TOKEN(TOK_STRING); }
+{string}	{
+	/* strip quotes */
+	yytext[yyleng - 1] = '\0';
+	yylval->sval = yytext + 1;
+	RETURN_TOKEN(TOK_STRING);
+}
+
+{date} {
+	yytext[yyleng] = '\0';
+	yylval->sval = yytext;
+	RETURN_TOKEN(TOK_DATE);
+}
+{time} {
+	yytext[yyleng] = '\0';
+	yylval->sval = yytext;
+	RETURN_TOKEN(TOK_TIME);
+}
+
 [ \t\v\n\f]	{ /* ignore whitespace */ }
 .	{ /* ignore */fprintf(stderr, "%s\n", yytext); }
 
@@ -96,6 +123,7 @@ int
 dexpr_parse(dexpr_t *root, char *s, size_t l)
 {
 	YY_BUFFER_STATE buf;
+	struct dexkv_s ckv;
 	int res;
 
 	/* hack to avoid string dup'ing, we assume, that l can take
@@ -105,7 +133,7 @@ dexpr_parse(dexpr_t *root, char *s, size_t l)
 	buf = yy_scan_buffer(s, l);
 
 	/* parse them */
-	res = yyparse(root);
+	res = yyparse(root, &ckv);
 	yy_delete_buffer(buf);
 	return (res == 0) - 1;
 }
