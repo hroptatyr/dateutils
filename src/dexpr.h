@@ -16,7 +16,7 @@ typedef enum {
 
 struct dexkv_s {
 	struct dt_spec_s sp;
-	unsigned int op:16;
+	oper_t op:3;
 	union {
 		struct dt_d_s d;
 		signed int s;

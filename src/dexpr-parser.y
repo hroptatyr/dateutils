@@ -143,12 +143,12 @@ stmt
 
 exp
 	: rhs
-	| spec TOK_LT { ckv->op = TOK_LT; } rhs
-	| spec TOK_GT { ckv->op = TOK_GT; } rhs
-	| spec TOK_LE { ckv->op = TOK_LE; } rhs
-	| spec TOK_GE { ckv->op = TOK_GE; } rhs
-	| spec TOK_EQ { ckv->op = TOK_EQ; } rhs
-	| spec TOK_NE { ckv->op = TOK_NE; } rhs
+	| spec TOK_LT { ckv->op = OP_LT; } rhs
+	| spec TOK_GT { ckv->op = OP_GT; } rhs
+	| spec TOK_LE { ckv->op = OP_LE; } rhs
+	| spec TOK_GE { ckv->op = OP_GE; } rhs
+	| spec TOK_EQ { ckv->op = OP_EQ; } rhs
+	| spec TOK_NE { ckv->op = OP_NE; } rhs
 	;
 
 spec
