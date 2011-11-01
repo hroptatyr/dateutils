@@ -92,6 +92,7 @@ static struct dexkv_s ckv[1];
 %token TOK_STRING
 %token TOK_DATE
 %token TOK_TIME
+%token TOK_INT
 
 %token TOK_OR
 %token TOK_AND
@@ -229,6 +230,21 @@ rhs
 			break;
 		default:
 			break;
+		}
+	}
+	| TOK_INT {
+		switch (ckv->sp.spfl) {
+		case DT_SPFL_N_MDAY:
+		case DT_SPFL_N_MON:
+		case DT_SPFL_N_YEAR:
+		case DT_SPFL_N_CNT_WEEK:
+		case DT_SPFL_N_CNT_MON:
+		case DT_SPFL_N_CNT_YEAR:
+			ckv->s = strtol($<sval>1, NULL, 10);
+			break;
+		default:
+			/* the rest can hardly have ints as inputs */
+			YYERROR;
 		}
 	}
 	;
