@@ -178,8 +178,6 @@ __pr(dexpr_t root, size_t ind)
 static void
 __pr_infix(dexpr_t root)
 {
-	fputc('(', stdout);
-
 	if (root->type == DEX_VAL) {
 		__pr_val(root->kv);
 		return;
@@ -189,11 +187,11 @@ __pr_infix(dexpr_t root)
 
 	switch (root->type) {
 	case DEX_CONJ:
-		fputs(") && (", stdout);
+		fputs(" && ", stdout);
 		break;
 
 	case DEX_DISJ:
-		fputs(") || (", stdout);
+		fputs(" || ", stdout);
 		break;
 
 	case DEX_VAL:
@@ -206,8 +204,7 @@ __pr_infix(dexpr_t root)
 	}
 	__pr_infix(root->right);
 
-	/* and finalise this guy, then ascend */
-	fputc(')', stdout);
+	/* just ascend */
 	return;
 }
 
