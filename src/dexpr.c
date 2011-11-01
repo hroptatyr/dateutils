@@ -211,8 +211,30 @@ __pr_infix(dexpr_t root)
 static dexpr_t
 make_dexpr(dex_type_t type)
 {
-	dexpr_t res = calloc(1, sizeof(struct dexpr_s));
+	dexpr_t res = calloc(1, sizeof(*res));
 	res->type = type;
+	return res;
+}
+
+static dexpr_t
+dexpr_copy(const_dexpr_t src)
+{
+	dexpr_t res = calloc(1, sizeof(*res));
+
+	memcpy(res, src, sizeof(*res));
+
+	/* deep copy anyone? */
+	switch (src->type) {
+	case DEX_CONJ:
+	case DEX_DISJ:
+		res->left = dexpr_copy(src->left);
+		res->right = dexpr_copy(src->right);
+		break;
+	case DEX_VAL:
+	case DEX_UNK:
+	default:
+		break;
+	}
 	return res;
 }
 
@@ -248,17 +270,17 @@ __dnf(dexpr_t root)
 
 			root->right->type = DEX_DISJ;
 			root->right->left = make_dexpr(DEX_CONJ);
-			root->right->left->left = a;
+			root->right->left->left = dexpr_copy(a);
 			root->right->left->right = d;
 
 			root->right->right = make_dexpr(DEX_DISJ);
 			root->right->right->left = make_dexpr(DEX_CONJ);
 			root->right->right->left->left = b;
-			root->right->right->left->right = c;
+			root->right->right->left->right = dexpr_copy(c);
 			/* right side, finalise the right branches with CONJ */
 			root->right->right->right = make_dexpr(DEX_CONJ);
-			root->right->right->right->left = b;
-			root->right->right->right->right = d;
+			root->right->right->right->left = dexpr_copy(b);
+			root->right->right->right->right = dexpr_copy(d);
 
 		} else if (rlt == DEX_DISJ || rrt == DEX_DISJ) {
 			/* ok'ish case
