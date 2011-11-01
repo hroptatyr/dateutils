@@ -234,10 +234,6 @@ __dnf(dexpr_t root)
 			dexpr_t c;
 			dexpr_t d;
 
-			/* descend, turn left and right node to dnf */
-			__dnf(root->left);
-			__dnf(root->right);
-
 			/* get the new idea of b and c */
 			a = root->left->left;
 			b = root->left->right;
@@ -275,9 +271,6 @@ __dnf(dexpr_t root)
 				a = root->right;
 				root->right = root->left;
 			}
-			/* descend now, turn right node into dnf */
-			__dnf(root->right);
-
 			/* get the new idea of b and c */
 			b = root->right->left;
 			c = root->right->right;
