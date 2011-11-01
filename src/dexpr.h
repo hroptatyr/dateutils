@@ -18,7 +18,6 @@ struct dexkv_s {
 	struct dt_spec_s sp;
 	unsigned int op:16;
 	union {
-		char *val;
 		struct dt_d_s d;
 		signed int s;
 	};
