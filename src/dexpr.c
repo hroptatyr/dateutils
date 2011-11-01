@@ -265,7 +265,6 @@ __dnf(dexpr_t root)
 			root->right->right->right = make_dexpr(DEX_CONJ);
 			root->right->right->right->left = b;
 			root->right->right->right->right = d;
-			break;
 
 		} else if (rlt == DEX_DISJ || rrt == DEX_DISJ) {
 			/* ok'ish case
@@ -295,7 +294,6 @@ __dnf(dexpr_t root)
 			root->left = make_dexpr(DEX_CONJ);
 			root->left->left = a;
 			root->left->right = b;
-			break;
 		}
 		/* fallthrough! */
 	}
@@ -303,6 +301,20 @@ __dnf(dexpr_t root)
 		/* nothing to be done other than a quick descent */
 		__dnf(root->left);
 		__dnf(root->right);
+
+		if (root->left->type == DEX_DISJ &&
+		    root->left->right->type == DEX_CONJ) {
+			/* (a|(b&c)) | d  -> a | (b | c) */
+			dexpr_t i = root->left;
+			dexpr_t j = root->right;
+			dexpr_t a = i->left;
+			dexpr_t b = j->right;
+
+			root->left = a;
+			root->right = i;
+			i->left = b;
+			i->right = j;
+		}
 		break;
 
 	case DEX_VAL:
@@ -396,6 +408,7 @@ main(int argc, char *argv[])
 		root = NULL;
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
+		fputc('\n', stdout);
 		__simplify(root);
 		__pr_infix(root);
 		fputc('\n', stdout);
