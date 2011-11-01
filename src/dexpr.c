@@ -29,8 +29,89 @@ free_dexpr(dexpr_t root)
 }
 
 static void
-__dnf(dexpr_t root)
+__pr_val(struct dexkv_s *kv)
 {
+	switch (kv->sp.spfl) {
+	case DT_SPFL_N_MDAY:
+		fputs("%d ", stdout);
+		break;
+	case DT_SPFL_N_MON:
+	case DT_SPFL_S_MON:
+		fputs("%b ", stdout);
+		break;
+	case DT_SPFL_N_YEAR:
+		fputs("%Y ", stdout);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_S_WDAY:
+		fputs("%a ", stdout);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		fputs("%c ", stdout);
+		break;
+	case DT_SPFL_N_CNT_YEAR:
+		fputs("%j ", stdout);
+		break;
+	default:
+		break;
+	}
+
+	switch (kv->op) {
+	case TOK_LT:
+		fputs("< ", stdout);
+		break;
+	case TOK_LE:
+		fputs("<= ", stdout);
+		break;
+	case TOK_GT:
+		fputs("> ", stdout);
+		break;
+	case TOK_GE:
+		fputs(">= ", stdout);
+		break;
+	case TOK_NE:
+		fputs("!= ", stdout);
+		break;
+	case TOK_EQ:
+	default:
+		fputs("== ", stdout);
+		break;
+	}
+
+	switch (kv->sp.spfl) {
+	case DT_SPFL_N_STD: {
+		char buf[32];
+		dt_strfd(buf, sizeof(buf), NULL, kv->d);
+		fputs(buf, stdout);
+		break;
+	}
+	case DT_SPFL_N_MDAY:
+		fprintf(stdout, "%02d", kv->s);
+		break;
+	case DT_SPFL_N_MON:
+	case DT_SPFL_S_MON:
+		if (kv->s >= 0 && kv->s <= 12) {
+			fputs(__abbr_mon[kv->s], stdout);
+		}
+		break;
+	case DT_SPFL_N_YEAR:
+		fprintf(stdout, "%04d", kv->s);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_S_WDAY:
+		if (kv->s >= 0 && kv->s <= 7) {
+			fputs(__abbr_wday[kv->s], stdout);
+		}
+		break;
+	case DT_SPFL_N_CNT_MON:
+		fprintf(stdout, "%02d", kv->s);
+		break;
+	case DT_SPFL_N_CNT_YEAR:
+		fprintf(stdout, "%03d", kv->s);
+		break;
+	default:
+		break;
+	}
 	return;
 }
 
@@ -42,9 +123,15 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		fprintf(stdout, "%cVAL %u %u %d\n",
-			!root->nega ? ' ' : '!',
-			root->kv->sp.spfl, root->kv->op, root->kv->s);
+		if (root->nega) {
+			fputs("!(", stdout);
+		}
+		__pr_val(root->kv);
+		if (root->nega) {
+			fputs(")\n", stdout);
+		} else {
+			fputc('\n', stdout);
+		}
 		break;
 
 	case DEX_CONJ:
