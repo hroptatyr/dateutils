@@ -175,6 +175,42 @@ __pr(dexpr_t root, size_t ind)
 	return;
 }
 
+static void
+__pr_infix(dexpr_t root)
+{
+	fputc('(', stdout);
+
+	if (root->type == DEX_VAL) {
+		__pr_val(root->kv);
+		return;
+	}
+
+	__pr_infix(root->left);
+
+	switch (root->type) {
+	case DEX_CONJ:
+		fputs(") && (", stdout);
+		break;
+
+	case DEX_DISJ:
+		fputs(") || (", stdout);
+		break;
+
+	case DEX_VAL:
+	case DEX_UNK:
+	default:
+		/* shouldn't happen :O */
+		fputs(" bollocks ", stdout);
+		break;
+		
+	}
+	__pr_infix(root->right);
+
+	/* and finalise this guy, then ascend */
+	fputc(')', stdout);
+	return;
+}
+
 static dexpr_t
 make_dexpr(dex_type_t type)
 {
@@ -361,7 +397,8 @@ main(int argc, char *argv[])
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
 		__simplify(root);
-		__pr(root, 0);
+		__pr_infix(root);
+		fputc('\n', stdout);
 		free_dexpr(root);
 	}
 	return 0;
