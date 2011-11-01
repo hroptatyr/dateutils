@@ -160,6 +160,26 @@ typedef enum {
 	DT_MIRACLEDAY
 } dt_dow_t;
 
+/* match operations */
+typedef uint32_t/*:3*/ oper_t;
+
+enum {
+	OP_UNK = 0,
+	OP_FALSE = OP_UNK,
+	/* bit 1 set */
+	OP_EQ,
+	/* bit 2 set */
+	OP_LT,
+	OP_LE,
+	/* bit 3 set */
+	OP_GT,
+	OP_GE,
+	/* bits 2 and 3 set */
+	OP_NE,
+	/* bits 1, 2 and 3 set */
+	OP_TRUE,
+};
+
 /* spec tokeniser, spec flags plus modifiers and stuff */
 typedef enum {
 	DT_SPFL_UNK,
