@@ -175,6 +175,127 @@ __pr(dexpr_t root, size_t ind)
 	return;
 }
 
+static dexpr_t
+make_dexpr(dex_type_t type)
+{
+	dexpr_t res = calloc(1, sizeof(struct dexpr_s));
+	res->type = type;
+	return res;
+}
+
+static void
+__dnf(dexpr_t root)
+{
+/* recursive __dnf'er */
+	if (root->type == DEX_CONJ &&
+	    (root->left->type == DEX_DISJ && root->right->type == DEX_DISJ)) {
+		/* lift, (a|b)&(c|d) -> (a&c)|(a&d)|(b&c)|(b&d) */
+		dexpr_t a = root->left->left;
+		dexpr_t b = root->left->right;
+		dexpr_t c = root->right->left;
+		dexpr_t d = root->right->right;
+
+		/* start the rearrangement */
+		root->type = DEX_DISJ;
+		root->left->type = DEX_CONJ;
+		root->left->left = a;
+		root->left->right = c;
+
+		root->right->type = DEX_DISJ;
+		root->right->left = make_dexpr(DEX_CONJ);
+		root->right->left->left = a;
+		root->right->left->right = d;
+
+		root->right->right = make_dexpr(DEX_DISJ);
+		root->right->right->left = make_dexpr(DEX_CONJ);
+		root->right->right->left->left = b;
+		root->right->right->left->right = c;
+		/* right side, finalise the right branches with a CONJ */
+		root->right->right->right = make_dexpr(DEX_CONJ);
+		root->right->right->right->left = b;
+		root->right->right->right->right = d;
+
+		/* now dnf'ify the leaves */
+		__dnf(root->left);
+		__dnf(root->right->left);
+		__dnf(root->right->right->left);
+		__dnf(root->right->right->right);
+	}
+	return;
+}
+
+static void
+__nega_kv(struct dexkv_s *kv)
+{
+/* assume the parent dexpr has the nega flag set, negate KV */
+	kv->op = ~kv->op;
+	return;
+}
+
+static void
+__denega(dexpr_t root)
+{
+	dexpr_t left;
+	dexpr_t right;
+
+	if (root->nega) {
+		/* negate */
+		root->nega = 0;
+
+		switch (root->type) {
+		case DEX_CONJ:
+			/* !(a&b) -> !a | !b */
+			root->type = DEX_DISJ;
+			break;
+		case DEX_DISJ:
+			/* !(a|b) -> !a & !b */
+			root->type = DEX_DISJ;
+			break;
+		case DEX_VAL:
+			__nega_kv(root->kv);
+			/* fallthrough */
+		case DEX_UNK:
+		default:
+			return;
+		}
+
+		if ((left = root->left)) {
+			left->nega = ~left->nega;
+		}
+		if ((right = root->right)) {
+			right->nega = ~right->nega;
+		}
+	} else {
+		switch (root->type) {
+		case DEX_CONJ:
+		case DEX_DISJ:
+			left = root->left;
+			right = root->right;
+			break;
+		case DEX_VAL:
+		case DEX_UNK:
+		default:
+			return;
+		}
+	}
+	/* descend */
+	if (left) {
+		__denega(left);
+	}
+	if (right) {
+		__denega(right);
+	}
+	return;
+}
+
+static void
+__simplify(dexpr_t root)
+{
+	__denega(root);
+	return;
+}
+
+
 int
 main(int argc, char *argv[])
 {
@@ -183,6 +304,8 @@ main(int argc, char *argv[])
 	for (int i = 1; i < argc; i++) {
 		root = NULL;
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
+		__pr(root, 0);
+		__simplify(root);
 		__pr(root, 0);
 		free_dexpr(root);
 	}
