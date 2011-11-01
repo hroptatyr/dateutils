@@ -187,39 +187,93 @@ static void
 __dnf(dexpr_t root)
 {
 /* recursive __dnf'er */
-	if (root->type == DEX_CONJ &&
-	    (root->left->type == DEX_DISJ && root->right->type == DEX_DISJ)) {
-		/* lift, (a|b)&(c|d) -> (a&c)|(a&d)|(b&c)|(b&d) */
-		dexpr_t a = root->left->left;
-		dexpr_t b = root->left->right;
-		dexpr_t c = root->right->left;
-		dexpr_t d = root->right->right;
+	switch (root->type) {
+	case DEX_CONJ: {
+		/* check if one of the children is a disjunction */
+		dex_type_t rlt = root->left->type;
+		dex_type_t rrt = root->right->type;
 
-		/* start the rearrangement */
-		root->type = DEX_DISJ;
-		root->left->type = DEX_CONJ;
-		root->left->left = a;
-		root->left->right = c;
+		if (rlt == DEX_DISJ && rrt == DEX_DISJ) {
+			/* complexestest case
+			 * (a|b)&(c|d) -> (a&c)|(a&d)|(b&c)|(b&d) */
+			dexpr_t a;
+			dexpr_t b;
+			dexpr_t c;
+			dexpr_t d;
 
-		root->right->type = DEX_DISJ;
-		root->right->left = make_dexpr(DEX_CONJ);
-		root->right->left->left = a;
-		root->right->left->right = d;
+			/* descend, turn left and right node to dnf */
+			__dnf(root->left);
+			__dnf(root->right);
 
-		root->right->right = make_dexpr(DEX_DISJ);
-		root->right->right->left = make_dexpr(DEX_CONJ);
-		root->right->right->left->left = b;
-		root->right->right->left->right = c;
-		/* right side, finalise the right branches with a CONJ */
-		root->right->right->right = make_dexpr(DEX_CONJ);
-		root->right->right->right->left = b;
-		root->right->right->right->right = d;
+			/* get the new idea of b and c */
+			a = root->left->left;
+			b = root->left->right;
+			c = root->right->left;
+			d = root->right->right;
 
-		/* now dnf'ify the leaves */
+			/* now reuse what's possible */
+			root->type = DEX_DISJ;
+			root->left->type = DEX_CONJ;
+			root->left->right = c;
+
+			root->right->type = DEX_DISJ;
+			root->right->left = make_dexpr(DEX_CONJ);
+			root->right->left->left = a;
+			root->right->left->right = d;
+
+			root->right->right = make_dexpr(DEX_DISJ);
+			root->right->right->left = make_dexpr(DEX_CONJ);
+			root->right->right->left->left = b;
+			root->right->right->left->right = c;
+			/* right side, finalise the right branches with CONJ */
+			root->right->right->right = make_dexpr(DEX_CONJ);
+			root->right->right->right->left = b;
+			root->right->right->right->right = d;
+			break;
+
+		} else if (rlt == DEX_DISJ || rrt == DEX_DISJ) {
+			/* ok'ish case
+			 * a&(b|c) -> a&b|a&c  or  (a|b)&c -> a&c|b&c */
+			dexpr_t a;
+			dexpr_t b;
+			dexpr_t c;
+
+			/* put the non-DISJ case left */
+			if ((a = root->left)->type == DEX_DISJ) {
+				a = root->right;
+				root->right = root->left;
+			}
+			/* descend now, turn right node into dnf */
+			__dnf(root->right);
+
+			/* get the new idea of b and c */
+			b = root->right->left;
+			c = root->right->right;
+
+			/* rearrange this node now, reuse the right disjoint */
+			root->type = DEX_DISJ;
+			root->right->type = DEX_CONJ;
+			root->right->left = a;
+			root->right->right = c;
+
+			root->left = make_dexpr(DEX_CONJ);
+			root->left->left = a;
+			root->left->right = b;
+			break;
+		}
+		/* fallthrough! */
+	}
+	case DEX_DISJ:
+		/* nothing to be done other than a quick descent */
 		__dnf(root->left);
-		__dnf(root->right->left);
-		__dnf(root->right->right->left);
-		__dnf(root->right->right->right);
+		__dnf(root->right);
+		break;
+
+	case DEX_VAL:
+	case DEX_UNK:
+	default:
+		/* can't do anything to get the DNF going */
+		break;
 	}
 	return;
 }
@@ -292,6 +346,7 @@ static void
 __simplify(dexpr_t root)
 {
 	__denega(root);
+	__dnf(root);
 	return;
 }
 
