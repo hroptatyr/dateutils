@@ -57,22 +57,22 @@ __pr_val(struct dexkv_s *kv)
 	}
 
 	switch (kv->op) {
-	case TOK_LT:
+	case OP_LT:
 		fputs("< ", stdout);
 		break;
-	case TOK_LE:
+	case OP_LE:
 		fputs("<= ", stdout);
 		break;
-	case TOK_GT:
+	case OP_GT:
 		fputs("> ", stdout);
 		break;
-	case TOK_GE:
+	case OP_GE:
 		fputs(">= ", stdout);
 		break;
-	case TOK_NE:
+	case OP_NE:
 		fputs("!= ", stdout);
 		break;
-	case TOK_EQ:
+	case OP_EQ:
 	default:
 		fputs("== ", stdout);
 		break;
