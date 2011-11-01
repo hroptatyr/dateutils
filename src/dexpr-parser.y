@@ -39,7 +39,6 @@
 %output="y.tab.c"
 %pure-parser
 %parse-param{dexpr_t *cur}
-%parse-param{struct dexkv_s *ckv}
 
 %{
 #include <stdlib.h>
@@ -62,12 +61,15 @@ extern int yyparse();
 #define YYSTACK_USE_ALLOCA	1
 
 int
-yyerror(dexpr_t *UNUSED(cur), struct dexkv_s *UNUSED(ckv), const char *errmsg)
+yyerror(dexpr_t *UNUSED(cur), const char *errmsg)
 {
 	fputs(errmsg, stderr);
 	fputc('\n', stderr);
 	return -1;
 }
+
+/* static stuff */
+static struct dexkv_s ckv[1];
 %}
 
 %union {
@@ -111,11 +113,12 @@ root:
 	}
 
 stmt
-	: exp {
+	: {
+		memset(ckv, 0, sizeof(*ckv));
+	} exp {
 		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
 		$<dex>$->type = DEX_VAL;
 		$<dex>$->kv[0] = *ckv;
-		memset(ckv, 0, sizeof(*ckv));
 	}
 	| stmt TOK_OR stmt {
 		$<dex>$ = calloc(1, sizeof(struct dexpr_s));

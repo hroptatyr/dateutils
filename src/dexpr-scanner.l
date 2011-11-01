@@ -123,7 +123,6 @@ int
 dexpr_parse(dexpr_t *root, char *s, size_t l)
 {
 	YY_BUFFER_STATE buf;
-	struct dexkv_s ckv;
 	int res;
 
 	/* hack to avoid string dup'ing, we assume, that l can take
@@ -133,7 +132,7 @@ dexpr_parse(dexpr_t *root, char *s, size_t l)
 	buf = yy_scan_buffer(s, l);
 
 	/* parse them */
-	res = yyparse(root, &ckv);
+	res = yyparse(root);
 	yy_delete_buffer(buf);
 	return (res == 0) - 1;
 }
