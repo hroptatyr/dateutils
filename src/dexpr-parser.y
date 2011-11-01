@@ -39,7 +39,6 @@
 %output="y.tab.c"
 %pure-parser
 %parse-param{dexpr_t *cur}
-%parse-param{struct dexkv_s *ckv}
 
 %{
 #include <stdlib.h>
@@ -62,12 +61,15 @@ extern int yyparse();
 #define YYSTACK_USE_ALLOCA	1
 
 int
-yyerror(dexpr_t *UNUSED(cur), struct dexkv_s *UNUSED(ckv), const char *errmsg)
+yyerror(dexpr_t *UNUSED(cur), const char *errmsg)
 {
 	fputs(errmsg, stderr);
 	fputc('\n', stderr);
 	return -1;
 }
+
+/* static stuff */
+static struct dexkv_s ckv[1];
 %}
 
 %union {
@@ -90,6 +92,7 @@ yyerror(dexpr_t *UNUSED(cur), struct dexkv_s *UNUSED(ckv), const char *errmsg)
 %token TOK_STRING
 %token TOK_DATE
 %token TOK_TIME
+%token TOK_INT
 
 %token TOK_OR
 %token TOK_AND
@@ -111,11 +114,12 @@ root:
 	}
 
 stmt
-	: exp {
+	: {
+		memset(ckv, 0, sizeof(*ckv));
+	} exp {
 		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
 		$<dex>$->type = DEX_VAL;
 		$<dex>$->kv[0] = *ckv;
-		memset(ckv, 0, sizeof(*ckv));
 	}
 	| stmt TOK_OR stmt {
 		$<dex>$ = calloc(1, sizeof(struct dexpr_s));
@@ -139,12 +143,12 @@ stmt
 
 exp
 	: rhs
-	| spec TOK_LT { ckv->op = TOK_LT; } rhs
-	| spec TOK_GT { ckv->op = TOK_GT; } rhs
-	| spec TOK_LE { ckv->op = TOK_LE; } rhs
-	| spec TOK_GE { ckv->op = TOK_GE; } rhs
-	| spec TOK_EQ { ckv->op = TOK_EQ; } rhs
-	| spec TOK_NE { ckv->op = TOK_NE; } rhs
+	| spec TOK_LT { ckv->op = OP_LT; } rhs
+	| spec TOK_GT { ckv->op = OP_GT; } rhs
+	| spec TOK_LE { ckv->op = OP_LE; } rhs
+	| spec TOK_GE { ckv->op = OP_GE; } rhs
+	| spec TOK_EQ { ckv->op = OP_EQ; } rhs
+	| spec TOK_NE { ckv->op = OP_NE; } rhs
 	;
 
 spec
@@ -226,6 +230,21 @@ rhs
 			break;
 		default:
 			break;
+		}
+	}
+	| TOK_INT {
+		switch (ckv->sp.spfl) {
+		case DT_SPFL_N_MDAY:
+		case DT_SPFL_N_MON:
+		case DT_SPFL_N_YEAR:
+		case DT_SPFL_N_CNT_WEEK:
+		case DT_SPFL_N_CNT_MON:
+		case DT_SPFL_N_CNT_YEAR:
+			ckv->s = strtol($<sval>1, NULL, 10);
+			break;
+		default:
+			/* the rest can hardly have ints as inputs */
+			YYERROR;
 		}
 	}
 	;
