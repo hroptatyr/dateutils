@@ -319,18 +319,43 @@ __dnf(dexpr_t root)
 		__dnf(root->left);
 		__dnf(root->right);
 
+		/* upon ascent fixup double OR's */
 		if (root->left->type == DEX_DISJ &&
-		    root->left->right->type == DEX_CONJ) {
-			/* (a|(b&c)) | d  -> a | (b | c) */
+		    root->right->type == DEX_DISJ) {
+			/*      |             |
+			 *    /   \          / \
+			 *   |     |    ~>  a   |
+			 *  / \   / \          / \
+			 * a   b c   d        b   |
+			 *                       / \
+			 *                      c   d */
 			dexpr_t i = root->left;
 			dexpr_t j = root->right;
 			dexpr_t a = i->left;
-			dexpr_t b = j->right;
+			dexpr_t b = i->right;
+			dexpr_t c = j->left;
 
 			root->left = a;
 			root->right = i;
 			i->left = b;
 			i->right = j;
+			j->left = c;
+
+		} else if (root->left->type == DEX_DISJ) {
+			/*     |           |
+			 *    / \         / \
+			 *   |   c   ~>  a   |
+			 *  / \             / \
+			 * a   b           b   c */
+			dexpr_t i = root->left;
+			dexpr_t c = root->right;
+			dexpr_t a = i->left;
+			dexpr_t b = i->right;
+
+			root->left = a;
+			root->right = i;
+			i->left = b;
+			i->right = c;
 		}
 		break;
 
@@ -427,6 +452,9 @@ main(int argc, char *argv[])
 		__pr(root, 0);
 		fputc('\n', stdout);
 		__simplify(root);
+		__pr(root, 0);
+		fputc('\n', stdout);
+		/* also print an infix line */
 		__pr_infix(root);
 		fputc('\n', stdout);
 		free_dexpr(root);
