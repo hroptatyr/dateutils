@@ -243,6 +243,7 @@ __dnf(dexpr_t root)
 			/* now reuse what's possible */
 			root->type = DEX_DISJ;
 			root->left->type = DEX_CONJ;
+			root->left->left = a;
 			root->left->right = c;
 
 			root->right->type = DEX_DISJ;
@@ -261,7 +262,8 @@ __dnf(dexpr_t root)
 
 		} else if (rlt == DEX_DISJ || rrt == DEX_DISJ) {
 			/* ok'ish case
-			 * a&(b|c) -> a&b|a&c  or  (a|b)&c -> a&c|b&c */
+			 * a&(b|c) -> a&b|a&c
+			 * the other case gets normalised: (a|b)&c -> c&(a|b) */
 			dexpr_t a;
 			dexpr_t b;
 			dexpr_t c;
@@ -275,15 +277,18 @@ __dnf(dexpr_t root)
 			b = root->right->left;
 			c = root->right->right;
 
-			/* rearrange this node now, reuse the right disjoint */
+			/* turn into disjoint */
 			root->type = DEX_DISJ;
-			root->right->type = DEX_CONJ;
-			root->right->left = a;
-			root->right->right = c;
 
+			/* inflate left branch */
 			root->left = make_dexpr(DEX_CONJ);
 			root->left->left = a;
 			root->left->right = b;
+
+			/* rearrange this node now, reuse the right disjoint */
+			root->right->type = DEX_CONJ;
+			root->right->left = a;
+			root->right->right = c;
 		}
 		/* fallthrough! */
 	}
