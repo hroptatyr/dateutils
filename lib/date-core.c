@@ -1922,7 +1922,9 @@ next:
 		}
 	}
 out:
-	*ep = (char*)(fp + 1);
+	if (ep) {
+		*ep = (char*)(fp + 1);
+	}
 	return res;
 }
 

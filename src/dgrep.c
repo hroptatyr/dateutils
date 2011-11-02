@@ -42,24 +42,6 @@
 #include "date-core.h"
 #include "date-io.h"
 
-typedef uint32_t oper_t;
-
-enum {
-	OP_UNK = 0,
-	/* bit 1 set */
-	OP_EQ,
-	/* bit 2 set */
-	OP_LT,
-	OP_LE,
-	/* bit 3 set */
-	OP_GT,
-	OP_GE,
-	/* bits 2 and 3 set */
-	OP_NE,
-	/* bits 1, 2 and 3 set */
-	OP_TRUE,
-};
-
 
 static oper_t
 find_oper(const char *s, char **ep)

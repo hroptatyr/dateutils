@@ -338,12 +338,16 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 		size_t len = strlen(chk);
 
 		if (strncasecmp(chk, buf, len) == 0) {
-			*ep = buf + len;
+			if (ep) {
+				*ep = buf + len;
+			}
 			return i;
 		}
 	}
 	/* no matches */
-	*ep = buf;
+	if (ep) {
+		*ep = buf;
+	}
 	return -1U;
 }
 
