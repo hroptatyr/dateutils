@@ -41,22 +41,6 @@
 
 /* grrrrr, bug in bison */
 extern int yyparse();
-%}
-
-%option noyywrap
-%option nounput
-%option noinput
-%option bison-bridge
-%option header-file="lex.yy.h"
-%option outfile="lex.yy.c"
-%option pointer
-%option nodebug
-
-%{
-#define RETURN_TOKEN(_x)			\
-	do {					\
-		return _x;			\
-	} while (0)
 
 /* turn off tedious warnings */
 #if defined __INTEL_COMPILER
@@ -69,6 +53,21 @@ extern int yyparse();
 # pragma GCC diagnostic ignored "-Wsign-compare"
 # pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif	/* __GNUC__ || __INTEL_COMPILER */
+%}
+
+%option noyywrap
+%option nounput
+%option noinput
+%option warn
+%option bison-bridge
+%option pointer
+%option nodebug
+
+%{
+#define RETURN_TOKEN(_x)			\
+	do {					\
+		return _x;			\
+	} while (0)
 %}
 
 string	\"(\\.|[^\\\"])*\"|'(\\.|[^\\\'])*'
