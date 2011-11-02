@@ -65,10 +65,10 @@ rm_if_not_src()
 	srcd="${2:-${srcdir}}"
 	dirf=$(dirname "${file}")
 
-	if test "${dirf}" = "." -a "$(pwd)" = "${srcd}" -a -r "${file}"; then
+	if test "${dirf}" -ef "${srcd}"; then
 		## treat as precious source file
 		:
-	elif test "${dirf}" = "${srcd}"; then
+	elif test "$(pwd)" -ef "${srcd}"; then
 		## treat as precious source file
 		:
 	else
