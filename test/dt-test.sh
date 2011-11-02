@@ -138,7 +138,9 @@ if test -x "${builddir}/${TOOL}"; then
 	TOOL=$(xrealpath "${builddir}/${TOOL}")
 fi
 if test -z "${srcdir}"; then
-	srcdir=$(dirname "${0}")
+	srcdir=$(xrealpath $(dirname "${0}"))
+else
+	srcdir=$(xrealpath "${srcdir}")
 fi
 
 stdin=$(find_file "${stdin}")
