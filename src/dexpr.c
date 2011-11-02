@@ -238,6 +238,16 @@ dexpr_copy(const_dexpr_t src)
 	return res;
 }
 
+static dexpr_t
+dexpr_copy_j(dexpr_t src)
+{
+/* copy SRC, but only if it's a junction (disjunction or conjunction) */
+	if (src->type == DEX_VAL) {
+		return (dexpr_t)src;
+	}
+	return dexpr_copy(src);
+}
+
 static void
 __dnf(dexpr_t root)
 {
@@ -270,17 +280,17 @@ __dnf(dexpr_t root)
 
 			root->right->type = DEX_DISJ;
 			root->right->left = make_dexpr(DEX_CONJ);
-			root->right->left->left = dexpr_copy(a);
+			root->right->left->left = dexpr_copy_j(a);
 			root->right->left->right = d;
 
 			root->right->right = make_dexpr(DEX_DISJ);
 			root->right->right->left = make_dexpr(DEX_CONJ);
 			root->right->right->left->left = b;
-			root->right->right->left->right = dexpr_copy(c);
+			root->right->right->left->right = dexpr_copy_j(c);
 			/* right side, finalise the right branches with CONJ */
 			root->right->right->right = make_dexpr(DEX_CONJ);
-			root->right->right->right->left = dexpr_copy(b);
-			root->right->right->right->right = dexpr_copy(d);
+			root->right->right->right->left = dexpr_copy_j(b);
+			root->right->right->right->right = dexpr_copy_j(d);
 
 		} else if (rlt == DEX_DISJ || rrt == DEX_DISJ) {
 			/* ok'ish case
