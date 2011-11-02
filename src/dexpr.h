@@ -7,6 +7,9 @@
 typedef struct dexpr_s *dexpr_t;
 typedef const struct dexpr_s *const_dexpr_t;
 
+typedef struct dexkv_s *dexkv_t;
+typedef const struct dexkv_s *const_dexkv_t;
+
 typedef enum {
 	DEX_UNK,
 	DEX_VAL,
