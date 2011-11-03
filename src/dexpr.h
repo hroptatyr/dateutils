@@ -14,6 +14,7 @@ typedef enum {
 	DEX_UNK,
 	DEX_VAL,
 	DEX_CONJ,
+	/* must be last as other types will be considered inferior */
 	DEX_DISJ,
 } dex_type_t;
 

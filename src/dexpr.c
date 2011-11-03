@@ -555,11 +555,13 @@ dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
 	for (const_dexpr_t o = dex; o; o = o->right) {
 		const_dexpr_t a = o;
 		const_dexpr_t tmp;
+		bool conj = true;
 
 		switch (o->type) {
 		case DEX_VAL:
 			/* terminal */
-			return dexkv_matches_p(o->kv, d);
+			conj = dexkv_matches_p(o->kv, d);
+			break;
 		case DEX_DISJ:
 			for (a = o->left; a; a = a->right) {
 			/* fallthrough */
@@ -567,8 +569,9 @@ dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
 				/* near-terminal */
 				tmp = a->left ?: a;
 
-				if (dexkv_matches_p(tmp->kv, d)) {
-					return true;
+				if (!dexkv_matches_p(tmp->kv, d)) {
+					conj = false;
+					break;
 				}
 				if (a->left == NULL) {
 					break;
@@ -577,6 +580,14 @@ dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
 			break;
 		case DEX_UNK:
 		default:
+			conj = false;
+			break;
+		}
+		/* check if the conjunction held */
+		if (conj) {
+			return true;
+		} else if (o->type < DEX_DISJ) {
+			/* last disjunction cell */
 			return false;
 		}
 	}
