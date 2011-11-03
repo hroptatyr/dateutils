@@ -583,7 +583,7 @@ __disj_matches_p(const_dexpr_t dex, struct dt_d_s d)
 	return __conj_matches_p(o, d);
 }
 
-static bool
+static __attribute__((unused)) bool
 dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
 {
 	return __disj_matches_p(dex, d);
