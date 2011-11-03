@@ -469,6 +469,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 			return false;
 		}
 		switch (dkv->op) {
+		case OP_UNK:
 		case OP_EQ:
 			res = cmp == 0;
 			break;
@@ -491,7 +492,6 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 			res = true;
 			break;
 		default:
-		case OP_UNK:
 			res = false;
 			break;
 		}
