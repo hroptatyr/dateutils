@@ -209,6 +209,7 @@ __pr_infix(dexpr_t root)
 	return;
 }
 
+
 static dexpr_t
 make_dexpr(dex_type_t type)
 {
@@ -444,7 +445,7 @@ __denega(dexpr_t root)
 }
 
 static void
-__simplify(dexpr_t root)
+dexpr_simplify(dexpr_t root)
 {
 	__denega(root);
 	__dnf(root);
@@ -605,7 +606,7 @@ main(int argc, char *argv[])
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
 		fputc('\n', stdout);
-		__simplify(root);
+		dexpr_simplify(root);
 		__pr(root, 0);
 		fputc('\n', stdout);
 		/* also print an infix line */
