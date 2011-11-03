@@ -34,8 +34,7 @@ free_dexpr(dexpr_t root)
 	return;
 }
 
-#if defined STANDALONE
-static void
+static __attribute__((unused)) void
 __pr_val(struct dexkv_s *kv)
 {
 	switch (kv->sp.spfl) {
@@ -122,7 +121,7 @@ __pr_val(struct dexkv_s *kv)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr(dexpr_t root, size_t ind)
 {
 	switch (root->type) {
@@ -182,7 +181,7 @@ __pr(dexpr_t root, size_t ind)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr_infix(dexpr_t root)
 {
 	if (root->type == DEX_VAL) {
@@ -214,7 +213,6 @@ __pr_infix(dexpr_t root)
 	/* just ascend */
 	return;
 }
-#endif	/* STANDALONE */
 
 
 static dexpr_t
@@ -396,34 +394,6 @@ __nega_kv(struct dexkv_s *kv)
 }
 
 static void
-__trav_dexkv(dexpr_t root, void(*valf)(dexkv_t, void*), void *clo)
-{
-	dexpr_t left;
-	dexpr_t right;
-
-	switch (root->type) {
-	case DEX_CONJ:
-	case DEX_DISJ:
-		left = root->left;
-		right = root->right;
-		break;
-	case DEX_VAL:
-		valf(root->kv, clo);
-	case DEX_UNK:
-	default:
-		return;
-	}
-	/* descend */
-	if (left) {
-		__trav_dexkv(left, valf, clo);
-	}
-	if (right) {
-		__trav_dexkv(right, valf, clo);
-	}
-	return;
-}
-
-static void
 __denega(dexpr_t root)
 {
 	dexpr_t left;
@@ -480,11 +450,8 @@ __denega(dexpr_t root)
 }
 
 static void
-dexpr_simplify(dexpr_t root, void(*valf)(dexkv_t, void*), void *clo)
+dexpr_simplify(dexpr_t root)
 {
-	if (valf) {
-		__trav_dexkv(root, valf, clo);
-	}
 	__denega(root);
 	__dnf(root);
 	return;
@@ -634,7 +601,7 @@ main(int argc, char *argv[])
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
 		fputc('\n', stdout);
-		dexpr_simplify(root, NULL, NULL);
+		dexpr_simplify(root);
 		__pr(root, 0);
 		fputc('\n', stdout);
 		/* also print an infix line */

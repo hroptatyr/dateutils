@@ -47,30 +47,6 @@
 /* dexpr subsystem */
 #include "dexpr.c"
 
-struct __dexpr_strpd_clo_s {
-	size_t nfmt;
-	char **fmt;
-};
-
-static void
-__dexpr_strpd(dexkv_t kv, void *clo)
-{
-/* callback for valuation function */
-	struct __dexpr_strpd_clo_s *fp = clo;
-	struct dt_d_s tmp;
-
-	if (kv->sp.spfl != DT_SPFL_N_STD) {
-		return;
-	}
-	if ((tmp = dt_io_strpd(kv->dstr, fp->fmt, fp->nfmt)).typ == DT_UNK &&
-	    (tmp = dt_strpd(kv->dstr, NULL, NULL)).typ == DT_UNK) {
-		/* invalidate cell */
-		;
-	}
-	kv->d = tmp;
-	return;
-}
-
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -141,13 +117,7 @@ with complex expressions\n",
 	}
 
 	/* otherwise bring dexpr to normal form */
-	{
-		struct __dexpr_strpd_clo_s fmtclo = {
-			.nfmt = nfmt,
-			.fmt = fmt,
-		};
-		dexpr_simplify(root, __dexpr_strpd, &fmtclo);
-	}
+	dexpr_simplify(root);
 	/* beef */
 	{
 		/* read from stdin */
