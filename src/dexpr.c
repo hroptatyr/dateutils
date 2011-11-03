@@ -609,24 +609,6 @@ main(int argc, char *argv[])
 		fputc('\n', stdout);
 		free_dexpr(root);
 	}
-	/* now read lines one by one and check their truth */
-	{
-		char *line = NULL;
-		size_t llen = 0;
-		ssize_t nrd;
-
-		while ((nrd = getline(&line, &llen, stdin)) >= 0) {
-			struct dt_d_s d = dt_strpd(line, NULL, NULL);
-
-			fwrite(line, 1, nrd - 1, stdout);
-			if (d.typ > DT_UNK && dexpr_matches_p(root, d)) {
-				fputs("\tyep\n", stdout);
-			} else {
-				fputs("\tnay\n", stdout);
-			}
-		}
-		free(line);
-	}
 	return 0;
 }
 #endif	/* STANDALONE */
