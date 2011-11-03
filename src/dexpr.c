@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "dexpr.h"
 #include "dexpr-parser.h"
 
@@ -451,6 +452,34 @@ __simplify(dexpr_t root)
 }
 
 
+static bool
+dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
+{
+	return false;
+}
+
+static bool
+dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	for (const_dexpr_t o = dex; o; o = o->right) {
+		if (o->type == DEX_VAL) {
+			return dexkv_matches_p(o->kv, d);
+		}
+		for (const_dexpr_t a = o->left; a; a = a->right) {
+			const_dexpr_t tmp = a->left ?: a;
+
+			if (dexkv_matches_p(tmp->kv, d)) {
+				return true;
+			}
+			if (a->left == NULL) {
+				break;
+			}
+		}
+	}
+	return false;
+}
+
+
 int
 main(int argc, char *argv[])
 {
@@ -468,6 +497,24 @@ main(int argc, char *argv[])
 		__pr_infix(root);
 		fputc('\n', stdout);
 		free_dexpr(root);
+	}
+	/* now read lines one by one and check their truth */
+	{
+		char *line = NULL;
+		size_t llen = 0;
+		ssize_t nrd;
+
+		while ((nrd = getline(&line, &llen, stdin)) >= 0) {
+			struct dt_d_s d = dt_strpd(line, NULL, NULL);
+
+			fwrite(line, 1, nrd - 1, stdout);
+			if (d.typ > DT_UNK && dexpr_matches_p(root, d)) {
+				fputs("\tyep\n", stdout);
+			} else {
+				fputs("\tnay\n", stdout);
+			}
+		}
+		free(line);
 	}
 	return 0;
 }
