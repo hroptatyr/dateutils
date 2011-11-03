@@ -455,13 +455,12 @@ __simplify(dexpr_t root)
 static bool
 dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 {
-	switch (dkv->sp.spfl) {
-	case DT_SPFL_N_STD: {
-		int cmp = dt_cmp(dkv->d, d);
-		bool res;
+	signed int cmp;
+	bool res;
 
-		if (cmp == -2) {
-			break;
+	if (dkv->sp.spfl == DT_SPFL_N_STD) {
+		if ((cmp = dt_cmp(dkv->d, d)) == -2) {
+			return false;
 		}
 		switch (dkv->op) {
 		case OP_EQ:
@@ -492,10 +491,62 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 		}
 		return res;
 	}
+	/* otherwise it's stuff that uses the S slot */
+	switch (dkv->sp.spfl) {
+	case DT_SPFL_N_YEAR:
+		cmp = dt_get_year(d);
+		break;
+	case DT_SPFL_N_MON:
+	case DT_SPFL_S_MON:
+		cmp = dt_get_mon(d);
+		break;
+	case DT_SPFL_N_MDAY:
+		cmp = dt_get_mday(d);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_S_WDAY:
+		cmp = dt_get_wday(d);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		/* exotic function, needs extern'ing */
+		cmp = /*dt_get_count(d)*/0;
+		break;
+	case DT_SPFL_N_CNT_YEAR:
+		cmp = dt_get_yday(d);
+		break;
+	case DT_SPFL_N_STD:
 	default:
+		return false;
+	}
+	/* now do the actual comparison */
+	switch (dkv->op) {
+	case OP_EQ:
+		res = dkv->s == cmp;
+		break;
+	case OP_LT:
+		res = dkv->s < cmp;
+		break;
+	case OP_LE:
+		res = dkv->s <= cmp;
+		break;
+	case OP_GT:
+		res = dkv->s > cmp;
+		break;
+	case OP_GE:
+		res = dkv->s >= cmp;
+		break;
+	case OP_NE:
+		res = dkv->s != cmp;
+		break;
+	case OP_TRUE:
+		res = true;
+		break;
+	default:
+	case OP_UNK:
+		res = false;
 		break;
 	}
-	return false;
+	return res;
 }
 
 static bool
