@@ -1,8 +1,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "dexpr.h"
 #include "dexpr-parser.h"
+
+#if !defined STANDALONE
+#include "dexpr-parser.c"
+#include "dexpr-scanner.c"
+#endif	/* !STANDALONE */
 
 static void
 free_dexpr(dexpr_t root)
@@ -28,6 +34,7 @@ free_dexpr(dexpr_t root)
 	return;
 }
 
+#if defined STANDALONE
 static void
 __pr_val(struct dexkv_s *kv)
 {
@@ -207,7 +214,9 @@ __pr_infix(dexpr_t root)
 	/* just ascend */
 	return;
 }
+#endif	/* STANDALONE */
 
+
 static dexpr_t
 make_dexpr(dex_type_t type)
 {
@@ -387,6 +396,34 @@ __nega_kv(struct dexkv_s *kv)
 }
 
 static void
+__trav_dexkv(dexpr_t root, void(*valf)(dexkv_t, void*), void *clo)
+{
+	dexpr_t left;
+	dexpr_t right;
+
+	switch (root->type) {
+	case DEX_CONJ:
+	case DEX_DISJ:
+		left = root->left;
+		right = root->right;
+		break;
+	case DEX_VAL:
+		valf(root->kv, clo);
+	case DEX_UNK:
+	default:
+		return;
+	}
+	/* descend */
+	if (left) {
+		__trav_dexkv(left, valf, clo);
+	}
+	if (right) {
+		__trav_dexkv(right, valf, clo);
+	}
+	return;
+}
+
+static void
 __denega(dexpr_t root)
 {
 	dexpr_t left;
@@ -443,14 +480,150 @@ __denega(dexpr_t root)
 }
 
 static void
-__simplify(dexpr_t root)
+dexpr_simplify(dexpr_t root, void(*valf)(dexkv_t, void*), void *clo)
 {
+	if (valf) {
+		__trav_dexkv(root, valf, clo);
+	}
 	__denega(root);
 	__dnf(root);
 	return;
 }
 
 
+static bool
+dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
+{
+	signed int cmp;
+	bool res;
+
+	if (dkv->sp.spfl == DT_SPFL_N_STD) {
+		if ((cmp = dt_cmp(d, dkv->d)) == -2) {
+			return false;
+		}
+		switch (dkv->op) {
+		case OP_UNK:
+		case OP_EQ:
+			res = cmp == 0;
+			break;
+		case OP_LT:
+			res = cmp < 0;
+			break;
+		case OP_LE:
+			res = cmp <= 0;
+			break;
+		case OP_GT:
+			res = cmp > 0;
+			break;
+		case OP_GE:
+			res = cmp >= 0;
+			break;
+		case OP_NE:
+			res = cmp != 0;
+			break;
+		case OP_TRUE:
+			res = true;
+			break;
+		default:
+			res = false;
+			break;
+		}
+		return res;
+	}
+	/* otherwise it's stuff that uses the S slot */
+	switch (dkv->sp.spfl) {
+	case DT_SPFL_N_YEAR:
+		cmp = dt_get_year(d);
+		break;
+	case DT_SPFL_N_MON:
+	case DT_SPFL_S_MON:
+		cmp = dt_get_mon(d);
+		break;
+	case DT_SPFL_N_MDAY:
+		cmp = dt_get_mday(d);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_S_WDAY:
+		cmp = dt_get_wday(d);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		/* exotic function, needs extern'ing */
+		cmp = /*dt_get_count(d)*/0;
+		break;
+	case DT_SPFL_N_CNT_YEAR:
+		cmp = dt_get_yday(d);
+		break;
+	case DT_SPFL_N_STD:
+	default:
+		return false;
+	}
+	/* now do the actual comparison */
+	switch (dkv->op) {
+	case OP_EQ:
+		res = dkv->s == cmp;
+		break;
+	case OP_LT:
+		res = dkv->s < cmp;
+		break;
+	case OP_LE:
+		res = dkv->s <= cmp;
+		break;
+	case OP_GT:
+		res = dkv->s > cmp;
+		break;
+	case OP_GE:
+		res = dkv->s >= cmp;
+		break;
+	case OP_NE:
+		res = dkv->s != cmp;
+		break;
+	case OP_TRUE:
+		res = true;
+		break;
+	default:
+	case OP_UNK:
+		res = false;
+		break;
+	}
+	return res;
+}
+
+static bool
+__conj_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	const_dexpr_t a;
+
+	for (a = dex; a->type == DEX_CONJ; a = a->right) {
+		if (!dexkv_matches_p(a->left->kv, d)) {
+			return false;
+		}
+	}
+	/* rightmost cell might be a DEX_VAL */
+	return dexkv_matches_p(a->kv, d);
+}
+
+static bool
+__disj_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	const_dexpr_t o;
+
+	for (o = dex; o->type == DEX_DISJ; o = o->right) {
+		if (__conj_matches_p(o->left, d)) {
+			return true;
+		}
+	}
+	/* rightmost cell may be a DEX_VAL */
+	return __conj_matches_p(o, d);
+}
+
+static __attribute__((unused)) bool
+dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	return __disj_matches_p(dex, d);
+}
+
+
+#if defined STANDALONE
 int
 main(int argc, char *argv[])
 {
@@ -461,7 +634,7 @@ main(int argc, char *argv[])
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
 		fputc('\n', stdout);
-		__simplify(root);
+		dexpr_simplify(root, NULL, NULL);
 		__pr(root, 0);
 		fputc('\n', stdout);
 		/* also print an infix line */
@@ -471,5 +644,6 @@ main(int argc, char *argv[])
 	}
 	return 0;
 }
+#endif	/* STANDALONE */
 
 /* dexpr.c ends here */
