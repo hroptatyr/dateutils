@@ -5,6 +5,11 @@
 #include "dexpr.h"
 #include "dexpr-parser.h"
 
+#if !defined STANDALONE
+#include "dexpr-parser.c"
+#include "dexpr-scanner.c"
+#endif	/* !STANDALONE */
+
 static void
 free_dexpr(dexpr_t root)
 {
@@ -29,7 +34,7 @@ free_dexpr(dexpr_t root)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr_val(struct dexkv_s *kv)
 {
 	switch (kv->sp.spfl) {
@@ -116,7 +121,7 @@ __pr_val(struct dexkv_s *kv)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr(dexpr_t root, size_t ind)
 {
 	switch (root->type) {
@@ -176,7 +181,7 @@ __pr(dexpr_t root, size_t ind)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr_infix(dexpr_t root)
 {
 	if (root->type == DEX_VAL) {
@@ -585,6 +590,7 @@ dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
 }
 
 
+#if defined STANDALONE
 int
 main(int argc, char *argv[])
 {
@@ -623,5 +629,6 @@ main(int argc, char *argv[])
 	}
 	return 0;
 }
+#endif	/* STANDALONE */
 
 /* dexpr.c ends here */
