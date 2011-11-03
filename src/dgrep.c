@@ -41,107 +41,11 @@
 #include <time.h>
 #include "date-core.h"
 #include "date-io.h"
+#include "dexpr.h"
 
 
-static oper_t
-find_oper(const char *s, char **ep)
-{
-#if defined __INTEL_COMPILER
-/* we MUST return a char* */
-# pragma warning (disable:2203)
-#endif	/* __INTEL_COMPILER */
-	oper_t res = OP_UNK;
-
-	switch (*s) {
-	default:
-		break;
-	case '<':
-		switch (*++s) {
-		default:
-			res = OP_LT;
-			break;
-		case '=':
-			res = OP_LE;
-			s++;
-			break;
-		case '>':
-			res = OP_NE;
-			s++;
-			break;
-		}
-		break;
-	case '>':
-		switch (*++s) {
-		default:
-			res = OP_GT;
-			break;
-		case '=':
-			res = OP_GE;
-			s++;
-			break;
-		}
-		break;
-	case '=':
-		switch (*++s) {
-		case '=':
-			s++;
-		default:
-			res = OP_EQ;
-			break;
-		case '>':
-			res = OP_GE;
-			s++;
-			break;
-		}
-		break;
-	case '!':
-		switch (*++s) {
-		case '=':
-			s++;
-		default:
-			res = OP_NE;
-			break;
-		}
-		break;
-	}
-	if (ep) {
-		*ep = (char*)s;
-	}
-	return res;
-#if defined __INTEL_COMPILER
-# pragma warning (default:2203)
-#endif	/* __INTEL_COMPILER */
-}
-
-static bool
-matchp(struct dt_d_s lined, struct dt_d_s refd, oper_t o)
-{
-	int cmp;
-
-	if ((cmp = dt_cmp(lined, refd)) == -2 && o != OP_TRUE) {
-		return false;
-	}
-
-	switch (o) {
-	case OP_EQ:
-		return cmp == 0;
-	case OP_LT:
-		return cmp < 0;
-	case OP_LE:
-		return cmp <= 0;
-	case OP_GT:
-		return cmp > 0;
-	case OP_GE:
-		return cmp >= 0;
-	case OP_NE:
-		return cmp != 0;
-	case OP_TRUE:
-		return true;
-	case OP_UNK:
-	default:
-		return false;
-	}
-}
+/* dexpr subsystem */
+#include "dexpr.c"
 
 
 #if defined __INTEL_COMPILER
@@ -159,10 +63,9 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s refd;
 	char **fmt;
 	size_t nfmt;
-	char *inp;
+	dexpr_t root;
 	oper_t o = OP_UNK;
 	int res = 0;
 
@@ -193,18 +96,29 @@ main(int argc, char *argv[])
 	} else if (argi->ge_given) {
 		o = OP_GE;
 	}
-	if (UNLIKELY(argi->inputs_num == 0)) {
-		o = OP_TRUE;
-	} else if (argi->inputs_num > 1 ||
-	    (o |= find_oper(argi->inputs[0], &inp)) == OP_TRUE ||
-	    (refd = dt_io_strpd(inp, fmt, nfmt)).typ == DT_UNK) {
+	/* parse the expression */
+	if (argi->inputs_num == 0 || 
+	    dexpr_parse(&root, argi->inputs[0], strlen(argi->inputs[0])) < 0) {
 		res = 1;
-		fputs("need a DATE to grep\n", stderr);
+		fputs("need an expression to grep\n", stderr);
 		goto out;
 	}
-
 	/* fixup o, default is OP_EQ */
-	o = o ?: OP_EQ;
+	if (o != OP_UNK && root->type != DEX_VAL) {
+		res = 1;
+		fputs("\
+long opt operators (--lt, --gt, ...) cannot be used in conjunction \n\
+with complex expressions\n",
+		      stderr);
+		goto out;
+	} else if (o != OP_UNK) {
+		/* fiddle with the operator in the expression */
+		root->kv->op = o;
+	}
+
+	/* otherwise bring dexpr to normal form */
+	dexpr_simplify(root);
+	/* beef */
 	{
 		/* read from stdin */
 		FILE *fp = stdin;
@@ -242,7 +156,7 @@ main(int argc, char *argv[])
 			 * there is currently no way to specify NEEDLE */
 			d = dt_io_find_strpd2(
 				line, &ndlsoa, (char**)&sp, (char**)&ep);
-			if (d.typ && matchp(d, refd, o)) {
+			if (d.typ && dexpr_matches_p(root, d)) {
 				if (!argi->only_matching_given) {
 					sp = line;
 					ep = line + n - 1;
@@ -257,7 +171,8 @@ main(int argc, char *argv[])
 			free(needle);
 		}
 	}
-
+	/* resource freeing */
+	free_dexpr(root);
 out:
 	cmdline_parser_free(argi);
 	return res;
