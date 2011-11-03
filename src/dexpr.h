@@ -24,6 +24,7 @@ struct dexkv_s {
 	union {
 		struct dt_d_s d;
 		signed int s;
+		const char *dstr;
 	};
 };
 

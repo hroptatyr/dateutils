@@ -161,8 +161,7 @@ spec
 
 rhs
 	: TOK_DATE {
-		struct dt_d_s d = dt_strpd($<sval>1, NULL, NULL);
-		ckv->d = d;
+		ckv->dstr = $<sval>1;
 		ckv->sp.spfl = DT_SPFL_N_STD;
 	}
 	| TOK_TIME {
