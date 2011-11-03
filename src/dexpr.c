@@ -1,8 +1,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "dexpr.h"
 #include "dexpr-parser.h"
+
+#if !defined STANDALONE
+#include "dexpr-parser.c"
+#include "dexpr-scanner.c"
+#endif	/* !STANDALONE */
 
 static void
 free_dexpr(dexpr_t root)
@@ -28,7 +34,7 @@ free_dexpr(dexpr_t root)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr_val(struct dexkv_s *kv)
 {
 	switch (kv->sp.spfl) {
@@ -115,7 +121,7 @@ __pr_val(struct dexkv_s *kv)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr(dexpr_t root, size_t ind)
 {
 	switch (root->type) {
@@ -175,7 +181,7 @@ __pr(dexpr_t root, size_t ind)
 	return;
 }
 
-static void
+static __attribute__((unused)) void
 __pr_infix(dexpr_t root)
 {
 	if (root->type == DEX_VAL) {
@@ -208,6 +214,7 @@ __pr_infix(dexpr_t root)
 	return;
 }
 
+
 static dexpr_t
 make_dexpr(dex_type_t type)
 {
@@ -236,6 +243,16 @@ dexpr_copy(const_dexpr_t src)
 		break;
 	}
 	return res;
+}
+
+static dexpr_t
+dexpr_copy_j(dexpr_t src)
+{
+/* copy SRC, but only if it's a junction (disjunction or conjunction) */
+	if (src->type == DEX_VAL) {
+		return (dexpr_t)src;
+	}
+	return dexpr_copy(src);
 }
 
 static void
@@ -270,17 +287,17 @@ __dnf(dexpr_t root)
 
 			root->right->type = DEX_DISJ;
 			root->right->left = make_dexpr(DEX_CONJ);
-			root->right->left->left = dexpr_copy(a);
+			root->right->left->left = dexpr_copy_j(a);
 			root->right->left->right = d;
 
 			root->right->right = make_dexpr(DEX_DISJ);
 			root->right->right->left = make_dexpr(DEX_CONJ);
 			root->right->right->left->left = b;
-			root->right->right->left->right = dexpr_copy(c);
+			root->right->right->left->right = dexpr_copy_j(c);
 			/* right side, finalise the right branches with CONJ */
 			root->right->right->right = make_dexpr(DEX_CONJ);
-			root->right->right->right->left = dexpr_copy(b);
-			root->right->right->right->right = dexpr_copy(d);
+			root->right->right->right->left = dexpr_copy_j(b);
+			root->right->right->right->right = dexpr_copy_j(d);
 
 		} else if (rlt == DEX_DISJ || rrt == DEX_DISJ) {
 			/* ok'ish case
@@ -433,7 +450,7 @@ __denega(dexpr_t root)
 }
 
 static void
-__simplify(dexpr_t root)
+dexpr_simplify(dexpr_t root)
 {
 	__denega(root);
 	__dnf(root);
@@ -441,6 +458,139 @@ __simplify(dexpr_t root)
 }
 
 
+static bool
+dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
+{
+	signed int cmp;
+	bool res;
+
+	if (dkv->sp.spfl == DT_SPFL_N_STD) {
+		if ((cmp = dt_cmp(d, dkv->d)) == -2) {
+			return false;
+		}
+		switch (dkv->op) {
+		case OP_UNK:
+		case OP_EQ:
+			res = cmp == 0;
+			break;
+		case OP_LT:
+			res = cmp < 0;
+			break;
+		case OP_LE:
+			res = cmp <= 0;
+			break;
+		case OP_GT:
+			res = cmp > 0;
+			break;
+		case OP_GE:
+			res = cmp >= 0;
+			break;
+		case OP_NE:
+			res = cmp != 0;
+			break;
+		case OP_TRUE:
+			res = true;
+			break;
+		default:
+			res = false;
+			break;
+		}
+		return res;
+	}
+	/* otherwise it's stuff that uses the S slot */
+	switch (dkv->sp.spfl) {
+	case DT_SPFL_N_YEAR:
+		cmp = dt_get_year(d);
+		break;
+	case DT_SPFL_N_MON:
+	case DT_SPFL_S_MON:
+		cmp = dt_get_mon(d);
+		break;
+	case DT_SPFL_N_MDAY:
+		cmp = dt_get_mday(d);
+		break;
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_S_WDAY:
+		cmp = dt_get_wday(d);
+		break;
+	case DT_SPFL_N_CNT_MON:
+		/* exotic function, needs extern'ing */
+		cmp = /*dt_get_count(d)*/0;
+		break;
+	case DT_SPFL_N_CNT_YEAR:
+		cmp = dt_get_yday(d);
+		break;
+	case DT_SPFL_N_STD:
+	default:
+		return false;
+	}
+	/* now do the actual comparison */
+	switch (dkv->op) {
+	case OP_EQ:
+		res = dkv->s == cmp;
+		break;
+	case OP_LT:
+		res = dkv->s < cmp;
+		break;
+	case OP_LE:
+		res = dkv->s <= cmp;
+		break;
+	case OP_GT:
+		res = dkv->s > cmp;
+		break;
+	case OP_GE:
+		res = dkv->s >= cmp;
+		break;
+	case OP_NE:
+		res = dkv->s != cmp;
+		break;
+	case OP_TRUE:
+		res = true;
+		break;
+	default:
+	case OP_UNK:
+		res = false;
+		break;
+	}
+	return res;
+}
+
+static bool
+__conj_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	const_dexpr_t a;
+
+	for (a = dex; a->type == DEX_CONJ; a = a->right) {
+		if (!dexkv_matches_p(a->left->kv, d)) {
+			return false;
+		}
+	}
+	/* rightmost cell might be a DEX_VAL */
+	return dexkv_matches_p(a->kv, d);
+}
+
+static bool
+__disj_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	const_dexpr_t o;
+
+	for (o = dex; o->type == DEX_DISJ; o = o->right) {
+		if (__conj_matches_p(o->left, d)) {
+			return true;
+		}
+	}
+	/* rightmost cell may be a DEX_VAL */
+	return __conj_matches_p(o, d);
+}
+
+static __attribute__((unused)) bool
+dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
+{
+	return __disj_matches_p(dex, d);
+}
+
+
+#if defined STANDALONE
 int
 main(int argc, char *argv[])
 {
@@ -451,7 +601,7 @@ main(int argc, char *argv[])
 		dexpr_parse(&root, argv[i], strlen(argv[i]));
 		__pr(root, 0);
 		fputc('\n', stdout);
-		__simplify(root);
+		dexpr_simplify(root);
 		__pr(root, 0);
 		fputc('\n', stdout);
 		/* also print an infix line */
@@ -461,5 +611,6 @@ main(int argc, char *argv[])
 	}
 	return 0;
 }
+#endif	/* STANDALONE */
 
 /* dexpr.c ends here */
