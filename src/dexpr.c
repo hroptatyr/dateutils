@@ -455,6 +455,46 @@ __simplify(dexpr_t root)
 static bool
 dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 {
+	switch (dkv->sp.spfl) {
+	case DT_SPFL_N_STD: {
+		int cmp = dt_cmp(dkv->d, d);
+		bool res;
+
+		if (cmp == -2) {
+			break;
+		}
+		switch (dkv->op) {
+		case OP_EQ:
+			res = cmp == 0;
+			break;
+		case OP_LT:
+			res = cmp >= 0;
+			break;
+		case OP_LE:
+			res = cmp > 0;
+			break;
+		case OP_GT:
+			res = cmp <= 0;
+			break;
+		case OP_GE:
+			res = cmp < 0;
+			break;
+		case OP_NE:
+			res = cmp != 0;
+			break;
+		case OP_TRUE:
+			res = true;
+			break;
+		default:
+		case OP_UNK:
+			res = false;
+			break;
+		}
+		return res;
+	}
+	default:
+		break;
+	}
 	return false;
 }
 
