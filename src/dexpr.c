@@ -460,7 +460,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 	bool res;
 
 	if (dkv->sp.spfl == DT_SPFL_N_STD) {
-		if ((cmp = dt_cmp(dkv->d, d)) == -2) {
+		if ((cmp = dt_cmp(d, dkv->d)) == -2) {
 			return false;
 		}
 		switch (dkv->op) {
@@ -468,16 +468,16 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 			res = cmp == 0;
 			break;
 		case OP_LT:
-			res = cmp >= 0;
+			res = cmp < 0;
 			break;
 		case OP_LE:
-			res = cmp > 0;
-			break;
-		case OP_GT:
 			res = cmp <= 0;
 			break;
+		case OP_GT:
+			res = cmp > 0;
+			break;
 		case OP_GE:
-			res = cmp < 0;
+			res = cmp >= 0;
 			break;
 		case OP_NE:
 			res = cmp != 0;
