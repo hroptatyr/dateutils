@@ -462,18 +462,31 @@ static bool
 dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
 {
 	for (const_dexpr_t o = dex; o; o = o->right) {
-		if (o->type == DEX_VAL) {
-			return dexkv_matches_p(o->kv, d);
-		}
-		for (const_dexpr_t a = o->left; a; a = a->right) {
-			const_dexpr_t tmp = a->left ?: a;
+		const_dexpr_t a = o;
+		const_dexpr_t tmp;
 
-			if (dexkv_matches_p(tmp->kv, d)) {
-				return true;
+		switch (o->type) {
+		case DEX_VAL:
+			/* terminal */
+			return dexkv_matches_p(o->kv, d);
+		case DEX_DISJ:
+			for (a = o->left; a; a = a->right) {
+			/* fallthrough */
+		case DEX_CONJ:
+				/* near-terminal */
+				tmp = a->left ?: a;
+
+				if (dexkv_matches_p(tmp->kv, d)) {
+					return true;
+				}
+				if (a->left == NULL) {
+					break;
+				}
 			}
-			if (a->left == NULL) {
-				break;
-			}
+			break;
+		case DEX_UNK:
+		default:
+			return false;
 		}
 	}
 	return false;
