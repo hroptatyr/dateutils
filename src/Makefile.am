@@ -7,6 +7,7 @@ M4 = m4
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
+noinst_HEADERS =
 BUILT_SOURCES =
 CLEANFILES =
 GGO_HELPERS =
@@ -16,7 +17,8 @@ GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
 GGO_HELPERS += common.ggo.in
 
 DT_INCLUDES = -I$(top_srcdir)/lib
-noinst_HEADERS = date-io.h time-io.h
+noinst_HEADERS += date-io.h
+noinst_HEADERS += time-io.h
 
 bin_PROGRAMS += dseq
 dseq_SOURCES = dseq.c dseq-clo.ggo
