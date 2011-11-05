@@ -42,6 +42,6 @@ struct dexpr_s {
 
 
 /* parser routine */
-extern int dexpr_parse(dexpr_t *root, char *s, size_t l);
+extern int dexpr_parse(dexpr_t *root, const char *s, size_t l);
 
 #endif	/* INCLUDED_dexpr_h_ */

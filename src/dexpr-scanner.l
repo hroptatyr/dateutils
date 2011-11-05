@@ -122,16 +122,20 @@ int	[0-9]+
 %%
 
 int
-dexpr_parse(dexpr_t *root, char *s, size_t l)
+dexpr_parse(dexpr_t *root, const char *s, size_t l)
 {
 	YY_BUFFER_STATE buf;
+	char *scan;
 	int res;
 
 	/* hack to avoid string dup'ing, we assume, that l can take
 	 * at least 2 more bytes */
-	s[l++] = '\0';
-	s[l++] = '\0';
-	buf = yy_scan_buffer(s, l);
+	
+	scan = malloc(l + 2);
+	memcpy(scan, s, l);
+	scan[l++] = '\0';
+	scan[l++] = '\0';
+	buf = yy_scan_buffer(scan, l);
 
 	/* parse them */
 	res = yyparse(root);
