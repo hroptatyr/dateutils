@@ -2325,8 +2325,13 @@ __strfd_card(
 		if (LIKELY(!s.bizda)) {
 			d->d = d->d ?: dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
-		} else {
+		} else if (s.ab == BIZDA_AFTER) {
 			d->b = d->b ?: dt_get_bday(that);
+			res = ui32tostr(buf, bsz, d->b, 2);
+		} else /*if (s.ab == BIZDA_BEFORE)*/ {
+			int mb = __get_bdays(d->y, d->m);
+			int bd = dt_get_bday(that);
+			d->b = mb - bd;
 			res = ui32tostr(buf, bsz, d->b, 2);
 		}
 		break;
