@@ -2681,7 +2681,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 				bp += __ordtostr(bp, eo - bp);
 			} else if (spec.bizda) {
 				/* don't print the b after an ordinal */
-				if (d.flags.ab == BIZDA_AFTER) {
+				if (spec.ab == BIZDA_AFTER) {
 					*bp++ = 'b';
 				} else {
 					*bp++ = 'B';
