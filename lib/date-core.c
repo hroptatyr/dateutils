@@ -1282,6 +1282,9 @@ dt_get_bday(struct dt_d_s that)
 		dt_bizda_param_t p = __get_bizda_param(that);
 		if (p.ab == BIZDA_AFTER && p.ref == BIZDA_ULTIMO) {
 			return that.bizda.bd;
+		} else if (p.ab == BIZDA_BEFORE && p.ref == BIZDA_ULTIMO) {
+			int mb = __get_bdays(that.bizda.y, that.bizda.m);
+			return mb - that.bizda.bd;
 		}
 		return 0;
 	}
@@ -1308,8 +1311,13 @@ dt_get_bday_q(struct dt_d_s that, dt_bizda_param_t bp)
 	switch (that.typ) {
 	case DT_BIZDA: {
 		dt_bizda_param_t thatp = __get_bizda_param(that);
-		if (thatp.ref == bp.ref && thatp.ab == bp.ab) {
+		if (UNLIKELY(thatp.ref != bp.ref)) {
+			;
+		} else if (thatp.ab == bp.ab) {
 			return that.bizda.bd;
+		} else {
+			int mb = __get_bdays(that.bizda.y, that.bizda.m);
+			return mb - that.bizda.bd;
 		}
 		return 0/*__bizda_to_bizda(that.bizda, ba, ref)*/;
 	}
@@ -2325,14 +2333,10 @@ __strfd_card(
 		if (LIKELY(!s.bizda)) {
 			d->d = d->d ?: dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
-		} else if (s.ab == BIZDA_AFTER) {
-			d->b = d->b ?: dt_get_bday(that);
-			res = ui32tostr(buf, bsz, d->b, 2);
-		} else /*if (s.ab == BIZDA_BEFORE)*/ {
-			int mb = __get_bdays(d->y, d->m);
-			int bd = dt_get_bday(that);
-			d->b = mb - bd;
-			res = ui32tostr(buf, bsz, d->b, 2);
+		} else {
+			int bd = dt_get_bday_q(
+				that, __make_bizda_param(s.ab, BIZDA_ULTIMO));
+			res = ui32tostr(buf, bsz, bd, 2);
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
