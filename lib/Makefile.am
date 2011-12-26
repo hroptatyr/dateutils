@@ -15,6 +15,7 @@ header_HEADERS =
 header_HEADERS += date-core.h date-core.c
 header_HEADERS += time-core.h time-core.c
 header_HEADERS += strops.h strops.c
+header_HEADERS += token.h
 
 noinst_PROGRAMS += testlib
 testlib_CPPFLAGS = $(AM_CPPFLAGS)
