@@ -176,6 +176,14 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_END	(2059)
 };
 
+#undef M
+#undef T
+#undef W
+#undef R
+#undef F
+#undef A
+#undef S
+
 static uint16_t __mon_yday[] = {
 /* this is \sum ml, first element is a bit set of leap days to add */
 	0xfff8, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
