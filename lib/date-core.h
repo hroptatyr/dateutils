@@ -180,35 +180,11 @@ enum {
 	OP_TRUE,
 };
 
+
 /* spec tokeniser, spec flags plus modifiers and stuff */
-typedef enum {
-	DT_SPFL_UNK,
+#include "token.h"
 
-	DT_SPFL_N_MDAY,
-	DT_SPFL_N_MON,
-	DT_SPFL_N_YEAR,
-	/* %F, but generally stands for calendar's standard format */
-	DT_SPFL_N_STD,
-	/* for 4-level calendars this counts the property within the week */
-	DT_SPFL_N_CNT_WEEK,
-	/* count of property within the month, %d could be mapped here */
-	DT_SPFL_N_CNT_MON,
-	/* count of property within the year */
-	DT_SPFL_N_CNT_YEAR,
-	DT_SPFL_N_QTR,
-	DT_SPFL_N_LAST = DT_SPFL_N_QTR,
-
-	DT_SPFL_S_WDAY,
-	DT_SPFL_S_MON,
-	DT_SPFL_S_QTR,
-	DT_SPFL_S_LAST = DT_SPFL_S_QTR,
-
-	DT_SPFL_LIT_PERCENT,
-	DT_SPFL_LIT_TAB,
-	DT_SPFL_LIT_NL,
-} dt_spfl_t;
-
-struct dt_spec_s {
+struct dt_dspec_s {
 	struct {
 		/* ordinal flag, 01, 02, 03 -> 1st 2nd 3rd */
 		unsigned int ord:1;

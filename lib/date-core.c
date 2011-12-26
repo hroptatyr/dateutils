@@ -1837,10 +1837,10 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 
 
 /* spec tokenisers */
-static struct dt_spec_s
+static struct dt_dspec_s
 __tok_spec(const char *fp, char **ep)
 {
-	struct dt_spec_s res = {0};
+	struct dt_dspec_s res = {0};
 
 	if (*fp != '%') {
 		goto out;
@@ -2104,7 +2104,7 @@ out:
 }
 
 static int
-__strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
+__strpd_card(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
 {
 	int res = 0;
 
@@ -2257,7 +2257,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 }
 
 static int
-__strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
+__strpd_rom(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
 {
 	int res = 0;
 
@@ -2298,7 +2298,7 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 
 static size_t
 __strfd_card(
-	char *buf, size_t bsz, struct dt_spec_s s,
+	char *buf, size_t bsz, struct dt_dspec_s s,
 	struct strpd_s *d, struct dt_d_s that)
 {
 	size_t res = 0;
@@ -2448,7 +2448,7 @@ __strfd_card(
 
 static size_t
 __strfd_rom(
-	char *buf, size_t bsz, struct dt_spec_s s,
+	char *buf, size_t bsz, struct dt_dspec_s s,
 	struct strpd_s *d, struct dt_d_s that)
 {
 	size_t res = 0;
@@ -2487,7 +2487,7 @@ __strfd_rom(
 
 static size_t
 __strfd_dur(
-	char *buf, size_t bsz, struct dt_spec_s s,
+	char *buf, size_t bsz, struct dt_dspec_s s,
 	struct strpd_s *d, struct dt_d_s UNUSED(that))
 {
 	size_t res = 0;
@@ -2562,7 +2562,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
@@ -2679,7 +2679,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	fp = fmt;
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
@@ -2860,7 +2860,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	}
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
