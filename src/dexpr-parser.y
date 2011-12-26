@@ -154,7 +154,7 @@ exp
 spec
 	:
 	| TOK_SPEC {
-		struct dt_spec_s sp = __tok_spec($<sval>1, NULL);
+		struct dt_dspec_s sp = __tok_spec($<sval>1, NULL);
 		ckv->sp = sp;
 	}
 	;

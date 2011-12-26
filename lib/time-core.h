@@ -86,25 +86,7 @@ struct dt_t_s {
 
 
 /* spec tokeniser, spec flags plus modifiers and stuff */
-typedef enum {
-	DT_SPFL_TUNK,
-
-	DT_SPFL_N_SEC,
-	DT_SPFL_N_MIN,
-	DT_SPFL_N_HOUR,
-	/* %F, but generally stands for calendar's standard format */
-	DT_SPFL_N_TSTD,
-	/* for 4-level calendars this counts the property within the week */
-	DT_SPFL_N_NANO,
-	DT_SPFL_N_TLAST = DT_SPFL_N_NANO,
-
-	DT_SPFL_S_AMPM,
-	DT_SPFL_S_TLAST = DT_SPFL_S_AMPM,
-
-	DT_SPFL_LIT_PERCENT,
-	DT_SPFL_LIT_TAB,
-	DT_SPFL_LIT_NL,
-} dt_tspfl_t;
+#include "token.h"
 
 struct dt_tspec_s {
 	struct {
@@ -115,7 +97,7 @@ struct dt_tspec_s {
 		/* pad to the next byte */
 		unsigned int pad:6;
 	};
-	dt_tspfl_t spfl;
+	dt_spfl_t spfl;
 };
 
 
