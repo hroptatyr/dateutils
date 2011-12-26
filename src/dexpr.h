@@ -19,7 +19,7 @@ typedef enum {
 } dex_type_t;
 
 struct dexkv_s {
-	struct dt_spec_s sp;
+	struct dt_dspec_s sp;
 	oper_t op:3;
 	union {
 		struct dt_d_s d;

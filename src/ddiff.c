@@ -74,7 +74,7 @@ determine_durtype(const char *fmt)
 	/* go through the fmt specs */
 	for (const char *fp = fmt; *fp;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		switch (spec.spfl) {
 		case DT_SPFL_UNK:

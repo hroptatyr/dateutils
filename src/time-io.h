@@ -172,7 +172,7 @@ calc_tgrep_atom(const char *fmt)
 		}
 		/* real checks now */
 		switch (spec.spfl) {
-		case DT_SPFL_TUNK:
+		case DT_SPFL_UNK:
 			/* found a non-spec character that can be
 			 * used as needle, we should check for the
 			 * character's suitability though, a space is not

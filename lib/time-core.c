@@ -183,7 +183,7 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_tspec_s s, char **ep)
 
 	switch (s.spfl) {
 	default:
-	case DT_SPFL_TUNK:
+	case DT_SPFL_UNK:
 		res = -1;
 		break;
 	case DT_SPFL_N_TSTD:
@@ -263,7 +263,7 @@ __strft_card(
 
 	switch (s.spfl) {
 	default:
-	case DT_SPFL_TUNK:
+	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_TSTD:
 		if (LIKELY(bsz >= 8)) {
@@ -352,7 +352,7 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 		const char *fp_sav = fp;
 		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
 
-		if (spec.spfl == DT_SPFL_TUNK) {
+		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
 			if (*fp_sav != *sp++) {
 				sp = str;
@@ -401,7 +401,7 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 		const char *fp_sav = fp;
 		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
 
-		if (spec.spfl == DT_SPFL_TUNK) {
+		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
 			*bp++ = *fp_sav;
 		} else {
