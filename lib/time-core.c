@@ -76,6 +76,14 @@ struct strpt_s {
 
 /* guessing parsers */
 #include "token.c"
+#include "strops.c"
+
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 static const char hms_dflt[] = "%H:%M:%S";
 
