@@ -19,6 +19,7 @@ GGO_HELPERS += common.ggo.in
 DT_INCLUDES = -I$(top_srcdir)/lib
 noinst_HEADERS += date-io.h
 noinst_HEADERS += time-io.h
+noinst_HEADERS += dt-io.h
 noinst_HEADERS += dexpr.h
 
 bin_PROGRAMS += dseq
@@ -106,6 +107,13 @@ dexpr_SOURCES += dexpr-parser.y
 dexpr_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES) -DSTANDALONE
 dexpr_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
+
+
+bin_PROGRAMS += dtconv
+dtconv_SOURCES = dtconv.c dtconv-clo.ggo
+dtconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+dtconv_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += dtconv-clo.c dtconv-clo.h
 
 
 ## ggo rule
