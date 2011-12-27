@@ -1847,6 +1847,14 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 
 /* guessing parsers */
 #include "token.c"
+#include "strops.c"
+
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)

@@ -131,10 +131,6 @@ __c2p(const char *p)
 	return res.p;
 }
 
-#if defined INCLUDE_DATE_CORE_IMPL || defined INCLUDE_TIME_CORE_IMPL
-# include "strops.c"
-#endif	/* INCLUDE_DATE_CORE_IMPL || INCLUDE_TIME_CORE_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
