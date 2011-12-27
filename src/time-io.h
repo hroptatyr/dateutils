@@ -9,6 +9,7 @@
 #endif	/* __GLIBC__ */
 #include "time-core.h"
 #include "strops.h"
+#include "token.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -157,7 +158,7 @@ calc_tgrep_atom(const char *fmt)
 	/* rest here ... */
 	while (*fp) {
 		const char *fp_sav = fp;
-		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		/* pre checks */
 		switch (spec.spfl) {

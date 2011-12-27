@@ -47,6 +47,7 @@
 #include <time.h>
 #include "date-core.h"
 #include "strops.h"
+#include "token.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -1844,108 +1845,9 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 }
 
 
-/* spec tokenisers */
-static struct dt_dspec_s
-__tok_spec(const char *fp, char **ep)
-{
-	struct dt_dspec_s res = {0};
-
-	if (*fp != '%') {
-		goto out;
-	}
-
-next:
-	switch (*++fp) {
-	default:
-		goto out;
-	case 'F':
-		res.spfl = DT_SPFL_N_STD;
-		break;
-	case 'y':
-		res.abbr = DT_SPMOD_ABBR;
-	case 'Y':
-		res.spfl = DT_SPFL_N_YEAR;
-		break;
-	case 'm':
-		res.spfl = DT_SPFL_N_MON;
-		break;
-	case 'd':
-		res.spfl = DT_SPFL_N_MDAY;
-		break;
-	case 'w':
-		res.spfl = DT_SPFL_N_CNT_WEEK;
-		break;
-	case 'c':
-		res.spfl = DT_SPFL_N_CNT_MON;
-		break;
-	case 'A':
-		res.abbr = DT_SPMOD_LONG;
-	case 'a':
-		res.spfl = DT_SPFL_S_WDAY;
-		break;
-	case 'B':
-		res.abbr = DT_SPMOD_LONG;
-	case 'b':
-	case 'h':
-		res.spfl = DT_SPFL_S_MON;
-		break;
-	case '_':
-		/* abbrev modifier */
-		res.abbr = DT_SPMOD_ABBR;
-		goto next;
-	case '%':
-		res.spfl = DT_SPFL_LIT_PERCENT;
-		break;
-	case 't':
-		res.spfl = DT_SPFL_LIT_TAB;
-		break;
-	case 'n':
-		res.spfl = DT_SPFL_LIT_NL;
-		break;
-	case 'C':
-	case 'j':
-		res.spfl = DT_SPFL_N_CNT_YEAR;
-		break;
-	case 'Q':
-		res.spfl = DT_SPFL_S_QTR;
-		break;
-	case 'q':
-		res.spfl = DT_SPFL_N_QTR;
-		break;
-	case 'O':
-		/* roman numerals modifier */
-		res.rom = 1;
-		goto next;
-	}
-	/* check for ordinals */
-	if (res.spfl > DT_SPFL_UNK && res.spfl <= DT_SPFL_N_LAST &&
-	    fp[1] == 't' && fp[2] == 'h' &&
-	    !res.rom) {
-		res.ord = 1;
-		fp += 2;
-	}
-	/* check for bizda suffix */
-	if (res.spfl == DT_SPFL_N_MDAY || res.spfl == DT_SPFL_N_CNT_YEAR) {
-		switch (*++fp) {
-		case 'B':
-			res.ab = BIZDA_BEFORE;
-		case 'b':
-			res.bizda = 1;
-			break;
-		default:
-			fp--;
-			break;
-		}
-	}
-out:
-	if (ep) {
-		*ep = (char*)(fp + 1);
-	}
-	return res;
-}
-
-
 /* guessing parsers */
+#include "token.c"
+
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
@@ -2112,7 +2014,7 @@ out:
 }
 
 static int
-__strpd_card(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
+__strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 {
 	int res = 0;
 
@@ -2121,7 +2023,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
 	case DT_SPFL_UNK:
 		res = -1;
 		break;
-	case DT_SPFL_N_STD:
+	case DT_SPFL_N_DSTD:
 		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 		*sp++;
 		d->m = strtoui_lim(sp, &sp, 0, 12);
@@ -2265,7 +2167,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
 }
 
 static int
-__strpd_rom(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
+__strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 {
 	int res = 0;
 
@@ -2306,7 +2208,7 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_dspec_s s, char **ep)
 
 static size_t
 __strfd_card(
-	char *buf, size_t bsz, struct dt_dspec_s s,
+	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that)
 {
 	size_t res = 0;
@@ -2315,7 +2217,7 @@ __strfd_card(
 	default:
 	case DT_SPFL_UNK:
 		break;
-	case DT_SPFL_N_STD:
+	case DT_SPFL_N_DSTD:
 		d->d = d->d ?: dt_get_mday(that);
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
@@ -2456,7 +2358,7 @@ __strfd_card(
 
 static size_t
 __strfd_rom(
-	char *buf, size_t bsz, struct dt_dspec_s s,
+	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that)
 {
 	size_t res = 0;
@@ -2495,7 +2397,7 @@ __strfd_rom(
 
 static size_t
 __strfd_dur(
-	char *buf, size_t bsz, struct dt_dspec_s s,
+	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s UNUSED(that))
 {
 	size_t res = 0;
@@ -2504,7 +2406,7 @@ __strfd_dur(
 	default:
 	case DT_SPFL_UNK:
 		break;
-	case DT_SPFL_N_STD:
+	case DT_SPFL_N_DSTD:
 	case DT_SPFL_N_MDAY:
 		res = snprintf(buf, bsz, "%u", d->d);
 		break;
@@ -2570,7 +2472,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
-		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
@@ -2687,7 +2589,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	fp = fmt;
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
@@ -2868,7 +2770,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	}
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
