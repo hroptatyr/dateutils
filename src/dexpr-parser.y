@@ -43,6 +43,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include "token.h"
 #include "dexpr.h"
 
 extern int yylex();
@@ -154,7 +155,7 @@ exp
 spec
 	:
 	| TOK_SPEC {
-		struct dt_dspec_s sp = __tok_spec($<sval>1, NULL);
+		struct dt_spec_s sp = __tok_spec($<sval>1, NULL);
 		ckv->sp = sp;
 	}
 	;
@@ -163,7 +164,7 @@ rhs
 	: TOK_DATE {
 		struct dt_d_s d = dt_strpd($<sval>1, NULL, NULL);
 		ckv->d = d;
-		ckv->sp.spfl = DT_SPFL_N_STD;
+		ckv->sp.spfl = DT_SPFL_N_DSTD;
 	}
 	| TOK_TIME {
 		/* no support yet */

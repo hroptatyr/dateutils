@@ -50,7 +50,7 @@ typedef enum {
 	DT_SPFL_N_MON,
 	DT_SPFL_N_YEAR,
 	/* %F, but generally stands for calendar's standard format */
-	DT_SPFL_N_STD,
+	DT_SPFL_N_DSTD,
 	/* for 4-level calendars this counts the property within the week */
 	DT_SPFL_N_CNT_WEEK,
 	/* count of property within the month, %d could be mapped here */
@@ -63,13 +63,13 @@ typedef enum {
 	DT_SPFL_S_WDAY,
 	DT_SPFL_S_MON,
 	DT_SPFL_S_QTR,
-	DT_SPFL_S_LAST = DT_SPFL_S_QTR,
+	DT_SPFL_S_DLAST = DT_SPFL_S_QTR,
 
 	/* time specs */
 	DT_SPFL_N_SEC,
 	DT_SPFL_N_MIN,
 	DT_SPFL_N_HOUR,
-	/* %F, but generally stands for calendar's standard format */
+	/* %T, but generally stands for calendar's standard format */
 	DT_SPFL_N_TSTD,
 	/* for 4-level calendars this counts the property within the week */
 	DT_SPFL_N_NANO,

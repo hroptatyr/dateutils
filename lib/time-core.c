@@ -74,60 +74,17 @@ struct strpt_s {
 };
 
 
-/* spec tokenisers */
-static struct dt_tspec_s
-__tok_tspec(const char *fp, char **ep)
-{
-	struct dt_tspec_s res = {0};
-
-	if (*fp != '%') {
-		goto out;
-	}
-
-	switch (*++fp) {
-	default:
-		goto out;
-	case 'T':
-		res.spfl = DT_SPFL_N_TSTD;
-		break;
-	case 'I':
-		res.sc12 = 1;
-	case 'H':
-		res.spfl = DT_SPFL_N_HOUR;
-		break;
-	case 'M':
-		res.spfl = DT_SPFL_N_MIN;
-		break;
-	case 'S':
-		res.spfl = DT_SPFL_N_SEC;
-		break;
-
-	case 'N':
-		res.spfl = DT_SPFL_N_NANO;
-		break;
-
-	case 'p':
-		res.cap = 1;
-	case 'P':
-		res.spfl = DT_SPFL_S_AMPM;
-		break;
-	case '%':
-		res.spfl = DT_SPFL_LIT_PERCENT;
-		break;
-	case 't':
-		res.spfl = DT_SPFL_LIT_TAB;
-		break;
-	case 'n':
-		res.spfl = DT_SPFL_LIT_NL;
-		break;
-	}
-out:
-	*ep = (char*)(fp + 1);
-	return res;
-}
-
-
 /* guessing parsers */
+#include "token.c"
+#include "strops.c"
+
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
+
 static const char hms_dflt[] = "%H:%M:%S";
 
 static struct dt_t_s
@@ -177,7 +134,7 @@ __trans_tfmt(const char **fmt)
 }
 
 static int
-__strpt_card(struct strpt_s *d, const char *sp, struct dt_tspec_s s, char **ep)
+__strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 {
 	int res = 0;
 
@@ -256,7 +213,7 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_tspec_s s, char **ep)
 
 static size_t
 __strft_card(
-	char *buf, size_t bsz, struct dt_tspec_s s,
+	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpt_s *d, struct dt_t_s UNUSED(that))
 {
 	size_t res = 0;
@@ -350,7 +307,7 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	sp = str;
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
-		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
@@ -399,7 +356,7 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 	fp = fmt;
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_tspec_s spec = __tok_tspec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
