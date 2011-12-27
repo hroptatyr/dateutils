@@ -9,6 +9,7 @@
 # include <stdio_ext.h>
 #endif	/* __GLIBC__ */
 #include "date-core.h"
+#include "token.h"
 #include "strops.h"
 
 #if !defined LIKELY
@@ -156,7 +157,7 @@ calc_grep_atom(const char *fmt)
 	/* rest here ... */
 	while (*fp) {
 		const char *fp_sav = fp;
-		struct dt_dspec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
 		/* pre checks */
 		switch (spec.spfl) {
@@ -208,7 +209,7 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_LIT_TAB:
 			res.needle = '\t';
 			goto out;
-		case DT_SPFL_N_STD:
+		case DT_SPFL_N_DSTD:
 			goto std;
 		case DT_SPFL_N_YEAR:
 			if (spec.abbr != DT_SPMOD_ABBR) {

@@ -85,7 +85,7 @@ __pr_val(struct dexkv_s *kv)
 	}
 
 	switch (kv->sp.spfl) {
-	case DT_SPFL_N_STD: {
+	case DT_SPFL_N_DSTD: {
 		char buf[32];
 		dt_strfd(buf, sizeof(buf), NULL, kv->d);
 		fputs(buf, stdout);
@@ -464,7 +464,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 	signed int cmp;
 	bool res;
 
-	if (dkv->sp.spfl == DT_SPFL_N_STD) {
+	if (dkv->sp.spfl == DT_SPFL_N_DSTD) {
 		if ((cmp = dt_cmp(d, dkv->d)) == -2) {
 			return false;
 		}
@@ -520,7 +520,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 	case DT_SPFL_N_CNT_YEAR:
 		cmp = dt_get_yday(d);
 		break;
-	case DT_SPFL_N_STD:
+	case DT_SPFL_N_DSTD:
 	default:
 		return false;
 	}

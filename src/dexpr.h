@@ -3,6 +3,7 @@
 #define INCLUDED_dexpr_h_
 
 #include "date-core.h"
+#include "token.h"
 
 typedef struct dexpr_s *dexpr_t;
 typedef const struct dexpr_s *const_dexpr_t;
@@ -19,7 +20,7 @@ typedef enum {
 } dex_type_t;
 
 struct dexkv_s {
-	struct dt_dspec_s sp;
+	struct dt_spec_s sp;
 	oper_t op:3;
 	union {
 		struct dt_d_s d;

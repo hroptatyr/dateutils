@@ -42,6 +42,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include "token.h"
+
 #if defined __cplusplus
 extern "C" {
 #endif	/* __cplusplus */
@@ -82,22 +84,6 @@ struct dt_t_s {
 		dt_hms_t hms;
 		signed int sdur;
 	};
-};
-
-
-/* spec tokeniser, spec flags plus modifiers and stuff */
-#include "token.h"
-
-struct dt_tspec_s {
-	struct {
-		/* long/short 24h v 12h scale */
-		unsigned int sc12:1;
-		/* capitalise am/pm indicator */
-		unsigned int cap:1;
-		/* pad to the next byte */
-		unsigned int pad:6;
-	};
-	dt_spfl_t spfl;
 };
 
 
