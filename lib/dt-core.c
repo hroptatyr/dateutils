@@ -193,8 +193,89 @@ __strpdt_std(const char *str, char **ep)
 		break;
 	}
 	/* guess what we're doing */
-	res.d = __guess_dtyp(d.sd);
+	if ((res.d = __guess_dtyp(d.sd)).typ == DT_UNK) {
+		/* not much use parsing on */
+		goto out;
+	}
+	/* check for the d/t separator */
+	switch (*sp++) {
+	case 'T':
+	case ' ':
+	case '\t':
+		break;
+	default:
+		/* that's no good */
+		goto out;
+	}
+	/* and now parse the time */
+	d.st.h = strtoui_lim(sp, &sp, 0, 23);
+	*sp++;
+	d.st.m = strtoui_lim(sp, &sp, 0, 59);
+	*sp++;
+	d.st.s = strtoui_lim(sp, &sp, 0, 60);
+
+	if (d.st.h < -1U && d.st.m < -1U && d.st.s < -1U) {
+		res.t.hms.h = d.st.h;
+		res.t.hms.m = d.st.m;
+		res.t.hms.s = d.st.s;
+	}
 out:
+	if (ep) {
+		*ep = (char*)sp;
+	}
+	return res;
+}
+
+static int
+__strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
+{
+	int res = 0;
+
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		res = -1;
+		break;
+	case DT_SPFL_N_DSTD:
+	case DT_SPFL_N_YEAR:
+	case DT_SPFL_N_MON:
+	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_S_WDAY:
+	case DT_SPFL_S_MON:
+	case DT_SPFL_S_QTR:
+	case DT_SPFL_N_QTR:
+	case DT_SPFL_N_CNT_YEAR:
+		res = __strpd_card(&d->sd, sp, s, ep);
+		break;
+
+	case DT_SPFL_N_TSTD:
+	case DT_SPFL_N_HOUR:
+	case DT_SPFL_N_MIN:
+	case DT_SPFL_N_SEC:
+	case DT_SPFL_N_NANO:
+	case DT_SPFL_S_AMPM:
+		res = __strpt_card(&d->st, sp, s, ep);
+		break;
+
+	case DT_SPFL_LIT_PERCENT:
+		if (*sp++ != '%') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_TAB:
+		if (*sp++ != '\t') {
+			res = -1;
+		}
+		break;
+	case DT_SPFL_LIT_NL:
+		if (*sp++ != '\n') {
+			res = -1;
+		}
+		break;
+	}
+	/* assign end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
@@ -279,7 +360,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		} else if (LIKELY(!spec.rom)) {
 			const char *sp_sav = sp;
-			if (__strpd_card(&d.sd, sp, spec, (char**)&sp) < 0) {
+			if (__strpdt_card(&d, sp, spec, (char**)&sp) < 0) {
 				sp = str;
 				goto out;
 			}
