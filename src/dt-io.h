@@ -578,6 +578,16 @@ __io_write(const char *line, size_t llen, FILE *where)
 #endif	/* __GLIBC__ */
 }
 
+static __attribute__((unused)) int
+__io_putc(int c, FILE *where)
+{
+#if defined __GLIBC__
+	return fputc_unlocked(c, where);
+#else  /* !__GLIBC__ */
+	return fputc(c, where);
+#endif	/* __GLIBC__ */
+}
+
 static inline __attribute__((unused)) void
 #if defined __GLIBC__
 __io_setlocking_bycaller(FILE *fp)
@@ -627,7 +637,12 @@ dt_io_write_sed(
 	}
 	__io_write(buf, n, stdout);
 	if (ep) {
-		__io_write(ep, line + llen - ep, stdout);
+		size_t eolen = line + llen - ep;
+		if (LIKELY(eolen > 0)) {
+			__io_write(ep, line + llen - ep, stdout);
+		} else {
+			__io_putc('\n', stdout);
+		}
 	}
 	return (n > 0 || sp < ep) - 1;
 }
