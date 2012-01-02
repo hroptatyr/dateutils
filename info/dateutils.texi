@@ -68,6 +68,7 @@ arise when dealing with large amounts of financial data.
 * tgrep::               Find time matches in input stream
 * tseq::                Generate sequences of times
 * ttest::               Compare times
+* dtconv::              Convert date/times
 @end menu
 
 
@@ -193,6 +194,7 @@ this month's ultimo.
 @include tgrep.texi
 @include tseq.texi
 @include ttest.texi
+@include dtconv.texi
 
 @summarycontents
 @contents
