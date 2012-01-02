@@ -11,3 +11,4 @@ pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
 pkgconfig_DATA += libdudcore.pc
 pkgconfig_DATA += libdutcore.pc
+pkgconfig_DATA += libdudtcore.pc

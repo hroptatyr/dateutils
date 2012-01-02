@@ -73,7 +73,7 @@ fi
 ## trivial, no special stuff needed
 dapps="dadd dconv ddiff dgrep dseq dtest"
 tapps="tadd tconv tdiff tgrep tseq ttest"
-dtapps=""
+dtapps="dtconv"
 miscapps="strptime"
 
 AC_CONFIG_FILES([Makefile])
@@ -83,6 +83,7 @@ AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([libdudcore.pc])
 AC_CONFIG_FILES([libdutcore.pc])
+AC_CONFIG_FILES([libdudtcore.pc])
 AC_OUTPUT
 
 cat <<EOF
