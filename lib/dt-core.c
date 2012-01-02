@@ -193,7 +193,32 @@ __strpdt_std(const char *str, char **ep)
 		break;
 	}
 	/* guess what we're doing */
-	res.d = __guess_dtyp(d.sd);
+	if ((res.d = __guess_dtyp(d.sd)).typ == DT_UNK) {
+		/* not much use parsing on */
+		goto out;
+	}
+	/* check for the d/t separator */
+	switch (*sp++) {
+	case 'T':
+	case ' ':
+	case '\t':
+		break;
+	default:
+		/* that's no good */
+		goto out;
+	}
+	/* and now parse the time */
+	d.st.h = strtoui_lim(sp, &sp, 0, 23);
+	*sp++;
+	d.st.m = strtoui_lim(sp, &sp, 0, 59);
+	*sp++;
+	d.st.s = strtoui_lim(sp, &sp, 0, 60);
+
+	if (d.st.h < -1U && d.st.m < -1U && d.st.s < -1U) {
+		res.t.hms.h = d.st.h;
+		res.t.hms.m = d.st.m;
+		res.t.hms.s = d.st.s;
+	}
 out:
 	if (ep) {
 		*ep = (char*)sp;
