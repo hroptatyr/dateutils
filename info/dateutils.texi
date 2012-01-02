@@ -56,18 +56,19 @@ arise when dealing with large amounts of financial data.
 * Introduction::        Motivation, background, etc.
 * Calendars::           Calendar concepts and format specs
 * strptime::            Command line version of the C function
-* dconv::                Convert dates between calendars
+* dconv::               Convert dates between calendars
 * dadd::                Add durations to dates
 * ddiff::               Compute durations from dates
 * dgrep::               Find date matches in input stream
 * dseq::                Generate sequences of dates
 * dtest::               Compare dates
-* tconv::                Convert time representations
+* tconv::               Convert time representations
 * tadd::                Add durations to times
 * tdiff::               Compute durations between times
 * tgrep::               Find time matches in input stream
 * tseq::                Generate sequences of times
 * ttest::               Compare times
+* dtconv::              Convert date/times
 @end menu
 
 
@@ -193,6 +194,7 @@ this month's ultimo.
 @include tgrep.texi
 @include tseq.texi
 @include ttest.texi
+@include dtconv.texi
 
 @summarycontents
 @contents

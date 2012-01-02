@@ -126,4 +126,7 @@ TESTS += ttest.1.dt
 TESTS += tconv.1.dt
 TESTS += tconv.2.dt
 
+TESTS += dtconv.1.dt
+TESTS += dtconv.2.dt
+
 ## Makefile.am ends here
