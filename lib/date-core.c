@@ -299,7 +299,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	    days < ip[--yy] &&
 	    days < ip[--yy] &&
 	    days < ip[--yy]) {
-		yy = 0;
+		yy = 1;
 	}
 	/* set the rest of the tm structure */
 	tm->tm_mday = days - ip[yy] + 1;

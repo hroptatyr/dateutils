@@ -1,0 +1,12 @@
+args "--unamed-opts --long-help"
+package "dtconv"
+usage "dtconv [OPTION]... DATEs"
+description "Convert DATEs between calendrical systems.  If DATEs are \
+omitted they are read from stdin, the special date `now' is \
+interpreted as the current (UTC) date."
+
+QUIET
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE
