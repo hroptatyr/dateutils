@@ -122,6 +122,7 @@ struct grpatm_payload_s {
 #define GRPATM_B_SPEC	(16)
 #define GRPATM_O_SPEC	(32)
 #define GRPATM_T_FLAG	(64)
+#define GRPATM_P_SPEC	(128)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
@@ -132,6 +133,7 @@ struct grpatm_payload_s {
 
 /* atoms are maps needle-character -> payload */
 struct grep_atom_s {
+	/* 4 bytes it should be */
 	char needle;
 	struct grpatm_payload_s pl;
 };
@@ -160,6 +162,7 @@ calc_grep_atom(const char *fmt)
 	struct grep_atom_s res = {0};
 	int8_t andl_idx = 0;
 	int8_t bndl_idx = 0;
+	int8_t pndl_idx = 0;
 	const char *fp = fmt;
 
 	/* init */
@@ -188,6 +191,12 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_B_SPEC;
 			if (res.pl.off_min == res.pl.off_max) {
 				bndl_idx = res.pl.off_min;
+			}
+			break;
+		case DT_SPFL_S_AMPM:
+			res.pl.flags |= GRPATM_P_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				pndl_idx = res.pl.off_min;
 			}
 			break;
 		default:
@@ -245,6 +254,9 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_N_CNT_MON:
 		case DT_SPFL_N_QTR:
 		case DT_SPFL_N_MDAY:
+		case DT_SPFL_N_HOUR:
+		case DT_SPFL_N_MIN:
+		case DT_SPFL_N_SEC:
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
@@ -287,6 +299,10 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_S_QTR:
 			res.needle = 'Q';
 			goto out;
+		case DT_SPFL_S_AMPM:
+			res.pl.off_min += -2;
+			res.pl.off_max += -2;
+			break;
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
@@ -313,6 +329,11 @@ calc_grep_atom(const char *fmt)
 			goto out;
 		} else if (res.pl.flags & GRPATM_O_SPEC) {
 			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
+		} else if (res.pl.flags & GRPATM_P_SPEC) {
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
+			res.pl.off_min = res.pl.off_max = pndl_idx;
+			res.pl.flags = GRPATM_P_SPEC;
+			goto out;
 		}
 	}
 	/* naught flags mean the usual needle char search */
@@ -578,6 +599,16 @@ __io_write(const char *line, size_t llen, FILE *where)
 #endif	/* __GLIBC__ */
 }
 
+static __attribute__((unused)) int
+__io_putc(int c, FILE *where)
+{
+#if defined __GLIBC__
+	return fputc_unlocked(c, where);
+#else  /* !__GLIBC__ */
+	return fputc(c, where);
+#endif	/* __GLIBC__ */
+}
+
 static inline __attribute__((unused)) void
 #if defined __GLIBC__
 __io_setlocking_bycaller(FILE *fp)
@@ -627,7 +658,12 @@ dt_io_write_sed(
 	}
 	__io_write(buf, n, stdout);
 	if (ep) {
-		__io_write(ep, line + llen - ep, stdout);
+		size_t eolen = line + llen - ep;
+		if (LIKELY(eolen > 0)) {
+			__io_write(ep, line + llen - ep, stdout);
+		} else {
+			__io_putc('\n', stdout);
+		}
 	}
 	return (n > 0 || sp < ep) - 1;
 }

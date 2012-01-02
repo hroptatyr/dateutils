@@ -116,6 +116,12 @@ tconv_EXAMPLES += $(top_srcdir)/test/tconv.2.dt
 dateutils_EXAMPLES += $(tconv_EXAMPLES)
 dateutils_H2M_EX += tconv.h2m
 
+dtconv_EXAMPLES =
+dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.1.dt
+dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.2.dt
+dateutils_EXAMPLES += $(dtconv_EXAMPLES)
+dateutils_H2M_EX += dtconv.h2m
+
 dateutils_H2M_EX += format.h2m
 
 EXTRA_DIST += author.h2m $(dateutils_H2M_EX)
@@ -137,6 +143,7 @@ built_texis += tdiff.texi
 built_texis += tgrep.texi
 built_texis += ttest.texi
 built_texis += tconv.texi
+built_texis += dtconv.texi
 
 built_mans =
 built_mans += strptime.man
@@ -152,6 +159,7 @@ built_mans += tdiff.man
 built_mans += tgrep.man
 built_mans += ttest.man
 built_mans += tconv.man
+built_mans += dtconv.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
