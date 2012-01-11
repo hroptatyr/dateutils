@@ -17,6 +17,13 @@ Dateutils
     </ul>
   </div>
   <div class="sidebar-stack">
+    <ul>
+      <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
+      <li><a href="/dateutils">project homepage</a></li>
+      <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-stack">
     <script type="text/javascript">
       var uvOptions = {};
       (function() {
@@ -28,13 +35,6 @@ Dateutils
         s.parentNode.insertBefore(uv, s);
       })();
     </script>
-  </div>
-  <div class="sidebar-stack">
-    <ul>
-      <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
-      <li><a href="/dateutils">project homepage</a></li>
-      <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
-    </ul>
   </div>
 </div>
 
