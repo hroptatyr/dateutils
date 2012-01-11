@@ -17,6 +17,19 @@ Dateutils
     </ul>
   </div>
   <div class="sidebar-stack">
+    <script type="text/javascript">
+      var uvOptions = {};
+      (function() {
+        var uv = document.createElement('script');
+        uv.type = 'text/javascript';
+        uv.async = true;
+        uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/dvXNMbpRLq3837hCrt5W2Q.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(uv, s);
+      })();
+    </script>
+  </div>
+  <div class="sidebar-stack">
     <ul>
       <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
       <li><a href="/dateutils">project homepage</a></li>
