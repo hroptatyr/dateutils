@@ -36,7 +36,7 @@ a given input format that value will be used."
 
 define([BACKSLASH_ESCAPES], [dnl
 option "backslash-escapes" e
-	"enable interpretation of backslash escapes in the output and \
+	"Enable interpretation of backslash escapes in the output and \
 input format strings"
 	optional
 ])dnl BACKSLASH_ESCAPES
