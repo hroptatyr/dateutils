@@ -182,6 +182,25 @@ DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
 DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
 
 
+/* some useful gimmicks, sort of */
+static struct dt_dt_s
+dt_dt_initialiser(void)
+{
+#if defined __C1X
+	struct dt_dt_s res = {.d.typ = DT_UNK, .d.u = 0, .t.u = 0};
+#else  /* !__C1X */
+	struct dt_dt_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.d.typ = DT_UNK;
+	res.d.u = 0;
+	res.t.u = 0;
+#endif	/* !__C1X */
+	return res;
+}
+
+
 #if defined INCLUDE_DATETIME_CORE_IMPL
 # include "date-core.c"
 # include "time-core.c"
