@@ -44,6 +44,21 @@
 #include <byteswap.h>
 #include <limits.h>
 
+#if defined __cplusplus
+extern "C" {
+#endif	/* __cplusplus */
+
+#if !defined DECLF
+# define DECLF	static __attribute__((unused))
+# define DEFUN	static
+# define INCLUDE_TZRAW_IMPL
+#elif !defined DEFUN
+# define DEFUN
+#endif	/* !DECLF */
+#if !defined restrict
+# define restrict	__restrict
+#endif	/* !restrict */
+
 /*
 ** Information about time zone files.
 */
@@ -181,34 +196,34 @@ struct zif_s {
 
 /**
  * Read the zoneinfo file FILE. */
-extern zif_t zif_read(const char *file);
+DECLF zif_t zif_read(const char *file);
 /**
  * Read and instantiate the zoneinfo file FILE. */
-extern zif_t zif_read_inst(const char *file);
+DECLF zif_t zif_read_inst(const char *file);
 /**
  * Close the zoneinfo file reader and free associated resources. */
-extern void zif_close(zif_t);
+DECLF void zif_close(zif_t);
 /**
  * Instantiate the zoneinfo structure, so it is purely in memory. */
-extern zif_t zif_inst(zif_t);
+DECLF zif_t zif_inst(zif_t);
 /**
  * Free an instantiated zoneinfo structure. */
-static inline void zif_free(zif_t);
+DECLF inline void zif_free(zif_t);
 /**
  * Copy the zoneinfo structure. */
 #define zif_copy	zif_inst
 /**
  * Find the most recent transition in Z before T. */
-extern int zif_find_trans(zif_t z, int32_t t);
+DECLF int zif_find_trans(zif_t z, int32_t t);
 /**
  * Find a range of transitions in Z that T belongs to. */
-extern struct zrng_s zif_find_zrng(zif_t z, int32_t t);
+DECLF struct zrng_s zif_find_zrng(zif_t z, int32_t t);
 /**
  * Given T in local time specified by Z, return a T in UTC. */
-extern int32_t zif_utc_time(zif_t z, int32_t t);
+DECLF int32_t zif_utc_time(zif_t z, int32_t t);
 /**
  * Given T in UTC, return a T in local time specified by Z. */
-extern int32_t zif_local_time(zif_t z, int32_t t);
+DECLF int32_t zif_local_time(zif_t z, int32_t t);
 
 
 /**
@@ -302,5 +317,14 @@ zif_free(zif_t z)
 	zif_close(z);
 	return;
 }
+
+
+#if defined INCLUDE_TZRAW_IMPL
+# include "tzraw.c"
+#endif	/* INCLUDE_TZRAW_IMPL */
+
+#if defined __cplusplus
+}
+#endif	/* __cplusplus */
 
 #endif	/* INCLUDED_tzraw_h_ */

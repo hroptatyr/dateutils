@@ -34,6 +34,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***/
+/* implementation part of tzraw.h */
+#if !defined INCLUDED_tzraw_c_
+#define INCLUDED_tzraw_c_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -47,6 +50,7 @@
 #include <time.h>
 #include <limits.h>
 
+/* me own header, innit */
 #include "tzraw.h"
 
 #if !defined LIKELY
@@ -110,7 +114,7 @@ __pars_zif(zif_t z)
 	return;
 }
 
-inline zif_t
+DEFUN inline zif_t
 zif_read(const char *file)
 {
 	int fd;
@@ -123,7 +127,7 @@ zif_read(const char *file)
 	return res;
 }
 
-void
+DEFUN void
 zif_close(zif_t z)
 {
 	if (UNLIKELY(z == NULL)) {
@@ -146,7 +150,7 @@ zif_close(zif_t z)
 	return;
 }
 
-inline zif_t
+DEFUN inline zif_t
 zif_inst(zif_t z)
 {
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
@@ -176,7 +180,7 @@ zif_inst(zif_t z)
 	return res;
 }
 
-zif_t
+DEFUN zif_t
 zif_read_inst(const char *name)
 {
 	zif_t tmpz = zif_read(name);
@@ -217,7 +221,7 @@ __find_trno(zif_t z, int32_t t, int this, int min, int max)
 	/* not reached */
 }
 
-inline int
+DEFUN inline int
 zif_find_trans(zif_t z, int32_t t)
 {
 /* find the last transition before time, time is expected to be UTC */
@@ -243,7 +247,7 @@ __find_zrng(zif_t z, int32_t t, int this, int min, int max)
 	return res;
 }
 
-inline struct zrng_s
+DEFUN inline struct zrng_s
 zif_find_zrng(zif_t z, int32_t t)
 {
 /* find the last transition before time, time is expected to be UTC */
@@ -275,7 +279,7 @@ __offs(zif_t z, int32_t t)
 	return z->cache.offs;
 }
 
-int32_t
+DEFUN int32_t
 zif_utc_time(zif_t z, int32_t t)
 {
 /* here's the setup, given t in local time, we denote the corresponding
@@ -303,7 +307,7 @@ zif_utc_time(zif_t z, int32_t t)
 }
 
 /* convert utc to local */
-int32_t
+DEFUN int32_t
 zif_local_time(zif_t z, int32_t t)
 {
 	/* jump off the cliff if Z is nought */
@@ -313,4 +317,5 @@ zif_local_time(zif_t z, int32_t t)
 	return t + __offs(z, t);
 }
 
+#endif	/* INCLUDED_tzraw_c_ */
 /* tzraw.c ends here */
