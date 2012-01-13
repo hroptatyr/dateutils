@@ -94,7 +94,8 @@ main(int argc, char *argv[])
 			const char *inp = argi->inputs[i];
 			struct dt_dt_s d;
 
-			if ((d = dt_io_strpdt(inp, fmt, nfmt)).d.typ > DT_UNK) {
+			if ((d = dt_io_strpdt(inp, fmt, nfmt, fromz))
+			    .d.typ > DT_UNK) {
 				dt_io_write(d, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpdt(inp);
