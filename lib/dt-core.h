@@ -69,7 +69,7 @@ typedef enum {
 /** sandwiches
  * sandwiches are just packs of dates and times */
 typedef union {
-	uint64_t u;
+	uint64_t u:53;
 	struct {
 		unsigned int d:5;
 		unsigned int m:4;
