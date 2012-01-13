@@ -9,6 +9,7 @@
 # include <stdio_ext.h>
 #endif	/* __GLIBC__ */
 #include "dt-core.h"
+#include "dt-core-tz-glue.h"
 #include "strops.h"
 
 #if !defined LIKELY
@@ -27,23 +28,6 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
-static struct dt_dt_s
-dt_dt_initialiser(void)
-{
-#if defined __C1X
-	struct dt_dt_s res = {.d.typ = DT_UNK, .d.u = 0, .t.u = 0};
-#else  /* !__C1X */
-	struct dt_dt_s res;
-#endif	/* __C1X */
-
-#if !defined __C1X
-	res.d.typ = DT_UNK;
-	res.d.u = 0;
-	res.t.u = 0;
-#endif	/* !__C1X */
-	return res;
-}
-
 static bool
 dt_io_today_p(const char *str)
 {
@@ -61,7 +45,10 @@ dt_io_today_p(const char *str)
 }
 
 static struct dt_dt_s
-dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
+dt_io_strpdt_ep(
+	const char *str,
+	const char *const *fmt, size_t nfmt, char **ep,
+	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 
@@ -71,7 +58,7 @@ dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 	}
 	/* basic sanity check */
 	if (UNLIKELY(dt_io_today_p(str))) {
-		res = dt_datetime(DT_YMD);
+		return dt_datetime(DT_YMD);
 	} else if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {
@@ -81,27 +68,33 @@ dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 			}
 		}
 	}
+	if (LIKELY(res.d.typ > DT_UNK) && zone != NULL) {
+		return dtz_forgetz(res, zone);
+	}
 	return res;
 }
 
-static struct dt_dt_s __attribute__((unused))
-dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt)
+static struct dt_dt_s
+__attribute__((unused))
+dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt, zif_t zone)
 {
-	return dt_io_strpd_ep(input, fmt, nfmt, NULL);
+	return dt_io_strpdt_ep(input, fmt, nfmt, NULL, zone);
 }
 
-static struct dt_dt_s  __attribute__((unused))
+static struct dt_dt_s
+__attribute__((unused))
 dt_io_find_strpdt(
 	const char *str, char *const *fmt, size_t nfmt,
-	const char *needle, size_t needlen, char **sp, char **ep)
+	const char *needle, size_t needlen, char **sp, char **ep,
+	zif_t zone)
 {
 	const char *__sp = str;
 	struct dt_dt_s d = dt_dt_initialiser();
 
-	if ((d = dt_io_strpd_ep(__sp, fmt, nfmt, ep)).d.typ == DT_UNK) {
+	if ((d = dt_io_strpdt_ep(__sp, fmt, nfmt, ep, zone)).d.typ == DT_UNK) {
 		while ((__sp = strstr(__sp, needle)) &&
-		       (d = dt_io_strpd_ep(
-				__sp += needlen, fmt, nfmt, ep))
+		       (d = dt_io_strpdt_ep(
+				__sp += needlen, fmt, nfmt, ep, zone))
 		       .d.typ == DT_UNK);
 	}
 	*sp = (char*)__sp;

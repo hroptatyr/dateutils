@@ -50,6 +50,7 @@ extern "C" {
 # define DECLF	static __attribute__((unused))
 # define DEFUN	static
 # define INCLUDE_DATETIME_CORE_IMPL
+# define INCLUDE_TZRAW_IMPL
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
@@ -68,7 +69,7 @@ typedef enum {
 /** sandwiches
  * sandwiches are just packs of dates and times */
 typedef union {
-	uint64_t u;
+	uint64_t u:53;
 	struct {
 		unsigned int d:5;
 		unsigned int m:4;
@@ -179,6 +180,25 @@ DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
 DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
+
+
+/* some useful gimmicks, sort of */
+static struct dt_dt_s
+dt_dt_initialiser(void)
+{
+#if defined __C1X
+	struct dt_dt_s res = {.d.typ = DT_UNK, .d.u = 0, .t.u = 0};
+#else  /* !__C1X */
+	struct dt_dt_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.d.typ = DT_UNK;
+	res.d.u = 0;
+	res.t.u = 0;
+#endif	/* !__C1X */
+	return res;
+}
 
 
 #if defined INCLUDE_DATETIME_CORE_IMPL
