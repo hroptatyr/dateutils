@@ -50,6 +50,7 @@ extern "C" {
 # define DECLF	static __attribute__((unused))
 # define DEFUN	static
 # define INCLUDE_DATETIME_CORE_IMPL
+# define INCLUDE_TZRAW_IMPL
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
