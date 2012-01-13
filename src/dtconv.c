@@ -41,6 +41,7 @@
 #include <time.h>
 #include "dt-core.h"
 #include "dt-io.h"
+#include "tzraw.h"
 
 
 #if defined __INTEL_COMPILER
@@ -62,6 +63,8 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
+	zif_t fromz = NULL;
+	zif_t z = NULL;
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
@@ -78,12 +81,21 @@ main(int argc, char *argv[])
 		}
 	}
 
+	/* try and read the from and to time zones */
+	if (argi->from_zone_given) {
+		fromz = zif_read_inst(argi->from_zone_arg);
+	}
+	if (argi->zone_given) {
+		z = zif_read_inst(argi->zone_arg);
+	}
+
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {
 			const char *inp = argi->inputs[i];
 			struct dt_dt_s d;
 
-			if ((d = dt_io_strpdt(inp, fmt, nfmt)).d.typ > DT_UNK) {
+			if ((d = dt_io_strpdt(inp, fmt, nfmt, fromz))
+			    .d.typ > DT_UNK) {
 				dt_io_write(d, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpdt(inp);
