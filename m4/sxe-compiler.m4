@@ -114,6 +114,9 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 	## by default we want the -Wall level
 	SXE_CHECK_COMPILER_FLAGS([-Wall], [warnflags="-Wall"])
 
+	SXE_CHECK_COMPILER_FLAGS([-qinfo], [
+		warnflags="${warnflags} -qinfo"])
+
 	## Yuck, bad compares have been worth at
 	## least 3 crashes!
 	## Warnings about char subscripts are pretty
@@ -189,6 +192,11 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 	SXE_CHECK_COMPILER_FLAGS([-Wdeprecated], [
 		warnflags="$warnflags -Wdeprecated"])
 
+	## icc specific
+	SXE_CHECK_COMPILER_FLAGS([-diag-disable 10237], [dnl
+		warnflags="${warnflags} -diag-disable 10237"], [
+		SXE_CHECK_COMPILER_FLAGS([-wd 10237], [dnl
+			warnflags="${warnflags} -wd 10237"])])
 	SXE_CHECK_COMPILER_FLAGS([-w2], [
 		warnflags="$warnflags -w2"])
 
