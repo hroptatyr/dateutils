@@ -102,6 +102,9 @@ __dt_dt_initialiser(void)
 
 #include "strops.c"
 
+/* daisy is competing with the prevalent unix epoch, this is the offset */
+#define DAISY_UNIX_BASE		(19359)
+
 
 /* guessing parsers */
 #include "token.c"
@@ -727,7 +730,7 @@ dt_datetime(dt_dtyp_t outtyp)
 	}
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / 86400U + 19359;
+		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
 	default:
 	case DT_UNK:
