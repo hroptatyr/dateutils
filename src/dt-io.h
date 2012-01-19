@@ -630,25 +630,34 @@ __io_eof_p(FILE *fp)
 #endif	/* __GLIBC__ */
 }
 
-static int __attribute__((unused))
-dt_io_write(struct dt_dt_s d, const char *fmt)
+static int
+__attribute__((unused))
+dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 {
 	static char buf[64];
 	size_t n;
 
+	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
+		d = dtz_enrichz(d, zone);
+	}
 	n = dt_io_strfdt_autonl(buf, sizeof(buf), fmt, d);
 	__io_write(buf, n, stdout);
 	return (n > 0) - 1;
 }
 
-static int __attribute__((unused))
+static int
+__attribute__((unused))
 dt_io_write_sed(
 	struct dt_dt_s d, const char *fmt,
-	const char *line, size_t llen, const char *sp, const char *ep)
+	const char *line, size_t llen, const char *sp, const char *ep,
+	zif_t zone)
 {
 	static char buf[64];
 	size_t n;
 
+	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
+		d = dtz_enrichz(d, zone);
+	}
 	n = dt_strfdt(buf, sizeof(buf), fmt, d);
 	if (sp) {
 		__io_write(line, sp - line, stdout);

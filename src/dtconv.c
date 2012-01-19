@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 
 			if ((d = dt_io_strpdt(inp, fmt, nfmt, fromz))
 			    .d.typ > DT_UNK) {
-				dt_io_write(d, ofmt);
+				dt_io_write(d, ofmt, z);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpdt(inp);
 			}
@@ -140,9 +140,9 @@ main(int argc, char *argv[])
 			if (d.d.typ) {
 				if (argi->sed_mode_given) {
 					dt_io_write_sed(
-						d, ofmt, line, n, sp, ep);
+						d, ofmt, line, n, sp, ep, z);
 				} else {
-					dt_io_write(d, ofmt);
+					dt_io_write(d, ofmt, z);
 				}
 			} else if (argi->sed_mode_given) {
 				__io_write(line, n, stdout);
