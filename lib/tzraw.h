@@ -124,17 +124,17 @@ struct tzhead {
 
 /* now our view on things */
 typedef struct zif_s *zif_t;
-typedef const struct zih_s *zih_t;
+typedef struct zih_s *zih_t;
 typedef struct ztrdtl_s *ztrdtl_t;
 typedef const char *znam_t;
 
 /* convenience struct where we copy all the good things into one */
 struct zspec_s {
 	int32_t since;
-	int32_t offs:31;
-	uint8_t dstp:1 __attribute__((packed));
+	unsigned int offs:31;
+	unsigned int dstp:1;
 	znam_t name;
-} __attribute__((aligned(16)));
+} __attribute__((packed, aligned(16)));
 
 /* that's tzhead but better */
 struct zih_s {
@@ -168,9 +168,9 @@ struct ztrdtl_s {
 /* for internal use only, fuck off */
 struct zrng_s {
 	int32_t prev, next;
-	int32_t offs:24;
-	uint8_t trno:8 __attribute__((packed));
-};
+	unsigned int offs:24;
+	unsigned int trno:8;
+} __attribute__((packed));
 
 /* leap second support missing */
 struct zif_s {
@@ -190,7 +190,7 @@ struct zif_s {
 	int fd;
 
 	/* zone caching, between PREV and NEXT the offset is OFFS */
-	struct zrng_s cache __attribute__((packed));
+	struct zrng_s cache;
 };
 
 
@@ -240,7 +240,7 @@ static inline int32_t
 zif_trans(zif_t z, int n)
 {
 /* no bound check! */
-	return zif_ntrans(z) > 0 ? bswap_32(z->trs[n]) : INT_MIN;
+	return zif_ntrans(z) > 0 ? (int32_t)bswap_32(z->trs[n]) : INT_MIN;
 }
 
 /**
