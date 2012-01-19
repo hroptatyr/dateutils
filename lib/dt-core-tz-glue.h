@@ -66,8 +66,14 @@ extern "C" {
 
 /* decls */
 /**
- * Return a dt object that forgot about DT's zone and uses ZONE instead. */
+ * Return a dt object that forgot about DT's zone and uses ZONE instead.
+ * In other words: convert from locally represented DT to UTC. */
 DECLF struct dt_dt_s dtz_forgetz(struct dt_dt_s dt, zif_t zone);
+
+/**
+ * Return a dt object from a UTC'd DT that uses ZONE.
+ * In other words: convert from UTC represented DT to local ZONE time. */
+DECLF struct dt_dt_s dtz_enrichz(struct dt_dt_s dt, zif_t zone);
 
 #if defined __cplusplus
 }
