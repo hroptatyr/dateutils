@@ -136,7 +136,7 @@ main(int argc, char *argv[])
 			}
 			/* check if line matches */
 			d = dt_io_find_strpdt2(
-				line, &ndlsoa, (char**)&sp, (char**)&ep);
+				line, &ndlsoa, (char**)&sp, (char**)&ep, fromz);
 			if (d.d.typ) {
 				if (argi->sed_mode_given) {
 					dt_io_write_sed(

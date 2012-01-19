@@ -386,7 +386,8 @@ static struct dt_dt_s  __attribute__((unused))
 dt_io_find_strpdt2(
 	const char *str,
 	const struct grep_atom_soa_s *needles,
-	char **sp, char **ep)
+	char **sp, char **ep,
+	zif_t zone)
 {
 	struct dt_dt_s d = dt_dt_initialiser();
 	const char *needle = needles->needle;
@@ -514,6 +515,9 @@ dt_io_find_strpdt2(
 	*ep = (char*)(p = str);
 found:
 	*sp = (char*)p;
+	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
+		return dtz_forgetz(d, zone);
+	}
 	return d;
 }
 
