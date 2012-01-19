@@ -168,7 +168,7 @@ struct ztrdtl_s {
 /* for internal use only, fuck off */
 struct zrng_s {
 	int32_t prev, next;
-	unsigned int offs:24;
+	signed int offs:24;
 	unsigned int trno:8;
 } __attribute__((packed));
 
