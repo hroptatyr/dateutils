@@ -42,6 +42,18 @@
 
 #define DAISY_UNIX_BASE		(19359)
 
+static inline int
+__pos_mod(int num, int mod)
+{
+	int res = num % mod;
+
+	if (UNLIKELY(res < 0)) {
+		return res + mod;
+	}
+	return res;
+}
+
+
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */
 DEFUN struct dt_dt_s
@@ -49,11 +61,87 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 {
 	dt_daisy_t d = dt_conv_to_daisy(dt.d);
 	struct dt_dt_s res = dt_dt_initialiser();
-	uint32_t d_unix = (d - DAISY_UNIX_BASE) * 86400 +
+	int32_t d_unix = (d - DAISY_UNIX_BASE) * 86400 +
 		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-	uint32_t d_utc = zif_utc_time(zone, d_unix);
+	int32_t d_utc = zif_utc_time(zone, d_unix);
 
-	return dt;
+	/* convert the date part back */
+	{
+#if defined __C1X
+		struct dt_d_s tmp = {
+			.typ = DT_DAISY,
+			.daisy = d_utc / 86400 + DAISY_UNIX_BASE,
+		};
+#else  /* !__C1X */
+		struct dt_d_s tmp;
+		tmp.typ = DT_DAISY;
+		tmp.daisy = d_utc / 86400 + DAISY_UNIX_BASE;
+#endif	/* __C1X */
+
+		res.d = dt_conv(dt.d.typ, tmp);
+	}
+
+	/* convert the time part back */
+	{
+		int32_t sexy = __pos_mod(d_utc, 86400);
+#if defined __C1X
+		res.t.hms = (dt_hms_t){
+			.s = sexy % 60,
+			.m = (sexy % 3600) / 60,
+			.h = sexy / 3600,
+		};
+#else  /* !__C1X */
+		res.t.hms.s = sexy % 60;
+		res.t.hms.m = (sexy % 3600) / 60;
+		res.t.hms.h = sexy / 3600;
+#endif	/* __C1X */
+	}
+	return res;
+}
+
+/**
+ * Return a dt object from a UTC'd DT that uses ZONE. */
+DEFUN struct dt_dt_s
+dtz_enrichz(struct dt_dt_s dt, zif_t zone)
+{
+	dt_daisy_t d = dt_conv_to_daisy(dt.d);
+	struct dt_dt_s res = dt_dt_initialiser();
+	int32_t d_unix = (d - DAISY_UNIX_BASE) * 86400 +
+		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	int32_t d_loc = zif_local_time(zone, d_unix);
+
+	/* convert the date part back */
+	{
+#if defined __C1X
+		struct dt_d_s tmp = {
+			.typ = DT_DAISY,
+			.daisy = d_loc / 86400 + DAISY_UNIX_BASE,
+		};
+#else  /* !__C1X */
+		struct dt_d_s tmp;
+		tmp.typ = DT_DAISY;
+		tmp.daisy = d_loc / 86400 + DAISY_UNIX_BASE;
+#endif	/* __C1X */
+
+		res.d = dt_conv(dt.d.typ, tmp);
+	}
+
+	/* convert the time part back */
+	{
+		int32_t sexy = __pos_mod(d_loc, 86400);
+#if defined __C1X
+		res.t.hms = (dt_hms_t){
+			.s = sexy % 60,
+			.m = (sexy % 3600) / 60,
+			.h = sexy / 3600,
+		};
+#else  /* !__C1X */
+		res.t.hms.s = sexy % 60;
+		res.t.hms.m = (sexy % 3600) / 60;
+		res.t.hms.h = sexy / 3600;
+#endif	/* __C1X */
+	}
+	return res;
 }
 
 #endif	/* INCLUDED_dt_core_tz_glue_c_ */
