@@ -393,9 +393,11 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		}
 	}
-	/* set the end pointer */
+	/* assign d and t types using date core and time core routines */
 	res.d = __guess_dtyp(d.sd);
+	res.t = __guess_ttyp(d.st);
 out:
+	/* set the end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
