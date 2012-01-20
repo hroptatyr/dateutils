@@ -139,5 +139,6 @@ TESTS += dtconv.10.dt
 TESTS += dtconv.11.dt
 TESTS += dtconv.12.dt
 TESTS += dtconv.13.dt
+TESTS += dtconv.14.dt
 
 ## Makefile.am ends here
