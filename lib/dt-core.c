@@ -251,7 +251,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_QTR:
 	case DT_SPFL_N_CNT_YEAR:
 		res = __strpd_card(&d->sd, sp, s, ep);
-		break;
+		goto out_direct;
 
 	case DT_SPFL_N_TSTD:
 	case DT_SPFL_N_HOUR:
@@ -260,7 +260,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_NANO:
 	case DT_SPFL_S_AMPM:
 		res = __strpt_card(&d->st, sp, s, ep);
-		break;
+		goto out_direct;
 
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
@@ -282,6 +282,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	if (ep) {
 		*ep = (char*)sp;
 	}
+out_direct:
 	return res;
 }
 
