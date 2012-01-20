@@ -119,6 +119,9 @@ dateutils_H2M_EX += tconv.h2m
 dtconv_EXAMPLES =
 dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.1.dt
 dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.2.dt
+dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.11.dt
+dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.12.dt
+dtconv_EXAMPLES += $(top_srcdir)/test/dtconv.14.dt
 dateutils_EXAMPLES += $(dtconv_EXAMPLES)
 dateutils_H2M_EX += dtconv.h2m
 
