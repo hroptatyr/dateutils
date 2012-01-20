@@ -128,5 +128,16 @@ TESTS += tconv.2.dt
 
 TESTS += dtconv.1.dt
 TESTS += dtconv.2.dt
+TESTS += dtconv.3.dt
+TESTS += dtconv.4.dt
+TESTS += dtconv.5.dt
+TESTS += dtconv.6.dt
+TESTS += dtconv.7.dt
+TESTS += dtconv.8.dt
+TESTS += dtconv.9.dt
+TESTS += dtconv.10.dt
+TESTS += dtconv.11.dt
+TESTS += dtconv.12.dt
+TESTS += dtconv.13.dt
 
 ## Makefile.am ends here

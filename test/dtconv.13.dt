@@ -1,0 +1,20 @@
+## -*- shell-script -*-
+
+TOOL=dtconv
+CMDLINE="--from-zone America/Chicago"
+COMMENT="Testing illegal datetimes, 02:05:06 doesn't exist on 11 Mar 2012 in \
+America/Chicago"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+2012-03-11T02:05:06
+EOF
+ 
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-03-11T07:05:06
+EOF
+
+## dtconv.13.dt ends here
