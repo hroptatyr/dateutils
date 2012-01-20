@@ -123,6 +123,9 @@ BUILT_SOURCES += dtconv-clo.c dtconv-clo.h
 	sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.c > $*.c.sed && \
 		mv $*.c.sed $*.c
 
+## for dist or dist check we need binaries, so help2man can work
+dist-hook: $(bin_PROGRAMS)
+
 # 
 # Help the developers get nice post-processed source files
 
