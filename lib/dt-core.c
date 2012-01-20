@@ -251,7 +251,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_QTR:
 	case DT_SPFL_N_CNT_YEAR:
 		res = __strpd_card(&d->sd, sp, s, ep);
-		break;
+		goto out_direct;
 
 	case DT_SPFL_N_TSTD:
 	case DT_SPFL_N_HOUR:
@@ -260,7 +260,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_NANO:
 	case DT_SPFL_S_AMPM:
 		res = __strpt_card(&d->st, sp, s, ep);
-		break;
+		goto out_direct;
 
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
@@ -282,6 +282,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	if (ep) {
 		*ep = (char*)sp;
 	}
+out_direct:
 	return res;
 }
 
@@ -392,9 +393,11 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		}
 	}
-	/* set the end pointer */
+	/* assign d and t types using date core and time core routines */
 	res.d = __guess_dtyp(d.sd);
+	res.t = __guess_ttyp(d.st);
 out:
+	/* set the end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
