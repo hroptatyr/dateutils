@@ -293,15 +293,17 @@ zif_utc_time(zif_t z, int32_t t)
  * time stamp to an offset. */
 /* make me use the cache please! */
 	/* let's go */
-	int32_t xi = 0, xj;
+	int32_t xi = 0;
+	int32_t xj;
+	int32_t old = -1;
 
 	/* jump off the cliff if Z is nought */
 	if (UNLIKELY(z == NULL)) {
 		return t;
 	}
 
-	while ((xj = __offs(z, t - xi)) != xi) {
-		xi = xj;
+	while ((xj = __offs(z, t - xi)) != xi && xi != old) {
+		old = xi = xj;
 	}
 	return t - xj;
 }
