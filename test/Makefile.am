@@ -71,6 +71,14 @@ TESTS += dadd.7.dt
 TESTS += dadd.8.dt
 TESTS += dadd.9.dt
 TESTS += dadd.10.dt
+TESTS += dadd.11.dt
+TESTS += dadd.12.dt
+TESTS += dadd.13.dt
+TESTS += dadd.14.dt
+TESTS += dadd.15.dt
+TESTS += dadd.16.dt
+TESTS += dadd.17.dt
+TESTS += dadd.18.dt
 
 TESTS += dtest.1.dt
 TESTS += dtest.2.dt
