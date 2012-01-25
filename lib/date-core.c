@@ -1573,6 +1573,45 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	return res;
 }
 
+static inline void
+__fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
+{
+	switch (dur.typ) {
+	case DT_YMD:
+		tgt->m = dur.ymd.y * 12 + dur.ymd.m;
+		tgt->d = dur.ymd.d;
+		break;
+	case DT_DAISY:
+		tgt->d = dur.daisy;
+		break;
+	case DT_BIZSI:
+		tgt->b = dur.bizsi;
+		break;
+	case DT_BIZDA:
+		tgt->m = dur.bizda.y * 12 + dur.bizda.m;
+		tgt->b = dur.bizda.bd;
+		break;
+	case DT_YMCW:
+#if 0
+/* doesn't happen as the dur parser won't hand out durs of type YMCW */
+		tgt->m = dur.ymcw.y * 12 + dur.ymcw.m;
+		tgt->w = dur.ymcw.c;
+		tgt->d = dur.ymcw.w;
+		break;
+#endif	/* 0 */
+	default:
+		break;
+	}
+
+	if (UNLIKELY(dur.neg)) {
+		tgt->m = -tgt->m;
+		tgt->d = -tgt->d;
+		tgt->w = -tgt->w;
+		tgt->b = -tgt->b;
+	}
+	return;
+}
+
 static dt_ymd_t
 __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 {
@@ -1582,39 +1621,8 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	int tgtd = 0;
 	struct strpdi_s durcch = {0};
 
-	switch (dur.typ) {
-	case DT_YMD:
-		durcch.m = dur.ymd.y * 12 + dur.ymd.m;
-		durcch.d = dur.ymd.d;
-		break;
-	case DT_DAISY:
-		durcch.d = dur.daisy;
-		break;
-	case DT_BIZSI:
-		durcch.b = dur.bizsi;
-		break;
-	case DT_BIZDA:
-		durcch.m = dur.bizda.y * 12 + dur.bizda.m;
-		durcch.b = dur.bizda.bd;
-		break;
-	case DT_YMCW:
-#if 0
-/* doesn't happen as the dur parser won't hand out durs of type YMCW */
-		durcch.m = dur.ymcw.y * 12 + dur.ymcw.m;
-		durcch.w = dur.ymcw.c;
-		durcch.d = dur.ymcw.w;
-		break;
-#endif	/* 0 */
-	default:
-		break;
-	}
-
-	if (UNLIKELY(dur.neg)) {
-		durcch.m = -durcch.m;
-		durcch.d = -durcch.d;
-		durcch.w = -durcch.w;
-		durcch.b = -durcch.b;
-	}
+	/* using the strpdi blob is easier */
+	__fill_strpdi(&durcch, dur);
 
 	switch (dur.typ) {
 		unsigned int mdays;
@@ -2883,7 +2891,7 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 }
 
 DEFUN struct dt_d_s
-dt_add(struct dt_d_s d, struct dt_d_s dur)
+dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 {
 	switch (d.typ) {
 	case DT_DAISY:

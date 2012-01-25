@@ -268,7 +268,7 @@ DECLF unsigned int dt_get_yday(struct dt_d_s d);
  * The result will be in the calendar as specified by TGTTYP, or if
  * DT_UNK is given, the calendar of D will be used. */
 DECLF struct dt_d_s
-dt_add(struct dt_d_s d, struct dt_d_s dur);
+dt_dadd(struct dt_d_s d, struct dt_d_s dur);
 
 /**
  * Negate the duration. */

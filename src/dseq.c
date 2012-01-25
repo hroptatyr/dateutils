@@ -232,9 +232,9 @@ set_skip(__skipspec_t ss, char *spec)
 static struct dt_d_s
 date_add(struct dt_d_s d, struct dt_d_s dur[], size_t ndur)
 {
-	d = dt_add(d, dur[0]);
+	d = dt_dadd(d, dur[0]);
 	for (size_t i = 1; i < ndur; i++) {
-		d = dt_add(d, dur[i]);
+		d = dt_dadd(d, dur[i]);
 	}
 	return d;
 }
