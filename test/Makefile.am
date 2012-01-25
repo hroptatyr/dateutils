@@ -69,6 +69,8 @@ TESTS += dadd.5.dt
 TESTS += dadd.6.dt
 TESTS += dadd.7.dt
 TESTS += dadd.8.dt
+TESTS += dadd.9.dt
+TESTS += dadd.10.dt
 
 TESTS += dtest.1.dt
 TESTS += dtest.2.dt
@@ -140,5 +142,9 @@ TESTS += dtconv.11.dt
 TESTS += dtconv.12.dt
 TESTS += dtconv.13.dt
 TESTS += dtconv.14.dt
+TESTS += dtconv.15.dt
+TESTS += dtconv.16.dt
+TESTS += dtconv.17.dt
+TESTS += dtconv.18.dt
 
 ## Makefile.am ends here

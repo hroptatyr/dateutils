@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2012-01-25 -12m"
+COMMENT="Issue 4, year off by 1, reported by javajunkie314"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2011-01-25
+EOF
+
+## dadd.10.dt ends here
