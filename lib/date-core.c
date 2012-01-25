@@ -1111,8 +1111,9 @@ __uimod(signed int x, signed int m)
 static inline unsigned int
 __uidiv(signed int x, signed int m)
 {
+/* uidiv expects its counterpart (the mod) to be computed with __uimod */
 	int res = x / m;
-	return x >= 0 ? res : res - 1;
+	return x >= 0 ? res : x % m ? res - 1 : res;
 }
 
 static int
