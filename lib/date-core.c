@@ -2883,7 +2883,7 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 }
 
 DEFUN struct dt_d_s
-dt_add(struct dt_d_s d, struct dt_d_s dur)
+dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 {
 	switch (d.typ) {
 	case DT_DAISY:
