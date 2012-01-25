@@ -69,6 +69,8 @@ TESTS += dadd.5.dt
 TESTS += dadd.6.dt
 TESTS += dadd.7.dt
 TESTS += dadd.8.dt
+TESTS += dadd.9.dt
+TESTS += dadd.10.dt
 
 TESTS += dtest.1.dt
 TESTS += dtest.2.dt
