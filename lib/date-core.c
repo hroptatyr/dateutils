@@ -415,6 +415,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 static inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
+/* get the number of days in Y-M */
 	unsigned int res;
 
 	if (UNLIKELY(m < 1 || m > 12)) {
