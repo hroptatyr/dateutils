@@ -793,8 +793,8 @@ __bizda_get_mday(dt_bizda_t that)
 		unsigned int b = that.bd;
 		unsigned int magic = (b - 1 + wd01 - 1);
 
-		wk = magic / DUWW_BDAYS_P_WEEK;
-		nd = magic % DUWW_BDAYS_P_WEEK;
+		wk = __uidiv(magic, DUWW_BDAYS_P_WEEK);
+		nd = __uimod(magic, DUWW_BDAYS_P_WEEK);
 		res += wk * GREG_DAYS_P_WEEK + nd - wd01 + 1;
 	}
 	/* fixup mdays */
@@ -1461,16 +1461,16 @@ __get_d_equiv(dt_dow_t dow, int b)
 	case DT_WEDNESDAY:
 	case DT_THURSDAY:
 	case DT_FRIDAY:
-		res += GREG_DAYS_P_WEEK * (b / DUWW_BDAYS_P_WEEK);
-		b = b % DUWW_BDAYS_P_WEEK;
+		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
+		b %= (signed int)DUWW_BDAYS_P_WEEK;
 		break;
 	case DT_SATURDAY:
 		res++;
 	case DT_SUNDAY:
 		res++;
 		b--;
-		res += GREG_DAYS_P_WEEK * (b / DUWW_BDAYS_P_WEEK);
-		if ((b = b % DUWW_BDAYS_P_WEEK) < 0) {
+		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
+		if ((b %= (signed int)DUWW_BDAYS_P_WEEK) < 0) {
 			/* act as if we're on the monday after */
 			res++;
 		}
