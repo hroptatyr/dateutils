@@ -646,17 +646,7 @@ __ymcw_get_mday(dt_ymcw_t that)
 	/* weekday the year started with */
 	wd_jan01 = __get_jan01_wday(that.y);
 	/* see what weekday the first of the month was*/
-#if defined __C1X
-	wd01 = __ymd_get_yday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#else
-	{
-		dt_ymd_t tmp;
-		tmp.y = that.y;
-		tmp.m = that.m;
-		tmp.d = 01;
-		wd01 = __ymd_get_yday(tmp);
-	}
-#endif
+	wd01 = __get_m01_wday(that.y, that.m);
 	wd01 = (wd_jan01 - 1 + wd01) % 7;
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
@@ -717,17 +707,7 @@ __ymcw_get_bday(dt_ymcw_t that, dt_bizda_param_t bp)
 	}
 
 	/* weekday the month started with */
-#if defined __C1X
-	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#else
-	{
-		dt_ymd_t tmp;
-		tmp.y = that.y;
-		tmp.m = that.m;
-		tmp.d = 01;
-		wd01 = __ymd_get_wday(tmp);
-	}
-#endif
+	wd01 = __get_m01_wday(that.y, that.m);
 	res = (signed int)(that.w - wd01) + 5 * (that.c) + 1;
 	return res;
 }
@@ -739,17 +719,8 @@ __bizda_get_mday(dt_bizda_t that)
 	unsigned int res;
 
 	/* find first of the month first */
-#if defined __C1X
-	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#else
-	{
-		dt_ymd_t tmp;
-		tmp.y = that.y;
-		tmp.m = that.m;
-		tmp.d = 01;
-		wd01 = __ymd_get_wday(tmp);
-	}
-#endif
+	wd01 = __get_m01_wday(that.y, that.m);
+
 	switch (wd01) {
 	case DT_MONDAY:
 	case DT_TUESDAY:
@@ -797,17 +768,7 @@ __bizda_get_wday(dt_bizda_t that)
 	unsigned int magic;
 
 	/* find first of the month first */
-#if defined __C1X
-	wd01 = __ymd_get_wday((dt_ymd_t){.y = that.y, .m = that.m, .d = 01});
-#else
-	{
-		dt_ymd_t tmp;
-		tmp.y = that.y;
-		tmp.m = that.m;
-		tmp.d = 01;
-		wd01 = __ymd_get_wday(tmp);
-	}
-#endif
+	wd01 = __get_m01_wday(that.y, that.m);
 	b = that.bd;
 	magic = (b - 1 + (wd01 ?: 6) - 1);
 	/* now just add up bdays */
@@ -1141,17 +1102,8 @@ __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
 		dt_dow_t wd01;
 		unsigned int off1;
 		unsigned int off2;
-#if defined __C1X
-		wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
-#else  /* !__C1X */
-		{
-			dt_ymd_t tmp;
-			tmp.y = d1.y;
-			tmp.m = d1.m;
-			tmp.d = 1;
-			wd01 = __ymd_get_wday(tmp);
-		}
-#endif	/* __C1X */
+
+		wd01 = __get_m01_wday(d1.y, d1.m);
 		/* represent cw as C-th WD01 + OFF */
 		off1 = __uimod(d1.w - wd01, 7U);
 		off2 = __uimod(d2.w - wd01, 7U);
