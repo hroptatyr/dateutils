@@ -432,6 +432,28 @@ __get_mdays(unsigned int y, unsigned int m)
 	return res;
 }
 
+static inline unsigned int
+__get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
+{
+/* get the number of weekdays W in Y-M, which is the max count
+ * for a weekday W in ymcw dates in year Y and month M */
+	dt_dow_t wd01 = __get_m01_wday(y, m);
+	unsigned int md = __get_mdays(y, m);
+	/* the maximum number of WD01s in Y-M */
+	unsigned int wd01cnt = (md - 1) / 7 + 1;
+	/* modulus */
+	unsigned int wd01mod = (md - 1) % 7;
+
+	/* now the next WD01MOD days also have WD01CNT occurrences
+	 * if wd01 + wd01mod exceeds the DAYS_PER_WEEK barrier wrap
+	 * around by extending W to W + DAYS_PER_WEEK */
+	if (w <= wd01 + wd01mod || (w + 7) <= wd01 + wd01mod) {
+		return wd01cnt;
+	} else {
+		return wd01cnt - 1;
+	}
+}
+
 static unsigned int
 __get_nwedays(unsigned int dur, dt_dow_t wd)
 {
