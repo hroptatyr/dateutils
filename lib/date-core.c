@@ -610,7 +610,7 @@ __ymd_get_count(dt_ymd_t that)
 #if 0
 /* this proves to be a disaster when comparing ymcw dates */
 	if (UNLIKELY(that.d + GREG_DAYS_P_WEEK > __get_mdays(that.y, that.m))) {
-		return DUWW_BDAYS_P_WEEK;
+		return 5;
 	}
 #endif
 	return (that.d - 1U) / GREG_DAYS_P_WEEK + 1U;
@@ -1469,8 +1469,8 @@ __get_d_equiv(dt_dow_t dow, int b)
 	case DT_SUNDAY:
 		res++;
 		b--;
-		res += GREG_DAYS_P_WEEK * (b / 5);
-		if ((b %= DUWW_BDAYS_P_WEEK) < 0) {
+		res += GREG_DAYS_P_WEEK * (b / DUWW_BDAYS_P_WEEK);
+		if ((b = b % DUWW_BDAYS_P_WEEK) < 0) {
 			/* act as if we're on the monday after */
 			res++;
 		}
