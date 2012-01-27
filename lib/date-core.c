@@ -1755,14 +1755,6 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 	unsigned int tgtc;
 	dt_dow_t tgtw;
 	struct strpdi_s durcch = {0};
-	unsigned int wd01;
-	unsigned int wd_jan01;
-
-	/* weekday the year started with */
-	wd_jan01 = __get_jan01_wday(d.y);
-	/* see what weekday the first of the month was*/
-	wd01 = __get_m01_wday(d.y, d.m);
-	wd01 = (wd_jan01 - 1 + wd01) % GREG_DAYS_P_WEEK;
 
 	/* first off, give DUR a make-over */
 	__fill_strpdi(&durcch, dur);
@@ -1788,35 +1780,59 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 	case DT_BIZSI: {
 		signed int q;
 		signed int p;
-		unsigned int mc;
-
-		tgty = d.y;
-		tgtm = d.m;
-		tgtc = d.c - 1;
-		tgtw = (dt_dow_t)d.w;
+		signed int mc;
 
 		/* factorise durcch.d into q + p, q = 7k, 0 <= p < 7 */
 		q = __uidiv(durcch.d, GREG_DAYS_P_WEEK);
 		p = __uimod(durcch.d, GREG_DAYS_P_WEEK);
 
-		while (q && tgtc > (mc = __get_mcnt(tgty, tgtm, tgtw))) {
-			q -= mc - tgtc;
-			tgtc = 0;
-			if (UNLIKELY(++tgtm > 12)) {
-				tgtm = 1;
-				tgty++;
+		tgty = d.y;
+		tgtm = d.m;
+		q = d.c - 1 + q;
+		tgtw = (dt_dow_t)d.w;
+
+		while (1) {
+			mc = __get_mcnt(tgty, tgtm, tgtw);
+
+			if (q >= mc) {
+				q -= mc;
+				if (UNLIKELY(++tgtm > GREG_MONTHS_P_YEAR)) {
+					tgtm = 1;
+					tgty++;
+				}
+			} else if (q < 0) {
+				q += mc;
+				if (UNLIKELY(--tgtm < 1)) {
+					tgtm = GREG_MONTHS_P_YEAR;
+					tgty--;
+				}
+			} else {
+				break;
 			}
 		}
-		/* offset against p */
-		tgtc++;
-		tgtw = (dt_dow_t)((tgtw + p) % GREG_DAYS_P_WEEK);
-		if (p && tgtc + q > (mc = __get_mcnt(tgty, tgtm, tgtw))) {
-			q -= mc - tgtc;
-			tgtc = 0;
-			if (UNLIKELY(++tgtm > 12)) {
-				tgtm = 1;
-				tgty++;
+
+		/* offset against p (we know p is >= 0)
+		 * and mc still holds the mcnt value for the weekday
+		 * we started on */
+		tgtc = q + 1;
+		if (p) {
+			unsigned int newmc;
+
+			tgtw = (dt_dow_t)((tgtw + p) % GREG_DAYS_P_WEEK);
+			newmc = __get_mcnt(tgty, tgtm, tgtw);
+			if (newmc > (unsigned int)mc) {
+				/* cant go negative as we used __uimod above
+				 * to properly start left of the fixup */
+				if (++tgtc > newmc) {
+					/* fixup c, m and y too */
+					tgtc = 1;
+					if (++tgtm > GREG_MONTHS_P_YEAR) {
+						tgty++;
+						tgtm = 1;
+					}
+				}
 			}
+			/* otherwise it's the same c within the month */
 		}
 		break;
 	}
