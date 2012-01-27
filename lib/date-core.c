@@ -68,6 +68,10 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if !defined assert
+# define assert(x)
+#endif	/* !assert */
+
 /* weekdays of the first day of the year,
  * 3 bits per year, times 10 years makes 1 uint32_t */
 typedef struct {
@@ -793,8 +797,9 @@ __bizda_get_mday(dt_bizda_t that)
 		unsigned int b = that.bd;
 		unsigned int magic = (b - 1 + wd01 - 1);
 
-		wk = __uidiv(magic, DUWW_BDAYS_P_WEEK);
-		nd = __uimod(magic, DUWW_BDAYS_P_WEEK);
+		assert(b - 1 + wd01 - 1 >= 0);
+		wk = magic / DUWW_BDAYS_P_WEEK;
+		nd = magic % DUWW_BDAYS_P_WEEK;
 		res += wk * GREG_DAYS_P_WEEK + nd - wd01 + 1;
 	}
 	/* fixup mdays */
