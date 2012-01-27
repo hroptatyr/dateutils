@@ -265,7 +265,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	/* just go to day computation */
 	days = (int)(t / SECS_PER_DAY);
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
-	tm->tm_wday = (days + 4) % 7;
+	tm->tm_wday = (days + 4) % GREG_DAYS_P_WEEK;
 
 	/* gotta do the date now */
 	yy = 1970;
@@ -420,12 +420,12 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 		return DT_MIRACLEDAY;
 	}
 	cand = __get_jan01_wday(year);
-	off = __mon_yday[mon] % 7;
+	off = __mon_yday[mon] % GREG_DAYS_P_WEEK;
 	/* fixup leap years */
 	if (UNLIKELY(__leapp(year))) {
 		off += (__mon_yday[0] >> mon) & 1;
 	}
-	return (dt_dow_t)((cand + off) % 7U);
+	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
 static inline unsigned int
@@ -456,14 +456,14 @@ __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 	dt_dow_t wd01 = __get_m01_wday(y, m);
 	unsigned int md = __get_mdays(y, m);
 	/* the maximum number of WD01s in Y-M */
-	unsigned int wd01cnt = (md - 1) / 7 + 1;
+	unsigned int wd01cnt = (md - 1) / GREG_DAYS_P_WEEK + 1;
 	/* modulus */
-	unsigned int wd01mod = (md - 1) % 7;
+	unsigned int wd01mod = (md - 1) % GREG_DAYS_P_WEEK;
 
 	/* now the next WD01MOD days also have WD01CNT occurrences
 	 * if wd01 + wd01mod exceeds the DAYS_PER_WEEK barrier wrap
 	 * around by extending W to W + DAYS_PER_WEEK */
-	if (w <= wd01 + wd01mod || (w + 7) <= wd01 + wd01mod) {
+	if (w <= wd01 + wd01mod || (w + GREG_DAYS_P_WEEK) <= wd01 + wd01mod) {
 		return wd01cnt;
 	} else {
 		return wd01cnt - 1;
@@ -497,8 +497,8 @@ __get_nwedays(unsigned int dur, dt_dow_t wd)
  * (mod7 - WD) > 0 -> 1
  * 
  * and that's all the magic behind the following code */
-	unsigned int nss = (dur / 7) * 2;
-	unsigned int mod = (dur % 7);
+	unsigned int nss = (dur / GREG_DAYS_P_WEEK) * 2;
+	unsigned int mod = (dur % GREG_DAYS_P_WEEK);
 
 	if (mod == 0) {
 		return nss;
@@ -542,11 +542,14 @@ __get_bdays(unsigned int y, unsigned int m)
  * Sat  0  0  1  2
  * Mir  0  0  0  0 
  */
-	dt_dow_t m01wd = __get_m01_wday(y, m);
-	dt_dow_t m28wd = (dt_dow_t)__uimod(m01wd - DT_MONDAY/*1*/, 7);
 	unsigned int md = __get_mdays(y, m);
 	unsigned int rd = (unsigned int)(md - 28U);
+	dt_dow_t m01wd;
+	dt_dow_t m28wd;
 
+	/* wday of the 1st and 28th */
+	m01wd = __get_m01_wday(y, m);
+	m28wd = (dt_dow_t)__uimod(m01wd - DT_MONDAY/*1*/, GREG_DAYS_P_WEEK);
 	if (LIKELY(rd > 0)) {
 		switch (m28wd) {
 		case DT_SUNDAY:
@@ -591,10 +594,11 @@ static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
 {
 	unsigned int yd;
-	dt_dow_t j01_wd;
+	unsigned int j01_wd;
+
 	if ((yd = __ymd_get_yday(that)) > 0 &&
 	    (j01_wd = __get_jan01_wday(that.y)) != DT_MIRACLEDAY) {
-		return (dt_dow_t)((yd - 1 + (unsigned int)j01_wd) % 7);
+		return (dt_dow_t)((yd - 1 + j01_wd) % GREG_DAYS_P_WEEK);
 	}
 	return DT_MIRACLEDAY;
 }
@@ -605,11 +609,11 @@ __ymd_get_count(dt_ymd_t that)
 /* get N where N is the N-th occurrence of wday in the month of that year */
 #if 0
 /* this proves to be a disaster when comparing ymcw dates */
-	if (UNLIKELY(that.d + 7U > __get_mdays(that.y, that.m))) {
+	if (UNLIKELY(that.d + GREG_DAYS_P_WEEK > __get_mdays(that.y, that.m))) {
 		return 5;
 	}
 #endif
-	return (that.d - 1U) / 7U + 1U;
+	return (that.d - 1U) / GREG_DAYS_P_WEEK + 1U;
 }
 
 static dt_dow_t
@@ -686,15 +690,16 @@ __ymcw_get_mday(dt_ymcw_t that)
 	wd_jan01 = __get_jan01_wday(that.y);
 	/* see what weekday the first of the month was*/
 	wd01 = __get_m01_wday(that.y, that.m);
-	wd01 = (wd_jan01 - 1 + wd01) % 7;
+	wd01 = (wd_jan01 - 1 + wd01) % GREG_DAYS_P_WEEK;
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
 	 * so the first WDx with WDx > WD1 is on (WDx - WD1) + 1 */
-	res = (that.w + 7 - wd01) % 7 + 1 + 7 * (that.c - 1);
+	res = (that.w + GREG_DAYS_P_WEEK - wd01) % GREG_DAYS_P_WEEK + 1;
+	res += GREG_DAYS_P_WEEK * (that.c - 1);
 	/* not all months have a 5th X, so check for this */
 	if (res > __get_mdays(that.y, that.m)) {
 		 /* 5th = 4th in that case */
-		res -= 7;
+		res -= GREG_DAYS_P_WEEK;
 	}
 	return res;
 }
@@ -790,7 +795,7 @@ __bizda_get_mday(dt_bizda_t that)
 
 		wk = magic / 5;
 		nd = magic % 5;
-		res += wk * 7 + nd - wd01 + 1;
+		res += wk * GREG_DAYS_P_WEEK + nd - wd01 + 1;
 	}
 	/* fixup mdays */
 	if (res > __get_mdays(that.y, that.m)) {
@@ -927,7 +932,7 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 			accum += page.s.mar_leap;
 		}
 		/* load a different page now, shift to the right month */
-		page.s = tbl[(j01wd + DT_MONDAY) % 7U];
+		page.s = tbl[(j01wd + DT_MONDAY) % GREG_DAYS_P_WEEK];
 		page.u >>= 6;
 		for (unsigned int i = 4; i < m; i++) {
 			accum += page.u & /*lower two bits*/3;
@@ -984,7 +989,7 @@ __daisy_get_wday(dt_daisy_t d)
 {
 /* daisy wdays are simple because the base year is chosen so that day 0
  * in the daisy calendar is a sunday */
-	return (dt_dow_t)(d % 7);
+	return (dt_dow_t)(d % GREG_DAYS_P_WEEK);
 }
 
 static unsigned int
@@ -1129,8 +1134,8 @@ __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
 
 		wd01 = __get_m01_wday(d1.y, d1.m);
 		/* represent cw as C-th WD01 + OFF */
-		off1 = __uimod(d1.w - wd01, 7U);
-		off2 = __uimod(d2.w - wd01, 7U);
+		off1 = __uimod(d1.w - wd01, GREG_DAYS_P_WEEK);
+		off2 = __uimod(d2.w - wd01, GREG_DAYS_P_WEEK);
 
 		if (off1 < off2) {
 			return -1;
@@ -1454,7 +1459,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 	case DT_WEDNESDAY:
 	case DT_THURSDAY:
 	case DT_FRIDAY:
-		res += 7 * (b / 5);
+		res += GREG_DAYS_P_WEEK * (b / 5);
 		b = b % 5;
 		break;
 	case DT_SATURDAY:
@@ -1462,7 +1467,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 	case DT_SUNDAY:
 		res++;
 		b--;
-		res += 7 * (b / 5);
+		res += GREG_DAYS_P_WEEK * (b / 5);
 		if ((b = b % 5) < 0) {
 			/* act as if we're on the monday after */
 			res++;
@@ -1476,7 +1481,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 
 	/* fixup b */
 	if (b < 0) {
-		res -= 7;
+		res -= GREG_DAYS_P_WEEK;
 		b += 5;
 	}
 	/* b >= 0 && b < 5 */
@@ -1783,13 +1788,13 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 		unsigned int off1;
 		unsigned int off2;
 
-		off1 = __uimod(d1.w - wd01, 7U);
-		off2 = __uimod(d2.w - wd02, 7U);
-		tgtd = off2 - off1 + 7 * (d2.c - d1.c);
+		off1 = __uimod(d1.w - wd01, GREG_DAYS_P_WEEK);
+		off2 = __uimod(d2.w - wd02, GREG_DAYS_P_WEEK);
+		tgtd = off2 - off1 + GREG_DAYS_P_WEEK * (d2.c - d1.c);
 	}
 
 	/* fixups */
-	if (tgtd < 7 && tgtm > 0) {
+	if (tgtd < (signed int)GREG_DAYS_P_WEEK && tgtm > 0) {
 		/* if tgtm is 0 it remains 0 and tgtd remains negative */
 		/* get the target month's mdays */
 		unsigned int d2m = d2.m;
@@ -1806,8 +1811,8 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 	/* fill in the results */
 	res.ymcw.y = tgtm / 12;
 	res.ymcw.m = tgtm % 12;
-	res.ymcw.c = tgtd / 7;
-	res.ymcw.w = tgtd % 7;
+	res.ymcw.c = tgtd / GREG_DAYS_P_WEEK;
+	res.ymcw.w = tgtd % GREG_DAYS_P_WEEK;
 	return res;
 }
 
@@ -1959,7 +1964,8 @@ __strpd_std(const char *str, char **ep)
 			break;
 		}
 		d.d = 0;
-		if ((d.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
+		sp++;
+		if ((d.w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) == -1U) {
 			/* didn't work, fuck off */
 			sp = str;
 			goto out;
@@ -2030,7 +2036,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_CNT_WEEK:
 		/* ymcw mode? */
-		d->w = strtoui_lim(sp, &sp, 0, 7);
+		d->w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
 		break;
 	case DT_SPFL_N_CNT_MON:
 		/* ymcw mode? */
@@ -2651,10 +2657,10 @@ dt_strpdur(const char *str, char **ep)
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.q * 3 + d.m;
-		res.ymd.d = d.d + d.w * 7;
+		res.ymd.d = d.d + d.w * GREG_DAYS_P_WEEK;
 	} else if (d.d) {
 		res.typ = DT_DAISY;
-		res.daisy = d.w * 7 + d.d;
+		res.daisy = d.w * GREG_DAYS_P_WEEK + d.d;
 	} else if (d.b) {
 		res.typ = DT_BIZSI;
 		res.bizsi = d.w * 5 + d.b;
