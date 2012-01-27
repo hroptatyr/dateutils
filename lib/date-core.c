@@ -321,6 +321,22 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	return;
 }
 
+/* arithmetics helpers */
+static inline unsigned int
+__uimod(signed int x, signed int m)
+{
+	int res = x % m;
+	return res >= 0 ? res : res + m;
+}
+
+static inline unsigned int
+__uidiv(signed int x, signed int m)
+{
+/* uidiv expects its counterpart (the mod) to be computed with __uimod */
+	int res = x / m;
+	return x >= 0 ? res : x % m ? res - 1 : res;
+}
+
 
 /* converters and getters */
 static inline __jan01_wday_block_t
@@ -1083,21 +1099,6 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	res.d = md;
 	return res;
 #endif
-}
-
-static inline unsigned int
-__uimod(signed int x, signed int m)
-{
-	int res = x % m;
-	return res >= 0 ? res : res + m;
-}
-
-static inline unsigned int
-__uidiv(signed int x, signed int m)
-{
-/* uidiv expects its counterpart (the mod) to be computed with __uimod */
-	int res = x / m;
-	return x >= 0 ? res : x % m ? res - 1 : res;
 }
 
 static int
