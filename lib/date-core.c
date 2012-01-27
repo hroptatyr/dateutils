@@ -1745,23 +1745,90 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 static dt_ymcw_t
 __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 {
+/* here's a short draft of the arithmetic for ymcw dates:
+ * Y-m-c-w + n years -> (Y + n)-m-c-w
+ * Y-m-c-w + n months -> Y-(m + n)-c-w
+ * Y-m-c-w + n weeks -> Y'-m'-c'-w
+ * Y-m-c-w + n days -> Y'-m'-c'-w' */
+	unsigned int tgty;
+	unsigned int tgtm;
+	unsigned int tgtc;
+	dt_dow_t tgtw;
+	struct strpdi_s durcch = {0};
+	unsigned int wd01;
+	unsigned int wd_jan01;
+
+	/* weekday the year started with */
+	wd_jan01 = __get_jan01_wday(d.y);
+	/* see what weekday the first of the month was*/
+	wd01 = __get_m01_wday(d.y, d.m);
+	wd01 = (wd_jan01 - 1 + wd01) % GREG_DAYS_P_WEEK;
+
+	/* first off, give DUR a make-over */
+	__fill_strpdi(&durcch, dur);
+
 	switch (dur.typ) {
 	case DT_YMD:
-		d.y += dur.ymd.y;
-		d.m += dur.ymd.m;
-		d.c += dur.ymd.d / 7;
-		d.w += dur.ymd.d % 7;
-		break;
 	case DT_YMCW:
-		d.y += dur.ymcw.y;
-		d.m += dur.ymcw.m;
-		d.c += dur.ymcw.c;
-		d.w += dur.ymcw.w;
+	case DT_BIZDA:
+		/* construct new month */
+		durcch.m += d.m - 1;
+		tgty = __uidiv(durcch.m, 12) + d.y;
+		tgtm = __uimod(durcch.m, 12) + 1;
+
+#if 0
+		/* fixup day */
+		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
+			tgtd = mdays;
+		}
+#endif
+		/* otherwise we may need to fixup the day, let's do that
+		 * in the next step */
+	case DT_DAISY:
+	case DT_BIZSI: {
+		signed int q;
+		signed int p;
+		unsigned int mc;
+
+		tgty = d.y;
+		tgtm = d.m;
+		tgtc = d.c - 1;
+		tgtw = (dt_dow_t)d.w;
+
+		/* factorise durcch.d into q + p, q = 7k, 0 <= p < 7 */
+		q = __uidiv(durcch.d, GREG_DAYS_P_WEEK);
+		p = __uimod(durcch.d, GREG_DAYS_P_WEEK);
+
+		while (q && tgtc > (mc = __get_mcnt(tgty, tgtm, tgtw))) {
+			q -= mc - tgtc;
+			tgtc = 0;
+			if (UNLIKELY(++tgtm > 12)) {
+				tgtm = 1;
+				tgty++;
+			}
+		}
+		/* offset against p */
+		tgtc++;
+		tgtw = (dt_dow_t)((tgtw + p) % GREG_DAYS_P_WEEK);
+		if (p && tgtc + q > (mc = __get_mcnt(tgty, tgtm, tgtw))) {
+			q -= mc - tgtc;
+			tgtc = 0;
+			if (UNLIKELY(++tgtm > 12)) {
+				tgtm = 1;
+				tgty++;
+			}
+		}
 		break;
+	}
 	case DT_UNK:
 	default:
 		break;
 	}
+	/* reassign to the guy in question */
+	d.y = tgty;
+	d.m = tgtm;
+	d.c = tgtc;
+	d.w = tgtw;
 	return d;
 }
 
