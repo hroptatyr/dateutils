@@ -183,6 +183,12 @@ enum {
 };
 
 
+/* constants (for known calendars) */
+#define GREG_DAYS_P_WEEK	(7U)
+#define GREG_MONTHS_P_YEAR	(12U)
+#define DUWW_BDAYS_P_WEEK	(5U)
+
+
 /* decls */
 /**
  * Like strptime() for our dates.
