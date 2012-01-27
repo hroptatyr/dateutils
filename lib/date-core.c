@@ -420,7 +420,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	unsigned int off;
 	dt_dow_t cand;
 
-	if (UNLIKELY(mon < 1 && mon > 12)) {
+	if (UNLIKELY(mon < 1 && mon > GREG_MONTHS_P_YEAR)) {
 		return DT_MIRACLEDAY;
 	}
 	cand = __get_jan01_wday(year);
@@ -438,7 +438,7 @@ __get_mdays(unsigned int y, unsigned int m)
 /* get the number of days in Y-M */
 	unsigned int res;
 
-	if (UNLIKELY(m < 1 || m > 12)) {
+	if (UNLIKELY(m < 1 || m > GREG_MONTHS_P_YEAR)) {
 		return 0;
 	}
 
@@ -582,7 +582,8 @@ __ymd_get_yday(dt_ymd_t that)
 {
 	unsigned int res;
 
-	if (UNLIKELY(that.y == 0 || that.m == 0 || that.m > 12)) {
+	if (UNLIKELY(that.y == 0 ||
+		     that.m == 0 || that.m > GREG_MONTHS_P_YEAR)) {
 		return 0;
 	}
 	/* process */
@@ -1041,7 +1042,7 @@ __daisy_to_ymd(dt_daisy_t that)
 	y = __daisy_get_year(that);
 	j00 = __jan00_daisy(y);
 	doy = that - j00;
-	for (m = 1; m < 12 && doy > __mon_yday[m + 1]; m++);
+	for (m = 1; m < GREG_MONTHS_P_YEAR && doy > __mon_yday[m + 1]; m++);
 	d = doy - __mon_yday[m];
 
 	/* fix up leap years */
@@ -1566,7 +1567,7 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 {
 	switch (dur.typ) {
 	case DT_YMD:
-		tgt->m = dur.ymd.y * 12 + dur.ymd.m;
+		tgt->m = dur.ymd.y * GREG_MONTHS_P_YEAR + dur.ymd.m;
 		tgt->d = dur.ymd.d;
 		break;
 	case DT_DAISY:
@@ -1576,13 +1577,13 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 		tgt->b = dur.bizsi;
 		break;
 	case DT_BIZDA:
-		tgt->m = dur.bizda.y * 12 + dur.bizda.m;
+		tgt->m = dur.bizda.y * GREG_MONTHS_P_YEAR + dur.bizda.m;
 		tgt->b = dur.bizda.bd;
 		break;
 	case DT_YMCW:
 #if 0
 /* doesn't happen as the dur parser won't hand out durs of type YMCW */
-		tgt->m = dur.ymcw.y * 12 + dur.ymcw.m;
+		tgt->m = dur.ymcw.y * GREG_MONTHS_P_YEAR + dur.ymcw.m;
 		tgt->w = dur.ymcw.c;
 		tgt->d = dur.ymcw.w;
 		break;
@@ -1619,8 +1620,8 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	case DT_BIZDA:
 		/* construct new month */
 		durcch.m += d.m - 1;
-		tgty = __uidiv(durcch.m, 12) + d.y;
-		tgtm = __uimod(durcch.m, 12) + 1;
+		tgty = __uidiv(durcch.m, GREG_MONTHS_P_YEAR) + d.y;
+		tgtm = __uimod(durcch.m, GREG_MONTHS_P_YEAR) + 1;
 
 		/* fixup day */
 		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
@@ -1669,7 +1670,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 		/* fixup the day */
 		while (tgtd > (int)mdays) {
 			tgtd -= mdays;
-			if (++tgtm > 12) {
+			if (++tgtm > GREG_MONTHS_P_YEAR) {
 				++tgty;
 				tgtm = 1;
 			}
@@ -1679,7 +1680,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 		while (tgtd < 1) {
 			if (--tgtm < 1) {
 				--tgty;
-				tgtm = 12;
+				tgtm = GREG_MONTHS_P_YEAR;
 			}
 			mdays = __get_mdays(tgty, tgtm);
 			tgtd += mdays;
@@ -1712,7 +1713,7 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 	}
 
 	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
-	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
+	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
 	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
 		/* if tgtm is 0 it remains 0 and tgtd remains negative */
 		/* get the target month's mdays */
@@ -1720,7 +1721,7 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 		unsigned int d2y = d2.y;
 
 		if (--d2m < 1) {
-			d2m = 12;
+			d2m = GREG_MONTHS_P_YEAR;
 			d2y--;
 		}
 		tgtd += __get_mdays(d2y, d2m);
@@ -1735,8 +1736,8 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 #endif	/* !OMIT_FIXUPS */
 	}
 	/* fill in the results */
-	res.ymd.y = tgtm / 12;
-	res.ymd.m = tgtm % 12;
+	res.ymd.y = tgtm / GREG_MONTHS_P_YEAR;
+	res.ymd.m = tgtm % GREG_MONTHS_P_YEAR;
 	res.ymd.d = tgtd;
 	return res;
 }
@@ -1788,7 +1789,7 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 	}
 
 	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
-	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
+	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
 	/* using the firsts of the month WD01, represent d1 and d2 as
 	 * the C-th WD01 plus OFF */
 	{
@@ -1808,7 +1809,7 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 		unsigned int d2y = d2.y;
 
 		if (--d2m < 1) {
-			d2m = 12;
+			d2m = GREG_MONTHS_P_YEAR;
 			d2y--;
 		}
 		tgtd += __get_mdays(d2y, d2m);
@@ -1816,8 +1817,8 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 	}
 
 	/* fill in the results */
-	res.ymcw.y = tgtm / 12;
-	res.ymcw.m = tgtm % 12;
+	res.ymcw.y = tgtm / GREG_MONTHS_P_YEAR;
+	res.ymcw.m = tgtm % GREG_MONTHS_P_YEAR;
 	res.ymcw.c = tgtd / GREG_DAYS_P_WEEK;
 	res.ymcw.w = tgtd % GREG_DAYS_P_WEEK;
 	return res;
@@ -1951,7 +1952,7 @@ __strpd_std(const char *str, char **ep)
 		goto out;
 	}
 	/* read the month */
-	if ((d.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
+	if ((d.m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) == -1U ||
 	    *sp++ != '-') {
 		sp = str;
 		goto out;
@@ -2014,7 +2015,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_DSTD:
 		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 		*sp++;
-		d->m = strtoui_lim(sp, &sp, 0, 12);
+		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		*sp++;
 		d->d = strtoui_lim(sp, &sp, 0, 31);
 		break;
@@ -2031,7 +2032,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		}
 		break;
 	case DT_SPFL_N_MON:
-		d->m = strtoui_lim(sp, &sp, 0, 12);
+		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode? */
@@ -2179,7 +2180,7 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		}
 		break;
 	case DT_SPFL_N_MON:
-		d->m = romstrtoui_lim(sp, &sp, 0, 12);
+		d->m = romstrtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		break;
 	case DT_SPFL_N_MDAY:
 		d->d = romstrtoui_lim(sp, &sp, 0, 31);
