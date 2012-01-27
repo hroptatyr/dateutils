@@ -610,7 +610,7 @@ __ymd_get_count(dt_ymd_t that)
 #if 0
 /* this proves to be a disaster when comparing ymcw dates */
 	if (UNLIKELY(that.d + GREG_DAYS_P_WEEK > __get_mdays(that.y, that.m))) {
-		return 5;
+		return DUWW_BDAYS_P_WEEK;
 	}
 #endif
 	return (that.d - 1U) / GREG_DAYS_P_WEEK + 1U;
@@ -752,7 +752,7 @@ __ymcw_get_bday(dt_ymcw_t that, dt_bizda_param_t bp)
 
 	/* weekday the month started with */
 	wd01 = __get_m01_wday(that.y, that.m);
-	res = (signed int)(that.w - wd01) + 5 * (that.c) + 1;
+	res = (signed int)(that.w - wd01) + DUWW_BDAYS_P_WEEK * (that.c) + 1;
 	return res;
 }
 
@@ -793,8 +793,8 @@ __bizda_get_mday(dt_bizda_t that)
 		unsigned int b = that.bd;
 		unsigned int magic = (b - 1 + wd01 - 1);
 
-		wk = magic / 5;
-		nd = magic % 5;
+		wk = magic / DUWW_BDAYS_P_WEEK;
+		nd = magic % DUWW_BDAYS_P_WEEK;
 		res += wk * GREG_DAYS_P_WEEK + nd - wd01 + 1;
 	}
 	/* fixup mdays */
@@ -816,17 +816,19 @@ __bizda_get_wday(dt_bizda_t that)
 	b = that.bd;
 	magic = (b - 1 + (wd01 ?: 6) - 1);
 	/* now just add up bdays */
-	return (dt_dow_t)((magic % 5) + DT_MONDAY);
+	return (dt_dow_t)((magic % DUWW_BDAYS_P_WEEK) + DT_MONDAY);
 }
 
 static unsigned int
 __bizda_get_count(dt_bizda_t that)
 {
 /* get N where N is the N-th occurrence of wday in the month of that year */
-	if (UNLIKELY(that.bd + 5U > __get_bdays(that.y, that.m))) {
-		return 5;
+	unsigned int bd = __get_bdays(that.y, that.m);
+
+	if (UNLIKELY(that.bd + DUWW_BDAYS_P_WEEK > bd)) {
+		return DUWW_BDAYS_P_WEEK;
 	}
-	return (that.bd - 1U) / 5U + 1U;
+	return (that.bd - 1U) / DUWW_BDAYS_P_WEEK + 1U;
 }
 
 static unsigned int
@@ -1459,8 +1461,8 @@ __get_d_equiv(dt_dow_t dow, int b)
 	case DT_WEDNESDAY:
 	case DT_THURSDAY:
 	case DT_FRIDAY:
-		res += GREG_DAYS_P_WEEK * (b / 5);
-		b = b % 5;
+		res += GREG_DAYS_P_WEEK * (b / DUWW_BDAYS_P_WEEK);
+		b = b % DUWW_BDAYS_P_WEEK;
 		break;
 	case DT_SATURDAY:
 		res++;
@@ -1468,7 +1470,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 		res++;
 		b--;
 		res += GREG_DAYS_P_WEEK * (b / 5);
-		if ((b = b % 5) < 0) {
+		if ((b %= DUWW_BDAYS_P_WEEK) < 0) {
 			/* act as if we're on the monday after */
 			res++;
 		}
@@ -1482,7 +1484,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 	/* fixup b */
 	if (b < 0) {
 		res -= GREG_DAYS_P_WEEK;
-		b += 5;
+		b += DUWW_BDAYS_P_WEEK;
 	}
 	/* b >= 0 && b < 5 */
 	switch (dow) {
@@ -2651,7 +2653,7 @@ dt_strpdur(const char *str, char **ep)
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.q * 3 + d.m;
-		res.bizda.bd = d.b + d.w * 5;
+		res.bizda.bd = d.b + d.w * DUWW_BDAYS_P_WEEK;
 	} else if (LIKELY((d.m || d.y))) {
 	dflt:
 		res.typ = DT_YMD;
@@ -2663,7 +2665,7 @@ dt_strpdur(const char *str, char **ep)
 		res.daisy = d.w * GREG_DAYS_P_WEEK + d.d;
 	} else if (d.b) {
 		res.typ = DT_BIZSI;
-		res.bizsi = d.w * 5 + d.b;
+		res.bizsi = d.w * DUWW_BDAYS_P_WEEK + d.b;
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
 		 * cover them better */
