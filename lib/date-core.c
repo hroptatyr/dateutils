@@ -527,7 +527,7 @@ __get_bdays(unsigned int y, unsigned int m)
  * Mir  0  0  0  0 
  */
 	dt_dow_t m01wd = __get_m01_wday(y, m);
-	dt_dow_t m28wd = (dt_dow_t)((m01wd - DT_MONDAY/*1*/) % 7U);
+	dt_dow_t m28wd = (dt_dow_t)__uimod(m01wd - DT_MONDAY/*1*/, 7);
 	unsigned int md = __get_mdays(y, m);
 	unsigned int rd = (unsigned int)(md - 28U);
 
