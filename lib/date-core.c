@@ -1744,30 +1744,12 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 		res.neg = 1;
 	}
 
-#if defined __C1X
-	wd01 = __ymd_get_wday((dt_ymd_t){.y = d1.y, .m = d1.m, .d = 1});
+	wd01 = __get_m01_wday(d1.y, d1.m);
 	if (d2.y != d1.y || d2.m != d1.m) {
-		wd02 = __ymd_get_wday((dt_ymd_t){.y = d2.y, .m = d2.m, .d = 1});
+		wd02 = __get_m01_wday(d2.y, d2.m);
 	} else {
 		wd02 = wd01;
 	}
-#else  /* !__C1X */
-	{
-		dt_ymd_t tmp;
-		tmp.y = d1.y;
-		tmp.m = d1.m;
-		tmp.d = 01;
-		wd01 = __ymd_get_wday(tmp);
-
-		if (d2.y != d1.y || d2.m != d1.m) {
-			tmp.y = d2.y;
-			tmp.m = d2.m;
-			wd02 = __ymd_get_wday(tmp);
-		} else {
-			wd02 = wd01;
-		}
-	}
-#endif	/* __C1X */
 
 	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
 	tgtm = 12 * (d2.y - d1.y) + (d2.m - d1.m);
