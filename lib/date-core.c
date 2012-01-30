@@ -464,10 +464,13 @@ __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 	/* modulus */
 	unsigned int wd01mod = (md - 1) % GREG_DAYS_P_WEEK;
 
+	fprintf(stderr, "%u %u %u %u\n", wd01, md, wd01cnt, wd01mod);
+
 	/* now the next WD01MOD days also have WD01CNT occurrences
 	 * if wd01 + wd01mod exceeds the DAYS_PER_WEEK barrier wrap
 	 * around by extending W to W + DAYS_PER_WEEK */
-	if (w <= wd01 + wd01mod || (w + GREG_DAYS_P_WEEK) <= wd01 + wd01mod) {
+	if ((w >= wd01 && w <= wd01 + wd01mod) ||
+	    (w + GREG_DAYS_P_WEEK) <= wd01 + wd01mod) {
 		return wd01cnt;
 	} else {
 		return wd01cnt - 1;
@@ -1588,6 +1591,10 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 		tgt->d = dur.ymcw.w;
 		break;
 #endif	/* 0 */
+	case DT_MD:
+		tgt->m = dur.md.m;
+		tgt->d = dur.md.d;
+		break;
 	default:
 		break;
 	}
@@ -1618,6 +1625,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	case DT_YMD:
 	case DT_YMCW:
 	case DT_BIZDA:
+	case DT_MD:
 		/* construct new month */
 		durcch.m += d.m - 1;
 		tgty = __uidiv(durcch.m, GREG_MONTHS_P_YEAR) + d.y;
@@ -1633,6 +1641,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	case DT_BIZSI:
 		switch (dur.typ) {
 		case DT_YMD:
+		case DT_MD:
 			/* fallthrough from above */
 			tgtd += durcch.d;
 			break;
@@ -1761,6 +1770,7 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 
 	switch (dur.typ) {
 	case DT_YMD:
+	case DT_MD:
 	case DT_YMCW:
 	case DT_BIZDA:
 		/* construct new month */
@@ -1768,12 +1778,6 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 		tgty = __uidiv(durcch.m, 12) + d.y;
 		tgtm = __uimod(durcch.m, 12) + 1;
 
-#if 0
-		/* fixup day */
-		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
-			tgtd = mdays;
-		}
-#endif
 		/* otherwise we may need to fixup the day, let's do that
 		 * in the next step */
 	case DT_DAISY:
@@ -1792,19 +1796,18 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 		tgtw = (dt_dow_t)d.w;
 
 		while (1) {
-			mc = __get_mcnt(tgty, tgtm, tgtw);
-
-			if (q >= mc) {
+			if (q < 0) {
+				if (UNLIKELY(--tgtm < 1)) {
+					tgtm = GREG_MONTHS_P_YEAR;
+					tgty--;
+				}
+				mc = __get_mcnt(tgty, tgtm, tgtw);
+				q += mc;
+			} else if (q >= (mc = __get_mcnt(tgty, tgtm, tgtw))) {
 				q -= mc;
 				if (UNLIKELY(++tgtm > GREG_MONTHS_P_YEAR)) {
 					tgtm = 1;
 					tgty++;
-				}
-			} else if (q < 0) {
-				q += mc;
-				if (UNLIKELY(--tgtm < 1)) {
-					tgtm = GREG_MONTHS_P_YEAR;
-					tgty--;
 				}
 			} else {
 				break;
@@ -2738,13 +2741,12 @@ dt_strpdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	if (d.b && (d.m || d.y)) {
+	if (d.b && ((d.m >= 1 && d.m <= GREG_MONTHS_P_YEAR) || d.y)) {
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.q * 3 + d.m;
 		res.bizda.bd = d.b + d.w * DUWW_BDAYS_P_WEEK;
-	} else if (LIKELY((d.m || d.y))) {
-	dflt:
+	} else if (LIKELY((d.m >= 1 && d.m <= GREG_MONTHS_P_YEAR) || d.y)) {
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.q * 3 + d.m;
@@ -2757,8 +2759,12 @@ dt_strpdur(const char *str, char **ep)
 		res.bizsi = d.w * DUWW_BDAYS_P_WEEK + d.b;
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
-		 * cover them better */
-		goto dflt;
+		 * cover them better
+		 * anything that doesn't fit shall be mapped to MD durs
+		 * using the definitions of MONTHS_P_YEAR and DAYS_P_WEEK */
+		res.typ = DT_MD;
+		res.md.d = d.w * GREG_DAYS_P_WEEK + d.d;
+		res.md.m = d.y * GREG_MONTHS_P_YEAR + d.m;
 	}
 out:
 	if (ep) {

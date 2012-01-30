@@ -66,6 +66,7 @@ typedef enum {
 	DT_BIZDA,
 	DT_DAISY,
 	DT_BIZSI,
+	DT_MD,
 } dt_dtyp_t;
 
 #define DT_MIN_YEAR	(0)
@@ -132,6 +133,16 @@ typedef union {
 } dt_bizda_param_t;
 
 /**
+ * One more type that's only used for durations. */
+typedef union {
+	uint32_t u;
+	struct {
+		unsigned int d;
+		unsigned int m;
+	};
+} dt_md_t;
+
+/**
  * Collection of all date types. */
 struct dt_d_s {
 	/* for parametrised types */
@@ -147,6 +158,8 @@ struct dt_d_s {
 		dt_daisy_t bizsi;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
+		/* for durations only */
+		dt_md_t md;
 	};
 };
 
