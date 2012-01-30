@@ -1775,12 +1775,6 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 		tgty = __uidiv(durcch.m, 12) + d.y;
 		tgtm = __uimod(durcch.m, 12) + 1;
 
-#if 0
-		/* fixup day */
-		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
-			tgtd = mdays;
-		}
-#endif
 		/* otherwise we may need to fixup the day, let's do that
 		 * in the next step */
 	case DT_DAISY:
