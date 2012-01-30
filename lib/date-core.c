@@ -2738,13 +2738,12 @@ dt_strpdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	if (d.b && (d.m || d.y)) {
+	if (d.b && ((d.m >= 1 && d.m <= GREG_MONTHS_P_YEAR) || d.y)) {
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.q * 3 + d.m;
 		res.bizda.bd = d.b + d.w * DUWW_BDAYS_P_WEEK;
-	} else if (LIKELY((d.m || d.y))) {
-	dflt:
+	} else if (LIKELY((d.m >= 1 && d.m <= GREG_MONTHS_P_YEAR) || d.y)) {
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.q * 3 + d.m;
@@ -2757,8 +2756,12 @@ dt_strpdur(const char *str, char **ep)
 		res.bizsi = d.w * DUWW_BDAYS_P_WEEK + d.b;
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
-		 * cover them better */
-		goto dflt;
+		 * cover them better
+		 * anything that doesn't fit shall be mapped to MD durs
+		 * using the definitions of MONTHS_P_YEAR and DAYS_P_WEEK */
+		res.typ = DT_MD;
+		res.md.d = d.w * GREG_DAYS_P_WEEK + d.d;
+		res.md.m = d.y * GREG_MONTHS_P_YEAR + d.m;
 	}
 out:
 	if (ep) {
