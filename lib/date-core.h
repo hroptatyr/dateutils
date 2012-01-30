@@ -66,6 +66,7 @@ typedef enum {
 	DT_BIZDA,
 	DT_DAISY,
 	DT_BIZSI,
+	DT_MD,
 } dt_dtyp_t;
 
 #define DT_MIN_YEAR	(0)
@@ -132,6 +133,16 @@ typedef union {
 } dt_bizda_param_t;
 
 /**
+ * One more type that's only used for durations. */
+typedef union {
+	uint32_t u;
+	struct {
+		unsigned int d;
+		unsigned int m;
+	};
+} dt_md_t;
+
+/**
  * Collection of all date types. */
 struct dt_d_s {
 	/* for parametrised types */
@@ -147,6 +158,8 @@ struct dt_d_s {
 		dt_daisy_t bizsi;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
+		/* for durations only */
+		dt_md_t md;
 	};
 };
 
@@ -181,6 +194,12 @@ enum {
 	/* bits 1, 2 and 3 set */
 	OP_TRUE,
 };
+
+
+/* constants (for known calendars) */
+#define GREG_DAYS_P_WEEK	(7U)
+#define GREG_MONTHS_P_YEAR	(12U)
+#define DUWW_BDAYS_P_WEEK	(5U)
 
 
 /* decls */
@@ -268,7 +287,7 @@ DECLF unsigned int dt_get_yday(struct dt_d_s d);
  * The result will be in the calendar as specified by TGTTYP, or if
  * DT_UNK is given, the calendar of D will be used. */
 DECLF struct dt_d_s
-dt_add(struct dt_d_s d, struct dt_d_s dur);
+dt_dadd(struct dt_d_s d, struct dt_d_s dur);
 
 /**
  * Negate the duration. */
