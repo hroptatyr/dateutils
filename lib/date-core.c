@@ -1588,6 +1588,10 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 		tgt->d = dur.ymcw.w;
 		break;
 #endif	/* 0 */
+	case DT_MD:
+		tgt->m = dur.md.m;
+		tgt->d = dur.md.d;
+		break;
 	default:
 		break;
 	}
@@ -1618,6 +1622,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	case DT_YMD:
 	case DT_YMCW:
 	case DT_BIZDA:
+	case DT_MD:
 		/* construct new month */
 		durcch.m += d.m - 1;
 		tgty = __uidiv(durcch.m, GREG_MONTHS_P_YEAR) + d.y;
@@ -1633,6 +1638,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	case DT_BIZSI:
 		switch (dur.typ) {
 		case DT_YMD:
+		case DT_MD:
 			/* fallthrough from above */
 			tgtd += durcch.d;
 			break;
