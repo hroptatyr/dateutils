@@ -1767,6 +1767,7 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 
 	switch (dur.typ) {
 	case DT_YMD:
+	case DT_MD:
 	case DT_YMCW:
 	case DT_BIZDA:
 		/* construct new month */
@@ -1798,19 +1799,18 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 		tgtw = (dt_dow_t)d.w;
 
 		while (1) {
-			mc = __get_mcnt(tgty, tgtm, tgtw);
-
-			if (q >= mc) {
+			if (q < 0) {
+				if (UNLIKELY(--tgtm < 1)) {
+					tgtm = GREG_MONTHS_P_YEAR;
+					tgty--;
+				}
+				mc = __get_mcnt(tgty, tgtm, tgtw);
+				q += mc;
+			} else if (q >= (mc = __get_mcnt(tgty, tgtm, tgtw))) {
 				q -= mc;
 				if (UNLIKELY(++tgtm > GREG_MONTHS_P_YEAR)) {
 					tgtm = 1;
 					tgty++;
-				}
-			} else if (q < 0) {
-				q += mc;
-				if (UNLIKELY(--tgtm < 1)) {
-					tgtm = GREG_MONTHS_P_YEAR;
-					tgty--;
 				}
 			} else {
 				break;
