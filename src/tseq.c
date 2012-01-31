@@ -209,12 +209,16 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 # pragma warning (disable:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 #include "tseq-clo.h"
 #include "tseq-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 
 int

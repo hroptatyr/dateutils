@@ -34,7 +34,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 ## the build chain
 AC_PROG_CC([icc gcc tcc cc])
-SXE_CHECK_CC
+SXE_CHECK_CC([gnu11 c11 gnu1x c1x gnu99 c99])
 SXE_CHECK_CFLAGS
 
 ## check for working c1x features
@@ -43,7 +43,7 @@ SXE_CHECK_ANON_STRUCTS([
 	], [
 	AC_MSG_WARN([C compiler unusable
 
-dateutils make extensive use of c1x anonymous structs/unions but your
+dateutils make extensive use of c11 anonymous structs/unions but your
 compiler does not fully support them.
 Change either the CFLAGS or the compiler.
 Good day.

@@ -176,6 +176,8 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		warnflags="$warnflags -Wunused-value"])
 	SXE_CHECK_COMPILER_FLAGS([-Wunused], [
 		warnflags="$warnflags -Wunused"])
+	SXE_CHECK_COMPILER_FLAGS([-Wmaybe-uninitialized], [
+		warnflags="${warnflags} -Wmaybe-uninitialized"])
 
 	SXE_CHECK_COMPILER_FLAGS([-Wnopragma], [
 		warnflags="$warnflags -Wnopragma"])
@@ -291,7 +293,13 @@ respectively
 ])dnl SXE_CHECK_CFLAGS
 
 AC_DEFUN([SXE_CHECK_CC], [dnl
-	for i in "gnu1x" "c1x" "gnu99" "c99"; do
+dnl SXE_CHECK_CC([STANDARDS])
+dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
+	pushdef([stds], m4_default([$1], [gnu99 c99]))
+
+	AC_REQUIRE([AC_PROG_CC])
+
+	for i in []stds[]; do
 		SXE_CHECK_COMPILER_FLAGS([-std="${i}"], [
 			std="-std=${i}"
 			break
@@ -301,6 +309,8 @@ AC_DEFUN([SXE_CHECK_CC], [dnl
 	AC_MSG_CHECKING([for preferred CC std])
 	AC_MSG_RESULT([${std}])
 	CC="${CC} ${std}"
+
+	popdef([stds])
 ])dnl SXE_CHECK_CC
 
 AC_DEFUN([SXE_CHECK_ANON_STRUCTS], [

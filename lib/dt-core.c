@@ -142,7 +142,7 @@ static struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
-	struct strpdt_s d = {0};
+	struct strpdt_s d = {{0}};
 	const char *sp;
 
 	if ((sp = str) == NULL) {
@@ -212,9 +212,9 @@ __strpdt_std(const char *str, char **ep)
 	}
 	/* and now parse the time */
 	d.st.h = strtoui_lim(sp, &sp, 0, 23);
-	*sp++;
+	sp++;
 	d.st.m = strtoui_lim(sp, &sp, 0, 59);
-	*sp++;
+	sp++;
 	d.st.s = strtoui_lim(sp, &sp, 0, 60);
 
 	if (d.st.h < -1U && d.st.m < -1U && d.st.s < -1U) {
@@ -342,7 +342,7 @@ DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
-	struct strpdt_s d = {0};
+	struct strpdt_s d = {{0}};
 	const char *sp = str;
 	const char *fp = fmt;
 
@@ -407,7 +407,7 @@ out:
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {0};
+	struct strpdt_s d = {{0}};
 	const char *fp;
 	char *bp;
 
@@ -515,7 +515,7 @@ dt_strpdtdur(const char *str, char **ep)
 	struct dt_dt_s res = __dt_dt_initialiser();
 	const char *sp = str;
 	int tmp;
-	struct strpdt_s d = {0};
+	struct strpdt_s d = {{0}};
 
 	if (str == NULL) {
 		goto out;
@@ -590,7 +590,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {0};
+	struct strpdt_s d = {{0}};
 	const char *fp;
 	char *bp;
 
@@ -736,6 +736,8 @@ dt_datetime(dt_dtyp_t outtyp)
 		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
 	default:
+	case DT_MD:
+		/* this one doesn't make sense at all */
 	case DT_UNK:
 		break;
 	}

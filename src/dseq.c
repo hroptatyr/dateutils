@@ -168,6 +168,9 @@ __skip_dow(__skipspec_t ss, dt_dow_t wd)
 		/* sunday */
 		ss |= SKIP_SUN;
 		break;
+	default:
+	case DT_MIRACLEDAY:
+		break;
 	}
 	return ss;
 }
@@ -372,7 +375,7 @@ __fixup_fst(struct dseq_clo_s *clo)
 	struct dt_d_s old;
 
 	/* assume clo->dir has been computed already */
-	tmp = clo->lst;
+	old = tmp = clo->lst;
 	date_neg_dur(clo->ite, clo->nite);
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
@@ -390,12 +393,16 @@ __fixup_fst(struct dseq_clo_s *clo)
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 # pragma warning (disable:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 #include "dseq-clo.h"
 #include "dseq-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 
 int
