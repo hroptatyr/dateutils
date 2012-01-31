@@ -2608,8 +2608,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
-		bp = buf;
-		goto out;
+		return 0;
 	}
 
 	switch (that.typ) {
@@ -2659,6 +2658,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	}
 	default:
 	case DT_UNK:
+		bp = buf;
 		goto out;
 	}
 	/* translate high-level format names */
@@ -2690,8 +2690,8 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			bp += __strfd_rom(bp, eo - bp, spec, &d, that);
 		}
 	}
-out:
 	if (bp < buf + bsz) {
+	out:
 		*bp = '\0';
 	}
 	return bp - buf;
