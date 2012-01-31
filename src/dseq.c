@@ -168,6 +168,9 @@ __skip_dow(__skipspec_t ss, dt_dow_t wd)
 		/* sunday */
 		ss |= SKIP_SUN;
 		break;
+	default:
+	case DT_MIRACLEDAY:
+		break;
 	}
 	return ss;
 }
