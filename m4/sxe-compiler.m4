@@ -291,7 +291,15 @@ respectively
 ])dnl SXE_CHECK_CFLAGS
 
 AC_DEFUN([SXE_CHECK_CC], [dnl
-	for i in "gnu1x" "c1x" "gnu99" "c99"; do
+dnl SXE_CHECK_CC([COMPILERS], [STANDARDS])
+dnl like AC_CHECK_CC but lets you choose the standard too
+	pushdef([ccs], [$1])
+	pushdef([stds], m4_default([$2], [gnu99 c99]))
+
+	AC_REQUIRE([AC_PROG_CC])
+	AC_PROG_CC([]ccs[])
+
+	for i in []stds[]; do
 		SXE_CHECK_COMPILER_FLAGS([-std="${i}"], [
 			std="-std=${i}"
 			break
@@ -301,6 +309,9 @@ AC_DEFUN([SXE_CHECK_CC], [dnl
 	AC_MSG_CHECKING([for preferred CC std])
 	AC_MSG_RESULT([${std}])
 	CC="${CC} ${std}"
+
+	popdef([ccs])
+	popdef([stds])
 ])dnl SXE_CHECK_CC
 
 AC_DEFUN([SXE_CHECK_ANON_STRUCTS], [
