@@ -1640,6 +1640,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 		}
 		/* otherwise we may need to fixup the day, let's do that
 		 * in the next step */
+		/* @fallthrough@ */
 	case DT_DAISY:
 	case DT_BIZSI:
 		switch (dur.typ) {
@@ -1670,12 +1671,11 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 			break;
 		}
 		case DT_YMCW:
-#if 0
-/* doesn't happen as the dur parser won't hand out durs of type YMCW */
-			tgtd += durcch.d;
-			break;
-#endif	/* 0 */
+			/* doesn't happen as the dur parser won't
+			 * hand out durs of type YMCW */
+			/* @fallthrough@ */
 		default:
+			mdays = 0;
 			tgtd = 0;
 			break;
 		}
