@@ -2491,12 +2491,24 @@ __strfd_dur(
 		res = snprintf(buf, bsz, "%u", d->d);
 		break;
 	case DT_SPFL_N_YEAR:
+		if (!d->y) {
+			/* fill in for a mo, hack hack hack
+			 * we'll think about the consequences later */
+			d->y = __uidiv(d->m, GREG_MONTHS_P_YEAR);
+			d->m = __uimod(d->m, GREG_MONTHS_P_YEAR);
+		}
 		res = snprintf(buf, bsz, "%u", d->y);
 		break;
 	case DT_SPFL_N_MON:
 		res = snprintf(buf, bsz, "%u", d->m);
 		break;
 	case DT_SPFL_N_CNT_WEEK:
+		if (!d->w) {
+			/* hack hack hack
+			 * we'll think about the consequences later */
+			d->w = __uidiv(d->d, GREG_DAYS_P_WEEK);
+			d->d = __uimod(d->d, GREG_DAYS_P_WEEK);
+		}
 		res = snprintf(buf, bsz, "%u", d->w);
 		break;
 	case DT_SPFL_N_CNT_MON:
