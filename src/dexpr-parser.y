@@ -53,16 +53,12 @@ extern char *yytext;
 /* grrrrr, bug in bison */
 extern int yyparse();
 
-#if !defined UNUSED
-# define UNUSED(x)	__attribute__((unused)) x
-#endif	/* !UNUSED */
-
 #define YYENABLE_NLS		0
 #define YYLTYPE_IS_TRIVIAL	1
 #define YYSTACK_USE_ALLOCA	1
 
 int
-yyerror(dexpr_t *UNUSED(cur), const char *errmsg)
+yyerror(dexpr_t *cur __attribute__((unused)), const char *errmsg)
 {
 	fputs(errmsg, stderr);
 	fputc('\n', stderr);
