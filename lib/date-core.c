@@ -1844,6 +1844,8 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 	}
 	case DT_UNK:
 	default:
+		tgty = tgtm = tgtc = 0;
+		tgtw = DT_MIRACLEDAY;
 		break;
 	}
 	/* reassign to the guy in question */
