@@ -43,7 +43,7 @@ SXE_CHECK_ANON_STRUCTS([
 	], [
 	AC_MSG_WARN([C compiler unusable
 
-dateutils make extensive use of c1x anonymous structs/unions but your
+dateutils make extensive use of c11 anonymous structs/unions but your
 compiler does not fully support them.
 Change either the CFLAGS or the compiler.
 Good day.
