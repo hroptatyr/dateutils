@@ -2103,9 +2103,9 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_DSTD:
 		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		*sp++;
+		sp++;
 		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		*sp++;
+		sp++;
 		d->d = strtoui_lim(sp, &sp, 0, 31);
 		break;
 	case DT_SPFL_N_YEAR:
