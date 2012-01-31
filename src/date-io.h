@@ -268,6 +268,8 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_S_QTR:
 			res.needle = 'Q';
 			goto out;
+		default:
+			break;
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
