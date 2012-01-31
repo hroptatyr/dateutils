@@ -176,6 +176,8 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		warnflags="$warnflags -Wunused-value"])
 	SXE_CHECK_COMPILER_FLAGS([-Wunused], [
 		warnflags="$warnflags -Wunused"])
+	SXE_CHECK_COMPILER_FLAGS([-Wmaybe-uninitialized], [
+		warnflags="${warnflags} -Wmaybe-uninitialized"])
 
 	SXE_CHECK_COMPILER_FLAGS([-Wnopragma], [
 		warnflags="$warnflags -Wnopragma"])
