@@ -1617,7 +1617,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 /* add DUR to D, doesn't check if DUR has the dur flag */
 	unsigned int tgty = 0;
 	unsigned int tgtm = 0;
-	int tgtd = 0;
+	signed int tgtd = 0;
 	struct strpdi_s durcch = {0};
 
 	/* using the strpdi blob is easier */
