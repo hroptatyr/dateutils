@@ -2491,12 +2491,24 @@ __strfd_dur(
 		res = snprintf(buf, bsz, "%u", d->d);
 		break;
 	case DT_SPFL_N_YEAR:
+		if (!d->y) {
+			/* fill in for a mo, hack hack hack
+			 * we'll think about the consequences later */
+			d->y = __uidiv(d->m, GREG_MONTHS_P_YEAR);
+			d->m = __uimod(d->m, GREG_MONTHS_P_YEAR);
+		}
 		res = snprintf(buf, bsz, "%u", d->y);
 		break;
 	case DT_SPFL_N_MON:
 		res = snprintf(buf, bsz, "%u", d->m);
 		break;
 	case DT_SPFL_N_CNT_WEEK:
+		if (!d->w) {
+			/* hack hack hack
+			 * we'll think about the consequences later */
+			d->w = __uidiv(d->d, GREG_DAYS_P_WEEK);
+			d->d = __uimod(d->d, GREG_DAYS_P_WEEK);
+		}
 		res = snprintf(buf, bsz, "%u", d->w);
 		break;
 	case DT_SPFL_N_CNT_MON:
@@ -2837,6 +2849,12 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
+	case DT_MD:
+		d.y = __uidiv(that.md.m, GREG_MONTHS_P_YEAR);
+		d.m = __uimod(that.md.m, GREG_MONTHS_P_YEAR);
+		d.w = __uidiv(that.md.d, GREG_DAYS_P_WEEK);
+		d.d = __uimod(that.md.d, GREG_DAYS_P_WEEK);
+		break;
 	default:
 	case DT_UNK:
 		bp = buf;
@@ -3002,8 +3020,19 @@ DEFUN struct dt_d_s
 dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 {
 	struct dt_d_s res = {.typ = DT_UNK};
+	dt_dtyp_t tmptyp = tgttyp;
 
-	switch (tgttyp) {
+	if (tgttyp == DT_MD) {
+		if (d1.typ == DT_YMD || d2.typ == DT_YMD) {
+			tmptyp = DT_YMD;
+		} else if (d1.typ == DT_YMCW || d2.typ == DT_YMCW) {
+			tmptyp = DT_YMCW;
+		} else {
+			tmptyp = DT_DAISY;
+		}
+	}
+
+	switch (tmptyp) {
 	case DT_BIZSI:
 	case DT_DAISY: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
@@ -3034,7 +3063,33 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	default:
 		res.typ = DT_UNK;
 		res.u = 0;
+		/* @fallthrough@ */
+	case DT_MD:
+		/* md is handled later */
 		break;
+	}
+	/* check if we had DT_MD as tgttyp */
+	if (tgttyp == DT_MD) {
+		/* convert res back to DT_MD */
+		struct dt_d_s tmp = {.typ = DT_MD};
+
+		switch (tmptyp) {
+		case DT_YMD:
+			tmp.md.m = res.ymd.y * GREG_MONTHS_P_YEAR + res.ymd.m;
+			tmp.md.d = res.ymd.d;
+			break;
+		case DT_YMCW:
+			tmp.md.m = res.ymcw.y * GREG_MONTHS_P_YEAR + res.ymcw.m;
+			tmp.md.d = res.ymcw.w * GREG_DAYS_P_WEEK + res.ymcw.c;
+			break;
+		case DT_DAISY:
+			tmp.md.m = 0;
+			tmp.md.d = res.daisy;
+			break;
+		default:
+			break;
+		}
+		res = tmp;
 	}
 	return res;
 }

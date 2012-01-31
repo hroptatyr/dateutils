@@ -103,16 +103,16 @@ determine_durtype(const char *fmt)
 			break;
 		}
 	}
-	if (flags.has_week) {
+	if (flags.has_week && (flags.has_mon || flags.has_year)) {
 		return DT_YMCW;
 	} else if (flags.has_mon || flags.has_year) {
 		return DT_YMD;
 	} else if (flags.has_day && flags.has_biz) {
 		return DT_BIZSI;
-	} else if (flags.has_day) {
+	} else if (flags.has_day || flags.has_week) {
 		return DT_DAISY;
 	} else {
-		return DT_UNK;
+		return DT_MD;
 	}
 }
 
