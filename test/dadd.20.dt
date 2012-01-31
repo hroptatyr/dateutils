@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2012-01-02 -8w"
+
+## STDIN
+ 
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2011-11-07
+EOF
+
+## dadd.20.dt ends here
