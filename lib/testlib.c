@@ -43,7 +43,7 @@ test_strpd(size_t nruns)
 static void __attribute__((unused))
 test_date(size_t nruns)
 {
-	struct dt_d_s s;
+	struct dt_d_s s = {{0}};
 	char buf[256];
 
 	for (size_t i = 0; i < nruns; i++) {
