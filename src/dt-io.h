@@ -296,6 +296,8 @@ calc_grep_atom(const char *fmt)
 			res.pl.off_min += -2;
 			res.pl.off_max += -2;
 			break;
+		default:
+			break;
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
