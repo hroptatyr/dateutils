@@ -338,7 +338,7 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
-		goto out;
+		return 0;
 	}
 
 	d.h = that.hms.h;
@@ -365,7 +365,6 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 			bp += __strft_card(bp, eo - bp, spec, &d, that);
 		}
 	}
-out:
 	if (bp < buf + bsz) {
 		*bp = '\0';
 	}
