@@ -736,6 +736,8 @@ dt_datetime(dt_dtyp_t outtyp)
 		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
 	default:
+	case DT_MD:
+		/* this one doesn't make sense at all */
 	case DT_UNK:
 		break;
 	}

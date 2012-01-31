@@ -2925,6 +2925,8 @@ dt_date(dt_dtyp_t outtyp)
 		res.daisy = t / 86400 + 19359;
 		break;
 	default:
+	case DT_MD:
+		/* doesn't make sense */
 	case DT_UNK:
 		res.u = 0;
 	}
