@@ -375,7 +375,7 @@ __fixup_fst(struct dseq_clo_s *clo)
 	struct dt_d_s old;
 
 	/* assume clo->dir has been computed already */
-	tmp = clo->lst;
+	old = tmp = clo->lst;
 	date_neg_dur(clo->ite, clo->nite);
 	while (__in_range_p(tmp, clo)) {
 		old = tmp;
