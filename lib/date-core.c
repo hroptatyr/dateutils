@@ -2296,7 +2296,7 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		d->d = d->d ?: dt_get_mday(that);
+		d->d = d->d ?: (unsigned int)dt_get_mday(that);
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
 			buf[4] = '-';
@@ -2319,7 +2319,7 @@ __strfd_card(
 	case DT_SPFL_N_MDAY:
 		/* ymd mode check? */
 		if (LIKELY(!s.bizda)) {
-			d->d = d->d ?: dt_get_mday(that);
+			d->d = d->d ?: (unsigned int)dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
 		} else {
 			int bd = dt_get_bday_q(
@@ -2334,7 +2334,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_CNT_MON:
 		/* ymcw mode check? */
-		d->c = d->c ?: dt_get_count(that);
+		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostr(buf, bsz, d->c, 2);
 		break;
 	case DT_SPFL_S_WDAY:
@@ -2466,7 +2466,7 @@ __strfd_rom(
 		res = ui32tostrrom(buf, bsz, d->d);
 		break;
 	case DT_SPFL_N_CNT_MON:
-		d->c = d->c ?: dt_get_count(that);
+		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostrrom(buf, bsz, d->c);
 		break;
 	}
