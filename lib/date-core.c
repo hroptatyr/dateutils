@@ -2913,6 +2913,8 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymcw.w = tm.tm_wday;
 			break;
 		}
+		default:
+			break;
 		}
 		break;
 	}
