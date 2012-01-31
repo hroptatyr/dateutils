@@ -291,13 +291,11 @@ respectively
 ])dnl SXE_CHECK_CFLAGS
 
 AC_DEFUN([SXE_CHECK_CC], [dnl
-dnl SXE_CHECK_CC([COMPILERS], [STANDARDS])
-dnl like AC_CHECK_CC but lets you choose the standard too
-	pushdef([ccs], [$1])
-	pushdef([stds], m4_default([$2], [gnu99 c99]))
+dnl SXE_CHECK_CC([STANDARDS])
+dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
+	pushdef([stds], m4_default([$1], [gnu99 c99]))
 
 	AC_REQUIRE([AC_PROG_CC])
-	AC_PROG_CC([]ccs[])
 
 	for i in []stds[]; do
 		SXE_CHECK_COMPILER_FLAGS([-std="${i}"], [
@@ -310,7 +308,6 @@ dnl like AC_CHECK_CC but lets you choose the standard too
 	AC_MSG_RESULT([${std}])
 	CC="${CC} ${std}"
 
-	popdef([ccs])
 	popdef([stds])
 ])dnl SXE_CHECK_CC
 

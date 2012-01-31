@@ -33,7 +33,8 @@ AM_INIT_AUTOMAKE([foreign dist-xz color-tests parallel-tests])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 ## the build chain
-SXE_CHECK_CC([icc gcc tcc cc], [gnu11 c11 gnu1x c1x gnu99 c99])
+AC_PROG_CC([icc gcc tcc cc])
+SXE_CHECK_CC([gnu11 c11 gnu1x c1x gnu99 c99])
 SXE_CHECK_CFLAGS
 
 ## check for working c1x features
