@@ -58,7 +58,7 @@ test_date(size_t nruns)
 
 
 int
-main(int argc, char *argv[])
+main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 {
 	const size_t nruns = 10000000;
 #if 0
