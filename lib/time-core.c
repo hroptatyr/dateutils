@@ -145,9 +145,9 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_TSTD:
 		d->h = strtoui_lim(sp, &sp, 0, 23);
-		*sp++;
+		sp++;
 		d->m = strtoui_lim(sp, &sp, 0, 59);
-		*sp++;
+		sp++;
 		d->s = strtoui_lim(sp, &sp, 0, 60);
 		break;
 	case DT_SPFL_N_HOUR:
