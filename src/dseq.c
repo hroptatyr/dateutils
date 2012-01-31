@@ -393,12 +393,16 @@ __fixup_fst(struct dseq_clo_s *clo)
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 # pragma warning (disable:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 #include "dseq-clo.h"
 #include "dseq-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 
 int

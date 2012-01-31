@@ -53,12 +53,16 @@ tadd_add(struct dt_t_s d, struct dt_t_s dur)
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
 # pragma warning (disable:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 #include "tadd-clo.h"
 #include "tadd-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
 
 int
