@@ -212,6 +212,8 @@ calc_tgrep_atom(const char *fmt)
 			res.pl.off_min += -1;
 			res.pl.flags |= TGRPATM_DIGITS;
 			break;
+		default:
+			break;
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
