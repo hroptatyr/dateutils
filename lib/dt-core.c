@@ -212,9 +212,9 @@ __strpdt_std(const char *str, char **ep)
 	}
 	/* and now parse the time */
 	d.st.h = strtoui_lim(sp, &sp, 0, 23);
-	*sp++;
+	sp++;
 	d.st.m = strtoui_lim(sp, &sp, 0, 59);
-	*sp++;
+	sp++;
 	d.st.s = strtoui_lim(sp, &sp, 0, 60);
 
 	if (d.st.h < -1U && d.st.m < -1U && d.st.s < -1U) {
