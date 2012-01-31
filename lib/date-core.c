@@ -3002,8 +3002,19 @@ DEFUN struct dt_d_s
 dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 {
 	struct dt_d_s res = {.typ = DT_UNK};
+	dt_dtyp_t tmptyp = tgttyp;
 
-	switch (tgttyp) {
+	if (tgttyp == DT_MD) {
+		if (d1.typ == DT_YMD || d2.typ == DT_YMD) {
+			tmptyp = DT_YMD;
+		} else if (d1.typ == DT_YMCW || d2.typ == DT_YMCW) {
+			tmptyp = DT_YMCW;
+		} else {
+			tmptyp = DT_DAISY;
+		}
+	}
+
+	switch (tmptyp) {
 	case DT_BIZSI:
 	case DT_DAISY: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
@@ -3034,7 +3045,33 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	default:
 		res.typ = DT_UNK;
 		res.u = 0;
+		/* @fallthrough@ */
+	case DT_MD:
+		/* md is handled later */
 		break;
+	}
+	/* check if we had DT_MD as tgttyp */
+	if (tgttyp == DT_MD) {
+		/* convert res back to DT_MD */
+		struct dt_d_s tmp = {.typ = DT_MD};
+
+		switch (tmptyp) {
+		case DT_YMD:
+			tmp.md.m = res.ymd.y * GREG_MONTHS_P_YEAR + res.ymd.m;
+			tmp.md.d = res.ymd.d;
+			break;
+		case DT_YMCW:
+			tmp.md.m = res.ymcw.y * GREG_MONTHS_P_YEAR + res.ymcw.m;
+			tmp.md.d = res.ymcw.w * GREG_DAYS_P_WEEK + res.ymcw.c;
+			break;
+		case DT_DAISY:
+			tmp.md.m = 0;
+			tmp.md.d = res.daisy;
+			break;
+		default:
+			break;
+		}
+		res = tmp;
 	}
 	return res;
 }
