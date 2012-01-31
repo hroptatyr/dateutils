@@ -17,9 +17,6 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif
-#if !defined UNUSED
-# define UNUSED(_x)	__attribute__((unused)) _x
-#endif	/* !UNUSED */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -535,7 +532,7 @@ __strptdur_more_p(struct __strptdur_st_s *st)
 }
 
 static inline void
-__strptdur_free(struct __strptdur_st_s *UNUSED(st))
+__strptdur_free(struct __strptdur_st_s *st __attribute__((unused)))
 {
 	return;
 }
