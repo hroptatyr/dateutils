@@ -71,7 +71,7 @@ dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 static struct dt_d_s __attribute__((unused))
 dt_io_strpd(const char *input, char *const *fmt, size_t nfmt)
 {
-	return dt_io_strpd_ep(input, fmt, nfmt, NULL);
+	return dt_io_strpd_ep(input, (const char *const*)fmt, nfmt, NULL);
 }
 
 static struct dt_d_s  __attribute__((unused))
@@ -81,11 +81,12 @@ dt_io_find_strpd(
 {
 	const char *__sp = str;
 	struct dt_d_s d = {DT_UNK};
+	const char *const *cfmt = (const char*const*)fmt;
 
-	if ((d = dt_io_strpd_ep(__sp, fmt, nfmt, ep)).typ == DT_UNK) {
+	if ((d = dt_io_strpd_ep(__sp, cfmt, nfmt, ep)).typ == DT_UNK) {
 		while ((__sp = strstr(__sp, needle)) &&
 		       (d = dt_io_strpd_ep(
-				__sp += needlen, fmt, nfmt, ep)).typ == DT_UNK);
+				__sp += needlen, cfmt, nfmt, ep)).typ == DT_UNK);
 	}
 	*sp = (char*)__sp;
 	return d;
@@ -268,6 +269,8 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_S_QTR:
 			res.needle = 'Q';
 			goto out;
+		default:
+			break;
 		}
 	}
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {

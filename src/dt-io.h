@@ -78,7 +78,7 @@ static struct dt_dt_s
 __attribute__((unused))
 dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt, zif_t zone)
 {
-	return dt_io_strpdt_ep(input, fmt, nfmt, NULL, zone);
+	return dt_io_strpdt_ep(input, (const char*const*)fmt, nfmt, NULL, zone);
 }
 
 static struct dt_dt_s
@@ -90,11 +90,12 @@ dt_io_find_strpdt(
 {
 	const char *__sp = str;
 	struct dt_dt_s d = dt_dt_initialiser();
+	const char *const *cfmt = (const char*const*)fmt;
 
-	if ((d = dt_io_strpdt_ep(__sp, fmt, nfmt, ep, zone)).d.typ == DT_UNK) {
+	if ((d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone)).d.typ == DT_UNK) {
 		while ((__sp = strstr(__sp, needle)) &&
 		       (d = dt_io_strpdt_ep(
-				__sp += needlen, fmt, nfmt, ep, zone))
+				__sp += needlen, cfmt, nfmt, ep, zone))
 		       .d.typ == DT_UNK);
 	}
 	*sp = (char*)__sp;
@@ -295,6 +296,8 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_S_AMPM:
 			res.pl.off_min += -2;
 			res.pl.off_max += -2;
+			break;
+		default:
 			break;
 		}
 	}

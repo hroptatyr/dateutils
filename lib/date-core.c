@@ -552,13 +552,16 @@ __get_bdays(unsigned int y, unsigned int m)
 	unsigned int md = __get_mdays(y, m);
 	unsigned int rd = (unsigned int)(md - 28U);
 	dt_dow_t m01wd;
-	dt_dow_t m28wd;
+	unsigned int m28wd;
+
+	/* rd should not overflow */
+	assert((signed int)md - 28 >= 0);
 
 	/* wday of the 1st and 28th */
 	m01wd = __get_m01_wday(y, m);
-	m28wd = (dt_dow_t)__uimod(m01wd - DT_MONDAY/*1*/, GREG_DAYS_P_WEEK);
+	m28wd = __uimod((signed int)m01wd - 1, GREG_DAYS_P_WEEK);
 	if (LIKELY(rd > 0)) {
-		switch (m28wd) {
+		switch ((dt_dow_t)m28wd) {
 		case DT_SUNDAY:
 		case DT_MONDAY:
 		case DT_TUESDAY:
@@ -1614,7 +1617,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 /* add DUR to D, doesn't check if DUR has the dur flag */
 	unsigned int tgty = 0;
 	unsigned int tgtm = 0;
-	int tgtd = 0;
+	signed int tgtd = 0;
 	struct strpdi_s durcch = {0};
 
 	/* using the strpdi blob is easier */
@@ -1637,6 +1640,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 		}
 		/* otherwise we may need to fixup the day, let's do that
 		 * in the next step */
+		/* @fallthrough@ */
 	case DT_DAISY:
 	case DT_BIZSI:
 		switch (dur.typ) {
@@ -1667,12 +1671,11 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 			break;
 		}
 		case DT_YMCW:
-#if 0
-/* doesn't happen as the dur parser won't hand out durs of type YMCW */
-			tgtd += durcch.d;
-			break;
-#endif	/* 0 */
+			/* doesn't happen as the dur parser won't
+			 * hand out durs of type YMCW */
+			/* @fallthrough@ */
 		default:
+			mdays = 0;
 			tgtd = 0;
 			break;
 		}
@@ -1841,6 +1844,8 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 	}
 	case DT_UNK:
 	default:
+		tgty = tgtm = tgtc = 0;
+		tgtw = DT_MIRACLEDAY;
 		break;
 	}
 	/* reassign to the guy in question */
@@ -2100,9 +2105,9 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_DSTD:
 		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		*sp++;
+		sp++;
 		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		*sp++;
+		sp++;
 		d->d = strtoui_lim(sp, &sp, 0, 31);
 		break;
 	case DT_SPFL_N_YEAR:
@@ -2293,7 +2298,7 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		d->d = d->d ?: dt_get_mday(that);
+		d->d = d->d ?: (unsigned int)dt_get_mday(that);
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
 			buf[4] = '-';
@@ -2316,7 +2321,7 @@ __strfd_card(
 	case DT_SPFL_N_MDAY:
 		/* ymd mode check? */
 		if (LIKELY(!s.bizda)) {
-			d->d = d->d ?: dt_get_mday(that);
+			d->d = d->d ?: (unsigned int)dt_get_mday(that);
 			res = ui32tostr(buf, bsz, d->d, 2);
 		} else {
 			int bd = dt_get_bday_q(
@@ -2331,7 +2336,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_CNT_MON:
 		/* ymcw mode check? */
-		d->c = d->c ?: dt_get_count(that);
+		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostr(buf, bsz, d->c, 2);
 		break;
 	case DT_SPFL_S_WDAY:
@@ -2463,7 +2468,7 @@ __strfd_rom(
 		res = ui32tostrrom(buf, bsz, d->d);
 		break;
 	case DT_SPFL_N_CNT_MON:
-		d->c = d->c ?: dt_get_count(that);
+		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostrrom(buf, bsz, d->c);
 		break;
 	}
@@ -2486,12 +2491,24 @@ __strfd_dur(
 		res = snprintf(buf, bsz, "%u", d->d);
 		break;
 	case DT_SPFL_N_YEAR:
+		if (!d->y) {
+			/* fill in for a mo, hack hack hack
+			 * we'll think about the consequences later */
+			d->y = __uidiv(d->m, GREG_MONTHS_P_YEAR);
+			d->m = __uimod(d->m, GREG_MONTHS_P_YEAR);
+		}
 		res = snprintf(buf, bsz, "%u", d->y);
 		break;
 	case DT_SPFL_N_MON:
 		res = snprintf(buf, bsz, "%u", d->m);
 		break;
 	case DT_SPFL_N_CNT_WEEK:
+		if (!d->w) {
+			/* hack hack hack
+			 * we'll think about the consequences later */
+			d->w = __uidiv(d->d, GREG_DAYS_P_WEEK);
+			d->d = __uimod(d->d, GREG_DAYS_P_WEEK);
+		}
 		res = snprintf(buf, bsz, "%u", d->w);
 		break;
 	case DT_SPFL_N_CNT_MON:
@@ -2603,8 +2620,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
-		bp = buf;
-		goto out;
+		return 0;
 	}
 
 	switch (that.typ) {
@@ -2654,6 +2670,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	}
 	default:
 	case DT_UNK:
+		bp = buf;
 		goto out;
 	}
 	/* translate high-level format names */
@@ -2685,8 +2702,8 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			bp += __strfd_rom(bp, eo - bp, spec, &d, that);
 		}
 	}
-out:
 	if (bp < buf + bsz) {
+	out:
 		*bp = '\0';
 	}
 	return bp - buf;
@@ -2781,8 +2798,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	char *bp;
 
 	if (UNLIKELY(buf == NULL || bsz == 0 || !that.dur)) {
-		bp = buf;
-		goto out;
+		return 0;
 	}
 
 	switch (that.typ) {
@@ -2833,8 +2849,15 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
+	case DT_MD:
+		d.y = __uidiv(that.md.m, GREG_MONTHS_P_YEAR);
+		d.m = __uimod(that.md.m, GREG_MONTHS_P_YEAR);
+		d.w = __uidiv(that.md.d, GREG_DAYS_P_WEEK);
+		d.d = __uimod(that.md.d, GREG_DAYS_P_WEEK);
+		break;
 	default:
 	case DT_UNK:
+		bp = buf;
 		goto out;
 	}
 	/* translate high-level format names */
@@ -2865,8 +2888,8 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			}
 		}
 	}
-out:
 	if (bp < buf + bsz) {
+	out:
 		*bp = '\0';
 	}
 	return bp - buf;
@@ -2910,6 +2933,8 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymcw.w = tm.tm_wday;
 			break;
 		}
+		default:
+			break;
 		}
 		break;
 	}
@@ -2918,6 +2943,8 @@ dt_date(dt_dtyp_t outtyp)
 		res.daisy = t / 86400 + 19359;
 		break;
 	default:
+	case DT_MD:
+		/* doesn't make sense */
 	case DT_UNK:
 		res.u = 0;
 	}
@@ -2993,8 +3020,19 @@ DEFUN struct dt_d_s
 dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 {
 	struct dt_d_s res = {.typ = DT_UNK};
+	dt_dtyp_t tmptyp = tgttyp;
 
-	switch (tgttyp) {
+	if (tgttyp == DT_MD) {
+		if (d1.typ == DT_YMD || d2.typ == DT_YMD) {
+			tmptyp = DT_YMD;
+		} else if (d1.typ == DT_YMCW || d2.typ == DT_YMCW) {
+			tmptyp = DT_YMCW;
+		} else {
+			tmptyp = DT_DAISY;
+		}
+	}
+
+	switch (tmptyp) {
 	case DT_BIZSI:
 	case DT_DAISY: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
@@ -3025,7 +3063,33 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	default:
 		res.typ = DT_UNK;
 		res.u = 0;
+		/* @fallthrough@ */
+	case DT_MD:
+		/* md is handled later */
 		break;
+	}
+	/* check if we had DT_MD as tgttyp */
+	if (tgttyp == DT_MD) {
+		/* convert res back to DT_MD */
+		struct dt_d_s tmp = {.typ = DT_MD};
+
+		switch (tmptyp) {
+		case DT_YMD:
+			tmp.md.m = res.ymd.y * GREG_MONTHS_P_YEAR + res.ymd.m;
+			tmp.md.d = res.ymd.d;
+			break;
+		case DT_YMCW:
+			tmp.md.m = res.ymcw.y * GREG_MONTHS_P_YEAR + res.ymcw.m;
+			tmp.md.d = res.ymcw.w * GREG_DAYS_P_WEEK + res.ymcw.c;
+			break;
+		case DT_DAISY:
+			tmp.md.m = 0;
+			tmp.md.d = res.daisy;
+			break;
+		default:
+			break;
+		}
+		res = tmp;
 	}
 	return res;
 }

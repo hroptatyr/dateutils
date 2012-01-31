@@ -93,6 +93,9 @@ TESTS += ddiff.2.dt
 TESTS += ddiff.3.dt
 TESTS += ddiff.4.dt
 TESTS += ddiff.5.dt
+TESTS += ddiff.6.dt
+TESTS += ddiff.7.dt
+TESTS += ddiff.8.dt
 
 TESTS += dgrep.1.dt
 TESTS += dgrep.2.dt

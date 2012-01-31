@@ -282,7 +282,10 @@ __dnf(dexpr_t root)
 			/* now reuse what's possible */
 			root->type = DEX_DISJ;
 			root->left->type = DEX_CONJ;
+#if 0
+			/* silly assignment, a comes from left->left */
 			root->left->left = a;
+#endif	/* 0 */
 			root->left->right = c;
 
 			root->right->type = DEX_DISJ;

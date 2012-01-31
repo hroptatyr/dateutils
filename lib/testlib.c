@@ -43,7 +43,7 @@ test_strpd(size_t nruns)
 static void __attribute__((unused))
 test_date(size_t nruns)
 {
-	struct dt_d_s s;
+	struct dt_d_s s = {{0}};
 	char buf[256];
 
 	for (size_t i = 0; i < nruns; i++) {
@@ -58,7 +58,7 @@ test_date(size_t nruns)
 
 
 int
-main(int argc, char *argv[])
+main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 {
 	const size_t nruns = 10000000;
 #if 0
