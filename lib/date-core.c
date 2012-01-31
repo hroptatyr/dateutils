@@ -2837,6 +2837,12 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
+	case DT_MD:
+		d.y = __uidiv(that.md.m, GREG_MONTHS_P_YEAR);
+		d.m = __uimod(that.md.m, GREG_MONTHS_P_YEAR);
+		d.w = __uidiv(that.md.d, GREG_DAYS_P_WEEK);
+		d.d = __uimod(that.md.d, GREG_DAYS_P_WEEK);
+		break;
 	default:
 	case DT_UNK:
 		bp = buf;
