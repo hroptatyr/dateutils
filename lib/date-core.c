@@ -556,7 +556,7 @@ __get_bdays(unsigned int y, unsigned int m)
 
 	/* wday of the 1st and 28th */
 	m01wd = __get_m01_wday(y, m);
-	m28wd = (dt_dow_t)__uimod(m01wd - DT_MONDAY/*1*/, GREG_DAYS_P_WEEK);
+	m28wd = (dt_dow_t)__uimod((signed int)m01wd - 1, GREG_DAYS_P_WEEK);
 	if (LIKELY(rd > 0)) {
 		switch (m28wd) {
 		case DT_SUNDAY:
