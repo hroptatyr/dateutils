@@ -172,10 +172,11 @@ main(int argc, char *argv[])
 	/* get lines one by one, apply format string and print date/time */
 	if (ninput == 0) {
 		/* read from stdin */
-		proc_lines(infmt, ninfmt, outfmt, quietp);
+		proc_lines((const char*const*)infmt, ninfmt, outfmt, quietp);
 	} else {
+		const char *const *cinfmt = (const char*const*)infmt;
 		for (size_t i = 0; i < ninput; i++) {
-			proc_line(input[i], infmt, ninfmt, outfmt, quietp);
+			proc_line(input[i], cinfmt, ninfmt, outfmt, quietp);
 		}
 	}
 
