@@ -272,6 +272,20 @@ tconv
     =>
       11:12pm
 
+dtconv
+------
+  A tool to convert date/times for instance from one timezone to another
+  or normalise them.  It can be thought of as combination of dconv and
+  tconv (see above).
+
+    dtconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
+    =>
+      2012-01-05T00:33:00
+
+    dtconv --zone "America/Chicago" now -f "%d %b %Y %T"
+    =>
+      13 Feb 2012 02:47:39
+
 strptime
 --------
   A tool that brings the flexibility of strptime(3) to the command
