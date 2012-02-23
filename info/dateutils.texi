@@ -10,7 +10,7 @@
 
 This manual documents the dateutils package.
 
-Copyright @copyright{} 2011 Sebastian Freundt.
+Copyright @copyright{} 2011-2012 Sebastian Freundt.
 
 Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License,

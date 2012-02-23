@@ -1,6 +1,6 @@
 /*** ttest.c -- like test(1) but for time values
  *
- * Copyright (C) 2011 Sebastian Freundt
+ * Copyright (C) 2011-2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <hroptatyr@fresse.org>
  *

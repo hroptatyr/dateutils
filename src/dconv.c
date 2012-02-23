@@ -1,6 +1,6 @@
 /*** dconv.c -- convert calendrical systems
  *
- * Copyright (C) 2011 Sebastian Freundt
+ * Copyright (C) 2011-2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

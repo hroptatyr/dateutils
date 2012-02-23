@@ -1,6 +1,6 @@
 /*** dexpr.l -- date/time expressions for dateutils -*- C -*-
  *
- * Copyright (C) 2002-2011 Sebastian Freundt
+ * Copyright (C) 2002-2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@fresse.org>
  *

@@ -1,6 +1,6 @@
 dnl compiler.m4 --- compiler magic
 dnl
-dnl Copyright (C) 2005, 2006, 2007, 2008 Sebastian Freundt
+dnl Copyright (C) 2005-2008, 2012 Sebastian Freundt
 dnl Copyright (c) 2005 Steven G. Johnson
 dnl Copyright (c) 2005 Matteo Frigo
 dnl
@@ -315,7 +315,12 @@ dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
 
 AC_DEFUN([SXE_CHECK_ANON_STRUCTS], [
 	AC_MSG_CHECKING([whether C compiler can cope with anonymous structures])
-	AC_LANG_PUSH(C)
+	AC_LANG_PUSH([C])
+
+	## backup our CFLAGS and unset it
+	save_CFLAGS="${CFLAGS}"
+	CFLAGS=""
+
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 union __test_u {
 	int i;
@@ -333,6 +338,9 @@ union __test_u {
 		sxe_cv_have_anon_structs="no"
 	])
 	AC_MSG_RESULT([${sxe_cv_have_anon_structs}])
+
+	## restore CFLAGS
+	CFLAGS="${save_CFLAGS}"
 
 	if test "${sxe_cv_have_anon_structs}" = "yes"; then
 		AC_DEFINE([HAVE_ANON_STRUCTS], [1], [
