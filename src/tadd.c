@@ -1,6 +1,6 @@
 /*** tadd.c -- perform simple time arithmetic, time plus duration
  *
- * Copyright (C) 2011 Sebastian Freundt
+ * Copyright (C) 2011-2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
