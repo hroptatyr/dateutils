@@ -60,3 +60,5 @@ Modifiers:
   th  Suffix.  Read and print ordinal numbers
   b   Treat date as business date
 @end verbatim
+
+By design dates before 1917-01-01 are not supported.
