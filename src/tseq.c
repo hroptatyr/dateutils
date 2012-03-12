@@ -132,8 +132,13 @@ __seq_this(struct dt_t_s now, struct tseq_clo_s *clo)
 static struct dt_t_s
 __seq_next(struct dt_t_s now, struct tseq_clo_s *clo)
 {
+#if 0
 /* advance NOW, then fix it */
 	return __seq_this(time_add(now, clo->ite), clo);
+#else  /* !0 */
+/* as long as there are no skips, keep a sum */
+	return time_add(now, clo->ite);
+#endif	/* 0 */
 }
 
 static int
@@ -335,6 +340,12 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	 * decided to go for readability */
 	if (clo.ite.s == 0) {
 		clo.ite = tseq_guess_ite(clo.fst, clo.lst);
+		if (clo.ite.s > 0) {
+			clo.dir = 1;
+		} else if (clo.ite.s < 0) {
+			clo.dir = -1;
+		}
+		tmp = clo.fst;
 	} else if ((clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
@@ -348,9 +359,10 @@ increment must not be naught\n", stderr);
 		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	while (__in_range_p(tmp, &clo)) {
+	for (unsigned int tot = (clo.fst.u != clo.lst.u);
+	     __in_range_p(tmp, &clo) && tot <= 86400U;
+	     tmp = __seq_next(tmp, &clo), tot += clo.ite.s * clo.dir) {
 		dt_io_write(tmp, ofmt);
-		tmp = __seq_next(tmp, &clo);
 	}
 
 out:
