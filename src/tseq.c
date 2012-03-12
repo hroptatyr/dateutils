@@ -53,8 +53,7 @@ struct tseq_clo_s {
 	struct dt_t_s ite;
 	struct dt_t_s altite;
 	__skipspec_t ss;
-	/* direction, >0 if increasing, <0 if decreasing, 0 if undefined,
-	 * will be used as counter for the total inc'd time as well */
+	/* direction, >0 if increasing, <0 if decreasing, 0 if undefined */
 	int dir;
 	int flags;
 };
@@ -106,7 +105,6 @@ static struct dt_t_s
 __seq_altnext(struct dt_t_s now, struct tseq_clo_s *clo)
 {
 	do {
-		clo->dir += clo->altite.s;
 		now = time_add(now, clo->altite);
 	} while (skipp(clo->ss, now) && __in_range_p(now, clo));
 	return now;
@@ -122,7 +120,6 @@ __seq_this(struct dt_t_s now, struct tseq_clo_s *clo)
 		return __seq_altnext(now, clo);
 	} else if (clo->ite.u) {
 		do {
-			clo->dir += clo->ite.s;
 			now = time_add(now, clo->ite);
 		} while (skipp(clo->ss, now) && __in_range_p(now, clo));
 	} else {
@@ -137,11 +134,9 @@ __seq_next(struct dt_t_s now, struct tseq_clo_s *clo)
 {
 #if 0
 /* advance NOW, then fix it */
-	clo->dir += clo->ite.s;
 	return __seq_this(time_add(now, clo->ite), clo);
 #else  /* !0 */
 /* as long as there are no skips, keep a sum */
-	clo->dir += clo->ite.s;
 	return time_add(now, clo->ite);
 #endif	/* 0 */
 }
