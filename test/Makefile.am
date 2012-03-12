@@ -123,6 +123,13 @@ TESTS += tseq.5.dt
 TESTS += tseq.6.dt
 TESTS += tseq.7.dt
 TESTS += tseq.8.dt
+TESTS += tseq.9.dt
+TESTS += tseq.10.dt
+TESTS += tseq.11.dt
+TESTS += tseq.12.dt
+TESTS += tseq.13.dt
+TESTS += tseq.14.dt
+TESTS += tseq.15.dt
 
 TESTS += tdiff.1.dt
 TESTS += tdiff.2.dt
