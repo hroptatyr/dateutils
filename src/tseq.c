@@ -359,9 +359,9 @@ increment must not be naught\n", stderr);
 		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	for (;
-	     __in_range_p(tmp, &clo) && clo.dir <= 86400 && clo.dir >= -86400;
-	     tmp = __seq_next(tmp, &clo)) {
+	for (int tot = (clo.fst.u != clo.lst.u) * clo.dir;
+	     __in_range_p(tmp, &clo) && tot <= 86400 && tot >= -86400;
+	     tmp = __seq_next(tmp, &clo), tot += clo.ite.s) {
 		dt_io_write(tmp, ofmt);
 	}
 
