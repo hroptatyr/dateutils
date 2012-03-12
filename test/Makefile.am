@@ -130,6 +130,10 @@ TESTS += tseq.12.dt
 TESTS += tseq.13.dt
 TESTS += tseq.14.dt
 TESTS += tseq.15.dt
+TESTS += tseq.16.dt
+TESTS += tseq.17.dt
+TESTS += tseq.18.dt
+TESTS += tseq.19.dt
 
 TESTS += tdiff.1.dt
 TESTS += tdiff.2.dt
