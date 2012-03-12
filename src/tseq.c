@@ -132,8 +132,13 @@ __seq_this(struct dt_t_s now, struct tseq_clo_s *clo)
 static struct dt_t_s
 __seq_next(struct dt_t_s now, struct tseq_clo_s *clo)
 {
+#if 0
 /* advance NOW, then fix it */
 	return __seq_this(time_add(now, clo->ite), clo);
+#else  /* !0 */
+/* as long as there are no skips */
+	return time_add(now, clo->ite);
+#endif	/* 0 */
 }
 
 static int
