@@ -335,6 +335,12 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	 * decided to go for readability */
 	if (clo.ite.s == 0) {
 		clo.ite = tseq_guess_ite(clo.fst, clo.lst);
+		if (clo.ite.s > 0) {
+			clo.dir = 1;
+		} else if (clo.ite.s < 0) {
+			clo.dir = -1;
+		}
+		tmp = clo.fst;
 	} else if ((clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
