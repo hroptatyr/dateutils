@@ -71,6 +71,20 @@ typedef enum {
 typedef union {
 	uint64_t u:53;
 	struct {
+#if defined WORDS_BIGENDIAN
+#define DT_YEAR_OFFS	(1900)
+		/* offset by the year 1900 */
+		unsigned int y:8;
+		unsigned int m:4;
+		unsigned int d:5;
+		/* round up to 32 bits, remaining bits are seconds east */
+		unsigned int offs:15;
+
+		/* time part */
+		unsigned int H:5;
+		unsigned int M:8;
+		unsigned int S:8;
+#else  /* !WORDS_BIGENDIAN */
 		unsigned int d:5;
 		unsigned int m:4;
 		/* offset by the year 1900 */
@@ -83,7 +97,9 @@ typedef union {
 		unsigned int S:8;
 		unsigned int M:8;
 		unsigned int H:5;
+#endif	/* WORDS_BIGENDIAN */
 		/* 11 bits left */
+		unsigned int:11;
 	};
 } dt_ymdhms_t;
 
