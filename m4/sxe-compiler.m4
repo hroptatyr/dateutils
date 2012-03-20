@@ -295,7 +295,7 @@ respectively
 AC_DEFUN([SXE_CHECK_CC], [dnl
 dnl SXE_CHECK_CC([STANDARDS])
 dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
-	pushdef([stds], m4_default([$1], [gnu99 c99]))
+	pushdef([stds], m4_default([$1], [gnu11 c11 gnu99 c99]))
 
 	AC_REQUIRE([AC_PROG_CC])
 
