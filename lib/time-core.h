@@ -88,7 +88,7 @@ struct dt_t_s {
 		uint64_t u;
 		int64_t s;
 		dt_hms_t hms;
-		signed int sdur;
+		int64_t sdur;
 	};
 };
 
