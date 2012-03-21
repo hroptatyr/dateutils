@@ -1,6 +1,6 @@
 /*** tseq.c -- like seq(1) but for times
  *
- * Copyright (C) 2009 - 2011 Sebastian Freundt
+ * Copyright (C) 2009-2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -374,4 +374,4 @@ out:
 	return res;
 }
 
-/* dseq.c ends here */
+/* tseq.c ends here */
