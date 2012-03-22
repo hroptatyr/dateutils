@@ -39,9 +39,8 @@
 #define INCLUDED_tzraw_h_
 
 #include <stdint.h>
-/* for lil endian conversions */
-#include <endian.h>
 #include <limits.h>
+#include "boobs.h"
 
 #if defined __cplusplus
 extern "C" {

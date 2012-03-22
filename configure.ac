@@ -38,6 +38,9 @@ SXE_CHECK_CC([gnu11 c11 gnu1x c1x gnu99 c99])
 AC_C_BIGENDIAN
 SXE_CHECK_CFLAGS
 
+## check for byteorder utils
+AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h arpa/inet.h netinet/in.h])
+
 ## check for working c1x features
 SXE_CHECK_ANON_STRUCTS([
 	AC_DEFINE([__C1X], [1], [Whether c1x work])
