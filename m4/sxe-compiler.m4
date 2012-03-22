@@ -117,6 +117,9 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 	SXE_CHECK_COMPILER_FLAGS([-qinfo], [
 		warnflags="${warnflags} -qinfo"])
 
+	SXE_CHECK_COMPILER_FLAGS([-Wextra], [
+		warnflags="${warnflags} -Wextra"])
+
 	## Yuck, bad compares have been worth at
 	## least 3 crashes!
 	## Warnings about char subscripts are pretty
