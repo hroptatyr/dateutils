@@ -111,6 +111,7 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 bin_PROGRAMS += dtconv
 dtconv_SOURCES = dtconv.c dtconv-clo.ggo
+dtconv_SOURCES += prchunk.h prchunk.c
 dtconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dtconv-clo.c dtconv-clo.h
