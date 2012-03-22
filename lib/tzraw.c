@@ -262,21 +262,23 @@ static inline int32_t
 __offs(zif_t z, int32_t t)
 {
 /* return the offset of T in Z and cache the result. */
+	int this;
+	int min;
+	size_t max;
+
 	if (LIKELY(t >= z->cache.prev && t < z->cache.next)) {
 		/* use the cached offset */
-		;
+		return z->cache.offs;
 	} else if (t >= z->cache.next) {
-		int this = z->cache.trno + 1;
-		int min = this;
-		size_t max = zif_ntrans(z);
-		z->cache = __find_zrng(z, t, this, min, max);
+		this = z->cache.trno + 1;
+		min = this;
+		max = zif_ntrans(z);
 	} else if (t < z->cache.prev) {
-		int max = z->cache.trno;
-		int this = max - 1;
-		int min = 0;
-		z->cache = __find_zrng(z, t, this, min, max);
+		max = z->cache.trno;
+		this = max - 1;
+		min = 0;
 	}
-	return z->cache.offs;
+	return (z->cache = __find_zrng(z, t, this, min, max)).offs;
 }
 
 DEFUN int32_t
