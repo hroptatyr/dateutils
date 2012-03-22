@@ -65,9 +65,15 @@ typedef union {
 	uint64_t u;
 	struct {
 		struct {
+#if defined WORDS_BIGENDIAN
+			unsigned int h:8;
+			unsigned int m:8;
+			unsigned int s:8;
+#else  /* !WORDS_BIGENDIAN */
 			unsigned int s:8;
 			unsigned int m:8;
 			unsigned int h:8;
+#endif	/* WORDS_BIGENDIAN */
 			/* 8 bits left */
 			unsigned int flags:8;
 		};

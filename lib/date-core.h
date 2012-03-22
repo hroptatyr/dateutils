@@ -77,11 +77,17 @@ typedef enum {
 typedef union {
 	uint32_t u;
 	struct {
+#if defined WORDS_BIGENDIAN
+		unsigned int y:12;
+		unsigned int m:4;
+		unsigned int d:5;
+#else  /* !WORDS_BIGENDIAN */
 		unsigned int d:5;
 		unsigned int m:4;
 		unsigned int y:12;
+#endif	/* WORDS_BIGENDIAN */
 		/* 11 bits left */
-		unsigned int pad:11;
+		unsigned int:11;
 	};
 } dt_ymd_t;
 
@@ -90,12 +96,20 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
+		unsigned int:0;
+#if defined WORDS_BIGENDIAN
+		unsigned int y:12;
+		unsigned int m:4;
+		unsigned int c:3;
+		unsigned int w:3;
+#else  /* !WORDS_BIGENDIAN */
 		unsigned int w:3;
 		unsigned int c:3;
 		unsigned int m:4;
 		unsigned int y:12;
+#endif	/* WORDS_BIGENDIAN */
 		/* 10 bits left */
-		unsigned int pad:10;
+		unsigned int:10;
 	};
 } dt_ymcw_t;
 
@@ -113,12 +127,19 @@ typedef union {
 #define BIZDA_AFTER	(0U)/*>*/
 #define BIZDA_BEFORE	(1U)/*<*/
 #define BIZDA_ULTIMO	(0U)
+#if defined WORDS_BIGENDIAN
+		/* business day */
+		unsigned int y:12;
+		unsigned int m:4;
+		unsigned int bd:5;
+#else  /* !WORDS_BIGENDIAN */
 		/* business day */
 		unsigned int bd:5;
 		unsigned int m:4;
 		unsigned int y:12;
+#endif	/* WORDS_BIGENDIAN */
 		/* 5 bits left */
-		unsigned int pad:5;
+		unsigned int:5;
 	};
 } dt_bizda_t;
 

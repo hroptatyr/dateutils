@@ -34,6 +34,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -107,11 +110,10 @@ main(int argc, char *argv[])
 	if (argi->inputs_num > 1) {
 		for (size_t i = 1; i < argi->inputs_num; i++) {
 			struct dt_t_s t2;
-			struct dt_t_s dur;
 			const char *inp = argi->inputs[i];
 
-			if ((t2 = dt_io_strpt(inp, fmt, nfmt)).s >= 0 &&
-			    (dur = dt_tdiff(t, t2)).s >= 0) {
+			if ((t2 = dt_io_strpt(inp, fmt, nfmt)).s >= 0) {
+				struct dt_t_s dur = dt_tdiff(t, t2);
 				tdiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpt(inp);
@@ -131,7 +133,6 @@ main(int argc, char *argv[])
 			ssize_t n;
 			size_t len;
 			struct dt_t_s t2;
-			struct dt_t_s dur;
 
 			n = getline(&line, &len, fp);
 			if (n < 0) {
@@ -140,8 +141,8 @@ main(int argc, char *argv[])
 			/* terminate the string accordingly */
 			line[n - 1] = '\0';
 			/* perform addition now */
-			if ((t2 = dt_io_strpt(line, fmt, nfmt)).s >= 0 &&
-			    (dur = dt_tdiff(t, t2)).s > 0) {
+			if ((t2 = dt_io_strpt(line, fmt, nfmt)).s >= 0) {
+				struct dt_t_s dur = dt_tdiff(t, t2);
 				tdiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpt(line);

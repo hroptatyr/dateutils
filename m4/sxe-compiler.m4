@@ -117,6 +117,9 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 	SXE_CHECK_COMPILER_FLAGS([-qinfo], [
 		warnflags="${warnflags} -qinfo"])
 
+	SXE_CHECK_COMPILER_FLAGS([-Wextra], [
+		warnflags="${warnflags} -Wextra"])
+
 	## Yuck, bad compares have been worth at
 	## least 3 crashes!
 	## Warnings about char subscripts are pretty
@@ -295,7 +298,7 @@ respectively
 AC_DEFUN([SXE_CHECK_CC], [dnl
 dnl SXE_CHECK_CC([STANDARDS])
 dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
-	pushdef([stds], m4_default([$1], [gnu99 c99]))
+	pushdef([stds], m4_default([$1], [gnu11 c11 gnu99 c99]))
 
 	AC_REQUIRE([AC_PROG_CC])
 

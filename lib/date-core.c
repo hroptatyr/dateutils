@@ -923,22 +923,28 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 	if (LIKELY(!__leapp(y))) {
 		union {
 			uint32_t u;
+			uint32_t lu:2;
 			struct __bdays_by_wday_s s;
 		} page = {
 			.s = tbl[j01wd],
 		};
 		for (unsigned int i = 0; i < m - 1; i++) {
-			accum += page.u & /*lower two bits*/3;
+			accum += page.lu;
+#if defined WORDS_BIGENDIAN
+			page.u <<= 2;
+#else  /* !WORDS_BIGENDIAN */
 			page.u >>= 2;
+#endif	/* WORDS_BIGENDIAN */
 		}
 	} else if (m > 1) {
 		union {
 			uint32_t u;
+			uint32_t lu:2;
 			struct __bdays_by_wday_s s;
 		} page = {
 			.s = tbl[j01wd],
 		};
-		accum += page.u & /*lowe two bits*/3;
+		accum += page.lu;
 		if (m > 2) {
 			accum += page.s.feb_leap;
 		}
@@ -947,10 +953,18 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 		}
 		/* load a different page now, shift to the right month */
 		page.s = tbl[(j01wd + DT_MONDAY) % GREG_DAYS_P_WEEK];
+#if defined WORDS_BIGENDIAN
+		page.u <<= 6;
+#else  /* !WORDS_BIGENDIAN */
 		page.u >>= 6;
+#endif	/* WORDS_BIGENDIAN */
 		for (unsigned int i = 4; i < m; i++) {
-			accum += page.u & /*lower two bits*/3;
+			accum += page.lu;
+#if defined WORDS_BIGENDIAN
+			page.u <<= 2;
+#else  /* !WORDS_BIGENDIAN */
 			page.u >>= 2;
+#endif	/* WORDS_BIGENDIAN */
 		}
 	}
 	return 20 * (m - 1) + accum + that.bd;

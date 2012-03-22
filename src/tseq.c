@@ -1,6 +1,6 @@
 /*** tseq.c -- like seq(1) but for times
  *
- * Copyright (C) 2009 - 2011 Sebastian Freundt
+ * Copyright (C) 2009-2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -35,6 +35,9 @@
  *
  ***/
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -338,11 +341,11 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 
 	/* the actual sequence now, this isn't high-performance so we
 	 * decided to go for readability */
-	if (clo.ite.s == 0) {
+	if (clo.ite.sdur == 0) {
 		clo.ite = tseq_guess_ite(clo.fst, clo.lst);
-		if (clo.ite.s > 0) {
+		if (clo.ite.sdur > 0) {
 			clo.dir = 1;
-		} else if (clo.ite.s < 0) {
+		} else if (clo.ite.sdur < 0) {
 			clo.dir = -1;
 		}
 		tmp = clo.fst;
@@ -361,7 +364,7 @@ increment must not be naught\n", stderr);
 
 	for (unsigned int tot = (clo.fst.u != clo.lst.u);
 	     __in_range_p(tmp, &clo) && tot <= 86400U;
-	     tmp = __seq_next(tmp, &clo), tot += clo.ite.s * clo.dir) {
+	     tmp = __seq_next(tmp, &clo), tot += clo.ite.sdur * clo.dir) {
 		dt_io_write(tmp, ofmt);
 	}
 
@@ -371,4 +374,4 @@ out:
 	return res;
 }
 
-/* dseq.c ends here */
+/* tseq.c ends here */
