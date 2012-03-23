@@ -48,6 +48,7 @@ BUILT_SOURCES += dtest-clo.c dtest-clo.h
 
 bin_PROGRAMS += dadd
 dadd_SOURCES = dadd.c dadd-clo.ggo
+dadd_SOURCES += prchunk.c prchunk.h
 dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dadd-clo.c dadd-clo.h
