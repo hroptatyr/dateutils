@@ -238,16 +238,22 @@ init_prchunk(int fd)
 #define MAP_MEM		(MAP_ANONYMOUS | MAP_PRIVATE)
 #define PROT_MEM	(PROT_READ | PROT_WRITE)
 #define MAP_LEN		(MAX_NLINES * MAX_LLEN)
-	__ctx->buf = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, 0, 0);
-	__ctx->fd = fd;
+	__ctx->buf = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, -1, 0);
+	if (__ctx->buf == MAP_FAILED) {
+		return NULL;
+	}
 
+	/* bit of space for the rechunker */
+	__ctx->soff = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, -1, 0);
+	if (__ctx->soff == MAP_FAILED) {
+		return NULL;
+	}
+
+	__ctx->fd = fd;
 #if defined POSIX_FADV_SEQUENTIAL
 	/* give advice about our read pattern */
 	posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 #endif	/* POSIX_FADV_SEQUENTIAL */
-
-	/* bit of space for the rechunker */
-	__ctx->soff = mmap(NULL,MAP_LEN, PROT_MEM, MAP_MEM, 0, 0);
 	return __ctx;
 }
 
@@ -408,7 +414,10 @@ main(int argc, char *argv[])
 		return 1;
 	}
 	/* get our prchunk up n running */
-	ctx = init_prchunk(fd);
+	if ((ctx = init_prchunk(fd)) == NULL) {
+		perror("ctx NULL");
+		return 1;
+	}
 	/* fill the buffer */
 	while (!(prchunk_fill(ctx) < 0)) {
 		char *l[1];

@@ -148,7 +148,10 @@ with complex expressions\n",
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
 		/* using the prchunk reader now */
-		pctx = init_prchunk(STDIN_FILENO);
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			perror("dtconv: could not open stdin");
+			goto ndl_free;
+		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen;
@@ -177,6 +180,7 @@ with complex expressions\n",
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
+	ndl_free:
 		if (needle != __nstk) {
 			free(needle);
 		}

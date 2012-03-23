@@ -90,7 +90,10 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 	void *pctx;
 
 	/* using the prchunk reader now */
-	pctx = init_prchunk(STDIN_FILENO);
+	if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+		perror("dtconv: could not open stdin");
+		return;
+	}
 	while (prchunk_fill(pctx) >= 0) {
 		for (char *line; prchunk_haslinep(pctx); lno++) {
 			size_t UNUSED(llen);
