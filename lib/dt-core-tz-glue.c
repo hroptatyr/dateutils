@@ -89,11 +89,13 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 			.s = sexy % 60,
 			.m = (sexy % 3600) / 60,
 			.h = sexy / 3600,
+			.ns = dt.t.hms.ns,
 		};
 #else  /* !__C1X */
 		res.t.hms.s = sexy % 60;
 		res.t.hms.m = (sexy % 3600) / 60;
 		res.t.hms.h = sexy / 3600;
+		res.t.hms.ns = dt.t.hms.ns;
 #endif	/* __C1X */
 	}
 	return res;
@@ -134,11 +136,13 @@ dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 			.s = sexy % 60,
 			.m = (sexy % 3600) / 60,
 			.h = sexy / 3600,
+			.ns = dt.t.hms.ns,
 		};
 #else  /* !__C1X */
 		res.t.hms.s = sexy % 60;
 		res.t.hms.m = (sexy % 3600) / 60;
 		res.t.hms.h = sexy / 3600;
+		res.t.hms.ns = dt.t.hms.ns;
 #endif	/* __C1X */
 	}
 	return res;

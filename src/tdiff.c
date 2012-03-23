@@ -129,7 +129,10 @@ main(int argc, char *argv[])
 		__io_setlocking_bycaller(stdout);
 
 		/* using the prchunk reader now */
-		pctx = init_prchunk(STDIN_FILENO);
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			perror("dtconv: could not open stdin");
+			goto out;
+		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t UNUSED(llen);
@@ -149,7 +152,6 @@ main(int argc, char *argv[])
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
-		goto out;
 	}
 
 out:
