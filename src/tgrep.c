@@ -44,6 +44,7 @@
 #include <time.h>
 #include "time-core.h"
 #include "time-io.h"
+#include "prchunk.h"
 
 typedef uint32_t oper_t;
 
@@ -228,15 +229,13 @@ main(int argc, char *argv[])
 	o = o ?: OP_EQ;
 	{
 		/* read from stdin */
-		FILE *fp = stdin;
-		char *line;
 		size_t lno = 0;
 		struct tgrep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
 		struct tgrep_atom_soa_s ndlsoa;
+		void *pctx;
 
 		/* no threads reading this stream */
-		__io_setlocking_bycaller(fp);
 		__io_setlocking_bycaller(stdout);
 
 		/* lest we overflow the stack */
@@ -248,32 +247,37 @@ main(int argc, char *argv[])
 		/* and now build the needle */
 		ndlsoa = build_tneedle(needle, nneedle, fmt, nfmt);
 
-		for (line = NULL; !__io_eof_p(fp); lno++) {
-			ssize_t n;
-			size_t len;
-			struct dt_t_s t;
-			const char *sp = NULL;
-			const char *ep = NULL;
+		/* using the prchunk reader now */
+		pctx = init_prchunk(STDIN_FILENO);
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t llen;
+				struct dt_t_s t;
+				char *sp = NULL;
+				char *ep = NULL;
 
-			n = getline(&line, &len, fp);
-			if (n < 0) {
-				break;
-			}
-			/* check if line matches,
-			 * there is currently no way to specify NEEDLE */
-			t = dt_io_find_strpt2(
-				line, &ndlsoa, (char**)&sp, (char**)&ep);
-			if (t.s >= 0 && matchp(t, reft, o)) {
-				if (!argi->only_matching_given) {
-					sp = line;
-					ep = line + n - 1;
+				llen = prchunk_getline(pctx, &line);
+
+				/* check if line matches,
+				 * there's currently no way to specify NEEDLE */
+				t = dt_io_find_strpt2(line, &ndlsoa, &sp, &ep);
+
+				/* finish with newline again */
+				line[llen] = '\n';
+
+				if (t.s >= 0 && matchp(t, reft, o)) {
+					const size_t msz = sizeof(*line);
+					if (argi->only_matching_given) {
+						line = sp;
+						llen = ep - sp;
+						*ep = '\n';
+					}
+					fwrite(line, msz, llen + 1, stdout);
 				}
-				fwrite(sp, sizeof(*sp), ep - sp, stdout);
-				fputc('\n', stdout);
 			}
 		}
 		/* get rid of resources */
-		free(line);
+		free_prchunk(pctx);
 		if (needle != __nstk) {
 			free(needle);
 		}
