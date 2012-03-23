@@ -39,7 +39,7 @@ AC_C_BIGENDIAN
 SXE_CHECK_CFLAGS
 
 ## check for byteorder utils
-AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h arpa/inet.h netinet/in.h])
+AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h byteswap.h])
 
 ## check for strptime
 AC_CHECK_FUNCS([strptime])
