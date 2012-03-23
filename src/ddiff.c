@@ -44,6 +44,7 @@
 #include <time.h>
 #include "date-core.h"
 #include "date-io.h"
+#include "prchunk.h"
 
 #if !defined UNUSED
 # define UNUSED(_x)	__attribute__((unused)) _x
@@ -201,36 +202,35 @@ main(int argc, char *argv[])
 		}
 	} else {
 		/* read from stdin */
-		FILE *fp = stdin;
-		char *line;
 		size_t lno = 0;
+		void *pctx;
 
 		/* no threads reading this stream */
-		__io_setlocking_bycaller(fp);
 		__io_setlocking_bycaller(stdout);
 
-		for (line = NULL; !__io_eof_p(fp); lno++) {
-			ssize_t n;
-			size_t len;
-			struct dt_d_s d2;
-			struct dt_d_s dur;
+		/* using the prchunk reader now */
+		pctx = init_prchunk(STDIN_FILENO);
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t UNUSED(llen);
+				struct dt_d_s d2;
+				struct dt_d_s dur;
 
-			n = getline(&line, &len, fp);
-			if (n < 0) {
-				break;
-			}
-			/* terminate the string accordingly */
-			line[n - 1] = '\0';
-			/* perform addition now */
-			if ((d2 = dt_io_strpd(line, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_UNK) {
-				ddiff_prnt(dur, ofmt);
-			} else if (!argi->quiet_given) {
-				dt_io_warn_strpd(line);
+				llen = prchunk_getline(pctx, &line);
+
+				/* perform addition now */
+				if ((d2 = dt_io_strpd(
+					     line, fmt, nfmt)).typ > DT_UNK &&
+				    (dur = dt_ddiff(
+					     difftyp, d, d2)).typ > DT_UNK) {
+					ddiff_prnt(dur, ofmt);
+				} else if (!argi->quiet_given) {
+					dt_io_warn_strpd(line);
+				}
 			}
 		}
 		/* get rid of resources */
-		free(line);
+		free_prchunk(pctx);
 		goto out;
 	}
 

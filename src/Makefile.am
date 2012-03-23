@@ -55,6 +55,7 @@ BUILT_SOURCES += dadd-clo.c dadd-clo.h
 
 bin_PROGRAMS += ddiff
 ddiff_SOURCES = ddiff.c ddiff-clo.ggo
+ddiff_SOURCES += prchunk.c prchunk.h
 ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
