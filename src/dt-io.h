@@ -28,22 +28,6 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
-static bool
-dt_io_today_p(const char *str)
-{
-	if (str == NULL) {
-		return true;
-	}
-	switch ((char)(*str | 0x20)) {
-	default:
-		return false;
-	case 'n':
-		return strcasecmp(str, "now") == 0;
-	case 't':
-		return strcasecmp(str, "today") == 0;
-	}
-}
-
 static struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
@@ -56,9 +40,15 @@ dt_io_strpdt_ep(
 	if (ep) {
 		*ep = NULL;
 	}
-	/* basic sanity check */
-	if (UNLIKELY(dt_io_today_p(str))) {
+	/* basic sanity checks, catch phrases first */
+	if (!strcasecmp(str, "now")) {
 		return dt_datetime(DT_YMD);
+	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
+		res.d = dt_date(DT_YMD);
+		return res;
+	} else if (!strcasecmp(str, "time")) {
+		res.t = dt_time();
+		return res;
 	} else if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {

@@ -10,3 +10,14 @@ FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES
 SED_MODE
+
+option "from-zone" -
+	"Interpret dates on stdin or the command line as coming from \
+the time zone ZONE"
+	string optional typestr="ZONE"
+
+option "zone" z
+	"Convert dates printed on stdout to time zone ZONE, \
+default: UTC"
+	string optional typestr="ZONE"
+
