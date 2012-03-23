@@ -80,7 +80,8 @@ __open_zif(const char *file)
 		char *new, *tmp;
 
 		new = alloca(tzd_len + 1 + len);
-		tmp = mempcpy(new, tzdir, tzd_len);
+		memcpy(new, tzdir, tzd_len);
+		tmp = new + tzd_len;
 		*tmp++ = '/';
 		memcpy(tmp, file, len);
 		file = new;
