@@ -87,7 +87,7 @@
 #if !defined htole32
 # if defined WORDS_BIGENDIAN || __BYTE_ORDER == __BIG_ENDIAN
 #  define htole32(x)	__bswap_32(x)
-# if __BYTE_ORDER == __LITTLE_ENDIAN
+# elif __BYTE_ORDER == __LITTLE_ENDIAN
 #  define htole32(x)	(x)
 # endif
 #endif	/* !htole32 */
