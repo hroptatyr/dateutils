@@ -36,6 +36,7 @@ BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
 bin_PROGRAMS += dconv
 dconv_SOURCES = dconv.c dconv-clo.ggo
+dconv_SOURCES += prchunk.c prchunk.h
 dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dconv-clo.c dconv-clo.h
