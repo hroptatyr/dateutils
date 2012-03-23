@@ -170,5 +170,7 @@ TESTS += dtconv.15.dt
 TESTS += dtconv.16.dt
 TESTS += dtconv.17.dt
 TESTS += dtconv.18.dt
+TESTS += dtconv.19.dt
+TESTS += dtconv.20.dt
 
 ## Makefile.am ends here
