@@ -44,6 +44,7 @@
 #include <time.h>
 #include "date-core.h"
 #include "date-io.h"
+#include "prchunk.h"
 
 
 static struct dt_d_s
