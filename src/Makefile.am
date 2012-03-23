@@ -76,6 +76,7 @@ BUILT_SOURCES += tseq-clo.c tseq-clo.h
 
 bin_PROGRAMS += tdiff
 tdiff_SOURCES = tdiff.c tdiff-clo.ggo
+tdiff_SOURCES += prchunk.c prchunk.h
 tdiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tdiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tdiff-clo.c tdiff-clo.h
