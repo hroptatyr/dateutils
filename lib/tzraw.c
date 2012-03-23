@@ -170,7 +170,7 @@ zif_inst(zif_t z)
 	}
 	sz = z->mpsz + sizeof(*z);
 
-	map = mmap(NULL, sz, PROT_MEMMAP, MAP_MEMMAP, 0, 0);
+	map = mmap(NULL, sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
 	if (map != MAP_FAILED) {
 		/* we mmap'ped ourselves a slightly larger struct
 		 * res + 1 points to the header*/
