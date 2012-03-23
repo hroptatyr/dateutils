@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
+TOOL=dconv
 CMDLINE="--zone America/Chicago -S -f '%T'"
 
 ## STDIN

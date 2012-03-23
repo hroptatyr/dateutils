@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
+TOOL=dconv
 CMDLINE="--from-zone America/Chicago"
 COMMENT="Testing illegal datetimes, 02:05:06 doesn't exist on 11 Mar 2012 in \
 America/Chicago"

@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
+TOOL=dconv
 CMDLINE="2012-03-01T07:05:06 --zone America/Chicago"
 
 ## STDIN
