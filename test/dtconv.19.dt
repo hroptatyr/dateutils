@@ -1,0 +1,13 @@
+## -*- shell-script -*-
+
+TOOL=dtconv
+CMDLINE="--from-zone Europe/Berlin -z Europe/Berlin \
+	-i '%F %T.%N' -f '%T.%N' '2012-01-01 00:00:00.123456789'"
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+00:00:00.123456789
+EOF
+
+## dtconv.19.dt ends here
