@@ -59,6 +59,10 @@
 #define MAX_NLINES	(16384)
 #define MAX_LLEN	(1024)
 
+#if !defined MAP_ANONYMOUS && defined MAP_ANON
+# define MAP_ANONYMOUS	(MAP_ANON)
+#endif	/* MAP_ANON->MAP_ANONYMOUS */
+
 #if defined __INTEL_COMPILER
 # pragma warning(disable: 981)
 #endif	/* __INTEL_COMPILER */
@@ -236,8 +240,11 @@ init_prchunk(int fd)
 #define MAP_LEN		(MAX_NLINES * MAX_LLEN)
 	__ctx->buf = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, 0, 0);
 	__ctx->fd = fd;
+
+#if defined POSIX_FADV_SEQUENTIAL
 	/* give advice about our read pattern */
 	posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+#endif	/* POSIX_FADV_SEQUENTIAL */
 
 	/* bit of space for the rechunker */
 	__ctx->soff = mmap(NULL,MAP_LEN, PROT_MEM, MAP_MEM, 0, 0);
