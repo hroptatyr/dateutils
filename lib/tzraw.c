@@ -60,6 +60,10 @@
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
 
+#if !defined MAP_ANONYMOUS && defined MAP_ANON
+# define MAP_ANONYMOUS	(MAP_ANON)
+#endif	/* MAP_ANON->MAP_ANONYMOUS */
+
 static int
 __open_zif(const char *file)
 {
@@ -76,7 +80,8 @@ __open_zif(const char *file)
 		char *new, *tmp;
 
 		new = alloca(tzd_len + 1 + len);
-		tmp = mempcpy(new, tzdir, tzd_len);
+		memcpy(new, tzdir, tzd_len);
+		tmp = new + tzd_len;
 		*tmp++ = '/';
 		memcpy(tmp, file, len);
 		file = new;

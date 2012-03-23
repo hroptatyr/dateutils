@@ -28,14 +28,18 @@ dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dseq_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dseq-clo.c dseq-clo.h
 
+if HAVE_STRPTIME
 bin_PROGRAMS += strptime
 strptime_SOURCES = strptime.c strptime-clo.ggo
+strptime_SOURCES += prchunk.c prchunk.h
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
+endif
 
 bin_PROGRAMS += dconv
 dconv_SOURCES = dconv.c dconv-clo.ggo
+dconv_SOURCES += prchunk.c prchunk.h
 dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dconv-clo.c dconv-clo.h
@@ -48,18 +52,21 @@ BUILT_SOURCES += dtest-clo.c dtest-clo.h
 
 bin_PROGRAMS += dadd
 dadd_SOURCES = dadd.c dadd-clo.ggo
+dadd_SOURCES += prchunk.c prchunk.h
 dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dadd-clo.c dadd-clo.h
 
 bin_PROGRAMS += ddiff
 ddiff_SOURCES = ddiff.c ddiff-clo.ggo
+ddiff_SOURCES += prchunk.c prchunk.h
 ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
 
 bin_PROGRAMS += dgrep
 dgrep_SOURCES = dgrep.c dgrep-clo.ggo
+dgrep_SOURCES += prchunk.c prchunk.h
 dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dgrep-clo.c dgrep-clo.h
@@ -72,18 +79,21 @@ BUILT_SOURCES += tseq-clo.c tseq-clo.h
 
 bin_PROGRAMS += tdiff
 tdiff_SOURCES = tdiff.c tdiff-clo.ggo
+tdiff_SOURCES += prchunk.c prchunk.h
 tdiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tdiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tdiff-clo.c tdiff-clo.h
 
 bin_PROGRAMS += tadd
 tadd_SOURCES = tadd.c tadd-clo.ggo
+tadd_SOURCES += prchunk.c prchunk.h
 tadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tadd_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tadd-clo.c tadd-clo.h
 
 bin_PROGRAMS += tgrep
 tgrep_SOURCES = tgrep.c tgrep-clo.ggo
+tgrep_SOURCES += prchunk.c prchunk.h
 tgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tgrep_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tgrep-clo.c tgrep-clo.h
@@ -96,6 +106,7 @@ BUILT_SOURCES += ttest-clo.c ttest-clo.h
 
 bin_PROGRAMS += tconv
 tconv_SOURCES = tconv.c tconv-clo.ggo
+tconv_SOURCES += prchunk.c prchunk.h
 tconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tconv-clo.c tconv-clo.h
@@ -111,6 +122,7 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 bin_PROGRAMS += dtconv
 dtconv_SOURCES = dtconv.c dtconv-clo.ggo
+dtconv_SOURCES += prchunk.h prchunk.c
 dtconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dtconv-clo.c dtconv-clo.h

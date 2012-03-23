@@ -43,6 +43,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include "date-io.h"
+#include "prchunk.h"
 
 static int
 pars_line(struct tm *tm, const char *const *fmt, size_t nfmt, const char *line)
@@ -85,28 +86,22 @@ proc_line(
 static void
 proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 {
-	FILE *fp = stdin;
-	char *line;
 	size_t lno = 0;
+	void *pctx;
 
-	/* no threads reading this stream */
-	__io_setlocking_bycaller(fp);
+	/* using the prchunk reader now */
+	pctx = init_prchunk(STDIN_FILENO);
+	while (prchunk_fill(pctx) >= 0) {
+		for (char *line; prchunk_haslinep(pctx); lno++) {
+			size_t UNUSED(llen);
 
-	for (line = NULL; !__io_eof_p(fp); lno++) {
-		ssize_t n;
-		size_t len;
-
-		n = getline(&line, &len, fp);
-		if (n < 0) {
-			break;
+			llen = prchunk_getline(pctx, &line);
+			/* check if line matches */
+			proc_line(line, fmt, nfmt, ofmt, quietp);
 		}
-		/* terminate the string accordingly */
-		line[n - 1] = '\0';
-		/* check if line matches */
-		proc_line(line, fmt, nfmt, ofmt, quietp);
 	}
 	/* get rid of resources */
-	free(line);
+	free_prchunk(pctx);
 	return;
 }
 

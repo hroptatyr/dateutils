@@ -45,6 +45,7 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "tzraw.h"
+#include "prchunk.h"
 
 
 #if defined __INTEL_COMPILER
@@ -110,15 +111,13 @@ main(int argc, char *argv[])
 		}
 	} else {
 		/* read from stdin */
-		FILE *fp = stdin;
-		char *line;
 		size_t lno = 0;
 		struct grep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
+		void *pctx;
 
 		/* no threads reading this stream */
-		__io_setlocking_bycaller(fp);
 		__io_setlocking_bycaller(stdout);
 
 		/* lest we overflow the stack */
@@ -130,35 +129,39 @@ main(int argc, char *argv[])
 		/* and now build the needles */
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
-		for (line = NULL; !__io_eof_p(fp); lno++) {
-			ssize_t n;
-			size_t len;
-			struct dt_dt_s d;
-			const char *sp = NULL;
-			const char *ep = NULL;
+		/* using the prchunk reader now */
+		pctx = init_prchunk(STDIN_FILENO);
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t llen;
+				struct dt_dt_s d;
+				const char *sp = NULL;
+				const char *ep = NULL;
 
-			n = getline(&line, &len, fp);
-			if (n < 0) {
-				break;
-			}
-			/* check if line matches */
-			d = dt_io_find_strpdt2(
-				line, &ndlsoa, (char**)&sp, (char**)&ep, fromz);
-			if (d.d.typ) {
-				if (argi->sed_mode_given) {
+				llen = prchunk_getline(pctx, &line);
+				/* check if line matches */
+				d = dt_io_find_strpdt2(
+					line, &ndlsoa,
+					(char**)&sp, (char**)&ep, fromz);
+
+				/* finish with newline again */
+				line[llen] = '\n';
+
+				if (d.d.typ && argi->sed_mode_given) {
 					dt_io_write_sed(
-						d, ofmt, line, n, sp, ep, z);
-				} else {
+						d, ofmt,
+						line, llen + 1, sp, ep, z);
+				} else if (d.d.typ) {
 					dt_io_write(d, ofmt, z);
+				} else if (argi->sed_mode_given) {
+					__io_write(line, llen + 1, stdout);
+				} else if (!argi->quiet_given) {
+					dt_io_warn_strpdt(line);
 				}
-			} else if (argi->sed_mode_given) {
-				__io_write(line, n, stdout);
-			} else if (!argi->quiet_given) {
-				dt_io_warn_strpdt(line);
 			}
 		}
 		/* get rid of resources */
-		free(line);
+		free_prchunk(pctx);
 		if (needle != __nstk) {
 			free(needle);
 		}
