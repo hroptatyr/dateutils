@@ -100,6 +100,7 @@ BUILT_SOURCES += ttest-clo.c ttest-clo.h
 
 bin_PROGRAMS += tconv
 tconv_SOURCES = tconv.c tconv-clo.ggo
+tconv_SOURCES += prchunk.c prchunk.h
 tconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tconv_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tconv-clo.c tconv-clo.h
