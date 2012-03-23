@@ -41,6 +41,11 @@ SXE_CHECK_CFLAGS
 ## check for byteorder utils
 AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h arpa/inet.h netinet/in.h])
 
+## check for strptime
+AC_CHECK_FUNCS([strptime])
+have_strptime="${ac_cv_func_strptime}"
+AM_CONDITIONAL([HAVE_STRPTIME], [test "${have_strptime}" = "yes"])
+
 ## check for working c1x features
 SXE_CHECK_ANON_STRUCTS([
 	AC_DEFINE([__C1X], [1], [Whether c1x work])
@@ -78,7 +83,9 @@ fi
 dapps="dadd dconv ddiff dgrep dseq dtest"
 tapps="tadd tconv tdiff tgrep tseq ttest"
 dtapps="dtconv"
-miscapps="strptime"
+if test "${have_strptime}" = "yes"; then
+	miscapps="strptime"
+fi
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])

@@ -28,11 +28,13 @@ dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dseq_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dseq-clo.c dseq-clo.h
 
+if HAVE_STRPTIME
 bin_PROGRAMS += strptime
 strptime_SOURCES = strptime.c strptime-clo.ggo
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += strptime-clo.c strptime-clo.h
+endif
 
 bin_PROGRAMS += dconv
 dconv_SOURCES = dconv.c dconv-clo.ggo
