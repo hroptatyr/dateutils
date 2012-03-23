@@ -35,8 +35,8 @@
  *
  ***/
 
-#if !defined INCLUDED_byteorder_h_
-#define INCLUDED_byteorder_h_
+#if !defined INCLUDED_boobs_h_
+#define INCLUDED_boobs_h_
 
 #if defined HAVE_CONFIG_H
 # include "config.h"
@@ -46,9 +46,9 @@
 # include <endian.h>
 #elif defined HAVE_SYS_ENDIAN_H
 # include <sys/endian.h>
-#elif defined HAVE_BYTEORDER_H
+#elif defined HAVE_BOOBS_H
 # include <byteorder.h>
-#endif	/* ENDIAN_H || SYS/ENDIAN_H || BYTEORDER_H */
+#endif	/* ENDIAN_H || SYS/ENDIAN_H || BOOBS_H */
 
 /* check for byteswap to do the swapping ourselves if need be */
 #if defined HAVE_BYTESWAP_H
@@ -96,4 +96,4 @@
  * in the missing cases.  Instead we'll just leave it as is and wait
  * for bug reports. */
 
-#endif	/* INCLUDED_byteorder_h_ */
+#endif	/* INCLUDED_boobs_h_ */
