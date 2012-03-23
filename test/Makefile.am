@@ -60,6 +60,8 @@ TESTS += dconv.25.dt
 TESTS += dconv.26.dt
 TESTS += dconv.27.dt
 TESTS += dconv.28.dt
+TESTS += dconv.29.dt
+TESTS += dconv.30.dt
 
 TESTS += dadd.1.dt
 TESTS += dadd.2.dt
@@ -151,6 +153,7 @@ TESTS += ttest.1.dt
 
 TESTS += tconv.1.dt
 TESTS += tconv.2.dt
+TESTS += tconv.3.dt
 
 TESTS += dtconv.1.dt
 TESTS += dtconv.2.dt
@@ -172,5 +175,6 @@ TESTS += dtconv.17.dt
 TESTS += dtconv.18.dt
 TESTS += dtconv.19.dt
 TESTS += dtconv.20.dt
+TESTS += dtconv.21.dt
 
 ## Makefile.am ends here
