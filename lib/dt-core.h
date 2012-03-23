@@ -98,8 +98,6 @@ typedef union {
 		unsigned int M:8;
 		unsigned int H:5;
 #endif	/* WORDS_BIGENDIAN */
-		/* 11 bits left */
-		unsigned int:11;
 	};
 } dt_ymdhms_t;
 
