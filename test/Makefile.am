@@ -189,6 +189,7 @@ check_PROGRAMS += struct-6
 check_PROGRAMS += struct-7
 check_PROGRAMS += struct-8
 check_PROGRAMS += struct-9
+check_PROGRAMS += enum-1
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -199,5 +200,6 @@ bin_tests += struct-6
 bin_tests += struct-7
 bin_tests += struct-8
 bin_tests += struct-9
+bin_tests += enum-1
 
 ## Makefile.am ends here
