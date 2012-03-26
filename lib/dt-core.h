@@ -62,23 +62,25 @@ extern "C" {
 #include "time-core.h"
 
 typedef enum {
-	DT_SANDWICH = 1,
+	/* the lower date types come from date-core.h */
+	DT_SANDWICH = DT_NTYP,
+	DT_PACK,
 	DT_SEXY,
 } dt_dttyp_t;
 
-/** sandwiches
- * sandwiches are just packs of dates and times */
+/** packs
+ * packs are just packs of dates and times */
 typedef union {
 	uint64_t u:53;
 	struct {
 #if defined WORDS_BIGENDIAN
 #define DT_YEAR_OFFS	(1900)
 		/* offset by the year 1900 */
-		unsigned int y:8;
+		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int d:5;
 		/* round up to 32 bits, remaining bits are seconds east */
-		unsigned int offs:15;
+		unsigned int offs:11;
 
 		/* time part */
 		unsigned int H:5;
@@ -89,9 +91,9 @@ typedef union {
 		unsigned int m:4;
 		/* offset by the year 1900 */
 #define DT_YEAR_OFFS	(1900)
-		unsigned int y:8;
+		unsigned int y:12;
 		/* round up to 32 bits, remaining bits are seconds east */
-		unsigned int offs:15;
+		unsigned int offs:11;
 
 		/* time part */
 		unsigned int S:8;
@@ -106,23 +108,21 @@ typedef union {
 typedef uint64_t dt_sexy_t;
 #define DT_SEXY_BASE_YEAR	(1917)
 
-/**
- * Collection of all date types. */
-struct __dt_s {
-	/* for parametrised types */
-	dt_dttyp_t typ:9;
-	uint16_t dur:1;
-	uint16_t neg:1;
-	union {
-		uint64_t u:53;
-		dt_ymdhms_t ymdhms;
-		dt_sexy_t sexy:53;
-	};
-} __attribute__((packed));
-
 struct dt_dt_s {
 	union {
-		struct __dt_s x64;
+		/* packs */
+		struct {
+			/* for parametrised types */
+			dt_dttyp_t typ:9;
+			uint16_t dur:1;
+			uint16_t neg:1;
+			union {
+				uint64_t u:53;
+				dt_ymdhms_t ymdhms;
+				dt_sexy_t sexy:53;
+			};
+		} __attribute__((packed));
+		/* sandwich types */
 		struct {
 			struct dt_d_s d;
 			struct dt_t_s t;
