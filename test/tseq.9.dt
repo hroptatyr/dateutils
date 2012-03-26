@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tseq
+TOOL=dseq
 CMDLINE="02:00:00 +30m 07:00:00"
 
 ## STDIN
