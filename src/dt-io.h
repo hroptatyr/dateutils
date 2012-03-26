@@ -523,7 +523,17 @@ static inline size_t
 dt_io_strfdt_autonl(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	size_t res = dt_strfdt(buf, bsz, fmt, that);
+	size_t res;
+
+	if (dt_sandwich_p(that)) {
+		res = dt_strfdt(buf, bsz, fmt, that);
+	} else if (dt_sandwich_only_d_p(that)) {
+		res = dt_strfd(buf, bsz, fmt, that.d);
+	} else if (dt_sandwich_only_t_p(that)) {
+		res = dt_strft(buf, bsz, fmt, that.t);
+	} else {
+		res = 0;
+	}
 
 	if (res > 0 && buf[res - 1] != '\n') {
 		/* auto-newline */
