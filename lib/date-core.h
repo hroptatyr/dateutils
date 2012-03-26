@@ -158,8 +158,8 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-		unsigned int d;
-		unsigned int m;
+		unsigned int d:16;
+		unsigned int m:16;
 	};
 } dt_md_t;
 
