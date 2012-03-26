@@ -53,6 +53,17 @@ __pos_mod(int num, int mod)
 	return res;
 }
 
+static inline int32_t
+__to_unix(struct dt_dt_s dt)
+{
+	dt_daisy_t d;
+
+	dt.d.typ = DT_SANDWICH_D_TYPE(dt.typ);
+	d = dt_conv_to_daisy(dt.d);
+	return (d - DAISY_UNIX_BASE) * 86400 +
+		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+}
+
 
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */
@@ -60,16 +71,12 @@ DEFUN struct dt_dt_s
 dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 {
 	dt_dttyp_t tgttyp = dt.typ;
-	dt_daisy_t d;
 	struct dt_dt_s res = dt_dt_initialiser();
 	int32_t d_unix;
 	int32_t d_utc;
 
-	/* convert date part to daisy */
-	dt.d.typ = DT_SANDWICH_D_TYPE(dt.typ);
-	d = dt_conv_to_daisy(dt.d);
-	d_unix = (d - DAISY_UNIX_BASE) * 86400 +
-		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	/* convert date/time part to unix stamp */
+	d_unix = __to_unix(dt);
 	d_utc = zif_utc_time(zone, d_unix);
 
 	/* convert the date part back */
@@ -85,7 +92,7 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 		tmp.daisy = d_utc / 86400 + DAISY_UNIX_BASE;
 #endif	/* __C1X */
 
-		res.d = dt_conv(dt.d.typ, tmp);
+		res.d = dt_conv(DT_SANDWICH_D_TYPE(dt.d.typ), tmp);
 	}
 
 	/* convert the time part back */
@@ -115,16 +122,12 @@ DEFUN struct dt_dt_s
 dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 {
 	dt_dttyp_t tgttyp = dt.typ;
-	dt_daisy_t d;
 	struct dt_dt_s res = dt_dt_initialiser();
 	int32_t d_unix;
 	int32_t d_loc;
 
-	/* convert date part to daisy */
-	dt.d.typ = DT_SANDWICH_D_TYPE(dt.typ);
-	d = dt_conv_to_daisy(dt.d);
-	d_unix = (d - DAISY_UNIX_BASE) * 86400 +
-		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	/* convert date/time part to unix stamp */
+	d_unix = __to_unix(dt);
 	d_loc = zif_local_time(zone, d_unix);
 
 	/* convert the date part back */
@@ -140,7 +143,7 @@ dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 		tmp.daisy = d_loc / 86400 + DAISY_UNIX_BASE;
 #endif	/* __C1X */
 
-		res.d = dt_conv(dt.d.typ, tmp);
+		res.d = dt_conv(DT_SANDWICH_D_TYPE(dt.d.typ), tmp);
 	}
 
 	/* convert the time part back */
