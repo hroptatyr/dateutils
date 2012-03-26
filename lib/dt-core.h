@@ -235,7 +235,7 @@ dt_sandwich_only_t_p(struct dt_dt_s d)
 }
 
 #define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
-#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(DT_SANDWICH + x)
+#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(DT_SANDWICH | x)
 #define DT_SANDWICH_D_ONLY(x)	(dt_dttyp_t)(x)
 #define DT_SANDWICH_T_ONLY(x)	(dt_dttyp_t)(DT_SANDWICH + DT_UNK)
 
