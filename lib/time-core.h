@@ -59,38 +59,54 @@ extern "C" {
 # define restrict	__restrict
 #endif	/* !restrict */
 
+typedef enum {
+	DT_TUNK,
+	DT_HMS,
+	DT_NTTYP,
+} dt_ttyp_t;
+
 /** hms
  * hms times are just bog-standard hour, minute, second times */
 typedef union {
-	uint64_t u;
+	uint64_t u:56;
 	struct {
-		struct {
 #if defined WORDS_BIGENDIAN
-			unsigned int h:8;
-			unsigned int m:8;
-			unsigned int s:8;
+		uint64_t:3;
+		uint64_t h:5;
+		uint64_t:2;
+		uint64_t m:6;
+		uint64_t:2;
+		uint64_t s:6;
+		uint64_t:2;
+		uint64_t ns:30;
 #else  /* !WORDS_BIGENDIAN */
-			unsigned int s:8;
-			unsigned int m:8;
-			unsigned int h:8;
+		uint64_t ns:30;
+		uint64_t:2;
+		uint64_t s:6;
+		uint64_t:2;
+		uint64_t m:6;
+		uint64_t:2;
+		uint64_t h:5;
+		uint64_t:3;
 #endif	/* WORDS_BIGENDIAN */
-			/* 8 bits left */
-			unsigned int flags:8;
-		};
-		unsigned int ns:32;
-	};
-} dt_hms_t;
+	} __attribute__((packed));
+} __attribute__((packed)) dt_hms_t;
 
 /**
  * Collection of all time types. */
 struct dt_t_s {
+	struct {
+		dt_ttyp_t typ:6;
+		uint64_t dur:1;
+		uint64_t neg:1;
+	} __attribute__((packed));
 	union {
-		uint64_t u;
-		int64_t s;
-		dt_hms_t hms;
+		uint64_t u:56;
+		int64_t s:56;
 		signed int sdur;
-	};
-};
+		dt_hms_t hms;
+	} __attribute__((packed));
+} __attribute__((packed));
 
 
 /* helpers */

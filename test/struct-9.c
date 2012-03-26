@@ -13,7 +13,9 @@ main(void)
 	}
 
 	CHECK_SIZE(struct dt_t_s, uint64_t);
-	CHECK_SIZE(dt_hms_t, uint64_t);
+	CHECK_SIZE(dt_hms_t, struct {
+		uint64_t foo:56;
+	} __attribute__((packed)));
 	return res;
 }
 
