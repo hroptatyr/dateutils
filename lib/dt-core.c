@@ -142,7 +142,7 @@ static struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {{0}, {0}};
 	const char *sp;
 
 	if ((sp = str) == NULL) {
@@ -212,20 +212,28 @@ __strpdt_std(const char *str, char **ep)
 	}
 try_time:
 	/* and now parse the time */
-	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U || *sp++ != ':') {
+	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
 		sp = str;
 		goto out;
+	} else if (*sp++ != ':') {
+		sp--;
+		goto eval_time;
+	} else if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
+		d.st.m = 0;
+		goto eval_time;
+	} else if (*sp++ != ':') {
+		sp--;
+		goto eval_time;
+	} else if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+		d.st.s = 0;
+	} else if (*sp++ != '.') {
+		sp--;
+		goto eval_time;
+	} else if ((d.st.ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
+		d.st.ns = 0;
+		goto eval_time;
 	}
-	if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U || *sp++ != ':') {
-		sp = str;
-		goto out;
-	}
-	if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
-		sp = str;
-		goto out;
-	}
-
-	d.st.component_set = 1;
+eval_time:
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
