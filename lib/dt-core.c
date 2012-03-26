@@ -441,13 +441,17 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
-	switch (that.d.typ & ~DT_SANDWICH) {
+	switch (DT_SANDWICH_D_TYPE(that.d.typ)) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = ymdhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ymd_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_YMCW:
@@ -455,8 +459,12 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
 		d.sd.w = that.d.ymcw.w;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = ymcwhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ymcw_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_DAISY: {
@@ -464,9 +472,13 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.y = tmp.y;
 		d.sd.m = tmp.m;
 		d.sd.d = tmp.d;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
 			fmt = ymdhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ymd_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	}
@@ -481,18 +493,33 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			d.sd.flags.ab = BIZDA_BEFORE;
 		}
 		d.sd.flags.bizda = 1;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = bizdahms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = bizda_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	}
+	try_time:
 	default:
 	case DT_UNK:
+		if (fmt == NULL && dt_sandwich_only_t_p(that)) {
+			fmt = hms_dflt;
+			break;
+		}
 		bp = buf;
 		goto out;
 	}
 	/* translate high-level format names */
-	__trans_dtfmt(&fmt);
+	if (dt_sandwich_p(that)) {
+		__trans_dtfmt(&fmt);
+	} else if (dt_sandwich_only_d_p(that)) {
+		__trans_dfmt(&fmt);
+	} else if (dt_sandwich_only_t_p(that)) {
+		__trans_tfmt(&fmt);
+	}
 
 	/* now cope with the time part */
 	d.st.h = that.t.hms.h;

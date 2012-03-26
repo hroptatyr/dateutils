@@ -523,14 +523,7 @@ static inline size_t
 dt_io_strfdt(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	if (dt_sandwich_p(that)) {
-		return dt_strfdt(buf, bsz, fmt, that);
-	} else if (dt_sandwich_only_d_p(that)) {
-		return dt_strfd(buf, bsz, fmt, that.d);
-	} else if (dt_sandwich_only_t_p(that)) {
-		return dt_strft(buf, bsz, fmt, that.t);
-	}
-	return 0;
+	return dt_strfdt(buf, bsz, fmt, that);
 }
 
 static inline size_t
