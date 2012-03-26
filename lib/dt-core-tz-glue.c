@@ -59,11 +59,18 @@ __pos_mod(int num, int mod)
 DEFUN struct dt_dt_s
 dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 {
-	dt_daisy_t d = dt_conv_to_daisy(dt.d);
+	dt_dttyp_t tgttyp = dt.typ;
+	dt_daisy_t d;
 	struct dt_dt_s res = dt_dt_initialiser();
-	int32_t d_unix = (d - DAISY_UNIX_BASE) * 86400 +
+	int32_t d_unix;
+	int32_t d_utc;
+
+	/* convert date part to daisy */
+	dt.d.typ = DT_SANDWICH_D_TYPE(dt.typ);
+	d = dt_conv_to_daisy(dt.d);
+	d_unix = (d - DAISY_UNIX_BASE) * 86400 +
 		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-	int32_t d_utc = zif_utc_time(zone, d_unix);
+	d_utc = zif_utc_time(zone, d_unix);
 
 	/* convert the date part back */
 	{
@@ -98,6 +105,7 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 		res.t.hms.ns = dt.t.hms.ns;
 #endif	/* __C1X */
 	}
+	res.typ = tgttyp;
 	return res;
 }
 
@@ -106,11 +114,18 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 DEFUN struct dt_dt_s
 dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 {
-	dt_daisy_t d = dt_conv_to_daisy(dt.d);
+	dt_dttyp_t tgttyp = dt.typ;
+	dt_daisy_t d;
 	struct dt_dt_s res = dt_dt_initialiser();
-	int32_t d_unix = (d - DAISY_UNIX_BASE) * 86400 +
+	int32_t d_unix;
+	int32_t d_loc;
+
+	/* convert date part to daisy */
+	dt.d.typ = DT_SANDWICH_D_TYPE(dt.typ);
+	d = dt_conv_to_daisy(dt.d);
+	d_unix = (d - DAISY_UNIX_BASE) * 86400 +
 		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-	int32_t d_loc = zif_local_time(zone, d_unix);
+	d_loc = zif_local_time(zone, d_unix);
 
 	/* convert the date part back */
 	{
@@ -145,6 +160,7 @@ dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 		res.t.hms.ns = dt.t.hms.ns;
 #endif	/* __C1X */
 	}
+	res.typ = tgttyp;
 	return res;
 }
 

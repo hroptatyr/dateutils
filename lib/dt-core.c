@@ -785,7 +785,7 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
 
-	switch ((res.d.typ = tgttyp)) {
+	switch (DT_SANDWICH_D_TYPE(tgttyp)) {
 	case DT_YMD:
 		res.d.ymd = dt_conv_to_ymd(d.d);
 		break;
@@ -802,6 +802,16 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 	case DT_UNK:
 	default:
 		break;
+	}
+
+	if (dt_sandwich_p(d)) {
+		res.typ = DT_SANDWICH_DT(d.d.typ);
+	} else if (dt_sandwich_only_d_p(d)) {
+		res.typ = DT_SANDWICH_D_ONLY(d.d.typ);
+	} else if (dt_sandwich_only_t_p(d)) {
+		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+	} else {
+		res.typ = DT_SANDWICH_UNK;
 	}
 	return res;
 }
