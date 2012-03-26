@@ -90,19 +90,30 @@ static const char hms_dflt[] = "%H:%M:%S";
 static struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
+#if defined __C1X
+	struct dt_t_s res = {
+		/* assume all's good for now */
+		.typ = DT_HMS,
+	};
+#else
 	struct dt_t_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.typ = DT_HMS;
+#endif	/* __C1X */
 
 	if (UNLIKELY(t.h == -1U)) {
-		t.h = 0;
+		goto fucked;
 	}
 	if (UNLIKELY(t.m == -1U)) {
-		t.m = 0;
+		goto fucked;
 	}
 	if (UNLIKELY(t.s == -1U)) {
-		t.s = 0;
+		goto fucked;
 	}
 	if (UNLIKELY(t.ns == -1U)) {
-		t.ns = 0;
+		goto fucked;
 	}
 
 	res.hms.s = t.s;
@@ -115,6 +126,10 @@ __guess_ttyp(struct strpt_s t)
 		res.hms.h += 12;
 		res.hms.h %= HOURS_PER_DAY;
 	}
+	return res;
+fucked:
+	res.typ = DT_TUNK;
+	res.u = 0;
 	return res;
 }
 

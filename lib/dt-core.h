@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #if defined __cplusplus
 extern "C" {
@@ -62,23 +63,26 @@ extern "C" {
 #include "time-core.h"
 
 typedef enum {
-	DT_SANDWICH = 1,
+	/* the lower date types come from date-core.h */
+	DT_PACK = DT_NTYP,
 	DT_SEXY,
+	/* date AND time sandwich, bitmask */
+	DT_SANDWICH = 16,
 } dt_dttyp_t;
 
-/** sandwiches
- * sandwiches are just packs of dates and times */
+/** packs
+ * packs are just packs of dates and times */
 typedef union {
 	uint64_t u:53;
 	struct {
 #if defined WORDS_BIGENDIAN
 #define DT_YEAR_OFFS	(1900)
 		/* offset by the year 1900 */
-		unsigned int y:8;
+		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int d:5;
 		/* round up to 32 bits, remaining bits are seconds east */
-		unsigned int offs:15;
+		unsigned int offs:11;
 
 		/* time part */
 		unsigned int H:5;
@@ -89,9 +93,9 @@ typedef union {
 		unsigned int m:4;
 		/* offset by the year 1900 */
 #define DT_YEAR_OFFS	(1900)
-		unsigned int y:8;
+		unsigned int y:12;
 		/* round up to 32 bits, remaining bits are seconds east */
-		unsigned int offs:15;
+		unsigned int offs:11;
 
 		/* time part */
 		unsigned int S:8;
@@ -106,23 +110,21 @@ typedef union {
 typedef uint64_t dt_sexy_t;
 #define DT_SEXY_BASE_YEAR	(1917)
 
-/**
- * Collection of all date types. */
-struct __dt_s {
-	/* for parametrised types */
-	dt_dttyp_t typ:9;
-	uint16_t dur:1;
-	uint16_t neg:1;
-	union {
-		uint64_t u:53;
-		dt_ymdhms_t ymdhms;
-		dt_sexy_t sexy:53;
-	};
-} __attribute__((packed));
-
 struct dt_dt_s {
 	union {
-		struct __dt_s x64;
+		/* packs */
+		struct {
+			/* for parametrised types */
+			dt_dttyp_t typ:9;
+			uint16_t dur:1;
+			uint16_t neg:1;
+			union {
+				uint64_t u:53;
+				dt_ymdhms_t ymdhms;
+				dt_sexy_t sexy:53;
+			};
+		} __attribute__((packed));
+		/* sandwich types */
 		struct {
 			struct dt_d_s d;
 			struct dt_t_s t;
@@ -197,7 +199,7 @@ DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
 
 
 /* some useful gimmicks, sort of */
-static struct dt_dt_s
+static inline struct dt_dt_s
 dt_dt_initialiser(void)
 {
 #if defined __C1X
@@ -213,6 +215,29 @@ dt_dt_initialiser(void)
 #endif	/* !__C1X */
 	return res;
 }
+
+static inline bool
+dt_sandwich_p(struct dt_dt_s d)
+{
+	return (d.typ & DT_SANDWICH) && (d.typ & ~DT_SANDWICH) > DT_UNK;
+}
+
+static inline bool
+dt_sandwich_only_d_p(struct dt_dt_s d)
+{
+	return (d.typ & DT_SANDWICH) == 0 && d.typ > DT_UNK;
+}
+
+static inline bool
+dt_sandwich_only_t_p(struct dt_dt_s d)
+{
+	return (d.typ & DT_SANDWICH) && (d.typ & ~DT_SANDWICH) == DT_UNK;
+}
+
+#define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
+#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(DT_SANDWICH | x)
+#define DT_SANDWICH_D_ONLY(x)	(dt_dttyp_t)(x)
+#define DT_SANDWICH_T_ONLY(x)	(dt_dttyp_t)(DT_SANDWICH + DT_UNK)
 
 
 #if defined INCLUDE_DATETIME_CORE_IMPL

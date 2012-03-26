@@ -416,7 +416,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
-	switch (that.d.typ) {
+	switch (that.d.typ & ~DT_SANDWICH) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
@@ -698,18 +698,18 @@ dt_datetime(dt_dtyp_t outtyp)
 		return res;
 	}
 
-	switch ((res.d.typ = outtyp)) {
-	case DT_YMD:
-	case DT_YMCW: {
+	switch ((res.typ = DT_SANDWICH_DT(outtyp))) {
+	case DT_SANDWICH_DT(DT_YMD):
+	case DT_SANDWICH_DT(DT_YMCW): {
 		struct tm tm;
 		ffff_gmtime(&tm, tv.tv_sec);
-		switch (res.d.typ) {
-		case DT_YMD:
+		switch (res.typ) {
+		case DT_SANDWICH_DT(DT_YMD):
 			res.d.ymd.y = tm.tm_year;
 			res.d.ymd.m = tm.tm_mon;
 			res.d.ymd.d = tm.tm_mday;
 			break;
-		case DT_YMCW: {
+		case DT_SANDWICH_DT(DT_YMCW): {
 #if defined __C1X
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
@@ -731,14 +731,14 @@ dt_datetime(dt_dtyp_t outtyp)
 		}
 		break;
 	}
-	case DT_DAISY:
+	case DT_SANDWICH_DT(DT_DAISY):
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
 	default:
-	case DT_MD:
+	case DT_SANDWICH_DT(DT_MD):
 		/* this one doesn't make sense at all */
-	case DT_UNK:
+	case DT_SANDWICH_DT(DT_UNK):
 		break;
 	}
 
