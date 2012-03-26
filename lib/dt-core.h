@@ -197,7 +197,7 @@ DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
 
 
 /* some useful gimmicks, sort of */
-static struct dt_dt_s
+static inline struct dt_dt_s
 dt_dt_initialiser(void)
 {
 #if defined __C1X
