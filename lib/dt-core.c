@@ -416,7 +416,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
-	switch (that.d.typ) {
+	switch (that.d.typ & ~DT_SANDWICH) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;

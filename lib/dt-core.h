@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #if defined __cplusplus
 extern "C" {
@@ -63,13 +64,10 @@ extern "C" {
 
 typedef enum {
 	/* the lower date types come from date-core.h */
-	DT_SANDWICH = DT_NTYP,
-#define DT_ONLY_D	(1)
-	DT_SANDWICH_D,
-#define DT_ONLY_T	(2)
-	DT_SANDWICH_T,
-	DT_PACK,
+	DT_PACK = DT_NTYP,
 	DT_SEXY,
+	/* date AND time sandwich, bitmask */
+	DT_SANDWICH = 16,
 } dt_dttyp_t;
 
 /** packs
@@ -217,6 +215,29 @@ dt_dt_initialiser(void)
 #endif	/* !__C1X */
 	return res;
 }
+
+static inline bool
+dt_sandwich_p(struct dt_dt_s d)
+{
+	return (d.typ & DT_SANDWICH) && (d.typ & ~DT_SANDWICH) > DT_UNK;
+}
+
+static inline bool
+dt_sandwich_only_d_p(struct dt_dt_s d)
+{
+	return (d.typ & DT_SANDWICH) == 0 && d.typ > DT_UNK;
+}
+
+static inline bool
+dt_sandwich_only_t_p(struct dt_dt_s d)
+{
+	return (d.typ & DT_SANDWICH) && (d.typ & ~DT_SANDWICH) == DT_UNK;
+}
+
+#define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
+#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(DT_SANDWICH + x)
+#define DT_SANDWICH_D_ONLY(x)	(dt_dttyp_t)(x)
+#define DT_SANDWICH_T_ONLY(x)	(dt_dttyp_t)(DT_SANDWICH + DT_UNK)
 
 
 #if defined INCLUDE_DATETIME_CORE_IMPL
