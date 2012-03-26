@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
+TOOL=dconv
 CMDLINE="--from-zone Europe/Berlin -z Europe/Berlin -i '%F %T.%N' -f '%T.%N'"
 
 ## STDIN

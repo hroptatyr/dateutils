@@ -67,6 +67,7 @@ typedef enum {
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
+	DT_NTYP,
 } dt_dtyp_t;
 
 #define DT_MIN_YEAR	(0)
@@ -158,8 +159,8 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-		unsigned int d;
-		unsigned int m;
+		unsigned int d:16;
+		unsigned int m:16;
 	};
 } dt_md_t;
 
@@ -167,9 +168,10 @@ typedef union {
  * Collection of all date types. */
 struct dt_d_s {
 	/* for parametrised types */
-	dt_dtyp_t typ:14;
-	uint16_t dur:1;
-	uint16_t neg:1;
+	dt_dtyp_t typ:9;
+	uint32_t dur:1;
+	uint32_t neg:1;
+	uint32_t:5;
 	uint32_t param:16;
 	union {
 		uint32_t u;

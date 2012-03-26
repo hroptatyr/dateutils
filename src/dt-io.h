@@ -28,22 +28,6 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
-static bool
-dt_io_today_p(const char *str)
-{
-	if (str == NULL) {
-		return true;
-	}
-	switch ((char)(*str | 0x20)) {
-	default:
-		return false;
-	case 'n':
-		return strcasecmp(str, "now") == 0;
-	case 't':
-		return strcasecmp(str, "today") == 0;
-	}
-}
-
 static struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
@@ -51,14 +35,24 @@ dt_io_strpdt_ep(
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
+	dt_dttyp_t sandwich_off = DT_SANDWICH_UNK;
 
 	/* init */
 	if (ep) {
 		*ep = NULL;
 	}
-	/* basic sanity check */
-	if (UNLIKELY(dt_io_today_p(str))) {
-		return dt_datetime(DT_YMD);
+	/* basic sanity checks, catch phrases first */
+	if (!strcasecmp(str, "now")) {
+		sandwich_off = DT_SANDWICH_DT(DT_YMD);
+	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
+		sandwich_off = DT_SANDWICH_D_ONLY(DT_YMD);
+	} else if (!strcasecmp(str, "time")) {
+		sandwich_off = DT_SANDWICH_T_ONLY(DT_UNK);
+	}
+	if (sandwich_off > DT_UNK) {
+		res = dt_datetime(DT_YMD);
+		res.typ = (dt_dttyp_t)sandwich_off;
+		return res;
 	} else if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {
@@ -526,10 +520,17 @@ found:
 
 /* formatter */
 static inline size_t
+dt_io_strfdt(
+	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
+{
+	return dt_strfdt(buf, bsz, fmt, that);
+}
+
+static inline size_t
 dt_io_strfdt_autonl(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	size_t res = dt_strfdt(buf, bsz, fmt, that);
+	size_t res = dt_io_strfdt(buf, bsz, fmt, that);
 
 	if (res > 0 && buf[res - 1] != '\n') {
 		/* auto-newline */
@@ -661,7 +662,7 @@ dt_io_write_sed(
 	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
 		d = dtz_enrichz(d, zone);
 	}
-	n = dt_strfdt(buf, sizeof(buf), fmt, d);
+	n = dt_io_strfdt(buf, sizeof(buf), fmt, d);
 	if (sp) {
 		__io_write(line, sp - line, stdout);
 	}

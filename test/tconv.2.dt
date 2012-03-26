@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tconv
+TOOL=dconv
 CMDLINE="-i \"%I:%M:%S %p\" \"11:22:33 PM\""
 
 ## STDIN

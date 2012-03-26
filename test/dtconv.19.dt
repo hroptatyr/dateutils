@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
+TOOL=dconv
 CMDLINE="--from-zone Europe/Berlin -z Europe/Berlin \
 	-i '%F %T.%N' -f '%T.%N' '2012-01-01 00:00:00.123456789'"
 

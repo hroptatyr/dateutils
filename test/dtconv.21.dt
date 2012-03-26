@@ -1,0 +1,10 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="now"
+
+## STDIN
+ 
+## STDOUT
+
+## dtconv.21.dt ends here

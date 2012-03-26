@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
-CMDLINE="2012-03-01"
+TOOL=dconv
+CMDLINE="'2012-03-01 00:00:00'"
 
 ## STDIN
  

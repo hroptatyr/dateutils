@@ -142,7 +142,7 @@ static struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {{0}, {0}};
 	const char *sp;
 
 	if ((sp = str) == NULL) {
@@ -152,7 +152,7 @@ __strpdt_std(const char *str, char **ep)
 	if ((d.sd.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
 	    *sp++ != '-') {
 		sp = str;
-		goto out;
+		goto try_time;
 	}
 	/* read the month */
 	if ((d.sd.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
@@ -208,21 +208,46 @@ __strpdt_std(const char *str, char **ep)
 		break;
 	default:
 		/* that's no good */
-		goto out;
+		goto try_date;
 	}
+try_time:
 	/* and now parse the time */
-	d.st.h = strtoui_lim(sp, &sp, 0, 23);
-	sp++;
-	d.st.m = strtoui_lim(sp, &sp, 0, 59);
-	sp++;
-	d.st.s = strtoui_lim(sp, &sp, 0, 60);
-
-	if (d.st.h < -1U && d.st.m < -1U && d.st.s < -1U) {
-		res.t.hms.h = d.st.h;
-		res.t.hms.m = d.st.m;
-		res.t.hms.s = d.st.s;
+	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
+		sp = str;
+		goto out;
+	} else if (*sp++ != ':') {
+		sp--;
+		goto eval_time;
+	} else if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
+		d.st.m = 0;
+		goto eval_time;
+	} else if (*sp++ != ':') {
+		sp--;
+		goto eval_time;
+	} else if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+		d.st.s = 0;
+	} else if (*sp++ != '.') {
+		sp--;
+		goto eval_time;
+	} else if ((d.st.ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
+		d.st.ns = 0;
+		goto eval_time;
 	}
+eval_time:
+	res.t.hms.h = d.st.h;
+	res.t.hms.m = d.st.m;
+	res.t.hms.s = d.st.s;
+	if (res.d.typ > DT_UNK) {
+		res.typ = DT_SANDWICH_DT(res.d.typ);
+	} else {
+		res.typ = DT_SANDWICH_T_ONLY(res.t.typ);
+	}
+	goto out;
+try_date:
+	/* should be a no-op */
+	res.typ = DT_SANDWICH_D_ONLY(res.d.typ);
 out:
+	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep) {
 		*ep = (char*)sp;
 	}
@@ -396,6 +421,14 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	/* assign d and t types using date core and time core routines */
 	res.d = __guess_dtyp(d.sd);
 	res.t = __guess_ttyp(d.st);
+
+	if (res.d.typ > DT_UNK && res.t.typ > DT_TUNK) {
+		res.typ = DT_SANDWICH_DT(res.d.typ);
+	} else if (res.d.typ > DT_UNK) {
+		res.typ = DT_SANDWICH_D_ONLY(res.d.typ);
+	} else if (res.t.typ > DT_TUNK) {
+		res.typ = DT_SANDWICH_T_ONLY(res.t.typ);
+	}
 out:
 	/* set the end pointer */
 	if (ep) {
@@ -416,13 +449,17 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
-	switch (that.d.typ) {
+	switch (DT_SANDWICH_D_TYPE(that.d.typ)) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = ymdhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ymd_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_YMCW:
@@ -430,8 +467,12 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
 		d.sd.w = that.d.ymcw.w;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = ymcwhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ymcw_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_DAISY: {
@@ -439,9 +480,13 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.y = tmp.y;
 		d.sd.m = tmp.m;
 		d.sd.d = tmp.d;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
 			fmt = ymdhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ymd_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	}
@@ -456,18 +501,33 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			d.sd.flags.ab = BIZDA_BEFORE;
 		}
 		d.sd.flags.bizda = 1;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = bizdahms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = bizda_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	}
+	try_time:
 	default:
 	case DT_UNK:
+		if (fmt == NULL && dt_sandwich_only_t_p(that)) {
+			fmt = hms_dflt;
+			break;
+		}
 		bp = buf;
 		goto out;
 	}
 	/* translate high-level format names */
-	__trans_dtfmt(&fmt);
+	if (dt_sandwich_p(that)) {
+		__trans_dtfmt(&fmt);
+	} else if (dt_sandwich_only_d_p(that)) {
+		__trans_dfmt(&fmt);
+	} else if (dt_sandwich_only_t_p(that)) {
+		__trans_tfmt(&fmt);
+	}
 
 	/* now cope with the time part */
 	d.st.h = that.t.hms.h;
@@ -698,18 +758,18 @@ dt_datetime(dt_dtyp_t outtyp)
 		return res;
 	}
 
-	switch ((res.d.typ = outtyp)) {
-	case DT_YMD:
-	case DT_YMCW: {
+	switch ((res.typ = DT_SANDWICH_DT(outtyp))) {
+	case DT_SANDWICH_DT(DT_YMD):
+	case DT_SANDWICH_DT(DT_YMCW): {
 		struct tm tm;
 		ffff_gmtime(&tm, tv.tv_sec);
-		switch (res.d.typ) {
-		case DT_YMD:
+		switch (res.typ) {
+		case DT_SANDWICH_DT(DT_YMD):
 			res.d.ymd.y = tm.tm_year;
 			res.d.ymd.m = tm.tm_mon;
 			res.d.ymd.d = tm.tm_mday;
 			break;
-		case DT_YMCW: {
+		case DT_SANDWICH_DT(DT_YMCW): {
 #if defined __C1X
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
@@ -731,14 +791,14 @@ dt_datetime(dt_dtyp_t outtyp)
 		}
 		break;
 	}
-	case DT_DAISY:
+	case DT_SANDWICH_DT(DT_DAISY):
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
 	default:
-	case DT_MD:
+	case DT_SANDWICH_DT(DT_MD):
 		/* this one doesn't make sense at all */
-	case DT_UNK:
+	case DT_SANDWICH_DT(DT_UNK):
 		break;
 	}
 
@@ -760,7 +820,7 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
 
-	switch ((res.d.typ = tgttyp)) {
+	switch (DT_SANDWICH_D_TYPE(tgttyp)) {
 	case DT_YMD:
 		res.d.ymd = dt_conv_to_ymd(d.d);
 		break;
@@ -777,6 +837,16 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 	case DT_UNK:
 	default:
 		break;
+	}
+
+	if (dt_sandwich_p(d)) {
+		res.typ = DT_SANDWICH_DT(d.d.typ);
+	} else if (dt_sandwich_only_d_p(d)) {
+		res.typ = DT_SANDWICH_D_ONLY(d.d.typ);
+	} else if (dt_sandwich_only_t_p(d)) {
+		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+	} else {
+		res.typ = DT_SANDWICH_UNK;
 	}
 	return res;
 }

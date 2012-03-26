@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tconv
+TOOL=dconv
 CMDLINE="12:03:01"
 
 ## STDIN

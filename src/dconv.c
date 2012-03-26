@@ -1,4 +1,4 @@
-/*** dconv.c -- convert calendrical systems
+/*** dconv.c -- convert calendrical and time stamp systems
  *
  * Copyright (C) 2011-2012 Sebastian Freundt
  *
@@ -42,8 +42,9 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include "date-core.h"
-#include "date-io.h"
+#include "dt-core.h"
+#include "dt-io.h"
+#include "tzraw.h"
 #include "prchunk.h"
 
 
@@ -53,8 +54,8 @@
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
-#include "dconv-clo.h"
-#include "dconv-clo.c"
+#include "dtconv-clo.h"
+#include "dtconv-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
@@ -70,6 +71,8 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
+	zif_t fromz = NULL;
+	zif_t z = NULL;
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
@@ -86,15 +89,24 @@ main(int argc, char *argv[])
 		}
 	}
 
+	/* try and read the from and to time zones */
+	if (argi->from_zone_given) {
+		fromz = zif_read_inst(argi->from_zone_arg);
+	}
+	if (argi->zone_given) {
+		z = zif_read_inst(argi->zone_arg);
+	}
+
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {
 			const char *inp = argi->inputs[i];
-			struct dt_d_s d;
+			struct dt_dt_s d;
 
-			if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK) {
-				dt_io_write(d, ofmt);
+			if ((d = dt_io_strpdt(inp, fmt, nfmt, fromz))
+			    .d.typ > DT_UNK) {
+				dt_io_write(d, ofmt, z);
 			} else if (!argi->quiet_given) {
-				dt_io_warn_strpd(inp);
+				dt_io_warn_strpdt(inp);
 			}
 		}
 	} else {
@@ -125,29 +137,29 @@ main(int argc, char *argv[])
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen;
-				struct dt_d_s d;
+				struct dt_dt_s d;
 				const char *sp = NULL;
 				const char *ep = NULL;
 
 				llen = prchunk_getline(pctx, &line);
 				/* check if line matches */
-				d = dt_io_find_strpd2(
+				d = dt_io_find_strpdt2(
 					line, &ndlsoa,
-					(char**)&sp, (char**)&ep);
+					(char**)&sp, (char**)&ep, fromz);
 
 				/* finish with newline again */
 				line[llen] = '\n';
 
-				if (d.typ && argi->sed_mode_given) {
+				if (d.d.typ && argi->sed_mode_given) {
 					dt_io_write_sed(
 						d, ofmt,
-						line, llen + 1, sp, ep);
-				} else if (d.typ) {
-					dt_io_write(d, ofmt);
+						line, llen + 1, sp, ep, z);
+				} else if (d.d.typ) {
+					dt_io_write(d, ofmt, z);
 				} else if (argi->sed_mode_given) {
 					__io_write(line, llen + 1, stdout);
 				} else if (!argi->quiet_given) {
-					dt_io_warn_strpd(line);
+					dt_io_warn_strpdt(line);
 				}
 			}
 		}

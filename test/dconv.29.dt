@@ -1,0 +1,10 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="today"
+
+## STDIN
+ 
+## STDOUT
+
+## dconv.29.dt ends here

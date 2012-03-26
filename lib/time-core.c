@@ -69,8 +69,15 @@ struct strpt_s {
 	unsigned int m;
 	unsigned int s;
 	unsigned int ns;
-	unsigned int flags;
-#define STRPT_AM_PM_BIT	(1U)
+	union {
+		unsigned int flags;
+		struct {
+			/* 0 for am, 1 for pm */
+			unsigned int am_pm_bit:1;
+			/* 0 if no component has been set, 1 otherwise */
+			unsigned int component_set:1;
+		};
+	};
 };
 
 
@@ -90,19 +97,33 @@ static const char hms_dflt[] = "%H:%M:%S";
 static struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
+#if defined __C1X
+	struct dt_t_s res = {
+		/* assume all's good for now */
+		.typ = DT_HMS,
+	};
+#else
 	struct dt_t_s res;
+#endif	/* __C1X */
 
+#if !defined __C1X
+	res.typ = DT_HMS;
+#endif	/* __C1X */
+
+	if (UNLIKELY(!t.component_set)) {
+		goto fucked;
+	}
 	if (UNLIKELY(t.h == -1U)) {
-		t.h = 0;
+		goto fucked;
 	}
 	if (UNLIKELY(t.m == -1U)) {
-		t.m = 0;
+		goto fucked;
 	}
 	if (UNLIKELY(t.s == -1U)) {
-		t.s = 0;
+		goto fucked;
 	}
 	if (UNLIKELY(t.ns == -1U)) {
-		t.ns = 0;
+		goto fucked;
 	}
 
 	res.hms.s = t.s;
@@ -110,11 +131,15 @@ __guess_ttyp(struct strpt_s t)
 	res.hms.h = t.h;
 	res.hms.ns = t.ns;
 
-	if (t.flags & STRPT_AM_PM_BIT) {
+	if (t.am_pm_bit) {
 		/* pm */
 		res.hms.h += 12;
 		res.hms.h %= HOURS_PER_DAY;
 	}
+	return res;
+fucked:
+	res.typ = DT_TUNK;
+	res.u = 0;
 	return res;
 }
 
@@ -175,7 +200,7 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			;
 		} else if ((sp[0] | casebit) == 'p' &&
 			   (sp[1] | casebit) == 'm') {
-			d->flags |= STRPT_AM_PM_BIT;
+			d->am_pm_bit = 1;
 		} else {
 			res = -1;
 		}
@@ -203,6 +228,8 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	    d->s == -1U ||
 	    d->ns == -1U) {
 		res = -1;
+	} else {
+		d->component_set = 1;
 	}
 	/* assign end pointer */
 	if (ep) {

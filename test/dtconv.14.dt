@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=dtconv
+TOOL=dconv
 CMDLINE="--from-zone America/Chicago -z Europe/Berlin '2012-03-01 12:00' -i '%F %H:%M' -f '%F %T'"
 
 ## STDIN

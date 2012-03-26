@@ -1,14 +1,14 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="'2012-03-01 07:05:06' --zone America/Chicago"
+CMDLINE="'2012-03-01 07:00'"
 
 ## STDIN
- 
+
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2012-03-01T01:05:06
+2012-03-01T07:00:00
 EOF
 
-## dtconv.6.dt ends here
+## dtconv.23.dt ends here
