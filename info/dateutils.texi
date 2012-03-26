@@ -60,12 +60,11 @@ arise when dealing with large amounts of financial data.
 * dadd::                Add durations to dates
 * ddiff::               Compute durations from dates
 * dgrep::               Find date matches in input stream
-* dseq::                Generate sequences of dates
+* dseq::                Generate sequences of dates or times
 * dtest::               Compare dates
 * tadd::                Add durations to times
 * tdiff::               Compute durations between times
 * tgrep::               Find time matches in input stream
-* tseq::                Generate sequences of times
 * ttest::               Compare times
 @end menu
 
@@ -189,7 +188,6 @@ this month's ultimo.
 @include tadd.texi
 @include tdiff.texi
 @include tgrep.texi
-@include tseq.texi
 @include ttest.texi
 
 @summarycontents
