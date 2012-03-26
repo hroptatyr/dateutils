@@ -152,7 +152,7 @@ __strpdt_std(const char *str, char **ep)
 	if ((d.sd.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
 	    *sp++ != '-') {
 		sp = str;
-		goto out;
+		goto try_time;
 	}
 	/* read the month */
 	if ((d.sd.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
@@ -208,21 +208,38 @@ __strpdt_std(const char *str, char **ep)
 		break;
 	default:
 		/* that's no good */
+		goto try_date;
+	}
+try_time:
+	/* and now parse the time */
+	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U || *sp++ != ':') {
+		sp = str;
 		goto out;
 	}
-	/* and now parse the time */
-	d.st.h = strtoui_lim(sp, &sp, 0, 23);
-	sp++;
-	d.st.m = strtoui_lim(sp, &sp, 0, 59);
-	sp++;
-	d.st.s = strtoui_lim(sp, &sp, 0, 60);
-
-	if (d.st.h < -1U && d.st.m < -1U && d.st.s < -1U) {
-		res.t.hms.h = d.st.h;
-		res.t.hms.m = d.st.m;
-		res.t.hms.s = d.st.s;
+	if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U || *sp++ != ':') {
+		sp = str;
+		goto out;
 	}
+	if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+		sp = str;
+		goto out;
+	}
+
+	d.st.component_set = 1;
+	res.t.hms.h = d.st.h;
+	res.t.hms.m = d.st.m;
+	res.t.hms.s = d.st.s;
+	if (res.d.typ > DT_UNK) {
+		res.typ = DT_SANDWICH_DT(res.d.typ);
+	} else {
+		res.typ = DT_SANDWICH_T_ONLY(res.t.typ);
+	}
+	goto out;
+try_date:
+	/* should be a no-op */
+	res.typ = DT_SANDWICH_D_ONLY(res.d.typ);
 out:
+	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep) {
 		*ep = (char*)sp;
 	}
