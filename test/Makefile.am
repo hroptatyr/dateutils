@@ -179,6 +179,8 @@ dt_tests += dtconv.18.dt
 dt_tests += dtconv.19.dt
 dt_tests += dtconv.20.dt
 dt_tests += dtconv.21.dt
+dt_tests += dtconv.22.dt
+dt_tests += dtconv.23.dt
 
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
