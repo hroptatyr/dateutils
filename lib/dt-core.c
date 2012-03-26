@@ -396,6 +396,14 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	/* assign d and t types using date core and time core routines */
 	res.d = __guess_dtyp(d.sd);
 	res.t = __guess_ttyp(d.st);
+
+	if (res.d.typ > DT_UNK && res.t.typ > DT_TUNK) {
+		res.typ = DT_SANDWICH_DT(res.d.typ);
+	} else if (res.d.typ > DT_UNK) {
+		res.typ = DT_SANDWICH_D_ONLY(res.d.typ);
+	} else if (res.t.typ > DT_TUNK) {
+		res.typ = DT_SANDWICH_T_ONLY(res.t.typ);
+	}
 out:
 	/* set the end pointer */
 	if (ep) {
