@@ -320,9 +320,10 @@ __seq_this(struct dt_dt_s now, struct dseq_clo_s *clo)
 	} else if (clo->naltite > 0) {
 		return __seq_altnext(now, clo);
 	} else if (clo->nite) {
-		do {
-			now = date_add(now, clo->ite, clo->nite);
-		} while (skipp(clo->ss, now) && __in_range_p(now, clo));
+		/* advance until it goes out of range */
+		for (;
+		     skipp(clo->ss, now) && __in_range_p(now, clo);
+		     now = date_add(now, clo->ite, clo->nite));
 	} else {
 		/* good question */
 		;
