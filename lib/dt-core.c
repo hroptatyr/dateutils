@@ -655,6 +655,18 @@ dt_strpdtdur(const char *str, char **ep)
 		 * cover them better */
 		goto dflt;
 	}
+	/* assess more */
+	if ((d.st.s || d.st.m || d.st.h) &&
+	    res.d.typ == DT_YMD &&
+	    d.st.s == d.sd.d &&
+	    d.st.m == d.sd.m &&
+	    d.sd.y == 0 && d.sd.b == 0 && d.sd.q == 0 && d.sd.w == 0) {
+		/* we upmoted the type erroneously */
+		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+		res.t.sdur = d.st.h * SECS_PER_HOUR +
+			d.st.m * SECS_PER_MIN +
+			d.st.s;
+	}
 out:
 	if (ep) {
 		*ep = (char*)sp;
