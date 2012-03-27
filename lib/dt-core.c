@@ -897,7 +897,6 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 /* for the moment D1 and D2 have to be of the same type. */
 	if (UNLIKELY(d1.typ != d2.typ)) {
 		/* always equal */
-		fprintf(stderr, "type mismatch %u v %u\n", d1.typ, d2.typ);
 		return -2;
 	}
 	/* go through it hierarchically and without upmotes */
