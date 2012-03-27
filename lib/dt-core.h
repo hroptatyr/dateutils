@@ -197,6 +197,17 @@ DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
  * Convert D to another calendric system, specified by TGTTYP. */
 DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
 
+/**
+ * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
+ * 1 if D1 is younger than the D2. */
+DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
+
+/**
+ * Check if D is in the interval spanned by D1 and D2,
+ * 1 if D1 is younger than the D2. */
+DECLF int
+dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_dt_s

@@ -851,6 +851,43 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 	return res;
 }
 
+
+DEFUN int
+dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
+{
+/* for the moment D1 and D2 have to be of the same type. */
+	if (UNLIKELY(d1.typ != d2.typ)) {
+		/* always the left one */
+		return -2;
+	}
+	switch (d1.typ) {
+	case DT_UNK:
+	default:
+		return -2;
+	case DT_YMD:
+	case DT_DAISY:
+	case DT_BIZDA:
+		/* use arithmetic comparison */
+		if (d1.u == d2.u) {
+			return 0;
+		} else if (d1.u < d2.u) {
+			return -1;
+		} else /*if (d1.u > d2.u)*/ {
+			return 1;
+		}
+	case DT_YMCW:
+		/* use designated thing since ymcw dates aren't
+		 * increasing */
+		return __ymcw_cmp(d1.d.ymcw, d2.d.ymcw);
+	}
+}
+
+DEFUN int
+dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
+{
+	return dt_dtcmp(d, d1) >= 0 && dt_dtcmp(d, d2) <= 0;
+}
+
 #if defined __INTEL_COMPILER
 # pragma warning (default:2203)
 #elif defined __GNUC__
