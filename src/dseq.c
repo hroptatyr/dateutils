@@ -342,9 +342,17 @@ __get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
 {
 	struct dt_dt_s tmp;
 
-	/* trial addition to to see where it goes */
-	tmp = __seq_next(d, clo);
-	return dt_dtcmp(tmp, d);
+	if (!dt_sandwich_only_t_p(d)) {
+		/* trial addition to to see where it goes */
+		tmp = __seq_next(d, clo);
+		return dt_dtcmp(tmp, d);
+	}
+	if (clo->ite->t.sdur && !clo->ite->t.neg) {
+		return 1;
+	} else if (clo->ite->t.sdur && clo->ite->t.neg) {
+		return -1;
+	}
+	return 0;
 }
 
 static struct dt_dt_s
