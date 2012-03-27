@@ -54,8 +54,8 @@
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 #endif	/* __INTEL_COMPILER */
-#include "dtconv-clo.h"
-#include "dtconv-clo.c"
+#include "dconv-clo.h"
+#include "dconv-clo.c"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			perror("dtconv: could not open stdin");
+			perror("dconv: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {
