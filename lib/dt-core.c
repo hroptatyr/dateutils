@@ -840,9 +840,9 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 	}
 
 	if (dt_sandwich_p(d)) {
-		res.typ = DT_SANDWICH_DT(d.d.typ);
+		res.typ = DT_SANDWICH_DT(tgttyp);
 	} else if (dt_sandwich_only_d_p(d)) {
-		res.typ = DT_SANDWICH_D_ONLY(d.d.typ);
+		res.typ = DT_SANDWICH_D_ONLY(tgttyp);
 	} else if (dt_sandwich_only_t_p(d)) {
 		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
 	} else {
