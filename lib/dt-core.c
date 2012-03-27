@@ -599,6 +599,11 @@ dt_strpdtdur(const char *str, char **ep)
 	case 'm':
 	case 'M':
 		d.sd.m = tmp;
+		if (*sp == 'o') {
+			/* that makes it unique */
+			sp++;
+			break;
+		}
 	case '\'':
 		/* could stand for minute, so just to be sure ... */
 		d.st.m = tmp;
