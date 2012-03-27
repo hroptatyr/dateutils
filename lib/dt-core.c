@@ -871,28 +871,48 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 {
 /* for the moment D1 and D2 have to be of the same type. */
 	if (UNLIKELY(d1.typ != d2.typ)) {
-		/* always the left one */
+		/* always equal */
+		fprintf(stderr, "type mismatch %u v %u\n", d1.typ, d2.typ);
 		return -2;
 	}
-	switch (d1.typ) {
+	/* go through it hierarchically and without upmotes */
+	switch (DT_SANDWICH_D_TYPE(d1.typ)) {
 	case DT_UNK:
 	default:
-		return -2;
+		goto try_time;
 	case DT_YMD:
 	case DT_DAISY:
 	case DT_BIZDA:
 		/* use arithmetic comparison */
-		if (d1.u == d2.u) {
-			return 0;
-		} else if (d1.u < d2.u) {
+		if (d1.d.u < d2.d.u) {
 			return -1;
-		} else /*if (d1.u > d2.u)*/ {
+		} else if (d1.d.u > d2.d.u) {
 			return 1;
+		} else {
+			/* means they're equal, so try the time part */
+			goto try_time;
 		}
-	case DT_YMCW:
+	case DT_YMCW: {
 		/* use designated thing since ymcw dates aren't
 		 * increasing */
-		return __ymcw_cmp(d1.d.ymcw, d2.d.ymcw);
+		int res = __ymcw_cmp(d1.d.ymcw, d2.d.ymcw);
+		if (res == 0) {
+			goto try_time;
+		}
+		return res;
+	}
+	}
+try_time:
+	switch (DT_SANDWICH_T_TYPE(d1.typ)) {
+	case DT_HMS:
+		if (d1.t.hms.u < d2.t.hms.u) {
+			return -1;
+		} else if (d1.t.hms.u > d2.t.hms.u) {
+			return 1;
+		}
+	case DT_TUNK:
+	default:
+		return 0;
 	}
 }
 
