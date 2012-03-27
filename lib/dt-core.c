@@ -785,8 +785,7 @@ DEFUN struct dt_dt_s
 dt_neg_dtdur(struct dt_dt_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
-	/* time durations need manual fiddling */
-	dur.t.sdur = -dur.t.sdur;
+	dur.t.neg = (uint16_t)(~dur.t.neg & 0x01);
 	return dur;
 }
 
@@ -910,6 +909,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		d.t = dt_tadd(d.t, dur.t);
 		/* capture the over/under-flow */
 		carry = dur.t.sdur / SECS_PER_DAY;
+		if (dur.t.neg) {
+			carry = -carry;
+		}
 	}
 	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
 		/* slight optimisation if dur typ is daisy */
