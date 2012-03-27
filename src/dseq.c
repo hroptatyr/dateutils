@@ -44,25 +44,19 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
-#include "date-core.h"
-#include "date-io.h"
-
-/* idates are normally just YYYYMMDD just in an integer, but we haven't
- * switched to that system yet */
-typedef int32_t idate_t;
-/* iddurs are normally YYYYMMWWDD durations just in an integer, but we
- * haven't switched to that system yet */
-typedef int32_t iddur_t;
+#include "dt-core.h"
+#include "dt-io.h"
+#include "tzraw.h"
 
 typedef uint8_t __skipspec_t;
 
 /* generic closure */
 struct dseq_clo_s {
-	struct dt_d_s fst;
-	struct dt_d_s lst;
-	struct dt_d_s *ite;
+	struct dt_dt_s fst;
+	struct dt_dt_s lst;
+	struct dt_dt_s *ite;
 	size_t nite;
-	struct dt_d_s *altite;
+	struct dt_dt_s *altite;
 	__skipspec_t ss;
 	size_t naltite;
 	/* direction, >0 if increasing, <0 if decreasing, 0 if undefined */
@@ -74,14 +68,14 @@ struct dseq_clo_s {
 
 /* skip system */
 static int
-skipp(__skipspec_t ss, struct dt_d_s dt)
+skipp(__skipspec_t ss, struct dt_dt_s dt)
 {
 	dt_dow_t dow;
 	/* common case first */
 	if (ss == 0) {
 		return 0;
 	}
-	dow = dt_get_wday(dt);
+	dow = dt_get_wday(dt.d);
 	/* just check if the bit in the bitset `skip' is set */
 	return (ss & (1 << dow)) != 0;
 }
@@ -235,46 +229,45 @@ set_skip(__skipspec_t ss, char *spec)
 	return __skip_1spec(ss, tm2);
 }
 
-static struct dt_d_s
-date_add(struct dt_d_s d, struct dt_d_s dur[], size_t ndur)
+static struct dt_dt_s
+date_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 {
-	d = dt_dadd(d, dur[0]);
-	for (size_t i = 1; i < ndur; i++) {
-		d = dt_dadd(d, dur[i]);
+	for (size_t i = 0; i < ndur; i++) {
+		d = dt_dtadd(d, dur[i]);
 	}
 	return d;
 }
 
 static void
-date_neg_dur(struct dt_d_s dur[], size_t ndur)
+date_neg_dur(struct dt_dt_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		dur[i] = dt_neg_dur(dur[i]);
+		dur[i].d = dt_neg_dur(dur[i].d);
 	}
 	return;
 }
 
 static bool
-__daisy_feasible_p(struct dt_d_s dur[], size_t ndur)
+__daisy_feasible_p(struct dt_dt_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->typ == DT_YMD && dur->ymd.m) {
+	} else if (dur->typ == DT_YMD && dur->d.ymd.m) {
 		return false;
-	} else if (dur->typ == DT_BIZDA && (dur->bizda.bd)) {
+	} else if (dur->typ == DT_BIZDA && (dur->d.bizda.bd)) {
 		return false;
 	}
 	return true;
 }
 
 static bool
-__dur_naught_p(struct dt_d_s dur)
+__dur_naught_p(struct dt_dt_s dur)
 {
-	return dur.u == 0;
+	return dur.d.u == 0 && dur.t.sdur == 0;
 }
 
 static bool
-__durstack_naught_p(struct dt_d_s dur[], size_t ndur)
+__durstack_naught_p(struct dt_dt_s dur[], size_t ndur)
 {
 	if (ndur == 0) {
 		return true;
@@ -290,14 +283,14 @@ __durstack_naught_p(struct dt_d_s dur[], size_t ndur)
 }
 
 static bool
-__in_range_p(struct dt_d_s now, struct dseq_clo_s *clo)
+__in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
-	return (dt_in_range_p(now, clo->fst, clo->lst) ||
-		dt_in_range_p(now, clo->lst, clo->fst));
+	return (dt_dt_in_range_p(now, clo->fst, clo->lst) ||
+		dt_dt_in_range_p(now, clo->lst, clo->fst));
 }
 
-static struct dt_d_s
-__seq_altnext(struct dt_d_s now, struct dseq_clo_s *clo)
+static struct dt_dt_s
+__seq_altnext(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
 	do {
 		now = date_add(now, clo->altite, clo->naltite);
@@ -305,8 +298,8 @@ __seq_altnext(struct dt_d_s now, struct dseq_clo_s *clo)
 	return now;
 }
 
-static struct dt_d_s
-__seq_this(struct dt_d_s now, struct dseq_clo_s *clo)
+static struct dt_dt_s
+__seq_this(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
 /* if NOW is on a skip date, find the next date according to ALTITE, then ITE */
 	if (!skipp(clo->ss, now) && __in_range_p(now, clo)) {
@@ -324,58 +317,28 @@ __seq_this(struct dt_d_s now, struct dseq_clo_s *clo)
 	return now;
 }
 
-static struct dt_d_s
-__seq_next(struct dt_d_s now, struct dseq_clo_s *clo)
+static struct dt_dt_s
+__seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
 /* advance NOW, then fix it */
 	return __seq_this(date_add(now, clo->ite, clo->nite), clo);
 }
 
 static int
-__get_dir(struct dt_d_s d, struct dseq_clo_s *clo)
+__get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
 {
-	struct dt_d_s tmp;
+	struct dt_dt_s tmp;
 
 	/* trial addition to to see where it goes */
 	tmp = __seq_next(d, clo);
-	return dt_cmp(tmp, d);
+	return dt_dtcmp(tmp, d);
 }
 
-#if 0
-static bool
-__ite_1step_p(struct dt_dur_s d)
-{
-	switch (d.typ) {
-	case DT_DUR_MD:
-		if (d.md.m == 0 &&
-		    (d.md.d == 1 || d.md.d == -1)) {
-			return true;
-		}
-		break;
-	case DT_DUR_WD:
-		if (d.wd.w == 0 &&
-		    (d.wd.d == 1 || d.wd.d == -1)) {
-			return true;
-		}
-		break;
-	case DT_DUR_QMB:
-		if (d.qmb.q == 0 && d.qmb.m == 0 &&
-		    (d.qmb.b == 1 || d.qmb.b == -1)) {
-			return true;
-		}
-		break;
-	default:
-		break;
-	}
-	return false;
-}
-#endif
-
-static struct dt_d_s
+static struct dt_dt_s
 __fixup_fst(struct dseq_clo_s *clo)
 {
-	struct dt_d_s tmp;
-	struct dt_d_s old;
+	struct dt_dt_s tmp;
+	struct dt_dt_s old;
 
 	/* assume clo->dir has been computed already */
 	old = tmp = clo->lst;
@@ -390,6 +353,41 @@ __fixup_fst(struct dseq_clo_s *clo)
 	/* fixup again with negated dur */
 	old = __seq_this(old, clo);
 	return old;
+}
+
+static struct dt_t_s
+tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
+{
+#if defined __C1X
+	struct dt_t_s res = {.s = 0};
+#else
+	struct dt_t_s res;
+	res.s = 0;
+#endif
+
+	if (beg.hms.h != end.hms.h &&
+	    beg.hms.m == 0 && end.hms.m == 0&&
+	    beg.hms.s == 0 && end.hms.s == 0) {
+		if (beg.u < end.u) {
+			res.sdur = SECS_PER_HOUR;
+		} else {
+			res.sdur = -SECS_PER_HOUR;
+		}
+	} else if (beg.hms.m != end.hms.m &&
+		   beg.hms.s == 0 && end.hms.s == 0) {
+		if (beg.u < end.u) {
+			res.sdur = SECS_PER_MIN;
+		} else {
+			res.sdur = -SECS_PER_MIN;
+		}
+	} else {
+		if (beg.u < end.u) {
+			res.sdur = 1L;
+		} else {
+			res.sdur = -1L;
+		}
+	}
+	return res;
 }
 
 
@@ -411,15 +409,9 @@ __fixup_fst(struct dseq_clo_s *clo)
 int
 main(int argc, char *argv[])
 {
-#if defined __C1X
-	static struct dt_d_s ite_p1 = {
-		.typ = DT_DAISY, .daisy = 1
-	};
-#else
-	static struct dt_d_s ite_p1;
-#endif
+	static struct dt_dt_s ite_p1;
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s tmp;
+	struct dt_dt_s tmp;
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
@@ -433,12 +425,6 @@ main(int argc, char *argv[])
 		.dir = 0,
 		.flags = 0,
 	};
-
-#if !defined __C1X
-	/* set up static ite_p1 which the compiler failed to do above */
-	ite_p1.typ = DT_DAISY;
-	ite_p1.daisy = 1;
-#endif
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, NULL);
@@ -459,11 +445,11 @@ main(int argc, char *argv[])
 	}
 
 	if (argi->alt_inc_given) {
-		struct __strpdur_st_s st = {0};
+		struct __strpdtdur_st_s st = {0};
 
 		unfixup_arg(argi->alt_inc_arg);
 		do {
-			if (dt_io_strpdur(&st, argi->alt_inc_arg) < 0) {
+			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
 				if (!argi->quiet_given) {
 					fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", argi->alt_inc_arg);
@@ -471,73 +457,100 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 				res = 1;
 				goto out;
 			}
-		} while (__strpdur_more_p(&st));
+		} while (__strpdtdur_more_p(&st));
 		/* assign values */
 		clo.altite = st.durs;
 		clo.naltite = st.ndurs;
 	}
 
 	switch (argi->inputs_num) {
-		struct dt_d_s fst, lst;
+		struct dt_dt_s fst, lst;
 	default:
 		cmdline_parser_print_help();
 		res = 1;
 		goto out;
-	case 1:
-		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
-			if (!argi->quiet_given) {
-				dt_io_warn_strpd(argi->inputs[0]);
-			}
-			res = 1;
-			goto out;
-		}
-		lst = dt_date(DT_YMD);
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
+
 	case 2:
-		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
+		if (!(lst = dt_io_strpdt(
+			      argi->inputs[1], ifmt, nifmt, NULL)).typ) {
 			if (!argi->quiet_given) {
-				dt_io_warn_strpd(argi->inputs[0]);
+				dt_io_warn_strpdt(argi->inputs[1]);
 			}
 			res = 1;
 			goto out;
 		}
-		if (!(lst = dt_io_strpd(argi->inputs[1], ifmt, nifmt)).typ) {
+		/* fallthrough */
+	case 1:
+		if (!(fst = dt_io_strpdt(
+			      argi->inputs[0], ifmt, nifmt, NULL)).typ) {
 			if (!argi->quiet_given) {
-				dt_io_warn_strpd(argi->inputs[1]);
+				dt_io_warn_strpdt(argi->inputs[0]);
 			}
 			res = 1;
 			goto out;
 		}
+
+		/* check the input arguments and do the sane thing now
+		 * if it's all dates, use daisy iterator
+		 * if it's all times, use sdur iterator
+		 * if one of them is a dt, promote the other */
+		if (dt_sandwich_only_d_p(fst)) {
+			/* emulates old dseq(1) */
+			if (argi->inputs_num == 1) {
+				lst.d = dt_date(DT_YMD);
+			}
+
+			ite_p1.typ = DT_SANDWICH_D_ONLY(DT_DAISY);
+			ite_p1.d.daisy = 1;
+		} else if (dt_sandwich_only_t_p(fst)) {
+			/* emulates old tseq(1) */
+			if (argi->inputs_num == 1) {
+				lst.t = dt_time();
+			}
+		} else if (dt_sandwich_p(fst)) {
+			if (argi->inputs_num == 1) {
+				lst = dt_datetime(DT_YMD);
+			}
+
+			ite_p1.typ = DT_SANDWICH_DT(DT_DAISY);
+			ite_p1.d.daisy = 1;
+		} else {
+			fputs("\
+don't know how to handle single argument case\n", stderr);
+			res = 1;
+			goto out;
+		}
+
 		clo.fst = fst;
 		clo.lst = lst;
 		break;
 	case 3: {
-		struct __strpdur_st_s st = {0};
-		if (!(fst = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ) {
+		struct __strpdtdur_st_s st = {0};
+		if (!(fst = dt_io_strpdt(
+			      argi->inputs[0], ifmt, nifmt, NULL)).typ) {
 			if (!argi->quiet_given) {
-				dt_io_warn_strpd(argi->inputs[0]);
+				dt_io_warn_strpdt(argi->inputs[0]);
 			}
 			res = 1;
 			goto out;
 		}
 		unfixup_arg(argi->inputs[1]);
 		do {
-			if (dt_io_strpdur(&st, argi->inputs[1]) < 0) {
+			if (dt_io_strpdtdur(&st, argi->inputs[1]) < 0) {
 				fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", argi->inputs[1]);
 				res = 1;
 				goto out;
 			}
-		} while (__strpdur_more_p(&st));
+		} while (__strpdtdur_more_p(&st));
 		/* assign values */
 		clo.ite = st.durs;
 		clo.nite = st.ndurs;
 		clo.flags |= CLO_FL_FREE_ITE;
-		if (!(lst = dt_io_strpd(argi->inputs[2], ifmt, nifmt)).typ) {
+		if (!(lst = dt_io_strpdt(
+			      argi->inputs[2], ifmt, nifmt, NULL)).typ) {
 			if (!argi->quiet_given) {
-				dt_io_warn_strpd(argi->inputs[2]);
+				dt_io_warn_strpdt(argi->inputs[2]);
 			}
 			res = 1;
 			goto out;
@@ -548,18 +561,48 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	}
 	}
 
+	/* promote the args maybe */
+	if ((dt_sandwich_only_d_p(clo.fst) && dt_sandwich_only_t_p(clo.lst)) ||
+	    (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_only_d_p(clo.lst))) {
+		fputs("\
+cannot mix dates and times as arguments\n", stderr);
+		res = 1;
+		goto out;
+	} else if (dt_sandwich_only_d_p(clo.fst) && dt_sandwich_p(clo.lst)) {
+		/* promote clo.fst */
+		clo.fst.t = clo.lst.t;
+		clo.fst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+	} else if (dt_sandwich_p(clo.fst) && dt_sandwich_only_d_p(clo.lst)) {
+		/* promote clo.lst */
+		clo.fst.t = clo.lst.t;
+		clo.fst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+	} else if (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_p(clo.lst)) {
+		/* promote clo.fst */
+		clo.fst.d = clo.lst.d;
+		clo.fst.typ = DT_SANDWICH_DT(clo.lst.d.typ);
+	} else if (dt_sandwich_p(clo.fst) && dt_sandwich_only_t_p(clo.lst)) {
+		/* promote clo.lst */
+		clo.lst.d = clo.fst.d;
+		clo.lst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+	}
+
 	/* convert to daisies */
-	if (__daisy_feasible_p(clo.ite, clo.nite) &&
-	    ((clo.fst = dt_conv(DT_DAISY, clo.fst)).typ != DT_DAISY ||
-	     (clo.lst = dt_conv(DT_DAISY, clo.lst)).typ != DT_DAISY)) {
+	if (dt_sandwich_only_d_p(clo.fst) &&
+	    __daisy_feasible_p(clo.ite, clo.nite) &&
+	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).typ != DT_DAISY ||
+	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).typ != DT_DAISY)) {
 		if (!argi->quiet_given) {
 			fputs("\
 cannot convert calendric system internally\n", stderr);
 		}
 		res = 1;
 		goto out;
-	} else if (__durstack_naught_p(clo.ite, clo.nite) ||
-		   (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
+	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->t.sdur == 0) {
+		clo.ite->t = tseq_guess_ite(clo.fst.t, clo.lst.t);
+	}
+
+	if (__durstack_naught_p(clo.ite, clo.nite) ||
+	    (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_given) {
 			fputs("\
 increment must not be naught\n", stderr);
@@ -573,7 +616,7 @@ increment must not be naught\n", stderr);
 	}
 
 	while (__in_range_p(tmp, &clo)) {
-		dt_io_write(tmp, ofmt);
+		dt_io_write(tmp, ofmt, NULL);
 		tmp = __seq_next(tmp, &clo);
 	}
 
