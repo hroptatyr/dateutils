@@ -586,9 +586,6 @@ dt_strpdtdur(const char *str, char **ep)
 	case '\0':
 		/* must have been day then */
 		d.sd.d = tmp;
-	case '"':
-		/* could also stand for second, so update this as well */
-		d.st.s = tmp;
 		sp--;
 		break;
 	case 'd':
@@ -625,6 +622,9 @@ dt_strpdtdur(const char *str, char **ep)
 		break;
 	case 's':
 	case 'S':
+	case '"':
+		/* could also stand for second, so update this as well */
+		d.st.s = tmp;
 		d.st.s = tmp;
 		break;
 
