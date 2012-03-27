@@ -285,8 +285,21 @@ __durstack_naught_p(struct dt_dt_s dur[], size_t ndur)
 static bool
 __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
-	return (dt_dt_in_range_p(now, clo->fst, clo->lst) ||
-		dt_dt_in_range_p(now, clo->lst, clo->fst));
+	if (!dt_sandwich_only_t_p(now)) {
+		return (dt_dt_in_range_p(now, clo->fst, clo->lst) ||
+			dt_dt_in_range_p(now, clo->lst, clo->fst));
+	}
+	/* otherwise ranges do not make much sense */
+	if (clo->dir > 0 && clo->fst.t.u < clo->lst.t.u) {
+		return (now.t.u >= clo->fst.t.u && now.t.u <= clo->lst.t.u);
+	} else if (clo->dir < 0 && clo->fst.t.u > clo->lst.t.u) {
+		return (now.t.u <= clo->fst.t.u && now.t.u >= clo->lst.t.u);
+	} else if (clo->dir > 0) {
+		return (now.t.u >= clo->fst.t.u || now.t.u <= clo->lst.t.u);
+	} else if (clo->dir < 0) {
+		return (now.t.u <= clo->fst.t.u || now.t.u >= clo->lst.t.u);
+	}
+	return false;
 }
 
 static struct dt_dt_s
