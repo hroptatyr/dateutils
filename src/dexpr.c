@@ -471,7 +471,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 	bool res;
 
 	if (dkv->sp.spfl == DT_SPFL_N_DSTD) {
-		if ((cmp = dt_cmp(d, dkv->d)) == -2) {
+		if ((cmp = dt_dcmp(d, dkv->d)) == -2) {
 			return false;
 		}
 		switch (dkv->op) {
