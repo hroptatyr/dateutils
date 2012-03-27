@@ -333,12 +333,12 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
  * 1 if D1 is younger than the D2. */
-DECLF int dt_cmp(struct dt_d_s d1, struct dt_d_s d2);
+DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
 
 /**
  * Check if D is in the interval spanned by D1 and D2,
  * 1 if D1 is younger than the D2. */
-DECLF int dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
+DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 
 #if defined INCLUDE_DATE_CORE_IMPL

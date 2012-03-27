@@ -778,7 +778,7 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((st->curr = dt_strpdtdur(sp, (char**)&ep)).d.typ > DT_UNK) {
+	if ((st->curr = dt_strpdtdur(sp, (char**)&ep)).typ > DT_UNK) {
 		if (st->durs == NULL) {
 			st->durs = calloc(16, sizeof(*st->durs));
 		} else if ((st->ndurs % 16) == 0) {
@@ -787,9 +787,9 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 				(16 + st->ndurs) * sizeof(*st->durs));
 			memset(st->durs + st->ndurs, 0, 16 * sizeof(*st->durs));
 		}
-		if ((st->sign == 1 && dt_dur_neg_p(st->curr.d)) ||
-		    (st->sign == -1 && !dt_dur_neg_p(st->curr.d))) {
-			st->durs[st->ndurs++].d = dt_neg_dur(st->curr.d);
+		if ((st->sign == 1 && dt_dtdur_neg_p(st->curr)) ||
+		    (st->sign == -1 && !dt_dtdur_neg_p(st->curr))) {
+			st->durs[st->ndurs++] = dt_neg_dtdur(st->curr);
 		} else {
 			st->durs[st->ndurs++] = st->curr;
 		}

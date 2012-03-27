@@ -3109,7 +3109,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 }
 
 DEFUN int
-dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
+dt_dcmp(struct dt_d_s d1, struct dt_d_s d2)
 {
 /* for the moment D1 and D2 have to be of the same type. */
 	if (UNLIKELY(d1.typ != d2.typ)) {
@@ -3139,9 +3139,9 @@ dt_cmp(struct dt_d_s d1, struct dt_d_s d2)
 }
 
 DEFUN int
-dt_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
+dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 {
-	return dt_cmp(d, d1) >= 0 && dt_cmp(d, d2) <= 0;
+	return dt_dcmp(d, d1) >= 0 && dt_dcmp(d, d2) <= 0;
 }
 
 #if defined __INTEL_COMPILER

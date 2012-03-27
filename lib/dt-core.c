@@ -599,6 +599,14 @@ dt_strpdtdur(const char *str, char **ep)
 	case 'm':
 	case 'M':
 		d.sd.m = tmp;
+		if (*sp == 'o') {
+			/* that makes it unique */
+			sp++;
+			break;
+		}
+	case '\'':
+		/* could stand for minute, so just to be sure ... */
+		d.st.m = tmp;
 		break;
 	case 'w':
 	case 'W':
@@ -612,6 +620,18 @@ dt_strpdtdur(const char *str, char **ep)
 	case 'Q':
 		d.sd.q = tmp;
 		break;
+
+	case 'h':
+	case 'H':
+		d.st.h = tmp;
+		break;
+	case 's':
+	case 'S':
+	case '"':
+		/* could also stand for second, so update this as well */
+		d.st.s = tmp;
+		break;
+
 	default:
 		sp = str;
 		goto out;
@@ -622,7 +642,7 @@ dt_strpdtdur(const char *str, char **ep)
 		res.d.bizda.y = d.sd.y;
 		res.d.bizda.m = d.sd.q * 3 + d.sd.m;
 		res.d.bizda.bd = d.sd.b + d.sd.w * 5;
-	} else if (LIKELY((d.sd.m || d.sd.y))) {
+	} else if (d.sd.y || (d.sd.m && !d.st.m)) {
 	dflt:
 		res.d.typ = DT_YMD;
 		res.d.ymd.y = d.sd.y;
@@ -634,11 +654,26 @@ dt_strpdtdur(const char *str, char **ep)
 	} else if (d.sd.b) {
 		res.d.typ = DT_BIZSI;
 		res.d.bizsi = d.sd.w * 5 + d.sd.b;
+
+/* time specs here */
+	} else if (d.st.h || d.st.m || d.st.s) {
+		/* treat as m for minute */
+		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+		res.t.sdur = d.st.h * SECS_PER_HOUR +
+			d.st.m * SECS_PER_MIN +
+			d.st.s;
+		/* but also put the a note in the ymd slot */
+		if (d.sd.m) {
+			res.typ = DT_SANDWICH_D_ONLY(DT_YMD);
+			res.d.ymd.m = d.sd.m;
+		}
+
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
 		 * cover them better */
 		goto dflt;
 	}
+
 out:
 	if (ep) {
 		*ep = (char*)sp;
@@ -746,6 +781,20 @@ out:
 	return bp - buf;
 }
 
+DEFUN struct dt_dt_s
+dt_neg_dtdur(struct dt_dt_s dur)
+{
+	dur.neg = (uint16_t)(~dur.neg & 0x01);
+	dur.t.neg = (uint16_t)(~dur.t.neg & 0x01);
+	return dur;
+}
+
+DEFUN int
+dt_dtdur_neg_p(struct dt_dt_s dur)
+{
+	return dur.neg;
+}
+
 
 /* date getters, platform dependent */
 DEFUN struct dt_dt_s
@@ -840,15 +889,110 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 	}
 
 	if (dt_sandwich_p(d)) {
-		res.typ = DT_SANDWICH_DT(d.d.typ);
+		res.typ = DT_SANDWICH_DT(tgttyp);
 	} else if (dt_sandwich_only_d_p(d)) {
-		res.typ = DT_SANDWICH_D_ONLY(d.d.typ);
+		res.typ = DT_SANDWICH_D_ONLY(tgttyp);
 	} else if (dt_sandwich_only_t_p(d)) {
 		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
 	} else {
 		res.typ = DT_SANDWICH_UNK;
 	}
 	return res;
+}
+
+DEFUN struct dt_dt_s
+dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
+{
+	signed int carry = 0;
+
+	if (dur.t.sdur) {
+		d.t = dt_tadd(d.t, dur.t);
+		/* capture the over/under-flow */
+		carry = dur.t.sdur / SECS_PER_DAY;
+		if (dur.t.neg) {
+			carry = -carry;
+		}
+	}
+	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
+		/* slight optimisation if dur typ is daisy */
+		if (carry && dur.d.typ == DT_DAISY) {
+			if ((dur.d.neg && carry < 0) ||
+			    (!dur.d.neg && carry > 0)) {
+				dur.d.daisy += carry;
+			} else {
+				dur.d.daisy -= carry;
+			}
+		}
+		d.d = dt_dadd(d.d, dur.d);
+	}
+	return d;
+}
+
+
+DEFUN int
+dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
+{
+/* for the moment D1 and D2 have to be of the same type. */
+	if (UNLIKELY(d1.typ != d2.typ)) {
+		/* always equal */
+		return -2;
+	}
+	/* go through it hierarchically and without upmotes */
+	switch (DT_SANDWICH_D_TYPE(d1.typ)) {
+	case DT_UNK:
+	default:
+		goto try_time;
+	case DT_YMD:
+	case DT_DAISY:
+	case DT_BIZDA:
+		/* use arithmetic comparison */
+		if (d1.d.u < d2.d.u) {
+			return -1;
+		} else if (d1.d.u > d2.d.u) {
+			return 1;
+		} else {
+			/* means they're equal, so try the time part */
+			goto try_time;
+		}
+	case DT_YMCW: {
+		/* use designated thing since ymcw dates aren't
+		 * increasing */
+		int res = __ymcw_cmp(d1.d.ymcw, d2.d.ymcw);
+		if (res == 0) {
+			goto try_time;
+		}
+		return res;
+	}
+	}
+try_time:
+#if 0
+/* constant select is evil */
+	switch (DT_SANDWICH_T_TYPE(d1.typ)) {
+	case DT_HMS:
+		if (d1.t.hms.u < d2.t.hms.u) {
+			return -1;
+		} else if (d1.t.hms.u > d2.t.hms.u) {
+			return 1;
+		}
+	case DT_TUNK:
+	default:
+		return 0;
+	}
+#else
+	if (d1.t.hms.u < d2.t.hms.u) {
+		return -1;
+	} else if (d1.t.hms.u > d2.t.hms.u) {
+		return 1;
+	}
+	return 0;
+#endif
+
+}
+
+DEFUN int
+dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
+{
+	return dt_dtcmp(d, d1) >= 0 && dt_dtcmp(d, d2) <= 0;
 }
 
 #if defined __INTEL_COMPILER
