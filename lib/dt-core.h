@@ -190,12 +190,38 @@ DECLF size_t
 dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
 
 /**
+ * Negate the duration. */
+DECLF struct dt_dt_s dt_neg_dtdur(struct dt_dt_s);
+
+/**
+ * Is duration DUR negative? */
+DECLF int dt_dtdur_neg_p(struct dt_dt_s dur);
+
+/**
  * Like time() but return the current date in the desired format. */
 DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
 DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
+
+/**
+ * Add duration DUR to date/time D.
+ * The result will be in the calendar as specified by TGTTYP, or if
+ * DT_UNK is given, the calendar of D will be used. */
+DECLF struct dt_dt_s
+dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
+
+/**
+ * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
+ * 1 if D1 is younger than the D2. */
+DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
+
+/**
+ * Check if D is in the interval spanned by D1 and D2,
+ * 1 if D1 is younger than the D2. */
+DECLF int
+dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
 
 
 /* some useful gimmicks, sort of */

@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tseq
+TOOL=dseq
 CMDLINE="--compute-from-last 10:00:00 12m 11:20:00"
 
 ## STDIN

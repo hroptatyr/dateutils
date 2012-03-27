@@ -406,7 +406,11 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur)
 	signed int sec;
 	signed int tmp;
 
-	sec = dur.sdur;
+	if (!dur.neg) {
+		sec = dur.sdur;
+	} else {
+		sec = -dur.sdur;
+	}
 	sec += t.hms.s;
 	if ((tmp = sec % (signed int)SECS_PER_MIN) >= 0) {
 		t.hms.s = tmp;
