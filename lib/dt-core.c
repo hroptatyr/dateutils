@@ -785,6 +785,8 @@ DEFUN struct dt_dt_s
 dt_neg_dtdur(struct dt_dt_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
+	/* time durations need manual fiddling */
+	dur.t.sdur = -dur.t.sdur;
 	return dur;
 }
 
