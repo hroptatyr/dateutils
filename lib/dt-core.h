@@ -198,6 +198,13 @@ DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
 DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
 
 /**
+ * Add duration DUR to date/time D.
+ * The result will be in the calendar as specified by TGTTYP, or if
+ * DT_UNK is given, the calendar of D will be used. */
+DECLF struct dt_dt_s
+dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
+
+/**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
  * 1 if D1 is younger than the D2. */
 DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);

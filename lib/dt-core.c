@@ -865,6 +865,31 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 	return res;
 }
 
+DEFUN struct dt_dt_s
+dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
+{
+	signed int carry = 0;
+
+	if (dur.t.sdur) {
+		d.t = dt_tadd(d.t, dur.t);
+		/* capture the over/under-flow */
+		carry = dur.t.sdur / SECS_PER_DAY;
+	}
+	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
+		/* slight optimisation if dur typ is daisy */
+		if (carry && dur.d.typ == DT_DAISY) {
+			if ((dur.d.neg && carry < 0) ||
+			    (!dur.d.neg && carry > 0)) {
+				dur.d.daisy += carry;
+			} else {
+				dur.d.daisy -= carry;
+			}
+		}
+		d.d = dt_dadd(d.d, dur.d);
+	}
+	return d;
+}
+
 
 DEFUN int
 dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
