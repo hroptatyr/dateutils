@@ -625,7 +625,6 @@ dt_strpdtdur(const char *str, char **ep)
 	case '"':
 		/* could also stand for second, so update this as well */
 		d.st.s = tmp;
-		d.st.s = tmp;
 		break;
 
 	default:
@@ -638,7 +637,7 @@ dt_strpdtdur(const char *str, char **ep)
 		res.d.bizda.y = d.sd.y;
 		res.d.bizda.m = d.sd.q * 3 + d.sd.m;
 		res.d.bizda.bd = d.sd.b + d.sd.w * 5;
-	} else if (LIKELY((d.sd.m || d.sd.y))) {
+	} else if (d.sd.y) {
 	dflt:
 		res.d.typ = DT_YMD;
 		res.d.ymd.y = d.sd.y;
@@ -650,23 +649,26 @@ dt_strpdtdur(const char *str, char **ep)
 	} else if (d.sd.b) {
 		res.d.typ = DT_BIZSI;
 		res.d.bizsi = d.sd.w * 5 + d.sd.b;
+
+/* ambiguity here */
+	} else if (d.sd.m && (d.sd.d || d.sd.y || d.sd.b || d.sd.q || d.sd.w)) {
+		/* treat as m for month */
+		goto dflt;
+
+/* time specs here */
+	} else if (d.st.h || d.st.m || d.st.s) {
+		/* treat as m for minute */
+		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+		res.t.sdur = d.st.h * SECS_PER_HOUR +
+			d.st.m * SECS_PER_MIN +
+			d.st.s;
+
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
 		 * cover them better */
 		goto dflt;
 	}
-	/* assess more */
-	if ((d.st.s || d.st.m || d.st.h) &&
-	    res.d.typ == DT_YMD &&
-	    d.st.s == d.sd.d &&
-	    d.st.m == d.sd.m &&
-	    d.sd.y == 0 && d.sd.b == 0 && d.sd.q == 0 && d.sd.w == 0) {
-		/* we upmoted the type erroneously */
-		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
-		res.t.sdur = d.st.h * SECS_PER_HOUR +
-			d.st.m * SECS_PER_MIN +
-			d.st.s;
-	}
+
 out:
 	if (ep) {
 		*ep = (char*)sp;
