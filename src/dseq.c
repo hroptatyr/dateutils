@@ -242,7 +242,7 @@ static void
 date_neg_dur(struct dt_dt_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		dur[i].d = dt_neg_dur(dur[i].d);
+		dur[i] = dt_neg_dtdur(dur[i]);
 	}
 	return;
 }
