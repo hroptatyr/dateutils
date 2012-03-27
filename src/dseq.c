@@ -628,9 +628,10 @@ increment must not be naught\n", stderr);
 		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	while (__in_range_p(tmp, &clo)) {
+	for (unsigned int oflo = (clo.fst.t.u != clo.lst.t.u);
+	     __in_range_p(tmp, &clo) && oflo <= SECS_PER_DAY;
+	     tmp = __seq_next(tmp, &clo), oflo += clo.ite->t.sdur) {
 		dt_io_write(tmp, ofmt, NULL);
-		tmp = __seq_next(tmp, &clo);
 	}
 
 out:
