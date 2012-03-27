@@ -190,6 +190,14 @@ DECLF size_t
 dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
 
 /**
+ * Negate the duration. */
+DECLF struct dt_dt_s dt_neg_dtdur(struct dt_dt_s);
+
+/**
+ * Is duration DUR negative? */
+DECLF int dt_dtdur_neg_p(struct dt_dt_s dur);
+
+/**
  * Like time() but return the current date in the desired format. */
 DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
 

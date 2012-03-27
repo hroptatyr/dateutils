@@ -774,6 +774,19 @@ out:
 	return bp - buf;
 }
 
+DEFUN struct dt_dt_s
+dt_neg_dtdur(struct dt_dt_s dur)
+{
+	dur.neg = (uint16_t)(~dur.neg & 0x01);
+	return dur;
+}
+
+DEFUN int
+dt_dtdur_neg_p(struct dt_dt_s dur)
+{
+	return dur.neg;
+}
+
 
 /* date getters, platform dependent */
 DEFUN struct dt_dt_s
