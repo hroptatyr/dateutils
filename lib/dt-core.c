@@ -642,7 +642,7 @@ dt_strpdtdur(const char *str, char **ep)
 		res.d.bizda.y = d.sd.y;
 		res.d.bizda.m = d.sd.q * 3 + d.sd.m;
 		res.d.bizda.bd = d.sd.b + d.sd.w * 5;
-	} else if (d.sd.y) {
+	} else if (d.sd.y || (d.sd.m && !d.st.m)) {
 	dflt:
 		res.d.typ = DT_YMD;
 		res.d.ymd.y = d.sd.y;
@@ -655,11 +655,6 @@ dt_strpdtdur(const char *str, char **ep)
 		res.d.typ = DT_BIZSI;
 		res.d.bizsi = d.sd.w * 5 + d.sd.b;
 
-/* ambiguity here */
-	} else if (d.sd.m && (d.sd.d || d.sd.y || d.sd.b || d.sd.q || d.sd.w)) {
-		/* treat as m for month */
-		goto dflt;
-
 /* time specs here */
 	} else if (d.st.h || d.st.m || d.st.s) {
 		/* treat as m for minute */
@@ -667,6 +662,11 @@ dt_strpdtdur(const char *str, char **ep)
 		res.t.sdur = d.st.h * SECS_PER_HOUR +
 			d.st.m * SECS_PER_MIN +
 			d.st.s;
+		/* but also put the a note in the ymd slot */
+		if (d.sd.m) {
+			res.typ = DT_SANDWICH_D_ONLY(DT_YMD);
+			res.d.ymd.m = d.sd.m;
+		}
 
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
