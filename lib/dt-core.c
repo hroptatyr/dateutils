@@ -709,7 +709,6 @@ dt_strpdtdur(const char *str, char **ep)
 			d.st.s;
 		/* but also put the a note in the ymd slot */
 		if (d.sd.m) {
-			res.typ = DT_SANDWICH_D_ONLY(DT_YMD);
 			res.d.ymd.m = d.sd.m;
 		}
 
