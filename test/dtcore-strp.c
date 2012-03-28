@@ -3,6 +3,12 @@
 #include <inttypes.h>
 #include "dt-core.h"
 
+#define CHECK(pred, args...)			\
+	if (pred) {				\
+		fprintf(stderr, args);		\
+		res = 1;			\
+	}
+
 static int
 test_d_only_no_fmt(void)
 {
@@ -14,46 +20,29 @@ test_d_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	if (d.typ != DT_SANDWICH_D_ONLY(DT_YMD)) {
-		fprintf(stderr, "  TYPE DIFFERS %u ... should be %u\n",
-			(unsigned int)d.typ,
-			(unsigned int)DT_SANDWICH_D_ONLY(DT_YMD));
-		res = 1;
-	}
-	if (d.t.u) {
-		fprintf(stderr, "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
-			(uint64_t)d.t.u);
-		res = 1;
-	}
-	if (d.dur) {
-		fprintf(stderr, "  DURATION BIT SET\n");
-		res = 1;
-	}
-	if (d.neg) {
-		fprintf(stderr, "  NEGATED BIT SET\n");
-		res = 1;
-	}
-	if (d.d.ymd.y != 2012) {
-		fprintf(stderr, "  YEAR %u ... should be 2012\n",
-			(unsigned int)d.d.ymd.y);
-		res = 1;
-	}
-	if (d.d.ymd.m != 3) {
-		fprintf(stderr, "  MONTH %u ... should be 3\n",
-			(unsigned int)d.d.ymd.m);
-		res = 1;
-	}
-	if (d.d.ymd.d != 28) {
-		fprintf(stderr, "  DAY %u ... should be 28\n",
-			(unsigned int)d.d.ymd.d);
-		res = 1;
-	}
+	CHECK(d.typ != DT_SANDWICH_D_ONLY(DT_YMD),
+	      "  TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.typ,
+	      (unsigned int)DT_SANDWICH_D_ONLY(DT_YMD));
+	CHECK(d.t.u,
+	      "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
+	      (uint64_t)d.t.u);
+	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.neg, "  NEGATED BIT SET\n");
+
+	CHECK(d.d.ymd.y != 2012,
+	      "  YEAR %u ... should be 2012\n",
+	      (unsigned int)d.d.ymd.y);
+	CHECK(d.d.ymd.m != 3,
+	      "  MONTH %u ... should be 3\n",
+	      (unsigned int)d.d.ymd.m);
+	CHECK(d.d.ymd.d != 28,
+	      "  DAY %u ... should be 28\n",
+	      (unsigned int)d.d.ymd.d);
 	/* make sure the padding leaves no garbage */
-	if (d.d.ymd.u & ~0x1fffff) {
-		fprintf(stderr, "  PADDING NOT NAUGHT %u\n",
-			(unsigned int)(d.d.ymd.u & ~0x1fffff));
-		res = 1;
-	}
+	CHECK(d.d.ymd.u & ~0x1fffff,
+	      "  PADDING NOT NAUGHT %u\n",
+	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
 	return res;
 }
 
@@ -68,57 +57,35 @@ test_t_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	if (d.typ != DT_SANDWICH_T_ONLY(DT_HMS)) {
-		fprintf(stderr, "  TYPE DIFFERS %u ... should be %u\n",
-			(unsigned int)d.typ,
-			(unsigned int)DT_SANDWICH_T_ONLY(DT_HMS));
-		res = 1;
-	}
-	if (d.t.typ != DT_HMS) {
-		fprintf(stderr, "  TIME TYPE DIFFERS %u ... should be %u\n",
-			(unsigned int)d.t.typ,
-			(unsigned int)DT_HMS);
-		res = 1;
-	}
-	if (d.d.u) {
-		fprintf(stderr, "  DATE COMPONENT NOT NAUGHT %" PRIu64 "\n",
-			(uint64_t)d.d.u);
-		res = 1;
-	}
-	if (d.dur) {
-		fprintf(stderr, "  DURATION BIT SET\n");
-		res = 1;
-	}
-	if (d.neg) {
-		fprintf(stderr, "  NEGATED BIT SET\n");
-		res = 1;
-	}
-	if (d.t.hms.h != 12) {
-		fprintf(stderr, "  HOUR %u ... should be 12\n",
-			(unsigned int)d.t.hms.h);
-		res = 1;
-	}
-	if (d.t.hms.m != 34) {
-		fprintf(stderr, "  MINUTE %u ... should be 34\n",
-			(unsigned int)d.t.hms.m);
-		res = 1;
-	}
-	if (d.t.hms.s != 56) {
-		fprintf(stderr, "  SECOND %u ... should be 56\n",
-			(unsigned int)d.t.hms.s);
-		res = 1;
-	}
-	if (d.t.hms.ns != 0) {
-		fprintf(stderr, "  NANOSECOND %u ... should be 0\n",
-			(unsigned int)d.t.hms.ns);
-		res = 1;
-	}
+	CHECK(d.typ != DT_SANDWICH_T_ONLY(DT_HMS),
+	      "  TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.typ,
+	      (unsigned int)DT_SANDWICH_T_ONLY(DT_HMS));
+	CHECK(d.t.typ != DT_HMS,
+	      "  TIME TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.t.typ,
+	      (unsigned int)DT_HMS);
+	CHECK(d.d.u,
+	      "  DATE COMPONENT NOT NAUGHT %" PRIu64 "\n",
+	      (uint64_t)d.d.u);
+	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.neg, "  NEGATED BIT SET\n");
+	CHECK(d.t.hms.h != 12,
+		"  HOUR %u ... should be 12\n",
+	      (unsigned int)d.t.hms.h);
+	CHECK(d.t.hms.m != 34,
+	      "  MINUTE %u ... should be 34\n",
+	      (unsigned int)d.t.hms.m);
+	CHECK(d.t.hms.s != 56,
+	      "  SECOND %u ... should be 56\n",
+	      (unsigned int)d.t.hms.s);
+	CHECK(d.t.hms.ns != 0,
+	      "  NANOSECOND %u ... should be 0\n",
+	      (unsigned int)d.t.hms.ns);
 	/* make sure the padding leaves no garbage */
-	if (d.t.hms.u & ~0x1f3f3f3fffffff) {
-		fprintf(stderr, "  PADDING NOT NAUGHT %u\n",
-			(unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
-		res = 1;
-	}
+	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
+	      "  PADDING NOT NAUGHT %u\n",
+	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 
