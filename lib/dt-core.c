@@ -362,6 +362,49 @@ __strfdt_card(
 	return res;
 }
 
+/* just like time-core's tadd() but with carry */
+static struct dt_t_s
+__tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
+{
+/* return the number of days carried over in CARRY */
+	signed int sec;
+	signed int tmp;
+
+	if (!dur.neg) {
+		sec = dur.sdur;
+	} else {
+		sec = -dur.sdur;
+	}
+	sec += t.hms.s;
+	if ((tmp = sec % (signed int)SECS_PER_MIN) >= 0) {
+		t.hms.s = tmp;
+	} else {
+		t.hms.s = tmp + SECS_PER_MIN;
+		sec -= SECS_PER_MIN;
+	}
+
+	sec /= (signed int)SECS_PER_MIN;
+	sec += t.hms.m;
+	if ((tmp = sec % (signed int)MINS_PER_HOUR) >= 0) {
+		t.hms.m = tmp;
+	} else {
+		t.hms.m = tmp + MINS_PER_HOUR;
+		sec -= MINS_PER_HOUR;
+	}
+
+	sec /= (signed int)MINS_PER_HOUR;
+	sec += t.hms.h;
+	if ((tmp = sec % (signed int)HOURS_PER_DAY) >= 0) {
+		t.hms.h = tmp;
+	} else {
+		t.hms.h = tmp + HOURS_PER_DAY;
+	}
+	if (carry) {
+		*carry = sec / (signed int)HOURS_PER_DAY;
+	}
+	return t;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_dt_s
@@ -660,12 +703,12 @@ dt_strpdtdur(const char *str, char **ep)
 	} else if (d.st.h || d.st.m || d.st.s) {
 		/* treat as m for minute */
 		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+		res.t.dur = 1;
 		res.t.sdur = d.st.h * SECS_PER_HOUR +
 			d.st.m * SECS_PER_MIN +
 			d.st.s;
 		/* but also put the a note in the ymd slot */
 		if (d.sd.m) {
-			res.typ = DT_SANDWICH_D_ONLY(DT_YMD);
 			res.d.ymd.m = d.sd.m;
 		}
 
@@ -679,6 +722,7 @@ out:
 	if (ep) {
 		*ep = (char*)sp;
 	}
+	res.dur = 1;
 	return res;
 }
 
@@ -906,25 +950,44 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 {
 	signed int carry = 0;
 
-	if (dur.t.sdur) {
-		d.t = dt_tadd(d.t, dur.t);
-		/* capture the over/under-flow */
-		carry = dur.t.sdur / SECS_PER_DAY;
-		if (dur.t.neg) {
-			carry = -carry;
-		}
+	if (dur.t.dur) {
+		d.t = __tadd(d.t, dur.t, &carry);
 	}
-	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
-		/* slight optimisation if dur typ is daisy */
-		if (carry && dur.d.typ == DT_DAISY) {
-			if ((dur.d.neg && carry < 0) ||
-			    (!dur.d.neg && carry > 0)) {
-				dur.d.daisy += carry;
-			} else {
-				dur.d.daisy -= carry;
-			}
+
+	/* store the carry somehow */
+	if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
+		if ((dur.d.neg && carry < 0) ||
+		    (!dur.d.neg && carry > 0)) {
+			dur.d.daisy += carry;
+		} else {
+			/* what if |carry| > dur.d.daisy? */
+			dur.d.daisy -= carry;
 		}
+		dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ);
+	} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
+		/* fiddle with the dur */
+		dur.d.typ = DT_DAISY;
+		if (carry > 0) {
+			dur.d.daisy = carry;
+			dur.d.neg = 0;
+		} else if (carry < 0) {
+			dur.d.daisy = -carry;
+			dur.d.neg = 1;
+		}
+	} else if (carry) {
+		/* we're fucked */
+		;
+	}
+
+	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
+		dt_dttyp_t typ;
+
+		/* demote the D's and DUR's type temporarily */
+		d.d.typ = DT_SANDWICH_D_TYPE((typ = d.typ));
+		/* then do the addition */
 		d.d = dt_dadd(d.d, dur.d);
+		/* and promote the whole shebang again */
+		d.typ = typ;
 	}
 	return d;
 }
