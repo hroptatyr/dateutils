@@ -703,6 +703,7 @@ dt_strpdtdur(const char *str, char **ep)
 	} else if (d.st.h || d.st.m || d.st.s) {
 		/* treat as m for minute */
 		res.typ = DT_SANDWICH_T_ONLY(DT_HMS);
+		res.t.dur = 1;
 		res.t.sdur = d.st.h * SECS_PER_HOUR +
 			d.st.m * SECS_PER_MIN +
 			d.st.s;
@@ -722,6 +723,7 @@ out:
 	if (ep) {
 		*ep = (char*)sp;
 	}
+	res.dur = 1;
 	return res;
 }
 
