@@ -234,6 +234,7 @@ try_time:
 		goto eval_time;
 	}
 eval_time:
+	res.t.typ = DT_HMS;
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
