@@ -97,18 +97,7 @@ static const char hms_dflt[] = "%H:%M:%S";
 static struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
-#if defined __C1X
-	struct dt_t_s res = {
-		/* assume all's good for now */
-		.typ = DT_HMS,
-	};
-#else
 	struct dt_t_s res;
-#endif	/* __C1X */
-
-#if !defined __C1X
-	res.typ = DT_HMS;
-#endif	/* __C1X */
 
 	if (UNLIKELY(!t.component_set)) {
 		goto fucked;
@@ -126,6 +115,8 @@ __guess_ttyp(struct strpt_s t)
 		goto fucked;
 	}
 
+	res.typ = DT_HMS;
+	res.dur = res.neg = 0;
 	res.hms.s = t.s;
 	res.hms.m = t.m;
 	res.hms.h = t.h;
