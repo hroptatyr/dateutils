@@ -79,6 +79,8 @@ typedef union {
 	uint32_t u;
 	struct {
 #if defined WORDS_BIGENDIAN
+		/* 11 bits left */
+		unsigned int:11;
 		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int d:5;
@@ -86,9 +88,9 @@ typedef union {
 		unsigned int d:5;
 		unsigned int m:4;
 		unsigned int y:12;
-#endif	/* WORDS_BIGENDIAN */
 		/* 11 bits left */
 		unsigned int:11;
+#endif	/* WORDS_BIGENDIAN */
 	};
 } dt_ymd_t;
 
