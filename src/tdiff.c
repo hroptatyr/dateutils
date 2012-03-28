@@ -101,7 +101,7 @@ main(int argc, char *argv[])
 	nfmt = argi->input_format_given;
 
 	if (argi->inputs_num == 0 ||
-	    (t = dt_io_strpt(argi->inputs[0], fmt, nfmt)).s < 0) {
+	    (t = dt_io_strpt(argi->inputs[0], fmt, nfmt)).typ == DT_TUNK) {
 		fputs("Error: reference TIME must be specified\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
@@ -113,7 +113,7 @@ main(int argc, char *argv[])
 			struct dt_t_s t2;
 			const char *inp = argi->inputs[i];
 
-			if ((t2 = dt_io_strpt(inp, fmt, nfmt)).s >= 0) {
+			if ((t2 = dt_io_strpt(inp, fmt, nfmt)).typ > DT_TUNK) {
 				struct dt_t_s dur = dt_tdiff(t, t2);
 				tdiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
@@ -142,7 +142,7 @@ main(int argc, char *argv[])
 
 				/* perform addition now */
 				if ((t2 = dt_io_strpt(
-					     line, fmt, nfmt)).s >= 0) {
+					     line, fmt, nfmt)).typ > DT_TUNK) {
 					struct dt_t_s dur = dt_tdiff(t, t2);
 					tdiff_prnt(dur, ofmt);
 				} else if (!argi->quiet_given) {
