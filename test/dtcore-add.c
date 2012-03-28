@@ -108,9 +108,121 @@ add_t_only(void)
 }
 
 static int
-add_dt(void)
+dt_add_d(void)
 {
 	static const char str[] = "2012-03-28T12:34:56";
+	struct dt_dt_s d;
+	struct dt_dt_s dur;
+	int res = 0;
+
+	fprintf(stderr, "testing %s +1d ...\n", str);
+	d = dt_strpdt(str, NULL, NULL);
+
+	/* we lack some lovely ctors for this */
+	dur.typ = DT_SANDWICH_D_ONLY(DT_DAISY);
+	dur.dur = 1;
+	dur.neg = 0;
+	dur.d.daisy = 1;
+	dur.t.u = 0;
+	dur.t.dur = 0;
+	dur.t.neg = 0;
+
+	/* the actual addition */
+	d = dt_dtadd(d, dur);
+
+	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
+	      "  TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.typ,
+	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.neg, "  NEGATED BIT SET\n");
+	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
+	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
+
+	CHECK_EQ((unsigned int)d.d.ymd.y, 2012U,
+		 "  YEAR %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.d.ymd.m, 3U,
+		 "  MONTH %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.d.ymd.d, 29U,
+		 "  DAY %u ... should be %u\n");
+
+	CHECK_EQ((unsigned int)d.t.hms.h, 12U,
+		 "  HOUR %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.t.hms.m, 34U,
+		 "  MINUTE %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.t.hms.s, 56U,
+		 "  SECOND %u ... should be %u\n");
+
+	/* make sure the padding leaves no garbage */
+	CHECK(d.d.ymd.u & ~0x1fffff,
+	      "  PADDING NOT NAUGHT %u\n",
+	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
+	      "  TIME PADDING NOT NAUGHT %u\n",
+	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	return res;
+}
+
+static int
+dt_add_t(void)
+{
+	static const char str[] = "2012-03-28T23:12:01";
+	struct dt_dt_s d;
+	struct dt_dt_s dur;
+	int res = 0;
+
+	fprintf(stderr, "testing %s +1h ...\n", str);
+	d = dt_strpdt(str, NULL, NULL);
+
+	/* we lack some lovely ctors for this */
+	dur.typ = DT_SANDWICH_T_ONLY(DT_SEXY);
+	dur.dur = 1;
+	dur.neg = 0;
+	dur.d.u = 0;
+	dur.t.dur = 1;
+	dur.t.neg = 0;
+	dur.t.sdur = 3600;
+
+	/* the actual addition */
+	d = dt_dtadd(d, dur);
+
+	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
+	      "  TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.typ,
+	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.neg, "  NEGATED BIT SET\n");
+	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
+	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
+
+	CHECK_EQ((unsigned int)d.d.ymd.y, 2012U,
+		 "  YEAR %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.d.ymd.m, 3U,
+		 "  MONTH %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.d.ymd.d, 29U,
+		 "  DAY %u ... should be %u\n");
+
+	CHECK_EQ((unsigned int)d.t.hms.h, 00U,
+		 "  HOUR %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.t.hms.m, 12U,
+		 "  MINUTE %u ... should be %u\n");
+	CHECK_EQ((unsigned int)d.t.hms.s, 01U,
+		 "  SECOND %u ... should be %u\n");
+
+	/* make sure the padding leaves no garbage */
+	CHECK(d.d.ymd.u & ~0x1fffff,
+	      "  PADDING NOT NAUGHT %u\n",
+	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
+	      "  TIME PADDING NOT NAUGHT %u\n",
+	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	return res;
+}
+
+static int
+dt_add_dt(void)
+{
+	static const char str[] = "2012-03-28T23:55:55";
 	struct dt_dt_s d;
 	struct dt_dt_s dur;
 	int res = 0;
@@ -143,14 +255,14 @@ add_dt(void)
 		 "  YEAR %u ... should be %u\n");
 	CHECK_EQ((unsigned int)d.d.ymd.m, 3U,
 		 "  MONTH %u ... should be %u\n");
-	CHECK_EQ((unsigned int)d.d.ymd.d, 29U,
+	CHECK_EQ((unsigned int)d.d.ymd.d, 30U,
 		 "  DAY %u ... should be %u\n");
 
-	CHECK_EQ((unsigned int)d.t.hms.h, 13U,
+	CHECK_EQ((unsigned int)d.t.hms.h, 00U,
 		 "  HOUR %u ... should be %u\n");
-	CHECK_EQ((unsigned int)d.t.hms.m, 34U,
+	CHECK_EQ((unsigned int)d.t.hms.m, 55U,
 		 "  MINUTE %u ... should be %u\n");
-	CHECK_EQ((unsigned int)d.t.hms.s, 56U,
+	CHECK_EQ((unsigned int)d.t.hms.s, 55U,
 		 "  SECOND %u ... should be %u\n");
 
 	/* make sure the padding leaves no garbage */
@@ -177,7 +289,15 @@ main(void)
 		res = 1;
 	}
 
-	if (add_dt() != 0) {
+	if (dt_add_d() != 0) {
+		res = 1;
+	}
+
+	if (dt_add_t() != 0) {
+		res = 1;
+	}
+
+	if (dt_add_dt() != 0) {
 		res = 1;
 	}
 
