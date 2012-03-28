@@ -954,7 +954,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
 		/* slight optimisation if dur typ is daisy */
-		if (carry && dur.d.typ == DT_DAISY) {
+		if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
 			if ((dur.d.neg && carry < 0) ||
 			    (!dur.d.neg && carry > 0)) {
 				dur.d.daisy += carry;
