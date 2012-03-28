@@ -953,26 +953,35 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	if (dur.t.dur) {
 		d.t = __tadd(d.t, dur.t, &carry);
 	}
+
+	/* store the carry somehow */
+	if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
+		if ((dur.d.neg && carry < 0) ||
+		    (!dur.d.neg && carry > 0)) {
+			dur.d.daisy += carry;
+		} else {
+			/* what if |carry| > dur.d.daisy? */
+			dur.d.daisy -= carry;
+		}
+		dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ);
+	} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
+		/* fiddle with the dur */
+		dur.d.typ = DT_DAISY;
+		if (carry > 0) {
+			dur.d.daisy = carry;
+			dur.d.neg = 0;
+		} else if (carry < 0) {
+			dur.d.daisy = -carry;
+			dur.d.neg = 1;
+		}
+	} else if (carry) {
+		/* we're fucked */
+		;
+	}
+
 	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
 		dt_dttyp_t typ;
 
-		/* slight optimisation if dur typ is daisy */
-		if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
-			if ((dur.d.neg && carry < 0) ||
-			    (!dur.d.neg && carry > 0)) {
-				dur.d.daisy += carry;
-			} else {
-				dur.d.daisy -= carry;
-			}
-			dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ);
-		} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
-			/* fiddle with the dur */
-			dur.d.typ = DT_DAISY;
-			dur.d.daisy = carry;
-		} else if (carry) {
-			/* we're fucked */
-			;
-		}
 		/* demote the D's and DUR's type temporarily */
 		d.d.typ = DT_SANDWICH_D_TYPE((typ = d.typ));
 		/* then do the addition */
