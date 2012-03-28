@@ -906,7 +906,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 {
 	signed int carry = 0;
 
-	if (dur.t.sdur) {
+	if (dur.t.dur) {
 		d.t = dt_tadd(d.t, dur.t);
 		/* capture the over/under-flow */
 		carry = dur.t.sdur / SECS_PER_DAY;
