@@ -252,7 +252,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 /**
  * Parse durations as in 1w5d, etc. */
 DECLF struct dt_d_s
-dt_strpdur(const char *str, char **ep);
+dt_strpddur(const char *str, char **ep);
 
 /**
  * Print a duration. */

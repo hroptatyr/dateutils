@@ -2724,7 +2724,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 }
 
 DEFUN struct dt_d_s
-dt_strpdur(const char *str, char **ep)
+dt_strpddur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
 	struct dt_d_s res = {DT_UNK};
