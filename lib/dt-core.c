@@ -394,6 +394,7 @@ __tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
 		t.hms.h = tmp;
 	} else {
 		t.hms.h = tmp + HOURS_PER_DAY;
+		sec -= HOURS_PER_DAY;
 	}
 	if (carry) {
 		*carry = sec / (signed int)HOURS_PER_DAY;
