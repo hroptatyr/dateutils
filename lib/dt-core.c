@@ -370,11 +370,7 @@ __tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
 	signed int sec;
 	signed int tmp;
 
-	if (!dur.neg) {
-		sec = dur.sdur;
-	} else {
-		sec = -dur.sdur;
-	}
+	sec = dur.sdur;
 	sec += t.hms.s;
 	if ((tmp = sec % (signed int)SECS_PER_MIN) >= 0) {
 		t.hms.s = tmp;
@@ -398,6 +394,7 @@ __tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
 		t.hms.h = tmp;
 	} else {
 		t.hms.h = tmp + HOURS_PER_DAY;
+		sec -= HOURS_PER_DAY;
 	}
 	if (carry) {
 		*carry = sec / (signed int)HOURS_PER_DAY;
@@ -843,6 +840,9 @@ dt_neg_dtdur(struct dt_dt_s dur)
 	default:
 		break;
 	}
+
+	/* there's just DT_SEXY as time duration type atm, negate it */
+	dur.t.sdur = -dur.t.sdur;
 	return dur;
 }
 
@@ -969,6 +969,7 @@ DEFUN struct dt_dt_s
 dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 {
 	signed int carry = 0;
+	dt_dttyp_t typ;
 
 	if (dur.t.dur) {
 		d.t = __tadd(d.t, dur.t, &carry);
@@ -976,39 +977,29 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 	/* store the carry somehow */
 	if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
-		if ((dur.d.neg && carry < 0) ||
-		    (!dur.d.neg && carry > 0)) {
-			dur.d.daisy += carry;
-		} else {
-			/* what if |carry| > dur.d.daisy? */
-			dur.d.daisy -= carry;
-		}
-		dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ);
+		/* just add the carry, daisydur is signed enough */
+		dur.d.daisydur += carry;
 	} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
-		/* fiddle with the dur */
+		/* fiddle with the dur, so we can use date-core's adder */
 		dur.d.typ = DT_DAISY;
-		if (carry > 0) {
-			dur.d.daisy = carry;
-			dur.d.neg = 0;
-		} else if (carry < 0) {
-			dur.d.daisy = -carry;
-			dur.d.neg = 1;
-		}
+		/* add the carry */
+		dur.d.daisydur = carry;
 	} else if (carry) {
 		/* we're fucked */
 		;
 	}
 
-	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
-		dt_dttyp_t typ;
-
-		/* demote the D's and DUR's type temporarily */
-		d.d.typ = DT_SANDWICH_D_TYPE((typ = d.typ));
-		/* then do the addition */
+	/* demote D's and DUR's type temporarily */
+	if ((d.d.typ = DT_SANDWICH_D_TYPE(typ = d.typ)) != DT_UNK &&
+	    (dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
+		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
-		/* and promote the whole shebang again */
-		d.typ = typ;
+	} else if ((dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
+		/* put the carry back into d's daisydur slot */
+		d.d.daisydur += dur.d.daisydur;
 	}
+	/* and promote the whole shebang again */
+	d.typ = typ;
 	return d;
 }
 
