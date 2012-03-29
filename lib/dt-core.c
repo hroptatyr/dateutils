@@ -993,6 +993,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	    (dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
+	} else if ((dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
+		/* put the carry back into d's daisydur slot */
+		d.d.daisydur += dur.d.daisydur;
 	}
 	/* and promote the whole shebang again */
 	d.typ = typ;
