@@ -969,6 +969,7 @@ DEFUN struct dt_dt_s
 dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 {
 	signed int carry = 0;
+	dt_dttyp_t typ;
 
 	if (dur.t.dur) {
 		d.t = __tadd(d.t, dur.t, &carry);
@@ -978,8 +979,6 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
 		/* just add the carry, daisydur is signed enough */
 		dur.d.daisydur += carry;
-		/* we're using date-core's adder below, so prepare dur.d */
-		dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ);
 	} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
 		/* fiddle with the dur, so we can use date-core's adder */
 		dur.d.typ = DT_DAISY;
@@ -990,16 +989,14 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		;
 	}
 
-	if (DT_SANDWICH_D_TYPE(d.typ) != DT_UNK) {
-		dt_dttyp_t typ;
-
-		/* demote the D's and DUR's type temporarily */
-		d.d.typ = DT_SANDWICH_D_TYPE((typ = d.typ));
-		/* then do the addition */
+	/* demote D's and DUR's type temporarily */
+	if ((d.d.typ = DT_SANDWICH_D_TYPE(typ = d.typ)) != DT_UNK &&
+	    (dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
+		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
-		/* and promote the whole shebang again */
-		d.typ = typ;
 	}
+	/* and promote the whole shebang again */
+	d.typ = typ;
 	return d;
 }
 
