@@ -831,13 +831,33 @@ dt_neg_dtdur(struct dt_dt_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
 	dur.t.neg = (uint16_t)(~dur.t.neg & 0x01);
+
+	/* treat daisy and bizsi durs specially */
+	switch (DT_SANDWICH_D_TYPE(dur.typ)) {
+	case DT_DAISY:
+		dur.d.daisydur = -dur.d.daisydur;
+		break;
+	case DT_BIZSI:
+		dur.d.bizsidur = -dur.d.bizsidur;
+		break;
+	default:
+		break;
+	}
 	return dur;
 }
 
 DEFUN int
 dt_dtdur_neg_p(struct dt_dt_s dur)
 {
-	return dur.neg;
+	/* daisy durs and bizsi durs are special */
+	switch (DT_SANDWICH_D_TYPE(dur.typ)) {
+	case DT_DAISY:
+		return dur.d.daisydur < 0;
+	case DT_BIZSI:
+		return dur.d.bizsidur < 0;
+	default:
+		return dur.neg;
+	}
 }
 
 

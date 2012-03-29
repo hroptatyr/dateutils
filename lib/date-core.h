@@ -120,6 +120,8 @@ typedef union {
  * daisys are days since X, 1917-01-01 here */
 typedef uint32_t dt_daisy_t;
 #define DT_DAISY_BASE_YEAR	(1917)
+/* and a signed version for durations */
+typedef int32_t dt_sdaisy_t;
 
 /** bizda
  * bizdas is a calendar that counts business days before or after a
@@ -185,6 +187,8 @@ struct dt_d_s {
 		dt_bizda_t bizda;
 		/* for durations only */
 		dt_md_t md;
+		dt_sdaisy_t daisydur;
+		dt_sdaisy_t bizsidur;
 	};
 };
 

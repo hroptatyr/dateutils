@@ -1542,16 +1542,11 @@ __daisy_add(dt_daisy_t d, struct dt_d_s dur)
 /* add DUR to D, doesn't check if DUR has the dur flag */
 	switch (dur.typ) {
 	case DT_DAISY:
-		if (!dur.neg) {
-			d += dur.daisy;
-		} else {
-			d -= dur.daisy;
-		}
+		d += dur.daisydur;
 		break;
 	case DT_BIZSI: {
 		dt_dow_t dow = __daisy_get_wday(d);
-		int dequiv = __get_d_equiv(
-			dow, !dur.neg ? dur.bizsi : -dur.bizsi);
+		int dequiv = __get_d_equiv(dow, dur.bizsidur);
 		d += dequiv;
 		break;
 	}
@@ -1573,12 +1568,7 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
 	int32_t diff = d2 - d1;
 
-	if (diff >= 0) {
-		res.daisy = diff;
-	} else {
-		res.daisy = -diff;
-		res.neg = 1;
-	}
+	res.daisydur = diff;
 	return res;
 }
 
@@ -1591,23 +1581,22 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 		tgt->d = dur.ymd.d;
 		break;
 	case DT_DAISY:
-		tgt->d = dur.daisy;
-		break;
+		tgt->d = dur.daisydur;
+		/* we don't need the negation, so return here */
+		return;
 	case DT_BIZSI:
-		tgt->b = dur.bizsi;
-		break;
+		tgt->b = dur.bizsidur;
+		/* we don't need the negation, so return here */
+		return;
 	case DT_BIZDA:
 		tgt->m = dur.bizda.y * GREG_MONTHS_P_YEAR + dur.bizda.m;
 		tgt->b = dur.bizda.bd;
 		break;
 	case DT_YMCW:
-#if 0
-/* doesn't happen as the dur parser won't hand out durs of type YMCW */
 		tgt->m = dur.ymcw.y * GREG_MONTHS_P_YEAR + dur.ymcw.m;
 		tgt->w = dur.ymcw.c;
 		tgt->d = dur.ymcw.w;
 		break;
-#endif	/* 0 */
 	case DT_MD:
 		tgt->m = dur.md.m;
 		tgt->d = dur.md.d;
@@ -2784,10 +2773,10 @@ dt_strpddur(const char *str, char **ep)
 		res.ymd.d = d.d + d.w * GREG_DAYS_P_WEEK;
 	} else if (d.d) {
 		res.typ = DT_DAISY;
-		res.daisy = d.w * GREG_DAYS_P_WEEK + d.d;
+		res.daisydur = d.w * GREG_DAYS_P_WEEK + d.d;
 	} else if (d.b) {
 		res.typ = DT_BIZSI;
-		res.bizsi = d.w * DUWW_BDAYS_P_WEEK + d.b;
+		res.bizsidur = d.w * DUWW_BDAYS_P_WEEK + d.b;
 	} else {
 		/* we leave out YMCW diffs simply because YMD diffs
 		 * cover them better
@@ -2834,14 +2823,26 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	case DT_DAISY:
-		d.d = that.daisy;
+		if (that.daisydur >= 0) {
+			d.d = that.daisydur;
+		} else {
+			d.d = -that.daisydur;
+			/* make sure the neg bit doesn't bite us */
+			that.neg = 1;
+		}
 		if (fmt == NULL) {
 			/* subject to change */
 			fmt = daisy_dflt;
 		}
 		break;
 	case DT_BIZSI:
-		d.d = that.bizsi;
+		if (that.bizsidur >= 0) {
+			d.d = that.bizsidur;
+		} else {
+			d.d = -that.bizsidur;
+			/* make sure the neg bit doesn't bite us */
+			that.neg = 1;
+		}
 		if (fmt == NULL) {
 			/* subject to change */
 			fmt = bizsi_dflt;
@@ -3021,13 +3022,30 @@ DEFUN struct dt_d_s
 dt_neg_dur(struct dt_d_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
+	switch (dur.typ) {
+	case DT_DAISY:
+		dur.daisydur = -dur.daisydur;
+		break;
+	case DT_BIZSI:
+		dur.bizsidur = -dur.bizsidur;
+		break;
+	default:
+		break;
+	}
 	return dur;
 }
 
 DEFUN int
 dt_dur_neg_p(struct dt_d_s dur)
 {
-	return dur.neg;
+	switch (dur.typ) {
+	case DT_DAISY:
+		return dur.daisydur < 0;
+	case DT_BIZSI:
+		return dur.bizsidur < 0;
+	default:
+		return dur.neg;
+	}
 }
 
 DEFUN struct dt_d_s
@@ -3056,7 +3074,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		/* fix up result in case it's bizsi, i.e. kick weekends */
 		if (tgttyp == DT_BIZSI) {
 			dt_dow_t wdb = __daisy_get_wday(tmp2);
-			res.bizsi = __get_nbdays(res.daisy, wdb);
+			res.bizsidur = __get_nbdays(res.daisy, wdb);
 		}
 		break;
 	}
