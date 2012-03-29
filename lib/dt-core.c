@@ -976,24 +976,15 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 	/* store the carry somehow */
 	if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
-		if ((dur.d.neg && carry < 0) ||
-		    (!dur.d.neg && carry > 0)) {
-			dur.d.daisy += carry;
-		} else {
-			/* what if |carry| > dur.d.daisy? */
-			dur.d.daisy -= carry;
-		}
+		/* just add the carry, daisydur is signed enough */
+		dur.d.daisydur += carry;
+		/* we're using date-core's adder below, so prepare dur.d */
 		dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ);
 	} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
-		/* fiddle with the dur */
+		/* fiddle with the dur, so we can use date-core's adder */
 		dur.d.typ = DT_DAISY;
-		if (carry > 0) {
-			dur.d.daisy = carry;
-			dur.d.neg = 0;
-		} else if (carry < 0) {
-			dur.d.daisy = -carry;
-			dur.d.neg = 1;
-		}
+		/* add the carry */
+		dur.d.daisydur = carry;
 	} else if (carry) {
 		/* we're fucked */
 		;
