@@ -289,15 +289,19 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 		return (dt_dt_in_range_p(now, clo->fst, clo->lst) ||
 			dt_dt_in_range_p(now, clo->lst, clo->fst));
 	}
-	/* otherwise ranges do not make much sense */
-	if (clo->dir > 0 && clo->fst.t.u < clo->lst.t.u) {
-		return (now.t.u >= clo->fst.t.u && now.t.u <= clo->lst.t.u);
-	} else if (clo->dir < 0 && clo->fst.t.u > clo->lst.t.u) {
-		return (now.t.u <= clo->fst.t.u && now.t.u >= clo->lst.t.u);
-	} else if (clo->dir > 0) {
-		return (now.t.u >= clo->fst.t.u || now.t.u <= clo->lst.t.u);
+	/* otherwise perform a simple range check */
+	if (clo->dir > 0) {
+		if (now.t.u >= clo->fst.t.u && now.t.u <= clo->lst.t.u) {
+			return true;
+		} else if (clo->fst.t.u >= clo->lst.t.u) {
+			return now.t.u <= clo->lst.t.u || now.d.daisydur == 0;
+		}
 	} else if (clo->dir < 0) {
-		return (now.t.u <= clo->fst.t.u || now.t.u >= clo->lst.t.u);
+		if (now.t.u <= clo->fst.t.u && now.t.u >= clo->lst.t.u) {
+			return true;
+		} else if (clo->fst.t.u <= clo->lst.t.u) {
+			return now.t.u >= clo->lst.t.u || now.d.daisydur == 0;
+		}
 	}
 	return false;
 }
@@ -335,7 +339,8 @@ static struct dt_dt_s
 __seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
 /* advance NOW, then fix it */
-	return __seq_this(date_add(now, clo->ite, clo->nite), clo);
+	struct dt_dt_s tmp = date_add(now, clo->ite, clo->nite);
+	return __seq_this(tmp, clo);
 }
 
 static int
@@ -637,9 +642,7 @@ increment must not be naught\n", stderr);
 		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	for (unsigned int oflo = (clo.fst.t.u != clo.lst.t.u);
-	     __in_range_p(tmp, &clo) && oflo <= SECS_PER_DAY;
-	     tmp = __seq_next(tmp, &clo), oflo += clo.ite->t.sdur) {
+	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
 		dt_io_write(tmp, ofmt, NULL);
 	}
 
