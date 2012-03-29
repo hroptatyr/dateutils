@@ -182,6 +182,9 @@ dt_tests += dtconv.21.dt
 dt_tests += dtconv.22.dt
 dt_tests += dtconv.23.dt
 
+dt_tests += dtseq.1.dt
+dt_tests += dtseq.2.dt
+
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
 check_PROGRAMS += struct-3
