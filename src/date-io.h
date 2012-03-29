@@ -716,7 +716,7 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((st->curr = dt_strpdur(sp, (char**)&ep)).typ > DT_UNK) {
+	if ((st->curr = dt_strpddur(sp, (char**)&ep)).typ > DT_UNK) {
 		if (st->durs == NULL) {
 			st->durs = calloc(16, sizeof(*st->durs));
 		} else if ((st->ndurs % 16) == 0) {
