@@ -107,7 +107,7 @@ main(int argc, char *argv[])
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
 	inp = unfixup_arg(argi->inputs[0]);
-	if ((t = dt_io_strpt(inp, fmt, nfmt)).typ > DT_TUNK) {
+	if ((t = dt_io_strpt(inp, fmt, nfmt)).typ > DT_TUNK && !t.dur) {
 		/* ah good, it's a date */
 		beg_idx++;
 	}
