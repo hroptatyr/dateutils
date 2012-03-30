@@ -63,6 +63,8 @@ extern "C" {
 #include "time-core.h"
 
 typedef enum {
+	/* this one's our own version of UNK */
+	DT_UNK = 0,
 	/* the lower date types come from date-core.h */
 	DT_PACK = DT_NDTYP,
 	DT_YMDHMS = DT_PACK,
@@ -237,13 +239,13 @@ static inline struct dt_dt_s
 dt_dt_initialiser(void)
 {
 #if defined __C1X
-	struct dt_dt_s res = {.d.typ = DT_UNK, .d.u = 0, .t.u = 0};
+	struct dt_dt_s res = {.typ = DT_UNK, .d.u = 0, .t.u = 0};
 #else  /* !__C1X */
 	struct dt_dt_s res;
 #endif	/* __C1X */
 
 #if !defined __C1X
-	res.d.typ = DT_UNK;
+	res.typ = DT_UNK;
 	res.d.u = 0;
 	res.t.u = 0;
 #endif	/* !__C1X */
@@ -268,7 +270,7 @@ dt_sandwich_only_t_p(struct dt_dt_s d)
 	return d.sandwich && d.typ == DT_UNK;
 }
 
-#define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
+#define DT_SANDWICH_UNK		(DT_UNK)
 
 static inline void
 dt_make_sandwich(struct dt_dt_s *d, dt_dtyp_t dty, dt_ttyp_t tty)
