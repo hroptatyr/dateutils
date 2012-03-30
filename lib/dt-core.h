@@ -268,11 +268,35 @@ dt_sandwich_only_t_p(struct dt_dt_s d)
 }
 
 #define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
-#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(x)
+#define DT_SANDWICH_DT(x, y)	(dt_dttyp_t)(x)
 #define DT_SANDWICH_D(x)	(dt_dtyp_t)(x)
 #define DT_SANDWICH_T(x)	(dt_ttyp_t)(DT_HMS)
-#define DT_SANDWICH_D_ONLY(x)	(dt_dttyp_t)(x)
-#define DT_SANDWICH_T_ONLY(x)	(dt_dttyp_t)(DT_UNK)
+
+static inline void
+dt_make_sandwich(struct dt_dt_s *d, dt_dtyp_t dty, dt_ttyp_t tty)
+{
+	d->typ = DT_SANDWICH_DT(dty, tty);
+	d->t.typ = tty;
+	d->sandwich = 1;
+	return;
+}
+
+static inline void
+dt_make_d_only(struct dt_dt_s *d, dt_dtyp_t dty)
+{
+	d->typ = DT_SANDWICH_DT(dty, DT_TUNK);
+	d->sandwich = 1;
+	return;
+}
+
+static inline void
+dt_make_t_only(struct dt_dt_s *d, dt_ttyp_t tty)
+{
+	d->typ = DT_SANDWICH_DT(DT_UNK, tty);
+	d->t.typ = tty;
+	d->sandwich = 0;
+	return;
+}
 
 
 #if defined INCLUDE_DATETIME_CORE_IMPL
