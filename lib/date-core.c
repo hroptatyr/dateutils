@@ -974,7 +974,7 @@ static inline dt_bizda_param_t
 __get_bizda_param(struct dt_d_s that)
 {
 #if defined __C1X
-	dt_bizda_param_t p = {.u = that.param};
+	dt_bizda_param_t p = {.bs = that.param};
 #else  /* !__C1X */
 	dt_bizda_param_t p;
 	p.u = that.param;

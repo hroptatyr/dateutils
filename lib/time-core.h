@@ -163,6 +163,26 @@ DECLF int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
 DECLF struct dt_t_s dt_time(void);
 
 
+/* some useful gimmicks, sort of */
+static inline struct dt_t_s
+dt_t_initialiser(void)
+{
+#if defined __C1X
+	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U, .u = 0U};
+#else  /* !__C1X */
+	struct dt_t_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.typ = DT_TUNK;
+	res.dur = 0U;
+	res.neg = 0U;
+	res.u = 0U;
+#endif	/* !__C1X */
+	return res;
+}
+
+
 #if defined INCLUDE_TIME_CORE_IMPL
 # include "time-core.c"
 #endif	/* INCLUDE_TIME_CORE_IMPL */

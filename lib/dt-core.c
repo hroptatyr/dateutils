@@ -179,7 +179,7 @@ __strpdt_std(const char *str, char **ep)
 		break;
 	}
 	/* guess what we're doing */
-	if ((res.d = __guess_dtyp(d.sd)).typ == DT_UNK) {
+	if ((res.d = __guess_dtyp(d.sd)).typ == DT_DUNK) {
 		/* not much use parsing on */
 		goto out;
 	}
@@ -220,7 +220,7 @@ eval_time:
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
-	if (res.d.typ > DT_UNK) {
+	if (res.d.typ > DT_DUNK) {
 		dt_make_sandwich(&res, res.d.typ, DT_HMS);
 	} else {
 		dt_make_t_only(&res, DT_HMS);
@@ -390,7 +390,7 @@ DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 	const char *sp = str;
 	const char *fp = fmt;
 
@@ -445,9 +445,9 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	res.d = __guess_dtyp(d.sd);
 	res.t = __guess_ttyp(d.st);
 
-	if (res.d.typ > DT_UNK && res.t.typ > DT_TUNK) {
+	if (res.d.typ > DT_DUNK && res.t.typ > DT_TUNK) {
 		dt_make_sandwich(&res, res.d.typ, res.t.typ);
-	} else if (res.d.typ > DT_UNK) {
+	} else if (res.d.typ > DT_DUNK) {
 		dt_make_d_only(&res, res.d.typ);
 	} else if (res.t.typ > DT_TUNK) {
 		dt_make_t_only(&res, res.t.typ);
@@ -463,7 +463,7 @@ out:
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -535,7 +535,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	}
 	try_time:
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		if (fmt == NULL && dt_sandwich_only_t_p(that)) {
 			fmt = hms_dflt;
 			break;
@@ -598,7 +598,7 @@ dt_strpdtdur(const char *str, char **ep)
 	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp = str;
 	int tmp;
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 
 	if (str == NULL) {
 		goto out;
@@ -709,7 +709,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -767,7 +767,7 @@ dt_strfdtdur(
 		break;
 	}
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		goto out;
 	}
 	/* translate high-level format names */
@@ -931,7 +931,7 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 		/* actually this is a parametrised date */
 		res.d.bizda = dt_conv_to_bizda(d.d);
 		break;
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -962,7 +962,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	if (carry && dur.d.typ == DT_DAISY) {
 		/* just add the carry, daisydur is signed enough */
 		dur.d.daisydur += carry;
-	} else if (carry && dur.d.typ == DT_UNK) {
+	} else if (carry && dur.d.typ == DT_DUNK) {
 		/* fiddle with the dur, so we can use date-core's adder */
 		dur.d.typ = DT_DAISY;
 		/* add the carry */
@@ -973,10 +973,10 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 
 	/* demote D's and DUR's type temporarily */
-	if ((typ = d.typ) != DT_SANDWICH_UNK && dur.d.typ != DT_UNK) {
+	if ((typ = d.typ) != DT_SANDWICH_UNK && dur.d.typ != DT_DUNK) {
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
-	} else if (dur.d.typ != DT_UNK) {
+	} else if (dur.d.typ != DT_DUNK) {
 		/* put the carry back into d's daisydur slot */
 		d.d.daisydur += dur.d.daisydur;
 	}
@@ -996,7 +996,7 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 	}
 	/* go through it hierarchically and without upmotes */
 	switch (d1.d.typ) {
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		goto try_time;
 	case DT_YMD:

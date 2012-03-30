@@ -3,11 +3,14 @@
 #include <inttypes.h>
 #include "dt-core.h"
 
-#define CHECK(pred, args...)			\
+#define CHECK_RES(rc, pred, args...)		\
 	if (pred) {				\
 		fprintf(stderr, args);		\
-		res = 1;			\
+		res = rc;			\
 	}
+
+#define CHECK(pred, args...)			\
+	CHECK_RES(1, pred, args)
 
 static int
 test_d_only_no_fmt(void)
@@ -42,10 +45,10 @@ test_d_only_no_fmt(void)
 	CHECK(d.d.ymd.d != 28,
 	      "  DAY %u ... should be 28\n",
 	      (unsigned int)d.d.ymd.d);
-	/* make sure the padding leaves no garbage */
-	CHECK(d.d.ymd.u & ~0x1fffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	/* make sure the padding leaves no garbage, not fatal tho */
+	CHECK_RES(res, d.d.ymd.u & ~0x1fffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.d.ymd.u & ~0x1fffff));
 	return res;
 }
 
@@ -90,9 +93,9 @@ test_t_only_no_fmt(void)
 	      "  NANOSECOND %u ... should be 0\n",
 	      (unsigned int)d.t.hms.ns);
 	/* make sure the padding leaves no garbage */
-	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	CHECK_RES(res, d.t.hms.u & ~0x1f3f3f3fffffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 
@@ -145,12 +148,12 @@ test_dt_no_fmt(void)
 	      (unsigned int)d.t.hms.ns);
 
 	/* make sure the padding leaves no garbage */
-	CHECK(d.d.ymd.u & ~0x1fffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
-	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	CHECK_RES(res, d.d.ymd.u & ~0x1fffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	CHECK_RES(res, d.t.hms.u & ~0x1f3f3f3fffffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 
