@@ -252,9 +252,9 @@ __daisy_feasible_p(struct dt_dt_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->typ == DT_YMD && dur->d.ymd.m) {
+	} else if (dur->typ == (dt_dttyp_t)DT_YMD && dur->d.ymd.m) {
 		return false;
-	} else if (dur->typ == DT_BIZDA && (dur->d.bizda.bd)) {
+	} else if (dur->typ == (dt_dttyp_t)DT_BIZDA && (dur->d.bizda.bd)) {
 		return false;
 	}
 	return true;
@@ -622,8 +622,8 @@ cannot mix dates and times as arguments\n", stderr);
 	/* convert to daisies */
 	if (dt_sandwich_only_d_p(clo.fst) &&
 	    __daisy_feasible_p(clo.ite, clo.nite) &&
-	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).typ != DT_DAISY ||
-	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).typ != DT_DAISY)) {
+	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).d.typ != DT_DAISY ||
+	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_given) {
 			fputs("\
 cannot convert calendric system internally\n", stderr);
