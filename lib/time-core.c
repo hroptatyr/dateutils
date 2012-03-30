@@ -304,19 +304,10 @@ __strft_card(
 DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
-#if defined __C1X
-	struct dt_t_s res = {.s = -1};
-#else
 	struct dt_t_s res;
-#endif
 	struct strpt_s d = {0};
 	const char *sp;
 	const char *fp;
-
-#if !defined __C1X
-/* thanks gcc */
-	res.s = -1;
-#endif
 
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
