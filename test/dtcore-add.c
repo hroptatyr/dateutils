@@ -222,12 +222,12 @@ dt_add_t(void)
 		 "  SECOND %u ... should be %u\n");
 
 	/* make sure the padding leaves no garbage */
-	CHECK(d.d.ymd.u & ~0x1fffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
-	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
-	      "  TIME PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	CHECK_RES(res, d.d.ymd.u & ~0x1fffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	CHECK_RES(res, d.t.hms.u & ~0x1f3f3f3fffffff,
+		  "  TIME PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 
@@ -282,12 +282,12 @@ dt_add_dt(void)
 		 "  SECOND %u ... should be %u\n");
 
 	/* make sure the padding leaves no garbage */
-	CHECK(d.d.ymd.u & ~0x1fffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
-	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
-	      "  TIME PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	CHECK_RES(res, d.d.ymd.u & ~0x1fffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	CHECK_RES(res, d.t.hms.u & ~0x1f3f3f3fffffff,
+		  "  TIME PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 
