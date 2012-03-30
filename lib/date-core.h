@@ -67,7 +67,7 @@ typedef enum {
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
-	DT_NTYP,
+	DT_NDTYP,
 } dt_dtyp_t;
 
 #define DT_MIN_YEAR	(0)

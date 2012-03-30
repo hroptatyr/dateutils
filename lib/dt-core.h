@@ -64,10 +64,9 @@ extern "C" {
 
 typedef enum {
 	/* the lower date types come from date-core.h */
-	DT_PACK = DT_NTYP,
+	DT_PACK = DT_NDTYP,
 	DT_SEXY,
-	/* date AND time sandwich, bitmask */
-	DT_SANDWICH = 16,
+	DT_NDTTYP,
 } dt_dttyp_t;
 
 /** packs
