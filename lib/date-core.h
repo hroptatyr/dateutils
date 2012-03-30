@@ -355,6 +355,33 @@ DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
 DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 
+/* some useful gimmicks, sort of */
+static inline struct dt_d_s
+dt_d_initialiser(void)
+{
+#if defined __C1X
+	struct dt_d_s res = {
+		.typ = DT_DUNK,
+		.dur = 0U,
+		.neg = 0U,
+		.param = 0U,
+		.u = 0U
+	};
+#else  /* !__C1X */
+	struct dt_d_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.typ = DT_DUNK;
+	res.dur = 0U;
+	res.neg = 0U;
+	res.param = 0U;
+	res.u = 0U;
+#endif	/* !__C1X */
+	return res;
+}
+
+
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"
 #endif	/* INCLUDE_DATE_CORE_IMPL */
