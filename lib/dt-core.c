@@ -83,23 +83,6 @@ struct strpdti_s {
 	signed int S;
 };
 
-static struct dt_dt_s
-__dt_dt_initialiser(void)
-{
-#if defined __C1X
-	struct dt_dt_s res = {.d.typ = DT_UNK, .d.u = 0, .t.u = 0};
-#else  /* !__C1X */
-	struct dt_dt_s res;
-#endif	/* __C1X */
-
-#if !defined __C1X
-	res.d.typ = DT_UNK;
-	res.d.u = 0;
-	res.t.u = 0;
-#endif	/* !__C1X */
-	return res;
-}
-
 #include "strops.c"
 
 /* daisy is competing with the prevalent unix epoch, this is the offset */
@@ -141,7 +124,7 @@ __trans_dtfmt(const char **fmt)
 static struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
-	struct dt_dt_s res = __dt_dt_initialiser();
+	struct dt_dt_s res = dt_dt_initialiser();
 	struct strpdt_s d = {{0}, {0}};
 	const char *sp;
 
@@ -406,7 +389,7 @@ __tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
 DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_dt_s res = __dt_dt_initialiser();
+	struct dt_dt_s res = dt_dt_initialiser();
 	struct strpdt_s d = {{0}};
 	const char *sp = str;
 	const char *fp = fmt;
@@ -612,7 +595,7 @@ DEFUN struct dt_dt_s
 dt_strpdtdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_dt_s res = __dt_dt_initialiser();
+	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp = str;
 	int tmp;
 	struct strpdt_s d = {{0}};
@@ -864,7 +847,7 @@ dt_dtdur_neg_p(struct dt_dt_s dur)
 DEFUN struct dt_dt_s
 dt_datetime(dt_dtyp_t outtyp)
 {
-	struct dt_dt_s res = __dt_dt_initialiser();
+	struct dt_dt_s res = dt_dt_initialiser();
 	struct timeval tv;
 
 	if (gettimeofday(&tv, NULL) < 0) {
@@ -932,7 +915,7 @@ dt_datetime(dt_dtyp_t outtyp)
 DEFUN struct dt_dt_s
 dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 {
-	struct dt_dt_s res = __dt_dt_initialiser();
+	struct dt_dt_s res = dt_dt_initialiser();
 
 	switch (tgttyp) {
 	case DT_YMD:
