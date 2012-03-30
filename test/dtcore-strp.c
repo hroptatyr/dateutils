@@ -60,6 +60,7 @@ test_t_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
+	CHECK(!dt_sandwich_only_t_p(d), "  TYPE is not a t-only\n");
 	CHECK(d.typ != DT_SANDWICH_UNK,
 	      "  TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.typ,
