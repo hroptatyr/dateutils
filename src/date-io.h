@@ -358,7 +358,7 @@ dt_io_find_strpd2(
 	const struct grep_atom_soa_s *needles,
 	char **sp, char **ep)
 {
-	struct dt_d_s d = {DT_DUNK};
+	struct dt_d_s d = dt_d_initialiser();
 	const char *needle = needles->needle;
 	const char *p = str;
 

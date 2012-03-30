@@ -275,7 +275,7 @@ dt_io_find_strpt2(
 	const struct tgrep_atom_soa_s *needles,
 	char **sp, char **ep)
 {
-	struct dt_t_s t;
+	struct dt_t_s t = dt_t_initialiser();
 	const char *needle = needles->needle;
 	const char *p;
 
