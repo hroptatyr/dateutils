@@ -12,7 +12,7 @@ main(void)
 		return 1;
 	}
 
-	dt_make_sandwich(&dt, DT_UNK, DT_TUNK);
+	dt_make_sandwich(&dt, DT_DUNK, DT_TUNK);
 	if (!dt.sandwich || dt.d.neg || dt.d.dur) {
 		return 1;
 	}
