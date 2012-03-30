@@ -60,14 +60,14 @@ extern "C" {
 #endif	/* !restrict */
 
 typedef enum {
-	DT_UNK,
+	DT_DUNK,
 	DT_YMD,
 	DT_YMCW,
 	DT_BIZDA,
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
-	DT_NTYP,
+	DT_NDTYP,
 } dt_dtyp_t;
 
 #define DT_MIN_YEAR	(0)
@@ -171,11 +171,17 @@ typedef union {
 /**
  * Collection of all date types. */
 struct dt_d_s {
-	/* for parametrised types */
-	dt_dtyp_t typ:9;
+	/* date type */
+	dt_dtyp_t typ:4;
+	/* unused here, but used by inherited types (e.g. dt_dt_s) */
+	uint32_t:4;
+	/* duration predicate */
 	uint32_t dur:1;
+	/* negated predicate */
 	uint32_t neg:1;
-	uint32_t:5;
+	/* fill up to next ui16 boundary */
+	uint32_t:6;
+	/* for parametrised types */
 	uint32_t param:16;
 	union {
 		uint32_t u;
@@ -314,7 +320,7 @@ DECLF unsigned int dt_get_yday(struct dt_d_s d);
 /**
  * Add duration DUR to date D.
  * The result will be in the calendar as specified by TGTTYP, or if
- * DT_UNK is given, the calendar of D will be used. */
+ * DT_DUNK is given, the calendar of D will be used. */
 DECLF struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_d_s dur);
 

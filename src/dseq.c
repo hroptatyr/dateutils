@@ -527,7 +527,7 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 				lst.d = dt_date(DT_YMD);
 			}
 
-			ite_p1.typ = DT_SANDWICH_D_ONLY(DT_DAISY);
+			dt_make_d_only(&ite_p1, DT_DAISY);
 			ite_p1.d.daisy = 1;
 		} else if (dt_sandwich_only_t_p(fst)) {
 			/* emulates old tseq(1) */
@@ -539,7 +539,7 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 				lst = dt_datetime(DT_YMD);
 			}
 
-			ite_p1.typ = DT_SANDWICH_DT(DT_DAISY);
+			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
 			ite_p1.d.daisy = 1;
 		} else {
 			fputs("\
@@ -598,19 +598,19 @@ cannot mix dates and times as arguments\n", stderr);
 	} else if (dt_sandwich_only_d_p(clo.fst) && dt_sandwich_p(clo.lst)) {
 		/* promote clo.fst */
 		clo.fst.t = clo.lst.t;
-		clo.fst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+		dt_make_sandwich(&clo.fst, clo.fst.d.typ, clo.lst.t.typ);
 	} else if (dt_sandwich_p(clo.fst) && dt_sandwich_only_d_p(clo.lst)) {
 		/* promote clo.lst */
-		clo.fst.t = clo.lst.t;
-		clo.fst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+		clo.lst.t = clo.fst.t;
+		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	} else if (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_p(clo.lst)) {
 		/* promote clo.fst */
 		clo.fst.d = clo.lst.d;
-		clo.fst.typ = DT_SANDWICH_DT(clo.lst.d.typ);
+		dt_make_sandwich(&clo.fst, clo.fst.d.typ, clo.lst.t.typ);
 	} else if (dt_sandwich_p(clo.fst) && dt_sandwich_only_t_p(clo.lst)) {
 		/* promote clo.lst */
 		clo.lst.d = clo.fst.d;
-		clo.lst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	}
 
 	/* convert to daisies */
