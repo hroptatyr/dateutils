@@ -268,9 +268,6 @@ dt_sandwich_only_t_p(struct dt_dt_s d)
 }
 
 #define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
-#define DT_SANDWICH_DT(x, y)	(dt_dttyp_t)(x)
-#define DT_SANDWICH_D(x)	(dt_dtyp_t)(x)
-#define DT_SANDWICH_T(x)	(dt_ttyp_t)(DT_HMS)
 
 static inline void
 dt_make_sandwich(struct dt_dt_s *d, dt_dtyp_t dty, dt_ttyp_t tty)
