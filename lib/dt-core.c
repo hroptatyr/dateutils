@@ -227,7 +227,6 @@ eval_time:
 	}
 	goto out;
 try_date:
-	res.t = dt_t_initialiser();
 	/* should be a no-op */
 	dt_make_d_only(&res, res.d.typ);
 out:
