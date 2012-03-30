@@ -89,7 +89,8 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 		tmp.daisy = d_utc / 86400 + DAISY_UNIX_BASE;
 #endif	/* __C1X */
 
-		dt.d = dt_conv(dt.d.typ, tmp);
+		tmp = dt_conv(dt.d.typ, tmp);
+		dt.d.u = tmp.u;
 	}
 
 	/* convert the time part back */
@@ -137,7 +138,8 @@ dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 		tmp.daisy = d_loc / 86400 + DAISY_UNIX_BASE;
 #endif	/* __C1X */
 
-		dt.d = dt_conv(dt.d.typ, tmp);
+		tmp = dt_conv(dt.d.typ, tmp);
+		dt.d.u = tmp.u;
 	}
 
 	/* convert the time part back */
