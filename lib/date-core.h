@@ -357,6 +357,7 @@ DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 /* some useful gimmicks, sort of */
 static inline struct dt_d_s
+__attribute__((pure, const))
 dt_d_initialiser(void)
 {
 #if defined __C1X
