@@ -859,7 +859,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	case DT_YMCW: {
 		struct tm tm;
 		ffff_gmtime(&tm, tv.tv_sec);
-		switch (res.typ) {
+		switch (outtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
 			res.d.ymd.m = tm.tm_mon;
