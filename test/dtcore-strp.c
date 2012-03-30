@@ -106,6 +106,7 @@ test_dt_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
+	CHECK(!dt_sandwich_p(d), "  TYPE is not a sandwich\n");
 	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.d.typ,
