@@ -234,14 +234,13 @@ try_time:
 		goto eval_time;
 	}
 eval_time:
-	res.t.typ = DT_HMS;
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
 	if (res.d.typ > DT_UNK) {
-		dt_make_sandwich(&res, res.d.typ, DT_TUNK);
+		dt_make_sandwich(&res, res.d.typ, DT_HMS);
 	} else {
-		dt_make_t_only(&res, res.t.typ);
+		dt_make_t_only(&res, DT_HMS);
 	}
 	goto out;
 try_date:
