@@ -490,7 +490,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
-	switch (DT_SANDWICH_D_TYPE(that.d.typ)) {
+	switch (DT_SANDWICH_D(that.d.typ)) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
@@ -830,7 +830,7 @@ dt_neg_dtdur(struct dt_dt_s dur)
 	dur.t.neg = (uint16_t)(~dur.t.neg & 0x01);
 
 	/* treat daisy and bizsi durs specially */
-	switch (DT_SANDWICH_D_TYPE(dur.typ)) {
+	switch (DT_SANDWICH_D(dur.typ)) {
 	case DT_DAISY:
 		dur.d.daisydur = -dur.d.daisydur;
 		break;
@@ -850,7 +850,7 @@ DEFUN int
 dt_dtdur_neg_p(struct dt_dt_s dur)
 {
 	/* daisy durs and bizsi durs are special */
-	switch (DT_SANDWICH_D_TYPE(dur.typ)) {
+	switch (DT_SANDWICH_D(dur.typ)) {
 	case DT_DAISY:
 		return dur.d.daisydur < 0;
 	case DT_BIZSI:
@@ -934,7 +934,7 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 {
 	struct dt_dt_s res = __dt_dt_initialiser();
 
-	switch (DT_SANDWICH_D_TYPE(tgttyp)) {
+	switch (DT_SANDWICH_D(tgttyp)) {
 	case DT_YMD:
 		res.d.ymd = dt_conv_to_ymd(d.d);
 		break;
@@ -976,10 +976,10 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 
 	/* store the carry somehow */
-	if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_DAISY) {
+	if (carry && DT_SANDWICH_D(dur.d.typ) == DT_DAISY) {
 		/* just add the carry, daisydur is signed enough */
 		dur.d.daisydur += carry;
-	} else if (carry && DT_SANDWICH_D_TYPE(dur.d.typ) == DT_UNK) {
+	} else if (carry && DT_SANDWICH_D(dur.d.typ) == DT_UNK) {
 		/* fiddle with the dur, so we can use date-core's adder */
 		dur.d.typ = DT_DAISY;
 		/* add the carry */
@@ -990,11 +990,11 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 
 	/* demote D's and DUR's type temporarily */
-	if ((d.d.typ = DT_SANDWICH_D_TYPE(typ = d.typ)) != DT_UNK &&
-	    (dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
+	if ((d.d.typ = DT_SANDWICH_D(typ = d.typ)) != DT_UNK &&
+	    (dur.d.typ = DT_SANDWICH_D(dur.d.typ)) != DT_UNK) {
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
-	} else if ((dur.d.typ = DT_SANDWICH_D_TYPE(dur.d.typ)) != DT_UNK) {
+	} else if ((dur.d.typ = DT_SANDWICH_D(dur.d.typ)) != DT_UNK) {
 		/* put the carry back into d's daisydur slot */
 		d.d.daisydur += dur.d.daisydur;
 	}
@@ -1013,7 +1013,7 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 		return -2;
 	}
 	/* go through it hierarchically and without upmotes */
-	switch (DT_SANDWICH_D_TYPE(d1.typ)) {
+	switch (DT_SANDWICH_D(d1.typ)) {
 	case DT_UNK:
 	default:
 		goto try_time;
@@ -1042,7 +1042,7 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 try_time:
 #if 0
 /* constant select is evil */
-	switch (DT_SANDWICH_T_TYPE(d1.typ)) {
+	switch (DT_SANDWICH_T(d1.typ)) {
 	case DT_HMS:
 		if (d1.t.hms.u < d2.t.hms.u) {
 			return -1;
