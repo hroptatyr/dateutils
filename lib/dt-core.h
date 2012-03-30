@@ -236,6 +236,7 @@ dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /* some useful gimmicks, sort of */
 static inline struct dt_dt_s
+__attribute__((pure, const))
 dt_dt_initialiser(void)
 {
 #if defined __C1X

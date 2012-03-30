@@ -164,6 +164,7 @@ DECLF struct dt_t_s dt_time(void);
 
 /* some useful gimmicks, sort of */
 static inline struct dt_t_s
+__attribute__((pure, const))
 dt_t_initialiser(void)
 {
 #if defined __C1X
