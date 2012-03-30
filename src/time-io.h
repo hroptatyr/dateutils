@@ -551,6 +551,7 @@ dt_strptdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
+	res.typ = DT_HMS;
 	res.sdur = tmp;
 	res.dur = 1;
 out:
