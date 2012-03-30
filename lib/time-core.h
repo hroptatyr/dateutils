@@ -102,7 +102,6 @@ struct dt_t_s {
 	} __attribute__((packed));
 	union {
 		uint64_t u:56;
-		int64_t s:56;
 		signed int sdur;
 		dt_hms_t hms;
 	} __attribute__((packed));
