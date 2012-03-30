@@ -86,14 +86,14 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_arg;
 	nifmt = argi->input_format_given;
 
-	if ((t1 = dt_io_strpt(argi->inputs[0], ifmt, nifmt)).s < 0) {
+	if ((t1 = dt_io_strpt(argi->inputs[0], ifmt, nifmt)).typ == DT_TUNK) {
 		if (!argi->quiet_given) {
 			dt_io_warn_strpt(argi->inputs[0]);
 		}
 		res = 2;
 		goto out;
 	}
-	if ((t2 = dt_io_strpt(argi->inputs[1], ifmt, nifmt)).s < 0) {
+	if ((t2 = dt_io_strpt(argi->inputs[1], ifmt, nifmt)).typ == DT_TUNK) {
 		if (!argi->quiet_given) {
 			dt_io_warn_strpt(argi->inputs[1]);
 		}

@@ -107,7 +107,7 @@ main(int argc, char *argv[])
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
 	inp = unfixup_arg(argi->inputs[0]);
-	if ((t = dt_io_strpt(inp, fmt, nfmt)).s >= 0) {
+	if ((t = dt_io_strpt(inp, fmt, nfmt)).typ > DT_TUNK) {
 		/* ah good, it's a date */
 		beg_idx++;
 	}
@@ -126,7 +126,7 @@ cannot parse duration string `%s'\n", st.istr);
 
 	/* start the actual work */
 	if (beg_idx > 0) {
-		if ((t = tadd_add(t, st.curr)).s >= 0) {
+		if ((t = tadd_add(t, st.curr)).typ > DT_TUNK) {
 			dt_io_write(t, ofmt);
 			res = 0;
 		} else {
@@ -172,7 +172,7 @@ cannot parse duration string `%s'\n", st.istr);
 				/* finish with newline again */
 				line[llen] = '\n';
 
-				if (t.s >= 0) {
+				if (t.typ > DT_TUNK) {
 					/* perform addition now */
 					t = tadd_add(t, st.curr);
 

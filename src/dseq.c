@@ -385,12 +385,7 @@ __fixup_fst(struct dseq_clo_s *clo)
 static struct dt_t_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
-#if defined __C1X
-	struct dt_t_s res = {.s = 0};
-#else
 	struct dt_t_s res;
-	res.s = 0;
-#endif
 
 	if (beg.hms.h != end.hms.h &&
 	    beg.hms.m == 0 && end.hms.m == 0&&
@@ -414,6 +409,7 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 			res.sdur = -1L;
 		}
 	}
+	res.dur = 1;
 	return res;
 }
 
