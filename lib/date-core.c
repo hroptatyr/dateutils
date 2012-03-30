@@ -2544,19 +2544,10 @@ __strfd_dur(
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
-#if defined __C1X
-	struct dt_d_s res = {.typ = DT_DUNK, .u = 0};
-#else
-	struct dt_d_s res;
-#endif
+	struct dt_d_s res = dt_d_initialiser();
 	struct strpd_s d = {0};
 	const char *sp = str;
 	const char *fp = fmt;
-
-#if !defined __C1X
-	res.typ = DT_DUNK;
-	res.u = 0;
-#endif
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str, ep);
