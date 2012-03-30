@@ -129,9 +129,7 @@ __guess_ttyp(struct strpt_s t)
 	}
 	return res;
 fucked:
-	res.typ = DT_TUNK;
-	res.u = 0;
-	return res;
+	return dt_t_initialiser();
 }
 
 static void
