@@ -80,7 +80,7 @@ struct dt_spec_s {
 static struct dt_spec_s
 __tok_spec(const char *fp, char **ep)
 {
-	struct dt_spec_s res = {{0}};
+	struct dt_spec_s res = {0};
 
 	if (*fp != '%') {
 		goto out;
