@@ -390,7 +390,7 @@ DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 	const char *sp = str;
 	const char *fp = fmt;
 
@@ -463,7 +463,7 @@ out:
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -598,7 +598,7 @@ dt_strpdtdur(const char *str, char **ep)
 	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp = str;
 	int tmp;
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 
 	if (str == NULL) {
 		goto out;
@@ -709,7 +709,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {{0}};
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 
