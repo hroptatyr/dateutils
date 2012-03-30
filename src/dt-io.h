@@ -35,7 +35,12 @@ dt_io_strpdt_ep(
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	dt_dttyp_t sandwich_off = DT_SANDWICH_UNK;
+	enum {
+		STRPDT_UNK,
+		STRPDT_DATE,
+		STRPDT_TIME,
+		STRPDT_NOW,
+	} now = STRPDT_UNK;
 
 	/* init */
 	if (ep) {
@@ -43,15 +48,27 @@ dt_io_strpdt_ep(
 	}
 	/* basic sanity checks, catch phrases first */
 	if (!strcasecmp(str, "now")) {
-		sandwich_off = DT_SANDWICH_DT(DT_YMD);
+		now = STRPDT_NOW;
 	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
-		sandwich_off = DT_SANDWICH_D_ONLY(DT_YMD);
+		now = STRPDT_DATE;
 	} else if (!strcasecmp(str, "time")) {
-		sandwich_off = DT_SANDWICH_T_ONLY(DT_UNK);
+		now = STRPDT_TIME;
 	}
-	if (sandwich_off > DT_UNK) {
+	if (now > STRPDT_UNK) {
 		res = dt_datetime(DT_YMD);
-		res.typ = (dt_dttyp_t)sandwich_off;
+		/* rinse according to flags */
+		switch (now) {
+		case STRPDT_DATE:
+			dt_make_d_only(&res, res.d.typ);
+			break;
+		case STRPDT_TIME:
+			dt_make_t_only(&res, res.t.typ);
+			break;
+		case STRPDT_NOW:
+		case STRPDT_UNK:
+		default:
+			break;
+		}
 		return res;
 	} else if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);

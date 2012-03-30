@@ -20,10 +20,11 @@ test_d_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	CHECK(d.typ != DT_SANDWICH_D_ONLY(DT_YMD),
+	CHECK(!dt_sandwich_only_d_p(d), "  TYPE is not a d-only\n");
+	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_D_ONLY(DT_YMD));
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
 	CHECK(d.t.u,
 	      "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.t.u);
@@ -59,10 +60,10 @@ test_t_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	CHECK(d.typ != DT_SANDWICH_T_ONLY(DT_HMS),
+	CHECK(d.typ != DT_SANDWICH_UNK,
 	      "  TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_T_ONLY(DT_HMS));
+	      (unsigned int)DT_SANDWICH_UNK);
 	CHECK(d.t.typ != DT_HMS,
 	      "  TIME TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.t.typ,
@@ -104,10 +105,10 @@ test_dt_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
+	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
 	CHECK(d.t.typ != DT_HMS,
 	      "  TIME TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.t.typ,

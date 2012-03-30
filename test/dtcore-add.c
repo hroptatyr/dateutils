@@ -24,7 +24,7 @@ add_d_only(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
-	dur.typ = DT_SANDWICH_D_ONLY(DT_DAISY);
+	dt_make_d_only(&dur, DT_DAISY);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.d.daisy = 1;
@@ -33,10 +33,10 @@ add_d_only(void)
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
 
-	CHECK(d.typ != DT_SANDWICH_D_ONLY(DT_YMD),
+	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_D_ONLY(DT_YMD));
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
 	CHECK(d.t.u,
 	      "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.t.u);
@@ -71,7 +71,7 @@ add_t_only(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
-	dur.typ = DT_SANDWICH_T_ONLY(DT_SEXY);
+	dt_make_t_only(&dur, DT_TUNK);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.t.dur = 1;
@@ -82,10 +82,14 @@ add_t_only(void)
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
 
-	CHECK(d.typ != DT_SANDWICH_T_ONLY(DT_HMS),
+	CHECK(d.typ != DT_SANDWICH_UNK,
 	      "  TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_T_ONLY(DT_HMS));
+	      (unsigned int)DT_SANDWICH_UNK);
+	CHECK(d.t.typ != DT_HMS,
+	      "  TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.t.typ,
+	      (unsigned int)DT_HMS);
 	CHECK(d.d.u,
 	      "  DATE COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.d.u);
@@ -119,7 +123,7 @@ dt_add_d(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
-	dur.typ = DT_SANDWICH_D_ONLY(DT_DAISY);
+	dt_make_d_only(&dur, DT_DAISY);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.d.daisy = 1;
@@ -130,10 +134,10 @@ dt_add_d(void)
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
 
-	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
+	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
 	CHECK(d.dur, "  DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
@@ -175,7 +179,7 @@ dt_add_t(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
-	dur.typ = DT_SANDWICH_T_ONLY(DT_SEXY);
+	dt_make_t_only(&dur, DT_TUNK);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.d.u = 0;
@@ -186,10 +190,14 @@ dt_add_t(void)
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
 
-	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
-	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	CHECK(d.d.typ != DT_YMD,
+	      "  DATE TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
+	CHECK(d.t.typ != DT_HMS,
+	      "  TIME TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.t.typ,
+	      (unsigned int)DT_HMS);
 	CHECK(d.dur, "  DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
@@ -231,7 +239,7 @@ dt_add_dt(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
-	dur.typ = DT_SANDWICH_DT(DT_DAISY);
+	dt_make_sandwich(&dur, DT_DAISY, DT_TUNK);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.d.daisy = 1;
@@ -242,10 +250,14 @@ dt_add_dt(void)
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
 
-	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
-	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	CHECK(d.d.typ != DT_YMD,
+	      "  DATE TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
+	CHECK(d.t.typ != DT_HMS,
+	      "  TIME TYPE DIFFERS %u ... should be %u\n",
+	      (unsigned int)d.t.typ,
+	      (unsigned int)DT_HMS);
 	CHECK(d.dur, "  DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
