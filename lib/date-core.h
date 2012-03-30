@@ -60,14 +60,14 @@ extern "C" {
 #endif	/* !restrict */
 
 typedef enum {
-	DT_UNK,
+	DT_DUNK,
 	DT_YMD,
 	DT_YMCW,
 	DT_BIZDA,
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
-	DT_NTYP,
+	DT_NDTYP,
 } dt_dtyp_t;
 
 #define DT_MIN_YEAR	(0)
@@ -149,14 +149,16 @@ typedef union {
 } dt_bizda_t;
 
 typedef union {
-	uint32_t u:16;
+	uint16_t u;
+	uint32_t bs:16;
 	struct {
 		/* before or after */
 		unsigned int ab:1;
 		/* reference day, use 00 for ultimo */
 		unsigned int ref:5;
+		unsigned int:10;
 	};
-} dt_bizda_param_t;
+} __attribute__((__packed__)) dt_bizda_param_t;
 
 /**
  * One more type that's only used for durations. */
@@ -171,11 +173,17 @@ typedef union {
 /**
  * Collection of all date types. */
 struct dt_d_s {
-	/* for parametrised types */
-	dt_dtyp_t typ:9;
+	/* date type */
+	dt_dtyp_t typ:4;
+	/* unused here, but used by inherited types (e.g. dt_dt_s) */
+	uint32_t:4;
+	/* duration predicate */
 	uint32_t dur:1;
+	/* negated predicate */
 	uint32_t neg:1;
-	uint32_t:5;
+	/* fill up to next ui16 boundary */
+	uint32_t:6;
+	/* for parametrised types */
 	uint32_t param:16;
 	union {
 		uint32_t u;
@@ -314,7 +322,7 @@ DECLF unsigned int dt_get_yday(struct dt_d_s d);
 /**
  * Add duration DUR to date D.
  * The result will be in the calendar as specified by TGTTYP, or if
- * DT_UNK is given, the calendar of D will be used. */
+ * DT_DUNK is given, the calendar of D will be used. */
 DECLF struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_d_s dur);
 
@@ -345,6 +353,33 @@ DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
  * Check if D is in the interval spanned by D1 and D2,
  * 1 if D1 is younger than the D2. */
 DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
+
+
+/* some useful gimmicks, sort of */
+static inline struct dt_d_s
+dt_d_initialiser(void)
+{
+#if defined __C1X
+	struct dt_d_s res = {
+		.typ = DT_DUNK,
+		.dur = 0U,
+		.neg = 0U,
+		.param = 0U,
+		.u = 0U
+	};
+#else  /* !__C1X */
+	struct dt_d_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.typ = DT_DUNK;
+	res.dur = 0U;
+	res.neg = 0U;
+	res.param = 0U;
+	res.u = 0U;
+#endif	/* !__C1X */
+	return res;
+}
 
 
 #if defined INCLUDE_DATE_CORE_IMPL

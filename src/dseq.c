@@ -252,9 +252,9 @@ __daisy_feasible_p(struct dt_dt_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->typ == DT_YMD && dur->d.ymd.m) {
+	} else if (dur->typ == (dt_dttyp_t)DT_YMD && dur->d.ymd.m) {
 		return false;
-	} else if (dur->typ == DT_BIZDA && (dur->d.bizda.bd)) {
+	} else if (dur->typ == (dt_dttyp_t)DT_BIZDA && (dur->d.bizda.bd)) {
 		return false;
 	}
 	return true;
@@ -385,12 +385,7 @@ __fixup_fst(struct dseq_clo_s *clo)
 static struct dt_t_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
-#if defined __C1X
-	struct dt_t_s res = {.s = 0};
-#else
 	struct dt_t_s res;
-	res.s = 0;
-#endif
 
 	if (beg.hms.h != end.hms.h &&
 	    beg.hms.m == 0 && end.hms.m == 0&&
@@ -414,6 +409,7 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 			res.sdur = -1L;
 		}
 	}
+	res.dur = 1;
 	return res;
 }
 
@@ -498,8 +494,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 		goto out;
 
 	case 2:
-		if (!(lst = dt_io_strpdt(
-			      argi->inputs[1], ifmt, nifmt, NULL)).typ) {
+		lst = dt_io_strpdt(argi->inputs[1], ifmt, nifmt, NULL);
+		if (dt_unk_p(lst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[1]);
 			}
@@ -508,8 +504,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 		}
 		/* fallthrough */
 	case 1:
-		if (!(fst = dt_io_strpdt(
-			      argi->inputs[0], ifmt, nifmt, NULL)).typ) {
+		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);
+		if (dt_unk_p(fst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[0]);
 			}
@@ -527,7 +523,7 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 				lst.d = dt_date(DT_YMD);
 			}
 
-			ite_p1.typ = DT_SANDWICH_D_ONLY(DT_DAISY);
+			dt_make_d_only(&ite_p1, DT_DAISY);
 			ite_p1.d.daisy = 1;
 		} else if (dt_sandwich_only_t_p(fst)) {
 			/* emulates old tseq(1) */
@@ -536,10 +532,10 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->inputs_num == 1) {
-				lst = dt_datetime(DT_YMD);
+				lst = dt_datetime((dt_dttyp_t)DT_YMD);
 			}
 
-			ite_p1.typ = DT_SANDWICH_DT(DT_DAISY);
+			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
 			ite_p1.d.daisy = 1;
 		} else {
 			fputs("\
@@ -553,14 +549,18 @@ don't know how to handle single argument case\n", stderr);
 		break;
 	case 3: {
 		struct __strpdtdur_st_s st = {0};
-		if (!(fst = dt_io_strpdt(
-			      argi->inputs[0], ifmt, nifmt, NULL)).typ) {
+
+		/* get lower bound */
+		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);
+		if (dt_unk_p(fst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[0]);
 			}
 			res = 1;
 			goto out;
 		}
+
+		/* get increment */
 		unfixup_arg(argi->inputs[1]);
 		do {
 			if (dt_io_strpdtdur(&st, argi->inputs[1]) < 0) {
@@ -574,8 +574,10 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 		clo.ite = st.durs;
 		clo.nite = st.ndurs;
 		clo.flags |= CLO_FL_FREE_ITE;
-		if (!(lst = dt_io_strpdt(
-			      argi->inputs[2], ifmt, nifmt, NULL)).typ) {
+
+		/* get upper bound */
+		lst = dt_io_strpdt(argi->inputs[2], ifmt, nifmt, NULL);
+		if (dt_unk_p(lst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[2]);
 			}
@@ -598,26 +600,26 @@ cannot mix dates and times as arguments\n", stderr);
 	} else if (dt_sandwich_only_d_p(clo.fst) && dt_sandwich_p(clo.lst)) {
 		/* promote clo.fst */
 		clo.fst.t = clo.lst.t;
-		clo.fst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+		dt_make_sandwich(&clo.fst, clo.fst.d.typ, clo.lst.t.typ);
 	} else if (dt_sandwich_p(clo.fst) && dt_sandwich_only_d_p(clo.lst)) {
 		/* promote clo.lst */
-		clo.fst.t = clo.lst.t;
-		clo.fst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+		clo.lst.t = clo.fst.t;
+		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	} else if (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_p(clo.lst)) {
 		/* promote clo.fst */
 		clo.fst.d = clo.lst.d;
-		clo.fst.typ = DT_SANDWICH_DT(clo.lst.d.typ);
+		dt_make_sandwich(&clo.fst, clo.fst.d.typ, clo.lst.t.typ);
 	} else if (dt_sandwich_p(clo.fst) && dt_sandwich_only_t_p(clo.lst)) {
 		/* promote clo.lst */
 		clo.lst.d = clo.fst.d;
-		clo.lst.typ = DT_SANDWICH_DT(clo.fst.d.typ);
+		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	}
 
 	/* convert to daisies */
 	if (dt_sandwich_only_d_p(clo.fst) &&
 	    __daisy_feasible_p(clo.ite, clo.nite) &&
-	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).typ != DT_DAISY ||
-	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).typ != DT_DAISY)) {
+	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).d.typ != DT_DAISY ||
+	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_given) {
 			fputs("\
 cannot convert calendric system internally\n", stderr);

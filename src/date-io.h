@@ -47,7 +47,7 @@ dt_io_today_p(const char *str)
 static struct dt_d_s
 dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 {
-	struct dt_d_s res = {DT_UNK};
+	struct dt_d_s res = {DT_DUNK};
 
 	/* init */
 	if (ep) {
@@ -60,7 +60,7 @@ dt_io_strpd_ep(const char *str, const char *const *fmt, size_t nfmt, char **ep)
 		res = dt_strpd(str, NULL, ep);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
-			if ((res = dt_strpd(str, fmt[i], ep)).typ > DT_UNK) {
+			if ((res = dt_strpd(str, fmt[i], ep)).typ > DT_DUNK) {
 				break;
 			}
 		}
@@ -80,13 +80,13 @@ dt_io_find_strpd(
 	const char *needle, size_t needlen, char **sp, char **ep)
 {
 	const char *__sp = str;
-	struct dt_d_s d = {DT_UNK};
+	struct dt_d_s d = {DT_DUNK};
 	const char *const *cfmt = (const char*const*)fmt;
 
-	if ((d = dt_io_strpd_ep(__sp, cfmt, nfmt, ep)).typ == DT_UNK) {
+	if ((d = dt_io_strpd_ep(__sp, cfmt, nfmt, ep)).typ == DT_DUNK) {
 		while ((__sp = strstr(__sp, needle)) &&
 		       (d = dt_io_strpd_ep(
-				__sp += needlen, cfmt, nfmt, ep)).typ == DT_UNK);
+				__sp += needlen, cfmt, nfmt, ep)).typ == DT_DUNK);
 	}
 	*sp = (char*)__sp;
 	return d;
@@ -358,7 +358,7 @@ dt_io_find_strpd2(
 	const struct grep_atom_soa_s *needles,
 	char **sp, char **ep)
 {
-	struct dt_d_s d = {DT_UNK};
+	struct dt_d_s d = {DT_DUNK};
 	const char *needle = needles->needle;
 	const char *p = str;
 
@@ -716,7 +716,7 @@ dt_io_strpdur(struct __strpdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((st->curr = dt_strpddur(sp, (char**)&ep)).typ > DT_UNK) {
+	if ((st->curr = dt_strpddur(sp, (char**)&ep)).typ > DT_DUNK) {
 		if (st->durs == NULL) {
 			st->durs = calloc(16, sizeof(*st->durs));
 		} else if ((st->ndurs % 16) == 0) {

@@ -41,15 +41,7 @@ dt_io_now_p(const char *str)
 static struct dt_t_s
 dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 {
-#if defined __C1X
-	struct dt_t_s res = {.s = -1};
-#else
 	struct dt_t_s res;
-#endif
-
-#if !defined __C1X
-	res.s = -1;
-#endif
 
 	/* init */
 	if (ep) {
@@ -62,7 +54,7 @@ dt_io_strpt_ep(const char *str, char *const *fmt, size_t nfmt, char **ep)
 		res = dt_strpt(str, NULL, ep);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
-			if ((res = dt_strpt(str, fmt[i], ep)).s >= 0) {
+			if ((res = dt_strpt(str, fmt[i], ep)).typ > DT_TUNK) {
 				break;
 			}
 		}
@@ -82,18 +74,11 @@ dt_io_find_strpt(
 	const char *needle, size_t needlen, char **sp, char **ep)
 {
 	const char *__sp = str;
-#if defined __C1X
-	struct dt_t_s t = {.s = -1};
-#else
 	struct dt_t_s t;
-#endif
 
-#if !defined __C1X
-	t.s = -1;
-#endif
 	while ((__sp = strstr(__sp, needle)) &&
 	       (t = dt_io_strpt_ep(
-			__sp += needlen, fmt, nfmt, ep)).s < 0);
+			__sp += needlen, fmt, nfmt, ep)).typ == DT_TUNK);
 	*sp = (char*)__sp;
 	return t;
 }
@@ -290,17 +275,10 @@ dt_io_find_strpt2(
 	const struct tgrep_atom_soa_s *needles,
 	char **sp, char **ep)
 {
-#if defined __C1X
-	struct dt_t_s t = {.s = -1};
-#else
 	struct dt_t_s t;
-#endif
 	const char *needle = needles->needle;
 	const char *p;
 
-#if !defined __C1X
-	t.s = -1;
-#endif
 	for (p = str; *(p = xstrpbrk(p, needle)); p++) {
 		/* find the offset */
 		const struct tgrpatm_payload_s *fp;
@@ -321,7 +299,8 @@ dt_io_find_strpt2(
 			}
 			/* check p + min_off .. p + max_off for times */
 			for (int8_t i = f.off_min; i <= f.off_max; i++) {
-				if ((t = dt_strpt(p + i, fmt, ep)).s >= 0) {
+				t = dt_strpt(p + i, fmt, ep);
+				if (t.typ > DT_TUNK) {
 					p += i;
 					goto found;
 				}
@@ -349,7 +328,7 @@ dt_io_find_strpt2(
 			for (const char *q = p;
 			     *q && *q >= '0' && *q <= '9'; q++) {
 				if ((--f.off_min <= 0) &&
-				    (t = dt_strpt(p, fmt, ep)).s >= 0) {
+				    (t = dt_strpt(p, fmt, ep)).typ > DT_TUNK) {
 					goto found;
 				}
 			}
@@ -362,7 +341,8 @@ dt_io_find_strpt2(
 				continue;
 			}
 			for (int8_t j = f.off_min; j <= f.off_max; j++) {
-				if ((t = dt_strpt(p + j, fmt, ep)).s >=0) {
+				t = dt_strpt(p + j, fmt, ep);
+				if (t.typ > DT_TUNK) {
 					p += j;
 					goto found;
 				}
@@ -541,18 +521,10 @@ DEFUN struct dt_t_s
 dt_strptdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-#if defined __C1X
-	struct dt_t_s res = {.s = 0};
-#else
 	struct dt_t_s res;
-#endif
 	const char *sp = str;
 	int tmp;
 
-
-#if !defined __C1X
-	res.s = 0;
-#endif
 	if (str == NULL) {
 		goto out;
 	}
@@ -579,7 +551,9 @@ dt_strptdur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	res.sdur += tmp;
+	res.typ = DT_HMS;
+	res.sdur = tmp;
+	res.dur = 1;
 out:
 	if (ep) {
 		*ep = (char*)sp;

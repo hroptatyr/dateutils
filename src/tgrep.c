@@ -219,7 +219,7 @@ main(int argc, char *argv[])
 		o = OP_TRUE;
 	} else if (argi->inputs_num != 1 ||
 	    (o |= find_oper(argi->inputs[0], &inp)) == OP_TRUE ||
-	    (reft = dt_io_strpt(inp, fmt, nfmt)).s < 0) {
+	    (reft = dt_io_strpt(inp, fmt, nfmt)).typ == DT_TUNK) {
 		res = 1;
 		fputs("need a TIME to grep\n", stderr);
 		goto out;
@@ -268,7 +268,7 @@ main(int argc, char *argv[])
 				/* finish with newline again */
 				line[llen] = '\n';
 
-				if (t.s >= 0 && matchp(t, reft, o)) {
+				if (t.typ > DT_TUNK && matchp(t, reft, o)) {
 					const size_t msz = sizeof(*line);
 					if (argi->only_matching_given) {
 						line = sp;

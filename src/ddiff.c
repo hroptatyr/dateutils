@@ -177,7 +177,7 @@ main(int argc, char *argv[])
 	nfmt = argi->input_format_given;
 
 	if (argi->inputs_num == 0 ||
-	    (d = dt_io_strpd(argi->inputs[0], fmt, nfmt)).typ == DT_UNK) {
+	    (d = dt_io_strpd(argi->inputs[0], fmt, nfmt)).typ == DT_DUNK) {
 		fputs("Error: reference DATE must be specified\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
@@ -193,8 +193,8 @@ main(int argc, char *argv[])
 			struct dt_d_s dur;
 			const char *inp = argi->inputs[i];
 
-			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_UNK &&
-			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_UNK) {
+			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_DUNK &&
+			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_DUNK) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpd(inp);
@@ -223,9 +223,9 @@ main(int argc, char *argv[])
 
 				/* perform addition now */
 				if ((d2 = dt_io_strpd(
-					     line, fmt, nfmt)).typ > DT_UNK &&
+					     line, fmt, nfmt)).typ > DT_DUNK &&
 				    (dur = dt_ddiff(
-					     difftyp, d, d2)).typ > DT_UNK) {
+					     difftyp, d, d2)).typ > DT_DUNK) {
 					ddiff_prnt(dur, ofmt);
 				} else if (!argi->quiet_given) {
 					dt_io_warn_strpd(line);

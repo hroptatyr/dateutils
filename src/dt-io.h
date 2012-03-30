@@ -35,7 +35,12 @@ dt_io_strpdt_ep(
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	dt_dttyp_t sandwich_off = DT_SANDWICH_UNK;
+	enum {
+		STRPDT_UNK,
+		STRPDT_DATE,
+		STRPDT_TIME,
+		STRPDT_NOW,
+	} now = STRPDT_UNK;
 
 	/* init */
 	if (ep) {
@@ -43,26 +48,38 @@ dt_io_strpdt_ep(
 	}
 	/* basic sanity checks, catch phrases first */
 	if (!strcasecmp(str, "now")) {
-		sandwich_off = DT_SANDWICH_DT(DT_YMD);
+		now = STRPDT_NOW;
 	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
-		sandwich_off = DT_SANDWICH_D_ONLY(DT_YMD);
+		now = STRPDT_DATE;
 	} else if (!strcasecmp(str, "time")) {
-		sandwich_off = DT_SANDWICH_T_ONLY(DT_UNK);
+		now = STRPDT_TIME;
 	}
-	if (sandwich_off > DT_UNK) {
-		res = dt_datetime(DT_YMD);
-		res.typ = (dt_dttyp_t)sandwich_off;
+	if (now > STRPDT_UNK) {
+		res = dt_datetime((dt_dttyp_t)DT_YMD);
+		/* rinse according to flags */
+		switch (now) {
+		case STRPDT_DATE:
+			dt_make_d_only(&res, res.d.typ);
+			break;
+		case STRPDT_TIME:
+			dt_make_t_only(&res, res.t.typ);
+			break;
+		case STRPDT_NOW:
+		case STRPDT_UNK:
+		default:
+			break;
+		}
 		return res;
 	} else if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
-			if ((res = dt_strpdt(str, fmt[i], ep)).d.typ > DT_UNK) {
+			if (!dt_unk_p(res = dt_strpdt(str, fmt[i], ep))) {
 				break;
 			}
 		}
 	}
-	if (LIKELY(res.d.typ > DT_UNK) && zone != NULL) {
+	if (LIKELY(!dt_unk_p(res)) && zone != NULL) {
 		return dtz_forgetz(res, zone);
 	}
 	return res;
@@ -86,11 +103,12 @@ dt_io_find_strpdt(
 	struct dt_dt_s d = dt_dt_initialiser();
 	const char *const *cfmt = (const char*const*)fmt;
 
-	if ((d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone)).d.typ == DT_UNK) {
+	d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone);
+	if (dt_unk_p(d)) {
 		while ((__sp = strstr(__sp, needle)) &&
 		       (d = dt_io_strpdt_ep(
-				__sp += needlen, cfmt, nfmt, ep, zone))
-		       .d.typ == DT_UNK);
+				__sp += needlen, cfmt, nfmt, ep, zone),
+			dt_unk_p(d)));
 	}
 	*sp = (char*)__sp;
 	return d;
@@ -512,7 +530,7 @@ dt_io_find_strpdt2(
 	*ep = (char*)(p = str);
 found:
 	*sp = (char*)p;
-	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
+	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
 		return dtz_forgetz(d, zone);
 	}
 	return d;
@@ -641,7 +659,7 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 	static char buf[64];
 	size_t n;
 
-	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
+	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
 		d = dtz_enrichz(d, zone);
 	}
 	n = dt_io_strfdt_autonl(buf, sizeof(buf), fmt, d);
@@ -659,7 +677,7 @@ dt_io_write_sed(
 	static char buf[64];
 	size_t n;
 
-	if (LIKELY(d.d.typ > DT_UNK) && zone != NULL) {
+	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
 		d = dtz_enrichz(d, zone);
 	}
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d);
@@ -778,7 +796,8 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	if ((st->curr = dt_strpdtdur(sp, (char**)&ep)).typ > DT_UNK) {
+	st->curr = dt_strpdtdur(sp, (char**)&ep);
+	if (!dt_unk_p(st->curr)) {
 		if (st->durs == NULL) {
 			st->durs = calloc(16, sizeof(*st->durs));
 		} else if ((st->ndurs % 16) == 0) {

@@ -3,11 +3,14 @@
 #include <inttypes.h>
 #include "dt-core.h"
 
-#define CHECK(pred, args...)			\
+#define CHECK_RES(rc, pred, args...)		\
 	if (pred) {				\
 		fprintf(stderr, args);		\
-		res = 1;			\
+		res = rc;			\
 	}
+
+#define CHECK(pred, args...)			\
+	CHECK_RES(1, pred, args)
 
 static int
 test_d_only_no_fmt(void)
@@ -20,10 +23,11 @@ test_d_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	CHECK(d.typ != DT_SANDWICH_D_ONLY(DT_YMD),
+	CHECK(!dt_sandwich_only_d_p(d), "  TYPE is not a d-only\n");
+	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_D_ONLY(DT_YMD));
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
 	CHECK(d.t.u,
 	      "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.t.u);
@@ -41,10 +45,10 @@ test_d_only_no_fmt(void)
 	CHECK(d.d.ymd.d != 28,
 	      "  DAY %u ... should be 28\n",
 	      (unsigned int)d.d.ymd.d);
-	/* make sure the padding leaves no garbage */
-	CHECK(d.d.ymd.u & ~0x1fffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	/* make sure the padding leaves no garbage, not fatal tho */
+	CHECK_RES(res, d.d.ymd.u & ~0x1fffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.d.ymd.u & ~0x1fffff));
 	return res;
 }
 
@@ -59,10 +63,11 @@ test_t_only_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	CHECK(d.typ != DT_SANDWICH_T_ONLY(DT_HMS),
+	CHECK(!dt_sandwich_only_t_p(d), "  TYPE is not a t-only\n");
+	CHECK(d.typ != DT_SANDWICH_UNK,
 	      "  TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_T_ONLY(DT_HMS));
+	      (unsigned int)DT_SANDWICH_UNK);
 	CHECK(d.t.typ != DT_HMS,
 	      "  TIME TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.t.typ,
@@ -88,9 +93,9 @@ test_t_only_no_fmt(void)
 	      "  NANOSECOND %u ... should be 0\n",
 	      (unsigned int)d.t.hms.ns);
 	/* make sure the padding leaves no garbage */
-	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	CHECK_RES(res, d.t.hms.u & ~0x1f3f3f3fffffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 
@@ -104,10 +109,11 @@ test_dt_no_fmt(void)
 	fprintf(stderr, "testing %s ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	CHECK(d.typ != DT_SANDWICH_DT(DT_YMD),
+	CHECK(!dt_sandwich_p(d), "  TYPE is not a sandwich\n");
+	CHECK(d.d.typ != DT_YMD,
 	      "  TYPE DIFFERS %u ... should be %u\n",
-	      (unsigned int)d.typ,
-	      (unsigned int)DT_SANDWICH_DT(DT_YMD));
+	      (unsigned int)d.d.typ,
+	      (unsigned int)DT_YMD);
 	CHECK(d.t.typ != DT_HMS,
 	      "  TIME TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.t.typ,
@@ -142,12 +148,12 @@ test_dt_no_fmt(void)
 	      (unsigned int)d.t.hms.ns);
 
 	/* make sure the padding leaves no garbage */
-	CHECK(d.d.ymd.u & ~0x1fffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.d.ymd.u & ~0x1fffff));
-	CHECK(d.t.hms.u & ~0x1f3f3f3fffffff,
-	      "  PADDING NOT NAUGHT %u\n",
-	      (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
+	CHECK_RES(res, d.d.ymd.u & ~0x1fffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.d.ymd.u & ~0x1fffff));
+	CHECK_RES(res, d.t.hms.u & ~0x1f3f3f3fffffff,
+		  "  PADDING NOT NAUGHT %x\n",
+		  (unsigned int)(d.t.hms.u & ~0x1f3f3f3fffffff));
 	return res;
 }
 

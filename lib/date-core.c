@@ -974,7 +974,7 @@ static inline dt_bizda_param_t
 __get_bizda_param(struct dt_d_s that)
 {
 #if defined __C1X
-	dt_bizda_param_t p = {.u = that.param};
+	dt_bizda_param_t p = {.bs = that.param};
 #else  /* !__C1X */
 	dt_bizda_param_t p;
 	p.u = that.param;
@@ -1190,7 +1190,7 @@ dt_get_year(struct dt_d_s that)
 	case DT_BIZDA:
 		return that.bizda.y;
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1208,7 +1208,7 @@ dt_get_mon(struct dt_d_s that)
 	case DT_BIZDA:
 		return that.bizda.m;
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1226,7 +1226,7 @@ dt_get_wday(struct dt_d_s that)
 	case DT_BIZDA:
 		return __bizda_get_wday(that.bizda);
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return DT_MIRACLEDAY;
 	}
 }
@@ -1247,7 +1247,7 @@ dt_get_mday(struct dt_d_s that)
 	case DT_YMD:
 		/* to shut gcc up */
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1269,7 +1269,7 @@ dt_get_count(struct dt_d_s that)
 	case DT_YMCW:
 		/* to shut gcc up */
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1287,7 +1287,7 @@ dt_get_yday(struct dt_d_s that)
 	case DT_BIZDA:
 		return __bizda_get_yday(that.bizda, __get_bizda_param(that));
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1318,7 +1318,7 @@ dt_get_bday(struct dt_d_s that)
 			that.ymcw,
 			__make_bizda_param(BIZDA_AFTER, BIZDA_ULTIMO));
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1347,7 +1347,7 @@ dt_get_bday_q(struct dt_d_s that, dt_bizda_param_t bp)
 	case DT_YMCW:
 		return __ymcw_get_bday(that.ymcw, bp);
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 }
@@ -1368,7 +1368,7 @@ dt_get_quarter(struct dt_d_s that)
 		m = that.bizda.m;
 		break;
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		return 0;
 	}
 	return (m - 1) / 3 + 1;
@@ -1386,7 +1386,7 @@ dt_conv_to_daisy(struct dt_d_s that)
 
 	if (that.typ == DT_DAISY) {
 		return that.daisy;
-	} else if (that.typ == DT_UNK) {
+	} else if (that.typ == DT_DUNK) {
 		return 0;
 	}
 
@@ -1429,7 +1429,7 @@ dt_conv_to_ymd(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy);
 	case DT_BIZDA:
 		break;
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -1448,7 +1448,7 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		return __daisy_to_ymcw(that.daisy);
 	case DT_BIZDA:
 		break;
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -1467,7 +1467,7 @@ dt_conv_to_bizda(struct dt_d_s that)
 		break;
 	case DT_DAISY:
 		break;
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -1554,7 +1554,7 @@ __daisy_add(dt_daisy_t d, struct dt_d_s dur)
 	case DT_YMCW:
 	case DT_BIZDA:
 		/* daisies have no notion of years and months */
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -1701,7 +1701,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 			tgtd += mdays;
 		}
 		break;
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -1845,7 +1845,7 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 		}
 		break;
 	}
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		tgty = tgtm = tgtc = 0;
 		tgtw = DT_MIRACLEDAY;
@@ -1988,8 +1988,7 @@ __guess_dtyp(struct strpd_s d)
 		res.bizda.bd = d.b;
 	} else {
 		/* anything else is bollocks for now */
-		res.typ = DT_UNK;
-		res.u = 0;
+		res = dt_d_initialiser();
 	}
 	return res;
 }
@@ -2024,7 +2023,7 @@ static struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
 #if defined __C1X
-	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
+	struct dt_d_s res = {.typ = DT_DUNK, .u = 0};
 #else
 	struct dt_d_s res;
 #endif
@@ -2032,7 +2031,7 @@ __strpd_std(const char *str, char **ep)
 	const char *sp;
 
 #if !defined __C1X
-	res.typ = DT_UNK;
+	res.typ = DT_DUNK;
 	res.u = 0;
 #endif
 
@@ -2546,7 +2545,7 @@ DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
 #if defined __C1X
-	struct dt_d_s res = {.typ = DT_UNK, .u = 0};
+	struct dt_d_s res = {.typ = DT_DUNK, .u = 0};
 #else
 	struct dt_d_s res;
 #endif
@@ -2555,7 +2554,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 	const char *fp = fmt;
 
 #if !defined __C1X
-	res.typ = DT_UNK;
+	res.typ = DT_DUNK;
 	res.u = 0;
 #endif
 
@@ -2672,7 +2671,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		bp = buf;
 		goto out;
 	}
@@ -2716,7 +2715,7 @@ DEFUN struct dt_d_s
 dt_strpddur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_d_s res = {DT_UNK};
+	struct dt_d_s res = {DT_DUNK};
 	const char *sp = str;
 	int tmp;
 	struct strpd_s d = {0};
@@ -2871,7 +2870,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.d = __uimod(that.md.d, GREG_DAYS_P_WEEK);
 		break;
 	default:
-	case DT_UNK:
+	case DT_DUNK:
 		bp = buf;
 		goto out;
 	}
@@ -2960,7 +2959,7 @@ dt_date(dt_dtyp_t outtyp)
 	default:
 	case DT_MD:
 		/* doesn't make sense */
-	case DT_UNK:
+	case DT_DUNK:
 		res.u = 0;
 	}
 	return res;
@@ -2985,9 +2984,9 @@ dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		/* actually this is a parametrised date */
 		res.bizda = dt_conv_to_bizda(d);
 		break;
-	case DT_UNK:
+	case DT_DUNK:
 	default:
-		res.typ = DT_UNK;
+		res.typ = DT_DUNK;
 		break;
 	}
 	return res;
@@ -3009,9 +3008,9 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		d.ymcw = __ymcw_add(d.ymcw, dur);
 		break;
 
-	case DT_UNK:
+	case DT_DUNK:
 	default:
-		d.typ = DT_UNK;
+		d.typ = DT_DUNK;
 		d.u = 0;
 		break;
 	}
@@ -3051,7 +3050,7 @@ dt_dur_neg_p(struct dt_d_s dur)
 DEFUN struct dt_d_s
 dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 {
-	struct dt_d_s res = {.typ = DT_UNK};
+	struct dt_d_s res = {.typ = DT_DUNK};
 	dt_dtyp_t tmptyp = tgttyp;
 
 	if (tgttyp == DT_MD) {
@@ -3091,9 +3090,9 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		break;
 	}
 	case DT_BIZDA:
-	case DT_UNK:
+	case DT_DUNK:
 	default:
-		res.typ = DT_UNK;
+		res.typ = DT_DUNK;
 		res.u = 0;
 		/* @fallthrough@ */
 	case DT_MD:
@@ -3135,7 +3134,7 @@ dt_dcmp(struct dt_d_s d1, struct dt_d_s d2)
 		return -2;
 	}
 	switch (d1.typ) {
-	case DT_UNK:
+	case DT_DUNK:
 	default:
 		return -2;
 	case DT_YMD:

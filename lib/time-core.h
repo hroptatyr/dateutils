@@ -102,7 +102,6 @@ struct dt_t_s {
 	} __attribute__((packed));
 	union {
 		uint64_t u:56;
-		int64_t s:56;
 		signed int sdur;
 		dt_hms_t hms;
 	} __attribute__((packed));
@@ -161,6 +160,26 @@ DECLF int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
 /**
  * Like time() but always return the current UTC time. */
 DECLF struct dt_t_s dt_time(void);
+
+
+/* some useful gimmicks, sort of */
+static inline struct dt_t_s
+dt_t_initialiser(void)
+{
+#if defined __C1X
+	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U, .u = 0U};
+#else  /* !__C1X */
+	struct dt_t_s res;
+#endif	/* __C1X */
+
+#if !defined __C1X
+	res.typ = DT_TUNK;
+	res.dur = 0U;
+	res.neg = 0U;
+	res.u = 0U;
+#endif	/* !__C1X */
+	return res;
+}
 
 
 #if defined INCLUDE_TIME_CORE_IMPL
