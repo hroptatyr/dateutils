@@ -55,7 +55,7 @@ dt_io_strpdt_ep(
 		now = STRPDT_TIME;
 	}
 	if (now > STRPDT_UNK) {
-		res = dt_datetime(DT_YMD);
+		res = dt_datetime((dt_dttyp_t)DT_YMD);
 		/* rinse according to flags */
 		switch (now) {
 		case STRPDT_DATE:

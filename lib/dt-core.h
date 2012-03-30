@@ -209,7 +209,7 @@ DECLF int dt_dtdur_neg_p(struct dt_dt_s dur);
 
 /**
  * Like time() but return the current date in the desired format. */
-DECLF struct dt_dt_s dt_datetime(dt_dtyp_t outtyp);
+DECLF struct dt_dt_s dt_datetime(dt_dttyp_t dttyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */

@@ -536,7 +536,7 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->inputs_num == 1) {
-				lst = dt_datetime(DT_YMD);
+				lst = dt_datetime((dt_dttyp_t)DT_YMD);
 			}
 
 			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
