@@ -253,13 +253,13 @@ dt_dt_initialiser(void)
 static inline bool
 dt_sandwich_p(struct dt_dt_s d)
 {
-	return d.sandwich && d.typ > DT_UNK;
+	return d.sandwich && d.d.typ > DT_DUNK;
 }
 
 static inline bool
 dt_sandwich_only_d_p(struct dt_dt_s d)
 {
-	return !d.sandwich && d.typ > DT_UNK;
+	return !d.sandwich && d.d.typ > DT_DUNK;
 }
 
 static inline bool
@@ -291,7 +291,7 @@ dt_make_d_only(struct dt_dt_s *d, dt_dtyp_t dty)
 static inline void
 dt_make_t_only(struct dt_dt_s *d, dt_ttyp_t tty)
 {
-	d->d.typ = DT_UNK;
+	d->d.typ = DT_DUNK;
 	d->t.typ = tty;
 	d->sandwich = 1;
 	return;
