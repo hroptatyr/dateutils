@@ -239,13 +239,23 @@ static inline struct dt_dt_s
 dt_dt_initialiser(void)
 {
 #if defined __C1X
-	struct dt_dt_s res = {.typ = DT_UNK, .d.u = 0, .t.u = 0};
+	struct dt_dt_s res = {
+		.typ = DT_UNK,
+		.sandwich = 0U,
+		.dur = 0U,
+		.neg = 0U,
+		.d.u = 0U,
+		.t.u = 0U
+	};
 #else  /* !__C1X */
 	struct dt_dt_s res;
 #endif	/* __C1X */
 
 #if !defined __C1X
 	res.typ = DT_UNK;
+	res.sandwich = 0U;
+	res.dur = 0U;
+	res.neg = 0U;
 	res.d.u = 0;
 	res.t.u = 0;
 #endif	/* !__C1X */
