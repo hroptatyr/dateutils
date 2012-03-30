@@ -12,8 +12,9 @@ main(void)
 		return 1;
 	}
 
-	dt.typ = DT_SANDWICH;
-	if (dt.d.typ != DT_SANDWICH || dt.d.neg || dt.d.dur) {
+	dt.typ = DT_SANDWICH_DT(DT_UNK);
+	dt.sandwich = 1;
+	if (dt.d.neg || dt.d.dur) {
 		return 1;
 	}
 	return 0;

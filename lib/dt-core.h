@@ -113,10 +113,18 @@ struct dt_dt_s {
 	union {
 		/* packs */
 		struct {
-			/* for parametrised types */
-			dt_dttyp_t typ:9;
+			/* dt type, or date type */
+			dt_dttyp_t typ:4;
+			/* sandwich indicator (use d and t slots below) */
+			uint16_t sandwich:1;
+			/* unused, pad to next ui8 */
+			uint16_t:3;
+			/* duration indicator */
 			uint16_t dur:1;
+			/* negation indicator */
 			uint16_t neg:1;
+			/* pad to push the next 53 bits MSB-wards */
+			uint16_t:1;
 			union {
 				uint64_t u:53;
 				dt_ymdhms_t ymdhms;
@@ -244,26 +252,26 @@ dt_dt_initialiser(void)
 static inline bool
 dt_sandwich_p(struct dt_dt_s d)
 {
-	return (d.typ & DT_SANDWICH) && (d.typ & ~DT_SANDWICH) > DT_UNK;
+	return d.sandwich && d.typ > DT_UNK;
 }
 
 static inline bool
 dt_sandwich_only_d_p(struct dt_dt_s d)
 {
-	return (d.typ & DT_SANDWICH) == 0 && d.typ > DT_UNK;
+	return !d.sandwich && d.typ > DT_UNK;
 }
 
 static inline bool
 dt_sandwich_only_t_p(struct dt_dt_s d)
 {
-	return (d.typ & DT_SANDWICH) && (d.typ & ~DT_SANDWICH) == DT_UNK;
+	return d.sandwich && d.typ == DT_UNK;
 }
 
 #define DT_SANDWICH_UNK		(dt_dttyp_t)(DT_UNK)
-#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(DT_SANDWICH | (x))
+#define DT_SANDWICH_DT(x)	(dt_dttyp_t)(x)
 #define DT_SANDWICH_D_ONLY(x)	(dt_dttyp_t)(x)
-#define DT_SANDWICH_T_ONLY(x)	(dt_dttyp_t)(DT_SANDWICH + DT_UNK)
-#define DT_SANDWICH_D_TYPE(x)	(dt_dtyp_t)((x) & ~DT_SANDWICH)
+#define DT_SANDWICH_T_ONLY(x)	(dt_dttyp_t)(DT_UNK)
+#define DT_SANDWICH_D_TYPE(x)	(dt_dtyp_t)(x)
 #define DT_SANDWICH_T_TYPE(x)	(dt_ttyp_t)(DT_HMS)
 
 

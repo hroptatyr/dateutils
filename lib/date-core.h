@@ -171,11 +171,17 @@ typedef union {
 /**
  * Collection of all date types. */
 struct dt_d_s {
-	/* for parametrised types */
-	dt_dtyp_t typ:9;
+	/* date type */
+	dt_dtyp_t typ:4;
+	/* unused here, but used by inherited types (e.g. dt_dt_s) */
+	uint32_t:4;
+	/* duration predicate */
 	uint32_t dur:1;
+	/* negated predicate */
 	uint32_t neg:1;
-	uint32_t:5;
+	/* fill up to next ui16 boundary */
+	uint32_t:6;
+	/* for parametrised types */
 	uint32_t param:16;
 	union {
 		uint32_t u;

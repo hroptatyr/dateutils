@@ -5,19 +5,14 @@ main(void)
 {
 	int res = 0;
 
-	if (DT_PACK != DT_NTYP) {
-		fprintf(stderr, "DT_PACK %hu != DT_NTYP %hu\n",
-			DT_PACK, DT_NTYP);
+	if (DT_PACK != DT_NDTYP) {
+		fprintf(stderr, "DT_PACK %hu != DT_NDTYP %hu\n",
+			DT_PACK, DT_NDTYP);
 		res = 1;
 	}
-	if (DT_SEXY != DT_NTYP + 1) {
+	if (DT_SEXY != DT_NDTYP + 1) {
 		fprintf(stderr, "DT_SEXY %hu != DT_NTYP + 1 %hu\n",
-			DT_SEXY, DT_NTYP + 1);
-		res = 1;
-	}
-	if (DT_SANDWICH != 16) {
-		fprintf(stderr, "DT_SANDWICH %hu not a 2-power\n",
-			DT_SANDWICH);
+			DT_SEXY, DT_NDTYP + 1);
 		res = 1;
 	}
 	return res;
