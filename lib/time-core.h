@@ -71,23 +71,15 @@ typedef union {
 	uint64_t u:56;
 	struct {
 #if defined WORDS_BIGENDIAN
-		uint64_t:3;
-		uint64_t h:5;
-		uint64_t:2;
-		uint64_t m:6;
-		uint64_t:2;
-		uint64_t s:6;
-		uint64_t:2;
-		uint64_t ns:30;
+		uint64_t h:8;
+		uint64_t m:8;
+		uint64_t s:8;
+		uint64_t ns:32;
 #else  /* !WORDS_BIGENDIAN */
-		uint64_t ns:30;
-		uint64_t:2;
-		uint64_t s:6;
-		uint64_t:2;
-		uint64_t m:6;
-		uint64_t:2;
-		uint64_t h:5;
-		uint64_t:3;
+		uint64_t ns:32;
+		uint64_t s:8;
+		uint64_t m:8;
+		uint64_t h:8;
 #endif	/* WORDS_BIGENDIAN */
 	} __attribute__((packed));
 } __attribute__((packed)) dt_hms_t;
@@ -164,6 +156,7 @@ DECLF struct dt_t_s dt_time(void);
 
 /* some useful gimmicks, sort of */
 static inline struct dt_t_s
+__attribute__((pure, const))
 dt_t_initialiser(void)
 {
 #if defined __C1X

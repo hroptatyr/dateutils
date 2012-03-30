@@ -302,7 +302,7 @@ __strft_card(
 DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_t_s res;
+	struct dt_t_s res = dt_t_initialiser();
 	struct strpt_s d = {0};
 	const char *sp;
 	const char *fp;
