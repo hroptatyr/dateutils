@@ -275,7 +275,7 @@ dt_sandwich_only_t_p(struct dt_dt_s d)
 static inline void
 dt_make_sandwich(struct dt_dt_s *d, dt_dtyp_t dty, dt_ttyp_t tty)
 {
-	d->typ = DT_SANDWICH_DT(dty, tty);
+	d->d.typ = dty;
 	d->t.typ = tty;
 	d->sandwich = 1;
 	return;
@@ -284,17 +284,18 @@ dt_make_sandwich(struct dt_dt_s *d, dt_dtyp_t dty, dt_ttyp_t tty)
 static inline void
 dt_make_d_only(struct dt_dt_s *d, dt_dtyp_t dty)
 {
-	d->typ = DT_SANDWICH_DT(dty, DT_TUNK);
-	d->sandwich = 1;
+	d->d.typ = dty;
+	d->t.typ = DT_TUNK;
+	d->sandwich = 0;
 	return;
 }
 
 static inline void
 dt_make_t_only(struct dt_dt_s *d, dt_ttyp_t tty)
 {
-	d->typ = DT_SANDWICH_DT(DT_UNK, tty);
+	d->d.typ = DT_UNK;
 	d->t.typ = tty;
-	d->sandwich = 0;
+	d->sandwich = 1;
 	return;
 }
 
