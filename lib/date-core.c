@@ -1988,8 +1988,7 @@ __guess_dtyp(struct strpd_s d)
 		res.bizda.bd = d.b;
 	} else {
 		/* anything else is bollocks for now */
-		res.typ = DT_DUNK;
-		res.u = 0;
+		res = dt_d_initialiser();
 	}
 	return res;
 }
