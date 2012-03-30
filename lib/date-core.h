@@ -149,14 +149,16 @@ typedef union {
 } dt_bizda_t;
 
 typedef union {
-	uint32_t u:16;
+	uint16_t u;
+	uint32_t bs:16;
 	struct {
 		/* before or after */
 		unsigned int ab:1;
 		/* reference day, use 00 for ultimo */
 		unsigned int ref:5;
+		unsigned int:10;
 	};
-} dt_bizda_param_t;
+} __attribute__((__packed__)) dt_bizda_param_t;
 
 /**
  * One more type that's only used for durations. */
