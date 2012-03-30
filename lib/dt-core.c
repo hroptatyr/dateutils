@@ -845,7 +845,7 @@ dt_dtdur_neg_p(struct dt_dt_s dur)
 
 /* date getters, platform dependent */
 DEFUN struct dt_dt_s
-dt_datetime(dt_dtyp_t outtyp)
+dt_datetime(dt_dttyp_t outtyp)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 	struct timeval tv;
@@ -859,7 +859,7 @@ dt_datetime(dt_dtyp_t outtyp)
 	case DT_YMCW: {
 		struct tm tm;
 		ffff_gmtime(&tm, tv.tv_sec);
-		switch (res.typ) {
+		switch (outtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
 			res.d.ymd.m = tm.tm_mon;
@@ -908,7 +908,7 @@ dt_datetime(dt_dtyp_t outtyp)
 		res.t.hms.s = tonly;
 		res.t.hms.ns = tv.tv_usec * 1000;
 	}
-	dt_make_sandwich(&res, outtyp, DT_HMS);
+	dt_make_sandwich(&res, (dt_dtyp_t)outtyp, DT_HMS);
 	return res;
 }
 

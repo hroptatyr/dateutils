@@ -498,8 +498,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 		goto out;
 
 	case 2:
-		if (!(lst = dt_io_strpdt(
-			      argi->inputs[1], ifmt, nifmt, NULL)).typ) {
+		lst = dt_io_strpdt(argi->inputs[1], ifmt, nifmt, NULL);
+		if (dt_unk_p(lst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[1]);
 			}
@@ -508,8 +508,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 		}
 		/* fallthrough */
 	case 1:
-		if (!(fst = dt_io_strpdt(
-			      argi->inputs[0], ifmt, nifmt, NULL)).typ) {
+		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);
+		if (dt_unk_p(fst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[0]);
 			}
@@ -536,7 +536,7 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->inputs_num == 1) {
-				lst = dt_datetime(DT_YMD);
+				lst = dt_datetime((dt_dttyp_t)DT_YMD);
 			}
 
 			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
@@ -553,14 +553,18 @@ don't know how to handle single argument case\n", stderr);
 		break;
 	case 3: {
 		struct __strpdtdur_st_s st = {0};
-		if (!(fst = dt_io_strpdt(
-			      argi->inputs[0], ifmt, nifmt, NULL)).typ) {
+
+		/* get lower bound */
+		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);
+		if (dt_unk_p(fst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[0]);
 			}
 			res = 1;
 			goto out;
 		}
+
+		/* get increment */
 		unfixup_arg(argi->inputs[1]);
 		do {
 			if (dt_io_strpdtdur(&st, argi->inputs[1]) < 0) {
@@ -574,8 +578,10 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 		clo.ite = st.durs;
 		clo.nite = st.ndurs;
 		clo.flags |= CLO_FL_FREE_ITE;
-		if (!(lst = dt_io_strpdt(
-			      argi->inputs[2], ifmt, nifmt, NULL)).typ) {
+
+		/* get upper bound */
+		lst = dt_io_strpdt(argi->inputs[2], ifmt, nifmt, NULL);
+		if (dt_unk_p(lst)) {
 			if (!argi->quiet_given) {
 				dt_io_warn_strpdt(argi->inputs[2]);
 			}

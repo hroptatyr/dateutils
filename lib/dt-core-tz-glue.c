@@ -69,8 +69,6 @@ __to_unix(struct dt_dt_s dt)
 DEFUN struct dt_dt_s
 dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 {
-	dt_dttyp_t tgttyp = dt.typ;
-	struct dt_dt_s res = dt_dt_initialiser();
 	int32_t d_unix;
 	int32_t d_utc;
 
@@ -91,28 +89,28 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 		tmp.daisy = d_utc / 86400 + DAISY_UNIX_BASE;
 #endif	/* __C1X */
 
-		res.d = dt_conv(dt.d.typ, tmp);
+		tmp = dt_conv(dt.d.typ, tmp);
+		dt.d.u = tmp.u;
 	}
 
 	/* convert the time part back */
 	{
 		int32_t sexy = __pos_mod(d_utc, 86400);
 #if defined __C1X
-		res.t.hms = (dt_hms_t){
+		dt.t.hms = (dt_hms_t){
 			.s = sexy % 60,
 			.m = (sexy % 3600) / 60,
 			.h = sexy / 3600,
 			.ns = dt.t.hms.ns,
 		};
 #else  /* !__C1X */
-		res.t.hms.s = sexy % 60;
-		res.t.hms.m = (sexy % 3600) / 60;
-		res.t.hms.h = sexy / 3600;
-		res.t.hms.ns = dt.t.hms.ns;
+		dt.t.hms.s = sexy % 60;
+		dt.t.hms.m = (sexy % 3600) / 60;
+		dt.t.hms.h = sexy / 3600;
+		dt.t.hms.ns = dt.t.hms.ns;
 #endif	/* __C1X */
 	}
-	res.typ = tgttyp;
-	return res;
+	return dt;
 }
 
 /**
@@ -120,8 +118,6 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 DEFUN struct dt_dt_s
 dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 {
-	dt_dttyp_t tgttyp = dt.typ;
-	struct dt_dt_s res = dt_dt_initialiser();
 	int32_t d_unix;
 	int32_t d_loc;
 
@@ -142,28 +138,28 @@ dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 		tmp.daisy = d_loc / 86400 + DAISY_UNIX_BASE;
 #endif	/* __C1X */
 
-		res.d = dt_conv(dt.d.typ, tmp);
+		tmp = dt_conv(dt.d.typ, tmp);
+		dt.d.u = tmp.u;
 	}
 
 	/* convert the time part back */
 	{
 		int32_t sexy = __pos_mod(d_loc, 86400);
 #if defined __C1X
-		res.t.hms = (dt_hms_t){
+		dt.t.hms = (dt_hms_t){
 			.s = sexy % 60,
 			.m = (sexy % 3600) / 60,
 			.h = sexy / 3600,
 			.ns = dt.t.hms.ns,
 		};
 #else  /* !__C1X */
-		res.t.hms.s = sexy % 60;
-		res.t.hms.m = (sexy % 3600) / 60;
-		res.t.hms.h = sexy / 3600;
-		res.t.hms.ns = dt.t.hms.ns;
+		dt.t.hms.s = sexy % 60;
+		dt.t.hms.m = (sexy % 3600) / 60;
+		dt.t.hms.h = sexy / 3600;
+		dt.t.hms.ns = dt.t.hms.ns;
 #endif	/* __C1X */
 	}
-	res.typ = tgttyp;
-	return res;
+	return dt;
 }
 
 #endif	/* INCLUDED_dt_core_tz_glue_c_ */
