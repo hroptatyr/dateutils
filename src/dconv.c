@@ -100,10 +100,9 @@ main(int argc, char *argv[])
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {
 			const char *inp = argi->inputs[i];
-			struct dt_dt_s d;
+			struct dt_dt_s d = dt_io_strpdt(inp, fmt, nfmt, fromz);
 
-			if ((d = dt_io_strpdt(inp, fmt, nfmt, fromz))
-			    .d.typ > DT_UNK) {
+			if (!dt_unk_p(d)) {
 				dt_io_write(d, ofmt, z);
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpdt(inp);
@@ -150,11 +149,11 @@ main(int argc, char *argv[])
 				/* finish with newline again */
 				line[llen] = '\n';
 
-				if (d.d.typ && argi->sed_mode_given) {
+				if (!dt_unk_p(d) && argi->sed_mode_given) {
 					dt_io_write_sed(
 						d, ofmt,
 						line, llen + 1, sp, ep, z);
-				} else if (d.d.typ) {
+				} else if (!dt_unk_p(d)) {
 					dt_io_write(d, ofmt, z);
 				} else if (argi->sed_mode_given) {
 					__io_write(line, llen + 1, stdout);

@@ -253,6 +253,12 @@ dt_dt_initialiser(void)
 }
 
 static inline bool
+dt_unk_p(struct dt_dt_s d)
+{
+	return !(d.sandwich || d.typ > DT_UNK);
+}
+
+static inline bool
 dt_sandwich_p(struct dt_dt_s d)
 {
 	return d.sandwich && d.d.typ > DT_DUNK;
