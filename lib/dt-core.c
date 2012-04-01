@@ -229,6 +229,7 @@ eval_time:
 try_date:
 	/* should be a no-op */
 	dt_make_d_only(&res, res.d.typ);
+	res.t = dt_t_initialiser();
 out:
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep) {
