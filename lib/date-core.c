@@ -1933,15 +1933,8 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 static struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
-#if defined __C1X
-	struct dt_d_s res = {.u = 0};
-#else
 	struct dt_d_s res;
-#endif
 
-#if !defined __C1X
-	res.u = 0;
-#endif
 	if (UNLIKELY(d.y == -1U)) {
 		d.y = 0;
 	}
@@ -1958,6 +1951,9 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
+	/* it's not a duration nor negative */
+	res.dur = res.neg = 0U;
+	res.u = 0U;
 	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
