@@ -5,7 +5,7 @@ CMDLINE="-i '%T' -f '%H:%M:%S'"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
-cat > "${stdub}" <<EOF
+cat > "${stdin}" <<EOF
 12:03:01
 12:59:01
 12:59:60
