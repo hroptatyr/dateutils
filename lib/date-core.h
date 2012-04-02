@@ -99,8 +99,9 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-		unsigned int:0;
 #if defined WORDS_BIGENDIAN
+		/* 10 bits left */
+		unsigned int:10;
 		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int c:3;
@@ -110,9 +111,9 @@ typedef union {
 		unsigned int c:3;
 		unsigned int m:4;
 		unsigned int y:12;
-#endif	/* WORDS_BIGENDIAN */
 		/* 10 bits left */
 		unsigned int:10;
+#endif	/* WORDS_BIGENDIAN */
 	};
 } dt_ymcw_t;
 
@@ -133,6 +134,8 @@ typedef union {
 #define BIZDA_BEFORE	(1U)/*<*/
 #define BIZDA_ULTIMO	(0U)
 #if defined WORDS_BIGENDIAN
+		/* 5 bits left */
+		unsigned int:5;
 		/* business day */
 		unsigned int y:12;
 		unsigned int m:4;
@@ -142,9 +145,9 @@ typedef union {
 		unsigned int bd:5;
 		unsigned int m:4;
 		unsigned int y:12;
-#endif	/* WORDS_BIGENDIAN */
 		/* 5 bits left */
 		unsigned int:5;
+#endif	/* WORDS_BIGENDIAN */
 	};
 } dt_bizda_t;
 
