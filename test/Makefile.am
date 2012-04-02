@@ -160,6 +160,9 @@ dt_tests += ttest.1.dt
 dt_tests += tconv.1.dt
 dt_tests += tconv.2.dt
 dt_tests += tconv.3.dt
+dt_tests += tconv.4.dt
+dt_tests += tconv.5.dt
+dt_tests += tconv.6.dt
 
 dt_tests += dtconv.1.dt
 dt_tests += dtconv.2.dt

@@ -1,0 +1,22 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE=""
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdub}" <<EOF
+12:03:01
+12:59:01
+12:59:60
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+12:03:01
+12:59:01
+12:59:60
+EOF
+
+## tconv.4.dt ends here
