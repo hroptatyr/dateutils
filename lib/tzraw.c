@@ -64,11 +64,15 @@
 # define MAP_ANONYMOUS	(MAP_ANON)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
 
+#if defined TZDIR
+static const char tzdir[] = TZDIR;
+#else  /* !TZDIR */
+static const char tzdir[] = "/usr/share/zoneinfo";
+#endif	/* TZDIR */
+
 static int
 __open_zif(const char *file)
 {
-	static const char tzdir[] = TZDIR;
-
 	if (file == NULL || file[0] == '\0') {
 		return -1;
 	}

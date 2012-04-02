@@ -58,14 +58,6 @@ extern "C" {
 #endif	/* !restrict */
 
 /*
-** Information about time zone files.
-*/
-/* CHANGED! */
-#ifndef TZDIR
-#define TZDIR	"/usr/share/zoneinfo"
-#endif /* !defined TZDIR */
-
-/*
 ** Each file begins with. . .
 */
 #define	TZ_MAGIC	"TZif"
