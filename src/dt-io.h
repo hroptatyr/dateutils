@@ -436,7 +436,7 @@ dt_io_find_strpdt2(
 				q = p + f.off_min;
 			}
 			for (const char *r = p + f.off_max; *q && q <= r; q++) {
-				if ((d = dt_strpdt(q, fmt, ep)).d.typ) {
+				if (!dt_unk_p(d = dt_strpdt(q, fmt, ep))) {
 					p = q;
 					goto found;
 				}
@@ -480,7 +480,7 @@ dt_io_find_strpdt2(
 			for (const char *q = p;
 			     *q && *q >= '0' && *q <= '9'; q++) {
 				if ((--f.off_min <= 0) &&
-				    (d = dt_strpdt(p, fmt, ep)).d.typ) {
+				    !dt_unk_p(d = dt_strpdt(p, fmt, ep))) {
 					goto found;
 				}
 			}
@@ -513,7 +513,7 @@ dt_io_find_strpdt2(
 					goto bugger;
 				}
 				if ((--f.off_min <= 0) &&
-				    (d = dt_strpdt(p, fmt, ep)).d.typ) {
+				    !dt_unk_p(d = dt_strpdt(p, fmt, ep))) {
 					goto found;
 				}
 			}
@@ -527,7 +527,7 @@ dt_io_find_strpdt2(
 				continue;
 			}
 			for (int8_t j = f.off_min; j <= f.off_max; j++) {
-				if ((d = dt_strpdt(p + j, fmt, ep)).d.typ) {
+				if (!dt_unk_p(d = dt_strpdt(p + j, fmt, ep))) {
 					p += j;
 					goto found;
 				}
