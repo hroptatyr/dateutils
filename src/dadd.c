@@ -151,7 +151,7 @@ no durations given\n");
 
 	/* start the actual work */
 	if (dt_given_p) {
-		if ((d = dadd_add(d, st.durs, st.ndurs)).typ > DT_DUNK) {
+		if (!dt_unk_p(d = dadd_add(d, st.durs, st.ndurs))) {
 			dt_io_write(d, ofmt, z);
 			res = 0;
 		} else {
