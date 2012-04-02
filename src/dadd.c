@@ -48,6 +48,17 @@
 #include "prchunk.h"
 
 
+static bool
+durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
+{
+	for (size_t i = 0; i < ndur; i++) {
+		if (dur[i].t.typ) {
+			return false;
+		}
+	}
+	return true;
+}
+
 static struct dt_dt_s
 dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 {
@@ -87,6 +98,7 @@ main(int argc, char *argv[])
 	bool dt_given_p = false;
 	zif_t fromz = NULL;
 	zif_t z = NULL;
+	zif_t hackz = NULL;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, "Pp+");
@@ -126,7 +138,6 @@ main(int argc, char *argv[])
 			if (dt_io_strpdtdur(&st, inp) < 0) {
 				if (UNLIKELY(i == 0)) {
 					/* that's ok, must be a date then */
-					d = dt_io_strpdt(inp, fmt, nfmt, fromz);
 					dt_given_p = true;
 				} else {
 					fprintf(stderr, "Error: \
@@ -135,13 +146,20 @@ cannot parse duration string `%s'\n", st.istr);
 			}
 		} while (__strpdtdur_more_p(&st));
 	}
+	/* check if there's only d durations */
+	hackz = durs_only_d_p(st.durs, st.ndurs) ? NULL : fromz;
 
 	/* sanity checks */
-	if (dt_given_p && dt_unk_p(d)) {
-		fprintf(stderr, "Error: \
+	if (dt_given_p) {
+		/* date parsing needed postponing as we need to find out
+		 * about the durations */
+		inp = argi->inputs[0];
+		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
+			fprintf(stderr, "Error: \
 cannot interpret date/time string `%s'\n", argi->inputs[0]);
-		res = 1;
-		goto out;
+			res = 1;
+			goto out;
+		}
 	} else if (st.ndurs == 0) {
 		fprintf(stderr, "Error: \
 no durations given\n");
@@ -152,6 +170,10 @@ no durations given\n");
 	/* start the actual work */
 	if (dt_given_p) {
 		if (!dt_unk_p(d = dadd_add(d, st.durs, st.ndurs))) {
+			if (hackz == NULL && fromz != NULL) {
+				/* fixup zone */
+				d = dtz_forgetz(d, fromz);
+			}
 			dt_io_write(d, ofmt, z);
 			res = 0;
 		} else {
@@ -201,6 +223,11 @@ no durations given\n");
 				if (!dt_unk_p(d)) {
 					/* perform addition now */
 					d = dadd_add(d, st.durs, st.ndurs);
+
+					if (hackz == NULL && fromz != NULL) {
+						/* fixup zone */
+						d = dtz_forgetz(d, fromz);
+					}
 
 					if (argi->sed_mode_given) {
 						dt_io_write_sed(
