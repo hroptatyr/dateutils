@@ -125,7 +125,7 @@ __pars_zif(zif_t z)
 	return;
 }
 
-DEFUN inline zif_t
+DEFUN zif_t
 zif_read(const char *file)
 {
 	int fd;
@@ -246,7 +246,7 @@ zif_find_trans(zif_t z, int32_t t)
 	return __find_trno(z, t, this, min, max);
 }
 
-static inline struct zrng_s
+static struct zrng_s
 __find_zrng(zif_t z, int32_t t, int this, int min, int max)
 {
 	struct zrng_s res;
