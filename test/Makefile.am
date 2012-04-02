@@ -86,6 +86,9 @@ dt_tests += dadd.17.dt
 dt_tests += dadd.18.dt
 dt_tests += dadd.19.dt
 dt_tests += dadd.20.dt
+dt_tests += dadd.21.dt
+dt_tests += dadd.22.dt
+dt_tests += dadd.23.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
