@@ -110,6 +110,14 @@ main(int argc, char *argv[])
 		}
 	}
 
+	/* try and read the from and to time zones */
+	if (argi->from_zone_given) {
+		fromz = zif_read_inst(argi->from_zone_arg);
+	}
+	if (argi->zone_given) {
+		z = zif_read_inst(argi->zone_arg);
+	}
+
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
 	inp = unfixup_arg(argi->inputs[0]);
