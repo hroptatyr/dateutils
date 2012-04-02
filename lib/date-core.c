@@ -1953,7 +1953,7 @@ __guess_dtyp(struct strpd_s d)
 
 	/* it's not a duration nor negative */
 	res.dur = res.neg = 0U;
-	res.u = 0U;
+	res.param = 0U;
 	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
