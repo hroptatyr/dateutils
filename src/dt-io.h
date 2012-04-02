@@ -698,7 +698,7 @@ dt_io_write_sed(
 
 
 /* error messages, warnings, etc. */
-static void __attribute__((unused))
+static inline void
 dt_io_warn_strpdt(const char *inp)
 {
 	fprintf(stderr, "\
