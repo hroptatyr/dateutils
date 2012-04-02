@@ -155,6 +155,7 @@ main(int argc, char *argv[])
 				} else if (argi->sed_mode_given) {
 					__io_write(line, llen + 1, stdout);
 				} else if (!argi->quiet_given) {
+					line[llen] = '\0';
 					dt_io_warn_strpdt(line);
 				}
 			}
