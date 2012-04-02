@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2012-03-24T18:00:00 1d --from-zone 'Europe/Berlin' -z America/Chicago"
+## +1d is time zone invariant, this is different from +24h
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-03-25T11:00:00
+EOF
+
+## dtadd.13.dt ends here

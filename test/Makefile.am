@@ -201,6 +201,10 @@ dt_tests += dtadd.7.dt
 dt_tests += dtadd.8.dt
 dt_tests += dtadd.9.dt
 dt_tests += dtadd.10.dt
+dt_tests += dtadd.11.dt
+dt_tests += dtadd.12.dt
+dt_tests += dtadd.13.dt
+dt_tests += dtadd.14.dt
 
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
