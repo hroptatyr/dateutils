@@ -173,11 +173,17 @@ calc_grep_atom(const char *fmt)
 
 	/* init */
 	if (fmt == NULL) {
-	std:
+	dstd:
 		/* standard format, %Y-%m-%d */
 		res.needle = '-';
 		res.pl.off_min = -4;
 		res.pl.off_max = -4;
+		goto out;
+	tstd:
+		/* standard format, %H:%M:%S */
+		res.needle = ':';
+		res.pl.off_min = -2;
+		res.pl.off_max = -1;
 		goto out;
 	}
 	/* rest here ... */
@@ -244,7 +250,9 @@ calc_grep_atom(const char *fmt)
 			res.needle = '\t';
 			goto out;
 		case DT_SPFL_N_DSTD:
-			goto std;
+			goto dstd;
+		case DT_SPFL_N_TSTD:
+			goto tstd;
 		case DT_SPFL_N_YEAR:
 			if (spec.abbr != DT_SPMOD_ABBR) {
 				res.pl.off_min += -4;
