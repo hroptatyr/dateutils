@@ -117,7 +117,7 @@ int	[0-9]+
 }
 
 [ \t\v\n\f]	{ /* ignore whitespace */ }
-.	{ /* ignore */fprintf(stderr, "%s\n", yytext); }
+.	{ /* ignore */ }
 
 %%
 
