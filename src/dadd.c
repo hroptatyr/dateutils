@@ -84,7 +84,7 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
-	size_t beg_idx = 0;
+	bool dt_given_p = false;
 	zif_t fromz = NULL;
 	zif_t z = NULL;
 
@@ -120,31 +120,37 @@ main(int argc, char *argv[])
 
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
-	inp = unfixup_arg(argi->inputs[0]);
-	if (!dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, NULL))) {
-		/* ah good, it's a date */
-		beg_idx++;
-	}
-
-	/* check durations */
-	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
+	for (size_t i = 0; i < argi->inputs_num; i++) {
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
 			if (dt_io_strpdtdur(&st, inp) < 0) {
-				fprintf(stderr, "Error: \
+				if (UNLIKELY(i == 0)) {
+					/* that's ok, must be a date then */
+					d = dt_io_strpdt(inp, fmt, nfmt, fromz);
+					dt_given_p = true;
+				} else {
+					fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", st.istr);
+				}
 			}
 		} while (__strpdtdur_more_p(&st));
 	}
-	if (st.ndurs == 0) {
-		fputs("Error: no duration given\n\n", stderr);
-		cmdline_parser_print_help();
+
+	/* sanity checks */
+	if (dt_given_p && dt_unk_p(d)) {
+		fprintf(stderr, "Error: \
+cannot interpret date/time string `%s'\n", argi->inputs[0]);
+		res = 1;
+		goto out;
+	} else if (st.ndurs == 0) {
+		fprintf(stderr, "Error: \
+no durations given\n");
 		res = 1;
 		goto out;
 	}
 
 	/* start the actual work */
-	if (beg_idx > 0) {
+	if (dt_given_p) {
 		if ((d = dadd_add(d, st.durs, st.ndurs)).typ > DT_DUNK) {
 			dt_io_write(d, ofmt, z);
 			res = 0;
