@@ -86,6 +86,9 @@ dt_tests += dadd.17.dt
 dt_tests += dadd.18.dt
 dt_tests += dadd.19.dt
 dt_tests += dadd.20.dt
+dt_tests += dadd.21.dt
+dt_tests += dadd.22.dt
+dt_tests += dadd.23.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
@@ -157,6 +160,9 @@ dt_tests += ttest.1.dt
 dt_tests += tconv.1.dt
 dt_tests += tconv.2.dt
 dt_tests += tconv.3.dt
+dt_tests += tconv.4.dt
+dt_tests += tconv.5.dt
+dt_tests += tconv.6.dt
 
 dt_tests += dtconv.1.dt
 dt_tests += dtconv.2.dt
@@ -184,6 +190,17 @@ dt_tests += dtconv.23.dt
 
 dt_tests += dtseq.1.dt
 dt_tests += dtseq.2.dt
+
+dt_tests += dtadd.1.dt
+dt_tests += dtadd.2.dt
+dt_tests += dtadd.3.dt
+dt_tests += dtadd.4.dt
+dt_tests += dtadd.5.dt
+dt_tests += dtadd.6.dt
+dt_tests += dtadd.7.dt
+dt_tests += dtadd.8.dt
+dt_tests += dtadd.9.dt
+dt_tests += dtadd.10.dt
 
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2

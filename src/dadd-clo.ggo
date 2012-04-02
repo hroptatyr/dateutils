@@ -2,13 +2,13 @@ args "--unamed-opts --long-help"
 package "dadd"
 usage "dadd [OPTION]... [DATE] DURATION"
 description "Add DURATION to DATE and print the result, if \
-date is omitted read a list of DATEs from stdin.
+DATE is omitted read a list of DATEs from stdin.
 
-Durations are specified as snY, snM, snW, or snD for years, months, \
-weeks, or days respectively, where S is the sign, one of `+', `-', `=', \
-and N is a number.  \
-The unit symbols can be written lower-case as well (y, m, w, d) \
-and the unit symbol `d' can be omitted.
+Durations are specified as nY, nM, nW, or nD for years, months, \
+weeks, or days respectively, or nH, nM, nS for hours, minutes, \
+and seconds, where N is a (possibly negative) number.  \
+The unit symbols can be written lower-case as well (y, m, w, d, \
+h, m, s) and the unit symbol `d' can be omitted.
 
 Note that duration addition is not commutative!
   2000-03-30 +1m1d -> 2000-05-01
@@ -22,3 +22,6 @@ FORMAT
 INPUT_FORMAT
 BACKSLASH_ESCAPES
 SED_MODE
+
+FROM_ZONE
+TO_ZONE

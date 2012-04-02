@@ -1,20 +1,26 @@
 ## -*- shell-script -*-
 
 TOOL=dadd
-CMDLINE="-S 12m"
+CMDLINE="+1mo"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
-it's	12:02:00 now
-and now	14:20:20
+2012-03-01
+2012-03-02
+2012-03-04
+2012-03-30
+2012-03-31
 EOF
- 
+
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-it's	12:14:00 now
-and now	14:32:20
+2012-04-01
+2012-04-02
+2012-04-04
+2012-04-30
+2012-04-30
 EOF
 
-## tadd.5.dt ends here
+## dadd.21.dt ends here

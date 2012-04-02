@@ -1,20 +1,22 @@
 ## -*- shell-script -*-
 
-TOOL=dadd
-CMDLINE="-S 12m"
+TOOL=dconv
+CMDLINE="-i '%H:%M:%S' -f '%T'"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
-it's	12:02:00 now
-and now	14:20:20
+12:03:01
+12:59:01
+12:59:60
 EOF
- 
+
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-it's	12:14:00 now
-and now	14:32:20
+12:03:01
+12:59:01
+12:59:60
 EOF
 
-## tadd.5.dt ends here
+## tconv.6.dt ends here

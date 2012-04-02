@@ -57,12 +57,11 @@ arise when dealing with large amounts of financial data.
 * Calendars::           Calendar concepts and format specs
 * strptime::            Command line version of the C function
 * dconv::               Convert dates between calendars or time zones
-* dadd::                Add durations to dates
+* dadd::                Add durations to dates or times
 * ddiff::               Compute durations from dates
 * dgrep::               Find date matches in input stream
 * dseq::                Generate sequences of dates or times
 * dtest::               Compare dates
-* tadd::                Add durations to times
 * tdiff::               Compute durations between times
 * tgrep::               Find time matches in input stream
 * ttest::               Compare times
@@ -185,7 +184,6 @@ this month's ultimo.
 @include dgrep.texi
 @include dseq.texi
 @include dtest.texi
-@include tadd.texi
 @include tdiff.texi
 @include tgrep.texi
 @include ttest.texi
