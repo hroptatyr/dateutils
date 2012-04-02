@@ -42,16 +42,17 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include "date-core.h"
-#include "date-io.h"
+#include "dt-core.h"
+#include "dt-io.h"
+#include "tzraw.h"
 #include "prchunk.h"
 
 
-static struct dt_d_s
-dadd_add(struct dt_d_s d, struct dt_d_s dur[], size_t ndur)
+static struct dt_dt_s
+dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		d = dt_dadd(d, dur[i]);
+		d = dt_dtadd(d, dur[i]);
 	}
 	return d;
 }
@@ -76,14 +77,16 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s d;
-	struct __strpdur_st_s st = {0};
+	struct dt_dt_s d;
+	struct __strpdtdur_st_s st = {0};
 	char *inp;
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
 	size_t beg_idx = 0;
+	zif_t fromz = NULL;
+	zif_t z = NULL;
 
 	/* fixup negative numbers, A -1 B for dates A and B */
 	fixup_argv(argc, argv, "Pp+");
@@ -110,7 +113,7 @@ main(int argc, char *argv[])
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
 	inp = unfixup_arg(argi->inputs[0]);
-	if ((d = dt_io_strpd(inp, fmt, nfmt)).typ > DT_DUNK) {
+	if (!dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, NULL))) {
 		/* ah good, it's a date */
 		beg_idx++;
 	}
@@ -119,11 +122,11 @@ main(int argc, char *argv[])
 	for (size_t i = beg_idx; i < argi->inputs_num; i++) {
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
-			if (dt_io_strpdur(&st, inp) < 0) {
+			if (dt_io_strpdtdur(&st, inp) < 0) {
 				fprintf(stderr, "Error: \
 cannot parse duration string `%s'\n", st.istr);
 			}
-		} while (__strpdur_more_p(&st));
+		} while (__strpdtdur_more_p(&st));
 	}
 	if (st.ndurs == 0) {
 		fputs("Error: no duration given\n\n", stderr);
@@ -135,7 +138,7 @@ cannot parse duration string `%s'\n", st.istr);
 	/* start the actual work */
 	if (beg_idx > 0) {
 		if ((d = dadd_add(d, st.durs, st.ndurs)).typ > DT_DUNK) {
-			dt_io_write(d, ofmt);
+			dt_io_write(d, ofmt, z);
 			res = 0;
 		} else {
 			res = 1;
@@ -174,28 +177,29 @@ cannot parse duration string `%s'\n", st.istr);
 
 				llen = prchunk_getline(pctx, &line);
 				/* check if line matches, */
-				d = dt_io_find_strpd2(
+				d = dt_io_find_strpdt2(
 					line, &ndlsoa,
-					(char**)&sp, (char**)&ep);
+					(char**)&sp, (char**)&ep, fromz);
 
 				/* finish with newline again */
 				line[llen] = '\n';
 
-				if (d.typ) {
+				if (!dt_unk_p(d)) {
 					/* perform addition now */
 					d = dadd_add(d, st.durs, st.ndurs);
 
 					if (argi->sed_mode_given) {
 						dt_io_write_sed(
 							d, ofmt,
-							line, llen + 1, sp, ep);
+							line, llen + 1,
+							sp, ep, z);
 					} else {
-						dt_io_write(d, ofmt);
+						dt_io_write(d, ofmt, z);
 					}
 				} else if (argi->sed_mode_given) {
 					__io_write(line, llen + 1, stdout);
 				} else if (!argi->quiet_given) {
-					dt_io_warn_strpd(line);
+					dt_io_warn_strpdt(line);
 				}
 			}
 		}
@@ -208,7 +212,7 @@ cannot parse duration string `%s'\n", st.istr);
 		goto out;
 	}
 	/* free the strpdur status */
-	__strpdur_free(&st);
+	__strpdtdur_free(&st);
 
 out:
 	cmdline_parser_free(argi);
