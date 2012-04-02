@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tadd
+TOOL=dadd
 CMDLINE="-S 12m"
 
 ## STDIN
