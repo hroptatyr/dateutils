@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tadd
+TOOL=dadd
 CMDLINE="10:01:00 1h6m"
 
 ## STDIN

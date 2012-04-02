@@ -533,15 +533,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		}
 		break;
 	}
-	try_time:
 	default:
 	case DT_DUNK:
-		if (fmt == NULL && dt_sandwich_only_t_p(that)) {
-			fmt = hms_dflt;
-			break;
-		}
-		bp = buf;
-		goto out;
+		break;
 	}
 	/* translate high-level format names */
 	if (dt_sandwich_p(that)) {
@@ -549,7 +543,11 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	} else if (dt_sandwich_only_d_p(that)) {
 		__trans_dfmt(&fmt);
 	} else if (dt_sandwich_only_t_p(that)) {
+	try_time:
 		__trans_tfmt(&fmt);
+	} else {
+		bp = buf;
+		goto out;
 	}
 
 	/* now cope with the time part */
@@ -686,9 +684,9 @@ dt_strpdtdur(const char *str, char **ep)
 		res.t.sdur = d.st.h * SECS_PER_HOUR +
 			d.st.m * SECS_PER_MIN +
 			d.st.s;
-		/* but also put the a note in the ymd slot */
-		if (d.sd.m) {
-			res.d.ymd.m = d.sd.m;
+		/* but also put the a note in the md slot */
+		if (!d.st.h && !d.st.s && d.sd.m) {
+			res.d.md.m = d.sd.m;
 		}
 
 	} else {
@@ -952,9 +950,13 @@ DEFUN struct dt_dt_s
 dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 {
 	signed int carry = 0;
-	dt_dttyp_t typ;
+	dt_dttyp_t typ = d.typ;
 
-	if (dur.t.dur) {
+	if (UNLIKELY(dur.t.dur && dt_sandwich_only_d_p(d))) {
+		/* probably +/-[n]m where `m' was meant to be `mo' */
+		dur.d.typ = DT_MD;
+		goto dadd;
+	} else if (dur.t.dur) {
 		d.t = __tadd(d.t, dur.t, &carry);
 	}
 
@@ -973,7 +975,8 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 
 	/* demote D's and DUR's type temporarily */
-	if ((typ = d.typ) != DT_SANDWICH_UNK && dur.d.typ != DT_DUNK) {
+	if (d.typ != DT_SANDWICH_UNK && dur.d.typ != DT_DUNK) {
+	dadd:
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
 	} else if (dur.d.typ != DT_DUNK) {

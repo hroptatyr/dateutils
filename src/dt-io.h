@@ -173,11 +173,17 @@ calc_grep_atom(const char *fmt)
 
 	/* init */
 	if (fmt == NULL) {
-	std:
+	dstd:
 		/* standard format, %Y-%m-%d */
 		res.needle = '-';
 		res.pl.off_min = -4;
 		res.pl.off_max = -4;
+		goto out;
+	tstd:
+		/* standard format, %H:%M:%S */
+		res.needle = ':';
+		res.pl.off_min = -2;
+		res.pl.off_max = -1;
 		goto out;
 	}
 	/* rest here ... */
@@ -244,7 +250,9 @@ calc_grep_atom(const char *fmt)
 			res.needle = '\t';
 			goto out;
 		case DT_SPFL_N_DSTD:
-			goto std;
+			goto dstd;
+		case DT_SPFL_N_TSTD:
+			goto tstd;
 		case DT_SPFL_N_YEAR:
 			if (spec.abbr != DT_SPMOD_ABBR) {
 				res.pl.off_min += -4;
@@ -361,12 +369,22 @@ build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 	struct grep_atom_s a;
 
 	if (nfmt == 0) {
+		/* inject the standard needles for %F and %T */
+		size_t idx;
 
-		if ((a = calc_grep_atom(NULL)).needle) {
-			size_t idx = res.natoms++;
-			res.needle[idx] = a.needle;
-			res.flesh[idx] = a.pl;
-		}
+		/* standard format %F */
+		idx = res.natoms++;
+		res.needle[idx] = '-';
+		res.flesh[idx].off_min = -4;
+		res.flesh[idx].off_max = -4;
+		res.flesh[idx].fmt = NULL;
+
+		/* standard format, %T */
+		idx = res.natoms++;
+		res.needle[idx] = ':';
+		res.flesh[idx].off_min = -2;
+		res.flesh[idx].off_max = -1;
+		res.flesh[idx].fmt = NULL;
 		goto out;
 	}
 	/* otherwise collect needles from all formats */
@@ -428,7 +446,7 @@ dt_io_find_strpdt2(
 				q = p + f.off_min;
 			}
 			for (const char *r = p + f.off_max; *q && q <= r; q++) {
-				if ((d = dt_strpdt(q, fmt, ep)).d.typ) {
+				if (!dt_unk_p(d = dt_strpdt(q, fmt, ep))) {
 					p = q;
 					goto found;
 				}
@@ -472,7 +490,7 @@ dt_io_find_strpdt2(
 			for (const char *q = p;
 			     *q && *q >= '0' && *q <= '9'; q++) {
 				if ((--f.off_min <= 0) &&
-				    (d = dt_strpdt(p, fmt, ep)).d.typ) {
+				    !dt_unk_p(d = dt_strpdt(p, fmt, ep))) {
 					goto found;
 				}
 			}
@@ -505,7 +523,7 @@ dt_io_find_strpdt2(
 					goto bugger;
 				}
 				if ((--f.off_min <= 0) &&
-				    (d = dt_strpdt(p, fmt, ep)).d.typ) {
+				    !dt_unk_p(d = dt_strpdt(p, fmt, ep))) {
 					goto found;
 				}
 			}
@@ -519,7 +537,7 @@ dt_io_find_strpdt2(
 				continue;
 			}
 			for (int8_t j = f.off_min; j <= f.off_max; j++) {
-				if ((d = dt_strpdt(p + j, fmt, ep)).d.typ) {
+				if (!dt_unk_p(d = dt_strpdt(p + j, fmt, ep))) {
 					p += j;
 					goto found;
 				}
@@ -698,7 +716,7 @@ dt_io_write_sed(
 
 
 /* error messages, warnings, etc. */
-static void __attribute__((unused))
+static inline void
 dt_io_warn_strpdt(const char *inp)
 {
 	fprintf(stderr, "\
