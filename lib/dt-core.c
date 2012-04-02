@@ -533,15 +533,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		}
 		break;
 	}
-	try_time:
 	default:
 	case DT_DUNK:
-		if (fmt == NULL && dt_sandwich_only_t_p(that)) {
-			fmt = hms_dflt;
-			break;
-		}
-		bp = buf;
-		goto out;
+		break;
 	}
 	/* translate high-level format names */
 	if (dt_sandwich_p(that)) {
@@ -549,7 +543,11 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	} else if (dt_sandwich_only_d_p(that)) {
 		__trans_dfmt(&fmt);
 	} else if (dt_sandwich_only_t_p(that)) {
+	try_time:
 		__trans_tfmt(&fmt);
+	} else {
+		bp = buf;
+		goto out;
 	}
 
 	/* now cope with the time part */
