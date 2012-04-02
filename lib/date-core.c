@@ -464,8 +464,6 @@ __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 	/* modulus */
 	unsigned int wd01mod = (md - 1) % GREG_DAYS_P_WEEK;
 
-	fprintf(stderr, "%u %u %u %u\n", wd01, md, wd01cnt, wd01mod);
-
 	/* now the next WD01MOD days also have WD01CNT occurrences
 	 * if wd01 + wd01mod exceeds the DAYS_PER_WEEK barrier wrap
 	 * around by extending W to W + DAYS_PER_WEEK */

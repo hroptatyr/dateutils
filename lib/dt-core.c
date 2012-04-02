@@ -669,12 +669,12 @@ dt_strpdtdur(const char *str, char **ep)
 		res.d.ymd.y = d.sd.y;
 		res.d.ymd.m = d.sd.q * 3 + d.sd.m;
 		res.d.ymd.d = d.sd.d + d.sd.w * 7;
-	} else if (d.sd.d) {
-		res.d.typ = DT_DAISY;
-		res.d.daisy = d.sd.w * 7 + d.sd.d;
 	} else if (d.sd.b) {
 		res.d.typ = DT_BIZSI;
 		res.d.bizsi = d.sd.w * 5 + d.sd.b;
+	} else if (d.sd.d || d.sd.w) {
+		res.d.typ = DT_DAISY;
+		res.d.daisy = d.sd.w * 7 + d.sd.d;
 
 /* time specs here */
 	} else if (d.st.h || d.st.m || d.st.s) {
