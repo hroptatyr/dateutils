@@ -2018,18 +2018,9 @@ __trans_dfmt(const char **fmt)
 static struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
-#if defined __C1X
-	struct dt_d_s res = {.typ = DT_DUNK, .u = 0};
-#else
 	struct dt_d_s res;
-#endif
 	struct strpd_s d = {0};
 	const char *sp;
-
-#if !defined __C1X
-	res.typ = DT_DUNK;
-	res.u = 0;
-#endif
 
 	if ((sp = str) == NULL) {
 		goto out;
@@ -2037,20 +2028,17 @@ __strpd_std(const char *str, char **ep)
 	/* read the year */
 	if ((d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
 	    *sp++ != '-') {
-		sp = str;
-		goto out;
+		goto fucked;
 	}
 	/* read the month */
 	if ((d.m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) == -1U ||
 	    *sp++ != '-') {
-		sp = str;
-		goto out;
+		goto fucked;
 	}
 	/* read the day or the count */
 	if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
 		/* didn't work, fuck off */
-		sp = str;
-		goto out;
+		goto fucked;
 	}
 	/* check the date type */
 	switch (*sp) {
@@ -2064,8 +2052,7 @@ __strpd_std(const char *str, char **ep)
 		sp++;
 		if ((d.w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) == -1U) {
 			/* didn't work, fuck off */
-			sp = str;
-			goto out;
+			goto fucked;
 		}
 		break;
 	case 'B':
@@ -2089,6 +2076,11 @@ out:
 		*ep = (char*)sp;
 	}
 	return res;
+fucked:
+	if (ep) {
+		*ep = (char*)str;
+	}
+	return dt_d_initialiser();
 }
 
 static int
