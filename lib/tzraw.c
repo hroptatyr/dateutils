@@ -64,11 +64,15 @@
 # define MAP_ANONYMOUS	(MAP_ANON)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
 
+#if defined TZDIR
+static const char tzdir[] = TZDIR;
+#else  /* !TZDIR */
+static const char tzdir[] = "/usr/share/zoneinfo";
+#endif	/* TZDIR */
+
 static int
 __open_zif(const char *file)
 {
-	static const char tzdir[] = TZDIR;
-
 	if (file == NULL || file[0] == '\0') {
 		return -1;
 	}
@@ -101,6 +105,7 @@ __read_zif(int fd)
 	}
 	tmp.mpsz = st.st_size;
 	tmp.fd = fd;
+	tmp.flags = 0U;
 	tmp.hdr = mmap(NULL, tmp.mpsz, PROT_READ, MAP_SHARED, fd, 0);
 	if (tmp.hdr == MAP_FAILED) {
 		return NULL;
@@ -121,15 +126,27 @@ __pars_zif(zif_t z)
 	return;
 }
 
-DEFUN inline zif_t
+DEFUN zif_t
 zif_read(const char *file)
 {
+	static const char tai[] = "TAI";
+	bool taip = false;
 	int fd;
 	zif_t res = NULL;
+
+	/* check for special time zones */
+	if (strcmp(file, tai) == 0) {
+		/* aah, tai time */
+		taip = true;
+		file = "/usr/share/zoneinfo/right/UTC";
+	}
 
 	if ((fd = __open_zif(file)) > STDIN_FILENO &&
 	    (res = __read_zif(fd)) != NULL) {
 		__pars_zif(res);
+	}
+	if (res && taip) {
+		res->taip = 1;
 	}
 	return res;
 }
@@ -168,22 +185,25 @@ zif_inst(zif_t z)
 
 	if (UNLIKELY(z == NULL)) {
 		/* no need to bother */
-		return res;
+		return NULL;
 	}
 	sz = z->mpsz + sizeof(*z);
 
 	map = mmap(NULL, sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
-	if (map != MAP_FAILED) {
-		/* we mmap'ped ourselves a slightly larger struct
-		 * res + 1 points to the header*/
-		memcpy((zif_t)(res = map) + 1, z->hdr, z->mpsz);
-		/* fill in the rest */
-		res->mpsz = sz;
-		res->hdr = (void*)(res + 1);
-		__pars_zif(res);
-		/* make sure we denote that this isnt connected to a file */
-		res->fd = -1;
+	if (UNLIKELY(map == MAP_FAILED)) {
+		return NULL;
 	}
+	/* we mmap'ped ourselves a slightly larger struct
+	 * res + 1 points to the header*/
+	memcpy((zif_t)(res = map) + 1, z->hdr, z->mpsz);
+	/* fill in the rest */
+	res->mpsz = sz;
+	res->hdr = (void*)(res + 1);
+	__pars_zif(res);
+	/* make sure we denote that this isnt connected to a file */
+	res->fd = -1;
+	/* copy the flags though */
+	res->flags = z->flags;
 	return res;
 }
 
@@ -239,7 +259,7 @@ zif_find_trans(zif_t z, int32_t t)
 	return __find_trno(z, t, this, min, max);
 }
 
-static inline struct zrng_s
+static struct zrng_s
 __find_zrng(zif_t z, int32_t t, int this, int min, int max)
 {
 	struct zrng_s res;
@@ -265,6 +285,26 @@ zif_find_zrng(zif_t z, int32_t t)
 	return __find_zrng(z, t, this, min, max);
 }
 
+static int32_t
+__tai_offs(zif_t z, int32_t t)
+{
+	size_t charcnt = be32toh(z->hdr->tzh_charcnt);
+	size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
+	struct {
+		uint32_t t;
+		int32_t corr;
+	} *leaps = (void*)(z->zn + charcnt);
+	size_t idx;
+
+	if (UNLIKELY((idx = leapcnt) == 0U || t < 0)) {
+		return 0;
+	}
+	/* slight optimisation, start from the back */
+	while (idx && (uint32_t)t < be32toh(leaps[--idx].t));
+	/* idx now points to the transition before T */
+	return be32toh(leaps[idx].corr);
+}
+
 static inline int32_t
 __offs(zif_t z, int32_t t)
 {
@@ -273,7 +313,9 @@ __offs(zif_t z, int32_t t)
 	int min;
 	size_t max;
 
-	if (LIKELY(t >= z->cache.prev && t < z->cache.next)) {
+	if (UNLIKELY(z->taip == 1)) {
+		return __tai_offs(z, t);
+	} else if (LIKELY(t >= z->cache.prev && t < z->cache.next)) {
 		/* use the cached offset */
 		return z->cache.offs;
 	} else if (t >= z->cache.next) {
