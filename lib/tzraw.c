@@ -172,22 +172,25 @@ zif_inst(zif_t z)
 
 	if (UNLIKELY(z == NULL)) {
 		/* no need to bother */
-		return res;
+		return NULL;
 	}
 	sz = z->mpsz + sizeof(*z);
 
 	map = mmap(NULL, sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
-	if (map != MAP_FAILED) {
-		/* we mmap'ped ourselves a slightly larger struct
-		 * res + 1 points to the header*/
-		memcpy((zif_t)(res = map) + 1, z->hdr, z->mpsz);
-		/* fill in the rest */
-		res->mpsz = sz;
-		res->hdr = (void*)(res + 1);
-		__pars_zif(res);
-		/* make sure we denote that this isnt connected to a file */
-		res->fd = -1;
+	if (UNLIKELY(map == MAP_FAILED)) {
+		return NULL;
 	}
+	/* we mmap'ped ourselves a slightly larger struct
+	 * res + 1 points to the header*/
+	memcpy((zif_t)(res = map) + 1, z->hdr, z->mpsz);
+	/* fill in the rest */
+	res->mpsz = sz;
+	res->hdr = (void*)(res + 1);
+	__pars_zif(res);
+	/* make sure we denote that this isnt connected to a file */
+	res->fd = -1;
+	/* copy the flags though */
+	res->flags = z->flags;
 	return res;
 }
 
