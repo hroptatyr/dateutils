@@ -369,12 +369,22 @@ build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 	struct grep_atom_s a;
 
 	if (nfmt == 0) {
+		/* inject the standard needles for %F and %T */
+		size_t idx;
 
-		if ((a = calc_grep_atom(NULL)).needle) {
-			size_t idx = res.natoms++;
-			res.needle[idx] = a.needle;
-			res.flesh[idx] = a.pl;
-		}
+		/* standard format %F */
+		idx = res.natoms++;
+		res.needle[idx] = '-';
+		res.flesh[idx].off_min = -4;
+		res.flesh[idx].off_max = -4;
+		res.flesh[idx].fmt = NULL;
+
+		/* standard format, %T */
+		idx = res.natoms++;
+		res.needle[idx] = ':';
+		res.flesh[idx].off_min = -2;
+		res.flesh[idx].off_max = -1;
+		res.flesh[idx].fmt = NULL;
 		goto out;
 	}
 	/* otherwise collect needles from all formats */
