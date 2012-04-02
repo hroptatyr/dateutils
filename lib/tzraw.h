@@ -179,6 +179,14 @@ struct zif_s {
 	/* file descriptor */
 	int fd;
 
+	/* for special zones */
+	union {
+		unsigned int flags;
+		struct {
+			unsigned int taip:1;
+		};
+	};
+
 	/* zone caching, between PREV and NEXT the offset is OFFS */
 	struct zrng_s cache;
 };

@@ -105,6 +105,7 @@ __read_zif(int fd)
 	}
 	tmp.mpsz = st.st_size;
 	tmp.fd = fd;
+	tmp.flags = 0U;
 	tmp.hdr = mmap(NULL, tmp.mpsz, PROT_READ, MAP_SHARED, fd, 0);
 	if (tmp.hdr == MAP_FAILED) {
 		return NULL;
