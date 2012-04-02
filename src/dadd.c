@@ -195,9 +195,6 @@ no durations given\n");
 					line, &ndlsoa,
 					(char**)&sp, (char**)&ep, fromz);
 
-				/* finish with newline again */
-				line[llen] = '\n';
-
 				if (!dt_unk_p(d)) {
 					/* perform addition now */
 					d = dadd_add(d, st.durs, st.ndurs);

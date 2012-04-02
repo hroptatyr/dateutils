@@ -146,9 +146,6 @@ main(int argc, char *argv[])
 					line, &ndlsoa,
 					(char**)&sp, (char**)&ep, fromz);
 
-				/* finish with newline again */
-				line[llen] = '\n';
-
 				if (!dt_unk_p(d) && argi->sed_mode_given) {
 					dt_io_write_sed(
 						d, ofmt,
