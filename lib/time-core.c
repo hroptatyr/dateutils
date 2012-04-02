@@ -148,21 +148,24 @@ __trans_tfmt(const char **fmt)
 }
 
 static int
-__strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
+__strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 {
-	int res = 0;
+	const char *sp = str;
 
 	switch (s.spfl) {
 	default:
 	case DT_SPFL_UNK:
-		res = -1;
-		break;
+		goto fucked;
 	case DT_SPFL_N_TSTD:
-		d->h = strtoui_lim(sp, &sp, 0, 23);
-		sp++;
-		d->m = strtoui_lim(sp, &sp, 0, 59);
-		sp++;
-		d->s = strtoui_lim(sp, &sp, 0, 60);
+		if ((d->h = strtoui_lim(sp, &sp, 0, 23)) == -1U ||
+		    *sp++ != ':') {
+			goto fucked;
+		} else if ((d->m = strtoui_lim(sp, &sp, 0, 59)) == -1U ||
+			   *sp++ != ':') {
+			goto fucked;
+		} else if ((d->s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+			goto fucked;
+		}
 		break;
 	case DT_SPFL_N_HOUR:
 		if (!s.sc12) {
@@ -170,16 +173,25 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		} else {
 			d->h = strtoui_lim(sp, &sp, 1, 12);
 		}
+		if (d->h == -1U) {
+			goto fucked;
+		}
 		break;
 	case DT_SPFL_N_MIN:
-		d->m = strtoui_lim(sp, &sp, 0, 59);
+		if ((d->m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
+			goto fucked;
+		}
 		break;
 	case DT_SPFL_N_SEC:
-		d->s = strtoui_lim(sp, &sp, 0, 60);
+		if ((d->s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+			goto fucked;
+		}
 		break;
 	case DT_SPFL_N_NANO:
 		/* nanoseconds */
-		d->ns = strtoui_lim(sp, &sp, 0, 999999999);
+		if ((d->ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
+			goto fucked;
+		}
 		break;
 	case DT_SPFL_S_AMPM: {
 		const unsigned int casebit = 0x20;
@@ -191,40 +203,49 @@ __strpt_card(struct strpt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			   (sp[1] | casebit) == 'm') {
 			d->am_pm_bit = 1;
 		} else {
-			res = -1;
+			goto fucked;
 		}
 		break;
 	}
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
-			res = -1;
+			goto fucked;
 		}
 		break;
 	case DT_SPFL_LIT_TAB:
 		if (*sp++ != '\t') {
-			res = -1;
+			goto fucked;
 		}
 		break;
 	case DT_SPFL_LIT_NL:
 		if (*sp++ != '\n') {
-			res = -1;
+			goto fucked;
 		}
 		break;
 	}
-	/* quickly check if any of the conversions has gone wrong */
-	if (d->h == -1U ||
-	    d->m == -1U ||
-	    d->s == -1U ||
-	    d->ns == -1U) {
-		res = -1;
-	} else {
+
+	/* check if components got set */
+	switch (s.spfl) {
+	case DT_SPFL_N_TSTD:
+	case DT_SPFL_N_HOUR:
+	case DT_SPFL_N_MIN:
+	case DT_SPFL_N_SEC:
+	case DT_SPFL_N_NANO:
 		d->component_set = 1;
+	default:
+		break;
 	}
+
 	/* assign end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
-	return res;
+	return 0;
+fucked:
+	if (ep) {
+		*ep = (char*)str;
+	}
+	return -1;
 }
 
 static size_t
