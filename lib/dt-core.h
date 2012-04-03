@@ -223,6 +223,16 @@ DECLF struct dt_dt_s
 dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
 
 /**
+ * Get duration between D1 and D2.
+ * The result will be of type TGTTYP,
+ * the calendar of D1 will be used, e.g. its month-per-year, days-per-week,
+ * etc. conventions count.
+ * If instead D2 should count, swap D1 and D2 and negate the duration
+ * by setting/clearing the neg bit. */
+DECLF struct dt_dt_s
+dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
+
+/**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
  * 1 if D1 is younger than the D2. */
 DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
