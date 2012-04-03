@@ -42,8 +42,8 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include "date-core.h"
-#include "date-io.h"
+#include "dt-core.h"
+#include "dt-io.h"
 #include "prchunk.h"
 
 #if !defined UNUSED
@@ -51,7 +51,7 @@
 #endif	/* !UNUSED */
 
 
-static dt_dtyp_t
+static dt_dttyp_t
 determine_durtype(const char *fmt)
 {
 	struct {
@@ -60,20 +60,25 @@ determine_durtype(const char *fmt)
 		unsigned int has_week:1;
 		unsigned int has_day:1;
 		unsigned int has_biz:1;
+
+		unsigned int has_hour:1;
+		unsigned int has_min:1;
+		unsigned int has_sec:1;
+		unsigned int has_nano:1;
 	} flags = {0};
 
 	if (fmt == NULL) {
-		return DT_DAISY;
+		return (dt_dttyp_t)DT_DAISY;
 	} else if (strcasecmp(fmt, "ymd") == 0) {
-		return DT_YMD;
+		return (dt_dttyp_t)DT_YMD;
 	} else if (strcasecmp(fmt, "ymcw") == 0) {
-		return DT_YMCW;
+		return (dt_dttyp_t)DT_YMCW;
 	} else if (strcasecmp(fmt, "daisy") == 0) {
-		return DT_DAISY;
+		return (dt_dttyp_t)DT_DAISY;
 	} else if (strcasecmp(fmt, "bizda") == 0) {
-		return DT_BIZDA;
+		return (dt_dttyp_t)DT_BIZDA;
 	} else if (strcasecmp(fmt, "bizsi") == 0) {
-		return DT_BIZSI;
+		return (dt_dttyp_t)DT_BIZSI;
 	}
 	/* go through the fmt specs */
 	for (const char *fp = fmt; *fp;) {
@@ -105,26 +110,46 @@ determine_durtype(const char *fmt)
 		case DT_SPFL_S_WDAY:
 			flags.has_week = 1;
 			break;
+
+		case DT_SPFL_N_TSTD:
+		case DT_SPFL_N_SEC:
+			flags.has_sec = 1;
+			break;
+		case DT_SPFL_N_HOUR:
+			flags.has_hour = 1;
+			break;
+		case DT_SPFL_N_MIN:
+			flags.has_min = 1;
+			break;
+		case DT_SPFL_N_NANO:
+			flags.has_nano = 1;
+			break;
 		}
 	}
-	if (flags.has_week && (flags.has_mon || flags.has_year)) {
-		return DT_YMCW;
-	} else if (flags.has_mon || flags.has_year) {
-		return DT_YMD;
-	} else if (flags.has_day && flags.has_biz) {
-		return DT_BIZSI;
-	} else if (flags.has_day || flags.has_week) {
-		return DT_DAISY;
-	} else {
-		return DT_MD;
+	if (!flags.has_hour &&
+	    !flags.has_min &&
+	    !flags.has_sec &&
+	    !flags.has_nano) {
+		if (flags.has_week && (flags.has_mon || flags.has_year)) {
+			return (dt_dttyp_t)DT_YMCW;
+		} else if (flags.has_mon || flags.has_year) {
+			return (dt_dttyp_t)DT_YMD;
+		} else if (flags.has_day && flags.has_biz) {
+			return (dt_dttyp_t)DT_BIZSI;
+		} else if (flags.has_day || flags.has_week) {
+			return (dt_dttyp_t)DT_DAISY;
+		} else {
+			return (dt_dttyp_t)DT_MD;
+		}
 	}
+	return (dt_dttyp_t)DT_SEXY;
 }
 
 static int
-ddiff_prnt(struct dt_d_s dur, const char *fmt)
+ddiff_prnt(struct dt_dt_s dur, const char *fmt)
 {
 	char buf[256];
-	size_t res = dt_strfddur(buf, sizeof(buf), fmt, dur);
+	size_t res = dt_strfdtdur(buf, sizeof(buf), fmt, dur);
 
 	if (res > 0 && buf[res - 1] != '\n') {
 		/* auto-newline */
@@ -156,12 +181,12 @@ int
 main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
-	struct dt_d_s d;
+	struct dt_dt_s d;
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
-	dt_dtyp_t difftyp;
+	dt_dttyp_t difftyp;
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
@@ -177,7 +202,7 @@ main(int argc, char *argv[])
 	nfmt = argi->input_format_given;
 
 	if (argi->inputs_num == 0 ||
-	    (d = dt_io_strpd(argi->inputs[0], fmt, nfmt)).typ == DT_DUNK) {
+	    dt_unk_p(d = dt_io_strpdt(argi->inputs[0], fmt, nfmt, NULL))) {
 		fputs("Error: reference DATE must be specified\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
@@ -189,15 +214,16 @@ main(int argc, char *argv[])
 
 	if (argi->inputs_num > 1) {
 		for (size_t i = 1; i < argi->inputs_num; i++) {
-			struct dt_d_s d2;
-			struct dt_d_s dur;
+			struct dt_dt_s d2;
+			struct dt_dt_s dur;
 			const char *inp = argi->inputs[i];
 
-			if ((d2 = dt_io_strpd(inp, fmt, nfmt)).typ > DT_DUNK &&
-			    (dur = dt_ddiff(difftyp, d, d2)).typ > DT_DUNK) {
+			d2 = dt_io_strpdt(inp, fmt, nfmt, NULL);
+			if (!dt_unk_p(d2) &&
+			    !dt_unk_p(dur = dt_dtdiff(difftyp, d, d2))) {
 				ddiff_prnt(dur, ofmt);
 			} else if (!argi->quiet_given) {
-				dt_io_warn_strpd(inp);
+				dt_io_warn_strpdt(inp);
 			}
 		}
 	} else {
@@ -216,19 +242,19 @@ main(int argc, char *argv[])
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t UNUSED(llen);
-				struct dt_d_s d2;
-				struct dt_d_s dur;
+				struct dt_dt_s d2;
+				struct dt_dt_s dur;
 
 				llen = prchunk_getline(pctx, &line);
+				d2 = dt_io_strpdt(line, fmt, nfmt, NULL);
 
 				/* perform addition now */
-				if ((d2 = dt_io_strpd(
-					     line, fmt, nfmt)).typ > DT_DUNK &&
-				    (dur = dt_ddiff(
-					     difftyp, d, d2)).typ > DT_DUNK) {
+				if (!dt_unk_p(d2) &&
+				    !dt_unk_p(dur = dt_dtdiff(
+						      difftyp, d, d2))) {
 					ddiff_prnt(dur, ofmt);
 				} else if (!argi->quiet_given) {
-					dt_io_warn_strpd(line);
+					dt_io_warn_strpdt(line);
 				}
 			}
 		}
