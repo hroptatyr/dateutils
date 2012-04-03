@@ -101,7 +101,10 @@ typedef struct {
 struct strpd_s {
 	unsigned int y;
 	unsigned int m;
-	unsigned int d;
+	union {
+		unsigned int d;
+		signed int sd;
+	};
 	unsigned int c;
 	unsigned int w;
 	/* general flags */
@@ -2473,7 +2476,7 @@ __strfd_dur(
 		break;
 	case DT_SPFL_N_DSTD:
 	case DT_SPFL_N_MDAY:
-		res = snprintf(buf, bsz, "%u", d->d);
+		res = snprintf(buf, bsz, "%d", d->sd);
 		break;
 	case DT_SPFL_N_YEAR:
 		if (!d->y) {
