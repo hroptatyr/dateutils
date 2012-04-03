@@ -158,6 +158,12 @@ dt_tests += tgrep.2.dt
 dt_tests += tgrep.3.dt
 
 dt_tests += ttest.1.dt
+dt_tests += ttest.2.dt
+dt_tests += ttest.3.dt
+dt_tests += ttest.4.dt
+dt_tests += ttest.5.dt
+dt_tests += ttest.6.dt
+dt_tests += ttest.7.dt
 
 dt_tests += tconv.1.dt
 dt_tests += tconv.2.dt
