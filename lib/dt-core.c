@@ -754,7 +754,7 @@ dt_strfdtdur(
 	const char *fp;
 	char *bp;
 
-	if (UNLIKELY(buf == NULL || bsz == 0 || !that.d.dur)) {
+	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		bp = buf;
 		goto out;
 	}
@@ -764,8 +764,12 @@ dt_strfdtdur(
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ymdhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
 			fmt = ymd_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_YMCW:
@@ -773,22 +777,33 @@ dt_strfdtdur(
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
 		d.sd.w = that.d.ymcw.w;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ymcwhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
 			fmt = ymcw_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_DAISY:
 		d.sd.d = that.d.daisy;
-		if (fmt == NULL) {
-			/* subject to change */
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = daisy_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = daisy_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_BIZSI:
 		d.sd.d = that.d.bizsi;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
 			fmt = bizsi_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = bizsi_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_BIZDA: {
@@ -802,17 +817,31 @@ dt_strfdtdur(
 			d.sd.flags.ab = BIZDA_BEFORE;
 		}
 		d.sd.flags.bizda = 1;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = bizdahms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
 			fmt = bizda_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	}
 	default:
 	case DT_DUNK:
-		goto out;
+		break;
 	}
 	/* translate high-level format names */
-	__trans_dtfmt(&fmt);
+	if (dt_sandwich_p(that)) {
+		__trans_dtfmt(&fmt);
+	} else if (dt_sandwich_only_d_p(that)) {
+		__trans_dfmt(&fmt);
+	} else if (dt_sandwich_only_t_p(that)) {
+	try_time:
+		fmt = "%S";
+	} else {
+		bp = buf;
+		goto out;
+	}
 
 	/* assign and go */
 	bp = buf;
