@@ -110,11 +110,11 @@ int	[0-9]+
 
 {date} {
 	yylval->sval = yytext;
-	RETURN_TOKEN(TOK_DATE);
+	RETURN_TOKEN(TOK_DATETIME);
 }
 {time} {
 	yylval->sval = yytext;
-	RETURN_TOKEN(TOK_TIME);
+	RETURN_TOKEN(TOK_DATETIME);
 }
 {int} {
 	yylval->sval = yytext;
