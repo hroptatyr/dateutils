@@ -184,14 +184,15 @@ __strpdt_std(const char *str, char **ep)
 		goto out;
 	}
 	/* check for the d/t separator */
-	switch (*sp++) {
+	switch (*sp) {
 	case 'T':
 	case ' ':
 	case '\t':
+		/* could be a time, could be something, else
+		 * make sure we leave a mark */
+		str = sp++;
 		break;
 	default:
-		/* that's no good */
-		sp--;
 		/* should be a no-op */
 		dt_make_d_only(&res, res.d.typ);
 		goto out;
@@ -201,21 +202,18 @@ try_time:
 	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
 		sp = str;
 		goto out;
-	} else if (*sp++ != ':') {
-		sp--;
+	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
+	} else if ((d.st.m = strtoui_lim(++sp, &sp, 0, 59)) == -1U) {
 		d.st.m = 0;
 		goto eval_time;
-	} else if (*sp++ != ':') {
-		sp--;
+	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+	} else if ((d.st.s = strtoui_lim(++sp, &sp, 0, 60)) == -1U) {
 		d.st.s = 0;
-	} else if (*sp++ != '.') {
-		sp--;
+	} else if (*sp != '.') {
 		goto eval_time;
-	} else if ((d.st.ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
+	} else if ((d.st.ns = strtoui_lim(++sp, &sp, 0, 999999999)) == -1U) {
 		d.st.ns = 0;
 		goto eval_time;
 	}
