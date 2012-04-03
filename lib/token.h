@@ -45,8 +45,12 @@ extern "C" {
 typedef enum {
 	DT_SPFL_UNK,
 
+	/* generic dt standard */
+	DT_SPFL_N_STD,
+
 	/* date specs */
 	DT_SPFL_N_MDAY,
+	DT_SPFL_N_DFIRST = DT_SPFL_N_MDAY,
 	DT_SPFL_N_MON,
 	DT_SPFL_N_YEAR,
 	/* %F, but generally stands for calendar's standard format */
@@ -61,12 +65,14 @@ typedef enum {
 	DT_SPFL_N_LAST = DT_SPFL_N_QTR,
 
 	DT_SPFL_S_WDAY,
+	DT_SPFL_S_DFIRST = DT_SPFL_S_WDAY,
 	DT_SPFL_S_MON,
 	DT_SPFL_S_QTR,
 	DT_SPFL_S_DLAST = DT_SPFL_S_QTR,
 
 	/* time specs */
 	DT_SPFL_N_SEC,
+	DT_SPFL_N_TFIRST = DT_SPFL_N_SEC,
 	DT_SPFL_N_MIN,
 	DT_SPFL_N_HOUR,
 	/* %T, but generally stands for calendar's standard format */
@@ -76,6 +82,7 @@ typedef enum {
 	DT_SPFL_N_TLAST = DT_SPFL_N_NANO,
 
 	DT_SPFL_S_AMPM,
+	DT_SPFL_S_TFIRST = DT_SPFL_S_AMPM,
 	DT_SPFL_S_TLAST = DT_SPFL_S_AMPM,
 
 	DT_SPFL_LIT_PERCENT,

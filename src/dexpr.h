@@ -2,7 +2,7 @@
 #if !defined INCLUDED_dexpr_h_
 #define INCLUDED_dexpr_h_
 
-#include "date-core.h"
+#include "dt-core.h"
 #include "token.h"
 
 typedef struct dexpr_s *dexpr_t;
@@ -23,7 +23,7 @@ struct dexkv_s {
 	struct dt_spec_s sp;
 	oper_t op:3;
 	union {
-		struct dt_d_s d;
+		struct dt_dt_s d;
 		signed int s;
 	};
 };

@@ -184,35 +184,36 @@ __strpdt_std(const char *str, char **ep)
 		goto out;
 	}
 	/* check for the d/t separator */
-	switch (*sp++) {
+	switch (*sp) {
 	case 'T':
 	case ' ':
 	case '\t':
+		/* could be a time, could be something, else
+		 * make sure we leave a mark */
+		str = sp++;
 		break;
 	default:
-		/* that's no good */
-		goto try_date;
+		/* should be a no-op */
+		dt_make_d_only(&res, res.d.typ);
+		goto out;
 	}
 try_time:
 	/* and now parse the time */
 	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
 		sp = str;
 		goto out;
-	} else if (*sp++ != ':') {
-		sp--;
+	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
+	} else if ((d.st.m = strtoui_lim(++sp, &sp, 0, 59)) == -1U) {
 		d.st.m = 0;
 		goto eval_time;
-	} else if (*sp++ != ':') {
-		sp--;
+	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+	} else if ((d.st.s = strtoui_lim(++sp, &sp, 0, 60)) == -1U) {
 		d.st.s = 0;
-	} else if (*sp++ != '.') {
-		sp--;
+	} else if (*sp != '.') {
 		goto eval_time;
-	} else if ((d.st.ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
+	} else if ((d.st.ns = strtoui_lim(++sp, &sp, 0, 999999999)) == -1U) {
 		d.st.ns = 0;
 		goto eval_time;
 	}
@@ -225,10 +226,6 @@ eval_time:
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
-	goto out;
-try_date:
-	/* should be a no-op */
-	dt_make_d_only(&res, res.d.typ);
 out:
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep) {
@@ -394,7 +391,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	const char *sp = str;
 	const char *fp = fmt;
 
-	if (UNLIKELY(fmt == NULL)) {
+	if (LIKELY(fmt == NULL)) {
 		return __strpdt_std(str, ep);
 	}
 	/* translate high-level format names, for sandwiches */
@@ -407,14 +404,12 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
 			if (*fp_sav != *sp++) {
-				sp = str;
-				goto out;
+				goto fucked;
 			}
 		} else if (LIKELY(!spec.rom)) {
 			const char *sp_sav = sp;
 			if (__strpdt_card(&d, sp, spec, (char**)&sp) < 0) {
-				sp = str;
-				goto out;
+				goto fucked;
 			}
 			if (spec.ord &&
 			    __ordinalp(sp_sav, sp - sp_sav, (char**)&sp) < 0) {
@@ -436,8 +431,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		} else if (UNLIKELY(spec.rom)) {
 			if (__strpd_rom(&d.sd, sp, spec, (char**)&sp) < 0) {
-				sp = str;
-				goto out;
+				goto fucked;
 			}
 		}
 	}
@@ -452,12 +446,17 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	} else if (res.t.typ > DT_TUNK) {
 		dt_make_t_only(&res, res.t.typ);
 	}
-out:
+
 	/* set the end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
 	return res;
+fucked:
+	if (ep) {
+		*ep = (char*)str;
+	}
+	return dt_dt_initialiser();
 }
 
 DEFUN size_t

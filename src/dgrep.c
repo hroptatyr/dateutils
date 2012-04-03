@@ -42,8 +42,9 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include "date-core.h"
-#include "date-io.h"
+#include "dt-core.h"
+#include "dt-io.h"
+#include "tzraw.h"
 #include "dexpr.h"
 #include "prchunk.h"
 
@@ -155,26 +156,24 @@ with complex expressions\n",
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen;
-				struct dt_d_s d;
+				struct dt_dt_s d;
 				char *sp = NULL;
 				char *ep = NULL;
 
 				llen = prchunk_getline(pctx, &line);
 				/* check if line matches,
 				 * there's currently no way to specify NEEDLE */
-				d = dt_io_find_strpd2(line, &ndlsoa, &sp, &ep);
+				d = dt_io_find_strpdt2(
+					line, &ndlsoa, &sp, &ep, NULL);
 
-				/* finish with newline again */
-				line[llen] = '\n';
-
-				if (d.typ && dexpr_matches_p(root, d)) {
-					const size_t msz = sizeof(*line);
-					if (argi->only_matching_given) {
-						line = sp;
-						llen = ep - sp;
-						*ep = '\n';
+				if (!dt_unk_p(d) && dexpr_matches_p(root, d)) {
+					if (!argi->only_matching_given) {
+						sp = line;
+						ep = line + llen;
 					}
-					fwrite(line, msz, llen + 1, stdout);
+					/* make sure we finish the line */
+					*ep++ = '\n';
+					__io_write(sp, ep - sp, stdout);
 				}
 			}
 		}

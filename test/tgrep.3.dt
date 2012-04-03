@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dgrep
-CMDLINE="'>=12:00:00'"
+CMDLINE="'<12:00:00'"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
@@ -15,8 +15,8 @@ EOF
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-fileNOON	12:00:00	new version
-fileC	12:03:12
+fileA	11:59:58
+fileB	11:59:59	leap second?
 EOF
 
-## tgrep.1.dt ends here
+## tgrep.3.dt ends here
