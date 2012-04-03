@@ -191,7 +191,10 @@ __strpdt_std(const char *str, char **ep)
 		break;
 	default:
 		/* that's no good */
-		goto try_date;
+		sp--;
+		/* should be a no-op */
+		dt_make_d_only(&res, res.d.typ);
+		goto out;
 	}
 try_time:
 	/* and now parse the time */
@@ -225,10 +228,6 @@ eval_time:
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
-	goto out;
-try_date:
-	/* should be a no-op */
-	dt_make_d_only(&res, res.d.typ);
 out:
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep) {
