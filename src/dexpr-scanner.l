@@ -103,6 +103,11 @@ int	[0-9]+
 	RETURN_TOKEN(TOK_STRING);
 }
 
+{date}[\t T]{time} {
+	yylval->sval = yytext;
+	RETURN_TOKEN(TOK_DATETIME);
+}
+
 {date} {
 	yylval->sval = yytext;
 	RETURN_TOKEN(TOK_DATE);

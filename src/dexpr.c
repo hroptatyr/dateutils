@@ -90,7 +90,7 @@ __pr_val(struct dexkv_s *kv)
 	switch (kv->sp.spfl) {
 	case DT_SPFL_N_DSTD: {
 		char buf[32];
-		dt_strfd(buf, sizeof(buf), NULL, kv->d);
+		dt_strfdt(buf, sizeof(buf), NULL, kv->d);
 		fputs(buf, stdout);
 		break;
 	}
@@ -465,13 +465,13 @@ dexpr_simplify(dexpr_t root)
 
 
 static bool
-dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
+dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 {
 	signed int cmp;
 	bool res;
 
 	if (dkv->sp.spfl == DT_SPFL_N_DSTD) {
-		if ((cmp = dt_dcmp(d, dkv->d)) == -2) {
+		if ((cmp = dt_dtcmp(d, dkv->d)) == -2) {
 			return false;
 		}
 		switch (dkv->op) {
@@ -506,25 +506,25 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 	/* otherwise it's stuff that uses the S slot */
 	switch (dkv->sp.spfl) {
 	case DT_SPFL_N_YEAR:
-		cmp = dt_get_year(d);
+		cmp = dt_get_year(d.d);
 		break;
 	case DT_SPFL_N_MON:
 	case DT_SPFL_S_MON:
-		cmp = dt_get_mon(d);
+		cmp = dt_get_mon(d.d);
 		break;
 	case DT_SPFL_N_MDAY:
-		cmp = dt_get_mday(d);
+		cmp = dt_get_mday(d.d);
 		break;
 	case DT_SPFL_N_CNT_WEEK:
 	case DT_SPFL_S_WDAY:
-		cmp = dt_get_wday(d);
+		cmp = dt_get_wday(d.d);
 		break;
 	case DT_SPFL_N_CNT_MON:
 		/* exotic function, needs extern'ing */
 		cmp = /*dt_get_count(d)*/0;
 		break;
 	case DT_SPFL_N_CNT_YEAR:
-		cmp = dt_get_yday(d);
+		cmp = dt_get_yday(d.d);
 		break;
 	case DT_SPFL_N_DSTD:
 	default:
@@ -562,7 +562,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_d_s d)
 }
 
 static bool
-__conj_matches_p(const_dexpr_t dex, struct dt_d_s d)
+__conj_matches_p(const_dexpr_t dex, struct dt_dt_s d)
 {
 	const_dexpr_t a;
 
@@ -576,7 +576,7 @@ __conj_matches_p(const_dexpr_t dex, struct dt_d_s d)
 }
 
 static bool
-__disj_matches_p(const_dexpr_t dex, struct dt_d_s d)
+__disj_matches_p(const_dexpr_t dex, struct dt_dt_s d)
 {
 	const_dexpr_t o;
 
@@ -590,7 +590,7 @@ __disj_matches_p(const_dexpr_t dex, struct dt_d_s d)
 }
 
 static __attribute__((unused)) bool
-dexpr_matches_p(const_dexpr_t dex, struct dt_d_s d)
+dexpr_matches_p(const_dexpr_t dex, struct dt_dt_s d)
 {
 	return __disj_matches_p(dex, d);
 }

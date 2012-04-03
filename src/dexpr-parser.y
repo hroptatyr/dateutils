@@ -89,6 +89,7 @@ static struct dexkv_s ckv[1];
 %token TOK_STRING
 %token TOK_DATE
 %token TOK_TIME
+%token TOK_DATETIME
 %token TOK_INT
 
 %token TOK_OR
@@ -158,12 +159,16 @@ spec
 
 rhs
 	: TOK_DATE {
-		struct dt_d_s d = dt_strpd($<sval>1, NULL, NULL);
-		ckv->d = d;
+		ckv->d = dt_strpdt($<sval>1, NULL, NULL);
 		ckv->sp.spfl = DT_SPFL_N_DSTD;
 	}
 	| TOK_TIME {
-		/* no support yet */
+		ckv->d = dt_strpdt($<sval>1, NULL, NULL);
+		ckv->sp.spfl = DT_SPFL_N_TSTD;
+	}
+	| TOK_DATETIME {
+		ckv->d = dt_strpdt($<sval>1, NULL, NULL);
+		ckv->sp.spfl = DT_SPFL_N_DSTD;
 	}
 	| TOK_STRING {
 		switch (ckv->sp.spfl) {
