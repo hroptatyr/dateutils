@@ -78,13 +78,6 @@ tdiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 tdiff_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += tdiff-clo.c tdiff-clo.h
 
-bin_PROGRAMS += tgrep
-tgrep_SOURCES = tgrep.c tgrep-clo.ggo
-tgrep_SOURCES += prchunk.c prchunk.h
-tgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
-tgrep_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += tgrep-clo.c tgrep-clo.h
-
 bin_PROGRAMS += ttest
 ttest_SOURCES = ttest.c ttest-clo.ggo
 ttest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
