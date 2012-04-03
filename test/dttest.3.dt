@@ -1,14 +1,14 @@
 ## -*- shell-script -*-
 
-TOOL=ddiff
-CMDLINE="10:06:00 10:01:00"
+TOOL=dtest
+CMDLINE="2012-03-02T07:00:00 --cmp 2012-03-02T09:30:00; echo \"\${?}\""
 
 ## STDIN
- 
+
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
--300s
+2
 EOF
 
-## tdiff.3.dt ends here
+## dttest.3.dt ends here

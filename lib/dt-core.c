@@ -184,35 +184,36 @@ __strpdt_std(const char *str, char **ep)
 		goto out;
 	}
 	/* check for the d/t separator */
-	switch (*sp++) {
+	switch (*sp) {
 	case 'T':
 	case ' ':
 	case '\t':
+		/* could be a time, could be something, else
+		 * make sure we leave a mark */
+		str = sp++;
 		break;
 	default:
-		/* that's no good */
-		goto try_date;
+		/* should be a no-op */
+		dt_make_d_only(&res, res.d.typ);
+		goto out;
 	}
 try_time:
 	/* and now parse the time */
 	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
 		sp = str;
 		goto out;
-	} else if (*sp++ != ':') {
-		sp--;
+	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
+	} else if ((d.st.m = strtoui_lim(++sp, &sp, 0, 59)) == -1U) {
 		d.st.m = 0;
 		goto eval_time;
-	} else if (*sp++ != ':') {
-		sp--;
+	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
+	} else if ((d.st.s = strtoui_lim(++sp, &sp, 0, 60)) == -1U) {
 		d.st.s = 0;
-	} else if (*sp++ != '.') {
-		sp--;
+	} else if (*sp != '.') {
 		goto eval_time;
-	} else if ((d.st.ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
+	} else if ((d.st.ns = strtoui_lim(++sp, &sp, 0, 999999999)) == -1U) {
 		d.st.ns = 0;
 		goto eval_time;
 	}
@@ -225,10 +226,6 @@ eval_time:
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
-	goto out;
-try_date:
-	/* should be a no-op */
-	dt_make_d_only(&res, res.d.typ);
 out:
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep) {
@@ -344,6 +341,51 @@ __strfdt_card(
 	return res;
 }
 
+static size_t
+__strfdt_dur(
+	char *buf, size_t bsz, struct dt_spec_s s,
+	struct strpdt_s *d, struct dt_dt_s that)
+{
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		return 0;
+
+	case DT_SPFL_N_DSTD:
+	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_YEAR:
+	case DT_SPFL_N_MON:
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_S_WDAY:
+	case DT_SPFL_S_MON:
+	case DT_SPFL_S_QTR:
+	case DT_SPFL_N_QTR:
+	case DT_SPFL_N_CNT_YEAR:
+		return __strfd_dur(buf, bsz, s, &d->sd, that.d);
+
+		/* noone's ever bothered doing the same thing for times */
+	case DT_SPFL_N_TSTD:
+	case DT_SPFL_N_SEC:
+		/* replace me!!! */
+		return (size_t)snprintf(buf, bsz, "%ds", that.t.sdur);
+
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		*buf = '%';
+		break;
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		*buf = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		*buf = '\n';
+		break;
+	}
+	return 1;
+}
+
 /* just like time-core's tadd() but with carry */
 static struct dt_t_s
 __tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
@@ -394,7 +436,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	const char *sp = str;
 	const char *fp = fmt;
 
-	if (UNLIKELY(fmt == NULL)) {
+	if (LIKELY(fmt == NULL)) {
 		return __strpdt_std(str, ep);
 	}
 	/* translate high-level format names, for sandwiches */
@@ -407,14 +449,12 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
 			if (*fp_sav != *sp++) {
-				sp = str;
-				goto out;
+				goto fucked;
 			}
 		} else if (LIKELY(!spec.rom)) {
 			const char *sp_sav = sp;
 			if (__strpdt_card(&d, sp, spec, (char**)&sp) < 0) {
-				sp = str;
-				goto out;
+				goto fucked;
 			}
 			if (spec.ord &&
 			    __ordinalp(sp_sav, sp - sp_sav, (char**)&sp) < 0) {
@@ -436,8 +476,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		} else if (UNLIKELY(spec.rom)) {
 			if (__strpd_rom(&d.sd, sp, spec, (char**)&sp) < 0) {
-				sp = str;
-				goto out;
+				goto fucked;
 			}
 		}
 	}
@@ -452,12 +491,17 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	} else if (res.t.typ > DT_TUNK) {
 		dt_make_t_only(&res, res.t.typ);
 	}
-out:
+
 	/* set the end pointer */
 	if (ep) {
 		*ep = (char*)sp;
 	}
 	return res;
+fucked:
+	if (ep) {
+		*ep = (char*)str;
+	}
+	return dt_dt_initialiser();
 }
 
 DEFUN size_t
@@ -711,7 +755,7 @@ dt_strfdtdur(
 	const char *fp;
 	char *bp;
 
-	if (UNLIKELY(buf == NULL || bsz == 0 || !that.d.dur)) {
+	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		bp = buf;
 		goto out;
 	}
@@ -721,8 +765,12 @@ dt_strfdtdur(
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ymdhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
 			fmt = ymd_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_YMCW:
@@ -730,22 +778,33 @@ dt_strfdtdur(
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
 		d.sd.w = that.d.ymcw.w;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ymcwhms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
 			fmt = ymcw_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_DAISY:
 		d.sd.d = that.d.daisy;
-		if (fmt == NULL) {
-			/* subject to change */
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = daisy_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = daisy_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_BIZSI:
 		d.sd.d = that.d.bizsi;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
 			fmt = bizsi_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = bizsi_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	case DT_BIZDA: {
@@ -759,17 +818,31 @@ dt_strfdtdur(
 			d.sd.flags.ab = BIZDA_BEFORE;
 		}
 		d.sd.flags.bizda = 1;
-		if (fmt == NULL) {
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = bizdahms_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
 			fmt = bizda_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
 		}
 		break;
 	}
 	default:
 	case DT_DUNK:
-		goto out;
+		break;
 	}
 	/* translate high-level format names */
-	__trans_dtfmt(&fmt);
+	if (dt_sandwich_p(that)) {
+		__trans_dtfmt(&fmt);
+	} else if (dt_sandwich_only_d_p(that)) {
+		__trans_dfmt(&fmt);
+	} else if (dt_sandwich_only_t_p(that)) {
+	try_time:
+		fmt = "%S";
+	} else {
+		bp = buf;
+		goto out;
+	}
 
 	/* assign and go */
 	bp = buf;
@@ -785,7 +858,7 @@ dt_strfdtdur(
 			/* must be literal then */
 			*bp++ = *fp_sav;
 		} else if (LIKELY(!spec.rom)) {
-			bp += __strfd_dur(bp, eo - bp, spec, &d.sd, that.d);
+			bp += __strfdt_dur(bp, eo - bp, spec, &d, that);
 			if (spec.bizda) {
 				/* don't print the b after an ordinal */
 				if (d.sd.flags.ab == BIZDA_AFTER) {
@@ -986,6 +1059,21 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	/* and promote the whole shebang again */
 	d.typ = typ;
 	return d;
+}
+
+DEFUN struct dt_dt_s
+dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
+{
+	struct dt_dt_s res = dt_dt_initialiser();
+
+	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
+		res.t = dt_tdiff(d1.t, d2.t);
+		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
+	} else if (tgttyp > DT_UNK && tgttyp < DT_NDTYP) {
+		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
+		dt_make_d_only(&res, res.d.typ);
+	}
+	return res;
 }
 
 

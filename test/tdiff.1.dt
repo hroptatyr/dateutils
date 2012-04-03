@@ -1,6 +1,6 @@
 ## -*- shell-script -*-
 
-TOOL=tdiff
+TOOL=ddiff
 CMDLINE="10:00:00 10:00:00"
 
 ## STDIN

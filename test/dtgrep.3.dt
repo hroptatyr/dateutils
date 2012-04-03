@@ -1,22 +1,22 @@
 ## -*- shell-script -*-
 
 TOOL=dgrep
-CMDLINE="'>=12:00:00'"
+CMDLINE="\\<=12:30:00"
 
 ## STDIN
 stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdin}" <<EOF
-fileA	11:59:58
-fileB	11:59:59	leap second?
-fileNOON	12:00:00	new version
-fileC	12:03:12
+2012-02-28T12:50:00
+2012-02-29T12:40:00
+2012-03-01T12:30:00
+2012-03-02T12:20:00
 EOF
 
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-fileNOON	12:00:00	new version
-fileC	12:03:12
+2012-03-01T12:30:00
+2012-03-02T12:20:00
 EOF
 
-## tgrep.1.dt ends here
+## dtgrep.3.dt ends here

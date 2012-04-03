@@ -71,26 +71,6 @@ dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dgrep-clo.c dgrep-clo.h
 
-bin_PROGRAMS += tdiff
-tdiff_SOURCES = tdiff.c tdiff-clo.ggo
-tdiff_SOURCES += prchunk.c prchunk.h
-tdiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
-tdiff_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += tdiff-clo.c tdiff-clo.h
-
-bin_PROGRAMS += tgrep
-tgrep_SOURCES = tgrep.c tgrep-clo.ggo
-tgrep_SOURCES += prchunk.c prchunk.h
-tgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
-tgrep_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += tgrep-clo.c tgrep-clo.h
-
-bin_PROGRAMS += ttest
-ttest_SOURCES = ttest.c ttest-clo.ggo
-ttest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
-ttest_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += ttest-clo.c ttest-clo.h
-
 noinst_PROGRAMS += dexpr
 dexpr_SOURCES = dexpr.c
 dexpr_SOURCES += dexpr-scanner.l

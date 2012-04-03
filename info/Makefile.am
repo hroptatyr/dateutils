@@ -71,6 +71,15 @@ dtest_EXAMPLES += $(top_srcdir)/test/dtest.2.dt
 dtest_EXAMPLES += $(top_srcdir)/test/dtest.3.dt
 dtest_EXAMPLES += $(top_srcdir)/test/dtest.4.dt
 dtest_EXAMPLES += $(top_srcdir)/test/dtest.5.dt
+dtest_EXAMPLES += $(top_srcdir)/test/ttest.1.dt
+dtest_EXAMPLES += $(top_srcdir)/test/ttest.2.dt
+dtest_EXAMPLES += $(top_srcdir)/test/ttest.3.dt
+dtest_EXAMPLES += $(top_srcdir)/test/ttest.4.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dttest.1.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dttest.2.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dttest.3.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dttest.4.dt
+dtest_EXAMPLES += $(top_srcdir)/test/dttest.5.dt
 dateutils_EXAMPLES += $(dtest_EXAMPLES)
 dateutils_H2M_EX += dtest.h2m
 
@@ -80,6 +89,9 @@ ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.2.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.3.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.4.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.1.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
 dateutils_EXAMPLES += $(ddiff_EXAMPLES)
 dateutils_H2M_EX += ddiff.h2m
 
@@ -89,25 +101,14 @@ dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.2.dt
 dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.6.dt
 dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.7.dt
 dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.8.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/tgrep.1.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/tgrep.2.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.1.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.2.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.5.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.6.dt
 dateutils_EXAMPLES += $(dgrep_EXAMPLES)
 dateutils_H2M_EX += dgrep.h2m
-
-tdiff_EXAMPLES =
-tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.1.dt
-tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
-tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
-dateutils_EXAMPLES += $(tdiff_EXAMPLES)
-dateutils_H2M_EX += tdiff.h2m
-
-tgrep_EXAMPLES =
-tgrep_EXAMPLES += $(top_srcdir)/test/tgrep.1.dt
-dateutils_EXAMPLES += $(tgrep_EXAMPLES)
-dateutils_H2M_EX += tgrep.h2m
-
-ttest_EXAMPLES =
-ttest_EXAMPLES += $(top_srcdir)/test/ttest.1.dt
-dateutils_EXAMPLES += $(ttest_EXAMPLES)
-dateutils_H2M_EX += ttest.h2m
 
 dateutils_H2M_EX += format.h2m
 
@@ -124,9 +125,6 @@ built_texis += ddiff.texi
 built_texis += dseq.texi
 built_texis += dtest.texi
 built_texis += dgrep.texi
-built_texis += tdiff.texi
-built_texis += tgrep.texi
-built_texis += ttest.texi
 
 built_mans =
 built_mans += strptime.man
@@ -136,9 +134,6 @@ built_mans += ddiff.man
 built_mans += dgrep.man
 built_mans += dseq.man
 built_mans += dtest.man
-built_mans += tdiff.man
-built_mans += tgrep.man
-built_mans += ttest.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)

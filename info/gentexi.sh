@@ -47,7 +47,8 @@ for i; do
 
 	echo
 	echo "@example"
-	genex "${BINARY}" "${BINNAME}" "${CMDLINE}" "${stdin}"
+	genex "${BINARY}" "${BINNAME}" "${CMDLINE}" "${stdin}" | \
+		sed 's/@/@@/g; s/{/@{/g; s/}/@}/g'
 	echo "@end example"
 done
 
