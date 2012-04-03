@@ -166,7 +166,7 @@ with complex expressions\n",
 				d = dt_io_find_strpdt2(
 					line, &ndlsoa, &sp, &ep, NULL);
 
-				if (d.typ && dexpr_matches_p(root, d)) {
+				if (!dt_unk_p(d) && dexpr_matches_p(root, d)) {
 					if (!argi->only_matching_given) {
 						sp = line;
 						ep = line + llen;
