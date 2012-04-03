@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dtest
-CMDLINE="12:00:04 --gt 11:22:33 && echo \"true\""
+CMDLINE="--eq 11:22:33 11:22:33 && echo \"true\""
 
 ## STDIN
 
@@ -11,4 +11,4 @@ cat > "${stdout}" <<EOF
 true
 EOF
 
-## ttest.1.dt ends here
+## ttest.6.dt ends here

@@ -44,8 +44,8 @@
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
-#include "date-core.h"
-#include "date-io.h"
+#include "dt-core.h"
+#include "dt-io.h"
 
 
 #if defined __INTEL_COMPILER
@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 	struct gengetopt_args_info argi[1];
 	char **ifmt;
 	size_t nifmt;
-	struct dt_d_s d1, d2;
+	struct dt_dt_s d1, d2;
 	int res = 0;
 
 	if (cmdline_parser(argc, argv, argi)) {
@@ -86,41 +86,53 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_arg;
 	nifmt = argi->input_format_given;
 
-	if ((d1 = dt_io_strpd(argi->inputs[0], ifmt, nifmt)).typ == DT_DUNK) {
+	if (dt_unk_p(d1 = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL))) {
 		if (!argi->quiet_given) {
-			dt_io_warn_strpd(argi->inputs[0]);
+			dt_io_warn_strpdt(argi->inputs[0]);
 		}
 		res = 2;
 		goto out;
 	}
-	if ((d2 = dt_io_strpd(argi->inputs[1], ifmt, nifmt)).typ == DT_DUNK) {
+	if (dt_unk_p(d2 = dt_io_strpdt(argi->inputs[1], ifmt, nifmt, NULL))) {
 		if (!argi->quiet_given) {
-			dt_io_warn_strpd(argi->inputs[1]);
+			dt_io_warn_strpdt(argi->inputs[1]);
 		}
 		res = 2;
 		goto out;
 	}
 
-	if (argi->cmp_given) {
-		if (d1.u == d2.u) {
+	/* just do the comparison */
+	if ((res = dt_dtcmp(d1, d2)) == -2) {
+		/* uncomparable */
+		res = 3;
+	} else if (argi->cmp_given) {
+		switch (res) {
+		case 0:
 			res = 0;
-		} else if (d1.u < d2.u) {
+			break;
+		case -1:
 			res = 2;
-		} else /*if (d1.u > d2.u)*/ {
+			break;
+		case 1:
 			res = 1;
+			break;
+		case -2:
+		default:
+			res = 3;
+			break;
 		}
 	} else if (argi->eq_given) {
-		res = 1 - (d1.u == d2.u);
+		res = res == 0 ? 0 : 1;
 	} else if (argi->ne_given) {
-		res = 1 - (d1.u != d2.u);
+		res = res != 0 ? 0 : 1;
 	} else if (argi->lt_given || argi->ot_given) {
-		res = 1 - (d1.u < d2.u);
+		res = res == -1 ? 0 : 1;
 	} else if (argi->le_given) {
-		res = 1 - (d1.u <= d2.u);
+		res = res == -1 || res == 0 ? 0 : 1;
 	} else if (argi->gt_given || argi->nt_given) {
-		res = 1 - (d1.u > d2.u);
+		res = res == 1 ? 0 : 1;
 	} else if (argi->ge_given) {
-		res = 1 - (d1.u >= d2.u);
+		res = res == 1 || res == 0 ? 0 : 1;
 	}
 out:
 	cmdline_parser_free(argi);

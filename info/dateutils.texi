@@ -61,9 +61,8 @@ arise when dealing with large amounts of financial data.
 * ddiff::               Compute durations from dates
 * dgrep::               Find date or time matches in input stream
 * dseq::                Generate sequences of dates or times
-* dtest::               Compare dates
+* dtest::               Compare dates or times
 * tdiff::               Compute durations between times
-* ttest::               Compare times
 @end menu
 
 
@@ -184,7 +183,6 @@ this month's ultimo.
 @include dseq.texi
 @include dtest.texi
 @include tdiff.texi
-@include ttest.texi
 
 @summarycontents
 @contents
