@@ -59,11 +59,10 @@ arise when dealing with large amounts of financial data.
 * dconv::               Convert dates between calendars or time zones
 * dadd::                Add durations to dates or times
 * ddiff::               Compute durations from dates
-* dgrep::               Find date matches in input stream
+* dgrep::               Find date or time matches in input stream
 * dseq::                Generate sequences of dates or times
 * dtest::               Compare dates
 * tdiff::               Compute durations between times
-* tgrep::               Find time matches in input stream
 * ttest::               Compare times
 @end menu
 
@@ -185,7 +184,6 @@ this month's ultimo.
 @include dseq.texi
 @include dtest.texi
 @include tdiff.texi
-@include tgrep.texi
 @include ttest.texi
 
 @summarycontents

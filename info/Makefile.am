@@ -89,6 +89,12 @@ dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.2.dt
 dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.6.dt
 dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.7.dt
 dgrep_EXAMPLES += $(top_srcdir)/test/dgrep.8.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/tgrep.1.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/tgrep.2.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.1.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.2.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.5.dt
+dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.6.dt
 dateutils_EXAMPLES += $(dgrep_EXAMPLES)
 dateutils_H2M_EX += dgrep.h2m
 
@@ -98,11 +104,6 @@ tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
 tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
 dateutils_EXAMPLES += $(tdiff_EXAMPLES)
 dateutils_H2M_EX += tdiff.h2m
-
-tgrep_EXAMPLES =
-tgrep_EXAMPLES += $(top_srcdir)/test/tgrep.1.dt
-dateutils_EXAMPLES += $(tgrep_EXAMPLES)
-dateutils_H2M_EX += tgrep.h2m
 
 ttest_EXAMPLES =
 ttest_EXAMPLES += $(top_srcdir)/test/ttest.1.dt
@@ -125,7 +126,6 @@ built_texis += dseq.texi
 built_texis += dtest.texi
 built_texis += dgrep.texi
 built_texis += tdiff.texi
-built_texis += tgrep.texi
 built_texis += ttest.texi
 
 built_mans =
@@ -137,7 +137,6 @@ built_mans += dgrep.man
 built_mans += dseq.man
 built_mans += dtest.man
 built_mans += tdiff.man
-built_mans += tgrep.man
 built_mans += ttest.man
 
 EXTRA_DIST += $(man1_MANS)
