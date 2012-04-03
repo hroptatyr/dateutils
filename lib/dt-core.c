@@ -367,7 +367,8 @@ __strfdt_dur(
 		/* noone's ever bothered doing the same thing for times */
 	case DT_SPFL_N_TSTD:
 	case DT_SPFL_N_SEC:
-		return (size_t)snprintf(buf, bsz, "%d", that.t.sdur);
+		/* replace me!!! */
+		return (size_t)snprintf(buf, bsz, "%ds", that.t.sdur);
 
 	case DT_SPFL_LIT_PERCENT:
 		/* literal % */
