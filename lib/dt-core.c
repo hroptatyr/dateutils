@@ -341,6 +341,50 @@ __strfdt_card(
 	return res;
 }
 
+static size_t
+__strfdt_dur(
+	char *buf, size_t bsz, struct dt_spec_s s,
+	struct strpdt_s *d, struct dt_dt_s that)
+{
+	switch (s.spfl) {
+	default:
+	case DT_SPFL_UNK:
+		return 0;
+
+	case DT_SPFL_N_DSTD:
+	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_YEAR:
+	case DT_SPFL_N_MON:
+	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_S_WDAY:
+	case DT_SPFL_S_MON:
+	case DT_SPFL_S_QTR:
+	case DT_SPFL_N_QTR:
+	case DT_SPFL_N_CNT_YEAR:
+		return __strfd_dur(buf, bsz, s, &d->sd, that.d);
+
+		/* noone's ever bothered doing the same thing for times */
+	case DT_SPFL_N_TSTD:
+	case DT_SPFL_N_SEC:
+		return (size_t)snprintf(buf, bsz, "%d", that.t.sdur);
+
+	case DT_SPFL_LIT_PERCENT:
+		/* literal % */
+		*buf = '%';
+		break;
+	case DT_SPFL_LIT_TAB:
+		/* literal tab */
+		*buf = '\t';
+		break;
+	case DT_SPFL_LIT_NL:
+		/* literal \n */
+		*buf = '\n';
+		break;
+	}
+	return 1;
+}
+
 /* just like time-core's tadd() but with carry */
 static struct dt_t_s
 __tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
@@ -784,7 +828,7 @@ dt_strfdtdur(
 			/* must be literal then */
 			*bp++ = *fp_sav;
 		} else if (LIKELY(!spec.rom)) {
-			bp += __strfd_dur(bp, eo - bp, spec, &d.sd, that.d);
+			bp += __strfdt_dur(bp, eo - bp, spec, &d, that);
 			if (spec.bizda) {
 				/* don't print the b after an ordinal */
 				if (d.sd.flags.ab == BIZDA_AFTER) {
