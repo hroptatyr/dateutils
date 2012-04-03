@@ -80,9 +80,9 @@ if test "${enable_fast_arith}" = "yes"; then
 fi
 
 ## trivial, no special stuff needed
-dapps="ddiff dgrep dtest"
-tapps="tdiff tgrep ttest"
-dtapps="dadd dconv dseq"
+dapps="ddiff dtest"
+tapps="tdiff ttest"
+dtapps="dadd dconv dgrep dseq"
 if test "${have_strptime}" = "yes"; then
 	miscapps="strptime"
 fi
