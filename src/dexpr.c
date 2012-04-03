@@ -463,6 +463,19 @@ dexpr_simplify(dexpr_t root)
 	return;
 }
 
+static int
+__cmp(struct dt_dt_s stream, struct dt_dt_s cell)
+{
+/* special promoting/demoting version of dt_dtcmp()
+ * if CELL is d-only or t-only, demote STREAM */
+	if (dt_sandwich_only_d_p(cell)) {
+		return dt_dcmp(stream.d, cell.d);
+	} else if (dt_sandwich_only_t_p(cell)) {
+		return dt_tcmp(stream.t, cell.t);
+	}
+	return dt_dtcmp(stream, cell);
+}
+
 
 static bool
 dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
@@ -471,7 +484,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 	bool res;
 
 	if (dkv->sp.spfl == DT_SPFL_N_STD) {
-		if ((cmp = dt_dtcmp(d, dkv->d)) == -2) {
+		if ((cmp = __cmp(d, dkv->d)) == -2) {
 			return false;
 		}
 		switch (dkv->op) {
