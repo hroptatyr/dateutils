@@ -89,6 +89,9 @@ ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.2.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.3.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.4.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.1.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
 dateutils_EXAMPLES += $(ddiff_EXAMPLES)
 dateutils_H2M_EX += ddiff.h2m
 
@@ -107,13 +110,6 @@ dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.6.dt
 dateutils_EXAMPLES += $(dgrep_EXAMPLES)
 dateutils_H2M_EX += dgrep.h2m
 
-tdiff_EXAMPLES =
-tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.1.dt
-tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
-tdiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
-dateutils_EXAMPLES += $(tdiff_EXAMPLES)
-dateutils_H2M_EX += tdiff.h2m
-
 dateutils_H2M_EX += format.h2m
 
 EXTRA_DIST += author.h2m $(dateutils_H2M_EX)
@@ -129,7 +125,6 @@ built_texis += ddiff.texi
 built_texis += dseq.texi
 built_texis += dtest.texi
 built_texis += dgrep.texi
-built_texis += tdiff.texi
 
 built_mans =
 built_mans += strptime.man
@@ -139,7 +134,6 @@ built_mans += ddiff.man
 built_mans += dgrep.man
 built_mans += dseq.man
 built_mans += dtest.man
-built_mans += tdiff.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
