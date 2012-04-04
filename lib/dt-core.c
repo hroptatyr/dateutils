@@ -1080,7 +1080,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		res.typ = DT_SEXY;
 		res.dur = 0;
 		res.neg = 0;
-		res.sexy = res.t.sdur + res.d.daisydur * SECS_PER_DAY;
+		res.sexydur = res.t.sdur + res.d.daisydur * SECS_PER_DAY;
 	}
 	return res;
 }
