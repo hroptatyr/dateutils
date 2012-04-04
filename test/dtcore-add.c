@@ -28,11 +28,11 @@ add_d_only(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
+	dur.t = dt_t_initialiser();
 	dt_make_d_only(&dur, DT_DAISY);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.d.daisy = 1;
-	dur.t.u = 0;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -75,12 +75,12 @@ add_t_only(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
+	dur.d = dt_d_initialiser();
 	dt_make_t_only(&dur, DT_TUNK);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.t.dur = 1;
 	dur.t.neg = 0;
-	dur.d.u = 0;
 	dur.t.sdur = 3600;
 
 	/* the actual addition */
@@ -127,13 +127,11 @@ dt_add_d(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
+	dur.t = dt_t_initialiser();
 	dt_make_d_only(&dur, DT_DAISY);
 	dur.dur = 1;
 	dur.neg = 0;
 	dur.d.daisy = 1;
-	dur.t.u = 0;
-	dur.t.dur = 0;
-	dur.t.neg = 0;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -183,10 +181,10 @@ dt_add_t(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
+	dur.d = dt_d_initialiser();
 	dt_make_t_only(&dur, DT_TUNK);
 	dur.dur = 1;
 	dur.neg = 0;
-	dur.d.u = 0;
 	dur.t.dur = 1;
 	dur.t.neg = 0;
 	dur.t.sdur = 3600;
@@ -243,6 +241,7 @@ dt_add_dt(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* we lack some lovely ctors for this */
+	dur = dt_dt_initialiser();
 	dt_make_sandwich(&dur, DT_DAISY, DT_TUNK);
 	dur.dur = 1;
 	dur.neg = 0;
