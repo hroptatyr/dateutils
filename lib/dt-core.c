@@ -103,7 +103,10 @@ static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 static void
 __trans_dtfmt(const char **fmt)
 {
-	if (LIKELY(**fmt == '%')) {
+	if (UNLIKELY(*fmt == NULL)) {
+		/* um, great */
+		;
+	} else if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
 		;
 	} else if (strcasecmp(*fmt, "ymd") == 0) {
