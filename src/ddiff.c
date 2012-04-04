@@ -157,7 +157,10 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 	 *
 	 * where d means a ddur type, t a tdur type and s is DT_SEXY */
 
-	if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
+	if ((dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) &&
+	    (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2))) {
+		;
+	} else if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
 		if (f.has_week && (f.has_mon || f.has_year)) {
 			return (dt_dttyp_t)DT_YMCW;
 		} else if (f.has_mon || f.has_year) {
