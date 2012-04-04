@@ -109,7 +109,8 @@ typedef union {
 
 /** sexy
  * sexy is really, secsi, seconds since X, 1970-01-01T00:00:00 here */
-typedef int64_t dt_sexy_t;
+typedef uint64_t dt_sexy_t;
+typedef int64_t dt_ssexy_t;
 #define DT_SEXY_BASE_YEAR	(1917)
 
 struct dt_dt_s {
@@ -132,6 +133,7 @@ struct dt_dt_s {
 				uint64_t u:53;
 				dt_ymdhms_t ymdhms;
 				dt_sexy_t sexy:53;
+				dt_ssexy_t sexydur:53;
 			};
 		} __attribute__((packed));
 		/* sandwich types */
