@@ -219,12 +219,15 @@ main(int argc, char *argv[])
 			const char *inp = argi->inputs[i];
 
 			d2 = dt_io_strpdt(inp, fmt, nfmt, NULL);
-			if (!dt_unk_p(d2) &&
-			    !dt_unk_p(dur = dt_dtdiff(difftyp, d, d2))) {
-				ddiff_prnt(dur, ofmt);
-			} else if (!argi->quiet_given) {
-				dt_io_warn_strpdt(inp);
+			if (dt_unk_p(d2)) {
+				if (!argi->quiet_given) {
+					dt_io_warn_strpdt(inp);
+				}
+				continue;
 			}
+			/* subtraction and print */
+			dur = dt_dtdiff(difftyp, d, d2);
+			ddiff_prnt(dur, ofmt);
 		}
 	} else {
 		/* read from stdin */
@@ -248,14 +251,15 @@ main(int argc, char *argv[])
 				llen = prchunk_getline(pctx, &line);
 				d2 = dt_io_strpdt(line, fmt, nfmt, NULL);
 
-				/* perform addition now */
-				if (!dt_unk_p(d2) &&
-				    !dt_unk_p(dur = dt_dtdiff(
-						      difftyp, d, d2))) {
-					ddiff_prnt(dur, ofmt);
-				} else if (!argi->quiet_given) {
-					dt_io_warn_strpdt(line);
+				if (dt_unk_p(d2)) {
+					if (!argi->quiet_given) {
+						dt_io_warn_strpdt(line);
+					}
+					continue;
 				}
+				/* perform subtraction now */
+				dur = dt_dtdiff(difftyp, d, d2);
+				ddiff_prnt(dur, ofmt);
 			}
 		}
 		/* get rid of resources */
