@@ -42,6 +42,7 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 #include <string.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -367,8 +368,15 @@ __strfdt_dur(
 		/* noone's ever bothered doing the same thing for times */
 	case DT_SPFL_N_TSTD:
 	case DT_SPFL_N_SEC:
-		/* replace me!!! */
-		return (size_t)snprintf(buf, bsz, "%ds", that.t.sdur);
+		if (that.typ == DT_SEXY) {
+			/* use the sexy slot */
+			int64_t dur = that.sexydur;
+			return (size_t)snprintf(buf, bsz, "%" PRIi64 "s", dur);
+		} else {
+			/* replace me!!! */
+			int32_t dur = that.t.sdur;
+			return (size_t)snprintf(buf, bsz, "%" PRIi32 "s", dur);
+		}
 
 	case DT_SPFL_LIT_PERCENT:
 		/* literal % */
