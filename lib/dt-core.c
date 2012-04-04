@@ -1081,14 +1081,19 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
 		dt_make_d_only(&res, res.d.typ);
 	} else if (tgttyp == DT_SEXY) {
+		int64_t sxdur;
+
 		/* go for tdiff and ddiff independently */
 		res.t = dt_tdiff(d1.t, d2.t);
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
+		sxdur = (int64_t)res.t.sdur +
+			(int64_t)res.d.daisydur * SECS_PER_DAY;
+		/* set up the output here */
 		res.typ = DT_SEXY;
 		res.dur = 0;
 		res.neg = 0;
-		res.sexydur = res.t.sdur + res.d.daisydur * SECS_PER_DAY;
+		res.sexydur = sxdur;
 	}
 	return res;
 }
