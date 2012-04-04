@@ -181,6 +181,14 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 
 
 /* printers */
+static inline void
+dt_io_warn_dur(const char *d1, const char *d2)
+{
+	fprintf(stderr, "\
+duration between `%s' and `%s' is not defined\n", d1, d2);
+	return;
+}
+
 static long int
 __strf_tot_secs(struct dt_dt_s dur)
 {
@@ -593,6 +601,7 @@ main(int argc, char *argv[])
 	struct gengetopt_args_info argi[1];
 	struct dt_dt_s d;
 	const char *ofmt;
+	const char *refinp;
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
@@ -611,9 +620,10 @@ main(int argc, char *argv[])
 	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
+	refinp = argi->inputs[0];
 
 	if (argi->inputs_num == 0 ||
-	    dt_unk_p(d = dt_io_strpdt(argi->inputs[0], fmt, nfmt, NULL))) {
+	    dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, NULL))) {
 		fputs("Error: reference DATE must be specified\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
@@ -639,7 +649,7 @@ main(int argc, char *argv[])
 			/* guess the diff type */
 			if ((dtyp = determine_durtype(d, d2, dfmt)) == DT_UNK) {
 				if (!argi->quiet_given) {
-					;
+				        dt_io_warn_dur(refinp, inp);
 				}
 				continue;
 			}
@@ -679,7 +689,7 @@ main(int argc, char *argv[])
 				dtyp = determine_durtype(d, d2, dfmt);
 				if (dtyp == DT_UNK) {
 					if (!argi->quiet_given) {
-						;
+						dt_io_warn_dur(refinp, line);
 					}
 					continue;
 				}
