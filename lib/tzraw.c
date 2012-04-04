@@ -288,6 +288,8 @@ zif_find_zrng(zif_t z, int32_t t)
 static int32_t
 __tai_offs(zif_t z, int32_t t)
 {
+	/* difference of TAI and UTC at epoch instant */
+	const int32_t tai_offs_epoch = 10;
 	size_t charcnt = be32toh(z->hdr->tzh_charcnt);
 	size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
 	struct {
@@ -301,8 +303,12 @@ __tai_offs(zif_t z, int32_t t)
 	}
 	/* slight optimisation, start from the back */
 	while (idx && (uint32_t)t < be32toh(leaps[--idx].t));
+	if (UNLIKELY((uint32_t)t < be32toh(leaps[0].t))) {
+		/* we actually don't know what happened before the epoch */
+		return tai_offs_epoch;
+	}
 	/* idx now points to the transition before T */
-	return be32toh(leaps[idx].corr);
+	return tai_offs_epoch + be32toh(leaps[idx].corr);
 }
 
 static inline int32_t
