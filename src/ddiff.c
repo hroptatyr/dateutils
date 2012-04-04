@@ -50,10 +50,8 @@
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
 
-
-static dt_dttyp_t
-determine_durtype(const char *fmt)
-{
+typedef union {
+	unsigned int flags;
 	struct {
 		unsigned int has_year:1;
 		unsigned int has_mon:1;
@@ -65,78 +63,98 @@ determine_durtype(const char *fmt)
 		unsigned int has_min:1;
 		unsigned int has_sec:1;
 		unsigned int has_nano:1;
-	} flags = {0};
+	};
+} durfmt_t;
+
+
+static durfmt_t
+determine_durfmt(const char *fmt)
+{
+	durfmt_t res = {0};
 
 	if (fmt == NULL) {
-		return (dt_dttyp_t)DT_DAISY;
+		res.has_day = 1;
 	} else if (strcasecmp(fmt, "ymd") == 0) {
-		return (dt_dttyp_t)DT_YMD;
+		res.has_year = 1;
+		res.has_mon = 1;
+		res.has_day = 1;
 	} else if (strcasecmp(fmt, "ymcw") == 0) {
-		return (dt_dttyp_t)DT_YMCW;
+		res.has_year = 1;
+		res.has_mon = 1;
+		res.has_week = 1;
+		res.has_day = 1;
 	} else if (strcasecmp(fmt, "daisy") == 0) {
-		return (dt_dttyp_t)DT_DAISY;
+		res.has_day = 1;
 	} else if (strcasecmp(fmt, "bizda") == 0) {
-		return (dt_dttyp_t)DT_BIZDA;
+		res.has_year = 1;
+		res.has_mon = 1;
+		res.has_day = 1;
+		res.has_biz = 1;
 	} else if (strcasecmp(fmt, "bizsi") == 0) {
-		return (dt_dttyp_t)DT_BIZSI;
-	}
-	/* go through the fmt specs */
-	for (const char *fp = fmt; *fp;) {
-		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		res.has_day = 1;
+		res.has_biz = 1;
+	} else {
+		/* go through the fmt specs */
+		for (const char *fp = fmt; *fp;) {
+			const char *fp_sav = fp;
+			struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
 
-		switch (spec.spfl) {
-		case DT_SPFL_UNK:
-		default:
-			/* nothing changes */
-			break;
-		case DT_SPFL_N_YEAR:
-			flags.has_year = 1;
-			break;
-		case DT_SPFL_N_MON:
-		case DT_SPFL_S_MON:
-			flags.has_mon = 1;
-			break;
-		case DT_SPFL_N_MDAY:
-			if (spec.bizda) {
-				flags.has_biz = 1;
+			switch (spec.spfl) {
+			case DT_SPFL_UNK:
+			default:
+				/* nothing changes */
+				break;
+			case DT_SPFL_N_YEAR:
+				res.has_year = 1;
+				break;
+			case DT_SPFL_N_MON:
+			case DT_SPFL_S_MON:
+				res.has_mon = 1;
+				break;
+			case DT_SPFL_N_MDAY:
+				if (spec.bizda) {
+					res.has_biz = 1;
+				}
+			case DT_SPFL_N_DSTD:
+			case DT_SPFL_N_CNT_YEAR:
+				res.has_day = 1;
+				break;
+			case DT_SPFL_N_CNT_MON:
+			case DT_SPFL_N_CNT_WEEK:
+			case DT_SPFL_S_WDAY:
+				res.has_week = 1;
+				break;
+
+			case DT_SPFL_N_TSTD:
+			case DT_SPFL_N_SEC:
+				res.has_sec = 1;
+				break;
+			case DT_SPFL_N_HOUR:
+				res.has_hour = 1;
+				break;
+			case DT_SPFL_N_MIN:
+				res.has_min = 1;
+				break;
+			case DT_SPFL_N_NANO:
+				res.has_nano = 1;
+				break;
 			}
-		case DT_SPFL_N_DSTD:
-		case DT_SPFL_N_CNT_YEAR:
-			flags.has_day = 1;
-			break;
-		case DT_SPFL_N_CNT_MON:
-		case DT_SPFL_N_CNT_WEEK:
-		case DT_SPFL_S_WDAY:
-			flags.has_week = 1;
-			break;
-
-		case DT_SPFL_N_TSTD:
-		case DT_SPFL_N_SEC:
-			flags.has_sec = 1;
-			break;
-		case DT_SPFL_N_HOUR:
-			flags.has_hour = 1;
-			break;
-		case DT_SPFL_N_MIN:
-			flags.has_min = 1;
-			break;
-		case DT_SPFL_N_NANO:
-			flags.has_nano = 1;
-			break;
 		}
 	}
-	if (!flags.has_hour &&
-	    !flags.has_min &&
-	    !flags.has_sec &&
-	    !flags.has_nano) {
-		if (flags.has_week && (flags.has_mon || flags.has_year)) {
+	return res;
+}
+
+static dt_dttyp_t
+determine_durtype(durfmt_t f)
+{
+	if (!f.has_hour && !f.has_min && !f.has_sec && !f.has_nano) {
+		if (f.has_week && (f.has_mon || f.has_year)) {
 			return (dt_dttyp_t)DT_YMCW;
-		} else if (flags.has_mon || flags.has_year) {
+		} else if (f.has_mon || f.has_year) {
 			return (dt_dttyp_t)DT_YMD;
-		} else if (flags.has_day && flags.has_biz) {
+		} else if (f.has_day && f.has_biz) {
 			return (dt_dttyp_t)DT_BIZSI;
-		} else if (flags.has_day || flags.has_week) {
+		} else if (f.has_day || f.has_week) {
 			return (dt_dttyp_t)DT_DAISY;
 		} else {
 			return (dt_dttyp_t)DT_MD;
@@ -146,7 +164,7 @@ determine_durtype(const char *fmt)
 }
 
 static int
-ddiff_prnt(struct dt_dt_s dur, const char *fmt)
+ddiff_prnt(struct dt_dt_s dur, const char *fmt, durfmt_t f)
 {
 	char buf[256];
 	size_t res = dt_strfdtdur(buf, sizeof(buf), fmt, dur);
@@ -186,7 +204,8 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	int res = 0;
-	dt_dttyp_t difftyp;
+	durfmt_t dfmt;
+	dt_dttyp_t dtyp;
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
@@ -210,7 +229,8 @@ main(int argc, char *argv[])
 	}
 
 	/* try and guess the diff tgttype most suitable for user's FMT */
-	difftyp = determine_durtype(ofmt);
+	dfmt = determine_durfmt(ofmt);
+	dtyp = determine_durtype(dfmt);
 
 	if (argi->inputs_num > 1) {
 		for (size_t i = 1; i < argi->inputs_num; i++) {
@@ -219,12 +239,15 @@ main(int argc, char *argv[])
 			const char *inp = argi->inputs[i];
 
 			d2 = dt_io_strpdt(inp, fmt, nfmt, NULL);
-			if (!dt_unk_p(d2) &&
-			    !dt_unk_p(dur = dt_dtdiff(difftyp, d, d2))) {
-				ddiff_prnt(dur, ofmt);
-			} else if (!argi->quiet_given) {
-				dt_io_warn_strpdt(inp);
+			if (dt_unk_p(d2)) {
+				if (!argi->quiet_given) {
+					dt_io_warn_strpdt(inp);
+				}
+				continue;
 			}
+			/* subtraction and print */
+			dur = dt_dtdiff(dtyp, d, d2);
+			ddiff_prnt(dur, ofmt, dfmt);
 		}
 	} else {
 		/* read from stdin */
@@ -248,14 +271,15 @@ main(int argc, char *argv[])
 				llen = prchunk_getline(pctx, &line);
 				d2 = dt_io_strpdt(line, fmt, nfmt, NULL);
 
-				/* perform addition now */
-				if (!dt_unk_p(d2) &&
-				    !dt_unk_p(dur = dt_dtdiff(
-						      difftyp, d, d2))) {
-					ddiff_prnt(dur, ofmt);
-				} else if (!argi->quiet_given) {
-					dt_io_warn_strpdt(line);
+				if (dt_unk_p(d2)) {
+					if (!argi->quiet_given) {
+						dt_io_warn_strpdt(line);
+					}
+					continue;
 				}
+				/* perform subtraction now */
+				dur = dt_dtdiff(dtyp, d, d2);
+				ddiff_prnt(dur, ofmt, dfmt);
 			}
 		}
 		/* get rid of resources */
