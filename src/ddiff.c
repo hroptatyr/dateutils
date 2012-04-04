@@ -176,61 +176,6 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 	return DT_UNK;
 }
 
-struct expa_s {
-	struct strpd_s sd;
-	struct strpt_s st;
-	int64_t ss;
-};
-
-#if 0
-static void
-load_expander(struct expa_s *x, struct dt_dt_s dur)
-{
-	memset(x, 0, sizeof(*x));
-
-	if (dur.typ == DT_SEXY) {
-		x->ss = dur.sexydur;
-	} else if (dt_sandwich_only_d_p(dur) || dt_sanwich_p(dur)) {
-		switch (dur.d.typ) {
-		case DT_YMD:
-			x->sd.y = dur.d.ymd.y;
-			x->sd.m = dur.d.ymd.m;
-			x->sd.d = dur.d.ymd.d;
-			break;
-		case DT_YMCW:
-			x->sd.y = dur.d.ymcw.y;
-			x->sd.m = dur.d.ymcw.m;
-			x->sd.c = dur.d.ymcw.c;
-			x->sd.w = dur.d.ymcw.w;
-			break;
-		case DT_DAISY:
-			x->sd.sd = dur.d.daisydur;
-			break;
-		case DT_BIZSI:
-			x->sd.sd = dur.d.bizsidur;
-			break;
-		case DT_BIZDA: {
-			dt_bizda_param_t bparam = __get_bizda_param(dur.d);
-			x->sd.y = dur.d.bizda.y;
-			x->sd.m = dur.d.bizda.m;
-			x->sd.b = dur.d.bizda.bd;
-			if (LIKELY(bparam.ab == BIZDA_AFTER)) {
-				x->sd.flags.ab = BIZDA_AFTER;
-			} else {
-				x->sd.flags.ab = BIZDA_BEFORE;
-			}
-			x->sd.flags.bizda = 1;
-			break;
-		}
-		default:
-		case DT_DUNK:
-			break;
-		}
-	} else if () {
-	}
-}
-#endif
-
 
 /* printers */
 static int
