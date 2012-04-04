@@ -70,6 +70,27 @@ static const char tzdir[] = TZDIR;
 static const char tzdir[] = "/usr/share/zoneinfo";
 #endif	/* TZDIR */
 
+/* special zone names */
+static const char coord_zones[][4] = {
+	"",
+	"UTC",
+	"TAI",
+	"GPS",
+};
+/* where can we deduce some info for our coordinated zones */
+static const char coord_fn[] = "/usr/share/zoneinfo/right/UTC";
+
+static coord_zone_t
+coord_zone(const char *zone)
+{
+	for (coord_zone_t i = TZCZ_UTC; i < TZCZ_NZONE; i++) {
+		if (strcmp(zone, coord_zones[i]) == 0) {
+			return i;
+		}
+	}
+	return TZCZ_UNK;
+}
+
 static int
 __open_zif(const char *file)
 {
@@ -105,7 +126,6 @@ __read_zif(int fd)
 	}
 	tmp.mpsz = st.st_size;
 	tmp.fd = fd;
-	tmp.flags = 0U;
 	tmp.hdr = mmap(NULL, tmp.mpsz, PROT_READ, MAP_SHARED, fd, 0);
 	if (tmp.hdr == MAP_FAILED) {
 		return NULL;
@@ -129,24 +149,19 @@ __pars_zif(zif_t z)
 DEFUN zif_t
 zif_read(const char *file)
 {
-	static const char tai[] = "TAI";
-	bool taip = false;
+	coord_zone_t cz;
 	int fd;
 	zif_t res = NULL;
 
 	/* check for special time zones */
-	if (strcmp(file, tai) == 0) {
-		/* aah, tai time */
-		taip = true;
-		file = "/usr/share/zoneinfo/right/UTC";
+	if ((cz = coord_zone(file)) > TZCZ_UNK) {
+		file = coord_fn;
 	}
 
 	if ((fd = __open_zif(file)) > STDIN_FILENO &&
 	    (res = __read_zif(fd)) != NULL) {
 		__pars_zif(res);
-	}
-	if (res && taip) {
-		res->taip = 1;
+		res->cz = cz;
 	}
 	return res;
 }
@@ -203,7 +218,7 @@ zif_inst(zif_t z)
 	/* make sure we denote that this isnt connected to a file */
 	res->fd = -1;
 	/* copy the flags though */
-	res->flags = z->flags;
+	res->cz = z->cz;
 	return res;
 }
 
@@ -288,6 +303,8 @@ zif_find_zrng(zif_t z, int32_t t)
 static int32_t
 __tai_offs(zif_t z, int32_t t)
 {
+	/* difference of TAI and UTC at epoch instant */
+	const int32_t tai_offs_epoch = 10;
 	size_t charcnt = be32toh(z->hdr->tzh_charcnt);
 	size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
 	struct {
@@ -301,8 +318,23 @@ __tai_offs(zif_t z, int32_t t)
 	}
 	/* slight optimisation, start from the back */
 	while (idx && (uint32_t)t < be32toh(leaps[--idx].t));
+	if (UNLIKELY((uint32_t)t < be32toh(leaps[0].t))) {
+		/* we actually don't know what happened before the epoch */
+		return tai_offs_epoch;
+	}
 	/* idx now points to the transition before T */
-	return be32toh(leaps[idx].corr);
+	return tai_offs_epoch + be32toh(leaps[idx].corr);
+}
+
+static int32_t
+__gps_offs(zif_t z, int32_t t)
+{
+/* TAI - GPS = 19 on 1980-01-06, so use that identity here */
+	const int32_t gps_offs_epoch = 19;
+	if (UNLIKELY(t < 315964800)) {
+		return 0;
+	}
+	return __tai_offs(z, t) - gps_offs_epoch;
 }
 
 static inline int32_t
@@ -313,9 +345,20 @@ __offs(zif_t z, int32_t t)
 	int min;
 	size_t max;
 
-	if (UNLIKELY(z->taip == 1)) {
+	switch (z->cz) {
+	default:
+	case TZCZ_UNK:
+		break;
+	case TZCZ_UTC:
+		return 0;
+	case TZCZ_TAI:
 		return __tai_offs(z, t);
-	} else if (LIKELY(t >= z->cache.prev && t < z->cache.next)) {
+	case TZCZ_GPS:
+		return __gps_offs(z, t);
+	}
+
+	/* use the classic code */
+	if (LIKELY(t >= z->cache.prev && t < z->cache.next)) {
 		/* use the cached offset */
 		return z->cache.offs;
 	} else if (t >= z->cache.next) {

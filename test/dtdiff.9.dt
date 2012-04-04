@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="12:14:00 2012-03-02T10:14:00"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+
+## STDERR
+stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stderr}" <<EOF
+duration between \`12:14:00' and \`2012-03-02T10:14:00' is not defined
+EOF
+
+## dtdiff.9.dt ends here

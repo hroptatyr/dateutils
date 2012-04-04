@@ -118,6 +118,14 @@ typedef struct zih_s *zih_t;
 typedef struct ztrdtl_s *ztrdtl_t;
 typedef const char *znam_t;
 
+typedef enum {
+	TZCZ_UNK,
+	TZCZ_UTC,
+	TZCZ_TAI,
+	TZCZ_GPS,
+	TZCZ_NZONE,
+} coord_zone_t;
+
 /* convenience struct where we copy all the good things into one */
 struct zspec_s {
 	int32_t since;
@@ -180,12 +188,7 @@ struct zif_s {
 	int fd;
 
 	/* for special zones */
-	union {
-		unsigned int flags;
-		struct {
-			unsigned int taip:1;
-		};
-	};
+	coord_zone_t cz;
 
 	/* zone caching, between PREV and NEXT the offset is OFFS */
 	struct zrng_s cache;

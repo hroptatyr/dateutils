@@ -42,6 +42,7 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 #include <string.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -102,7 +103,10 @@ static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 static void
 __trans_dtfmt(const char **fmt)
 {
-	if (LIKELY(**fmt == '%')) {
+	if (UNLIKELY(*fmt == NULL)) {
+		/* um, great */
+		;
+	} else if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
 		;
 	} else if (strcasecmp(*fmt, "ymd") == 0) {
@@ -367,8 +371,15 @@ __strfdt_dur(
 		/* noone's ever bothered doing the same thing for times */
 	case DT_SPFL_N_TSTD:
 	case DT_SPFL_N_SEC:
-		/* replace me!!! */
-		return (size_t)snprintf(buf, bsz, "%ds", that.t.sdur);
+		if (that.typ == DT_SEXY) {
+			/* use the sexy slot */
+			int64_t dur = that.sexydur;
+			return (size_t)snprintf(buf, bsz, "%" PRIi64 "s", dur);
+		} else {
+			/* replace me!!! */
+			int32_t dur = that.t.sdur;
+			return (size_t)snprintf(buf, bsz, "%" PRIi32 "s", dur);
+		}
 
 	case DT_SPFL_LIT_PERCENT:
 		/* literal % */
@@ -1072,6 +1083,20 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	} else if (tgttyp > DT_UNK && tgttyp < DT_NDTYP) {
 		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
 		dt_make_d_only(&res, res.d.typ);
+	} else if (tgttyp == DT_SEXY) {
+		int64_t sxdur;
+
+		/* go for tdiff and ddiff independently */
+		res.t = dt_tdiff(d1.t, d2.t);
+		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
+		/* since target type is SEXY do the conversion here */
+		sxdur = (int64_t)res.t.sdur +
+			(int64_t)res.d.daisydur * SECS_PER_DAY;
+		/* set up the output here */
+		res.typ = DT_SEXY;
+		res.dur = 0;
+		res.neg = 0;
+		res.sexydur = sxdur;
 	}
 	return res;
 }

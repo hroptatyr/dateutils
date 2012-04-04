@@ -234,6 +234,17 @@ dt_tests += dttest.8.dt
 dt_tests += dttest.9.dt
 dt_tests += dttest.10.dt
 
+dt_tests += dtdiff.1.dt
+dt_tests += dtdiff.2.dt
+dt_tests += dtdiff.3.dt
+dt_tests += dtdiff.4.dt
+dt_tests += dtdiff.5.dt
+dt_tests += dtdiff.6.dt
+dt_tests += dtdiff.7.dt
+dt_tests += dtdiff.8.dt
+dt_tests += dtdiff.9.dt
+dt_tests += dtdiff.10.dt
+
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
 check_PROGRAMS += struct-3

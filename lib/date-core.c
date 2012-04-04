@@ -1996,7 +1996,10 @@ static const char bizda_dflt[] = "%Y-%m-%db";
 static void
 __trans_dfmt(const char **fmt)
 {
-	if (LIKELY(**fmt == '%')) {
+	if (UNLIKELY(*fmt == NULL)) {
+		/* great, standing ovations to the user */
+		;
+	} else if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
 		;
 	} else if (strcasecmp(*fmt, "ymd") == 0) {
