@@ -178,6 +178,31 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 
 
 /* printers */
+static long int
+__strf_tot_secs(struct dt_dt_s dur)
+{
+	long int res;
+
+	if (dur.typ == DT_SEXY) {
+		return dur.sexydur;
+	}
+	/* otherwise */
+	res = dur.t.sdur;
+	return res;
+}
+
+static long int
+__strf_tot_mins(struct dt_dt_s dur)
+{
+	return __strf_tot_secs(dur) / SECS_PER_MINUTE;
+}
+
+static long int
+__strf_tot_hours(struct dt_dt_s dur)
+{
+	return __strf_tot_secs(dur) / SECS_PER_HOUR;
+}
+
 static int
 __strf_tot_days(struct dt_dt_s dur)
 {
@@ -194,7 +219,7 @@ __strf_tot_days(struct dt_dt_s dur)
 	default:
 		break;
 	}
-	return d;
+	return d + __strf_tot_secs(dur) / SECS_PER_DAY;
 }
 
 static int
@@ -216,7 +241,7 @@ __strf_md_days(struct dt_dt_s dur)
 	default:
 		break;
 	}
-	return d;
+	return d + __strf_tot_secs(dur) / SECS_PER_DAY;
 }
 
 static int
@@ -238,7 +263,7 @@ __strf_yd_days(struct dt_dt_s dur)
 	default:
 		break;
 	}
-	return d;
+	return d + __strf_tot_secs(dur) / SECS_PER_DAY;
 }
 
 static int
@@ -266,7 +291,7 @@ __strf_w_days(struct dt_dt_s dur)
 	default:
 		break;
 	}
-	return d;
+	return d + __strf_tot_secs(dur) / SECS_PER_DAY;
 }
 
 static int
@@ -321,31 +346,6 @@ static int
 __strf_tot_years(struct dt_dt_s dur)
 {
 	return __strf_tot_mon(dur) / GREG_MONTHS_P_YEAR;
-}
-
-static long int
-__strf_tot_secs(struct dt_dt_s dur)
-{
-	long int res;
-
-	if (dur.typ == DT_SEXY) {
-		return dur.sexydur;
-	}
-	/* otherwise */
-	res = dur.t.sdur;
-	return res;
-}
-
-static long int
-__strf_tot_mins(struct dt_dt_s dur)
-{
-	return __strf_tot_secs(dur) / SECS_PER_MINUTE;
-}
-
-static long int
-__strf_tot_hours(struct dt_dt_s dur)
-{
-	return __strf_tot_secs(dur) / SECS_PER_HOUR;
 }
 
 static size_t
@@ -511,6 +511,8 @@ __strfdtdur(
 			} else if (f.has_hour) {
 				/* hours and seconds */
 				s = s % SECS_PER_HOUR;
+			} else if (f.has_day) {
+				s = s % SECS_PER_DAY;
 			}
 			bp += snprintf(bp, eo - bp, "%ld", s);
 			break;
@@ -521,6 +523,8 @@ __strfdtdur(
 			if (f.has_hour) {
 				/* hours and minutes */
 				m = m % MINS_PER_HOUR;
+			} else if (f.has_day) {
+				m = m % (MINS_PER_HOUR * HOURS_PER_DAY);
 			}
 			bp += snprintf(bp, eo - bp, "%ld", m);
 			break;
@@ -528,7 +532,10 @@ __strfdtdur(
 		case DT_SPFL_N_HOUR: {
 			long int h = __strf_tot_hours(dur);
 
-			/* just hours */
+			if (f.has_day) {
+				/* hours and days */
+				h = h % HOURS_PER_DAY;
+			}
 			bp += snprintf(bp, eo - bp, "%ld", h);
 			break;
 		}
