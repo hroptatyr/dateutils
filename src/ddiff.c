@@ -378,13 +378,38 @@ __strf_tot_years(struct dt_dt_s dur)
 	return __strf_tot_mon(dur) / GREG_MONTHS_P_YEAR;
 }
 
+static long int
+__strf_tot_secs(struct dt_dt_s dur)
+{
+	long int res;
+
+	if (dur.typ == DT_SEXY) {
+		return dur.sexydur;
+	}
+	/* otherwise */
+	res = dur.t.sdur;
+	return res;
+}
+
+static long int
+__strf_tot_mins(struct dt_dt_s dur)
+{
+	return __strf_tot_secs(dur) / SECS_PER_MINUTE;
+}
+
+static long int
+__strf_tot_hours(struct dt_dt_s dur)
+{
+	return __strf_tot_secs(dur) / SECS_PER_HOUR;
+}
+
 static size_t
 __strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt,
 	struct dt_dt_s dur, durfmt_t f)
 {
 /* like strfdtdur() but do some calculations based on F on the way there */
-	static const char sexy_dflt[] = "%S";
+	static const char sexy_dflt[] = "%T";
 	static const char ddur_dflt[] = "%d";
 	const char *fp;
 	char *bp;
@@ -451,10 +476,11 @@ __strfdtdur(
 			*bp++ = '\n';
 			break;
 
-		case DT_SPFL_N_DSTD:
-			bp += snprintf(bp, eo - bp, "%d", __strf_tot_days(dur));
+		case DT_SPFL_N_DSTD: {
+			int d = __strf_tot_days(dur);
+			bp += snprintf(bp, eo - bp, "%dd", d);
 			goto bizda_suffix;
-
+		}
 		case DT_SPFL_N_MDAY: {
 			int d;
 
@@ -524,6 +550,44 @@ __strfdtdur(
 			bp += snprintf(bp, eo - bp, "%d", y);
 			break;
 		}
+
+			/* time specs */
+		case DT_SPFL_N_TSTD: {
+			long int s = __strf_tot_secs(dur);
+			bp += snprintf(bp, eo - bp, "%lds", s);
+			break;
+		}
+		case DT_SPFL_N_SEC: {
+			long int s = __strf_tot_secs(dur);
+
+			if (f.has_min) {
+				/* minutes and seconds */
+				s = s % SECS_PER_MINUTE;
+			} else if (f.has_hour) {
+				/* hours and seconds */
+				s = s % SECS_PER_HOUR;
+			}
+			bp += snprintf(bp, eo - bp, "%ld", s);
+			break;
+		}
+		case DT_SPFL_N_MIN: {
+			long int m = __strf_tot_mins(dur);
+
+			if (f.has_hour) {
+				/* hours and minutes */
+				m = m % MINS_PER_HOUR;
+			}
+			bp += snprintf(bp, eo - bp, "%ld", m);
+			break;
+		}
+		case DT_SPFL_N_HOUR: {
+			long int h = __strf_tot_hours(dur);
+
+			/* just hours */
+			bp += snprintf(bp, eo - bp, "%ld", h);
+			break;
+		}
+
 		default:
 			break;
 		}
