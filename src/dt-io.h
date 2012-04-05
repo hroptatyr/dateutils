@@ -59,9 +59,11 @@ dt_io_strpdt_ep(
 		/* rinse according to flags */
 		switch (now) {
 		case STRPDT_DATE:
+			res.t = dt_t_initialiser();
 			dt_make_d_only(&res, res.d.typ);
 			break;
 		case STRPDT_TIME:
+			res.d = dt_d_initialiser();
 			dt_make_t_only(&res, res.t.typ);
 			break;
 		case STRPDT_NOW:
