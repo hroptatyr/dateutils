@@ -134,6 +134,7 @@ struct dt_dt_s {
 				dt_ymdhms_t ymdhms;
 				dt_sexy_t sexy:53;
 				dt_ssexy_t sexydur:53;
+				dt_ssexy_t sxepoch:53;
 			};
 		} __attribute__((packed));
 		/* sandwich types */

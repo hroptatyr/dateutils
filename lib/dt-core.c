@@ -86,8 +86,62 @@ struct strpdti_s {
 
 #include "strops.c"
 
+
+/* converters and stuff */
+
+static inline dt_ssexy_t
+__to_unix_epoch(struct dt_dt_s dt)
+{
 /* daisy is competing with the prevalent unix epoch, this is the offset */
 #define DAISY_UNIX_BASE		(19359)
+	if (dt.typ == DT_SEXY) {
+		/* no way to find out, is there */
+		return dt.sexy;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		dt_daisy_t d = dt_conv_to_daisy(dt.d);
+		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
+		if (dt_sandwich_p(dt)) {
+			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		}
+		return res;
+	}
+	return 0;
+}
+
+static inline dt_ssexy_t
+__to_gps_epoch(struct dt_dt_s dt)
+{
+#define DAISY_GPS_BASE		(23016)
+	if (dt.typ == DT_SEXY) {
+		/* no way to find out, is there */
+		return dt.sexy;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		dt_daisy_t d = dt_conv_to_daisy(dt.d);
+		dt_ssexy_t res = (d - DAISY_GPS_BASE) * SECS_PER_DAY;
+		if (dt_sandwich_p(dt)) {
+			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		}
+		return res;
+	}
+	return 0;
+}
+
+static inline struct dt_dt_s
+dt_conv_to_sexy(struct dt_dt_s dt)
+{
+	if (dt.typ == DT_SEXY) {
+		return dt;
+	} else if (dt_sandwich_only_t_p(dt)) {
+		dt.sxepoch = (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		dt.sxepoch = __to_unix_epoch(dt);
+	} else {
+		dt = dt_dt_initialiser();
+	}
+	/* make sure we hand out sexies */
+	dt.typ = DT_SEXY;
+	return dt;
+}
 
 
 /* guessing parsers */
