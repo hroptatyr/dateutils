@@ -298,7 +298,7 @@ dt_sandwich_p(struct dt_dt_s d)
 static inline bool
 dt_sandwich_only_d_p(struct dt_dt_s d)
 {
-	return !d.sandwich && d.d.typ > DT_DUNK;
+	return !d.sandwich && d.d.typ > DT_DUNK && d.d.typ < DT_NDTYP;
 }
 
 static inline bool
