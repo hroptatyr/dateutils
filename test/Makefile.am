@@ -195,6 +195,16 @@ dt_tests += dtconv.20.dt
 dt_tests += dtconv.21.dt
 dt_tests += dtconv.22.dt
 dt_tests += dtconv.23.dt
+dt_tests += dtconv.24.dt
+dt_tests += dtconv.25.dt
+dt_tests += dtconv.26.dt
+dt_tests += dtconv.27.dt
+dt_tests += dtconv.28.dt
+dt_tests += dtconv.29.dt
+dt_tests += dtconv.30.dt
+dt_tests += dtconv.31.dt
+dt_tests += dtconv.32.dt
+dt_tests += dtconv.33.dt
 
 dt_tests += dtseq.1.dt
 dt_tests += dtseq.2.dt
