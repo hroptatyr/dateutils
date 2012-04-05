@@ -134,6 +134,7 @@ struct dt_dt_s {
 				dt_ymdhms_t ymdhms;
 				dt_sexy_t sexy:53;
 				dt_ssexy_t sexydur:53;
+				dt_ssexy_t sxepoch:53;
 			};
 		} __attribute__((packed));
 		/* sandwich types */
@@ -297,7 +298,7 @@ dt_sandwich_p(struct dt_dt_s d)
 static inline bool
 dt_sandwich_only_d_p(struct dt_dt_s d)
 {
-	return !d.sandwich && d.d.typ > DT_DUNK;
+	return !d.sandwich && d.d.typ > DT_DUNK && d.d.typ < DT_NDTYP;
 }
 
 static inline bool
