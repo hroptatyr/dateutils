@@ -51,22 +51,17 @@ Below is a short list of examples that demonstrate what dateutils can
 do, for full specs refer to the info and man pages.  For installation
 instructions refer to the INSTALL file.
 
-Dateutils commands are prefixed with a `d` for date fiddling and a `t`
-for time fiddling, the only exception being `strptime`:
+Dateutils commands are prefixed with a `d` but otherwise resemble known
+unix commands for reasons of intuition.  The only exception being
+`strptime` which is analogous to the libc function of the same name.
 
 + `strptime`            Command line version of the C function
-+ `dconv`               Convert dates between calendars
-+ `dadd`                Add durations to dates
-+ `ddiff`               Compute durations from dates
-+ `dseq`                Generate sequences of dates
-+ `dtest`               Compare dates
-+ `dgrep`               Grep dates in input streams
-+ `tconv`               Convert time representations
-+ `tadd`                Add durations to times
-+ `tdiff`               Compute durations between times
-+ `tseq`                Generate sequences of times
-+ `ttest`               Compare time values
-+ `tgrep`               Grep time values in input streams
++ `dadd`                Add durations to dates or times
++ `dconv`               Convert dates or times between calendars
++ `ddiff`               Compute durations between dates or times
++ `dgrep`               Grep dates or times in input streams
++ `dseq`                Generate sequences of dates or times
++ `dtest`               Compare dates or times
 
 
 
@@ -104,6 +99,24 @@ dseq
       2010-01-07
       2010-01-08
 
+  dseq also works on times:
+
+    dseq 12:00:00 5m 12:17:00
+    =>
+      12:00:00
+      12:05:00
+      12:10:00
+      12:15:00
+
+  and also date-times:
+
+    dseq --compute-from-last 2012-01-02T12:00:00 5m 2012-01-02T12:17:00
+    =>
+      2012-01-02T12:02:00
+      2012-01-02T12:07:00
+      2012-01-02T12:12:00
+      2012-01-02T12:17:00
+
 dconv
 -----
   A tool to convert dates between different calendric systems.  While
@@ -125,12 +138,31 @@ dconv
   given year.  This is useful if dates are specified like, the third
   Thursday in May for instance.
 
+  dconv can also be used to convert occurrences of dates, times or
+  date-times in an input stream on the fly
+
+    dconv -S -i '%b/%d %Y at %I:%M %P' <<EOF
+    Remember we meet on Mar/03 2012 at 02:30 pm
+    EOF
+    =>
+      Remember we meet on 2012-03-03T14:30:00
+
+  and most prominently to convert between time zones:
+
+    dtconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
+    =>
+      2012-01-05T00:33:00
+
+    dtconv --zone "America/Chicago" now -f "%d %b %Y %T"
+    =>
+      05 Apr 2012 11:11:57
+
 dtest
 -----
   A tool to perform date comparison in the shell, it's modelled after
   test(1) but with proper command line options.
 
-    if dtest now --gt 2010-01-01; then
+    if dtest today --gt 2010-01-01; then
       echo "yes"
     fi
     =>
@@ -158,6 +190,18 @@ dadd
       2001-01-04
       2000-12-31
 
+  Adding durations to times:
+
+    dadd 12:05:00 +10m
+    =>
+      12:15:00
+
+  and even date-times:
+
+    dadd 2012-03-12T12:05:00 -1d4h
+    =>
+      2012-03-11T08:05:00
+
 ddiff
 -----
   A tool to compute durations between two (or more) dates.  This is
@@ -170,6 +214,18 @@ ddiff
     ddiff 2001-02-08 2001-03-10 -f "%m month and %d day"
     =>
       1 month and 1 day
+
+  ddiff also accepts date-times as input:
+
+    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00
+    =>
+      92580s
+
+  and the output can be controlled:
+
+    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%d days and %S seconds'
+    =>
+      1 day and 6180 seconds
 
 dgrep
 -----
@@ -185,106 +241,6 @@ dgrep
     =>
       Feb	2012-02-28
       Feb	2012-02-29	leap day
-
-tseq
-----
-  Quite like dseq but for times, and because times are generally less
-  intricate than dates, the usage is straight-forward:
-
-    tseq 12:00:00 5m 12:17:00
-    =>
-      12:00:00
-      12:05:00
-      12:10:00
-      12:15:00
-
-    tseq --compute-from-last 12:00:00 5m 12:17:00
-    =>
-      12:02:00
-      12:07:00
-      12:12:00
-      12:17:00
-
-    tseq 12:17:00 -10m 12:00:00
-    =>
-      12:17:00
-      12:07:00
-
-tadd
-----
-  This is tseq's complement as in a duration can be added to one or more
-  time values, making this the tool of choice for time arithmetic:
-
-    tadd 12:00:00 17m
-    =>
-      12:17:00
-
-    tadd 12m34s <<EOF
-    12:10:05
-    12:50:52
-    EOF
-    =>
-      12:22:39
-      13:03:26
-
-tdiff
------
-  This is, in a way, the converse of tadd, as it computes the duration
-  between two time values:
-
-    tdiff 12:10:05 12:22:39
-    =>
-      754s
-
-tgrep
------
-  A tool to extract lines from an input stream that match certain
-  criteria, showing either the line or the match:
-
-    tgrep '>=12:00:00' <<EOF
-    fileA	11:59:58
-    fileB	11:59:59	leap second?
-    fileNOON	12:00:00	new version
-    fileC	12:03:12
-    EOF
-    =>
-      fileNOON	12:00:00	new version
-      fileC	12:03:12
-
-ttest
------
-  A tool to perform time value comparison in the shell, it's modelled after
-  test(1) but with proper command line options.
-
-    if ttest 12:00:04 --gt 11:22:33; then
-      echo "it's later than 11:22:33"
-    fi
-    =>
-      it's later than 11:22:33
-
-tconv
------
-  A tool to convert time strings to other representations or normalise
-  them, it's quite like dconv (see above) but with less calendrical
-  systems:
-
-    tconv "23:12:45" -f "%I:%M%P"
-    =>
-      11:12pm
-
-dtconv
-------
-  A tool to convert date/times for instance from one timezone to another
-  or normalise them.  It can be thought of as combination of dconv and
-  tconv (see above).
-
-    dtconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
-    =>
-      2012-01-05T00:33:00
-
-    dtconv --zone "America/Chicago" now -f "%d %b %Y %T"
-    =>
-      13 Feb 2012 02:47:39
 
 strptime
 --------
