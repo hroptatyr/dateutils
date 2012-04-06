@@ -695,14 +695,10 @@ static unsigned int
 __ymcw_get_mday(dt_ymcw_t that)
 {
 	unsigned int wd01;
-	unsigned int wd_jan01;
 	unsigned int res;
 
-	/* weekday the year started with */
-	wd_jan01 = __get_jan01_wday(that.y);
 	/* see what weekday the first of the month was*/
 	wd01 = __get_m01_wday(that.y, that.m);
-	wd01 = (wd_jan01 - 1 + wd01) % GREG_DAYS_P_WEEK;
 
 	/* first WD1 is 1, second WD1 is 8, third WD1 is 15, etc.
 	 * so the first WDx with WDx > WD1 is on (WDx - WD1) + 1 */
