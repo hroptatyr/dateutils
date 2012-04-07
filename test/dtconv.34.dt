@@ -1,0 +1,18 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="-S -i '%b/%d %Y at %I:%M %P'"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+Remember we meet on Mar/03 2012 at 02:30 pm
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+Remember we meet on 2012-03-03T14:30:00
+EOF
+
+## dtconv.34.dt ends here

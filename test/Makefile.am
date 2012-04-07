@@ -205,6 +205,8 @@ dt_tests += dtconv.30.dt
 dt_tests += dtconv.31.dt
 dt_tests += dtconv.32.dt
 dt_tests += dtconv.33.dt
+dt_tests += dtconv.34.dt
+dt_tests += dtconv.35.dt
 
 dt_tests += dtseq.1.dt
 dt_tests += dtseq.2.dt
