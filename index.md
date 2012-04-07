@@ -149,11 +149,11 @@ dconv
 
   and most prominently to convert between time zones:
 
-    dtconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
+    dconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
     =>
       2012-01-05T00:33:00
 
-    dtconv --zone "America/Chicago" now -f "%d %b %Y %T"
+    dconv --zone "America/Chicago" now -f "%d %b %Y %T"
     =>
       05 Apr 2012 11:11:57
 
