@@ -271,6 +271,7 @@ In no particular order and without any claim to completeness:
 
 + dateexpr: <http://www.eskimo.com/~scs/src/#dateexpr>
 + allanfalloon's dateutils: <https://github.com/alanfalloon/dateutils>
++ yest <http://yest.sourceforge.net/>
 
 Use the one that best fits your purpose.  And in case you happen to like
 mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils2)
