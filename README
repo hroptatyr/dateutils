@@ -213,11 +213,11 @@ strptime
   particular when the input format is specifically known beforehand and
   only matching dates/times shall be considered.
 
-  Usually, to print something like `Mon, May-01/2000' in ISO 8601,
+  Usually, to print something like `Mon, May-01/2000` in ISO 8601,
   people come up with the most prolific recommendations like using perl
   or sed or awk or any two of them, or they come up with a pageful of
   shell code full of bashisms, and when sufficiently pestered they
-  `improve' their variant to a dozen pages of portable shell code.
+  "improve" their variant to a dozen pages of portable shell code.
 
   The strptime tool does the job just fine
 
@@ -225,6 +225,7 @@ strptime
     =>
       2000-05-01
 
+  just like you would have done in C.
 
 
 Similar projects
