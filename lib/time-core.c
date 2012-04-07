@@ -205,6 +205,7 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 		} else {
 			goto fucked;
 		}
+		sp += 2;
 		break;
 	}
 	case DT_SPFL_LIT_PERCENT:
