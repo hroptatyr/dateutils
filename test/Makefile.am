@@ -89,6 +89,9 @@ dt_tests += dadd.20.dt
 dt_tests += dadd.21.dt
 dt_tests += dadd.22.dt
 dt_tests += dadd.23.dt
+dt_tests += dadd.24.dt
+dt_tests += dadd.25.dt
+dt_tests += dadd.26.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
@@ -154,6 +157,7 @@ dt_tests += tadd.2.dt
 dt_tests += tadd.3.dt
 dt_tests += tadd.4.dt
 dt_tests += tadd.5.dt
+dt_tests += tadd.6.dt
 
 dt_tests += tgrep.1.dt
 dt_tests += tgrep.2.dt
@@ -227,6 +231,8 @@ dt_tests += dtadd.11.dt
 dt_tests += dtadd.12.dt
 dt_tests += dtadd.13.dt
 dt_tests += dtadd.14.dt
+dt_tests += dtadd.15.dt
+dt_tests += dtadd.16.dt
 
 dt_tests += dtgrep.1.dt
 dt_tests += dtgrep.2.dt
