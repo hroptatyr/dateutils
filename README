@@ -88,11 +88,13 @@ dconv
   are essential in financial contexts.
 
   To convert a (Gregorian) date into the so called ymcw representation:
+
     dconv 2012-03-04 -f "%Y-%m-%c-%w"
     =>
       2012-03-01-00
 
   and vice versa:
+
     dconv 2012-03-01-Sun -i "%Y-%m-%c-%a" -f '%F'
     =>
       2012-03-04
