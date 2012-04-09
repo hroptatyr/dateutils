@@ -256,6 +256,8 @@ dt_tests += dtdiff.7.dt
 dt_tests += dtdiff.8.dt
 dt_tests += dtdiff.9.dt
 dt_tests += dtdiff.10.dt
+dt_tests += dtdiff.11.dt
+dt_tests += dtdiff.12.dt
 
 dt_tests += strptime.1.dt
 dt_tests += strptime.2.dt
