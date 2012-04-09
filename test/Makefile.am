@@ -257,6 +257,9 @@ dt_tests += dtdiff.8.dt
 dt_tests += dtdiff.9.dt
 dt_tests += dtdiff.10.dt
 
+dt_tests += strptime.1.dt
+dt_tests += strptime.2.dt
+
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
 check_PROGRAMS += struct-3

@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=strptime
+CMDLINE="-i '%a, %b-%d/%Y' 'Mon, May-01/2000'"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2000-05-01
+EOF
+
+## strptime.1.dt ends here
