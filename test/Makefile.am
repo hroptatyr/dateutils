@@ -98,6 +98,10 @@ dt_tests += dtest.2.dt
 dt_tests += dtest.3.dt
 dt_tests += dtest.4.dt
 dt_tests += dtest.5.dt
+dt_tests += dtest.6.dt
+dt_tests += dtest.7.dt
+dt_tests += dtest.8.dt
+dt_tests += dtest.9.dt
 
 dt_tests += ddiff.1.dt
 dt_tests += ddiff.2.dt
