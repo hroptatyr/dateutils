@@ -93,7 +93,7 @@ dconv
       2012-03-01-00
 
   and vice versa:
-    dconv 2012-03-01-Sun -i "%Y-%m-%c-%a"
+    dconv 2012-03-01-Sun -i "%Y-%m-%c-%a" -f '%F'
     =>
       2012-03-04
 
@@ -174,7 +174,7 @@ ddiff
     =>
       22
 
-    ddiff 2001-02-08 2001-03-10 -f "%m month and %d day"
+    ddiff 2001-02-08 2001-03-09 -f "%m month and %d day"
     =>
       1 month and 1 day
 
@@ -245,5 +245,5 @@ mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils2)
   mode: auto-fill
   fill-column: 72
   filladapt-mode: t
-  End variables:
+  End:
 -->
