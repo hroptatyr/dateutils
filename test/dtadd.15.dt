@@ -1,0 +1,16 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2012-03-12T12:05:00 -1d4h"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-03-11T08:05:00
+EOF
+
+## STDERR
+
+## dtadd.15.dt ends here
