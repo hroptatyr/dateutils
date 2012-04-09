@@ -1,0 +1,16 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="2001-02-08 2001-03-09 -f \"%m month and %d day\""
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+1 month and 1 day
+EOF
+
+## STDERR
+
+## ddiff.10.dt ends here
