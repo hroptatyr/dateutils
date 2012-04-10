@@ -82,6 +82,11 @@ myexit()
 	rm_if_not_src "${stdout}" "${srcdir}"
 	rm_if_not_src "${stderr}" "${srcdir}"
 	rm -f -- "${tool_stdout}" "${tool_stderr}"
+	## maybe there's profiling info
+	if test -r "gmon.out"; then
+		runnm="gmon-"$(basename ${testfile})".${$}.out"
+		mv "gmon.out" "${runnm}"
+	fi
 	exit ${1:-1}
 }
 
