@@ -4,13 +4,17 @@
 LANG = C
 LC_ALL = C
 
-AM_CPPFLAGS = -DTEST -I$(abs_top_srcdir)/lib
+libdir = $(abs_top_srcdir)/lib
+
+AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
+AM_CPPFLAGS += -DTEST -I$(libdir)
 
 EXTRA_DIST = $(dt_tests) $(DT_LOG_COMPILER)
 TESTS = $(bin_tests) $(dt_tests)
 dt_tests =
 bin_tests =
 check_PROGRAMS =
+CLEANFILES = $(check_PROGRAMS)
 
 TEST_EXTENSIONS = .dt
 DT_LOG_COMPILER = $(srcdir)/dt-test.sh
