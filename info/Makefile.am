@@ -133,6 +133,7 @@ built_texis += ddiff.texi
 built_texis += dseq.texi
 built_texis += dtest.texi
 built_texis += dgrep.texi
+built_texis += dround.texi
 
 built_mans =
 built_mans += strptime.man
