@@ -45,6 +45,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <sys/time.h>
 #include <time.h>
 #include "date-core.h"
 #include "time-core.h"

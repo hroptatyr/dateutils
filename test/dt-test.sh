@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 usage()
 {
@@ -68,7 +68,7 @@ rm_if_not_src()
 	if test "${dirf}" -ef "${srcd}"; then
 		## treat as precious source file
 		:
-	elif test "$(pwd)" -ef "${srcd}"; then
+	elif test "$(pwd -P || pwd)" -ef "${srcd}"; then
 		## treat as precious source file
 		:
 	else
@@ -93,7 +93,18 @@ myexit()
 xrealpath()
 {
 	readlink -f "${1}" 2>/dev/null || \
-		realpath "${1}" 2>/dev/null
+	realpath "${1}" 2>/dev/null || \
+	(
+		cd $(dirname "${1}") || exit 1
+		tmp_target=$(basename "${1}")
+		# Iterate down a (possible) chain of symlinks
+		while test -L "${tmp_target}"; do
+			tmp_target=$(readlink "${tmp_target}")
+			cd $(dirname "${tmp_target}") || exit 1
+			tmp_target=$(basename "${tmp_target}")
+		done
+		echo "$(pwd -P || pwd)/${tmp_target}"
+	) 2>/dev/null
 }
 
 find_file()
