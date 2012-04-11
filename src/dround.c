@@ -256,6 +256,33 @@ dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur, bool nextp)
 	return d;
 }
 
+/* extended duration reader */
+static int
+dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
+{
+	const char *sp = NULL;
+	struct strpd_s d;
+	struct dt_spec_s s;
+
+	if (dt_io_strpdtdur(st, str) >= 0) {
+		return 0;
+	}
+
+	/* try weekdays, set up s */
+	s.spfl = DT_SPFL_S_WDAY;
+	s.abbr = DT_SPMOD_NORM;
+	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+		goto out;
+	}
+	/* bugger */
+	st->istr = str;
+	return -1;
+out:
+	st->sign = 0;
+	st->cont = NULL;
+	return 0;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -329,13 +356,13 @@ main(int argc, char *argv[])
 	for (size_t i = 0; i < argi->inputs_num; i++) {
 		inp = unfixup_arg(argi->inputs[i]);
 		do {
-			if (dt_io_strpdtdur(&st, inp) < 0) {
+			if (dt_io_strpdtrnd(&st, inp) < 0) {
 				if (UNLIKELY(i == 0)) {
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
 					fprintf(stderr, "Error: \
-cannot parse duration string `%s'\n", st.istr);
+cannot parse duration/rounding string `%s'\n", st.istr);
 				}
 			}
 		} while (__strpdtdur_more_p(&st));
