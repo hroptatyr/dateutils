@@ -110,6 +110,14 @@ dgrep_EXAMPLES += $(top_srcdir)/test/dtgrep.6.dt
 dateutils_EXAMPLES += $(dgrep_EXAMPLES)
 dateutils_H2M_EX += dgrep.h2m
 
+dround_EXAMPLES =
+dround_EXAMPLES += $(top_srcdir)/test/dround.2.dt
+dround_EXAMPLES += $(top_srcdir)/test/dround.3.dt
+dround_EXAMPLES += $(top_srcdir)/test/tround.3.dt
+dround_EXAMPLES += $(top_srcdir)/test/tround.2.dt
+dateutils_EXAMPLES += $(dround_EXAMPLES)
+dateutils_H2M_EX += dround.h2m
+
 dateutils_H2M_EX += format.h2m
 
 EXTRA_DIST += author.h2m $(dateutils_H2M_EX)
@@ -134,6 +142,7 @@ built_mans += ddiff.man
 built_mans += dgrep.man
 built_mans += dseq.man
 built_mans += dtest.man
+built_mans += dround.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
