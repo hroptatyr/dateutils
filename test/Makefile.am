@@ -131,6 +131,11 @@ dt_tests += dgrep.13.dt
 dt_tests += dgrep.15.dt
 dt_tests += dgrep.16.dt
 
+dt_tests += dround.1.dt
+dt_tests += dround.2.dt
+dt_tests += dround.3.dt
+dt_tests += dround.4.dt
+
 
 dt_tests += tseq.1.dt
 dt_tests += tseq.2.dt
@@ -181,6 +186,12 @@ dt_tests += tconv.3.dt
 dt_tests += tconv.4.dt
 dt_tests += tconv.5.dt
 dt_tests += tconv.6.dt
+
+dt_tests += tround.1.dt
+dt_tests += tround.2.dt
+dt_tests += tround.3.dt
+dt_tests += tround.4.dt
+
 
 dt_tests += dtconv.1.dt
 dt_tests += dtconv.2.dt

@@ -73,6 +73,7 @@
 struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
+	long int i;
 };
 
 /* used for arithmetic */
@@ -86,8 +87,62 @@ struct strpdti_s {
 
 #include "strops.c"
 
+
+/* converters and stuff */
+
+static inline dt_ssexy_t
+__to_unix_epoch(struct dt_dt_s dt)
+{
 /* daisy is competing with the prevalent unix epoch, this is the offset */
 #define DAISY_UNIX_BASE		(19359)
+	if (dt.typ == DT_SEXY) {
+		/* no way to find out, is there */
+		return dt.sexy;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		dt_daisy_t d = dt_conv_to_daisy(dt.d);
+		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
+		if (dt_sandwich_p(dt)) {
+			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		}
+		return res;
+	}
+	return 0;
+}
+
+static inline dt_ssexy_t
+__to_gps_epoch(struct dt_dt_s dt)
+{
+#define DAISY_GPS_BASE		(23016)
+	if (dt.typ == DT_SEXY) {
+		/* no way to find out, is there */
+		return dt.sexy;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		dt_daisy_t d = dt_conv_to_daisy(dt.d);
+		dt_ssexy_t res = (d - DAISY_GPS_BASE) * SECS_PER_DAY;
+		if (dt_sandwich_p(dt)) {
+			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		}
+		return res;
+	}
+	return 0;
+}
+
+static inline struct dt_dt_s
+dt_conv_to_sexy(struct dt_dt_s dt)
+{
+	if (dt.typ == DT_SEXY) {
+		return dt;
+	} else if (dt_sandwich_only_t_p(dt)) {
+		dt.sxepoch = (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		dt.sxepoch = __to_unix_epoch(dt);
+	} else {
+		dt = dt_dt_initialiser();
+	}
+	/* make sure we hand out sexies */
+	dt.typ = DT_SEXY;
+	return dt;
+}
 
 
 /* guessing parsers */
@@ -271,6 +326,19 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = __strpt_card(&d->st, sp, s, ep);
 		goto out_direct;
 
+	case DT_SPFL_N_EPOCH: {
+		uint32_t c;
+		bool negp = *sp == '-';
+
+		c = strtoui_lim(negp ? sp + 1 : sp, &sp, 0, -1);
+		if (!negp) {
+			d->i = c;
+		} else {
+			d->i = -c;
+		}
+		break;
+	}
+
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
 			res = -1;
@@ -328,6 +396,13 @@ __strfdt_card(
 	case DT_SPFL_N_NANO:
 		res = __strft_card(buf, bsz, s, &d->st, that.t);
 		break;
+
+	case DT_SPFL_N_EPOCH: {
+		/* convert to sexy */
+		int64_t sexy = dt_conv_to_sexy(that).sexy;
+		res = snprintf(buf, bsz, "%" PRIi64, sexy);
+		break;
+	}
 
 	case DT_SPFL_LIT_PERCENT:
 		/* literal % */
@@ -491,16 +566,22 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		}
 	}
-	/* assign d and t types using date core and time core routines */
-	res.d = __guess_dtyp(d.sd);
-	res.t = __guess_ttyp(d.st);
+	/* check if it's a sexy type */
+	if (d.i) {
+		res.typ = DT_SEXY;
+		res.sexy = d.i;
+	} else {
+		/* assign d and t types using date and time core routines */
+		res.d = __guess_dtyp(d.sd);
+		res.t = __guess_ttyp(d.st);
 
-	if (res.d.typ > DT_DUNK && res.t.typ > DT_TUNK) {
-		dt_make_sandwich(&res, res.d.typ, res.t.typ);
-	} else if (res.d.typ > DT_DUNK) {
-		dt_make_d_only(&res, res.d.typ);
-	} else if (res.t.typ > DT_TUNK) {
-		dt_make_t_only(&res, res.t.typ);
+		if (res.d.typ > DT_DUNK && res.t.typ > DT_TUNK) {
+			dt_make_sandwich(&res, res.d.typ, res.t.typ);
+		} else if (res.d.typ > DT_DUNK) {
+			dt_make_d_only(&res, res.d.typ);
+		} else if (res.t.typ > DT_TUNK) {
+			dt_make_t_only(&res, res.t.typ);
+		}
 	}
 
 	/* set the end pointer */
@@ -527,7 +608,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
-	switch (that.d.typ) {
+	switch (that.typ) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
@@ -588,6 +669,12 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		}
 		break;
 	}
+	case DT_PACK:
+	case DT_SEXY:
+		if (fmt == NULL) {
+			fmt = ymdhms_dflt;
+		}
+		break;
 	default:
 	case DT_DUNK:
 		break;
@@ -600,16 +687,21 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	} else if (dt_sandwich_only_t_p(that)) {
 	try_time:
 		__trans_tfmt(&fmt);
+	} else if (that.typ >= DT_PACK && that.typ < DT_NDTTYP) {
+		/* nothing to check in this case */
+		;
 	} else {
 		bp = buf;
 		goto out;
 	}
 
-	/* now cope with the time part */
-	d.st.h = that.t.hms.h;
-	d.st.m = that.t.hms.m;
-	d.st.s = that.t.hms.s;
-	d.st.ns = that.t.hms.ns;
+	if (dt_sandwich_p(that) || dt_sandwich_only_t_p(that)) {
+		/* cope with the time part */
+		d.st.h = that.t.hms.h;
+		d.st.m = that.t.hms.m;
+		d.st.s = that.t.hms.s;
+		d.st.ns = that.t.hms.ns;
+	}
 
 	/* assign and go */
 	bp = buf;

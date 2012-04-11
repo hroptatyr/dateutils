@@ -53,16 +53,6 @@ __pos_mod(int num, int mod)
 	return res;
 }
 
-static inline int32_t
-__to_unix(struct dt_dt_s dt)
-{
-	dt_daisy_t d;
-
-	d = dt_conv_to_daisy(dt.d);
-	return (d - DAISY_UNIX_BASE) * 86400 +
-		(dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-}
-
 
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */
@@ -73,7 +63,7 @@ dtz_forgetz(struct dt_dt_s dt, zif_t zone)
 	int32_t d_utc;
 
 	/* convert date/time part to unix stamp */
-	d_unix = __to_unix(dt);
+	d_unix = __to_unix_epoch(dt);
 	d_utc = zif_utc_time(zone, d_unix);
 
 	/* convert the date part back */
@@ -122,7 +112,7 @@ dtz_enrichz(struct dt_dt_s dt, zif_t zone)
 	int32_t d_loc;
 
 	/* convert date/time part to unix stamp */
-	d_unix = __to_unix(dt);
+	d_unix = __to_unix_epoch(dt);
 	d_loc = zif_local_time(zone, d_unix);
 
 	/* convert the date part back */
