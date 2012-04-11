@@ -1,6 +1,6 @@
 ### Makefile.am
 
-AM_CPPFLAGS = -D_XPG6 -D_GNU_SOURCE -D_POSIX_C_SOURCE=201001L -D__USE_XOPEN2K8
+AM_CPPFLAGS = -D_POSIX_C_SOURCE=201001L -D_XOPEN_SOURCE_EXTENDED -D_BSD_SOURCE
 AM_LDFLAGS =
 
 headerdir = $(includedir)/dateutils
@@ -21,10 +21,6 @@ header_HEADERS += tzraw.h tzraw.c
 header_HEADERS += boobs.h
 header_HEADERS += generics.h
 header_HEADERS += dt-core-tz-glue.h dt-core-tz-glue.c
-
-noinst_PROGRAMS += testlib
-testlib_CPPFLAGS = $(AM_CPPFLAGS)
-testlib_LDFLAGS = $(AM_LDFLAGS)
 
 
 # 
