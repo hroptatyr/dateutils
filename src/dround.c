@@ -107,6 +107,121 @@ tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
 	return t;
 }
 
+static struct dt_d_s
+dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
+{
+	switch (dur.typ) {
+		unsigned int tgtd;
+		bool forw;
+	case DT_DAISY:
+		if (dur.daisydur > 0) {
+			tgtd = dur.daisydur;
+			forw = true;
+		} else if (dur.daisydur < 0) {
+			tgtd = -dur.daisydur;
+			forw = false;
+		} else {
+			/* user is an idiot */
+			break;
+		}
+
+		switch (d.typ) {
+			unsigned int mdays;
+		case DT_YMD:
+			if ((forw && d.ymd.d < tgtd) ||
+			    (!forw && d.ymd.d > tgtd)) {
+				/* no month or year adjustment */
+				;
+			} else if (d.ymd.d == tgtd && !nextp) {
+				/* we're ON the date already and no
+				 * next/prev date is requested */
+				;
+			} else if (forw) {
+				if (LIKELY(d.ymd.m < GREG_MONTHS_P_YEAR)) {
+					d.ymd.m++;
+				} else {
+					d.ymd.m = 1;
+					d.ymd.y++;
+				}
+			} else {
+				if (UNLIKELY(--d.ymd.m < 1)) {
+					d.ymd.m = GREG_MONTHS_P_YEAR;
+					d.ymd.y--;
+				}
+			}
+			/* get ultimo */
+			mdays = __get_mdays(d.ymd.y, d.ymd.m);
+			if (UNLIKELY(tgtd > mdays)) {
+				tgtd = mdays;
+			}
+			/* final assignment */
+			d.ymd.d = tgtd;
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case DT_BIZSI:
+		/* bizsis only work on bizsidurs atm */
+		if (dur.bizsidur > 0) {
+			tgtd = dur.bizsidur;
+			forw = true;
+		} else if (dur.bizsidur < 0) {
+			tgtd = -dur.bizsidur;
+			forw = false;
+		} else {
+			/* user is an idiot */
+			break;
+		}
+
+		switch (d.typ) {
+			unsigned int bdays;
+		case DT_BIZDA:
+			if ((forw && d.bizda.bd < tgtd) ||
+			    (!forw && d.bizda.bd > tgtd)) {
+				/* no month or year adjustment */
+				;
+			} else if (d.bizda.bd == tgtd && !nextp) {
+				/* we're ON the date already and no
+				 * next/prev date is requested */
+				;
+			} else if (forw) {
+				if (LIKELY(d.bizda.m < GREG_MONTHS_P_YEAR)) {
+					d.bizda.m++;
+				} else {
+					d.bizda.m = 1;
+					d.bizda.y++;
+				}
+			} else {
+				if (UNLIKELY(--d.bizda.m < 1)) {
+					d.bizda.m = GREG_MONTHS_P_YEAR;
+					d.bizda.y--;
+				}
+			}
+			/* get ultimo */
+			bdays = __get_bdays(d.bizda.y, d.bizda.m);
+			if (UNLIKELY(tgtd > bdays)) {
+				tgtd = bdays;
+			}
+			/* final assignment */
+			d.bizda.bd = tgtd;
+			break;
+		default:
+			break;
+		}
+		break;
+
+		/* non-daisys are not supported atm */
+	case DT_YMCW:
+	case DT_YMD:
+	case DT_MD:
+	default:
+		break;
+	}
+	return d;
+}
+
 static struct dt_d_s one_day = {
 	.typ = DT_DAISY,
 	.dur = 1,
@@ -114,19 +229,29 @@ static struct dt_d_s one_day = {
 };
 
 static struct dt_dt_s
+dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
+{
+	if (dt_sandwich_only_t_p(dur) && d.sandwich) {
+		d.t = tround_tdur(d.t, dur.t, nextp);
+		/* check carry */
+		if (UNLIKELY(d.t.neg == 1)) {
+			/* we need to add a day */
+			one_day.daisydur = 1 | -(dur.t.sdur < 0);
+			d.t.neg = 0;
+			d.d = dt_dadd(d.d, one_day);
+		}
+	} else if (dt_sandwich_only_d_p(dur) && d.sandwich) {
+		d.d = dround_ddur(d.d, dur.d, nextp);
+	}
+	return d;
+}
+
+
+static struct dt_dt_s
 dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur, bool nextp)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		if (dt_sandwich_only_t_p(dur[i]) && d.sandwich) {
-			d.t = tround_tdur(d.t, dur[i].t, nextp);
-			/* check carry */
-			if (UNLIKELY(d.t.neg == 1)) {
-				/* we need to add a day */
-				one_day.daisydur = 1 | -(dur[i].t.sdur < 0);
-				d.t.neg = 0;
-				d.d = dt_dadd(d.d, one_day);
-			}
-		}
+		d = dt_round(d, dur[i], nextp);
 	}
 	return d;
 }
