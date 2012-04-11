@@ -38,6 +38,9 @@
 #if !defined INCLUDED_tzraw_c_
 #define INCLUDED_tzraw_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -49,6 +52,10 @@
 #include <fcntl.h>
 #include <time.h>
 #include <limits.h>
+
+#if defined HAVE_TZFILE_H
+# include <tzfile.h>
+#endif	/* HAVE_TZFILE_H */
 
 /* me own header, innit */
 #include "tzraw.h"

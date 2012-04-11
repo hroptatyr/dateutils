@@ -41,6 +41,9 @@ SXE_CHECK_CFLAGS
 ## check for byteorder utils
 AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h byteswap.h])
 
+## check for tzfile.h
+AC_CHECK_HEADERS([tzfile.h])
+
 ## check for strptime
 AC_CHECK_FUNCS([strptime])
 have_strptime="${ac_cv_func_strptime}"
