@@ -14,6 +14,7 @@ TESTS = $(bin_tests) $(dt_tests)
 dt_tests =
 bin_tests =
 check_PROGRAMS =
+CLEANFILES = $(check_PROGRAMS)
 
 TEST_EXTENSIONS = .dt
 DT_LOG_COMPILER = $(srcdir)/dt-test.sh
