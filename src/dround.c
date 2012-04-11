@@ -240,7 +240,8 @@ dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
 			d.t.neg = 0;
 			d.d = dt_dadd(d.d, one_day);
 		}
-	} else if (dt_sandwich_only_d_p(dur) && d.sandwich) {
+	} else if (dt_sandwich_only_d_p(dur) &&
+		   (dt_sandwich_p(d) || dt_sandwich_only_d_p(d))) {
 		d.d = dround_ddur(d.d, dur.d, nextp);
 	}
 	return d;
