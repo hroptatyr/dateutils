@@ -13,3 +13,7 @@ SED_MODE
 
 FROM_ZONE
 TO_ZONE
+
+option "next" n
+	"Always round to a different date or time."
+	optional

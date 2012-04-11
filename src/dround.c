@@ -86,8 +86,16 @@ tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
 
 	/* compute the result */
 	mdur -= diff;
-	if (dur.sdur > 0) {
+	if (dur.sdur > 0 || nextp) {
 		mdur += dur.sdur;
+	}
+	if (UNLIKELY(mdur < 0)) {
+		/* lift */
+		mdur += SECS_PER_DAY;
+		/* denote the carry */
+		t.neg = 1;
+	} else if (UNLIKELY(mdur >= (signed)SECS_PER_DAY)) {
+		t.neg = 1;
 	}
 	/* and convert back */
 	t.hms.ns = 0;
@@ -96,32 +104,25 @@ tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
 	t.hms.m = mdur % MINS_PER_HOUR;
 	mdur /= MINS_PER_HOUR;
 	t.hms.h = mdur % HOURS_PER_DAY;
-	/* and get the carry */
-	mdur /= HOURS_PER_DAY;
-
-	/* negative carry is not possible actually */
-	assert(mdur == 0 || mdur == 1);
-	t.neg = !mdur ? 0 : 1;
 	return t;
 }
 
+static struct dt_d_s one_day = {
+	.typ = DT_DAISY,
+	.dur = 1,
+	.neg = 0,
+};
 
 static struct dt_dt_s
-dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
+dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur, bool nextp)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		if (dt_sandwich_only_t_p(dur[i]) && d.sandwich) {
-			d.t = tround_tdur(d.t, dur[i].t, false);
+			d.t = tround_tdur(d.t, dur[i].t, nextp);
 			/* check carry */
-			if (d.t.neg) {
+			if (UNLIKELY(d.t.neg == 1)) {
 				/* we need to add a day */
-				const struct dt_d_s one_day = {
-					.typ = DT_DAISY,
-					.dur = 1,
-					.neg = 0,
-					.daisydur = 1,
-				};
-
+				one_day.daisydur = 1 | -(dur[i].t.sdur < 0);
 				d.t.neg = 0;
 				d.d = dt_dadd(d.d, one_day);
 			}
@@ -160,6 +161,7 @@ main(int argc, char *argv[])
 	size_t nfmt;
 	int res = 0;
 	bool dt_given_p = false;
+	bool nextp = false;
 	zif_t fromz = NULL;
 	zif_t z = NULL;
 	zif_t hackz = NULL;
@@ -192,6 +194,9 @@ main(int argc, char *argv[])
 	}
 	if (argi->zone_given) {
 		z = zif_read_inst(argi->zone_arg);
+	}
+	if (argi->next_given) {
+		nextp = true;
 	}
 
 	/* check first arg, if it's a date the rest of the arguments are
@@ -233,7 +238,7 @@ no durations given\n");
 
 	/* start the actual work */
 	if (dt_given_p) {
-		if (!dt_unk_p(d = dround(d, st.durs, st.ndurs))) {
+		if (!dt_unk_p(d = dround(d, st.durs, st.ndurs, nextp))) {
 			if (hackz == NULL && fromz != NULL) {
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
@@ -286,7 +291,7 @@ no durations given\n");
 
 				if (!dt_unk_p(d)) {
 					/* perform addition now */
-					d = dround(d, st.durs, st.ndurs);
+					d = dround(d, st.durs, st.ndurs, nextp);
 
 					if (hackz == NULL && fromz != NULL) {
 						/* fixup zone */
