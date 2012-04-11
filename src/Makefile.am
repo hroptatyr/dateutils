@@ -71,6 +71,13 @@ dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dgrep-clo.c dgrep-clo.h
 
+bin_PROGRAMS += dround
+dround_SOURCES = dround.c dround-clo.ggo
+dround_SOURCES += prchunk.c prchunk.h
+dround_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+dround_LDFLAGS = $(AM_LDFLAGS)
+BUILT_SOURCES += dround-clo.c dround-clo.h
+
 noinst_PROGRAMS += dexpr
 dexpr_SOURCES = dexpr.c
 dexpr_SOURCES += dexpr-scanner.l

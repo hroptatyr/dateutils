@@ -1,0 +1,15 @@
+args "--unamed-opts --long-help"
+package "dround"
+usage "dround [OPTION]... [DATE] DURATION"
+description "Round DATE to the next occurrence of DURATION.  If DATE \
+is omitted a stream of dates is read from stdin, the special date \
+`now' is interpreted as the current (UTC) time stamp."
+
+QUIET
+FORMAT
+INPUT_FORMAT
+BACKSLASH_ESCAPES
+SED_MODE
+
+FROM_ZONE
+TO_ZONE
