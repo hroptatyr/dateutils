@@ -177,6 +177,12 @@ dt_tests += tconv.4.dt
 dt_tests += tconv.5.dt
 dt_tests += tconv.6.dt
 
+dt_tests += tround.1.dt
+dt_tests += tround.2.dt
+dt_tests += tround.3.dt
+dt_tests += tround.4.dt
+
+
 dt_tests += dtconv.1.dt
 dt_tests += dtconv.2.dt
 dt_tests += dtconv.3.dt
