@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dround
+CMDLINE="2012-03-04T12:03:11 1h"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-03-04T13:00:00
+EOF
+
+## dtround.10.dt ends here

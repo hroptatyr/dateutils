@@ -302,6 +302,19 @@ dt_tests += dtdiff.10.dt
 dt_tests += dtdiff.11.dt
 dt_tests += dtdiff.12.dt
 
+dt_tests += dtround.1.dt
+dt_tests += dtround.2.dt
+dt_tests += dtround.3.dt
+dt_tests += dtround.4.dt
+dt_tests += dtround.5.dt
+dt_tests += dtround.6.dt
+dt_tests += dtround.7.dt
+dt_tests += dtround.8.dt
+dt_tests += dtround.9.dt
+dt_tests += dtround.10.dt
+dt_tests += dtround.11.dt
+dt_tests += dtround.12.dt
+
 dt_tests += strptime.1.dt
 dt_tests += strptime.2.dt
 
