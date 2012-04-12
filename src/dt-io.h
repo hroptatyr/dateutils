@@ -736,7 +736,6 @@ struct __strpdtdur_st_s {
 	int sign;
 	const char *istr;
 	const char *cont;
-	struct dt_dt_s curr;
 	size_t ndurs;
 	struct dt_dt_s *durs;
 };
@@ -754,6 +753,24 @@ __strpdtdur_free(struct __strpdtdur_st_s *st)
 		free(st->durs);
 	}
 	return;
+}
+
+static int
+__add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur)
+{
+	if (dt_unk_p(dur)) {
+		return -1;
+	}
+	if (st->durs == NULL) {
+		st->durs = calloc(16, sizeof(*st->durs));
+	} else if ((st->ndurs % 16) == 0) {
+		st->durs = realloc(
+			st->durs,
+			(16 + st->ndurs) * sizeof(*st->durs));
+		memset(st->durs + st->ndurs, 0, 16 * sizeof(*st->durs));
+	}
+	st->durs[st->ndurs++] = dur;
+	return 0;
 }
 
 static int __attribute__((unused))
@@ -816,24 +833,13 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 	}
 
 	/* try reading the stuff with our strpdur() */
-	st->curr = dt_strpdtdur(sp, (char**)&ep);
-	if (!dt_unk_p(st->curr)) {
-		if (st->durs == NULL) {
-			st->durs = calloc(16, sizeof(*st->durs));
-		} else if ((st->ndurs % 16) == 0) {
-			st->durs = realloc(
-				st->durs,
-				(16 + st->ndurs) * sizeof(*st->durs));
-			memset(st->durs + st->ndurs, 0, 16 * sizeof(*st->durs));
+	{
+		struct dt_dt_s d = dt_strpdtdur(sp, (char**)&ep);
+		if ((st->sign == 1 && dt_dtdur_neg_p(d)) ||
+		    (st->sign == -1 && !dt_dtdur_neg_p(d))) {
+			d = dt_neg_dtdur(d);
 		}
-		if ((st->sign == 1 && dt_dtdur_neg_p(st->curr)) ||
-		    (st->sign == -1 && !dt_dtdur_neg_p(st->curr))) {
-			st->durs[st->ndurs++] = dt_neg_dtdur(st->curr);
-		} else {
-			st->durs[st->ndurs++] = st->curr;
-		}
-	} else {
-		res = -1;
+		res = __add_dur(st, d);
 	}
 out:
 	if (((st->cont = ep) && *ep == '\0') || (sp == ep)) {

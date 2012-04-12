@@ -9,8 +9,10 @@ Date specs:
 @verbatim
   %a  The abbreviated weekday name
   %A  The full weekday name
+  %_a The weekday name shortened to a single character (MTWRFAS)
   %b  The abbreviated month name
   %B  The full month name
+  %_b The month name shortened to a single character (FGHJKMNQUVXZ)
   %c  The count of the weekday within the month (range 00 to 05)
   %C  The count of the weekday within the year (range 00 to 53)
   %d  The day of the month, 2 digits (range 00 to 31)
