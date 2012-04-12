@@ -139,6 +139,14 @@ dt_tests += dround.1.dt
 dt_tests += dround.2.dt
 dt_tests += dround.3.dt
 dt_tests += dround.4.dt
+dt_tests += dround.5.dt
+dt_tests += dround.6.dt
+dt_tests += dround.7.dt
+dt_tests += dround.8.dt
+dt_tests += dround.9.dt
+dt_tests += dround.10.dt
+dt_tests += dround.11.dt
+dt_tests += dround.12.dt
 
 
 dt_tests += tseq.1.dt
