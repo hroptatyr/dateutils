@@ -330,24 +330,47 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	const char *sp = NULL;
 	struct strpd_s d;
 	struct dt_spec_s s;
+	struct dt_dt_s payload = dt_dt_initialiser();
+	bool negp = false;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
 		return 0;
+	}
+
+	/* check if there's a sign + or - */
+	if (*str == '-') {
+		negp = true;
+		str++;
+	} else if (*str == '+') {
+		str++;
 	}
 
 	/* try weekdays, set up s */
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+		dt_make_d_only(&payload, DT_DUNK);
+		payload.d = dt_make_ymcw(0, 0, 0, d.w);
 		goto out;
 	}
+
+	/* try months, set up s */
+	s.spfl = DT_SPFL_S_MON;
+	s.abbr = DT_SPMOD_NORM;
+	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+		dt_make_d_only(&payload, DT_DUNK);
+		payload.d = dt_make_ymd(0, d.m, 0);
+		goto out;
+	}
+
 	/* bugger */
 	st->istr = str;
 	return -1;
 out:
 	st->sign = 0;
 	st->cont = NULL;
-	return 0;
+	payload.neg = negp;
+	return __add_dur(st, payload);
 }
 
 
