@@ -147,6 +147,14 @@ dt_tests += dround.9.dt
 dt_tests += dround.10.dt
 dt_tests += dround.11.dt
 dt_tests += dround.12.dt
+dt_tests += dround.13.dt
+dt_tests += dround.14.dt
+dt_tests += dround.15.dt
+dt_tests += dround.16.dt
+dt_tests += dround.17.dt
+dt_tests += dround.18.dt
+dt_tests += dround.19.dt
+dt_tests += dround.20.dt
 
 
 dt_tests += tseq.1.dt
