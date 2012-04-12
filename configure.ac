@@ -85,7 +85,7 @@ fi
 ## trivial, no special stuff needed
 dapps=""
 tapps=""
-dtapps="dadd dconv ddiff dgrep dseq dtest"
+dtapps="dadd dconv ddiff dgrep dround dseq dtest"
 if test "${have_strptime}" = "yes"; then
 	miscapps="strptime"
 fi
