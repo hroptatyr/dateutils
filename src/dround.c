@@ -111,14 +111,14 @@ static struct dt_d_s
 dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 {
 	switch (dur.typ) {
-		unsigned int tgtd;
+		unsigned int tgt;
 		bool forw;
 	case DT_DAISY:
 		if (dur.daisydur > 0) {
-			tgtd = dur.daisydur;
+			tgt = dur.daisydur;
 			forw = true;
 		} else if (dur.daisydur < 0) {
-			tgtd = -dur.daisydur;
+			tgt = -dur.daisydur;
 			forw = false;
 		} else {
 			/* user is an idiot */
@@ -128,11 +128,11 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		switch (d.typ) {
 			unsigned int mdays;
 		case DT_YMD:
-			if ((forw && d.ymd.d < tgtd) ||
-			    (!forw && d.ymd.d > tgtd)) {
+			if ((forw && d.ymd.d < tgt) ||
+			    (!forw && d.ymd.d > tgt)) {
 				/* no month or year adjustment */
 				;
-			} else if (d.ymd.d == tgtd && !nextp) {
+			} else if (d.ymd.d == tgt && !nextp) {
 				/* we're ON the date already and no
 				 * next/prev date is requested */
 				;
@@ -151,11 +151,11 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 			}
 			/* get ultimo */
 			mdays = __get_mdays(d.ymd.y, d.ymd.m);
-			if (UNLIKELY(tgtd > mdays)) {
-				tgtd = mdays;
+			if (UNLIKELY(tgt > mdays)) {
+				tgt = mdays;
 			}
 			/* final assignment */
-			d.ymd.d = tgtd;
+			d.ymd.d = tgt;
 			break;
 		default:
 			break;
@@ -165,10 +165,10 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 	case DT_BIZSI:
 		/* bizsis only work on bizsidurs atm */
 		if (dur.bizsidur > 0) {
-			tgtd = dur.bizsidur;
+			tgt = dur.bizsidur;
 			forw = true;
 		} else if (dur.bizsidur < 0) {
-			tgtd = -dur.bizsidur;
+			tgt = -dur.bizsidur;
 			forw = false;
 		} else {
 			/* user is an idiot */
@@ -178,11 +178,11 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		switch (d.typ) {
 			unsigned int bdays;
 		case DT_BIZDA:
-			if ((forw && d.bizda.bd < tgtd) ||
-			    (!forw && d.bizda.bd > tgtd)) {
+			if ((forw && d.bizda.bd < tgt) ||
+			    (!forw && d.bizda.bd > tgt)) {
 				/* no month or year adjustment */
 				;
-			} else if (d.bizda.bd == tgtd && !nextp) {
+			} else if (d.bizda.bd == tgt && !nextp) {
 				/* we're ON the date already and no
 				 * next/prev date is requested */
 				;
@@ -201,20 +201,86 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 			}
 			/* get ultimo */
 			bdays = __get_bdays(d.bizda.y, d.bizda.m);
-			if (UNLIKELY(tgtd > bdays)) {
-				tgtd = bdays;
+			if (UNLIKELY(tgt > bdays)) {
+				tgt = bdays;
 			}
 			/* final assignment */
-			d.bizda.bd = tgtd;
+			d.bizda.bd = tgt;
 			break;
 		default:
 			break;
 		}
 		break;
 
-		/* non-daisys are not supported atm */
-	case DT_YMCW:
 	case DT_YMD:
+		switch (d.typ) {
+			unsigned int mdays;
+		case DT_YMD:
+			forw = !dur.neg;
+			tgt = dur.ymd.m;
+
+			if ((forw && d.ymd.m < tgt) ||
+			    (!forw && d.ymd.m > tgt)) {
+				/* no year adjustment */
+				;
+			} else if (d.ymd.m == tgt && !nextp) {
+				/* we're IN the month already and no
+				 * next/prev date is requested */
+				;
+			} else if (forw) {
+				/* years don't wrap around */
+				d.ymd.y++;
+			} else {
+				/* years don't wrap around */
+				d.ymd.y--;
+			}
+			/* final assignment */
+			d.ymd.m = tgt;
+			/* fixup ultimo mismatches */
+			mdays = __get_mdays(d.ymd.y, d.ymd.m);
+			if (UNLIKELY(d.ymd.d > mdays)) {
+				d.ymd.d = mdays;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case DT_YMCW: {
+		struct dt_d_s tmp;
+		unsigned int wday;
+		signed int diff;
+
+		forw = !dur.neg;
+		tgt = dur.ymcw.w;
+
+		tmp = dt_conv(DT_DAISY, d);
+		wday = dt_get_wday(tmp);
+		diff = (signed)tgt - (signed)wday;
+
+
+		if ((forw && wday < tgt) ||
+		    (!forw && wday > tgt)) {
+			/* nothing to do */
+			;
+		} else if (wday == tgt && !nextp) {
+			/* we're on WDAY already, do fuckall */
+			;
+		} else if (forw) {
+			/* week wrap */
+			diff += 7;
+		} else {
+			/* week wrap */
+			diff -= 7;
+		}
+
+		/* final assignment */
+		tmp.daisy += diff;
+		d = dt_conv(d.typ, tmp);
+		break;
+	}
+
 	case DT_MD:
 	default:
 		break;
@@ -264,24 +330,47 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	const char *sp = NULL;
 	struct strpd_s d;
 	struct dt_spec_s s;
+	struct dt_dt_s payload = dt_dt_initialiser();
+	bool negp = false;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
 		return 0;
+	}
+
+	/* check if there's a sign + or - */
+	if (*str == '-') {
+		negp = true;
+		str++;
+	} else if (*str == '+') {
+		str++;
 	}
 
 	/* try weekdays, set up s */
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+		dt_make_d_only(&payload, DT_DUNK);
+		payload.d = dt_make_ymcw(0, 0, 0, d.w);
 		goto out;
 	}
+
+	/* try months, set up s */
+	s.spfl = DT_SPFL_S_MON;
+	s.abbr = DT_SPMOD_NORM;
+	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+		dt_make_d_only(&payload, DT_DUNK);
+		payload.d = dt_make_ymd(0, d.m, 0);
+		goto out;
+	}
+
 	/* bugger */
 	st->istr = str;
 	return -1;
 out:
 	st->sign = 0;
 	st->cont = NULL;
-	return 0;
+	payload.neg = negp;
+	return __add_dur(st, payload);
 }
 
 

@@ -385,6 +385,38 @@ dt_d_initialiser(void)
 	return res;
 }
 
+/* other ctors */
+static inline struct dt_d_s
+dt_make_ymd(unsigned int y, unsigned int m, unsigned int d)
+{
+	struct dt_d_s res;
+
+	res.typ = DT_YMD;
+	res.dur = 0U;
+	res.neg = 0U;
+	res.param = 0U;
+	res.ymd.y = y;
+	res.ymd.m = m;
+	res.ymd.d = d;
+	return res;
+}
+
+static inline struct dt_d_s
+dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
+{
+	struct dt_d_s res;
+
+	res.typ = DT_YMCW;
+	res.dur = 0U;
+	res.neg = 0U;
+	res.param = 0U;
+	res.ymcw.y = y;
+	res.ymcw.m = m;
+	res.ymcw.c = c;
+	res.ymcw.w = w;
+	return res;
+}
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"

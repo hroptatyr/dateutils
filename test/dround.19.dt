@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dround
+CMDLINE="2012-03-04 -- -Sep"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2011-09-04
+EOF
+
+## dround.19.dt ends here
