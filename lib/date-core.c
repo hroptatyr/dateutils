@@ -2238,12 +2238,11 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 static int
 __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 {
-	int res = 0;
+	int res = -1;
 
 	switch (s.spfl) {
 	default:
 	case DT_SPFL_UNK:
-		res = -1;
 		break;
 
 	case DT_SPFL_N_YEAR:
@@ -2258,15 +2257,19 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				d->y -= 100;
 			}
 		}
+		res = 0 - (d->y == -1U);
 		break;
 	case DT_SPFL_N_MON:
 		d->m = romstrtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
+		res = 0 - (d->m == -1U);
 		break;
 	case DT_SPFL_N_MDAY:
 		d->d = romstrtoui_lim(sp, &sp, 0, 31);
+		res = 0 - (d->d == -1U);
 		break;
 	case DT_SPFL_N_CNT_MON:
 		d->c = romstrtoui_lim(sp, &sp, 0, 5);
+		res = 0 - (d->c == -1U);
 		break;
 	}
 	if (ep) {
