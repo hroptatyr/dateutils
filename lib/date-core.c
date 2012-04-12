@@ -2084,12 +2084,12 @@ fucked:
 static int
 __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 {
-	int res = 0;
+	/* we're really pessimistic, aren't we? */
+	int res = -1;
 
 	switch (s.spfl) {
 	default:
 	case DT_SPFL_UNK:
-		res = -1;
 		break;
 	case DT_SPFL_N_DSTD:
 		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
@@ -2097,6 +2097,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		sp++;
 		d->d = strtoui_lim(sp, &sp, 0, 31);
+		res = 0 - (d->y == -1U || d->m == -1U || d->d == -1U);
 		break;
 	case DT_SPFL_N_YEAR:
 		if (s.abbr == DT_SPMOD_NORM) {
@@ -2109,25 +2110,31 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				d->y -= 100;
 			}
 		}
+		res = 0 - (d->y == -1U);
 		break;
 	case DT_SPFL_N_MON:
 		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
+		res = 0 - (d->m == -1U);
 		break;
 	case DT_SPFL_N_MDAY:
 		/* ymd mode? */
 		if (LIKELY(!s.bizda)) {
 			d->d = strtoui_lim(sp, &sp, 0, 31);
+			res = 0 - (d->d == -1U);
 		} else {
 			d->b = strtoui_lim(sp, &sp, 0, 23);
+			res = 0 - (d->b == -1U);
 		}
 		break;
 	case DT_SPFL_N_CNT_WEEK:
 		/* ymcw mode? */
 		d->w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
+		res = 0 - (d->w == -1U);
 		break;
 	case DT_SPFL_N_CNT_MON:
 		/* ymcw mode? */
 		d->c = strtoui_lim(sp, &sp, 0, 5);
+		res = 0 - (d->c == -1U);
 		break;
 	case DT_SPFL_S_WDAY:
 		/* ymcw mode? */
@@ -2147,14 +2154,16 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			const char *pos;
 			if ((pos = strchr(__abab_wday, *sp++))) {
 				d->w = pos - __abab_wday;
-				break;
+			} else {
+				d->w = -1;
 			}
+			break;
 		}
 		case DT_SPMOD_ILL:
 		default:
-			res = -1;
 			break;
 		}
+		res = 0 - (d->w == -1U);
 		break;
 	case DT_SPFL_S_MON:
 		switch (s.abbr) {
@@ -2174,58 +2183,50 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			const char *pos;
 			if ((pos = strchr(__abab_mon, *sp++))) {
 				d->m = pos - __abab_mon;
-				break;
+			} else {
+				d->m = -1U;
 			}
+			break;
 		}
 		case DT_SPMOD_ILL:
 		default:
-			res = -1;
 			break;
 		}
+		res = 0 - (d->m == -1U);
 		break;
 	case DT_SPFL_S_QTR:
 		if (*sp++ != 'Q') {
-			res = -1;
 			break;
 		}
 	case DT_SPFL_N_QTR:
 		if (d->m == 0) {
 			unsigned int q;
-			if ((q = strtoui_lim(sp, &sp, 1, 4)) == -1U) {
-				res = -1;
-			} else {
+			if ((q = strtoui_lim(sp, &sp, 1, 4)) < -1U) {
 				d->m = q * 3 - 2;
+				res = 0;
 			}
 		}
 		break;
 
 	case DT_SPFL_LIT_PERCENT:
-		if (*sp++ != '%') {
-			res = -1;
+		if (*sp++ == '%') {
+			res = 0;
 		}
 		break;
 	case DT_SPFL_LIT_TAB:
-		if (*sp++ != '\t') {
-			res = -1;
+		if (*sp++ == '\t') {
+			res = 0;
 		}
 		break;
 	case DT_SPFL_LIT_NL:
-		if (*sp++ != '\n') {
-			res = -1;
+		if (*sp++ == '\n') {
+			res = 0;
 		}
 		break;
 	case DT_SPFL_N_CNT_YEAR:
 		/* was %C and %j, cannot be used at the moment */
 		(void)strtoui_lim(sp, &sp, 1, 366);
 		break;
-	}
-	/* quickly check if any of the conversions has gone wrong */
-	if (d->y == -1U ||
-	    d->m == -1U ||
-	    d->d == -1U ||
-	    d->c == -1U ||
-	    d->w == -1U) {
-		res = -1;
 	}
 	/* assign end pointer */
 	if (ep) {
