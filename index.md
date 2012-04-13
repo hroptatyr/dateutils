@@ -255,6 +255,46 @@ dgrep
       Feb	2012-02-28
       Feb	2012-02-29	leap day
 
+dround
+------
+  New in dateutils 0.2.1.
+  A tool to "round" dates or time stamps to a recurring point in time,
+  like the next/previous January or the next/previous Thursday.
+
+  Round (backwards) to the first of the current month:
+
+    dround '2011-08-22' -1
+    =>
+      2011-08-01
+
+  Round a stream of dates strictly to the next month's first:
+
+    dround -S -n 1 <<EOF
+    pay cable	2012-02-28
+    pay gas	2012-02-29
+    pay rent	2012-03-01
+    redeem loan	2012-03-02
+    EOF
+    =>
+      pay cable	2012-03-01
+      pay gas	2012-03-01
+      pay rent	2012-04-01
+      redeem loan	2012-04-01
+
+  Round a timeseries to the next full or half hour (and convert to ISO):
+
+    dround -S 30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
+    06/03/2012 14:27:12	eventA
+    06/03/2012 14:29:59	eventA
+    06/03/2012 14:30:00	eventB
+    06/03/2012 14:30:01	eventB
+    EOF
+    =>
+      2012-03-06 14:30:00	eventA
+      2012-03-06 14:30:00	eventA
+      2012-03-06 14:30:00	eventB
+      2012-03-06 15:00:00	eventB
+
 strptime
 --------
   A tool that brings the flexibility of strptime(3) to the command
