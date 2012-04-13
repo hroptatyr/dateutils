@@ -4,9 +4,7 @@ usage "dround [OPTION]... [DATE] RNDSPEC..."
 description "Round DATE to the next occurrence of RNDSPEC.  If DATE \
 is omitted a stream of dates is read from stdin.
 
-The special `now' is interpreted as the current (UTC) time stamp. \
-The specials `today' and `time' are interpreted as the current date \
-and the current (UTC) time respectively.
+SPECIALS
 
 RNDSPECs can be month names (Jan, Feb, ...), weekday names (Sun, Mon, \
 ...), or multiples of the day dividing units, e.g 1h rounds to the \
