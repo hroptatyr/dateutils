@@ -40,6 +40,8 @@ dt_io_strpdt_ep(
 		STRPDT_DATE,
 		STRPDT_TIME,
 		STRPDT_NOW,
+		STRPDT_YDAY,
+		STRPDT_TOMO,
 	} now = STRPDT_UNK;
 
 	/* init */
@@ -51,6 +53,10 @@ dt_io_strpdt_ep(
 		now = STRPDT_NOW;
 	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
 		now = STRPDT_DATE;
+	} else if (!strcasecmp(str, "tomo") || !strcasecmp(str, "tomorrow")) {
+		now = STRPDT_TOMO;
+	} else if (!strcasecmp(str, "yday") || !strcasecmp(str, "yesterday")) {
+		now = STRPDT_YDAY;
 	} else if (!strcasecmp(str, "time")) {
 		now = STRPDT_TIME;
 	}
@@ -58,9 +64,21 @@ dt_io_strpdt_ep(
 		res = dt_datetime((dt_dttyp_t)DT_YMD);
 		/* rinse according to flags */
 		switch (now) {
+			signed int add;
+		case STRPDT_TOMO:
+			add = 1;
+			goto date;
+		case STRPDT_YDAY:
+			add = -1;
+			goto date;
 		case STRPDT_DATE:
+			add = 0;
+		date:
 			res.t = dt_t_initialiser();
 			dt_make_d_only(&res, res.d.typ);
+			if (add) {
+				res.d = dt_dadd(res.d, dt_make_daisydur(add));
+			}
 			break;
 		case STRPDT_TIME:
 			res.d = dt_d_initialiser();
