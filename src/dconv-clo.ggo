@@ -2,8 +2,9 @@ args "--unamed-opts --long-help"
 package "dconv"
 usage "dconv [OPTION]... DATEs"
 description "Convert DATEs between calendrical systems.  If DATEs are \
-omitted they are read from stdin, the special date `now' is \
-interpreted as the current (UTC) date."
+omitted they are read from stdin.
+
+SPECIALS"
 
 QUIET
 FORMAT
