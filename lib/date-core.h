@@ -417,6 +417,19 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 	return res;
 }
 
+static inline struct dt_d_s
+dt_make_daisydur(signed int d)
+{
+	struct dt_d_s res;
+
+	res.typ = DT_DAISY;
+	res.dur = 1U;
+	res.neg = 0U;
+	res.param = 0U;
+	res.daisydur = d;
+	return res;
+}
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"
