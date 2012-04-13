@@ -155,6 +155,8 @@ dt_tests += dround.17.dt
 dt_tests += dround.18.dt
 dt_tests += dround.19.dt
 dt_tests += dround.20.dt
+dt_tests += dround.21.dt
+dt_tests += dround.22.dt
 
 
 dt_tests += tseq.1.dt
@@ -314,6 +316,8 @@ dt_tests += dtround.9.dt
 dt_tests += dtround.10.dt
 dt_tests += dtround.11.dt
 dt_tests += dtround.12.dt
+dt_tests += dtround.13.dt
+dt_tests += dtround.14.dt
 
 dt_tests += strptime.1.dt
 dt_tests += strptime.2.dt
