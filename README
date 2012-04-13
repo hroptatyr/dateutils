@@ -169,28 +169,39 @@ dadd
 
 ddiff
 -----
-  A tool to compute durations between two (or more) dates.  This is
-  somewhat the converse of dadd.
+  A tool to calculate the difference between two (or more) dates.  This
+  is somewhat the converse of dadd.  Outputs will be durations that,
+  when added to the first date, give the second date.
+
+  Get the number of days between two dates:
 
     ddiff 2001-02-08 2001-03-02
     =>
       22
 
+  The duration format can be controlled through the `-f` switch:
+
     ddiff 2001-02-08 2001-03-09 -f "%m month and %d day"
     =>
       1 month and 1 day
 
-  ddiff also accepts date-times as input:
+  ddiff also accepts time stamps as input:
 
     ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00
     =>
       92580s
 
-  and the output can be controlled:
+  The `-f` switch does the right thing:
 
-    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%d days and %S seconds'
+    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Ss'
     =>
-      1 day and 6180 seconds
+      1d 6180s
+
+  compare to:
+
+    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Hh %Ss'
+    =>
+      1d 1h 2580s
 
 dgrep
 -----
@@ -206,6 +217,46 @@ dgrep
     =>
       Feb	2012-02-28
       Feb	2012-02-29	leap day
+
+dround
+------
+  New in dateutils 0.2.1.
+  A tool to "round" dates or time stamps to a recurring point in time,
+  like the next/previous January or the next/previous Thursday.
+
+  Round (backwards) to the first of the current month:
+
+    dround '2011-08-22' -1
+    =>
+      2011-08-01
+
+  Round a stream of dates strictly to the next month's first:
+
+    dround -S -n 1 <<EOF
+    pay cable	2012-02-28
+    pay gas	2012-02-29
+    pay rent	2012-03-01
+    redeem loan	2012-03-02
+    EOF
+    =>
+      pay cable	2012-03-01
+      pay gas	2012-03-01
+      pay rent	2012-04-01
+      redeem loan	2012-04-01
+
+  Round a timeseries to the next full or half hour (and convert to ISO):
+
+    dround -S 30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
+    06/03/2012 14:27:12	eventA
+    06/03/2012 14:29:59	eventA
+    06/03/2012 14:30:00	eventB
+    06/03/2012 14:30:01	eventB
+    EOF
+    =>
+      2012-03-06 14:30:00	eventA
+      2012-03-06 14:30:00	eventA
+      2012-03-06 14:30:00	eventB
+      2012-03-06 15:00:00	eventB
 
 strptime
 --------
