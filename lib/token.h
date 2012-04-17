@@ -49,18 +49,23 @@ typedef enum {
 	DT_SPFL_N_STD,
 
 	/* date specs */
-	DT_SPFL_N_MDAY,
-	DT_SPFL_N_DFIRST = DT_SPFL_N_MDAY,
-	DT_SPFL_N_MON,
-	DT_SPFL_N_YEAR,
 	/* %F, but generally stands for calendar's standard format */
 	DT_SPFL_N_DSTD,
-	/* for 4-level calendars this counts the property within the week */
-	DT_SPFL_N_CNT_WEEK,
-	/* count of property within the month, %d could be mapped here */
-	DT_SPFL_N_CNT_MON,
-	/* count of property within the year */
-	DT_SPFL_N_CNT_YEAR,
+	DT_SPFL_N_DFIRST = DT_SPFL_N_DSTD,
+	/* year count, consecutive, %Y */
+	DT_SPFL_N_YEAR,
+	/* month count within the year, recurring, %m */
+	DT_SPFL_N_MON,
+	/* day count within the week, for 4-level calendars (%w) */
+	DT_SPFL_N_DCNT_WEEK,
+	/* day count within the month, %d */
+	DT_SPFL_N_DCNT_MON,
+	/* day count within the year, %D */
+	DT_SPFL_N_DCNT_YEAR,
+	/* week count within the month, %c */
+	DT_SPFL_N_WCNT_MON,
+	/* week count within the year, %C */
+	DT_SPFL_N_WCNT_YEAR,
 	DT_SPFL_N_QTR,
 	DT_SPFL_N_LAST = DT_SPFL_N_QTR,
 

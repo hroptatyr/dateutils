@@ -105,13 +105,20 @@ next:
 		res.spfl = DT_SPFL_N_MON;
 		break;
 	case 'd':
-		res.spfl = DT_SPFL_N_MDAY;
+		res.spfl = DT_SPFL_N_DCNT_MON;
 		break;
 	case 'w':
-		res.spfl = DT_SPFL_N_CNT_WEEK;
+		res.spfl = DT_SPFL_N_DCNT_WEEK;
+		break;
+	case 'D':
+	case 'j':
+		res.spfl = DT_SPFL_N_DCNT_YEAR;
 		break;
 	case 'c':
-		res.spfl = DT_SPFL_N_CNT_MON;
+		res.spfl = DT_SPFL_N_WCNT_MON;
+		break;
+	case 'C':
+		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'A':
 		res.abbr = DT_SPMOD_LONG;
@@ -163,10 +170,6 @@ next:
 	case 'n':
 		res.spfl = DT_SPFL_LIT_NL;
 		break;
-	case 'C':
-	case 'j':
-		res.spfl = DT_SPFL_N_CNT_YEAR;
-		break;
 	case 'Q':
 		res.spfl = DT_SPFL_S_QTR;
 		break;
@@ -186,7 +189,7 @@ next:
 		fp += 2;
 	}
 	/* check for bizda suffix */
-	if (res.spfl == DT_SPFL_N_MDAY || res.spfl == DT_SPFL_N_CNT_YEAR) {
+	if (res.spfl == DT_SPFL_N_DCNT_MON || res.spfl == DT_SPFL_N_DCNT_YEAR) {
 		switch (*++fp) {
 		case 'B':
 			res.ab = BIZDA_BEFORE;
