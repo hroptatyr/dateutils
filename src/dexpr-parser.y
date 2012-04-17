@@ -162,12 +162,13 @@ rhs
 	}
 	| TOK_STRING {
 		switch (ckv->sp.spfl) {
-		case DT_SPFL_N_MDAY:
-		case DT_SPFL_N_MON:
 		case DT_SPFL_N_YEAR:
-		case DT_SPFL_N_CNT_WEEK:
-		case DT_SPFL_N_CNT_MON:
-		case DT_SPFL_N_CNT_YEAR:
+		case DT_SPFL_N_MON:
+		case DT_SPFL_N_DCNT_WEEK:
+		case DT_SPFL_N_DCNT_MON:
+		case DT_SPFL_N_DCNT_YEAR:
+		case DT_SPFL_N_WCNT_MON:
+		case DT_SPFL_N_WCNT_YEAR:
 			ckv->s = strtol($<sval>1, NULL, 10);
 			break;
 		case DT_SPFL_S_WDAY:
@@ -226,12 +227,13 @@ rhs
 	}
 	| TOK_INT {
 		switch (ckv->sp.spfl) {
-		case DT_SPFL_N_MDAY:
-		case DT_SPFL_N_MON:
 		case DT_SPFL_N_YEAR:
-		case DT_SPFL_N_CNT_WEEK:
-		case DT_SPFL_N_CNT_MON:
-		case DT_SPFL_N_CNT_YEAR:
+		case DT_SPFL_N_MON:
+		case DT_SPFL_N_DCNT_WEEK:
+		case DT_SPFL_N_DCNT_MON:
+		case DT_SPFL_N_DCNT_YEAR:
+		case DT_SPFL_N_WCNT_MON:
+		case DT_SPFL_N_WCNT_YEAR:
 			ckv->s = strtol($<sval>1, NULL, 10);
 			break;
 		default:

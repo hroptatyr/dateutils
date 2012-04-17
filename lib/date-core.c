@@ -2116,7 +2116,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		res = 0 - (d->m == -1U);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode? */
 		if (LIKELY(!s.bizda)) {
 			d->d = strtoui_lim(sp, &sp, 0, 31);
@@ -2126,12 +2126,12 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			res = 0 - (d->b == -1U);
 		}
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode? */
 		d->w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
 		res = 0 - (d->w == -1U);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		/* ymcw mode? */
 		d->c = strtoui_lim(sp, &sp, 0, 5);
 		res = 0 - (d->c == -1U);
@@ -2223,9 +2223,13 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			res = 0;
 		}
 		break;
-	case DT_SPFL_N_CNT_YEAR:
-		/* was %C and %j, cannot be used at the moment */
+	case DT_SPFL_N_DCNT_YEAR:
+		/* was %D and %j, cannot be used at the moment */
 		(void)strtoui_lim(sp, &sp, 1, 366);
+		break;
+	case DT_SPFL_N_WCNT_YEAR:
+		/* was %C, cannot be used at the moment */
+		(void)strtoui_lim(sp, &sp, 0, 53);
 		break;
 	}
 	/* assign end pointer */
@@ -2263,11 +2267,11 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->m = romstrtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		res = 0 - (d->m == -1U);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		d->d = romstrtoui_lim(sp, &sp, 0, 31);
 		res = 0 - (d->d == -1U);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		d->c = romstrtoui_lim(sp, &sp, 0, 5);
 		res = 0 - (d->c == -1U);
 		break;
@@ -2310,7 +2314,7 @@ __strfd_card(
 	case DT_SPFL_N_MON:
 		res = ui32tostr(buf, bsz, d->m, 2);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode check? */
 		if (LIKELY(!s.bizda)) {
 			d->d = d->d ?: (unsigned int)dt_get_mday(that);
@@ -2321,12 +2325,12 @@ __strfd_card(
 			res = ui32tostr(buf, bsz, bd, 2);
 		}
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
 		d->w = d->w ?: dt_get_wday(that);
 		res = ui32tostr(buf, bsz, d->w, 2);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		/* ymcw mode check? */
 		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostr(buf, bsz, d->c, 2);
@@ -2401,7 +2405,7 @@ __strfd_card(
 		buf[res++] = '\n';
 		break;
 
-	case DT_SPFL_N_CNT_YEAR:
+	case DT_SPFL_N_DCNT_YEAR:
 		if (that.typ == DT_YMD || that.typ == DT_BIZDA) {
 			/* %j */
 			int yd;
@@ -2418,7 +2422,11 @@ __strfd_card(
 				buf[res++] = '0';
 				buf[res++] = '0';
 			}
-		} else if (that.typ == DT_YMCW) {
+		}
+		break;
+	case DT_SPFL_N_WCNT_YEAR:
+		/* %C/%W week count */
+		if (that.typ == DT_YMCW) {
 			/* %C */
 			int yd = __ymcw_get_yday(that.ymcw);
 			res = ui32tostr(buf, bsz, yd, 2);
@@ -2456,10 +2464,10 @@ __strfd_rom(
 	case DT_SPFL_N_MON:
 		res = ui32tostrrom(buf, bsz, d->m);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		res = ui32tostrrom(buf, bsz, d->d);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostrrom(buf, bsz, d->c);
 		break;
@@ -2479,7 +2487,7 @@ __strfd_dur(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		res = snprintf(buf, bsz, "%d", d->sd);
 		break;
 	case DT_SPFL_N_YEAR:
@@ -2494,7 +2502,7 @@ __strfd_dur(
 	case DT_SPFL_N_MON:
 		res = snprintf(buf, bsz, "%u", d->m);
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 		if (!d->w) {
 			/* hack hack hack
 			 * we'll think about the consequences later */
@@ -2503,14 +2511,15 @@ __strfd_dur(
 		}
 		res = snprintf(buf, bsz, "%u", d->w);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		res = snprintf(buf, bsz, "%u", d->c);
 		break;
 	case DT_SPFL_S_WDAY:
 	case DT_SPFL_S_MON:
 	case DT_SPFL_S_QTR:
 	case DT_SPFL_N_QTR:
-	case DT_SPFL_N_CNT_YEAR:
+	case DT_SPFL_N_DCNT_YEAR:
+	case DT_SPFL_N_WCNT_YEAR:
 		break;
 
 	case DT_SPFL_LIT_PERCENT:

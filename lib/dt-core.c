@@ -307,14 +307,15 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_DSTD:
 	case DT_SPFL_N_YEAR:
 	case DT_SPFL_N_MON:
-	case DT_SPFL_N_MDAY:
-	case DT_SPFL_N_CNT_WEEK:
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_DCNT_MON:
+	case DT_SPFL_N_DCNT_WEEK:
+	case DT_SPFL_N_DCNT_YEAR:
+	case DT_SPFL_N_WCNT_MON:
+	case DT_SPFL_N_WCNT_YEAR:
 	case DT_SPFL_S_WDAY:
 	case DT_SPFL_S_MON:
 	case DT_SPFL_S_QTR:
 	case DT_SPFL_N_QTR:
-	case DT_SPFL_N_CNT_YEAR:
 		res = __strpd_card(&d->sd, sp, s, ep);
 		goto out_direct;
 
@@ -378,14 +379,15 @@ __strfdt_card(
 	case DT_SPFL_N_DSTD:
 	case DT_SPFL_N_YEAR:
 	case DT_SPFL_N_MON:
-	case DT_SPFL_N_MDAY:
-	case DT_SPFL_N_CNT_WEEK:
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_DCNT_WEEK:
+	case DT_SPFL_N_DCNT_MON:
+	case DT_SPFL_N_DCNT_YEAR:
+	case DT_SPFL_N_WCNT_MON:
+	case DT_SPFL_N_WCNT_YEAR:
 	case DT_SPFL_S_WDAY:
 	case DT_SPFL_S_MON:
 	case DT_SPFL_S_QTR:
 	case DT_SPFL_N_QTR:
-	case DT_SPFL_N_CNT_YEAR:
 		res = __strfd_card(buf, bsz, s, &d->sd, that.d);
 		break;
 
@@ -432,16 +434,17 @@ __strfdt_dur(
 		return 0;
 
 	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_MDAY:
 	case DT_SPFL_N_YEAR:
 	case DT_SPFL_N_MON:
-	case DT_SPFL_N_CNT_WEEK:
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_DCNT_WEEK:
+	case DT_SPFL_N_DCNT_MON:
+	case DT_SPFL_N_DCNT_YEAR:
+	case DT_SPFL_N_WCNT_MON:
+	case DT_SPFL_N_WCNT_YEAR:
 	case DT_SPFL_S_WDAY:
 	case DT_SPFL_S_MON:
 	case DT_SPFL_S_QTR:
 	case DT_SPFL_N_QTR:
-	case DT_SPFL_N_CNT_YEAR:
 		return __strfd_dur(buf, bsz, s, &d->sd, that.d);
 
 		/* noone's ever bothered doing the same thing for times */
