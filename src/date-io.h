@@ -223,10 +223,11 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case DT_SPFL_N_MON:
-		case DT_SPFL_N_CNT_WEEK:
-		case DT_SPFL_N_CNT_MON:
+		case DT_SPFL_N_DCNT_WEEK:
+		case DT_SPFL_N_DCNT_MON:
+		case DT_SPFL_N_WCNT_MON:
+		case DT_SPFL_N_WCNT_YEAR:
 		case DT_SPFL_N_QTR:
-		case DT_SPFL_N_MDAY:
 			res.pl.off_min += -2;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
@@ -261,7 +262,7 @@ calc_grep_atom(const char *fmt)
 				break;
 			}
 			break;
-		case DT_SPFL_N_CNT_YEAR:
+		case DT_SPFL_N_DCNT_YEAR:
 			res.pl.off_min += -3;
 			res.pl.off_max += -1;
 			res.pl.flags |= GRPATM_DIGITS;
