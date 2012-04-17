@@ -90,8 +90,6 @@ to a given date.  Besides, most of the time those billions of dates come
 from external sources and have to be brought into shape before or whilst
 importing them into an integrated system.
 
-@include format.texi
-
 
 @node Calendars
 @chapter Calendars
@@ -173,6 +171,8 @@ The canonical input and output format is @code{%Y-%m-%db}, where
 @code{b} is a suffix modifier meaning business days since last month's
 ultimo.  Similarly, @code{%Y-%m-%dB} stands for the business days until
 this month's ultimo.
+
+@include format.texi
 
 
 @include strptime.texi
