@@ -714,6 +714,71 @@ __ymcw_get_mday(dt_ymcw_t that)
 }
 
 static int
+__ymd_get_wcnt(dt_ymd_t d, int wdays_from)
+{
+	int yd = __ymd_get_yday(d);
+	int y01 = (int)__get_jan01_wday(d.y);
+	int wk;
+
+	/* yd of the FIRST week of the year */
+	if ((wk = 8 - y01 + wdays_from) > 7) {
+		wk -= 7;
+	}
+	/* and now express yd as 7k + n relative to jan01 */
+	return (yd - wk + 7) / 7;
+}
+
+static int
+__ymd_get_wcnt_iso(dt_ymd_t d)
+{
+/* like __ymd_get_wcnt() but for iso week conventions
+ * the week with the first thursday is the first week,
+ * so a year starting on S is the first week,
+ * a year starting on M is the first week
+ * a year starting on T ... */
+	/* iso weeks always start on Mon */
+	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3};
+	int yd = __ymd_get_yday(d);
+	unsigned int y = d.y;
+	int y01 = (int)__get_jan01_wday(y);
+	int wk;
+
+	/* express yd as 7k + n relative to jan01 */
+	if (UNLIKELY((wk = (yd - iso[y01] + 7) / 7) < 1)) {
+		/* get last years y01
+		 * which is basically y01 - (365|366 % 7) */
+		if (LIKELY(!__leapp(--y))) {
+			/* -= 1 */
+			y01 += 6;
+			yd += 365;
+		} else {
+			/* -= 2 */
+			y01 += 5;
+			yd += 366;
+		}
+		if (y01 >= DT_MIRACLEDAY) {
+			y01 -= 7;
+		}
+		/* same computation now */
+		wk = (yd - iso[y01] + 7) / 7;
+	}
+	if (UNLIKELY(wk == 53)) {
+		/* check next year's y01 */
+		if (LIKELY(!__leapp(y))) {
+			y01 += 1;
+		} else {
+			/* -= 2 */
+			y01 += 2;
+		}
+		if (!(y01 == DT_FRIDAY || y01 == DT_SATURDAY)) {
+			/* 53rd week is no more */
+			wk = 1;
+		}
+	}
+	return wk;
+}
+
+static int
 __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 {
 	dt_dow_t wdd;
@@ -2116,7 +2181,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		res = 0 - (d->m == -1U);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode? */
 		if (LIKELY(!s.bizda)) {
 			d->d = strtoui_lim(sp, &sp, 0, 31);
@@ -2126,12 +2191,12 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			res = 0 - (d->b == -1U);
 		}
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode? */
 		d->w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
 		res = 0 - (d->w == -1U);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		/* ymcw mode? */
 		d->c = strtoui_lim(sp, &sp, 0, 5);
 		res = 0 - (d->c == -1U);
@@ -2223,9 +2288,13 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			res = 0;
 		}
 		break;
-	case DT_SPFL_N_CNT_YEAR:
-		/* was %C and %j, cannot be used at the moment */
+	case DT_SPFL_N_DCNT_YEAR:
+		/* was %D and %j, cannot be used at the moment */
 		(void)strtoui_lim(sp, &sp, 1, 366);
+		break;
+	case DT_SPFL_N_WCNT_YEAR:
+		/* was %C, cannot be used at the moment */
+		(void)strtoui_lim(sp, &sp, 0, 53);
 		break;
 	}
 	/* assign end pointer */
@@ -2263,11 +2332,11 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->m = romstrtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		res = 0 - (d->m == -1U);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		d->d = romstrtoui_lim(sp, &sp, 0, 31);
 		res = 0 - (d->d == -1U);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		d->c = romstrtoui_lim(sp, &sp, 0, 5);
 		res = 0 - (d->c == -1U);
 		break;
@@ -2310,7 +2379,7 @@ __strfd_card(
 	case DT_SPFL_N_MON:
 		res = ui32tostr(buf, bsz, d->m, 2);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode check? */
 		if (LIKELY(!s.bizda)) {
 			d->d = d->d ?: (unsigned int)dt_get_mday(that);
@@ -2321,12 +2390,12 @@ __strfd_card(
 			res = ui32tostr(buf, bsz, bd, 2);
 		}
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
 		d->w = d->w ?: dt_get_wday(that);
 		res = ui32tostr(buf, bsz, d->w, 2);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		/* ymcw mode check? */
 		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostr(buf, bsz, d->c, 2);
@@ -2401,7 +2470,7 @@ __strfd_card(
 		buf[res++] = '\n';
 		break;
 
-	case DT_SPFL_N_CNT_YEAR:
+	case DT_SPFL_N_DCNT_YEAR:
 		if (that.typ == DT_YMD || that.typ == DT_BIZDA) {
 			/* %j */
 			int yd;
@@ -2418,12 +2487,29 @@ __strfd_card(
 				buf[res++] = '0';
 				buf[res++] = '0';
 			}
-		} else if (that.typ == DT_YMCW) {
-			/* %C */
-			int yd = __ymcw_get_yday(that.ymcw);
-			res = ui32tostr(buf, bsz, yd, 2);
 		}
 		break;
+	case DT_SPFL_N_WCNT_YEAR: {
+		int yw;
+		/* %C/%W week count */
+		switch (that.typ) {
+		case DT_YMD:
+			if (s.cnt_weeks_iso) {
+				yw = __ymd_get_wcnt_iso(that.ymd);
+			} else {
+				yw = __ymd_get_wcnt(that.ymd, s.cnt_wdays_from);
+			}
+			break;
+		case DT_YMCW:
+			yw = __ymcw_get_yday(that.ymcw);
+			break;
+		default:
+			yw = 0;
+			break;
+		}
+		res = ui32tostr(buf, bsz, yw, 2);
+		break;
+	}
 	}
 	return res;
 }
@@ -2456,10 +2542,10 @@ __strfd_rom(
 	case DT_SPFL_N_MON:
 		res = ui32tostrrom(buf, bsz, d->m);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		res = ui32tostrrom(buf, bsz, d->d);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		d->c = d->c ?: (unsigned int)dt_get_count(that);
 		res = ui32tostrrom(buf, bsz, d->c);
 		break;
@@ -2479,7 +2565,7 @@ __strfd_dur(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		res = snprintf(buf, bsz, "%d", d->sd);
 		break;
 	case DT_SPFL_N_YEAR:
@@ -2494,7 +2580,7 @@ __strfd_dur(
 	case DT_SPFL_N_MON:
 		res = snprintf(buf, bsz, "%u", d->m);
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 		if (!d->w) {
 			/* hack hack hack
 			 * we'll think about the consequences later */
@@ -2503,14 +2589,15 @@ __strfd_dur(
 		}
 		res = snprintf(buf, bsz, "%u", d->w);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		res = snprintf(buf, bsz, "%u", d->c);
 		break;
 	case DT_SPFL_S_WDAY:
 	case DT_SPFL_S_MON:
 	case DT_SPFL_S_QTR:
 	case DT_SPFL_N_QTR:
-	case DT_SPFL_N_CNT_YEAR:
+	case DT_SPFL_N_DCNT_YEAR:
+	case DT_SPFL_N_WCNT_YEAR:
 		break;
 
 	case DT_SPFL_LIT_PERCENT:

@@ -112,16 +112,17 @@ determine_durfmt(const char *fmt)
 			case DT_SPFL_S_MON:
 				res.has_mon = 1;
 				break;
-			case DT_SPFL_N_MDAY:
+			case DT_SPFL_N_DCNT_MON:
 				if (spec.bizda) {
 					res.has_biz = 1;
 				}
 			case DT_SPFL_N_DSTD:
-			case DT_SPFL_N_CNT_YEAR:
+			case DT_SPFL_N_DCNT_YEAR:
 				res.has_day = 1;
 				break;
-			case DT_SPFL_N_CNT_MON:
-			case DT_SPFL_N_CNT_WEEK:
+			case DT_SPFL_N_WCNT_MON:
+			case DT_SPFL_N_WCNT_YEAR:
+			case DT_SPFL_N_DCNT_WEEK:
 			case DT_SPFL_S_WDAY:
 				res.has_week = 1;
 				break;
@@ -437,7 +438,7 @@ __strfdtdur(
 			bp += snprintf(bp, eo - bp, "%dd", d);
 			goto bizda_suffix;
 		}
-		case DT_SPFL_N_MDAY: {
+		case DT_SPFL_N_DCNT_MON: {
 			int d;
 
 			if (f.has_week) {
@@ -468,8 +469,8 @@ __strfdtdur(
 				}
 			}
 			break;
-		case DT_SPFL_N_CNT_MON:
-		case DT_SPFL_N_CNT_WEEK: {
+		case DT_SPFL_N_WCNT_MON:
+		case DT_SPFL_N_DCNT_WEEK: {
 			int w;
 
 			if (f.has_mon) {

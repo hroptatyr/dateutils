@@ -41,7 +41,7 @@ static __attribute__((unused)) void
 __pr_val(struct dexkv_s *kv)
 {
 	switch (kv->sp.spfl) {
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		fputs("%d ", stdout);
 		break;
 	case DT_SPFL_N_MON:
@@ -51,15 +51,18 @@ __pr_val(struct dexkv_s *kv)
 	case DT_SPFL_N_YEAR:
 		fputs("%Y ", stdout);
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 	case DT_SPFL_S_WDAY:
 		fputs("%a ", stdout);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		fputs("%c ", stdout);
 		break;
-	case DT_SPFL_N_CNT_YEAR:
-		fputs("%j ", stdout);
+	case DT_SPFL_N_DCNT_YEAR:
+		fputs("%D ", stdout);
+		break;
+	case DT_SPFL_N_WCNT_YEAR:
+		fputs("%C ", stdout);
 		break;
 	default:
 		break;
@@ -94,7 +97,7 @@ __pr_val(struct dexkv_s *kv)
 		fputs(buf, stdout);
 		break;
 	}
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		fprintf(stdout, "%02d", kv->s);
 		break;
 	case DT_SPFL_N_MON:
@@ -106,16 +109,17 @@ __pr_val(struct dexkv_s *kv)
 	case DT_SPFL_N_YEAR:
 		fprintf(stdout, "%04d", kv->s);
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 	case DT_SPFL_S_WDAY:
 		if (kv->s >= 0 && kv->s <= 7) {
 			fputs(__abbr_wday[kv->s], stdout);
 		}
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
+	case DT_SPFL_N_WCNT_YEAR:
 		fprintf(stdout, "%02d", kv->s);
 		break;
-	case DT_SPFL_N_CNT_YEAR:
+	case DT_SPFL_N_DCNT_YEAR:
 		fprintf(stdout, "%03d", kv->s);
 		break;
 	default:
@@ -525,19 +529,23 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 	case DT_SPFL_S_MON:
 		cmp = dt_get_mon(d.d);
 		break;
-	case DT_SPFL_N_MDAY:
+	case DT_SPFL_N_DCNT_MON:
 		cmp = dt_get_mday(d.d);
 		break;
-	case DT_SPFL_N_CNT_WEEK:
+	case DT_SPFL_N_DCNT_WEEK:
 	case DT_SPFL_S_WDAY:
 		cmp = dt_get_wday(d.d);
 		break;
-	case DT_SPFL_N_CNT_MON:
+	case DT_SPFL_N_WCNT_MON:
 		/* exotic function, needs extern'ing */
 		cmp = /*dt_get_count(d)*/0;
 		break;
-	case DT_SPFL_N_CNT_YEAR:
+	case DT_SPFL_N_DCNT_YEAR:
 		cmp = dt_get_yday(d.d);
+		break;
+	case DT_SPFL_N_WCNT_YEAR:
+		/* implement! */
+		;
 		break;
 	case DT_SPFL_N_STD:
 	default:
