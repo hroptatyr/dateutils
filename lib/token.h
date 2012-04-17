@@ -97,6 +97,47 @@ typedef enum {
 	DT_SPFL_LIT_NL,
 } dt_spfl_t;
 
+struct dt_spec_s {
+	struct {
+		/* ordinal flag, 01, 02, 03 -> 1st 2nd 3rd */
+		unsigned int ord:1;
+		/* roman numeral flag */
+		unsigned int rom:1;
+		/* controls abbreviation */
+		enum {
+			DT_SPMOD_NORM,
+			DT_SPMOD_ABBR,
+			DT_SPMOD_LONG,
+			DT_SPMOD_ILL,
+		} abbr:2;
+		/* for directions a(fter 0)/b(efore 1) */
+		unsigned int ab:1;
+		/* bizda */
+		unsigned int bizda:1;
+
+		/** time specs */
+		/* long/short 24h v 12h scale */
+		unsigned int sc12:1;
+		/* capitalise am/pm indicator */
+		unsigned int cap:1;
+
+		/* week-count conventions */
+		unsigned int cnt_weeks_iso:1;
+		unsigned int cnt_wdays_from:1;
+
+		/* pad to the next word */
+		unsigned int:6;
+	};
+	dt_spfl_t spfl:8;
+};
+
+#if !defined BIZDA_AFTER
+# define BIZDA_AFTER	(0U)/*>*/
+#endif	/* !BIZDA_AFTER */
+#if !defined BIZDA_BEFORE
+# define BIZDA_BEFORE	(1U)/*<*/
+#endif	/* !BIZDA_BEFORE */
+
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
