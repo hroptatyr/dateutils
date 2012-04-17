@@ -21,7 +21,10 @@ Date specs:
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)
   %q  The number of the quarter (range 01 to 04)
+  %U  The week count, first day of week is Sun (range 00 to 53)
+  %V  The ISO week count, first day of week is Mon (range 01 to 53)
   %w  The weekday as number (range 00 to 06, Sunday being 00)
+  %W  The week count, first day of week is Mon (range 00 to 53)
   %y  The year without a century (range 00 to 99)
   %Y  The year including the century
 
