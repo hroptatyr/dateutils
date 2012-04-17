@@ -714,6 +714,71 @@ __ymcw_get_mday(dt_ymcw_t that)
 }
 
 static int
+__ymd_get_wcnt(dt_ymd_t d, int wdays_from)
+{
+	int yd = __ymd_get_yday(d);
+	int y01 = (int)__get_jan01_wday(d.y);
+	int wk;
+
+	/* yd of the FIRST week of the year */
+	if ((wk = 8 - y01 + wdays_from) > 7) {
+		wk -= 7;
+	}
+	/* and now express yd as 7k + n relative to jan01 */
+	return (yd - wk + 7) / 7;
+}
+
+static int
+__ymd_get_wcnt_iso(dt_ymd_t d)
+{
+/* like __ymd_get_wcnt() but for iso week conventions
+ * the week with the first thursday is the first week,
+ * so a year starting on S is the first week,
+ * a year starting on M is the first week
+ * a year starting on T ... */
+	/* iso weeks always start on Mon */
+	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3};
+	int yd = __ymd_get_yday(d);
+	unsigned int y = d.y;
+	int y01 = (int)__get_jan01_wday(y);
+	int wk;
+
+	/* express yd as 7k + n relative to jan01 */
+	if (UNLIKELY((wk = (yd - iso[y01] + 7) / 7) < 1)) {
+		/* get last years y01
+		 * which is basically y01 - (365|366 % 7) */
+		if (LIKELY(!__leapp(--y))) {
+			/* -= 1 */
+			y01 += 6;
+			yd += 365;
+		} else {
+			/* -= 2 */
+			y01 += 5;
+			yd += 366;
+		}
+		if (y01 >= DT_MIRACLEDAY) {
+			y01 -= 7;
+		}
+		/* same computation now */
+		wk = (yd - iso[y01] + 7) / 7;
+	}
+	if (UNLIKELY(wk == 53)) {
+		/* check next year's y01 */
+		if (LIKELY(!__leapp(y))) {
+			y01 += 1;
+		} else {
+			/* -= 2 */
+			y01 += 2;
+		}
+		if (!(y01 == DT_FRIDAY || y01 == DT_SATURDAY)) {
+			/* 53rd week is no more */
+			wk = 1;
+		}
+	}
+	return wk;
+}
+
+static int
 __ymd_get_bday(dt_ymd_t that, dt_bizda_param_t bp)
 {
 	dt_dow_t wdd;
@@ -2424,14 +2489,27 @@ __strfd_card(
 			}
 		}
 		break;
-	case DT_SPFL_N_WCNT_YEAR:
+	case DT_SPFL_N_WCNT_YEAR: {
+		int yw;
 		/* %C/%W week count */
-		if (that.typ == DT_YMCW) {
-			/* %C */
-			int yd = __ymcw_get_yday(that.ymcw);
-			res = ui32tostr(buf, bsz, yd, 2);
+		switch (that.typ) {
+		case DT_YMD:
+			if (s.cnt_weeks_iso) {
+				yw = __ymd_get_wcnt_iso(that.ymd);
+			} else {
+				yw = __ymd_get_wcnt(that.ymd, s.cnt_wdays_from);
+			}
+			break;
+		case DT_YMCW:
+			yw = __ymcw_get_yday(that.ymcw);
+			break;
+		default:
+			yw = 0;
+			break;
 		}
+		res = ui32tostr(buf, bsz, yw, 2);
 		break;
+	}
 	}
 	return res;
 }
