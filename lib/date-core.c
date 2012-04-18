@@ -112,6 +112,7 @@ struct strpd_s {
 	struct {
 		unsigned int ab:1;
 		unsigned int bizda:1;
+		unsigned int d_dcnt_p:1;
 	} flags;
 	unsigned int b;
 	unsigned int q;
@@ -193,10 +194,12 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 #undef A
 #undef S
 
+#if 1
 static uint16_t __mon_yday[] = {
 /* this is \sum ml, first element is a bit set of leap days to add */
 	0xfff8, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
 };
+#endif
 
 static const char *__long_wday[] = {
 	"Sunday",
@@ -417,6 +420,12 @@ __get_jan01_wday(unsigned int year)
 	return (dt_dow_t)res;
 }
 
+static unsigned int
+__md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
+{
+	return __mon_yday[mon] + dom + UNLIKELY(__leapp(year) && mon >= 3);
+}
+
 static dt_dow_t
 __get_m01_wday(unsigned int year, unsigned int mon)
 {
@@ -428,11 +437,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 		return DT_MIRACLEDAY;
 	}
 	cand = __get_jan01_wday(year);
-	off = __mon_yday[mon] % GREG_DAYS_P_WEEK;
-	/* fixup leap years */
-	if (UNLIKELY(__leapp(year))) {
-		off += (__mon_yday[0] >> mon) & 1;
-	}
+	off = __md_get_yday(year, mon, 0);
 	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
@@ -447,13 +452,8 @@ __get_mdays(unsigned int y, unsigned int m)
 	}
 
 	/* use our cumulative yday array */
-	res = __mon_yday[m + 1] - __mon_yday[m];
-
-	/* fixup leap years */
-	if (UNLIKELY(__leapp(y) && m == 2)) {
-		res++;
-	}
-	return res;
+	res = __md_get_yday(y, m + 1, 0);
+	return res - __md_get_yday(y, m, 0);
 }
 
 static inline unsigned int
@@ -584,6 +584,102 @@ __get_bdays(unsigned int y, unsigned int m)
 	return 20U;
 }
 
+struct __md_s {
+	unsigned int m;
+	unsigned int d;
+};
+
+static struct __md_s
+__yday_get_md(unsigned int year, unsigned int doy)
+{
+/* Given a year and the day of the year, return gregorian month + dom
+ * we use some clever maths to invert __mon_yday[] above
+ * you see __mon_yday[] divrem 16 is
+ *   F   0  0  0
+ *   G  31  1 15
+ *   H  59  3 11
+ *   J  90  5 10
+ *   K 120  7  8
+ *   M 151  9  7
+ *   N 181 11  5
+ *   Q 212 13  4
+ *   U 243 15  3
+ *   V 273 17  1
+ *   X 304 19  0
+ *   Z 334 20 14
+ *
+ * Now the key is to store only the remainders in a clever way.
+ * To resolve the even quotient in the Z month, we simply add 2
+ * to the day-of-year.
+ *
+ * Second, since doy < 32 -> m = 1, d = doy, we only need to store
+ * the values from month G onwards.
+ *
+ * So in total the table we store is 4bit remainders of
+ * __mon_yday[] - 30 % 16 */
+#define SL(x)	((x) * 4)
+	static const uint64_t rem =
+		(0ULL << SL(0)) |
+		(1ULL << SL(1)) |
+		(13ULL << SL(2)) |
+		(12ULL << SL(3)) |
+		(10ULL << SL(4)) |
+		(9ULL << SL(5)) |
+		(7ULL << SL(6)) |
+		(6ULL << SL(7)) |
+		(5ULL << SL(8)) |
+		(3ULL << SL(9)) |
+		(2ULL << SL(10)) |
+		(0ULL << SL(11));
+	unsigned int m;
+	unsigned int d;
+	unsigned int beef;
+	unsigned int cake;
+
+	/* unrolled version */
+	if (doy < 32) {
+		m = 1;
+		d = doy;
+		goto yay;
+	}
+
+	/* get 16-adic doys */
+	m = (doy - 30) / 16U;
+	d = (doy - 30) % 16U;
+	beef = (rem >> SL((m + 1) / 2)) & 0xff;
+	cake = beef >> 4;
+
+	/* put leap years into cake */
+	if (UNLIKELY(__leapp(year))) {
+		beef += m >= 2;
+		cake += m >= 1;
+	} else if (UNLIKELY(doy > 365)) {
+		m = 0;
+		d = 0;
+		goto yay;
+	}
+
+	if (!m || m % 2 && d > cake) {
+		d = doy - (m * 16 + 30 + cake);
+		m = (m + 1) / 2 + 2;
+	} else {
+		if (!(m % 2)) {
+			/* even m */
+			d = doy - ((m - 1) * 16 + 30 + cake);
+		} else if (m > 1) {
+			/* odd m and remainder <= cake */
+			beef = 32 + cake - (beef & 0xf);
+			d = doy - (m * 16 + 30 + cake) + beef;
+		} else {
+			beef = 16 + cake - (beef & 0xf);
+			d = doy - (16 + 30 + cake) + beef;
+		}
+		m = m / 2 + 2;
+	}
+yay:
+	return (__extension__(struct __md_s){.m = m, .d = d});
+}
+
 
 static unsigned int
 __ymd_get_yday(dt_ymd_t that)
@@ -595,11 +691,7 @@ __ymd_get_yday(dt_ymd_t that)
 		return 0;
 	}
 	/* process */
-	res = that.d + __mon_yday[that.m];
-	/* fixup leap years */
-	if (UNLIKELY(__leapp(that.y))) {
-		res += (__mon_yday[0] >> that.m) & 1;
-	}
+	res = __md_get_yday(that.y, that.m, that.d);
 	return res;
 }
 
@@ -1116,8 +1208,7 @@ __daisy_to_ymd(dt_daisy_t that)
 	dt_daisy_t j00;
 	unsigned int doy;
 	unsigned int y;
-	unsigned int m;
-	unsigned int d;
+	struct __md_s md;
 
 	if (UNLIKELY(that == 0)) {
 		return (dt_ymd_t){.u = 0};
@@ -1125,34 +1216,18 @@ __daisy_to_ymd(dt_daisy_t that)
 	y = __daisy_get_year(that);
 	j00 = __jan00_daisy(y);
 	doy = that - j00;
-	for (m = 1; m < GREG_MONTHS_P_YEAR && doy > __mon_yday[m + 1]; m++);
-	d = doy - __mon_yday[m];
-
-	/* fix up leap years */
-	if (UNLIKELY(__leapp(y))) {
-		if ((__mon_yday[0] >> (m)) & 1) {
-			if (UNLIKELY(doy == 60)) {
-				m = 2;
-				d = 29;
-			} else if (UNLIKELY(doy == __mon_yday[m] + 1U)) {
-				m--;
-				d = doy - __mon_yday[m] - 1U;
-			} else {
-				d--;
-			}
-		}
-	}
+	md = __yday_get_md(y, doy);
 #if defined __C1X
-	return (dt_ymd_t){.y = y, .m = m, .d = d};
-#else
+	return (__extension__(dt_ymd_t){.y = y, .m = md.m, .d = md.d});
+#else  /* !__C1X */
 	{
 		dt_ymd_t res;
 		res.y = y;
-		res.m = m;
-		res.d = d;
+		res.m = md.m;
+		res.d = md.d;
 		return res;
 	}
-#endif
+#endif	/* __C1X */
 }
 
 static dt_ymcw_t
@@ -1471,12 +1546,7 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return 0;
 	}
 	res = __jan00_daisy(y);
-	res += __mon_yday[m];
-	/* add up days too */
-	res += d;
-	if (UNLIKELY(__leapp(y))) {
-		res += (__mon_yday[0] >> (m)) & 1;
-	}
+	res += __md_get_yday(y, m, d);
 	return res;
 }
 
@@ -2018,13 +2088,20 @@ __guess_dtyp(struct strpd_s d)
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
-		res.ymd.m = d.m;
+		if (LIKELY(!d.flags.d_dcnt_p)) {
+			res.ymd.m = d.m;
 #if defined WITH_FAST_ARITH
-		res.ymd.d = d.d;
-#else  /* !WITH_FAST_ARITH */
-		/* check for illegal dates, like 31st of April */
-		if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
 			res.ymd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+			/* check for illegal dates, like 31st of April */
+			if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
+				res.ymd.d = d.d;
+			}
+		} else {
+			/* convert dcnt to m + d */
+			struct __md_s r = __yday_get_md(d.y, d.d);
+			res.ymd.m = r.m;
+			res.ymd.d = r.d;
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.c && !d.flags.bizda) {
@@ -2290,7 +2367,10 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_DCNT_YEAR:
 		/* was %D and %j, cannot be used at the moment */
-		(void)strtoui_lim(sp, &sp, 1, 366);
+		if ((d->d = strtoui_lim(sp, &sp, 1, 366)) < -1U) {
+			res = 0;
+			d->flags.d_dcnt_p = 1;
+		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR:
 		/* was %C, cannot be used at the moment */
