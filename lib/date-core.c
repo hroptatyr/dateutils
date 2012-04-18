@@ -667,10 +667,13 @@ __yday_get_md(unsigned int year, unsigned int doy)
 		if (!(m % 2)) {
 			/* even m */
 			d = doy - ((m - 1) * 16 + 30 + cake);
-		} else {
+		} else if (m > 1) {
 			/* odd m and remainder <= cake */
-			beef = 16 + (m > 1 ? 16 : 0) + cake - (beef & 0xf);
+			beef = 32 + cake - (beef & 0xf);
 			d = doy - (m * 16 + 30 + cake) + beef;
+		} else {
+			beef = 16 + cake - (beef & 0xf);
+			d = doy - (16 + 30 + cake) + beef;
 		}
 		m = m / 2 + 2;
 	}
