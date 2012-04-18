@@ -194,10 +194,12 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 #undef A
 #undef S
 
+#if 1
 static uint16_t __mon_yday[] = {
 /* this is \sum ml, first element is a bit set of leap days to add */
 	0xfff8, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
 };
+#endif
 
 static const char *__long_wday[] = {
 	"Sunday",
@@ -418,6 +420,12 @@ __get_jan01_wday(unsigned int year)
 	return (dt_dow_t)res;
 }
 
+static unsigned int
+__md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
+{
+	return __mon_yday[mon] + dom + UNLIKELY(__leapp(year) && mon >= 3);
+}
+
 static dt_dow_t
 __get_m01_wday(unsigned int year, unsigned int mon)
 {
@@ -429,11 +437,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 		return DT_MIRACLEDAY;
 	}
 	cand = __get_jan01_wday(year);
-	off = __mon_yday[mon] % GREG_DAYS_P_WEEK;
-	/* fixup leap years */
-	if (UNLIKELY(__leapp(year))) {
-		off += (__mon_yday[0] >> mon) & 1;
-	}
+	off = __md_get_yday(year, mon, 0);
 	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
@@ -448,13 +452,8 @@ __get_mdays(unsigned int y, unsigned int m)
 	}
 
 	/* use our cumulative yday array */
-	res = __mon_yday[m + 1] - __mon_yday[m];
-
-	/* fixup leap years */
-	if (UNLIKELY(__leapp(y) && m == 2)) {
-		res++;
-	}
-	return res;
+	res = __md_get_yday(y, m + 1, 0);
+	return res - __md_get_yday(y, m, 0);
 }
 
 static inline unsigned int
@@ -692,11 +691,7 @@ __ymd_get_yday(dt_ymd_t that)
 		return 0;
 	}
 	/* process */
-	res = that.d + __mon_yday[that.m];
-	/* fixup leap years */
-	if (UNLIKELY(__leapp(that.y))) {
-		res += (__mon_yday[0] >> that.m) & 1;
-	}
+	res = __md_get_yday(that.y, that.m, that.d);
 	return res;
 }
 
@@ -1213,8 +1208,7 @@ __daisy_to_ymd(dt_daisy_t that)
 	dt_daisy_t j00;
 	unsigned int doy;
 	unsigned int y;
-	unsigned int m;
-	unsigned int d;
+	struct __md_s md;
 
 	if (UNLIKELY(that == 0)) {
 		return (dt_ymd_t){.u = 0};
@@ -1222,34 +1216,18 @@ __daisy_to_ymd(dt_daisy_t that)
 	y = __daisy_get_year(that);
 	j00 = __jan00_daisy(y);
 	doy = that - j00;
-	for (m = 1; m < GREG_MONTHS_P_YEAR && doy > __mon_yday[m + 1]; m++);
-	d = doy - __mon_yday[m];
-
-	/* fix up leap years */
-	if (UNLIKELY(__leapp(y))) {
-		if ((__mon_yday[0] >> (m)) & 1) {
-			if (UNLIKELY(doy == 60)) {
-				m = 2;
-				d = 29;
-			} else if (UNLIKELY(doy == __mon_yday[m] + 1U)) {
-				m--;
-				d = doy - __mon_yday[m] - 1U;
-			} else {
-				d--;
-			}
-		}
-	}
+	md = __yday_get_md(y, doy);
 #if defined __C1X
-	return (dt_ymd_t){.y = y, .m = m, .d = d};
-#else
+	return (__extension__(dt_ymd_t){.y = y, .m = md.m, .d = md.d});
+#else  /* !__C1X */
 	{
 		dt_ymd_t res;
 		res.y = y;
-		res.m = m;
-		res.d = d;
+		res.m = md.m;
+		res.d = md.d;
 		return res;
 	}
-#endif
+#endif	/* __C1X */
 }
 
 static dt_ymcw_t
@@ -1568,12 +1546,7 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return 0;
 	}
 	res = __jan00_daisy(y);
-	res += __mon_yday[m];
-	/* add up days too */
-	res += d;
-	if (UNLIKELY(__leapp(y))) {
-		res += (__mon_yday[0] >> (m)) & 1;
-	}
+	res += __md_get_yday(y, m, d);
 	return res;
 }
 
