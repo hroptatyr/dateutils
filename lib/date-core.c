@@ -585,6 +585,99 @@ __get_bdays(unsigned int y, unsigned int m)
 	return 20U;
 }
 
+struct __md_s {
+	unsigned int m;
+	unsigned int d;
+};
+
+static struct __md_s
+__yday_get_md(unsigned int year, unsigned int doy)
+{
+/* Given a year and the day of the year, return gregorian month + dom
+ * we use some clever maths to invert __mon_yday[] above
+ * you see __mon_yday[] divrem 16 is
+ *   F   0  0  0
+ *   G  31  1 15
+ *   H  59  3 11
+ *   J  90  5 10
+ *   K 120  7  8
+ *   M 151  9  7
+ *   N 181 11  5
+ *   Q 212 13  4
+ *   U 243 15  3
+ *   V 273 17  1
+ *   X 304 19  0
+ *   Z 334 20 14
+ *
+ * Now the key is to store only the remainders in a clever way.
+ * To resolve the even quotient in the Z month, we simply add 2
+ * to the day-of-year.
+ *
+ * Second, since doy < 32 -> m = 1, d = doy, we only need to store
+ * the values from month G onwards.
+ *
+ * So in total the table we store is 4bit remainders of
+ * __mon_yday[] - 30 % 16 */
+#define SL(x)	((x) * 4)
+	static const uint64_t rem =
+		(0ULL << SL(0)) |
+		(1ULL << SL(1)) |
+		(13ULL << SL(2)) |
+		(12ULL << SL(3)) |
+		(10ULL << SL(4)) |
+		(9ULL << SL(5)) |
+		(7ULL << SL(6)) |
+		(6ULL << SL(7)) |
+		(5ULL << SL(8)) |
+		(3ULL << SL(9)) |
+		(2ULL << SL(10)) |
+		(0ULL << SL(11));
+	unsigned int m;
+	unsigned int d;
+	unsigned int beef;
+	unsigned int cake;
+
+	/* unrolled version */
+	if (doy < 32) {
+		m = 1;
+		d = doy;
+		goto yay;
+	}
+
+	/* get 16-adic doys */
+	m = (doy - 30) / 16U;
+	d = (doy - 30) % 16U;
+	beef = (rem >> SL((m + 1) / 2)) & 0xff;
+	cake = beef >> 4;
+
+	/* put leap years into cake */
+	if (UNLIKELY(__leapp(year))) {
+		beef += m >= 2;
+		cake += m >= 1;
+	} else if (UNLIKELY(doy > 365)) {
+		m = 0;
+		d = 0;
+		goto yay;
+	}
+
+	if (!m || m % 2 && d > cake) {
+		d = doy - (m * 16 + 30 + cake);
+		m = (m + 1) / 2 + 2;
+	} else {
+		if (!(m % 2)) {
+			/* even m */
+			d = doy - ((m - 1) * 16 + 30 + cake);
+		} else {
+			/* odd m and remainder <= cake */
+			beef = 16 + (m > 1 ? 16 : 0) + cake - (beef & 0xf);
+			d = doy - (m * 16 + 30 + cake) + beef;
+		}
+		m = m / 2 + 2;
+	}
+yay:
+	return (__extension__(struct __md_s){.m = m, .d = d});
+}
+
 
 static unsigned int
 __ymd_get_yday(dt_ymd_t that)
