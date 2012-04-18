@@ -112,6 +112,7 @@ struct strpd_s {
 	struct {
 		unsigned int ab:1;
 		unsigned int bizda:1;
+		unsigned int d_dcnt_p:1;
 	} flags;
 	unsigned int b;
 	unsigned int q;
@@ -2018,13 +2019,37 @@ __guess_dtyp(struct strpd_s d)
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
-		res.ymd.m = d.m;
+		if (LIKELY(!d.flags.d_dcnt_p)) {
+			res.ymd.m = d.m;
 #if defined WITH_FAST_ARITH
-		res.ymd.d = d.d;
-#else  /* !WITH_FAST_ARITH */
-		/* check for illegal dates, like 31st of April */
-		if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
 			res.ymd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+			/* check for illegal dates, like 31st of April */
+			if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
+				res.ymd.d = d.d;
+			}
+		} else {
+			/* convert dcnt to m + d */
+			unsigned int m = 13;
+			unsigned int rd = 0;
+
+			for (m = 1; m < GREG_MONTHS_P_YEAR &&
+				     d.d > __mon_yday[m + 1]; m++);
+			rd = d.d - __mon_yday[m] + 1;
+			if (UNLIKELY(__leapp(d.y))) {
+				if (UNLIKELY(d.d == 60)) {
+					m = 2;
+					rd = 29;
+				} else if (d.d != __mon_yday[m] + 1U) {
+					rd--;
+				} else {
+					/* grrrr */
+					m--;
+					rd = d.d - __mon_yday[m] - 1U;
+				}
+			}
+			res.ymd.m = m;
+			res.ymd.d = rd;
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.c && !d.flags.bizda) {
@@ -2290,7 +2315,10 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_DCNT_YEAR:
 		/* was %D and %j, cannot be used at the moment */
-		(void)strtoui_lim(sp, &sp, 1, 366);
+		if ((d->d = strtoui_lim(sp, &sp, 1, 366)) < -1U) {
+			res = 0;
+			d->flags.d_dcnt_p = 1;
+		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR:
 		/* was %C, cannot be used at the moment */
