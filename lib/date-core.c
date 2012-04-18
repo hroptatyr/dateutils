@@ -2123,26 +2123,9 @@ __guess_dtyp(struct strpd_s d)
 			}
 		} else {
 			/* convert dcnt to m + d */
-			unsigned int m = 13;
-			unsigned int rd = 0;
-
-			for (m = 1; m < GREG_MONTHS_P_YEAR &&
-				     d.d > __mon_yday[m + 1]; m++);
-			rd = d.d - __mon_yday[m] + 1;
-			if (UNLIKELY(__leapp(d.y))) {
-				if (UNLIKELY(d.d == 60)) {
-					m = 2;
-					rd = 29;
-				} else if (d.d != __mon_yday[m] + 1U) {
-					rd--;
-				} else {
-					/* grrrr */
-					m--;
-					rd = d.d - __mon_yday[m] - 1U;
-				}
-			}
-			res.ymd.m = m;
-			res.ymd.d = rd;
+			struct __md_s r = __yday_get_md(d.y, d.d);
+			res.ymd.m = r.m;
+			res.ymd.d = r.d;
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.c && !d.flags.bizda) {
