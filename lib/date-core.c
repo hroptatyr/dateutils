@@ -423,7 +423,30 @@ __get_jan01_wday(unsigned int year)
 static unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
+#if 1
 	return __mon_yday[mon] + dom + UNLIKELY(__leapp(year) && mon >= 3);
+#else  /* !1 */
+#define SL(x)	((x) * 5)
+#define GET_REM(x)	((rem >> SL(x)) & 0x1f)
+	static const uint64_t rem =
+		(19ULL << SL(0)) |
+		(18ULL << SL(1)) |
+		(14ULL << SL(2)) |
+		(13ULL << SL(3)) |
+		(11ULL << SL(4)) |
+		(10ULL << SL(5)) |
+		(8ULL << SL(6)) |
+		(7ULL << SL(7)) |
+		(6ULL << SL(8)) |
+		(4ULL << SL(9)) |
+		(3ULL << SL(10)) |
+		(1ULL << SL(11)) |
+		(0ULL << SL(12));
+	return (mon - 1) * 32 + GET_REM(mon - 1) - 19 + dom +
+		UNLIKELY(__leapp(year) && mon >= 3);
+#undef GET_REM
+#undef SL
+#endif	/* 1 */
 }
 
 static dt_dow_t
