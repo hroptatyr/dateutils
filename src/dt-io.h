@@ -338,6 +338,12 @@ calc_grep_atom(const char *fmt)
 			res.pl.off_min += -2;
 			res.pl.off_max += -2;
 			break;
+
+		case DT_SPFL_N_EPOCH:
+			res.pl.off_min += -10;
+			res.pl.off_max += -1;
+			res.pl.flags |= GRPATM_DIGITS;
+			break;
 		default:
 			break;
 		}
