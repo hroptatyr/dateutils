@@ -634,12 +634,6 @@ __yday_get_md(unsigned int year, unsigned int doy)
 	unsigned int beef;
 	unsigned int cake;
 
-	if (doy < 32) {
-		m = 1;
-		d = doy;
-		goto yay;
-	}
-
 	/* get 32-adic doys */
 	m = (doy + 19) / 32U;
 	d = (doy + 19) % 32U;
