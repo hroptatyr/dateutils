@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="-i '%Y-%D' 2012-366"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-12-31
+EOF
+
+## dconv.40.dt ends here

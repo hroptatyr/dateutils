@@ -145,6 +145,43 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 	return dt;
 }
 
+static inline dt_ymdhms_t
+__epoch_to_ymdhms(dt_ssexy_t sx)
+{
+	dt_ymdhms_t res;
+	res.S = sx % SECS_PER_MIN;
+	sx /= SECS_PER_MIN;
+	res.M = sx % MINS_PER_HOUR;
+	sx /= MINS_PER_HOUR;
+	res.H = sx % HOURS_PER_DAY;
+	sx /= HOURS_PER_DAY;
+
+	{
+		dt_ymd_t tmp = __daisy_to_ymd(sx + DAISY_UNIX_BASE);
+		res.y = tmp.y;
+		res.m = tmp.m;
+		res.d = tmp.d;
+	}
+	return res;
+}
+
+static inline struct dt_dt_s
+__epoch_to_ymd_sandwich(dt_ssexy_t sx)
+{
+	struct dt_dt_s res;
+
+	res.t.hms.s = sx % SECS_PER_MIN;
+	sx /= SECS_PER_MIN;
+	res.t.hms.m = sx % MINS_PER_HOUR;
+	sx /= MINS_PER_HOUR;
+	res.t.hms.h = sx % HOURS_PER_DAY;
+	sx /= HOURS_PER_DAY;
+
+	res.d.ymd = __daisy_to_ymd(sx + DAISY_UNIX_BASE);
+	dt_make_sandwich(&res, DT_YMD, DT_HMS);
+	return res;
+}
+
 
 /* guessing parsers */
 #include "token.c"
@@ -673,8 +710,16 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		}
 		break;
 	}
-	case DT_PACK:
-	case DT_SEXY:
+	case DT_SEXY: {
+		dt_ymdhms_t tmp = __epoch_to_ymdhms(that.sxepoch);
+		d.st.h = tmp.H;
+		d.st.m = tmp.M;
+		d.st.s = tmp.S;
+		d.sd.y = tmp.y;
+		d.sd.m = tmp.m;
+		d.sd.d = tmp.d;
+	}
+	case DT_YMDHMS:
 		if (fmt == NULL) {
 			fmt = ymdhms_dflt;
 		}
