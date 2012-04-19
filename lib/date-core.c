@@ -423,7 +423,30 @@ __get_jan01_wday(unsigned int year)
 static unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
+#if 1
 	return __mon_yday[mon] + dom + UNLIKELY(__leapp(year) && mon >= 3);
+#else  /* !1 */
+#define SL(x)	((x) * 5)
+#define GET_REM(x)	((rem >> SL(x)) & 0x1f)
+	static const uint64_t rem =
+		(19ULL << SL(0)) |
+		(18ULL << SL(1)) |
+		(14ULL << SL(2)) |
+		(13ULL << SL(3)) |
+		(11ULL << SL(4)) |
+		(10ULL << SL(5)) |
+		(8ULL << SL(6)) |
+		(7ULL << SL(7)) |
+		(6ULL << SL(8)) |
+		(4ULL << SL(9)) |
+		(3ULL << SL(10)) |
+		(1ULL << SL(11)) |
+		(0ULL << SL(12));
+	return (mon - 1) * 32 + GET_REM(mon - 1) - 19 + dom +
+		UNLIKELY(__leapp(year) && mon >= 3);
+#undef GET_REM
+#undef SL
+#endif	/* 1 */
 }
 
 static dt_dow_t
@@ -594,90 +617,72 @@ __yday_get_md(unsigned int year, unsigned int doy)
 {
 /* Given a year and the day of the year, return gregorian month + dom
  * we use some clever maths to invert __mon_yday[] above
- * you see __mon_yday[] divrem 16 is
- *   F   0  0  0
- *   G  31  1 15
- *   H  59  3 11
- *   J  90  5 10
- *   K 120  7  8
- *   M 151  9  7
- *   N 181 11  5
- *   Q 212 13  4
- *   U 243 15  3
- *   V 273 17  1
- *   X 304 19  0
- *   Z 334 20 14
+ * you see __mon_yday[] + 19 divrem 32 is
+ *   F   0  0 19
+ *   G  31  1 18
+ *   H  59  2 14
+ *   J  90  3 13
+ *   K 120  4 11
+ *   M 151  5 10
+ *   N 181  6  8
+ *   Q 212  7  7
+ *   U 243  8  6
+ *   V 273  9  4
+ *   X 304 10  3
+ *   Z 334 11  1
+ *     365 12  0
  *
  * Now the key is to store only the remainders in a clever way.
- * To resolve the even quotient in the Z month, we simply add 2
- * to the day-of-year.
  *
- * Second, since doy < 32 -> m = 1, d = doy, we only need to store
- * the values from month G onwards.
- *
- * So in total the table we store is 4bit remainders of
- * __mon_yday[] - 30 % 16 */
-#define SL(x)	((x) * 4)
+ * So in total the table we store is 5bit remainders of
+ * __mon_yday[] + 19 % 32 */
+#define SL(x)	((x) * 5)
+#define GET_REM(x)	((rem >> SL(x)) & 0x1f)
 	static const uint64_t rem =
-		(0ULL << SL(0)) |
-		(1ULL << SL(1)) |
-		(13ULL << SL(2)) |
-		(12ULL << SL(3)) |
-		(10ULL << SL(4)) |
-		(9ULL << SL(5)) |
-		(7ULL << SL(6)) |
-		(6ULL << SL(7)) |
-		(5ULL << SL(8)) |
-		(3ULL << SL(9)) |
-		(2ULL << SL(10)) |
-		(0ULL << SL(11));
+		(19ULL << SL(0)) |
+		(18ULL << SL(1)) |
+		(14ULL << SL(2)) |
+		(13ULL << SL(3)) |
+		(11ULL << SL(4)) |
+		(10ULL << SL(5)) |
+		(8ULL << SL(6)) |
+		(7ULL << SL(7)) |
+		(6ULL << SL(8)) |
+		(4ULL << SL(9)) |
+		(3ULL << SL(10)) |
+		(1ULL << SL(11)) |
+		(0ULL << SL(12));
 	unsigned int m;
 	unsigned int d;
 	unsigned int beef;
 	unsigned int cake;
 
-	/* unrolled version */
-	if (doy < 32) {
-		m = 1;
-		d = doy;
-		goto yay;
-	}
-
-	/* get 16-adic doys */
-	m = (doy - 30) / 16U;
-	d = (doy - 30) % 16U;
-	beef = (rem >> SL((m + 1) / 2)) & 0xff;
-	cake = beef >> 4;
+	/* get 32-adic doys */
+	m = (doy + 19) / 32U;
+	d = (doy + 19) % 32U;
+	beef = GET_REM(m - 1);
+	cake = GET_REM(m);
 
 	/* put leap years into cake */
-	if (UNLIKELY(__leapp(year))) {
-		beef += m >= 2;
-		cake += m >= 1;
-	} else if (UNLIKELY(doy > 365)) {
+	if (UNLIKELY(__leapp(year) && cake < 16U)) {
+		/* note how all leap-affected cakes are < 16 */
+		beef += beef < 16U;
+		cake++;
+	} else if (UNLIKELY(doy == 366)) {
 		m = 0;
 		d = 0;
 		goto yay;
 	}
 
-	if (!m || m % 2 && d > cake) {
-		d = doy - (m * 16 + 30 + cake);
-		m = (m + 1) / 2 + 2;
+	if (d <= cake) {
+		d = doy - ((m - 1) * 32 - 19 + beef);
 	} else {
-		if (!(m % 2)) {
-			/* even m */
-			d = doy - ((m - 1) * 16 + 30 + cake);
-		} else if (m > 1) {
-			/* odd m and remainder <= cake */
-			beef = 32 + cake - (beef & 0xf);
-			d = doy - (m * 16 + 30 + cake) + beef;
-		} else {
-			beef = 16 + cake - (beef & 0xf);
-			d = doy - (16 + 30 + cake) + beef;
-		}
-		m = m / 2 + 2;
+		d = doy - (m++ * 32 - 19 + cake);
 	}
 yay:
 	return (__extension__(struct __md_s){.m = m, .d = d});
+#undef GET_REM
+#undef SL
 }
 
 
