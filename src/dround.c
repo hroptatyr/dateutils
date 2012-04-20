@@ -351,8 +351,9 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
-		dt_make_d_only(&payload, DT_DUNK);
 		payload.d = dt_make_ymcw(0, 0, 0, d.w);
+		/* make sure it's d-only */
+		payload.sandwich = 0;
 		goto out;
 	}
 
@@ -360,8 +361,9 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
-		dt_make_d_only(&payload, DT_DUNK);
 		payload.d = dt_make_ymd(0, d.m, 0);
+		/* make sure it's d-only */
+		payload.sandwich = 0;
 		goto out;
 	}
 
