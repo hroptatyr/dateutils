@@ -55,14 +55,14 @@ arise when dealing with large amounts of financial data.
 @menu
 * Introduction::        Motivation, background, etc.
 * Calendars::           Calendar concepts and format specs
-* strptime::            Command line version of the C function
-* dconv::               Convert dates between calendars or time zones
 * dadd::                Add durations to dates or times
+* dconv::               Convert dates between calendars or time zones
 * ddiff::               Compute durations between dates and times
 * dgrep::               Find date or time matches in input stream
 * dround::              Round dates or times to designated values
 * dseq::                Generate sequences of dates or times
 * dtest::               Compare dates or times
+* strptime::            Command line version of the C function
 @end menu
 
 
@@ -175,14 +175,14 @@ this month's ultimo.
 @include format.texi
 
 
-@include strptime.texi
-@include dconv.texi
 @include dadd.texi
+@include dconv.texi
 @include ddiff.texi
 @include dgrep.texi
 @include dround.texi
 @include dseq.texi
 @include dtest.texi
+@include strptime.texi
 
 @summarycontents
 @contents
