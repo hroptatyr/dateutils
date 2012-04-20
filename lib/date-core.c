@@ -636,22 +636,11 @@ __yday_get_md(unsigned int year, unsigned int doy)
  *
  * So in total the table we store is 5bit remainders of
  * __mon_yday[] + 19 % 32 */
-#define SL(x)	((x) * 5)
-#define GET_REM(x)	((rem >> SL(x)) & 0x1f)
-	static const uint64_t rem =
-		(19ULL << SL(0)) |
-		(18ULL << SL(1)) |
-		(14ULL << SL(2)) |
-		(13ULL << SL(3)) |
-		(11ULL << SL(4)) |
-		(10ULL << SL(5)) |
-		(8ULL << SL(6)) |
-		(7ULL << SL(7)) |
-		(6ULL << SL(8)) |
-		(4ULL << SL(9)) |
-		(3ULL << SL(10)) |
-		(1ULL << SL(11)) |
-		(0ULL << SL(12));
+#define GET_REM(x)	(rem[x])
+	static const uint8_t rem[] = {
+		19, 19, 18, 14, 13, 11, 10, 8, 7, 6, 4, 3, 1, 0
+
+	};
 	unsigned int m;
 	unsigned int d;
 	unsigned int beef;
@@ -660,8 +649,8 @@ __yday_get_md(unsigned int year, unsigned int doy)
 	/* get 32-adic doys */
 	m = (doy + 19) / 32U;
 	d = (doy + 19) % 32U;
-	beef = GET_REM(m - 1);
-	cake = GET_REM(m);
+	beef = GET_REM(m);
+	cake = GET_REM(m + 1);
 
 	/* put leap years into cake */
 	if (UNLIKELY(__leapp(year) && cake < 16U)) {
@@ -682,7 +671,6 @@ __yday_get_md(unsigned int year, unsigned int doy)
 yay:
 	return (__extension__(struct __md_s){.m = m, .d = d});
 #undef GET_REM
-#undef SL
 }
 
 
