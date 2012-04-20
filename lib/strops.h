@@ -61,6 +61,11 @@ DECLF uint32_t
 strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim);
 
 /**
+ * Convert STR to i32 and point to the end of the string in EP. */
+DECLF int32_t
+strtoi(const char *str, const char **ep);
+
+/**
  * Convert D (padded with at most PAD zeroes) into BUF and return the size. */
 DECLF size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad);
