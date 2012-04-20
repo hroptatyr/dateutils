@@ -265,7 +265,7 @@ eom <- get_end_of_month(m)
 yd <- get_yd(m, d)
 
 if d <= eom
-        d <- yd - (32 * (m - 1) - 19 + bom)
+        d <- yd - (32 * (m - 1) - 19 + bom - 1)
 else
         d <- yd - (32 * m - 19 + eom)
         m <- m + 1
