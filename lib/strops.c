@@ -78,6 +78,25 @@ strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 	return res;
 }
 
+DEFUN int32_t
+strtoi(const char *str, const char **ep)
+{
+	const char *sp = str;
+	bool negp = false;
+	uint32_t res;
+
+	if (*str == '-') {
+		negp = true;
+		sp++;
+	}
+	if ((res = strtoui_lim(sp, ep, 0U, -1U)) == -1U) {
+		*ep = str;
+	} else if (negp) {
+		res = -res;
+	}
+	return (int32_t)res;
+}
+
 DEFUN size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 {

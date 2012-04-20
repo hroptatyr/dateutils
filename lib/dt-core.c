@@ -228,6 +228,20 @@ __strpdt_std(const char *str, char **ep)
 	if ((sp = str) == NULL) {
 		goto out;
 	}
+	/* check for epoch notation */
+	if (*sp == '@') {
+		/* yay, epoch */
+		const char *tmp;
+		d.i = strtoi(++sp, &tmp);
+		if (UNLIKELY(d.i == -1 && sp == tmp)) {
+			sp--;
+		} else {
+			/* let's make a DT_SEXY */
+			res.typ = DT_SEXY;
+			res.sxepoch = d.i;
+		}
+		goto out;
+	}
 	/* read the year */
 	if ((d.sd.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
 	    *sp++ != '-') {
