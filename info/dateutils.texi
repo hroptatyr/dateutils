@@ -55,14 +55,15 @@ arise when dealing with large amounts of financial data.
 @menu
 * Introduction::        Motivation, background, etc.
 * Calendars::           Calendar concepts and format specs
-* strptime::            Command line version of the C function
-* dconv::               Convert dates between calendars or time zones
+* Algorithms::          Some notes on the algorithms used
 * dadd::                Add durations to dates or times
+* dconv::               Convert dates between calendars or time zones
 * ddiff::               Compute durations between dates and times
 * dgrep::               Find date or time matches in input stream
 * dround::              Round dates or times to designated values
 * dseq::                Generate sequences of dates or times
 * dtest::               Compare dates or times
+* strptime::            Command line version of the C function
 @end menu
 
 
@@ -174,15 +175,111 @@ this month's ultimo.
 
 @include format.texi
 
+@node Algorithms
+@chapter Algorithms
 
-@include strptime.texi
-@include dconv.texi
+Coming from a financial background, shaving milliseconds off of code is
+daily core business.  And that in turn is why some of the algorithms
+used in dateutils might look different to what other people do.
+
+In this chapter key concepts are briefly introduced.  For implementation
+details see the @file{*-core.c} and @file{*-core.h} files.
+
+@section 32-adic year-days
+
+Months, in the Gregorian sense, are roughly 30 days long.  Some are
+longer, one is shorter.  It comes in handy though that the average month
+length is close to a 2-power, 32.  So we can introduce a 32-adic year as
+follows:
+
+@verbatim
+year-day        traditional     32-adic m/d
+0       19      Jan|00          00|19
+1       20      Jan|01          00|20
+31      50      Jan|31          01|18
+
+32      51      Feb|01          01|19
+59      78      Feb|28          02|14
+
+60      79      Mar|01          02|15
+90      109     Mar|31          03|13
+
+91      110     Apr|01          03|14
+120     139     Apr|30          04|11
+
+121     140     May|01          04|12
+151     170     May|31          05|10
+
+181     200     Jun|30          06|08
+212     231     Jul|31          07|07
+243     262     Aug|31          08|06
+273     292     Sep|30          09|04
+304     323     Oct|31          10|03
+334     353     Nov|30          11|01
+365     384     Dec|31          12|00
+@end verbatim
+
+As can be seen, the year has 19 unexplained days at the beginning, and,
+more unintuitively, (traditional) months start in one (32-adic) month
+and end in another.  But the ending always coincides with the
+traditional months.
+
+Another nice thing about this year is that all months end on a
+@emph{different} day; this is nice because you can deduce the month just
+by naming its ending (or the beginning respectively, as all months as a
+consequence also start on a different day).
+
+The final nice thing lies in the property, that months that end (or
+start) on a day <=16, are affected by the leap day introduced in Feb in
+the traditional Gregorian calendar.  By affected we mean, that the
+months start (and end) one day off in a leap year.
+
+So to cut this story short, the 32-adic year makes computations easier
+that need a lot of mapping between the day in the year and the month+day
+representation, e.g. weekday computations (the 32-adic year preserves
+weekdays as 32 and 7 are co-prime), day differences, etc.
+
+The algorithm to get the day of the year from a 32-adic month+day is:
+@verbatim
+Input: m <- 32-adic month
+       d <- 32-adic day of month
+Output: yd -> day of year
+
+yd <- m * 32 + d - 19
+@end verbatim
+
+And conversely.  The algorithm to get the 32-adic month+day is trivial.
+
+To convert between 32-adic month+day and Gregorian month+day:
+@verbatim
+Input: m <- 32-adic month
+       d <- 32-adic day of month
+Output: m -> 32-adic month
+        d -> 32-adic day of month
+
+/* day of month of the beginning and end of m */
+bom <- get_beg_of_month(m)
+eom <- get_end_of_month(m)
+
+/* get yd as described above */
+yd <- get_yd(m, d)
+
+if d <= eom
+        d <- yd - (32 * (m - 1) - 19 + bom - 1)
+else
+        d <- yd - (32 * m - 19 + eom)
+        m <- m + 1
+@end verbatim
+
+
 @include dadd.texi
+@include dconv.texi
 @include ddiff.texi
 @include dgrep.texi
 @include dround.texi
 @include dseq.texi
 @include dtest.texi
+@include strptime.texi
 
 @summarycontents
 @contents
