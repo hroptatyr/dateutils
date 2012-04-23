@@ -264,6 +264,12 @@ dt_tests += dtconv.32.dt
 dt_tests += dtconv.33.dt
 dt_tests += dtconv.34.dt
 dt_tests += dtconv.35.dt
+dt_tests += dtconv.36.dt
+dt_tests += dtconv.37.dt
+dt_tests += dtconv.38.dt
+dt_tests += dtconv.39.dt
+dt_tests += dtconv.40.dt
+dt_tests += dtconv.41.dt
 
 dt_tests += dtseq.1.dt
 dt_tests += dtseq.2.dt
