@@ -379,18 +379,13 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = __strpt_card(&d->st, sp, s, ep);
 		goto out_direct;
 
-	case DT_SPFL_N_EPOCH: {
-		uint32_t c;
-		bool negp = *sp == '-';
-
-		c = strtoui_lim(negp ? sp + 1 : sp, &sp, 0, -1);
-		if (!negp) {
-			d->i = c;
-		} else {
-			d->i = -c;
+	case DT_SPFL_N_EPOCH:
+		/* read over @ */
+		if (UNLIKELY(*sp == '@')) {
+			sp++;
 		}
+		d->i = strtoi(sp, &sp);
 		break;
-	}
 
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
@@ -527,46 +522,6 @@ __strfdt_dur(
 	return 1;
 }
 
-/* just like time-core's tadd() but with carry */
-static struct dt_t_s
-__tadd(struct dt_t_s t, struct dt_t_s dur, signed int *carry)
-{
-/* return the number of days carried over in CARRY */
-	signed int sec;
-	signed int tmp;
-
-	sec = dur.sdur;
-	sec += t.hms.s;
-	if ((tmp = sec % (signed int)SECS_PER_MIN) >= 0) {
-		t.hms.s = tmp;
-	} else {
-		t.hms.s = tmp + SECS_PER_MIN;
-		sec -= SECS_PER_MIN;
-	}
-
-	sec /= (signed int)SECS_PER_MIN;
-	sec += t.hms.m;
-	if ((tmp = sec % (signed int)MINS_PER_HOUR) >= 0) {
-		t.hms.m = tmp;
-	} else {
-		t.hms.m = tmp + MINS_PER_HOUR;
-		sec -= MINS_PER_HOUR;
-	}
-
-	sec /= (signed int)MINS_PER_HOUR;
-	sec += t.hms.h;
-	if ((tmp = sec % (signed int)HOURS_PER_DAY) >= 0) {
-		t.hms.h = tmp;
-	} else {
-		t.hms.h = tmp + HOURS_PER_DAY;
-		sec -= HOURS_PER_DAY;
-	}
-	if (carry) {
-		*carry = sec / (signed int)HOURS_PER_DAY;
-	}
-	return t;
-}
-
 
 /* parser implementations */
 DEFUN struct dt_dt_s
@@ -631,11 +586,13 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		res.t = __guess_ttyp(d.st);
 
 		if (res.d.typ > DT_DUNK && res.t.typ > DT_TUNK) {
-			dt_make_sandwich(&res, res.d.typ, res.t.typ);
+			res.sandwich = 1;
 		} else if (res.d.typ > DT_DUNK) {
-			dt_make_d_only(&res, res.d.typ);
+			res.t.typ = DT_TUNK;
+			res.sandwich = 0;
 		} else if (res.t.typ > DT_TUNK) {
-			dt_make_t_only(&res, res.t.typ);
+			res.d.typ = DT_DUNK;
+			res.sandwich = 1;
 		}
 	}
 
@@ -1198,22 +1155,46 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		/* probably +/-[n]m where `m' was meant to be `mo' */
 		dur.d.typ = DT_MD;
 		goto dadd;
-	} else if (dur.t.dur) {
-		d.t = __tadd(d.t, dur.t, &carry);
+	} else if (dur.t.dur && d.sandwich) {
+		/* accept both t-onlies and sandwiches */
+		d.t = dt_tadd(d.t, dur.t);
+		carry = d.t.carry;
+	} else if (d.typ == DT_SEXY) {
+		/* sexy add
+		 * only works for continuous types (DAISY, etc.)
+		 * we need to take leap seconds into account here */
+		switch (dur.d.typ) {
+		case DT_SEXY:
+			carry = dur.sexydur;
+			break;
+		case DT_DAISY:
+			carry = dur.d.daisydur * SECS_PER_DAY;
+		case DT_DUNK:
+			carry += dur.t.sdur;
+		default:
+			break;
+		}
+		d.sexy += carry;
+		return d;
 	}
 
 	/* store the carry somehow */
-	if (carry && dur.d.typ == DT_DAISY) {
-		/* just add the carry, daisydur is signed enough */
-		dur.d.daisydur += carry;
-	} else if (carry && dur.d.typ == DT_DUNK) {
-		/* fiddle with the dur, so we can use date-core's adder */
-		dur.d.typ = DT_DAISY;
-		/* add the carry */
-		dur.d.daisydur = carry;
-	} else if (carry) {
-		/* we're fucked */
-		;
+	if (carry) {
+		switch (dur.d.typ) {
+		case DT_DAISY:
+			/* just add the carry, daisydur is signed enough */
+			dur.d.daisydur += carry;
+			break;
+		case DT_DUNK:
+			/* fiddle with DUR, so we can use date-core's adder */
+			dur.d.typ = DT_DAISY;
+			/* add the carry */
+			dur.d.daisydur = carry;
+			break;
+		default:
+			/* we're fucked */
+			;
+		}
 	}
 
 	/* demote D's and DUR's type temporarily */
