@@ -1046,17 +1046,18 @@ dt_datetime(dt_dttyp_t outtyp)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 	struct timeval tv;
+	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
 
 	if (gettimeofday(&tv, NULL) < 0) {
 		return res;
 	}
 
-	switch (outtyp) {
+	switch (outdtyp) {
 	case DT_YMD:
 	case DT_YMCW: {
 		struct tm tm;
 		ffff_gmtime(&tm, tv.tv_sec);
-		switch (outtyp) {
+		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
 			res.d.ymd.m = tm.tm_mon;
@@ -1091,7 +1092,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	default:
 	case DT_MD:
 		/* this one doesn't make sense at all */
-	case DT_UNK:
+	case DT_DUNK:
 		break;
 	}
 
