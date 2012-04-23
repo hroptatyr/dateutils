@@ -433,6 +433,11 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur)
 	} else {
 		t.hms.h = tmp + HOURS_PER_DAY;
 	}
+	/* set up the return type */
+	t.typ = DT_HMS;
+	t.dur = 0;
+	t.neg = 0;
+	t.carry = sec / (signed int)HOURS_PER_DAY;
 	return t;
 }
 
