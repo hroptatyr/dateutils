@@ -379,18 +379,13 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = __strpt_card(&d->st, sp, s, ep);
 		goto out_direct;
 
-	case DT_SPFL_N_EPOCH: {
-		uint32_t c;
-		bool negp = *sp == '-';
-
-		c = strtoui_lim(negp ? sp + 1 : sp, &sp, 0, -1);
-		if (!negp) {
-			d->i = c;
-		} else {
-			d->i = -c;
+	case DT_SPFL_N_EPOCH:
+		/* read over @ */
+		if (UNLIKELY(*sp == '@')) {
+			sp++;
 		}
+		d->i = strtoi(sp, &sp);
 		break;
-	}
 
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
