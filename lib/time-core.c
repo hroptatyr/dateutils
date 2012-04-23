@@ -428,16 +428,15 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur)
 
 	sec /= (signed int)MINS_PER_HOUR;
 	sec += t.hms.h;
-	if ((tmp = sec % (signed int)HOURS_PER_DAY) >= 0) {
-		t.hms.h = tmp;
-	} else {
-		t.hms.h = tmp + HOURS_PER_DAY;
-	}
+	/* hopefully goes to a divrem */
+	sec += 8 * HOURS_PER_DAY;
+	t.hms.h = sec % HOURS_PER_DAY;
+	tmp = sec / HOURS_PER_DAY - 8;
 	/* set up the return type */
 	t.typ = DT_HMS;
 	t.dur = 0;
 	t.neg = 0;
-	t.carry = sec / (signed int)HOURS_PER_DAY;
+	t.carry = tmp;
 	return t;
 }
 
