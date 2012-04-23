@@ -259,10 +259,12 @@ dt_dt_initialiser(void)
 		.dur = 0U,
 		.neg = 0U,
 		.u = 0U,
-		.t.typ = DT_TUNK,
-		.t.dur = 0U,
-		.t.neg = 0U,
-		.t.u = 0U
+		.t = {
+			.typ = DT_TUNK,
+			.dur = 0U,
+			.neg = 0U,
+			.u = 0U,
+		},
 	};
 #else  /* !__C1X */
 	struct dt_dt_s res;
