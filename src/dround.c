@@ -330,8 +330,8 @@ static int
 dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 {
 	const char *sp = NULL;
-	struct strpd_s d;
-	struct dt_spec_s s;
+	struct strpd_s d = strpd_initialiser();
+	struct dt_spec_s s = spec_initialiser();
 	struct dt_dt_s payload = dt_dt_initialiser();
 	bool negp = false;
 

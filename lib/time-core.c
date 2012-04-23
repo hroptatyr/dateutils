@@ -85,6 +85,14 @@ struct strpt_s {
 #include "token.c"
 #include "strops.c"
 
+static inline struct strpt_s
+__attribute__((pure, const))
+strpt_initialiser(void)
+{
+	struct strpt_s res = {0};
+	return res;
+}
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -325,7 +333,7 @@ DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
 	struct dt_t_s res = dt_t_initialiser();
-	struct strpt_s d = {0};
+	struct strpt_s d = strpt_initialiser();
 	const char *sp;
 	const char *fp;
 
@@ -362,7 +370,7 @@ out:
 DEFUN size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 {
-	struct strpt_s d = {0};
+	struct strpt_s d;
 	const char *fp;
 	char *bp;
 
@@ -370,6 +378,7 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 		return 0;
 	}
 
+	d = strpt_initialiser();
 	d.h = that.hms.h;
 	d.m = that.hms.m;
 	d.s = that.hms.s;

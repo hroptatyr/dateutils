@@ -127,6 +127,14 @@ struct strpdi_s {
 
 
 /* helpers */
+static inline struct strpd_s
+__attribute__((pure, const))
+strpd_initialiser(void)
+{
+	struct strpd_s res = {0};
+	return res;
+}
+
 #if !defined SECS_PER_MINUTE
 # define SECS_PER_MINUTE	(60U)
 #endif	/* !SECS_PER_MINUTE */
@@ -2152,12 +2160,14 @@ static struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
 	struct dt_d_s res;
-	struct strpd_s d = {0};
+	struct strpd_s d;
 	const char *sp;
 
 	if ((sp = str) == NULL) {
 		goto out;
 	}
+
+	d = strpd_initialiser();
 	/* read the year */
 	if ((d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
 	    *sp++ != '-') {
@@ -2695,7 +2705,7 @@ DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
 	struct dt_d_s res = dt_d_initialiser();
-	struct strpd_s d = {0};
+	struct strpd_s d = strpd_initialiser();
 	const char *sp = str;
 	const char *fp = fmt;
 
@@ -2758,7 +2768,7 @@ out:
 DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-	struct strpd_s d = {0};
+	struct strpd_s d = strpd_initialiser();
 	const char *fp;
 	char *bp;
 
@@ -2859,7 +2869,7 @@ dt_strpddur(const char *str, char **ep)
 	struct dt_d_s res = {DT_DUNK};
 	const char *sp = str;
 	int tmp;
-	struct strpd_s d = {0};
+	struct strpd_s d = strpd_initialiser();
 
 	if (str == NULL) {
 		goto out;
@@ -2936,7 +2946,7 @@ out:
 DEFUN size_t
 dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-	struct strpd_s d = {0};
+	struct strpd_s d = strpd_initialiser();
 	const char *fp;
 	char *bp;
 

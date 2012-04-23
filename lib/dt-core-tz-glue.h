@@ -59,11 +59,6 @@ extern "C" {
 #endif	/* !restrict */
 
 
-#if defined INCLUDE_DT_CORE_TZ_GLUE_IMPL
-# include "dt-core-tz-glue.c"
-#endif	/* INCLUDE_DT_CORE_TZ_GLUE_IMPL */
-
-
 /* decls */
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead.
@@ -74,6 +69,11 @@ DECLF struct dt_dt_s dtz_forgetz(struct dt_dt_s dt, zif_t zone);
  * Return a dt object from a UTC'd DT that uses ZONE.
  * In other words: convert from UTC represented DT to local ZONE time. */
 DECLF struct dt_dt_s dtz_enrichz(struct dt_dt_s dt, zif_t zone);
+
+
+#if defined INCLUDE_DT_CORE_TZ_GLUE_IMPL
+# include "dt-core-tz-glue.c"
+#endif	/* INCLUDE_DT_CORE_TZ_GLUE_IMPL */
 
 #if defined __cplusplus
 }

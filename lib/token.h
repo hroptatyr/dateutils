@@ -138,6 +138,15 @@ struct dt_spec_s {
 # define BIZDA_BEFORE	(1U)/*<*/
 #endif	/* !BIZDA_BEFORE */
 
+
+static inline struct dt_spec_s
+__attribute__((pure, const))
+spec_initialiser(void)
+{
+	struct dt_spec_s res = {{0}, 0};
+	return res;
+}
+
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
