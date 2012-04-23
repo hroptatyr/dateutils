@@ -339,6 +339,7 @@ __strf_tot_mon(struct dt_dt_s dur)
 		break;
 	case DT_MD:
 		m = dur.d.md.m;
+		break;
 	case DT_YMCW:
 		m = dur.d.ymcw.m + dur.d.ymcw.y * GREG_MONTHS_P_YEAR;
 		break;
