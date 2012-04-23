@@ -88,9 +88,11 @@ typedef union {
  * Collection of all time types. */
 struct dt_t_s {
 	struct {
-		dt_ttyp_t typ:6;
+		dt_ttyp_t typ:2;
 		uint64_t dur:1;
 		uint64_t neg:1;
+		/* used for tadd operations and whatnot, range [-7,7] */
+		int64_t carry:4;
 	} __attribute__((packed));
 	union {
 		uint64_t u:56;
