@@ -1200,7 +1200,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		/* probably +/-[n]m where `m' was meant to be `mo' */
 		dur.d.typ = DT_MD;
 		goto dadd;
-	} else if (dur.t.dur && dt_sandwich_p(d)) {
+       } else if (dur.t.dur && d.sandwich) {
 		d.t = __tadd(d.t, dur.t, &carry);
 	} else if (d.typ == DT_SEXY) {
 		/* sexy add
