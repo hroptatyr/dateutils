@@ -90,6 +90,16 @@ struct strpdti_s {
 
 
 /* converters and stuff */
+static inline struct strpdt_s
+__attribute__((pure, const))
+strpdt_initialiser(void)
+{
+	struct strpdt_s res;
+	res.sd = strpd_initialiser();
+	res.st = strpt_initialiser();
+	res.i = 0;
+	return res;
+}
 
 static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
@@ -528,7 +538,7 @@ DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d = {0};
+	struct strpdt_s d;
 	const char *sp = str;
 	const char *fp = fmt;
 
@@ -538,6 +548,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names, for sandwiches */
 	__trans_dtfmt(&fmt);
 
+	d = strpdt_initialiser();
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
@@ -611,7 +622,7 @@ fucked:
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {0};
+	struct strpdt_s d;
 	const char *fp;
 	char *bp;
 
@@ -620,6 +631,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto out;
 	}
 
+	d = strpdt_initialiser();
 	switch (that.typ) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
@@ -763,7 +775,7 @@ dt_strpdtdur(const char *str, char **ep)
 	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp;
 	int tmp;
-	struct strpdt_s d = {0};
+	struct strpdt_s d;
 
 	if (str == NULL) {
 		goto out;
@@ -773,6 +785,8 @@ dt_strpdtdur(const char *str, char **ep)
 		/* didn't work aye? */
 		goto out;
 	}
+
+	d = strpdt_initialiser();
 	switch (*sp++) {
 	case '\0':
 		/* must have been day then */
@@ -877,7 +891,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {0};
+	struct strpdt_s d;
 	const char *fp;
 	char *bp;
 
@@ -886,6 +900,7 @@ dt_strfdtdur(
 		goto out;
 	}
 
+	d = strpdt_initialiser();
 	switch (that.d.typ) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
