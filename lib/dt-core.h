@@ -258,7 +258,7 @@ dt_dt_initialiser(void)
 		.sandwich = 0U,
 		.dur = 0U,
 		.neg = 0U,
-		.d.u = 0U,
+		.u = 0U,
 		.t.typ = DT_TUNK,
 		.t.dur = 0U,
 		.t.neg = 0U,
@@ -273,7 +273,7 @@ dt_dt_initialiser(void)
 	res.sandwich = 0U;
 	res.dur = 0U;
 	res.neg = 0U;
-	res.d.u = 0U;
+	res.u = 0U;
 
 	res.t.typ = DT_TUNK;
 	res.t.dur = 0U;
