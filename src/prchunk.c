@@ -249,11 +249,12 @@ init_prchunk(int fd)
 		return NULL;
 	}
 
-	__ctx->fd = fd;
+	if ((__ctx->fd = fd) > STDIN_FILENO) {
 #if defined POSIX_FADV_SEQUENTIAL
-	/* give advice about our read pattern */
-	posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+		/* give advice about our read pattern */
+		posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 #endif	/* POSIX_FADV_SEQUENTIAL */
+	}
 	return __ctx;
 }
 
