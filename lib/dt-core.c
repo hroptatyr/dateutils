@@ -631,11 +631,13 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		res.t = __guess_ttyp(d.st);
 
 		if (res.d.typ > DT_DUNK && res.t.typ > DT_TUNK) {
-			dt_make_sandwich(&res, res.d.typ, res.t.typ);
+			res.sandwich = 1;
 		} else if (res.d.typ > DT_DUNK) {
-			dt_make_d_only(&res, res.d.typ);
+			res.t.typ = DT_TUNK;
+			res.sandwich = 0;
 		} else if (res.t.typ > DT_TUNK) {
-			dt_make_t_only(&res, res.t.typ);
+			res.d.typ = DT_DUNK;
+			res.sandwich = 1;
 		}
 	}
 
