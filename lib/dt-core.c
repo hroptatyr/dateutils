@@ -1198,8 +1198,25 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		/* probably +/-[n]m where `m' was meant to be `mo' */
 		dur.d.typ = DT_MD;
 		goto dadd;
-	} else if (dur.t.dur) {
+	} else if (dur.t.dur && dt_sandwich_p(d)) {
 		d.t = __tadd(d.t, dur.t, &carry);
+	} else if (d.typ == DT_SEXY) {
+		/* sexy add
+		 * only works for continuous types (DAISY, etc.)
+		 * we need to take leap seconds into account here */
+		switch (dur.d.typ) {
+		case DT_SEXY:
+			carry = dur.sexydur;
+			break;
+		case DT_DAISY:
+			carry = dur.d.daisydur * SECS_PER_DAY;
+		case DT_DUNK:
+			carry += dur.t.sdur;
+		default:
+			break;
+		}
+		d.sexy += carry;
+		return d;
 	}
 
 	/* store the carry somehow */
