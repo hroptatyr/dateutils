@@ -310,7 +310,7 @@ dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
 		   (dt_sandwich_p(d) || dt_sandwich_only_d_p(d))) {
 		unsigned int sw = d.sandwich;
 		d.d = dround_ddur(d.d, dur.d, nextp);
-		d.sandwich = sw;
+		d.sandwich = (uint8_t)sw;
 	}
 	return d;
 }
