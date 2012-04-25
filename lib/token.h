@@ -143,7 +143,7 @@ static inline struct dt_spec_s
 __attribute__((pure, const))
 spec_initialiser(void)
 {
-	struct dt_spec_s res = {{0}, 0};
+	struct dt_spec_s res = {{0}, DT_SPFL_UNK};
 	return res;
 }
 
