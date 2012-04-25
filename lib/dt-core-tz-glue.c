@@ -62,28 +62,29 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	struct dt_dt_s res;
 	dt_ssexy_t d_unix;
 
+	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		return d;
+	}
+
 	/* convert date/time part to unix stamp */
 	d_unix = __to_unix_epoch(d);
 	d_unix = zif_utc_time(zone, d_unix);
 
 	/* convert the date part back */
 	if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
+		int32_t sexy = __pos_mod(d_unix, 86400);
+
 		/* temporarily go daisy */
 		res.d.typ = DT_DAISY;
 		res.d.daisy = d_unix / 86400 + DAISY_UNIX_BASE;
 		res.d = dt_conv(d.d.typ, res.d);
-	} else if (d.typ == DT_SEXY) {
-		res.typ = DT_SEXY;
-		res.sandwich = 0;
+
+		/* set the other flags too */
+		res.sandwich = d.sandwich;
 		res.dur = 0;
 		res.neg = 0;
-		res.sxepoch = d_unix;
-	}
 
-	/* convert the time part back */
-	if (d.sandwich) {
-		int32_t sexy = __pos_mod(d_unix, 86400);
-
+		/* convert the time part back */
 		res.t.hms.s = sexy % 60;
 		res.t.hms.m = (sexy % 3600) / 60;
 		res.t.hms.h = sexy / 3600;
@@ -94,11 +95,15 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 		res.t.neg = 0;
 		res.t.carry = 0;
 
-		res.sandwich = 1;
+	} else if (d.typ == DT_SEXY) {
+		res.typ = DT_SEXY;
+		res.sandwich = 0;
 		res.dur = 0;
 		res.neg = 0;
-	} else if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
-		res.t = dt_t_initialiser();
+		res.sxepoch = d_unix;
+
+	} else {
+		res = dt_dt_initialiser();
 	}
 	return res;
 }
@@ -111,27 +116,28 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	struct dt_dt_s res;
 	dt_ssexy_t d_unix;
 
+	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		return d;
+	}
+
 	/* convert date/time part to unix stamp */
 	d_unix = __to_unix_epoch(d);
 	d_unix = zif_local_time(zone, d_unix);
 
 	/* convert the date part back */
 	if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
+		int32_t sexy = __pos_mod(d_unix, 86400);
+
 		res.d.typ = DT_DAISY;
 		res.d.daisy = d_unix / 86400 + DAISY_UNIX_BASE;
 		res.d = dt_conv(d.d.typ, res.d);
-	} else if (d.typ == DT_SEXY) {
-		res.typ = DT_SEXY;
-		res.sandwich = 0;
+
+		/* set the other flags too */
+		res.sandwich = d.sandwich;
 		res.dur = 0;
 		res.neg = 0;
-		res.sxepoch = d_unix;
-	}
 
-	/* convert the time part back */
-	if (d.sandwich) {
-		int32_t sexy = __pos_mod(d_unix, 86400);
-
+		/* convert the time part back */
 		res.t.hms.s = sexy % 60;
 		res.t.hms.m = (sexy % 3600) / 60;
 		res.t.hms.h = sexy / 3600;
@@ -142,11 +148,15 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 		res.t.neg = 0;
 		res.t.carry = 0;
 
-		res.sandwich = 1;
+	} else if (d.typ == DT_SEXY) {
+		res.typ = DT_SEXY;
+		res.sandwich = 0;
 		res.dur = 0;
 		res.neg = 0;
-	} else if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
-		res.t = dt_t_initialiser();
+		res.sxepoch = d_unix;
+
+	} else {
+		res = dt_dt_initialiser();
 	}
 	return res;
 }
