@@ -97,6 +97,8 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 		res.sandwich = 1;
 		res.dur = 0;
 		res.neg = 0;
+	} else if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
+		res.t = dt_t_initialiser();
 	}
 	return res;
 }
@@ -143,6 +145,8 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 		res.sandwich = 1;
 		res.dur = 0;
 		res.neg = 0;
+	} else if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
+		res.t = dt_t_initialiser();
 	}
 	return res;
 }
