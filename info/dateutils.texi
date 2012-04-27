@@ -3,7 +3,7 @@
 @comment  node-name,  next,  previous,  up
 
 @ifinfo
-@dircategory dateutils
+@dircategory Miscellaneous
 @direntry
 * dateutils: (dateutils).	Command line tools to fiddle with dates.
 @end direntry
