@@ -3,9 +3,27 @@
 @comment  node-name,  next,  previous,  up
 
 @ifinfo
-@dircategory dateutils
+@dircategory Miscellaneous
 @direntry
 * dateutils: (dateutils).	Command line tools to fiddle with dates.
+@end direntry
+
+@dircategory Individual utilities
+@direntry
+* dadd: (dateutils)dadd.                        Add durations to dates or times.
+* dconv: (dateutils)dconv.                      Convert dates between
+                                                  calendars or time zones.
+* ddiff: (dateutils)ddiff.                      Compute durations between dates
+                                                  and times.
+* dgrep: (dateutils)dgrep.                      Find date or time matches in
+                                                  input stream.
+* dround: (dateutils)dround.                    Round dates or times to
+                                                  designated values.
+* dseq: (dateutils)dseq.                        Generate sequences of dates or
+                                                  times.
+* dtest: (dateutils)dtest.                      Compare dates or times.
+* strptime: (dateutils)strptime.                Command line version
+                                                  of the C function.
 @end direntry
 
 This manual documents the dateutils package.
