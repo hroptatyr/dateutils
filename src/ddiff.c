@@ -622,10 +622,9 @@ main(int argc, char *argv[])
 	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
-	refinp = argi->inputs[0];
 
 	if (argi->inputs_num == 0 ||
-	    dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, NULL))) {
+	    dt_unk_p(d=dt_io_strpdt(refinp=argi->inputs[0], fmt, nfmt, NULL))) {
 		fputs("Error: reference DATE must be specified\n\n", stderr);
 		cmdline_parser_print_help();
 		res = 1;
