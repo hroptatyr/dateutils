@@ -17,6 +17,7 @@ Date specs:
   %C  The count of the weekday within the year (range 00 to 53)
   %d  The day of the month, 2 digits (range 00 to 31)
   %F  Equivalent to %Y-%m-%d (ymd's canonical format)
+      When used in ddiff's -f option this is an alias for %dd
   %j  The day of the year, see ISO 8601 ordinal date
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)
@@ -50,6 +51,7 @@ Time specs:
   %P  Like %p but in lowercase
   %S  The second (range 00 to 60, 60 is for leap seconds)
   %T  Equivalent to %H:%M:%S
+      When used in ddiff's -f option this is an alias for %Ss
 @end verbatim
 
 General specs:
