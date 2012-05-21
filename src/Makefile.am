@@ -34,8 +34,8 @@ strptime_SOURCES = strptime.c strptime-clo.ggo
 strptime_SOURCES += prchunk.c prchunk.h
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES += strptime-clo.c strptime-clo.h
 endif
+BUILT_SOURCES += strptime-clo.c strptime-clo.h
 
 bin_PROGRAMS += dconv
 dconv_SOURCES = dconv.c dconv-clo.ggo
