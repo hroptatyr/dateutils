@@ -100,7 +100,8 @@ ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.6.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.7.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.1.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.3.dt
-ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.13.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.11.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.12.dt
 dateutils_EXAMPLES += $(ddiff_EXAMPLES)
 dateutils_H2M_EX += ddiff.h2m
 
