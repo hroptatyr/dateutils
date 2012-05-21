@@ -3,7 +3,14 @@ package "ddiff"
 usage "ddiff [OPTION]... DATE [DATEs]"
 description "Compute duration from DATE to the other DATEs given \
 and print the result as duration, if DATEs are omitted read a list \
-of DATEs from stdin."
+of DATEs from stdin.
+
+SPECIALS
+
+Note: The output format of durations (specified via -f) takes all format
+specifiers into account, i.e. specifying %M and %S for example prints
+the duration in minutes and seconds, whereas specifying %S only prints
+the duration in seconds."
 
 QUIET
 FORMAT
