@@ -89,9 +89,15 @@ ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.2.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.3.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.4.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.5.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.6.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/ddiff.8.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.1.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.2.dt
 ddiff_EXAMPLES += $(top_srcdir)/test/tdiff.3.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.1.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.3.dt
+ddiff_EXAMPLES += $(top_srcdir)/test/dtdiff.13.dt
 dateutils_EXAMPLES += $(ddiff_EXAMPLES)
 dateutils_H2M_EX += ddiff.h2m
 
