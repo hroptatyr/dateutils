@@ -196,6 +196,12 @@ dt_tests += tseq.19.dt
 dt_tests += tdiff.1.dt
 dt_tests += tdiff.2.dt
 dt_tests += tdiff.3.dt
+dt_tests += tdiff.4.dt
+dt_tests += tdiff.5.dt
+dt_tests += tdiff.6.dt
+dt_tests += tdiff.7.dt
+dt_tests += tdiff.8.dt
+dt_tests += tdiff.9.dt
 
 dt_tests += tadd.1.dt
 dt_tests += tadd.2.dt
