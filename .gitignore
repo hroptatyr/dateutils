@@ -33,3 +33,4 @@ src/*-clo.[ch]
 info/*.h2m
 info/*.man
 ylwrap
+test-driver

@@ -75,7 +75,7 @@ DATE can also be one of the following specials:
 - `time', the time part of the current (UTC) time stamp
 - `today', the current date (according to UTC)
 - `tomo[rrow]', tomorrow's date (according to UTC)
-- `y[ester]day', yesterday's date (according to UTC)
+- `y[ester]day', yesterday's date (according to UTC)dnl
 ])dnl SPECIALS
 
 changequote([[]], [[]])
