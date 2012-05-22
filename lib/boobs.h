@@ -55,6 +55,16 @@
 # include <byteswap.h>
 #endif	/* BYTESWAP_H */
 
+#if !defined le16toh
+# if defined letoh16
+#  define le16toh	letoh16
+# elif defined WORDS_BIGENDIAN || __BYTE_ORDER == __BIG_ENDIAN
+#  define le16toh(x)	__bswap_16(x)
+# elif __BYTE_ORDER == __LITTLE_ENDIAN
+#  define le16toh(x)	(x)
+# endif	 /* letoh16 */
+#endif	/* !le16toh */
+
 /* and even now we may be out of luck */
 #if !defined be32toh
 # if defined betoh32
