@@ -1,10 +1,11 @@
 /*** boobs.h -- byte-order oberations
  *
  * Copyright (C) 2012 Sebastian Freundt
+ * Copyright (C) 2012 Ruediger Meier
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
- * This file is part of uterus and dateutils.
+ * This file is part of uterus, dateutils and atem.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
