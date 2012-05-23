@@ -1,10 +1,11 @@
 /*** boobs.h -- byte-order oberations
  *
  * Copyright (C) 2012 Sebastian Freundt
+ * Copyright (C) 2012 Ruediger Meier
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
- * This file is part of uterus and dateutils.
+ * This file is part of uterus, dateutils and atem.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -55,13 +56,23 @@
 # include <byteswap.h>
 #endif	/* BYTESWAP_H */
 
+#if !defined le16toh
+# if defined letoh16
+#  define le16toh	letoh16
+# elif defined WORDS_BIGENDIAN
+#  define le16toh(x)	__bswap_16(x)
+# else
+#  define le16toh(x)	(x)
+# endif	 /* letoh16 */
+#endif	/* !le16toh */
+
 /* and even now we may be out of luck */
 #if !defined be32toh
 # if defined betoh32
 #  define be32toh	betoh32
-# elif defined WORDS_BIGENDIAN || __BYTE_ORDER == __BIG_ENDIAN
+# elif defined WORDS_BIGENDIAN
 #  define be32toh(x)	(x)
-# elif __BYTE_ORDER == __LITTLE_ENDIAN
+# else
 #  define be32toh(x)	__bswap_32(x)
 # endif
 #endif	/* !be32toh */
@@ -69,25 +80,25 @@
 #if !defined le32toh
 # if defined letoh32
 #  define le32toh	letoh32
-# elif defined WORDS_BIGENDIAN || __BYTE_ORDER == __BIG_ENDIAN
+# elif defined WORDS_BIGENDIAN
 #  define le32toh(x)	__bswap_32(x)
-# elif __BYTE_ORDER == __LITTLE_ENDIAN
+# else
 #  define le32toh(x)	(x)
 # endif	 /* letoh32 */
 #endif	/* !le32toh */
 
 #if !defined htobe32
-# if defined WORDS_BIGENDIAN || __BYTE_ORDER == __BIG_ENDIAN
+# if defined WORDS_BIGENDIAN
 #  define htobe32(x)	(x)
-# elif __BYTE_ORDER == __LITTLE_ENDIAN
+# else
 #  define htobe32(x)	__bswap_32(x)
 # endif
 #endif	/* !be32toh */
 
 #if !defined htole32
-# if defined WORDS_BIGENDIAN || __BYTE_ORDER == __BIG_ENDIAN
+# if defined WORDS_BIGENDIAN
 #  define htole32(x)	__bswap_32(x)
-# elif __BYTE_ORDER == __LITTLE_ENDIAN
+# else
 #  define htole32(x)	(x)
 # endif
 #endif	/* !htole32 */
