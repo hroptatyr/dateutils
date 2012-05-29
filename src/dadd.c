@@ -68,6 +68,63 @@ dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 	return d;
 }
 
+struct mass_add_clo_s {
+	const struct grep_atom_soa_s *gra;
+	struct __strpdtdur_st_s st;
+	zif_t fromz;
+	zif_t hackz;
+	zif_t z;
+	const char *ofmt;
+	int sed_mode_p;
+	int quietp;
+};
+
+static void
+mass_add(void *pctx, struct mass_add_clo_s *clo)
+{
+	size_t lno = 0;
+	struct dt_dt_s d;
+
+	for (char *line; prchunk_haslinep(pctx); lno++) {
+		size_t llen;
+		const char *sp = NULL;
+		const char *ep = NULL;
+
+		llen = prchunk_getline(pctx, &line);
+		/* check if line matches, */
+		d = dt_io_find_strpdt2(
+			line, clo->gra, (char**)&sp, (char**)&ep, clo->fromz);
+
+		/* finish with newline again */
+		line[llen] = '\n';
+
+		if (!dt_unk_p(d)) {
+			/* perform addition now */
+			d = dadd_add(d, clo->st.durs, clo->st.ndurs);
+
+			if (clo->hackz == NULL && clo->fromz != NULL) {
+				/* fixup zone */
+				d = dtz_forgetz(d, clo->fromz);
+			}
+
+			if (clo->sed_mode_p) {
+				dt_io_write_sed(
+					d, clo->ofmt,
+					line, llen + 1,
+					sp, ep, clo->z);
+			} else {
+				dt_io_write(d, clo->ofmt, clo->z);
+			}
+		} else if (clo->sed_mode_p) {
+			__io_write(line, llen + 1, stdout);
+		} else if (!clo->quietp) {
+			line[llen] = '\0';
+			dt_io_warn_strpdt(line);
+		}
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -181,10 +238,10 @@ no durations given\n");
 		}
 	} else {
 		/* read from stdin */
-		size_t lno = 0;
 		struct grep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
+		struct mass_add_clo_s clo[1];
 		void *pctx;
 
 		/* no threads reading this stream */
@@ -199,51 +256,23 @@ no durations given\n");
 		/* and now build the needle */
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
-
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
 			perror("dtconv: could not open stdin");
 			goto ndl_free;
 		}
+
+		/* build the clo and then loop */
+		clo->gra = &ndlsoa;
+		clo->st = st;
+		clo->fromz = fromz;
+		clo->hackz = hackz;
+		clo->z = z;
+		clo->ofmt = ofmt;
+		clo->sed_mode_p = argi->sed_mode_given;
+		clo->quietp = argi->quiet_given;
 		while (prchunk_fill(pctx) >= 0) {
-			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen;
-				const char *sp = NULL;
-				const char *ep = NULL;
-
-				llen = prchunk_getline(pctx, &line);
-				/* check if line matches, */
-				d = dt_io_find_strpdt2(
-					line, &ndlsoa,
-					(char**)&sp, (char**)&ep, fromz);
-
-				/* finish with newline again */
-				line[llen] = '\n';
-
-				if (!dt_unk_p(d)) {
-					/* perform addition now */
-					d = dadd_add(d, st.durs, st.ndurs);
-
-					if (hackz == NULL && fromz != NULL) {
-						/* fixup zone */
-						d = dtz_forgetz(d, fromz);
-					}
-
-					if (argi->sed_mode_given) {
-						dt_io_write_sed(
-							d, ofmt,
-							line, llen + 1,
-							sp, ep, z);
-					} else {
-						dt_io_write(d, ofmt, z);
-					}
-				} else if (argi->sed_mode_given) {
-					__io_write(line, llen + 1, stdout);
-				} else if (!argi->quiet_given) {
-					line[llen] = '\0';
-					dt_io_warn_strpdt(line);
-				}
-			}
+			mass_add(pctx, clo);
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
