@@ -17,8 +17,6 @@ GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
 GGO_HELPERS += common.ggo.in
 
 DT_INCLUDES = -I$(top_srcdir)/lib
-noinst_HEADERS += date-io.h
-noinst_HEADERS += time-io.h
 noinst_HEADERS += dt-io.h
 noinst_HEADERS += dexpr.h
 

@@ -42,7 +42,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
-#include "date-io.h"
+#include "dt-io.h"
 #include "prchunk.h"
 
 static int
@@ -75,7 +75,7 @@ proc_line(
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
 		if (!quietp) {
-			dt_io_warn_strpd(ln);
+			dt_io_warn_strpdt(ln);
 		}
 	} else {
 		prnt_line(ofmt, &tm);
