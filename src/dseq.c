@@ -44,6 +44,9 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
+#include <stdarg.h>
+#include <errno.h>
+
 #include "dt-core.h"
 #include "dt-io.h"
 #include "tzraw.h"
@@ -64,6 +67,26 @@ struct dseq_clo_s {
 	int flags;
 #define CLO_FL_FREE_ITE		(1)
 };
+
+
+/* impl of error() */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("dseq: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
 
 
 /* skip system */
@@ -474,8 +497,8 @@ main(int argc, char *argv[])
 		do {
 			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
 				if (!argi->quiet_given) {
-					fprintf(stderr, "Error: \
-cannot parse duration string `%s'\n", argi->alt_inc_arg);
+					error(0, "Error: \
+cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
 				res = 1;
 				goto out;
@@ -538,8 +561,8 @@ cannot parse duration string `%s'\n", argi->alt_inc_arg);
 			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
 			ite_p1.d.daisy = 1;
 		} else {
-			fputs("\
-don't know how to handle single argument case\n", stderr);
+			error(0, "\
+don't know how to handle single argument case");
 			res = 1;
 			goto out;
 		}
@@ -564,8 +587,8 @@ don't know how to handle single argument case\n", stderr);
 		unfixup_arg(argi->inputs[1]);
 		do {
 			if (dt_io_strpdtdur(&st, argi->inputs[1]) < 0) {
-				fprintf(stderr, "Error: \
-cannot parse duration string `%s'\n", argi->inputs[1]);
+				error(0, "Error: \
+cannot parse duration string `%s'", argi->inputs[1]);
 				res = 1;
 				goto out;
 			}
@@ -593,8 +616,8 @@ cannot parse duration string `%s'\n", argi->inputs[1]);
 	/* promote the args maybe */
 	if ((dt_sandwich_only_d_p(clo.fst) && dt_sandwich_only_t_p(clo.lst)) ||
 	    (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_only_d_p(clo.lst))) {
-		fputs("\
-cannot mix dates and times as arguments\n", stderr);
+		error(0, "\
+cannot mix dates and times as arguments");
 		res = 1;
 		goto out;
 	} else if (dt_sandwich_only_d_p(clo.fst) && dt_sandwich_p(clo.lst)) {
@@ -621,8 +644,8 @@ cannot mix dates and times as arguments\n", stderr);
 	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).d.typ != DT_DAISY ||
 	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_given) {
-			fputs("\
-cannot convert calendric system internally\n", stderr);
+			error(0, "\
+cannot convert calendric system internally");
 		}
 		res = 1;
 		goto out;
@@ -633,8 +656,8 @@ cannot convert calendric system internally\n", stderr);
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
 	    (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_given) {
-			fputs("\
-increment must not be naught\n", stderr);
+			error(0, "\
+increment must not be naught");
 		}
 		res = 1;
 		goto out;

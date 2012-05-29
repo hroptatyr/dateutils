@@ -42,6 +42,9 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
+#include <stdarg.h>
+
 #include "dt-core.h"
 #include "dt-io.h"
 #include "tzraw.h"
@@ -50,6 +53,26 @@
 #if !defined assert
 # define assert(x)
 #endif	/* !assert */
+
+
+/* error() impl */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("dround: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
 
 
 static bool
@@ -418,7 +441,7 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	} else if (argi->inputs_num == 0) {
-		fputs("Error: DATE or DURATION must be specified\n\n", stderr);
+		error(0, "Error: DATE or DURATION must be specified\n");
 		cmdline_parser_print_help();
 		res = 1;
 		goto out;
@@ -455,8 +478,8 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					fprintf(stderr, "Error: \
-cannot parse duration/rounding string `%s'\n", st.istr);
+					error(0, "Error: \
+cannot parse duration/rounding string `%s'", st.istr);
 				}
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -470,14 +493,14 @@ cannot parse duration/rounding string `%s'\n", st.istr);
 		 * about the durations */
 		inp = argi->inputs[0];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
-			fprintf(stderr, "Error: \
-cannot interpret date/time string `%s'\n", argi->inputs[0]);
+			error(0, "Error: \
+cannot interpret date/time string `%s'", argi->inputs[0]);
 			res = 1;
 			goto out;
 		}
 	} else if (st.ndurs == 0) {
-		fprintf(stderr, "Error: \
-no durations given\n");
+		error(0, "Error: \
+no durations given");
 		res = 1;
 		goto out;
 	}
@@ -517,7 +540,7 @@ no durations given\n");
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			perror("dtconv: could not open stdin");
+			error(0, "Error: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {

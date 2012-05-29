@@ -243,7 +243,7 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	} else if (argi->inputs_num == 0) {
-		fputs("Error: DATE or DURATION must be specified\n\n", stderr);
+		error(0, "Error: DATE or DURATION must be specified\n");
 		cmdline_parser_print_help();
 		res = 1;
 		goto out;

@@ -26,7 +26,7 @@ EOF
 ## STDERR
 stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stderr}" <<EOF
-cannot make sense of \`hello' using the given input formats
+dadd: cannot make sense of \`hello' using the given input formats
 EOF
 
 ## dtadd.19.dt ends here

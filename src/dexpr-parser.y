@@ -43,6 +43,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 #include "token.h"
 #include "dexpr.h"
 
@@ -60,7 +61,13 @@ extern int yyparse();
 int
 yyerror(dexpr_t *cur __attribute__((unused)), const char *errmsg)
 {
+	fputs("dexpr-parser: ", stderr);
 	fputs(errmsg, stderr);
+	if (errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(errno), stderr);
+	}
 	fputc('\n', stderr);
 	return -1;
 }
