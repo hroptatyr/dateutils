@@ -1,8 +1,10 @@
 args "--unamed-opts --long-help"
 package "dadd"
-usage "dadd [OPTION]... [DATE] DURATION"
+usage "dadd [OPTION]... [DATE] [DURATION]"
 description "Add DURATION to DATE and print the result, if \
-DATE is omitted read a list of DATEs from stdin.
+DATE is omitted but DURATION is given, read a list of DATEs from stdin.
+If DURATION is omitted but DATE is given, read a list of DURATIONs \
+from stdin.
 
 Durations are specified as nY, nM, nW, or nD for years, months, \
 weeks, or days respectively, or nH, nM, nS for hours, minutes, \
