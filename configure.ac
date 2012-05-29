@@ -82,6 +82,9 @@ if test "${enable_fast_arith}" = "yes"; then
 		[whether to use fast but incorrect date routines])
 fi
 
+## trivial conditional so that the dexpr scanner and parser are built
+AM_CONDITIONAL([BUILD_DEXPR], [test "0" = "1"])
+
 ## trivial, no special stuff needed
 dapps=""
 tapps=""
