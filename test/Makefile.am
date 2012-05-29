@@ -213,6 +213,10 @@ dt_tests += tadd.3.dt
 dt_tests += tadd.4.dt
 dt_tests += tadd.5.dt
 dt_tests += tadd.6.dt
+dt_tests += tadd.7.dt
+dt_tests += tadd.8.dt
+dt_tests += tadd.9.dt
+dt_tests += tadd.10.dt
 
 dt_tests += tgrep.1.dt
 dt_tests += tgrep.2.dt
