@@ -11,7 +11,6 @@
 #if !defined STANDALONE
 # if defined __INTEL_COMPILER
 #  pragma warning (disable:2259)
-#  pragma warning (disable:2557)
 # endif	/* __INTEL_COMPILER */
 # include "dexpr-parser.c"
 # if defined __INTEL_COMPILER
@@ -19,11 +18,10 @@
 # endif	/* __INTEL_COMPILER */
 
 # if defined __INTEL_COMPILER
-#  pragma warning (disable:1419)
+#  pragma warning (disable:2557)
 # endif	/* __INTEL_COMPILER */
 # include "dexpr-scanner.c"
 # if defined __INTEL_COMPILER
-#  pragma warning (default:1419)
 #  pragma warning (default:2557)
 # endif	/* __INTEL_COMPILER */
 #endif	/* !STANDALONE */
