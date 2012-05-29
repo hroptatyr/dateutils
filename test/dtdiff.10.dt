@@ -11,7 +11,7 @@ stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 ## STDERR
 stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stderr}" <<EOF
-duration between \`2012-03-02' and \`10:14:00' is not defined
+ddiff: duration between \`2012-03-02' and \`10:14:00' is not defined
 EOF
 
 ## dtdiff.10.dt ends here

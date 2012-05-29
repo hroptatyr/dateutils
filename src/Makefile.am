@@ -17,8 +17,6 @@ GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
 GGO_HELPERS += common.ggo.in
 
 DT_INCLUDES = -I$(top_srcdir)/lib
-noinst_HEADERS += date-io.h
-noinst_HEADERS += time-io.h
 noinst_HEADERS += dt-io.h
 noinst_HEADERS += dexpr.h
 
@@ -80,8 +78,8 @@ BUILT_SOURCES += dround-clo.c dround-clo.h
 
 noinst_PROGRAMS += dexpr
 dexpr_SOURCES = dexpr.c
-dexpr_SOURCES += dexpr-scanner.l
-dexpr_SOURCES += dexpr-parser.y
+dexpr_SOURCES += dexpr-scanner.wrap.c
+dexpr_SOURCES += dexpr-parser.wrap.c
 dexpr_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES) -DSTANDALONE
 dexpr_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h

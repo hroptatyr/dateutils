@@ -42,6 +42,9 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
+#include <stdarg.h>
+#include <errno.h>
+
 #include "dt-core.h"
 #include "dt-io.h"
 #include "prchunk.h"
@@ -182,11 +185,29 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 
 
 /* printers */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("ddiff: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
+
 static inline void
 dt_io_warn_dur(const char *d1, const char *d2)
 {
-	fprintf(stderr, "\
-duration between `%s' and `%s' is not defined\n", d1, d2);
+	error(0, "\
+duration between `%s' and `%s' is not defined", d1, d2);
 	return;
 }
 
@@ -626,7 +647,7 @@ main(int argc, char *argv[])
 	if (argi->inputs_num == 0 ||
 	    (refinp = argi->inputs[0],
 	     dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, NULL)))) {
-		fputs("Error: reference DATE must be specified\n\n", stderr);
+		error(0, "Error: reference DATE must be specified\n");
 		cmdline_parser_print_help();
 		res = 1;
 		goto out;
@@ -669,7 +690,7 @@ main(int argc, char *argv[])
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			perror("dtconv: could not open stdin");
+			error(0, "Error: could not open stdin");
 			goto out;
 		}
 		while (prchunk_fill(pctx) >= 0) {

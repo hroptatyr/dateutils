@@ -1,0 +1,28 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="12:05:00"
+COMMENT="mass duration adding"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+test 10m
+1d
+12
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+12:05:00
+12:05:00
+EOF
+
+## STDERR
+stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stderr}" <<EOF
+dadd: cannot make sense of \`test 10m' using the given input formats
+EOF
+
+## tadd.9.dt ends here

@@ -42,6 +42,9 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
+#include <stdarg.h>
+
 #include "dt-core.h"
 #include "dt-io.h"
 #include "tzraw.h"
@@ -66,6 +69,140 @@ dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 		d = dt_dtadd(d, dur[i]);
 	}
 	return d;
+}
+
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("dadd: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
+
+
+struct mass_add_clo_s {
+	void *pctx;
+	const struct grep_atom_soa_s *gra;
+	struct __strpdtdur_st_s st;
+	struct dt_dt_s rd;
+	zif_t fromz;
+	zif_t hackz;
+	zif_t z;
+	const char *ofmt;
+	int sed_mode_p;
+	int quietp;
+};
+
+static void
+mass_add_dur(const struct mass_add_clo_s *clo)
+{
+/* read lines from stdin
+ * interpret as dates
+ * add to reference duration
+ * output */
+	size_t lno = 0;
+	struct dt_dt_s d;
+
+	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
+		size_t llen;
+		const char *sp = NULL;
+		const char *ep = NULL;
+
+		llen = prchunk_getline(clo->pctx, &line);
+		/* check if line matches, */
+		d = dt_io_find_strpdt2(
+			line, clo->gra, (char**)&sp, (char**)&ep, clo->fromz);
+
+		/* finish with newline again */
+		line[llen] = '\n';
+
+		if (!dt_unk_p(d)) {
+			/* perform addition now */
+			d = dadd_add(d, clo->st.durs, clo->st.ndurs);
+
+			if (clo->hackz == NULL && clo->fromz != NULL) {
+				/* fixup zone */
+				d = dtz_forgetz(d, clo->fromz);
+			}
+
+			if (clo->sed_mode_p) {
+				dt_io_write_sed(
+					d, clo->ofmt,
+					line, llen + 1,
+					sp, ep, clo->z);
+			} else {
+				dt_io_write(d, clo->ofmt, clo->z);
+			}
+		} else if (clo->sed_mode_p) {
+			__io_write(line, llen + 1, stdout);
+		} else if (!clo->quietp) {
+			line[llen] = '\0';
+			dt_io_warn_strpdt(line);
+		}
+	}
+	return;
+}
+
+static void
+mass_add_d(const struct mass_add_clo_s *clo)
+{
+/* read lines from stdin
+ * interpret as durations
+ * add to reference date
+ * output */
+	size_t lno = 0;
+	struct dt_dt_s d;
+	struct __strpdtdur_st_s st = {0};
+
+	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
+		size_t llen;
+		int has_dur_p  = 1;
+
+		llen = prchunk_getline(clo->pctx, &line);
+
+		/* check for durations on this line */
+		do {
+			if (dt_io_strpdtdur(&st, line) < 0) {
+				has_dur_p = 0;
+			}
+		} while (__strpdtdur_more_p(&st));
+
+		/* finish with newline again */
+		line[llen] = '\n';
+
+		if (has_dur_p) {
+			/* perform addition now */
+			d = dadd_add(clo->rd, st.durs, st.ndurs);
+
+			if (clo->hackz == NULL && clo->fromz != NULL) {
+				/* fixup zone */
+				d = dtz_forgetz(d, clo->fromz);
+			}
+
+			/* no sed mode here */
+			dt_io_write(d, clo->ofmt, clo->z);
+		} else if (clo->sed_mode_p) {
+			__io_write(line, llen + 1, stdout);
+		} else if (!clo->quietp) {
+			line[llen] = '\0';
+			dt_io_warn_strpdt(line);
+		}
+		/* just reset the ndurs slot */
+		st.ndurs = 0;
+	}
+	/* free associated duration resources */
+	__strpdtdur_free(&st);
+	return;
 }
 
 
@@ -106,7 +243,7 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	} else if (argi->inputs_num == 0) {
-		fputs("Error: DATE or DURATION must be specified\n\n", stderr);
+		error(0, "Error: DATE or DURATION must be specified\n");
 		cmdline_parser_print_help();
 		res = 1;
 		goto out;
@@ -140,8 +277,8 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					fprintf(stderr, "Error: \
-cannot parse duration string `%s'\n", st.istr);
+					error(0, "Error: \
+cannot parse duration string `%s'", st.istr);
 				}
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -149,26 +286,23 @@ cannot parse duration string `%s'\n", st.istr);
 	/* check if there's only d durations */
 	hackz = durs_only_d_p(st.durs, st.ndurs) ? NULL : fromz;
 
-	/* sanity checks */
+	/* sanity checks, decide whether we're a mass date adder
+	 * or a mass duration adder, or both, a date and durations are
+	 * present on the command line */
 	if (dt_given_p) {
 		/* date parsing needed postponing as we need to find out
 		 * about the durations */
 		inp = argi->inputs[0];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
-			fprintf(stderr, "Error: \
-cannot interpret date/time string `%s'\n", argi->inputs[0]);
+			error(0, "Error: \
+cannot interpret date/time string `%s'", argi->inputs[0]);
 			res = 1;
 			goto out;
 		}
-	} else if (st.ndurs == 0) {
-		fprintf(stderr, "Error: \
-no durations given\n");
-		res = 1;
-		goto out;
 	}
 
 	/* start the actual work */
-	if (dt_given_p) {
+	if (dt_given_p && st.ndurs) {
 		if (!dt_unk_p(d = dadd_add(d, st.durs, st.ndurs))) {
 			if (hackz == NULL && fromz != NULL) {
 				/* fixup zone */
@@ -179,12 +313,13 @@ no durations given\n");
 		} else {
 			res = 1;
 		}
-	} else {
-		/* read from stdin */
-		size_t lno = 0;
+
+	} else if (st.ndurs) {
+		/* read dates from stdin */
 		struct grep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
+		struct mass_add_clo_s clo[1];
 		void *pctx;
 
 		/* no threads reading this stream */
@@ -199,51 +334,24 @@ no durations given\n");
 		/* and now build the needle */
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
-
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			perror("dtconv: could not open stdin");
+			error(0, "could not open stdin");
 			goto ndl_free;
 		}
+
+		/* build the clo and then loop */
+		clo->pctx = pctx;
+		clo->gra = &ndlsoa;
+		clo->st = st;
+		clo->fromz = fromz;
+		clo->hackz = hackz;
+		clo->z = z;
+		clo->ofmt = ofmt;
+		clo->sed_mode_p = argi->sed_mode_given;
+		clo->quietp = argi->quiet_given;
 		while (prchunk_fill(pctx) >= 0) {
-			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen;
-				const char *sp = NULL;
-				const char *ep = NULL;
-
-				llen = prchunk_getline(pctx, &line);
-				/* check if line matches, */
-				d = dt_io_find_strpdt2(
-					line, &ndlsoa,
-					(char**)&sp, (char**)&ep, fromz);
-
-				/* finish with newline again */
-				line[llen] = '\n';
-
-				if (!dt_unk_p(d)) {
-					/* perform addition now */
-					d = dadd_add(d, st.durs, st.ndurs);
-
-					if (hackz == NULL && fromz != NULL) {
-						/* fixup zone */
-						d = dtz_forgetz(d, fromz);
-					}
-
-					if (argi->sed_mode_given) {
-						dt_io_write_sed(
-							d, ofmt,
-							line, llen + 1,
-							sp, ep, z);
-					} else {
-						dt_io_write(d, ofmt, z);
-					}
-				} else if (argi->sed_mode_given) {
-					__io_write(line, llen + 1, stdout);
-				} else if (!argi->quiet_given) {
-					line[llen] = '\0';
-					dt_io_warn_strpdt(line);
-				}
-			}
+			mass_add_dur(clo);
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
@@ -251,7 +359,34 @@ no durations given\n");
 		if (needle != __nstk) {
 			free(needle);
 		}
-		goto out;
+
+	} else {
+		/* mass-adding durations to reference date */
+		struct mass_add_clo_s clo[1];
+		void *pctx;
+
+		/* no threads reading this stream */
+		__io_setlocking_bycaller(stdout);
+
+		/* using the prchunk reader now */
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			error(0, "could not open stdin");
+		}
+
+		/* build the clo and then loop */
+		clo->pctx = pctx;
+		clo->rd = d;
+		clo->fromz = fromz;
+		clo->hackz = hackz;
+		clo->z = z;
+		clo->ofmt = ofmt;
+		clo->sed_mode_p = argi->sed_mode_given;
+		clo->quietp = argi->quiet_given;
+		while (prchunk_fill(pctx) >= 0) {
+			mass_add_d(clo);
+		}
+		/* get rid of resources */
+		free_prchunk(pctx);
 	}
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
