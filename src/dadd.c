@@ -166,8 +166,6 @@ mass_add_d(const struct mass_add_clo_s *clo)
 
 	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen;
-		const char *sp = NULL;
-		const char *ep = NULL;
 		int has_dur_p  = 1;
 
 		llen = prchunk_getline(clo->pctx, &line);
@@ -191,14 +189,8 @@ mass_add_d(const struct mass_add_clo_s *clo)
 				d = dtz_forgetz(d, clo->fromz);
 			}
 
-			if (clo->sed_mode_p) {
-				dt_io_write_sed(
-					d, clo->ofmt,
-					line, llen + 1,
-					sp, ep, clo->z);
-			} else {
-				dt_io_write(d, clo->ofmt, clo->z);
-			}
+			/* no sed mode here */
+			dt_io_write(d, clo->ofmt, clo->z);
 		} else if (clo->sed_mode_p) {
 			__io_write(line, llen + 1, stdout);
 		} else if (!clo->quietp) {
