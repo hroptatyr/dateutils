@@ -42,6 +42,9 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
+#include <stdarg.h>
+
 #include "dt-core.h"
 #include "dt-io.h"
 #include "tzraw.h"
@@ -68,6 +71,25 @@ dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 	return d;
 }
 
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("dadd: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
+
+
 struct mass_add_clo_s {
 	const struct grep_atom_soa_s *gra;
 	struct __strpdtdur_st_s st;
@@ -197,8 +219,8 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					fprintf(stderr, "Error: \
-cannot parse duration string `%s'\n", st.istr);
+					error(0, "Error: \
+cannot parse duration string `%s'", st.istr);
 				}
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -212,14 +234,14 @@ cannot parse duration string `%s'\n", st.istr);
 		 * about the durations */
 		inp = argi->inputs[0];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
-			fprintf(stderr, "Error: \
-cannot interpret date/time string `%s'\n", argi->inputs[0]);
+			error(0, "Error: \
+cannot interpret date/time string `%s'", argi->inputs[0]);
 			res = 1;
 			goto out;
 		}
 	} else if (st.ndurs == 0) {
-		fprintf(stderr, "Error: \
-no durations given\n");
+		error(0, "Error: \
+no durations given");
 		res = 1;
 		goto out;
 	}
@@ -258,7 +280,7 @@ no durations given\n");
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			perror("dtconv: could not open stdin");
+			error(0, "could not open stdin");
 			goto ndl_free;
 		}
 
