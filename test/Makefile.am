@@ -110,6 +110,10 @@ dt_tests += dadd.23.dt
 dt_tests += dadd.24.dt
 dt_tests += dadd.25.dt
 dt_tests += dadd.26.dt
+dt_tests += dadd.27.dt
+dt_tests += dadd.28.dt
+dt_tests += dadd.29.dt
+dt_tests += dadd.30.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
