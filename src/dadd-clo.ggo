@@ -6,10 +6,10 @@ DATE is omitted but DURATION is given, read a list of DATEs from stdin.
 If DURATION is omitted but DATE is given, read a list of DURATIONs \
 from stdin.
 
-Durations are specified as nY, nM, nW, or nD for years, months, \
+Durations are specified as nY, nMO, nW, or nD for years, months, \
 weeks, or days respectively, or nH, nM, nS for hours, minutes, \
 and seconds, where N is a (possibly negative) number.  \
-The unit symbols can be written lower-case as well (y, m, w, d, \
+The unit symbols can be written lower-case as well (y, mo, w, d, \
 h, m, s) and the unit symbol `d' can be omitted.
 
 Note that duration addition is not commutative!
