@@ -1,0 +1,29 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="'2012-01-02 02:04:00'"
+COMMENT="mass duration adder"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+-10s
+-1m
+-1h
+-24h
+-1d
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-01-02T02:03:50
+2012-01-02T02:03:00
+2012-01-02T01:04:00
+2012-01-01T02:04:00
+2012-01-01T02:04:00
+EOF
+
+## STDERR
+
+## dtadd.18.dt ends here
