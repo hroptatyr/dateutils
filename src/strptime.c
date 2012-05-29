@@ -42,9 +42,33 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
+#include <stdarg.h>
+#include <errno.h>
+
 #include "dt-io.h"
 #include "prchunk.h"
 
+
+/* error() impl */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("strptime: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
+
+
 static int
 pars_line(struct tm *tm, const char *const *fmt, size_t nfmt, const char *line)
 {
@@ -91,7 +115,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 
 	/* using the prchunk reader now */
 	if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-		perror("dtconv: could not open stdin");
+		error(0, "Error: could not open stdin");
 		return;
 	}
 	while (prchunk_fill(pctx) >= 0) {

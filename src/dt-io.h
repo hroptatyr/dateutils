@@ -743,11 +743,15 @@ dt_io_write_sed(
 
 
 /* error messages, warnings, etc. */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...);
+
 static inline void
 dt_io_warn_strpdt(const char *inp)
 {
-	fprintf(stderr, "\
-cannot make sense of `%s' using the given input formats\n", inp);
+	error(0, "\
+cannot make sense of `%s' using the given input formats", inp);
 	return;
 }
 

@@ -44,6 +44,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <sys/mman.h>
+#include <stdarg.h>
+#include <errno.h>
+
 #include "prchunk.h"
 
 #if !defined LIKELY
@@ -91,6 +94,26 @@ struct prch_ctx_s {
 };
 
 static struct prch_ctx_s __ctx[1] = {{0}};
+
+
+/* error() impl */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("prchunk: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
 
 static inline void
 set_loff(prch_ctx_t ctx, uint32_t lno, off32_t off)
@@ -201,7 +224,7 @@ yield2:
 				break;
 			}
 			/* fucking idiots didnt conclude with a \n */
-			fputs("ID:10T error\n", stderr);
+			error(0, "ID:10T error");
 			p = bno;
 		}
 		/* massage our status structures */
@@ -416,7 +439,7 @@ main(int argc, char *argv[])
 	}
 	/* get our prchunk up n running */
 	if ((ctx = init_prchunk(fd)) == NULL) {
-		perror("ctx NULL");
+		error(0, "Error: ctx NULL");
 		return 1;
 	}
 	/* fill the buffer */

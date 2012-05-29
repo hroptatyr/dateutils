@@ -42,10 +42,33 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
+#include <stdarg.h>
+
 #include "dt-core.h"
 #include "dt-io.h"
 #include "tzraw.h"
 #include "prchunk.h"
+
+
+/* error() impl */
+static void
+__attribute__((format(printf, 2, 3)))
+error(int eno, const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs("dconv: ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (eno || errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(eno ?: errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
 
 
 #if defined __INTEL_COMPILER
@@ -130,7 +153,7 @@ main(int argc, char *argv[])
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			perror("dconv: could not open stdin");
+			error(0, "Error: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {
