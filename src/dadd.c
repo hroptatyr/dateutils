@@ -91,6 +91,7 @@ error(int eno, const char *fmt, ...)
 
 
 struct mass_add_clo_s {
+	void *pctx;
 	const struct grep_atom_soa_s *gra;
 	struct __strpdtdur_st_s st;
 	zif_t fromz;
@@ -102,17 +103,21 @@ struct mass_add_clo_s {
 };
 
 static void
-mass_add(void *pctx, struct mass_add_clo_s *clo)
+mass_add_dur(const struct mass_add_clo_s *clo)
 {
+/* read lines from stdin
+ * interpret as dates
+ * add to reference duration
+ * output */
 	size_t lno = 0;
 	struct dt_dt_s d;
 
-	for (char *line; prchunk_haslinep(pctx); lno++) {
+	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen;
 		const char *sp = NULL;
 		const char *ep = NULL;
 
-		llen = prchunk_getline(pctx, &line);
+		llen = prchunk_getline(clo->pctx, &line);
 		/* check if line matches, */
 		d = dt_io_find_strpdt2(
 			line, clo->gra, (char**)&sp, (char**)&ep, clo->fromz);
@@ -285,6 +290,7 @@ no durations given");
 		}
 
 		/* build the clo and then loop */
+		clo->pctx = pctx;
 		clo->gra = &ndlsoa;
 		clo->st = st;
 		clo->fromz = fromz;
@@ -294,7 +300,7 @@ no durations given");
 		clo->sed_mode_p = argi->sed_mode_given;
 		clo->quietp = argi->quiet_given;
 		while (prchunk_fill(pctx) >= 0) {
-			mass_add(pctx, clo);
+			mass_add_dur(clo);
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
