@@ -9,8 +9,21 @@
 #include "dexpr-parser.h"
 
 #if !defined STANDALONE
-#include "dexpr-parser.c"
-#include "dexpr-scanner.c"
+# if defined __INTEL_COMPILER
+#  pragma warning (disable:2259)
+# endif	/* __INTEL_COMPILER */
+# include "dexpr-parser.c"
+# if defined __INTEL_COMPILER
+#  pragma warning (default:2259)
+# endif	/* __INTEL_COMPILER */
+
+# if defined __INTEL_COMPILER
+#  pragma warning (disable:2557)
+# endif	/* __INTEL_COMPILER */
+# include "dexpr-scanner.c"
+# if defined __INTEL_COMPILER
+#  pragma warning (default:2557)
+# endif	/* __INTEL_COMPILER */
 #endif	/* !STANDALONE */
 
 static void
