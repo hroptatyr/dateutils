@@ -72,7 +72,15 @@ error(int eno, const char *fmt, ...)
 }
 
 /* dexpr subsystem */
+#if defined __INTEL_COMPILER
+# pragma warning (disable:2259)
+# pragma warning (disable:2557)
+#endif	/* __INTEL_COMPILER */
 #include "dexpr.c"
+#if defined __INTEL_COMPILER
+# pragma warning (default:2259)
+# pragma warning (default:2557)
+#endif	/* __INTEL_COMPILER */
 
 
 #if defined __INTEL_COMPILER
