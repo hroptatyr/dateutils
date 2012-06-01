@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="2012-10-28T01:45:00 2012-10-28T02:15:00 --from-zone Europe/Berlin"
+COMMENT="difference over DST switch, 02:15:00 is AFTER the switch"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+5400s
+EOF
+
+## STDERR
+
+## dtdiff.15.dt ends here
