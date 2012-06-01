@@ -279,6 +279,8 @@ main(int argc, char *argv[])
 				} else {
 					error(0, "Error: \
 cannot parse duration string `%s'", st.istr);
+					res = 1;
+					goto dur_out;
 				}
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -297,7 +299,7 @@ cannot parse duration string `%s'", st.istr);
 			error(0, "Error: \
 cannot interpret date/time string `%s'", argi->inputs[0]);
 			res = 1;
-			goto out;
+			goto dur_out;
 		}
 	}
 
@@ -388,6 +390,7 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 		/* get rid of resources */
 		free_prchunk(pctx);
 	}
+dur_out:
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
 

@@ -774,7 +774,7 @@ dt_strpdtdur(const char *str, char **ep)
 /* at the moment we allow only one format */
 	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp;
-	int tmp;
+	long int tmp;
 	struct strpdt_s d;
 
 	if (str == NULL) {
@@ -783,6 +783,8 @@ dt_strpdtdur(const char *str, char **ep)
 	/* read just one component */
 	if ((tmp = strtol(str, (char**)&sp, 10)) == 0 && str == sp) {
 		/* didn't work aye? */
+		goto out;
+	} else if (tmp > 2147483647L) {
 		goto out;
 	}
 
@@ -1172,9 +1174,12 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		dur.d.typ = DT_MD;
 		goto dadd;
 	} else if (dur.t.dur && d.sandwich) {
+		/* make sure we don't blow the carry slot */
+		carry = dur.t.sdur / (signed int)SECS_PER_DAY;
+		dur.t.sdur %= (signed int)SECS_PER_DAY;
 		/* accept both t-onlies and sandwiches */
 		d.t = dt_tadd(d.t, dur.t);
-		carry = d.t.carry;
+		carry += d.t.carry;
 	} else if (d.typ == DT_SEXY) {
 		/* sexy add
 		 * only works for continuous types (DAISY, etc.)
