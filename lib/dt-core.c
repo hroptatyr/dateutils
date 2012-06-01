@@ -1174,9 +1174,12 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		dur.d.typ = DT_MD;
 		goto dadd;
 	} else if (dur.t.dur && d.sandwich) {
+		/* make sure we don't blow the carry slot */
+		carry = dur.t.sdur / (signed int)SECS_PER_DAY;
+		dur.t.sdur %= (signed int)SECS_PER_DAY;
 		/* accept both t-onlies and sandwiches */
 		d.t = dt_tadd(d.t, dur.t);
-		carry = d.t.carry;
+		carry += d.t.carry;
 	} else if (d.typ == DT_SEXY) {
 		/* sexy add
 		 * only works for continuous types (DAISY, etc.)
