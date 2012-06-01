@@ -630,6 +630,7 @@ main(int argc, char *argv[])
 	int res = 0;
 	durfmt_t dfmt;
 	dt_dttyp_t dtyp;
+	zif_t fromz = NULL;
 
 	if (cmdline_parser(argc, argv, argi)) {
 		res = 1;
@@ -640,13 +641,18 @@ main(int argc, char *argv[])
 		dt_io_unescape(argi->format_arg);
 	}
 
+	/* try and read the from and to time zones */
+	if (argi->from_zone_given) {
+		fromz = zif_read_inst(argi->from_zone_arg);
+	}
+
 	ofmt = argi->format_arg;
 	fmt = argi->input_format_arg;
 	nfmt = argi->input_format_given;
 
 	if (argi->inputs_num == 0 ||
 	    (refinp = argi->inputs[0],
-	     dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, NULL)))) {
+	     dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, fromz)))) {
 		error(0, "Error: reference DATE must be specified\n");
 		cmdline_parser_print_help();
 		res = 1;
@@ -662,7 +668,7 @@ main(int argc, char *argv[])
 			struct dt_dt_s dur;
 			const char *inp = argi->inputs[i];
 
-			d2 = dt_io_strpdt(inp, fmt, nfmt, NULL);
+			d2 = dt_io_strpdt(inp, fmt, nfmt, fromz);
 			if (dt_unk_p(d2)) {
 				if (!argi->quiet_given) {
 					dt_io_warn_strpdt(inp);
