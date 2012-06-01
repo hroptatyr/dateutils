@@ -47,6 +47,8 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
+#include <limits.h>
 #include "date-core.h"
 #include "time-core.h"
 #include "dt-core.h"
@@ -780,11 +782,13 @@ dt_strpdtdur(const char *str, char **ep)
 	if (str == NULL) {
 		goto out;
 	}
-	/* read just one component */
+	/* read just one component, use rudi's errno trick */
+	errno = 0;
 	if ((tmp = strtol(str, (char**)&sp, 10)) == 0 && str == sp) {
 		/* didn't work aye? */
 		goto out;
-	} else if (tmp > 2147483647L) {
+	} else if (tmp > INT_MAX || errno) {
+		errno = ERANGE;
 		goto out;
 	}
 
