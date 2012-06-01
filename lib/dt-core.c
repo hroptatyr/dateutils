@@ -774,7 +774,7 @@ dt_strpdtdur(const char *str, char **ep)
 /* at the moment we allow only one format */
 	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp;
-	int tmp;
+	long int tmp;
 	struct strpdt_s d;
 
 	if (str == NULL) {
@@ -783,6 +783,8 @@ dt_strpdtdur(const char *str, char **ep)
 	/* read just one component */
 	if ((tmp = strtol(str, (char**)&sp, 10)) == 0 && str == sp) {
 		/* didn't work aye? */
+		goto out;
+	} else if (tmp > 2147483647L) {
 		goto out;
 	}
 
