@@ -299,7 +299,7 @@ cannot parse duration string `%s'", st.istr);
 			error(0, "Error: \
 cannot interpret date/time string `%s'", argi->inputs[0]);
 			res = 1;
-			goto out;
+			goto dur_out;
 		}
 	}
 
