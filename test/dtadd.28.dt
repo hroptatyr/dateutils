@@ -1,0 +1,20 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="'1930-01-01 00:00:00' -f '%F %T' -2147483648s"
+COMMENT="not allowed"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+
+## STDERR
+stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stderr}" <<EOF
+dadd: Error: cannot parse duration string \`-2147483648s'
+EOF
+
+EXPECT_EXIT_CODE=1
+
+## dtadd.28.dt ends here
