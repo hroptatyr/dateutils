@@ -73,12 +73,16 @@
 
 #if defined TZDIR
 static const char tzdir[] = TZDIR;
-/* where can we deduce some info for our coordinated zones */
-static const char coord_fn[] = TZDIR "/right/UTC";
 #else  /* !TZDIR */
 static const char tzdir[] = "/usr/share/zoneinfo";
+#endif
+
+#if defined ZONEINFO_UTC_RIGHT
+/* where can we deduce some info for our coordinated zones */
+static const char coord_fn[] = ZONEINFO_UTC_RIGHT;
+#else  /* !ZONEINFO_UTC_RIGHT */
 static const char coord_fn[] = "/usr/share/zoneinfo/right/UTC";
-#endif	/* TZDIR */
+#endif	/* ZONEINFO_UTC_RIGHT */
 
 /* special zone names */
 static const char coord_zones[][4] = {
