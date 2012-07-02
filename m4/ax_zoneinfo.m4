@@ -4,7 +4,7 @@
 #
 # SYNOPSIS
 #
-#   AX_ZONEINFO([])
+#   AX_ZONEINFO([options...])
 #
 # DESCRIPTION
 #
@@ -18,8 +18,9 @@
 #     AC_SUBST([TZDIR])
 #     AC_DEFINE_UNQUOTED([TZDIR], [/path/to/zic/files], [...])
 #
-#   Moreover, if leap second fix-ups are available it will, similarly, define
-#   HAVE_ZONEINFO_RIGHT and populate a variable TZRDIR.
+#   Optionally, OPTIONS can be `right' to trigger further tests that will
+#   determine if leap second fix-ups are available.  If so the variables
+#   HAVE_ZONEINFO_RIGHT and TZDIR_RIGHT will be populated.
 #
 #
 # LICENSE
@@ -33,13 +34,106 @@
 
 #serial 1
 
-AC_DEFUN([AX_TZFILE], [dnl
+AC_DEFUN([AX_ZONEINFO_TZFILE_H], [dnl
 	dnl not totally necessary (yet), as we can simply inspect the tzfiles
 	dnl ourselves, but it certainly helps
 	AC_CHECK_HEADER([tzfile.h])
-])dnl AX_TZFILE
+])dnl AX_ZONEINFO_TZFILE_H
 
-AC_DEFUN([AX_ZONEINFO], [dnl
+AC_DEFUN([AX_ZONEINFO_CHECK_TZFILE], [dnl
+	dnl AX_ZONEINFO_CHECK_TZFILE([FILE], [ACTION-IF-VALID], [ACTION-IF-NOT])
+	dnl secret switch is the 4th argument, which determines the ret code
+	dnl of the leapcnt check
+	pushdef([tzfile], [$1])
+	pushdef([if_found], [$2])
+	pushdef([if_not_found], [$3])
+
+	AC_REQUIRE([AX_ZONEINFO_TZFILE_H])
+
+	if test -z "${ax_tmp_zoneinfo_nested}"; then
+		AC_MSG_CHECKING([zoneinfo file ]tzfile[])
+	fi
+
+	AC_LANG_PUSH([C])
+	AC_RUN_IFELSE([AC_LANG_SOURCE([[
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <fcntl.h>
+
+]]ifelse([$4], [], [], [[
+#define CHECK_LEAPCNT	]]$4[[
+]])[[
+
+/* simplified struct */
+struct tzhead {
+	char	tzh_magic[4];		/* TZ_MAGIC */
+	char	tzh_version[1];		/* '\0' or '2' as of 2005 */
+	char	tzh_reserved[15];	/* reserved--must be zero */
+	char	tzh_ttisgmtcnt[4];	/* coded number of trans. time flags */
+	char	tzh_ttisstdcnt[4];	/* coded number of trans. time flags */
+	char	tzh_leapcnt[4];		/* coded number of leap seconds */
+	char	tzh_timecnt[4];		/* coded number of transition times */
+	char	tzh_typecnt[4];		/* coded number of local time types */
+	char	tzh_charcnt[4];		/* coded number of abbr. chars */
+};
+
+int
+main(int argc, char *argv[])
+{
+	struct tzhead foo;
+	int f;
+
+	if (argc <= 1) {
+		return 0;
+	} else if ((f = open(argv[1], O_RDONLY, 0644)) < 0) {
+		return 1;
+	} else if (read(f, &foo, sizeof(foo)) != sizeof(foo)) {
+		return 1;
+	} else if (close(f) < 0) {
+		return 1;
+	}
+
+	/* inspect the header */
+	if (memcmp(foo.tzh_magic, "TZif", sizeof(foo.tzh_magic))) {
+		return 1;
+	} else if (!*foo.tzh_version && *foo.tzh_version != '2') {
+		return 1;
+#if defined CHECK_LEAPCNT
+	} else if (!foo.tzh_leapcnt[0] && !foo.tzh_leapcnt[1] &&
+		   !foo.tzh_leapcnt[2] && !foo.tzh_leapcnt[3]) {
+		return CHECK_LEAPCNT;
+#endif  /* CHECK_LEAPCNT */
+	}
+
+	/* otherwise everything's in order */
+	return 0;
+}
+]])], [## call the whole shebang again with the tzfile
+		if ./conftest$EXEEXT tzfile; then
+			if test -z "${ax_tmp_zoneinfo_nested}"; then
+				AC_MSG_RESULT([looking good])
+			fi
+			[]if_found[]
+		else
+			if test -z "${ax_tmp_zoneinfo_nested}"; then
+				AC_MSG_RESULT([looking bad ${ax_tmp_rc}])
+			fi
+			[]if_not_found[]
+		fi
+], [
+		if test -z "${ax_tmp_zoneinfo_nested}"; then
+			AC_MSG_RESULT([impossible])
+		fi
+		[]if_not_found[]])
+	AC_LANG_POP([C])
+
+	popdef([tzfile])
+	popdef([if_found])
+	popdef([if_not_found])
+])dnl AX_ZONEINFO_CHECK_TZFILE
+
+AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 	dnl we consider a zoneinfo directory properly populated when it
 	dnl provides UTC or UCT or Universal or Zulu
 
@@ -48,27 +142,6 @@ AC_DEFUN([AX_ZONEINFO], [dnl
 		test -n []dir[] && test -d []dir[] dnl
 		popdef([dir])dnl
 	])dnl check_tzdir
-
-	pushdef([check_tzfile], [dnl
-		dnl check_tzfile([FILE], [IF-FOUND], [IF-NOT-FOUND])
-		pushdef([file], $]1[)
-		pushdef([if_found], $]2[)
-		pushdef([if_not_found], $]3[)
-
-		if test -n []file[] && test -f []file[] && \
-			test -s []file[] && test -r []file[] && \
-			test `head -c5 []file[]` = "TZif2"; then
-				:
-				if_found
-		else
-			:
-			if_not_found
-		fi
-
-		popdef([file])
-		popdef([if_found])
-		popdef([if_not_found])
-	])dnl check_tzfile
 
 	dnl try /etc/localtime first, sometimes it's a link into TZDIR
 	if test -L "/etc/localtime"; then
@@ -101,10 +174,11 @@ AC_DEFUN([AX_ZONEINFO], [dnl
 
 	dnl go through our candidates
 	AC_CACHE_CHECK([for TZDIR], [ax_cv_zoneinfo_tzdir], [dnl
+		ax_tmp_zoneinfo_nested="yes"
 		for c in ${TZDIR_cand}; do
 			ax_cv_zoneinfo_utc=""
 			for f in "UTC" "UCT" "Universal" "Zulu"; do
-				check_tzfile(["${c}/${f}"], [
+				AX_ZONEINFO_CHECK_TZFILE(["${c}/${f}"], [
 					dnl ACTION-IF-FOUND
 					ax_cv_zoneinfo_utc="${c}/${f}"
 					break
@@ -115,6 +189,7 @@ AC_DEFUN([AX_ZONEINFO], [dnl
 				break
 			fi
 		done
+		ax_tmp_zoneinfo_nested=""
 	])dnl ax_cv_tzdir
 
 	TZDIR="${ax_cv_zoneinfo_tzdir}"
@@ -127,78 +202,11 @@ Define when zoneinfo directory has been present during configuration.])
 Configuration time zoneinfo directory.])
 	fi
 
-	popdef([check_tzfile])
 	popdef([check_tzdir])
-])dnl AX_ZONEINFO
+])dnl AX_ZONEINFO_TZDIR
 
 AC_DEFUN([AX_ZONEINFO_RIGHT], [dnl
-	AC_REQUIRE([AX_ZONEINFO])
-
-	pushdef([check_tzrfile], [dnl
-		dnl check_tzrfile([FILE], [IF-FOUND], [IF-NOT-FOUND])
-		pushdef([file], $]1[)
-		pushdef([if_found], $]2[)
-		pushdef([if_not_found], $]3[)
-
-		if test -n []file[] && test -f []file[] && \
-			test -s []file[] && test -r []file[]; then
-			AC_LANG_PUSH([C])
-			AC_RUN_IFELSE(AC_LANG_PROGRAM([
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <fcntl.h>
-
-/* simplified struct */
-struct tzhead {
-	char	tzh_magic[4];		/* TZ_MAGIC */
-	char	tzh_version[1];		/* '\0' or '2' as of 2005 */
-	char	tzh_reserved[15];	/* reserved--must be zero */
-	char	tzh_ttisgmtcnt[4];	/* coded number of trans. time flags */
-	char	tzh_ttisstdcnt[4];	/* coded number of trans. time flags */
-	char	tzh_leapcnt[4];		/* coded number of leap seconds */
-	char	tzh_timecnt[4];		/* coded number of transition times */
-	char	tzh_typecnt[4];		/* coded number of local time types */
-	char	tzh_charcnt[4];		/* coded number of abbr. chars */
-};
-], [[
-	struct tzhead foo;
-	int f;
-
-	if ((f = open(argv[1], O_RDONLY, 0644)) < 0) {
-		return 1;
-	} else if (read(f, &foo, sizeof(foo)) != sizeof(foo)) {
-		return 1;
-	} else if (close(f) < 0) {
-		return 1;
-	}
-
-	/* inspect the header */
-	if (strcmp(foo.tzh_magic, "TZif")) {
-		return 1;
-	} else if (!*foo.tzh_version && *foo.tzh_version != '2') {
-		return 1;
-	} else if (!foo.tzh_leapcnt[0] && !foo.tzh_leapcnt[1] &&
-		   !foo.tzh_leapcnt[2] && !foo.tzh_leapcnt[3]) {
-		return 2;
-	}
-
-	/* otherwise everything's in order */
-	return 0;
-]], [
-			]if_found[
-], [
-			]if_not_found[]))
-			AC_LANG_POP([C])
-		else
-			:
-			[]if_not_found[]
-		fi
-
-		popdef([file])
-		popdef([if_found])
-		popdef([if_not_found])
-	])dnl check_tzfile
+	AC_REQUIRE([AX_ZONEINFO_TZDIR])
 
 	TZDIR_cand="${TZDIR} \
 ${TZDIR}/leapseconds \
@@ -209,32 +217,43 @@ ${TZDIR}/posix \
 "
 
 	dnl go through our candidates
-	AC_CACHE_CHECK([for leap second file], [ax_cv_zoneinfo_rutc], [dnl
-		__utc_file="`basename '${ax_cv_zoneinfo_utc}'`"
-		for c in ${TZDIR_cand}; do
-			if test -d "${c}"; then
-				c="${c}/${__utc_file}"
-			fi
-			check_tzrfile(["${c}"], [
-				dnl ACTION-IF-FOUND
-				ax_cv_zoneinfo_rutc="${c}"
-				break
-			])
-		done
-		ax_cv_zoneinfo_tzrdir="`dirname '${c}'`"
+	AC_CACHE_CHECK([for leap second file], [ax_cv_zoneinfo_utc_right], [dnl
+		ax_tmp_zoneinfo_nested="yes"
+		if test -n "${ax_cv_zoneinfo_utc}"; then
+			__utc_file="`basename \"${ax_cv_zoneinfo_utc}\"`"
+			for c in ${TZDIR_cand}; do
+				if test -d "${c}"; then
+					c="${c}/${__utc_file}"
+				fi
+				AX_ZONEINFO_CHECK_TZFILE(["${c}"], [
+					dnl ACTION-IF-FOUND
+					ax_cv_zoneinfo_utc_right="${c}"
+					break
+				], [:], [2])
+			done
+			ax_cv_zoneinfo_tzdir_right="`dirname '${c}'`"
+		fi
+		ax_tmp_zoneinfo_nested=""
 	])dnl ax_cv_tzdir
 
-	TZRDIR="${ax_cv_zoneinfo_tzrdir}"
-	AC_SUBST([TZRDIR])
+	TZDIR_RIGHT="${ax_cv_zoneinfo_tzdir_right}"
+	AC_SUBST([TZDIR_RIGHT])
 
-	if test -n "${ax_cv_zoneinfo_tzrdir}"; then
-		AC_DEFINE([HAVE_ZONEINFO], [1], [dnl
+	if test -n "${ax_cv_zoneinfo_tzdir_right}"; then
+		AC_DEFINE([HAVE_ZONEINFO_RIGHT], [1], [dnl
 Define when zoneinfo directory has been present during configuration.])
-		AC_DEFINE_UNQUOTED([TZRDIR], ["${ax_cv_zoneinfo_tzrdir}"], [
+		AC_DEFINE_UNQUOTED([TZDIR_RIGHT],
+			["${ax_cv_zoneinfo_tzdir_right}"], [
 Configuration time zoneinfo directory.])
 	fi
+])dnl AX_ZONEINFO_RIGHT
 
-	popdef([check_tzrfile])
+AC_DEFUN([AX_ZONEINFO], [
+	AC_REQUIRE([AX_ZONEINFO_TZDIR])
+
+	ifelse([$1], [right], [
+		AC_REQUIRE([AX_ZONEINFO_RIGHT])
+	])
 ])dnl AX_ZONEINFO
 
 dnl ax_zoneinfo.m4 ends here
