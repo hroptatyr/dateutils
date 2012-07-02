@@ -42,7 +42,7 @@ SXE_CHECK_CFLAGS
 AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h byteswap.h])
 
 ## check for tzfile.h
-AC_CHECK_HEADERS([tzfile.h])
+AX_ZONEINFO([right])
 
 ## check for strptime
 AC_CHECK_FUNCS([strptime])
