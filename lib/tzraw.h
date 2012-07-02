@@ -116,6 +116,7 @@ struct tzhead {
 typedef struct zif_s *zif_t;
 typedef struct zih_s *zih_t;
 typedef struct ztrdtl_s *ztrdtl_t;
+typedef const struct zleap_tr_s *zleap_tr_t;
 typedef const char *znam_t;
 
 typedef enum {
@@ -170,6 +171,14 @@ struct zrng_s {
 	unsigned int trno:8;
 } __attribute__((packed));
 
+/* for leap second transitions */
+struct zleap_tr_s {
+	/* cut-off stamp */
+	int32_t t;
+	/* cumulative correction since T */
+	int32_t corr;
+};
+
 /* leap second support missing */
 struct zif_s {
 	size_t mpsz;
@@ -189,6 +198,9 @@ struct zif_s {
 
 	/* for special zones */
 	coord_zone_t cz;
+
+	/* leap second transitions */
+	zleap_tr_t ltr;
 
 	/* zone caching, between PREV and NEXT the offset is OFFS */
 	struct zrng_s cache;
@@ -282,6 +294,14 @@ zif_troffs(zif_t z, int n)
 /* no bound check! */
 	uint8_t idx = zif_type(z, n);
 	return be32toh(z->tda[idx].offs);
+}
+
+/**
+ * Return the total number of leap second transitions. */
+static inline size_t
+zif_nltr(zif_t z)
+{
+	return be32toh(z->hdr->tzh_leapcnt);
 }
 
 /**
