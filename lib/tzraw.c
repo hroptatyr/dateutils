@@ -317,9 +317,9 @@ __tai_offs(zif_t z, int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
 	const int32_t tai_offs_epoch = 10;
-	size_t charcnt = be32toh(z->hdr->tzh_charcnt);
-	size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
-	uint32_t *leaps = (void*)(z->zn + charcnt);
+	const size_t charcnt = be32toh(z->hdr->tzh_charcnt);
+	const size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
+	const uint32_t *leaps = (const void*)(z->zn + charcnt);
 	size_t idx;
 
 	if (UNLIKELY((idx = leapcnt) == 0U || t < 0)) {
