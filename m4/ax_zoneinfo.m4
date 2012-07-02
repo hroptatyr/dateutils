@@ -244,10 +244,10 @@ ${TZDIR}/posix \
 	ZONEINFO_UTC_RIGHT="${ax_cv_zoneinfo_utc_right}"
 	AC_SUBST([ZONEINFO_UTC_RIGHT])
 
-	TZDIR_RIGHT="`dirname ${ax_cv_zoneinfo_utc_right}`"
-	AC_SUBST([TZDIR_RIGHT])
-
 	if test -n "${ax_cv_zoneinfo_utc_right}"; then
+		TZDIR_RIGHT="`dirname ${ax_cv_zoneinfo_utc_right}`"
+		AC_SUBST([TZDIR_RIGHT])
+
 		AC_DEFINE([HAVE_ZONEINFO_RIGHT], [1], [dnl
 Define when zoneinfo directory has been present during configuration.])
 		AC_DEFINE_UNQUOTED([TZDIR_RIGHT],
