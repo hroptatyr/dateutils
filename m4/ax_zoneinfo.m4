@@ -50,14 +50,14 @@ AC_DEFUN([AX_ZONEINFO_CHECK_TZFILE], [dnl
 	dnl AX_ZONEINFO_CHECK_TZFILE([FILE], [ACTION-IF-VALID], [ACTION-IF-NOT])
 	dnl secret switch is the 4th argument, which determines the ret code
 	dnl of the leapcnt check
-	pushdef([tzfile], [$1])
+	pushdef([probe], [$1])
 	pushdef([if_found], [$2])
 	pushdef([if_not_found], [$3])
 
 	AC_REQUIRE([AX_ZONEINFO_TZFILE_H])
 
 	if test -z "${ax_tmp_zoneinfo_nested}"; then
-		AC_MSG_CHECKING([zoneinfo file ]tzfile[])
+		AC_MSG_CHECKING([zoneinfo file ]probe[])
 	fi
 
 	AC_LANG_PUSH([C])
@@ -103,7 +103,7 @@ main(int argc, char *argv[])
 	/* inspect the header */
 	if (memcmp(foo.tzh_magic, "TZif", sizeof(foo.tzh_magic))) {
 		return 1;
-	} else if (!*foo.tzh_version && *foo.tzh_version != '2') {
+	} else if (*foo.tzh_version && *foo.tzh_version != '2') {
 		return 1;
 #if defined CHECK_LEAPCNT
 	} else if (!foo.tzh_leapcnt[0] && !foo.tzh_leapcnt[1] &&
@@ -116,7 +116,7 @@ main(int argc, char *argv[])
 	return 0;
 }
 ]])], [## call the whole shebang again with the tzfile
-		if ./conftest$EXEEXT tzfile; then
+		if ./conftest$EXEEXT probe; then
 			if test -z "${ax_tmp_zoneinfo_nested}"; then
 				AC_MSG_RESULT([looking good])
 			fi
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
 		[]if_not_found[]])
 	AC_LANG_POP([C])
 
-	popdef([tzfile])
+	popdef([probe])
 	popdef([if_found])
 	popdef([if_not_found])
 ])dnl AX_ZONEINFO_CHECK_TZFILE
@@ -243,11 +243,11 @@ ${TZDIR}/posix \
 
 	ZONEINFO_UTC_RIGHT="${ax_cv_zoneinfo_utc_right}"
 	AC_SUBST([ZONEINFO_UTC_RIGHT])
-
-	TZDIR_RIGHT="`dirname ${ax_cv_zoneinfo_utc_right}`"
 	AC_SUBST([TZDIR_RIGHT])
 
 	if test -n "${ax_cv_zoneinfo_utc_right}"; then
+		TZDIR_RIGHT="`dirname ${ax_cv_zoneinfo_utc_right}`"
+
 		AC_DEFINE([HAVE_ZONEINFO_RIGHT], [1], [dnl
 Define when zoneinfo directory has been present during configuration.])
 		AC_DEFINE_UNQUOTED([TZDIR_RIGHT],
