@@ -302,16 +302,24 @@ dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
 
 	AC_REQUIRE([AC_PROG_CC])
 
-	for i in []stds[]; do
-		SXE_CHECK_COMPILER_FLAGS([-std="${i}"], [
-			std="-std=${i}"
-			break
-		])
-	done
+	case "${CC}" in dnl (
+	*"-std="*)
+		## user specified a std value already
+		;;
+		dnl (
+	*)
+		for i in []stds[]; do
+			SXE_CHECK_COMPILER_FLAGS([-std="${i}"], [
+				std="-std=${i}"
+				break
+			])
+		done
 
-	AC_MSG_CHECKING([for preferred CC std])
-	AC_MSG_RESULT([${std}])
-	CC="${CC} ${std}"
+		AC_MSG_CHECKING([for preferred CC std])
+		AC_MSG_RESULT([${std}])
+		CC="${CC} ${std}"
+		;;
+	esac
 
 	popdef([stds])
 ])dnl SXE_CHECK_CC
