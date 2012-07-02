@@ -50,14 +50,14 @@ AC_DEFUN([AX_ZONEINFO_CHECK_TZFILE], [dnl
 	dnl AX_ZONEINFO_CHECK_TZFILE([FILE], [ACTION-IF-VALID], [ACTION-IF-NOT])
 	dnl secret switch is the 4th argument, which determines the ret code
 	dnl of the leapcnt check
-	pushdef([tzfile], [$1])
+	pushdef([probe], [$1])
 	pushdef([if_found], [$2])
 	pushdef([if_not_found], [$3])
 
 	AC_REQUIRE([AX_ZONEINFO_TZFILE_H])
 
 	if test -z "${ax_tmp_zoneinfo_nested}"; then
-		AC_MSG_CHECKING([zoneinfo file ]tzfile[])
+		AC_MSG_CHECKING([zoneinfo file ]probe[])
 	fi
 
 	AC_LANG_PUSH([C])
@@ -116,7 +116,7 @@ main(int argc, char *argv[])
 	return 0;
 }
 ]])], [## call the whole shebang again with the tzfile
-		if ./conftest$EXEEXT tzfile; then
+		if ./conftest$EXEEXT probe; then
 			if test -z "${ax_tmp_zoneinfo_nested}"; then
 				AC_MSG_RESULT([looking good])
 			fi
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
 		[]if_not_found[]])
 	AC_LANG_POP([C])
 
-	popdef([tzfile])
+	popdef([probe])
 	popdef([if_found])
 	popdef([if_not_found])
 ])dnl AX_ZONEINFO_CHECK_TZFILE
