@@ -20,7 +20,13 @@
 #
 #   Optionally, OPTIONS can be `right' to trigger further tests that will
 #   determine if leap second fix-ups are available.  If so the variables
-#   HAVE_ZONEINFO_RIGHT and TZDIR_RIGHT will be populated.
+#   HAVE_ZONEINFO_RIGHT, ZONEINFO_UTC_RIGHT and TZDIR_RIGHT will be populated:
+#
+#     AC_DEFINE([HAVE_ZONEINFO_RIGHT], [1], [...])
+#     AC_SUBST([TZDIR_RIGHT])
+#     AC_DEFINE_UNQUOTED([TZDIR_RIGHT], [/path/to/right/zic/files], [...])
+#     AC_SUBST([ZONEINFO_UTC_RIGHT])
+#     AC_DEFINE_UNQUOTED([ZONEINFO_UTC_RIGHT], [$ZONEINFO_UTC_RIGHT], [...])
 #
 #
 # LICENSE
