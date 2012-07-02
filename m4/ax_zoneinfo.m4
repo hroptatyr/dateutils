@@ -103,7 +103,7 @@ main(int argc, char *argv[])
 	/* inspect the header */
 	if (memcmp(foo.tzh_magic, "TZif", sizeof(foo.tzh_magic))) {
 		return 1;
-	} else if (!*foo.tzh_version && *foo.tzh_version != '2') {
+	} else if (*foo.tzh_version && *foo.tzh_version != '2') {
 		return 1;
 #if defined CHECK_LEAPCNT
 	} else if (!foo.tzh_leapcnt[0] && !foo.tzh_leapcnt[1] &&
