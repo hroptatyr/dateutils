@@ -206,25 +206,47 @@ zif_inst(zif_t z)
 {
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
 #define MAP_MEMMAP	MAP_PRIVATE | MAP_ANONYMOUS
+	static size_t pgsz = 0;
 	void *map;
-	size_t sz;
+	size_t prim;
+	size_t xtra;
+	size_t tot_sz;
 	zif_t res = NULL;
 
 	if (UNLIKELY(z == NULL)) {
 		/* no need to bother */
 		return NULL;
 	}
-	sz = z->mpsz + sizeof(*z);
 
-	map = mmap(NULL, sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
+	/* singleton */
+	if (!pgsz) {
+		pgsz = sysconf(_SC_PAGESIZE);
+	}
+	/* compute a size */
+	prim = z->mpsz + sizeof(*z);
+	/* account for leap second transitions */
+	xtra = zif_nltr(z) * sizeof(*res->ltr);
+	/* round up to page size */
+	tot_sz = ((prim + xtra + 16) + (pgsz - 1)) & ~(pgsz - 1);
+
+	map = mmap(NULL, tot_sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
 	if (UNLIKELY(map == MAP_FAILED)) {
 		return NULL;
 	}
 	/* we mmap'ped ourselves a slightly larger struct
 	 * res + 1 points to the header*/
 	memcpy((zif_t)(res = map) + 1, z->hdr, z->mpsz);
+	/* copy leap second transisions, and align them */
+	if (xtra) {
+		ptrdiff_t offs = (prim + 15) & ~15;
+		struct zleap_tr_s *p = (void*)((char*)map + offs);
+		const char *orig = z->zn + (size_t)be32toh(z->hdr->tzh_charcnt);
+
+		memcpy(p, orig, xtra);
+		res->ltr = p;
+	}
 	/* fill in the rest */
-	res->mpsz = sz;
+	res->mpsz = tot_sz;
 	res->hdr = (void*)(res + 1);
 	__pars_zif(res);
 	/* make sure we denote that this isnt connected to a file */
@@ -317,25 +339,21 @@ __tai_offs(zif_t z, int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
 	const int32_t tai_offs_epoch = 10;
-	size_t charcnt = be32toh(z->hdr->tzh_charcnt);
-	size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
-	struct {
-		uint32_t t;
-		int32_t corr;
-	} *leaps = (void*)(z->zn + charcnt);
+	const size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
 	size_t idx;
 
-	if (UNLIKELY((idx = leapcnt) == 0U || t < 0)) {
+	if (UNLIKELY((idx = leapcnt) == 0U)) {
+		/* no leap second transitions recorded */
 		return 0;
 	}
 	/* slight optimisation, start from the back */
-	while (idx && (uint32_t)t < be32toh(leaps[--idx].t));
-	if (UNLIKELY((uint32_t)t < be32toh(leaps[0].t))) {
+	while (idx && t < (int32_t)be32toh(z->ltr[--idx].t));
+	if (UNLIKELY(t < (int32_t)be32toh(z->ltr[0].t))) {
 		/* we actually don't know what happened before the epoch */
 		return tai_offs_epoch;
 	}
 	/* idx now points to the transition before T */
-	return tai_offs_epoch + be32toh(leaps[idx].corr);
+	return tai_offs_epoch + (int32_t)be32toh(z->ltr[idx].corr);
 }
 
 static int32_t
