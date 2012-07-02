@@ -319,23 +319,20 @@ __tai_offs(zif_t z, int32_t t)
 	const int32_t tai_offs_epoch = 10;
 	size_t charcnt = be32toh(z->hdr->tzh_charcnt);
 	size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
-	struct {
-		uint32_t t;
-		int32_t corr;
-	} *leaps = (void*)(z->zn + charcnt);
+	uint32_t *leaps = (void*)(z->zn + charcnt);
 	size_t idx;
 
 	if (UNLIKELY((idx = leapcnt) == 0U || t < 0)) {
 		return 0;
 	}
 	/* slight optimisation, start from the back */
-	while (idx && (uint32_t)t < be32toh(leaps[--idx].t));
-	if (UNLIKELY((uint32_t)t < be32toh(leaps[0].t))) {
+	while (idx && t < (int32_t)be32toh(leaps[--idx]));
+	if (UNLIKELY(t < (int32_t)be32toh(leaps[0]))) {
 		/* we actually don't know what happened before the epoch */
 		return tai_offs_epoch;
 	}
 	/* idx now points to the transition before T */
-	return tai_offs_epoch + be32toh(leaps[idx].corr);
+	return tai_offs_epoch + (int32_t)be32toh(leaps[idx]);
 }
 
 static int32_t
