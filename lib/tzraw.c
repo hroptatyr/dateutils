@@ -435,7 +435,7 @@ __tai_offs(zif_t z, int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
 	const int32_t tai_offs_epoch = 10;
-	const size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
+	const size_t leapcnt = zif_nleaps(z);
 	size_t idx;
 
 	if (UNLIKELY((idx = leapcnt) == 0U)) {
@@ -443,13 +443,13 @@ __tai_offs(zif_t z, int32_t t)
 		return 0;
 	}
 	/* slight optimisation, start from the back */
-	while (idx && t < (int32_t)be32toh(z->ltr[--idx].t));
-	if (UNLIKELY(t < (int32_t)be32toh(z->ltr[0].t))) {
+	while (idx && t < z->ltr[--idx].t);
+	if (UNLIKELY(t < z->ltr[0].t)) {
 		/* we actually don't know what happened before the epoch */
 		return tai_offs_epoch;
 	}
 	/* idx now points to the transition before T */
-	return tai_offs_epoch + (int32_t)be32toh(z->ltr[idx].corr);
+	return tai_offs_epoch + z->ltr[idx].corr;
 }
 
 static int32_t
