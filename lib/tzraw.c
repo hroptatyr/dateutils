@@ -243,9 +243,12 @@ __conv_zif(zif_t tgt, zif_t src)
 	memcpy(tgt->zn, src->zn, nch * sizeof(*tgt->zn));
 
 	/* leaps */
-	for (size_t i = 0; i < nlp; i++) {
-		tgt->ltr[i].t = be32toh(src->ltr[i].t);
-		tgt->ltr[i].corr = be32toh(src->ltr[i].corr);
+	if (nlp) {
+		memcpy(tgt->ltr, src->ltr, nlp * sizeof(*src->ltr));
+		for (size_t i = 0; i < nlp; i++) {
+			tgt->ltr[i].t = be32toh(tgt->ltr[i].t);
+			tgt->ltr[i].corr = be32toh(tgt->ltr[i].corr);
+		}
 	}
 	return;
 }
