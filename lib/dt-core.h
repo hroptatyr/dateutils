@@ -52,6 +52,7 @@ extern "C" {
 # define DEFUN	static
 # define INCLUDE_DATETIME_CORE_IMPL
 # define INCLUDE_TZRAW_IMPL
+# define INCLUDE_LEAPS_IMPL
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
