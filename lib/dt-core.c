@@ -53,6 +53,7 @@
 #include "time-core.h"
 #include "dt-core.h"
 #include "strops.h"
+#include "leaps.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -1252,10 +1253,23 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		/* go for tdiff and ddiff independently */
 		res.t = dt_tdiff(d1.t, d2.t);
+#if !defined WITH_LEAP_SECONDS
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
 			(int64_t)res.d.daisydur * SECS_PER_DAY;
+#else  /* WITH_LEAP_SECONDS */
+		sxdur = res.t.sdur;
+		{
+			dt_daisy_t d1d = dt_conv_to_daisy(d1.d);
+			dt_daisy_t d2d = dt_conv_to_daisy(d2.d);
+
+			res.d = __daisy_diff(d1d, d2d);
+			sxdur += leaps_between(d1d, d2d);
+		}
+		/* since target type is SEXY do the conversion here */
+		sxdur += (int64_t)res.d.daisydur * SECS_PER_DAY;
+#endif	/* !WITH_LEAP_SECONDS */
 		/* set up the output here */
 		res.typ = DT_SEXY;
 		res.dur = 0;
