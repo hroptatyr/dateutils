@@ -18,6 +18,7 @@ header_HEADERS += dt-core.h dt-core.c
 header_HEADERS += strops.h strops.c
 header_HEADERS += token.h token.c
 header_HEADERS += tzraw.h tzraw.c
+header_HEADERS += leaps.h leaps.c
 header_HEADERS += boobs.h
 header_HEADERS += generics.h
 header_HEADERS += dt-core-tz-glue.h dt-core-tz-glue.c
