@@ -165,8 +165,7 @@ __init_zif(zif_t z)
 		z->ltr = (zleap_tr_t)(z->zn + nch);
 	} else {
 		/* align it thoroughly */
-		ptrdiff_t offs = (nch + 15) & ~15;
-		z->ltr = (zleap_tr_t)(z->zn + offs);
+		z->ltr = (zleap_tr_t)((intptr_t)(z->zn + nch + 15) & ~15);
 	}
 	return;
 }
