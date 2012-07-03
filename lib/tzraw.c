@@ -57,6 +57,8 @@
 # include <tzfile.h>
 #endif	/* HAVE_TZFILE_H */
 
+/* for be/le conversions */
+#include "boobs.h"
 /* me own header, innit */
 #include "tzraw.h"
 
@@ -126,56 +128,47 @@ __open_zif(const char *file)
 	return open(file, O_RDONLY, 0644);
 }
 
-static zif_t
-__read_zif(int fd)
-{
-	struct zif_s tmp;
-	struct stat st;
-	zif_t res;
-
-	if (fstat(fd, &st) < 0) {
-		return NULL;
-	}
-	tmp.mpsz = st.st_size;
-	tmp.fd = fd;
-	tmp.hdr = mmap(NULL, tmp.mpsz, PROT_READ, MAP_SHARED, fd, 0);
-	if (tmp.hdr == MAP_FAILED) {
-		return NULL;
-	}
-	/* otherwise generate an output structure */
-	res = malloc(sizeof(*res));
-	*res = tmp;
-	return res;
-}
-
 static void
-__pars_zif(zif_t z)
+__init_zif(zif_t z)
 {
-	z->trs = (int32_t*)(z->hdr + 1);
-	z->tys = (uint8_t*)(z->trs + zif_ntrans(z));
-	z->tda = (ztrdtl_t)(z->tys + zif_ntrans(z));
-	z->zn = (char*)(z->tda + zif_ntypes(z));
+	size_t ntr;
+	size_t nty;
+
+	if (z->fd > STDIN_FILENO) {
+		/* means we have to do host byte-order conversions */
+		ntr = be32toh(zif_ntrans(z));
+		nty = be32toh(zif_ntypes(z));
+	} else {
+		/* everything in host byte-order already */
+		ntr = zif_ntrans(z);
+		nty = zif_ntypes(z);
+	}
+	z->trs = (ztr_t)(z->hdr + 1);
+	z->tys = (zty_t)(z->trs + ntr);
+	z->tda = (ztrdtl_t)(z->tys + ntr);
+	z->zn = (char*)(z->tda + nty);
 	return;
 }
 
-DEFUN zif_t
-zif_read(const char *file)
+static int
+__read_zif(struct zif_s *tgt, int fd)
 {
-	coord_zone_t cz;
-	int fd;
-	zif_t res = NULL;
+	struct stat st;
 
-	/* check for special time zones */
-	if ((cz = coord_zone(file)) > TZCZ_UNK) {
-		file = coord_fn;
+	if (fstat(fd, &st) < 0) {
+		return -1;
+	} else if (st.st_size <= 4) {
+		return -1;
 	}
-
-	if ((fd = __open_zif(file)) > STDIN_FILENO &&
-	    (res = __read_zif(fd)) != NULL) {
-		__pars_zif(res);
-		res->cz = cz;
+	tgt->mpsz = st.st_size;
+	tgt->fd = fd;
+	tgt->hdr = mmap(NULL, tgt->mpsz, PROT_READ, MAP_SHARED, fd, 0);
+	if (tgt->hdr == MAP_FAILED) {
+		return -1;
 	}
-	return res;
+	/* all clear so far, populate */
+	__init_zif(tgt);
+	return 0;
 }
 
 DEFUN void
@@ -185,25 +178,27 @@ zif_close(zif_t z)
 		/* nothing to do */
 		return;
 	}
-	if (z->hdr != MAP_FAILED && (z + 1) != (void*)z->hdr) {
-		munmap((void*)z->hdr, z->mpsz);
-	}
 	if (z->fd > STDIN_FILENO) {
 		close(z->fd);
 	}
 	/* check if z is in mmap()'d space */
-	if ((z + 1) != (void*)z->hdr) {
-		/* nope? it's safe to free it then */
-		free(z);
+	if (z->hdr == MAP_FAILED) {
+		/* not sure what to do */
+		;
+	} else if ((z + 1) != (void*)z->hdr) {
+		/* z->hdr is mmapped, z is not */
+		munmap((void*)z->hdr, z->mpsz);
 	} else {
 		munmap(z, z->mpsz);
 	}
 	return;
 }
 
-DEFUN inline zif_t
-zif_inst(zif_t z)
+DEFUN zif_t
+zif_copy(zif_t z)
 {
+/* copy Z into a newly allocated zif_t object
+ * if applicable also perform byte-order conversions */
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
 #define MAP_MEMMAP	MAP_PRIVATE | MAP_ANONYMOUS
 	static size_t pgsz = 0;
@@ -248,20 +243,38 @@ zif_inst(zif_t z)
 	/* fill in the rest */
 	res->mpsz = tot_sz;
 	res->hdr = (void*)(res + 1);
-	__pars_zif(res);
 	/* make sure we denote that this isnt connected to a file */
 	res->fd = -1;
 	/* copy the flags though */
 	res->cz = z->cz;
+	/* and now fill in the header thing */
+	__init_zif(res);
 	return res;
 }
 
 DEFUN zif_t
-zif_read_inst(const char *name)
+zif_open(const char *file)
 {
-	zif_t tmpz = zif_read(name);
-	zif_t res = zif_inst(tmpz);
-	zif_close(tmpz);
+	coord_zone_t cz;
+	int fd;
+	struct zif_s tmp[1];
+	zif_t res;
+
+	/* check for special time zones */
+	if ((cz = coord_zone(file)) > TZCZ_UNK) {
+		file = coord_fn;
+	}
+
+	if (UNLIKELY((fd = __open_zif(file)) <= STDIN_FILENO)) {
+		return NULL;
+	} else if (UNLIKELY(__read_zif(tmp, fd) < 0)) {
+		return NULL;
+	}
+	/* otherwise all's fine, it's still BE
+	 * assign the coord zone type if any and convert to host byte-order */
+	tmp->cz = cz;
+	res = zif_copy(tmp);
+	zif_close(tmp);
 	return res;
 }
 
