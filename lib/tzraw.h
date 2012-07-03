@@ -117,8 +117,8 @@ typedef struct zih_s *zih_t;
 typedef struct ztr_s *ztr_t;
 typedef struct zty_s *zty_t;
 typedef struct ztrdtl_s *ztrdtl_t;
-typedef const struct zleap_tr_s *zleap_tr_t;
-typedef const char *znam_t;
+typedef struct zleap_tr_s *zleap_tr_t;
+typedef char *znam_t;
 
 typedef enum {
 	TZCZ_UNK,
@@ -201,15 +201,14 @@ struct zif_s {
 	ztrdtl_t tda;
 	/* zonename array */
 	znam_t zn;
+	/* leap second transitions */
+	zleap_tr_t ltr;
 
 	/* file descriptor, if >0 this also means all data is in BE */
 	int fd;
 
 	/* for special zones */
 	coord_zone_t cz;
-
-	/* leap second transitions */
-	zleap_tr_t ltr;
 
 	/* zone caching, between PREV and NEXT the offset is OFFS */
 	struct zrng_s cache;
@@ -282,6 +281,14 @@ zif_type(zif_t z, int n)
 }
 
 /**
+ * Return the total number of transitions in zoneinfo file Z. */
+static inline size_t
+zif_nchars(zif_t z)
+{
+	return z->hdr->tzh_charcnt;
+}
+
+/**
  * Return the transition details after the N-th transition in Z. */
 static inline struct ztrdtl_s
 zif_trdtl(zif_t z, int n)
@@ -307,7 +314,7 @@ zif_troffs(zif_t z, int n)
 /**
  * Return the total number of leap second transitions. */
 static inline size_t
-zif_nltr(zif_t z)
+zif_nleaps(zif_t z)
 {
 	return z->hdr->tzh_leapcnt;
 }
