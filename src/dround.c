@@ -459,10 +459,10 @@ main(int argc, char *argv[])
 
 	/* try and read the from and to time zones */
 	if (argi->from_zone_given) {
-		fromz = zif_read_inst(argi->from_zone_arg);
+		fromz = zif_open(argi->from_zone_arg);
 	}
 	if (argi->zone_given) {
-		z = zif_read_inst(argi->zone_arg);
+		z = zif_open(argi->zone_arg);
 	}
 	if (argi->next_given) {
 		nextp = true;
@@ -593,6 +593,13 @@ no durations given");
 	}
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
+
+	if (argi->from_zone_given) {
+		zif_close(fromz);
+	}
+	if (argi->zone_given) {
+		zif_close(z);
+	}
 
 out:
 	cmdline_parser_free(argi);
