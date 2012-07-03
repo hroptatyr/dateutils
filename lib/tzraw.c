@@ -57,6 +57,8 @@
 # include <tzfile.h>
 #endif	/* HAVE_TZFILE_H */
 
+/* for be/le conversions */
+#include "boobs.h"
 /* me own header, innit */
 #include "tzraw.h"
 
@@ -83,6 +85,9 @@ static const char coord_fn[] = ZONEINFO_UTC_RIGHT;
 #else  /* !ZONEINFO_UTC_RIGHT */
 static const char coord_fn[] = "/usr/share/zoneinfo/right/UTC";
 #endif	/* ZONEINFO_UTC_RIGHT */
+
+#define PROT_MEMMAP	PROT_READ | PROT_WRITE
+#define MAP_MEMMAP	MAP_PRIVATE | MAP_ANONYMOUS
 
 /* special zone names */
 static const char coord_zones[][4] = {
@@ -126,55 +131,186 @@ __open_zif(const char *file)
 	return open(file, O_RDONLY, 0644);
 }
 
-static zif_t
-__read_zif(int fd)
-{
-	struct zif_s tmp;
-	struct stat st;
-	zif_t res;
-
-	if (fstat(fd, &st) < 0) {
-		return NULL;
-	}
-	tmp.mpsz = st.st_size;
-	tmp.fd = fd;
-	tmp.hdr = mmap(NULL, tmp.mpsz, PROT_READ, MAP_SHARED, fd, 0);
-	if (tmp.hdr == MAP_FAILED) {
-		return NULL;
-	}
-	/* otherwise generate an output structure */
-	res = malloc(sizeof(*res));
-	*res = tmp;
-	return res;
-}
-
 static void
-__pars_zif(zif_t z)
+__init_zif(zif_t z)
 {
-	z->trs = (int32_t*)(z->hdr + 1);
-	z->tys = (uint8_t*)(z->trs + zif_ntrans(z));
-	z->tda = (ztrdtl_t)(z->tys + zif_ntrans(z));
-	z->zn = (char*)(z->tda + zif_ntypes(z));
+	size_t ntr;
+	size_t nty;
+	size_t nch;
+	size_t nlp;
+
+	if (z->fd > STDIN_FILENO) {
+		/* probably in BE then, eh? */
+		ntr = be32toh(zif_ntrans(z));
+		nty = be32toh(zif_ntypes(z));
+		nch = be32toh(zif_nchars(z));
+		nlp = be32toh(zif_nleaps(z));
+	} else {
+		ntr = zif_ntrans(z);
+		nty = zif_ntypes(z);
+		nch = zif_nchars(z);
+		nlp = zif_nleaps(z);
+	}
+
+	z->trs = (ztr_t)(z->hdr + 1);
+	z->tys = (zty_t)(z->trs + ntr);
+	z->tda = (ztrdtl_t)(z->tys + ntr);
+	z->zn = (char*)(z->tda + nty);
+
+	/* leap transitions are special as they need aligning */
+	if (LIKELY(!nlp)) {
+		z->ltr = NULL;
+	} else if (z->fd > STDIN_FILENO) {
+		/* can't muck around with this one */
+		z->ltr = (zleap_tr_t)(z->zn + nch);
+	} else {
+		/* align it thoroughly */
+		z->ltr = (zleap_tr_t)((intptr_t)(z->zn + nch + 15) & ~15);
+	}
 	return;
 }
 
-DEFUN zif_t
-zif_read(const char *file)
+static int
+__read_zif(struct zif_s *tgt, int fd)
 {
-	coord_zone_t cz;
-	int fd;
+	struct stat st;
+
+	if (fstat(fd, &st) < 0) {
+		return -1;
+	} else if (st.st_size <= 4) {
+		return -1;
+	}
+	tgt->mpsz = st.st_size;
+	tgt->fd = fd;
+	tgt->hdr = mmap(NULL, tgt->mpsz, PROT_READ, MAP_SHARED, fd, 0);
+	if (tgt->hdr == MAP_FAILED) {
+		return -1;
+	}
+	/* all clear so far, populate */
+	__init_zif(tgt);
+	return 0;
+}
+
+static void
+__conv_hdr(zih_t tgt, zih_t src)
+{
+/* copy SRC to TGT doing byte-order conversions on the way */
+	memcpy(tgt, src, offsetof(struct zih_s, tzh_ttisgmtcnt));
+	tgt->tzh_ttisgmtcnt = be32toh(src->tzh_ttisgmtcnt);
+	tgt->tzh_ttisstdcnt = be32toh(src->tzh_ttisstdcnt);
+	tgt->tzh_leapcnt = be32toh(src->tzh_leapcnt);
+	tgt->tzh_timecnt = be32toh(src->tzh_timecnt);
+	tgt->tzh_typecnt = be32toh(src->tzh_typecnt);
+	tgt->tzh_charcnt = be32toh(src->tzh_charcnt);
+	return;
+}
+
+static void
+__conv_zif(zif_t tgt, zif_t src)
+{
+	size_t ntr;
+	size_t nty;
+	size_t nch;
+	size_t nlp;
+
+	/* convert header to hbo */
+	__conv_hdr(tgt->hdr, src->hdr);
+
+	/* everything in host byte-order already */
+	ntr = zif_ntrans(tgt);
+	nty = zif_ntypes(tgt);
+	nch = zif_nchars(tgt);
+	nlp = zif_nleaps(tgt);
+	__init_zif(tgt);
+
+	/* transition vector */
+	for (size_t i = 0; i < ntr; i++) {
+		tgt->trs[i].tr = be32toh(src->trs[i].tr);
+	}
+
+	/* type vector, nothing to byte-swap here */
+	memcpy(tgt->tys, src->tys, ntr * sizeof(*tgt->tys));
+
+	/* transition details vector */
+	for (size_t i = 0; i < nty; i++) {
+		tgt->tda[i].offs = be32toh(src->tda[i].offs);
+		tgt->tda[i].dstp = src->tda[i].dstp;
+		tgt->tda[i].abbr = src->tda[i].abbr;
+	}
+
+	/* zone name array */
+	memcpy(tgt->zn, src->zn, nch * sizeof(*tgt->zn));
+
+	/* leaps */
+	if (nlp) {
+		memcpy(tgt->ltr, src->ltr, nlp * sizeof(*src->ltr));
+		for (size_t i = 0; i < nlp; i++) {
+			tgt->ltr[i].t = be32toh(tgt->ltr[i].t);
+			tgt->ltr[i].corr = be32toh(tgt->ltr[i].corr);
+		}
+	}
+	return;
+}
+
+static zif_t
+__copy_conv(zif_t z)
+{
+/* copy Z and do byte-order conversions */
+	static size_t pgsz = 0;
+	size_t prim;
+	size_t tot_sz;
 	zif_t res = NULL;
 
-	/* check for special time zones */
-	if ((cz = coord_zone(file)) > TZCZ_UNK) {
-		file = coord_fn;
+	/* singleton */
+	if (!pgsz) {
+		pgsz = sysconf(_SC_PAGESIZE);
 	}
+	/* compute a size */
+	prim = z->mpsz + sizeof(*z);
+	/* round up to page size and alignment */
+	tot_sz = ((prim + 16) + (pgsz - 1)) & ~(pgsz - 1);
 
-	if ((fd = __open_zif(file)) > STDIN_FILENO &&
-	    (res = __read_zif(fd)) != NULL) {
-		__pars_zif(res);
-		res->cz = cz;
+	/* we'll mmap ourselves a slightly larger struct so
+	 * res + 1 points to the header, while res + 0 is the zif_t */
+	res = mmap(NULL, tot_sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
+	if (UNLIKELY(res == MAP_FAILED)) {
+		return NULL;
 	}
+	/* great, now to some initial assignments */
+	res->mpsz = tot_sz;
+	res->hdr = (void*)(res + 1);
+	/* make sure we denote that this isnt connected to a file */
+	res->fd = -1;
+	/* copy the flags though */
+	res->cz = z->cz;
+
+	/* convert the header and payload now */
+	__conv_zif(res, z);
+
+	/* that's all :) */
+	return res;
+}
+
+DEFUN zif_t
+zif_copy(zif_t z)
+{
+/* copy Z into a newly allocated zif_t object
+ * if applicable also perform byte-order conversions */
+	zif_t res;
+
+	if (UNLIKELY(z == NULL)) {
+		/* no need to bother */
+		return NULL;
+	} else if (z->fd > STDIN_FILENO) {
+		return __copy_conv(z);
+	}
+	/* otherwise it's a plain copy */
+	res = mmap(NULL, z->mpsz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
+	if (UNLIKELY(res == MAP_FAILED)) {
+		return NULL;
+	}
+	memcpy(res, z, z->mpsz);
+	__init_zif(res);
 	return res;
 }
 
@@ -185,83 +321,45 @@ zif_close(zif_t z)
 		/* nothing to do */
 		return;
 	}
-	if (z->hdr != MAP_FAILED && (z + 1) != (void*)z->hdr) {
-		munmap((void*)z->hdr, z->mpsz);
-	}
 	if (z->fd > STDIN_FILENO) {
 		close(z->fd);
 	}
 	/* check if z is in mmap()'d space */
-	if ((z + 1) != (void*)z->hdr) {
-		/* nope? it's safe to free it then */
-		free(z);
+	if (z->hdr == MAP_FAILED) {
+		/* not sure what to do */
+		;
+	} else if ((z + 1) != (void*)z->hdr) {
+		/* z->hdr is mmapped, z is not */
+		munmap((void*)z->hdr, z->mpsz);
 	} else {
 		munmap(z, z->mpsz);
 	}
 	return;
 }
 
-DEFUN inline zif_t
-zif_inst(zif_t z)
-{
-#define PROT_MEMMAP	PROT_READ | PROT_WRITE
-#define MAP_MEMMAP	MAP_PRIVATE | MAP_ANONYMOUS
-	static size_t pgsz = 0;
-	void *map;
-	size_t prim;
-	size_t xtra;
-	size_t tot_sz;
-	zif_t res = NULL;
-
-	if (UNLIKELY(z == NULL)) {
-		/* no need to bother */
-		return NULL;
-	}
-
-	/* singleton */
-	if (!pgsz) {
-		pgsz = sysconf(_SC_PAGESIZE);
-	}
-	/* compute a size */
-	prim = z->mpsz + sizeof(*z);
-	/* account for leap second transitions */
-	xtra = zif_nltr(z) * sizeof(*res->ltr);
-	/* round up to page size */
-	tot_sz = ((prim + xtra + 16) + (pgsz - 1)) & ~(pgsz - 1);
-
-	map = mmap(NULL, tot_sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
-	if (UNLIKELY(map == MAP_FAILED)) {
-		return NULL;
-	}
-	/* we mmap'ped ourselves a slightly larger struct
-	 * res + 1 points to the header*/
-	memcpy((zif_t)(res = map) + 1, z->hdr, z->mpsz);
-	/* copy leap second transisions, and align them */
-	if (xtra) {
-		ptrdiff_t offs = (prim + 15) & ~15;
-		struct zleap_tr_s *p = (void*)((char*)map + offs);
-		const char *orig = z->zn + (size_t)be32toh(z->hdr->tzh_charcnt);
-
-		memcpy(p, orig, xtra);
-		res->ltr = p;
-	}
-	/* fill in the rest */
-	res->mpsz = tot_sz;
-	res->hdr = (void*)(res + 1);
-	__pars_zif(res);
-	/* make sure we denote that this isnt connected to a file */
-	res->fd = -1;
-	/* copy the flags though */
-	res->cz = z->cz;
-	return res;
-}
-
 DEFUN zif_t
-zif_read_inst(const char *name)
+zif_open(const char *file)
 {
-	zif_t tmpz = zif_read(name);
-	zif_t res = zif_inst(tmpz);
-	zif_close(tmpz);
+	coord_zone_t cz;
+	int fd;
+	struct zif_s tmp[1];
+	zif_t res;
+
+	/* check for special time zones */
+	if ((cz = coord_zone(file)) > TZCZ_UNK) {
+		file = coord_fn;
+	}
+
+	if (UNLIKELY((fd = __open_zif(file)) <= STDIN_FILENO)) {
+		return NULL;
+	} else if (UNLIKELY(__read_zif(tmp, fd) < 0)) {
+		return NULL;
+	}
+	/* otherwise all's fine, it's still BE
+	 * assign the coord zone type if any and convert to host byte-order */
+	tmp->cz = cz;
+	res = zif_copy(tmp);
+	zif_close(tmp);
 	return res;
 }
 
@@ -339,7 +437,7 @@ __tai_offs(zif_t z, int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
 	const int32_t tai_offs_epoch = 10;
-	const size_t leapcnt = be32toh(z->hdr->tzh_leapcnt);
+	const size_t leapcnt = zif_nleaps(z);
 	size_t idx;
 
 	if (UNLIKELY((idx = leapcnt) == 0U)) {
@@ -347,13 +445,13 @@ __tai_offs(zif_t z, int32_t t)
 		return 0;
 	}
 	/* slight optimisation, start from the back */
-	while (idx && t < (int32_t)be32toh(z->ltr[--idx].t));
-	if (UNLIKELY(t < (int32_t)be32toh(z->ltr[0].t))) {
+	while (idx && t < z->ltr[--idx].t);
+	if (UNLIKELY(t < z->ltr[0].t)) {
 		/* we actually don't know what happened before the epoch */
 		return tai_offs_epoch;
 	}
 	/* idx now points to the transition before T */
-	return tai_offs_epoch + (int32_t)be32toh(z->ltr[idx].corr);
+	return tai_offs_epoch + z->ltr[idx].corr;
 }
 
 static int32_t
@@ -399,6 +497,8 @@ __offs(zif_t z, int32_t t)
 		max = z->cache.trno;
 		this = max - 1;
 		min = 0;
+	} else {
+		;
 	}
 	return (z->cache = __find_zrng(z, t, this, min, max)).offs;
 }

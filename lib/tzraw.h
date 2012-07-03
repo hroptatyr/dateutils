@@ -40,7 +40,6 @@
 
 #include <stdint.h>
 #include <limits.h>
-#include "boobs.h"
 
 #if defined __cplusplus
 extern "C" {
@@ -115,9 +114,11 @@ struct tzhead {
 /* now our view on things */
 typedef struct zif_s *zif_t;
 typedef struct zih_s *zih_t;
+typedef struct ztr_s *ztr_t;
+typedef struct zty_s *zty_t;
 typedef struct ztrdtl_s *ztrdtl_t;
-typedef const struct zleap_tr_s *zleap_tr_t;
-typedef const char *znam_t;
+typedef struct zleap_tr_s *zleap_tr_t;
+typedef char *znam_t;
 
 typedef enum {
 	TZCZ_UNK,
@@ -179,28 +180,35 @@ struct zleap_tr_s {
 	int32_t corr;
 };
 
+struct ztr_s {
+	int32_t tr;
+};
+
+struct zty_s {
+	uint8_t ty;
+};
+
 /* leap second support missing */
 struct zif_s {
 	size_t mpsz;
 	zih_t hdr;
 
 	/* transitions */
-	int32_t *trs;
+	ztr_t trs;
 	/* types */
-	uint8_t *tys;
+	zty_t tys;
 	/* type array, deser'd, transition details array */
 	ztrdtl_t tda;
 	/* zonename array */
 	znam_t zn;
+	/* leap second transitions */
+	zleap_tr_t ltr;
 
-	/* file descriptor */
+	/* file descriptor, if >0 this also means all data is in BE */
 	int fd;
 
 	/* for special zones */
 	coord_zone_t cz;
-
-	/* leap second transitions */
-	zleap_tr_t ltr;
 
 	/* zone caching, between PREV and NEXT the offset is OFFS */
 	struct zrng_s cache;
@@ -208,32 +216,31 @@ struct zif_s {
 
 
 /**
- * Read the zoneinfo file FILE. */
-DECLF zif_t zif_read(const char *file);
-/**
- * Read and instantiate the zoneinfo file FILE. */
-DECLF zif_t zif_read_inst(const char *file);
+ * Open the zoneinfo file FILE.
+ * FILE can be absolute or relative to the configured TZDIR path.
+ * FILE can also name virtual zones such as GPS or TAI. */
+DECLF zif_t zif_open(const char *file);
+
 /**
  * Close the zoneinfo file reader and free associated resources. */
 DECLF void zif_close(zif_t);
-/**
- * Instantiate the zoneinfo structure, so it is purely in memory. */
-DECLF zif_t zif_inst(zif_t);
-/**
- * Free an instantiated zoneinfo structure. */
-DECLF inline void zif_free(zif_t);
+
 /**
  * Copy the zoneinfo structure. */
-#define zif_copy	zif_inst
+DECLF zif_t zif_copy(zif_t);
+
 /**
  * Find the most recent transition in Z before T. */
 DECLF int zif_find_trans(zif_t z, int32_t t);
+
 /**
  * Find a range of transitions in Z that T belongs to. */
 DECLF struct zrng_s zif_find_zrng(zif_t z, int32_t t);
+
 /**
  * Given T in local time specified by Z, return a T in UTC. */
 DECLF int32_t zif_utc_time(zif_t z, int32_t t);
+
 /**
  * Given T in UTC, return a T in local time specified by Z. */
 DECLF int32_t zif_local_time(zif_t z, int32_t t);
@@ -244,7 +251,7 @@ DECLF int32_t zif_local_time(zif_t z, int32_t t);
 static inline size_t
 zif_ntrans(zif_t z)
 {
-	return be32toh(z->hdr->tzh_timecnt);
+	return z->hdr->tzh_timecnt;
 }
 
 /**
@@ -253,7 +260,7 @@ static inline int32_t
 zif_trans(zif_t z, int n)
 {
 /* no bound check! */
-	return zif_ntrans(z) > 0UL ? be32toh(z->trs[n]) : INT_MIN;
+	return zif_ntrans(z) > 0UL ? z->trs[n].tr : INT_MIN;
 }
 
 /**
@@ -261,7 +268,7 @@ zif_trans(zif_t z, int n)
 static inline size_t
 zif_ntypes(zif_t z)
 {
-	return be32toh(z->hdr->tzh_typecnt);
+	return z->hdr->tzh_typecnt;
 }
 
 /**
@@ -270,7 +277,15 @@ static inline uint8_t
 zif_type(zif_t z, int n)
 {
 /* no bound check! */
-	return (uint8_t)(zif_ntrans(z) > 0UL ? z->tys[n] : 0U);
+	return (uint8_t)(zif_ntrans(z) > 0UL ? z->tys[n].ty : 0U);
+}
+
+/**
+ * Return the total number of transitions in zoneinfo file Z. */
+static inline size_t
+zif_nchars(zif_t z)
+{
+	return z->hdr->tzh_charcnt;
 }
 
 /**
@@ -282,7 +297,7 @@ zif_trdtl(zif_t z, int n)
 	struct ztrdtl_s res;
 	uint8_t idx = zif_type(z, n);
 	res = z->tda[idx];
-	res.offs = be32toh(z->tda[idx].offs);
+	res.offs = z->tda[idx].offs;
 	return res;
 }
 
@@ -293,15 +308,15 @@ zif_troffs(zif_t z, int n)
 {
 /* no bound check! */
 	uint8_t idx = zif_type(z, n);
-	return be32toh(z->tda[idx].offs);
+	return z->tda[idx].offs;
 }
 
 /**
  * Return the total number of leap second transitions. */
 static inline size_t
-zif_nltr(zif_t z)
+zif_nleaps(zif_t z)
 {
-	return be32toh(z->hdr->tzh_leapcnt);
+	return z->hdr->tzh_leapcnt;
 }
 
 /**
@@ -325,18 +340,10 @@ zif_spec(zif_t z, int n)
 	uint8_t jdx = z->tda[idx].abbr;
 
 	res.since = zif_trans(z, n);
-	res.offs = be32toh(z->tda[idx].offs);
+	res.offs = z->tda[idx].offs;
 	res.dstp = z->tda[idx].dstp;
 	res.name = z->zn + jdx;
 	return res;
-}
-
-static inline void
-zif_free(zif_t z)
-{
-	/* we can use zif_close() here as we mmapped our memory */
-	zif_close(z);
-	return;
 }
 
 
