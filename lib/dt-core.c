@@ -76,14 +76,6 @@
 # include "time-core.c"
 #endif	/* INCLUDED_time_core_c_ */
 
-#if !defined INCLUDED_tzraw_c_
-# include "tzraw.c"
-#endif	/* INCLUDED_tzraw_c_ */
-
-#if !defined INCLUDED_dt_core_tz_glue_c_
-# include "dt-core-tz-glue.c"
-#endif	/* INCLUDED_dt_core_tz_glue_c_ */
-
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
