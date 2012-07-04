@@ -55,7 +55,7 @@
 static int32_t corr = 0;
 
 static int
-pr_line(const char *line, size_t llen, dt_dtyp_t typ)
+pr_line_d(const char *line, size_t llen, dt_dtyp_t typ)
 {
 	struct dt_d_s d;
 	char *ep;
@@ -108,14 +108,15 @@ const struct zleap_s %s[] = {\n\
 	{0x00U/* 0 */, %i},\n", var, corr = 0);
 	/* main loop */
 	while ((nrd = getline(&line, &len, fp)) >= 0) {
-		if (pr_line(line, nrd, typ) < 0) {
+		if (pr_line_d(line, nrd, typ) < 0) {
 			fprintf(stderr, "line buggered: %s", line);
 		}
 	}
 	/* epilogue */
 	fprintf(stdout, "\
 	{UINT32_MAX, %i}\n\
-};\n\n", corr);
+};\n\
+const size_t n%s = countof(%s);\n\n", corr, var, var);
 	if (line) {
 		free(line);
 	}
@@ -140,6 +141,10 @@ parse_file(const char *file)
 \n\
 #if !defined INCLUDED_ltrcc_generated_def_\n\
 #define INCLUDED_ltrcc_generated_def_\n\
+\n\
+#if !defined countof\n\
+# define countof(x)	(sizeof(x) / sizeof(*x))\n\
+#endif	/* !countof */\n\
 \n", file);
 
 	pr_file(fp, "leaps_ymd", DT_YMD);
