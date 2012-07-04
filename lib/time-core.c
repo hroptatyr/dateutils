@@ -483,7 +483,7 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 	}
 }
 
-static struct dt_t_s
+DEFUN struct dt_t_s
 dt_time(void)
 {
 #if defined __C1X
