@@ -10,7 +10,7 @@ noinst_HEADERS =
 noinst_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
-EXTRA_DIST = $(BUILT_SOURCES)
+EXTRA_DIST =
 
 header_HEADERS =
 header_HEADERS += date-core.h date-core.c
