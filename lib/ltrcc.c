@@ -137,6 +137,9 @@ parse_file(const char *file)
 #include <stdint.h>\n\
 #include <limits.h>\n\
 #include \"leaps.h\"\n\
+\n\
+#if !defined INCLUDED_ltrcc_generated_def_\n\
+#define INCLUDED_ltrcc_generated_def_\n\
 \n", file);
 
 	pr_file(fp, "leaps_ymd", DT_YMD);
@@ -145,7 +148,8 @@ parse_file(const char *file)
 	rewind(fp);
 	pr_file(fp, "leaps_d", DT_DAISY);
 
-	fprintf(stdout, "/* %s ends here */\n", file);
+	fputs("\
+#endif  /* INCLUDED_ltrcc_generated_def_ */\n", stdout);
 	return 0;
 }
 
