@@ -34,9 +34,9 @@ BUILT_SOURCES += leapseconds.def
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
-am__v_LTRCC_0 = @echo "  LTRCC " $@;
+am__v_LTRCC_0 = @echo "  LTRCC   " $@;
 
-leapseconds.def: $(srcdir)/leapseconds $(builddir)/ltrcc$(EXEEXT)
+leapseconds.def: $(srcdir)/leapseconds
 	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) $< > $@
 
 # 

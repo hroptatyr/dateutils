@@ -7,7 +7,7 @@ LC_ALL = C
 libdir = $(abs_top_srcdir)/lib
 
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
-AM_CPPFLAGS += -DTEST -I$(libdir)
+AM_CPPFLAGS += -DTEST -I$(libdir) -I$(abs_top_builddir)/lib
 
 EXTRA_DIST = $(dt_tests) $(DT_LOG_COMPILER)
 TESTS = $(bin_tests) $(dt_tests)
