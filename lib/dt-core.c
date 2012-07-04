@@ -76,14 +76,6 @@
 # include "time-core.c"
 #endif	/* INCLUDED_time_core_c_ */
 
-#if !defined INCLUDED_tzraw_c_
-# include "tzraw.c"
-#endif	/* INCLUDED_tzraw_c_ */
-
-#if !defined INCLUDED_dt_core_tz_glue_c_
-# include "dt-core-tz-glue.c"
-#endif	/* INCLUDED_dt_core_tz_glue_c_ */
-
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -1270,7 +1262,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		/* go for tdiff and ddiff independently */
 		res.t = dt_tdiff(d1.t, d2.t);
-#if !defined WITH_LEAP_SECONDS
+#if !defined WITH_LEAP_SECONDS || !defined INCLUDED_ltrcc_generated_def_
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
