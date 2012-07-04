@@ -43,6 +43,8 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
+
+#include "time-core.h"
 #include "strops.h"
 
 #if !defined LIKELY

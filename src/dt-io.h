@@ -8,9 +8,14 @@
 /* for *_unlocked protos */
 # include <stdio_ext.h>
 #endif	/* __GLIBC__ */
+/* for strstr() */
+#include <string.h>
+/* for strcasecmp() */
+#include <strings.h>
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
 #include "strops.h"
+#include "token.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
