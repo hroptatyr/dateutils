@@ -40,7 +40,17 @@
 
 #include "dt-core-tz-glue.h"
 
+#if !defined LIKELY
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
+#endif	/* !LIKELY */
+#if !defined UNLIKELY
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
+#endif	/* !UNLIKELY */
+
 #define DAISY_UNIX_BASE		(19359)
+
+/* forward, HACK */
+static inline dt_ssexy_t __to_unix_epoch(struct dt_dt_s);
 
 static inline int
 __pos_mod(int num, int mod)

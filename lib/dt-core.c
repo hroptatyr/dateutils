@@ -67,6 +67,11 @@
 #if !defined UNUSED
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
+
+#if !defined INCLUDED_dt_core_tz_glue_c_
+# include "dt-core-tz-glue.c"
+#endif	/* INCLUDED_dt_core_tz_glue_c_ */
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
