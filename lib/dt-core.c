@@ -68,6 +68,18 @@
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
 
+#if !defined INCLUDED_date_core_c_
+# include "date-core.c"
+#endif	/* !INCLUDED_date_core_c_ */
+
+#if !defined INCLUDED_time_core_c_
+# include "time-core.c"
+#endif	/* INCLUDED_time_core_c_ */
+
+#if !defined INCLUDED_tzraw_c_
+# include "tzraw.c"
+#endif	/* INCLUDED_tzraw_c_ */
+
 #if !defined INCLUDED_dt_core_tz_glue_c_
 # include "dt-core-tz-glue.c"
 #endif	/* INCLUDED_dt_core_tz_glue_c_ */
