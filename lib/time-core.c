@@ -1,4 +1,4 @@
-/*** time-core.h -- our universe of times
+/*** time-core.c -- our universe of times
  *
  * Copyright (C) 2011-2012 Sebastian Freundt
  *
@@ -34,7 +34,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
-/* implementation part of date-core.h */
+/* implementation part of time-core.h */
 #if !defined INCLUDED_time_core_c_
 #define INCLUDED_time_core_c_
 
