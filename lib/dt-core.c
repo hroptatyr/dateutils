@@ -90,6 +90,7 @@ struct strpdti_s {
 };
 
 #include "strops.c"
+#include "leapseconds.def"
 
 
 /* converters and stuff */
@@ -1263,9 +1264,11 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		{
 			dt_daisy_t d1d = dt_conv_to_daisy(d1.d);
 			dt_daisy_t d2d = dt_conv_to_daisy(d2.d);
+			zleap_t lv = (const void*)leaps_d;
+			size_t nlv = countof(leaps_d);
 
 			res.d = __daisy_diff(d1d, d2d);
-			sxdur += leaps_between(d1d, d2d);
+			sxdur += leaps_between(lv, nlv, d1d, d2d);
 		}
 		/* since target type is SEXY do the conversion here */
 		sxdur += (int64_t)res.d.daisydur * SECS_PER_DAY;
