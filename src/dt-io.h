@@ -26,6 +26,10 @@
 #if !defined UNUSED
 # define UNUSED(x)	__attribute__((unused)) x##_unused
 #endif
+#if !defined countof
+# define countof(x)	(sizeof(x) / sizeof(*(x)))
+#endif	/* !countof */
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
