@@ -23,6 +23,11 @@ header_HEADERS += boobs.h
 header_HEADERS += generics.h
 header_HEADERS += dt-core-tz-glue.h dt-core-tz-glue.c
 
+noinst_PROGRAMS += ltrcc
+ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+ltrcc_CPPFLAGS += -DDECLF=extern
+ltrcc_SOURCES = ltrcc.c
+ltrcc_SOURCES += date-core.c date-core.h
 
 # 
 # Help the developers get nice post-processed source files
