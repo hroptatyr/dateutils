@@ -104,7 +104,7 @@ pr_file(FILE *fp, const char *var, dt_dtyp_t typ)
 
 	/* prologue */
 	fprintf(stdout, "\
-static const struct zleap_s %s[] = {\n\
+const struct zleap_s %s[] = {\n\
 	{0x00U/* 0 */, %i},\n", var, corr = 0);
 	/* main loop */
 	while ((nrd = getline(&line, &len, fp)) >= 0) {
