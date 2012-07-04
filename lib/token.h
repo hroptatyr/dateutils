@@ -138,6 +138,8 @@ struct dt_spec_s {
 # define BIZDA_BEFORE	(1U)/*<*/
 #endif	/* !BIZDA_BEFORE */
 
+extern struct dt_spec_s __tok_spec(const char *fp, char **ep);
+
 
 static inline struct dt_spec_s
 __attribute__((pure, const))

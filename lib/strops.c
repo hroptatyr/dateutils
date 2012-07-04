@@ -38,8 +38,11 @@
 #if !defined INCLUDED_strops_c_
 #define INCLUDED_strops_c_
 
+#include <stdbool.h>
+#include <string.h>
 /* for strncasecmp() */
 #include <strings.h>
+#include "strops.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)

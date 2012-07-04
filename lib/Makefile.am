@@ -7,6 +7,7 @@ headerdir = $(includedir)/dateutils
 
 noinst_PROGRAMS =
 noinst_HEADERS =
+noinst_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
@@ -23,6 +24,21 @@ header_HEADERS += boobs.h
 header_HEADERS += generics.h
 header_HEADERS += dt-core-tz-glue.h dt-core-tz-glue.c
 header_HEADERS += leapseconds.def
+
+noinst_LIBRARIES += libdut.a
+libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
+libdut_a_CPPFLAGS += -DDECLF=extern
+libdut_a_SOURCES =
+libdut_a_SOURCES += date-core.h
+libdut_a_SOURCES += time-core.h
+libdut_a_SOURCES += dt-core.h dt-core.c
+libdut_a_SOURCES += strops.h strops.c
+libdut_a_SOURCES += token.h token.c
+libdut_a_SOURCES += tzraw.h tzraw.c
+libdut_a_SOURCES += leaps.h leaps.c
+libdut_a_SOURCES += boobs.h
+libdut_a_SOURCES += generics.h
+libdut_a_SOURCES += dt-core-tz-glue.h
 
 noinst_PROGRAMS += ltrcc
 ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE

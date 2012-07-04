@@ -364,6 +364,9 @@ zif_open(const char *file)
 }
 
 
+/* for leap corrections */
+#include "leapseconds.def"
+
 static inline int
 __find_trno(zif_t z, int32_t t, int this, int min, int max)
 {

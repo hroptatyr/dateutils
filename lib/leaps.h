@@ -37,6 +37,7 @@
 #if !defined INCLUDED_leaps_h_
 #define INCLUDED_leaps_h_
 
+#include <unistd.h>
 #include <stdint.h>
 
 #if defined __cplusplus

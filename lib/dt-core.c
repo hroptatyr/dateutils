@@ -51,9 +51,9 @@
 #include <limits.h>
 #include "date-core.h"
 #include "time-core.h"
-#include "dt-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "dt-core.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -67,6 +67,23 @@
 #if !defined UNUSED
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
+
+#if !defined INCLUDED_date_core_c_
+# include "date-core.c"
+#endif	/* !INCLUDED_date_core_c_ */
+
+#if !defined INCLUDED_time_core_c_
+# include "time-core.c"
+#endif	/* INCLUDED_time_core_c_ */
+
+#if !defined INCLUDED_tzraw_c_
+# include "tzraw.c"
+#endif	/* INCLUDED_tzraw_c_ */
+
+#if !defined INCLUDED_dt_core_tz_glue_c_
+# include "dt-core-tz-glue.c"
+#endif	/* INCLUDED_dt_core_tz_glue_c_ */
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -90,7 +107,6 @@ struct strpdti_s {
 };
 
 #include "strops.c"
-#include "leapseconds.def"
 
 
 /* converters and stuff */
