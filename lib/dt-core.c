@@ -51,9 +51,9 @@
 #include <limits.h>
 #include "date-core.h"
 #include "time-core.h"
-#include "dt-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "dt-core.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
