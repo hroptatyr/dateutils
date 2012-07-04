@@ -52,6 +52,8 @@
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
 
+typedef size_t sidx_t;
+
 struct zleap_tr_s_s {
 	int32_t t;
 	int32_t corr;
@@ -154,59 +156,59 @@ static const struct zleap_tr_d_s leaps_d[] = {
 
 #if 1
 /* this can be called roughly 100m/sec */
-static ssize_t
-__find_leaps_idx(dt_daisy_t c, ssize_t this, ssize_t min, ssize_t max)
+static sidx_t
+find_idx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 {
 /* given a daisy C find the index of the transition before CT00:00:00 */
 	do {
-		dt_daisy_t tl, tu;
+		uint32_t tl, tu;
 
-		tl = leaps_d[this].d;
-		tu = leaps_d[this + 1].d;
+		tl = lv[i].u;
+		tu = lv[i + 1].u;
 
 		if (c > tl && c <= tu) {
 			/* found him */
-			return this;
+			return i;
 		} else if (max - 1 <= min) {
 			/* nearly found him */
-			return this + 1;
+			return i + 1;
 		} else if (c > tu) {
-			min = this + 1;
-			this = (this + max) / 2;
+			min = i + 1;
+			i = (i + max) / 2;
 		} else if (c <= tl) {
-			max = this - 1;
-			this = (this + min) / 2;
+			max = i - 1;
+			i = (i + min) / 2;
 		}
-	} while (true);
-	/* not reached */
+	} while (i < nlv);
+	return i;
 }
 #endif	/* 1 */
 
-DEFUN int32_t
-leaps_between(dt_daisy_t d1, dt_daisy_t d2)
+DEFUN int
+leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2)
 {
-	ssize_t min = 0;
-	ssize_t max = countof(leaps_d) - 1;
-	ssize_t this = max / 2;
-	ssize_t thi2;
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+	sidx_t thi2;
 
 	if (UNLIKELY(d1 == d2)) {
 		/* huh? */
 		return 0;
 	}
 
-	this = __find_leaps_idx(d1, this, min, max);
+	this = find_idx(lv, nlv, d1, this, min, max);
 
 	if (d1 < d2) {
 		min = this;
 	} else {
 		max = this;
 	}
-	thi2 = __find_leaps_idx(d2, (min + max) / 2, min, max);
+	thi2 = find_idx(lv, nlv, d2, (min + max) / 2, min, max);
 	if (LIKELY(this == thi2)) {
 		return 0;
 	}
-	return leaps_d[thi2].corr - leaps_d[this].corr;
+	return lv[thi2].corr - lv[this].corr;
 }
 
 #endif	/* INCLUDED_leaps_c_ */
