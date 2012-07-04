@@ -40,6 +40,7 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include "leaps.h"
 
 #if defined __cplusplus
 extern "C" {

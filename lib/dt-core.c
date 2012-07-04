@@ -107,7 +107,6 @@ struct strpdti_s {
 };
 
 #include "strops.c"
-#include "leapseconds.def"
 
 
 /* converters and stuff */
