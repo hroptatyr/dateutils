@@ -120,9 +120,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 	}
 	while (prchunk_fill(pctx) >= 0) {
 		for (char *line; prchunk_haslinep(pctx); lno++) {
-			size_t UNUSED(llen);
-
-			llen = prchunk_getline(pctx, &line);
+			(void)prchunk_getline(pctx, &line);
 			/* check if line matches */
 			proc_line(line, fmt, nfmt, ofmt, quietp);
 		}
