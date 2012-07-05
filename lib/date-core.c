@@ -49,6 +49,8 @@
 #include "date-core.h"
 #include "strops.h"
 #include "token.h"
+/* parsers and formatters */
+#include "date-core-strpf.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -99,42 +101,8 @@ typedef struct {
 #define A	(unsigned int)(DT_SATURDAY)
 #define S	(unsigned int)(DT_SUNDAY)
 
-struct strpd_s {
-	unsigned int y;
-	unsigned int m;
-	union {
-		unsigned int d;
-		signed int sd;
-	};
-	unsigned int c;
-	unsigned int w;
-	/* general flags */
-	struct {
-		unsigned int ab:1;
-		unsigned int bizda:1;
-		unsigned int d_dcnt_p:1;
-	} flags;
-	unsigned int b;
-	unsigned int q;
-};
-
-struct strpdi_s {
-	signed int m;
-	signed int d;
-	signed int w;
-	signed int b;
-};
-
 
 /* helpers */
-static inline struct strpd_s
-__attribute__((pure, const))
-strpd_initialiser(void)
-{
-	struct strpd_s res = {0};
-	return res;
-}
-
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1920)
 	{
@@ -1677,48 +1645,6 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 	return res;
 }
 
-static inline void
-__fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
-{
-	switch (dur.typ) {
-	case DT_YMD:
-		tgt->m = dur.ymd.y * GREG_MONTHS_P_YEAR + dur.ymd.m;
-		tgt->d = dur.ymd.d;
-		break;
-	case DT_DAISY:
-		tgt->d = dur.daisydur;
-		/* we don't need the negation, so return here */
-		return;
-	case DT_BIZSI:
-		tgt->b = dur.bizsidur;
-		/* we don't need the negation, so return here */
-		return;
-	case DT_BIZDA:
-		tgt->m = dur.bizda.y * GREG_MONTHS_P_YEAR + dur.bizda.m;
-		tgt->b = dur.bizda.bd;
-		break;
-	case DT_YMCW:
-		tgt->m = dur.ymcw.y * GREG_MONTHS_P_YEAR + dur.ymcw.m;
-		tgt->w = dur.ymcw.c;
-		tgt->d = dur.ymcw.w;
-		break;
-	case DT_MD:
-		tgt->m = dur.md.m;
-		tgt->d = dur.md.d;
-		break;
-	default:
-		break;
-	}
-
-	if (UNLIKELY(dur.neg)) {
-		tgt->m = -tgt->m;
-		tgt->d = -tgt->d;
-		tgt->w = -tgt->w;
-		tgt->b = -tgt->b;
-	}
-	return;
-}
-
 static dt_ymd_t
 __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 {
@@ -1726,7 +1652,7 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 	unsigned int tgty = 0;
 	unsigned int tgtm = 0;
 	signed int tgtd = 0;
-	struct strpdi_s durcch = {0};
+	struct strpdi_s durcch = strpdi_initialiser();
 
 	/* using the strpdi blob is easier */
 	__fill_strpdi(&durcch, dur);
@@ -1874,7 +1800,7 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 	unsigned int tgtm;
 	unsigned int tgtc;
 	dt_dow_t tgtw;
-	struct strpdi_s durcch = {0};
+	struct strpdi_s durcch = strpdi_initialiser();
 
 	/* first off, give DUR a make-over */
 	__fill_strpdi(&durcch, dur);
@@ -2027,15 +1953,39 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 /* guessing parsers */
 #include "token.c"
 #include "strops.c"
+#include "date-core-strpf.c"
 
-#if defined __INTEL_COMPILER
-/* we MUST return a char* */
-# pragma warning (disable:2203)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wcast-qual"
-#endif	/* __INTEL_COMPILER */
+static const char ymd_dflt[] = "%F";
+static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char daisy_dflt[] = "%d";
+static const char bizsi_dflt[] = "%db";
+static const char bizda_dflt[] = "%Y-%m-%db";
 
-static struct dt_d_s
+DEFUN void
+__trans_dfmt(const char **fmt)
+{
+	if (UNLIKELY(*fmt == NULL)) {
+		/* great, standing ovations to the user */
+		;
+	} else if (LIKELY(**fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else if (strcasecmp(*fmt, "ymd") == 0) {
+		*fmt = ymd_dflt;
+	} else if (strcasecmp(*fmt, "ymcw") == 0) {
+		*fmt = ymcw_dflt;
+	} else if (strcasecmp(*fmt, "bizda") == 0) {
+		*fmt = bizda_dflt;
+	} else if (strcasecmp(*fmt, "daisy") == 0) {
+		*fmt = daisy_dflt;
+	} else if (strcasecmp(*fmt, "bizsi") == 0) {
+		*fmt = bizsi_dflt;
+	}
+	return;
+}
+
+/* strpf glue */
+DEFUN struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
 	struct dt_d_s res = dt_d_initialiser();
@@ -2098,580 +2048,15 @@ __guess_dtyp(struct strpd_s d)
 	return res;
 }
 
-static const char ymd_dflt[] = "%F";
-static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char daisy_dflt[] = "%d";
-static const char bizsi_dflt[] = "%db";
-static const char bizda_dflt[] = "%Y-%m-%db";
-
-DEFUN void
-__trans_dfmt(const char **fmt)
-{
-	if (UNLIKELY(*fmt == NULL)) {
-		/* great, standing ovations to the user */
-		;
-	} else if (LIKELY(**fmt == '%')) {
-		/* don't worry about it */
-		;
-	} else if (strcasecmp(*fmt, "ymd") == 0) {
-		*fmt = ymd_dflt;
-	} else if (strcasecmp(*fmt, "ymcw") == 0) {
-		*fmt = ymcw_dflt;
-	} else if (strcasecmp(*fmt, "bizda") == 0) {
-		*fmt = bizda_dflt;
-	} else if (strcasecmp(*fmt, "daisy") == 0) {
-		*fmt = daisy_dflt;
-	} else if (strcasecmp(*fmt, "bizsi") == 0) {
-		*fmt = bizsi_dflt;
-	}
-	return;
-}
-
-static struct dt_d_s
-__strpd_std(const char *str, char **ep)
-{
-	struct dt_d_s res;
-	struct strpd_s d;
-	const char *sp;
-
-	if ((sp = str) == NULL) {
-		goto out;
-	}
-
-	d = strpd_initialiser();
-	/* read the year */
-	if ((d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
-	    *sp++ != '-') {
-		goto fucked;
-	}
-	/* read the month */
-	if ((d.m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) == -1U ||
-	    *sp++ != '-') {
-		goto fucked;
-	}
-	/* read the day or the count */
-	if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
-		/* didn't work, fuck off */
-		goto fucked;
-	}
-	/* check the date type */
-	switch (*sp) {
-	case '-':
-		/* it is a YMCW date */
-		if ((d.c = d.d) > 5) {
-			/* nope, it was bollocks */
-			break;
-		}
-		d.d = 0;
-		sp++;
-		if ((d.w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) == -1U) {
-			/* didn't work, fuck off */
-			goto fucked;
-		}
-		break;
-	case 'B':
-		/* it's a bizda/YMDU before ultimo date */
-		d.flags.ab = BIZDA_BEFORE;
-	case 'b':
-		/* it's a bizda/YMDU after ultimo date */
-		d.flags.bizda = 1;
-		d.b = d.d;
-		d.d = 0;
-		sp++;
-		break;
-	default:
-		/* we don't care */
-		break;
-	}
-	/* guess what we're doing */
-	res = __guess_dtyp(d);
-out:
-	if (ep) {
-		*ep = (char*)sp;
-	}
-	return res;
-fucked:
-	if (ep) {
-		*ep = (char*)str;
-	}
-	return dt_d_initialiser();
-}
-
-static int
-__strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
-{
-	/* we're really pessimistic, aren't we? */
-	int res = -1;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-	case DT_SPFL_N_DSTD:
-		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		sp++;
-		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		sp++;
-		d->d = strtoui_lim(sp, &sp, 0, 31);
-		res = 0 - (d->y == -1U || d->m == -1U || d->d == -1U);
-		break;
-	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
-			d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		} else if (s.abbr == DT_SPMOD_ABBR) {
-			d->y = strtoui_lim(sp, &sp, 0, 99);
-			if (UNLIKELY(d->y == -1U)) {
-				;
-			} else if ((d->y += 2000) > 2068) {
-				d->y -= 100;
-			}
-		}
-		res = 0 - (d->y == -1U);
-		break;
-	case DT_SPFL_N_MON:
-		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		res = 0 - (d->m == -1U);
-		break;
-	case DT_SPFL_N_DCNT_MON:
-		/* ymd mode? */
-		if (LIKELY(!s.bizda)) {
-			d->d = strtoui_lim(sp, &sp, 0, 31);
-			res = 0 - (d->d == -1U);
-		} else {
-			d->b = strtoui_lim(sp, &sp, 0, 23);
-			res = 0 - (d->b == -1U);
-		}
-		break;
-	case DT_SPFL_N_DCNT_WEEK:
-		/* ymcw mode? */
-		d->w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
-		res = 0 - (d->w == -1U);
-		break;
-	case DT_SPFL_N_WCNT_MON:
-		/* ymcw mode? */
-		d->c = strtoui_lim(sp, &sp, 0, 5);
-		res = 0 - (d->c == -1U);
-		break;
-	case DT_SPFL_S_WDAY:
-		/* ymcw mode? */
-		switch (s.abbr) {
-		case DT_SPMOD_NORM:
-			d->w = strtoarri(
-				sp, &sp,
-				__abbr_wday, countof(__abbr_wday));
-			break;
-		case DT_SPMOD_LONG:
-			d->w = strtoarri(
-				sp, &sp,
-				__long_wday,
-				countof(__long_wday));
-			break;
-		case DT_SPMOD_ABBR: {
-			const char *pos;
-			if ((pos = strchr(__abab_wday, *sp++))) {
-				d->w = pos - __abab_wday;
-			} else {
-				d->w = -1;
-			}
-			break;
-		}
-		case DT_SPMOD_ILL:
-		default:
-			break;
-		}
-		res = 0 - (d->w == -1U);
-		break;
-	case DT_SPFL_S_MON:
-		switch (s.abbr) {
-		case DT_SPMOD_NORM:
-			d->m = strtoarri(
-				sp, &sp,
-				__abbr_mon,
-				countof(__abbr_mon));
-			break;
-		case DT_SPMOD_LONG:
-			d->m = strtoarri(
-				sp, &sp,
-				__long_mon,
-				countof(__long_mon));
-			break;
-		case DT_SPMOD_ABBR: {
-			const char *pos;
-			if ((pos = strchr(__abab_mon, *sp++))) {
-				d->m = pos - __abab_mon;
-			} else {
-				d->m = -1U;
-			}
-			break;
-		}
-		case DT_SPMOD_ILL:
-		default:
-			break;
-		}
-		res = 0 - (d->m == -1U);
-		break;
-	case DT_SPFL_S_QTR:
-		if (*sp++ != 'Q') {
-			break;
-		}
-	case DT_SPFL_N_QTR:
-		if (d->m == 0) {
-			unsigned int q;
-			if ((q = strtoui_lim(sp, &sp, 1, 4)) < -1U) {
-				d->m = q * 3 - 2;
-				res = 0;
-			}
-		}
-		break;
-
-	case DT_SPFL_LIT_PERCENT:
-		if (*sp++ == '%') {
-			res = 0;
-		}
-		break;
-	case DT_SPFL_LIT_TAB:
-		if (*sp++ == '\t') {
-			res = 0;
-		}
-		break;
-	case DT_SPFL_LIT_NL:
-		if (*sp++ == '\n') {
-			res = 0;
-		}
-		break;
-	case DT_SPFL_N_DCNT_YEAR:
-		/* was %D and %j, cannot be used at the moment */
-		if ((d->d = strtoui_lim(sp, &sp, 1, 366)) < -1U) {
-			res = 0;
-			d->flags.d_dcnt_p = 1;
-		}
-		break;
-	case DT_SPFL_N_WCNT_YEAR:
-		/* was %C, cannot be used at the moment */
-		(void)strtoui_lim(sp, &sp, 0, 53);
-		break;
-	}
-	/* assign end pointer */
-	if (ep) {
-		*ep = (char*)sp;
-	}
-	return res;
-}
-
-static int
-__strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
-{
-	int res = -1;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-
-	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
-			d->y = romstrtoui_lim(
-				sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		} else if (s.abbr == DT_SPMOD_ABBR) {
-			d->y = romstrtoui_lim(sp, &sp, 0, 99);
-			if (UNLIKELY(d->y == -1U)) {
-				;
-			} else if ((d->y += 2000) > 2068) {
-				d->y -= 100;
-			}
-		}
-		res = 0 - (d->y == -1U);
-		break;
-	case DT_SPFL_N_MON:
-		d->m = romstrtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		res = 0 - (d->m == -1U);
-		break;
-	case DT_SPFL_N_DCNT_MON:
-		d->d = romstrtoui_lim(sp, &sp, 0, 31);
-		res = 0 - (d->d == -1U);
-		break;
-	case DT_SPFL_N_WCNT_MON:
-		d->c = romstrtoui_lim(sp, &sp, 0, 5);
-		res = 0 - (d->c == -1U);
-		break;
-	}
-	if (ep) {
-		*ep = (char*)sp;
-	}
-	return res;
-}
-
-static size_t
-__strfd_card(
-	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpd_s *d, struct dt_d_s that)
-{
-	size_t res = 0;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-	case DT_SPFL_N_DSTD:
-		d->d = d->d ?: (unsigned int)dt_get_mday(that);
-		if (LIKELY(bsz >= 10)) {
-			ui32tostr(buf + 0, bsz, d->y, 4);
-			buf[4] = '-';
-			res = ui32tostr(buf + 5, bsz, d->m, 2);
-			buf[7] = '-';
-			ui32tostr(buf + 8, bsz, d->d, 2);
-			res = 10;
-		}
-		break;
-	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
-			res = ui32tostr(buf, bsz, d->y, 4);
-		} else if (s.abbr == DT_SPMOD_ABBR) {
-			res = ui32tostr(buf, bsz, d->y, 2);
-		}
-		break;
-	case DT_SPFL_N_MON:
-		res = ui32tostr(buf, bsz, d->m, 2);
-		break;
-	case DT_SPFL_N_DCNT_MON:
-		/* ymd mode check? */
-		if (LIKELY(!s.bizda)) {
-			d->d = d->d ?: (unsigned int)dt_get_mday(that);
-			res = ui32tostr(buf, bsz, d->d, 2);
-		} else {
-			int bd = dt_get_bday_q(
-				that, __make_bizda_param(s.ab, BIZDA_ULTIMO));
-			res = ui32tostr(buf, bsz, bd, 2);
-		}
-		break;
-	case DT_SPFL_N_DCNT_WEEK:
-		/* ymcw mode check */
-		d->w = d->w ?: dt_get_wday(that);
-		res = ui32tostr(buf, bsz, d->w, 2);
-		break;
-	case DT_SPFL_N_WCNT_MON:
-		/* ymcw mode check? */
-		d->c = d->c ?: (unsigned int)dt_get_count(that);
-		res = ui32tostr(buf, bsz, d->c, 2);
-		break;
-	case DT_SPFL_S_WDAY:
-		/* get the weekday in ymd mode!! */
-		d->w = d->w ?: dt_get_wday(that);
-		switch (s.abbr) {
-		case DT_SPMOD_NORM:
-			res = arritostr(
-				buf, bsz, d->w,
-				__abbr_wday, countof(__abbr_wday));
-			break;
-		case DT_SPMOD_LONG:
-			res = arritostr(
-				buf, bsz, d->w,
-				__long_wday, countof(__long_wday));
-			break;
-		case DT_SPMOD_ABBR:
-			/* super abbrev'd wday */
-			if (d->w < countof(__abab_wday)) {
-				buf[res++] = __abab_wday[d->w];
-			}
-			break;
-		case DT_SPMOD_ILL:
-		default:
-			break;
-		}
-		break;
-	case DT_SPFL_S_MON:
-		switch (s.abbr) {
-		case DT_SPMOD_NORM:
-			res = arritostr(
-				buf, bsz, d->m,
-				__abbr_mon, countof(__abbr_mon));
-			break;
-		case DT_SPMOD_LONG:
-			res = arritostr(
-				buf, bsz, d->m,
-				__long_mon, countof(__long_mon));
-			break;
-		case DT_SPMOD_ABBR:
-			/* super abbrev'd month */
-			if (d->m < countof(__abab_mon)) {
-				buf[res++] = __abab_mon[d->m];
-			}
-			break;
-		case DT_SPMOD_ILL:
-		default:
-			break;
-		}
-		break;
-	case DT_SPFL_S_QTR:
-		buf[res++] = 'Q';
-		buf[res++] = (char)(dt_get_quarter(that) + '0');
-		break;
-	case DT_SPFL_N_QTR:
-		buf[res++] = '0';
-		buf[res++] = (char)(dt_get_quarter(that) + '0');
-		break;
-
-	case DT_SPFL_LIT_PERCENT:
-		/* literal % */
-		buf[res++] = '%';
-		break;
-	case DT_SPFL_LIT_TAB:
-		/* literal tab */
-		buf[res++] = '\t';
-		break;
-	case DT_SPFL_LIT_NL:
-		/* literal \n */
-		buf[res++] = '\n';
-		break;
-
-	case DT_SPFL_N_DCNT_YEAR:
-		if (that.typ == DT_YMD || that.typ == DT_BIZDA) {
-			/* %j */
-			int yd;
-			if (LIKELY(!s.bizda)) {
-				yd = __ymd_get_yday(that.ymd);
-			} else {
-				yd = __bizda_get_yday(
-					that.bizda, __get_bizda_param(that));
-			}
-			if (yd >= 0) {
-				res = ui32tostr(buf, bsz, yd, 3);
-			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
-				buf[res++] = '0';
-			}
-		}
-		break;
-	case DT_SPFL_N_WCNT_YEAR: {
-		int yw;
-		/* %C/%W week count */
-		switch (that.typ) {
-		case DT_YMD:
-			if (s.cnt_weeks_iso) {
-				yw = __ymd_get_wcnt_iso(that.ymd);
-			} else {
-				yw = __ymd_get_wcnt(that.ymd, s.cnt_wdays_from);
-			}
-			break;
-		case DT_YMCW:
-			yw = __ymcw_get_yday(that.ymcw);
-			break;
-		default:
-			yw = 0;
-			break;
-		}
-		res = ui32tostr(buf, bsz, yw, 2);
-		break;
-	}
-	}
-	return res;
-}
-
-static size_t
-__strfd_rom(
-	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpd_s *d, struct dt_d_s that)
-{
-	size_t res = 0;
-
-	if (that.typ != DT_YMD) {
-		/* not supported for non-ymds */
-		return res;
-	}
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
-			res = ui32tostrrom(buf, bsz, d->y);
-			break;
-		} else if (s.abbr == DT_SPMOD_ABBR) {
-			res = ui32tostrrom(buf, bsz, d->y % 100);
-			break;
-		}
-		break;
-	case DT_SPFL_N_MON:
-		res = ui32tostrrom(buf, bsz, d->m);
-		break;
-	case DT_SPFL_N_DCNT_MON:
-		res = ui32tostrrom(buf, bsz, d->d);
-		break;
-	case DT_SPFL_N_WCNT_MON:
-		d->c = d->c ?: (unsigned int)dt_get_count(that);
-		res = ui32tostrrom(buf, bsz, d->c);
-		break;
-	}
-	return res;
-}
-
-static size_t
-__strfd_dur(
-	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpd_s *d, struct dt_d_s UNUSED(that))
-{
-	size_t res = 0;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_DCNT_MON:
-		res = snprintf(buf, bsz, "%d", d->sd);
-		break;
-	case DT_SPFL_N_YEAR:
-		if (!d->y) {
-			/* fill in for a mo, hack hack hack
-			 * we'll think about the consequences later */
-			d->y = __uidiv(d->m, GREG_MONTHS_P_YEAR);
-			d->m = __uimod(d->m, GREG_MONTHS_P_YEAR);
-		}
-		res = snprintf(buf, bsz, "%u", d->y);
-		break;
-	case DT_SPFL_N_MON:
-		res = snprintf(buf, bsz, "%u", d->m);
-		break;
-	case DT_SPFL_N_DCNT_WEEK:
-		if (!d->w) {
-			/* hack hack hack
-			 * we'll think about the consequences later */
-			d->w = __uidiv(d->d, GREG_DAYS_P_WEEK);
-			d->d = __uimod(d->d, GREG_DAYS_P_WEEK);
-		}
-		res = snprintf(buf, bsz, "%u", d->w);
-		break;
-	case DT_SPFL_N_WCNT_MON:
-		res = snprintf(buf, bsz, "%u", d->c);
-		break;
-	case DT_SPFL_S_WDAY:
-	case DT_SPFL_S_MON:
-	case DT_SPFL_S_QTR:
-	case DT_SPFL_N_QTR:
-	case DT_SPFL_N_DCNT_YEAR:
-	case DT_SPFL_N_WCNT_YEAR:
-		break;
-
-	case DT_SPFL_LIT_PERCENT:
-		/* literal % */
-		buf[res++] = '%';
-		break;
-	case DT_SPFL_LIT_TAB:
-		/* literal tab */
-		buf[res++] = '\t';
-		break;
-	case DT_SPFL_LIT_NL:
-		/* literal \n */
-		buf[res++] = '\n';
-		break;
-	}
-	return res;
-}
-
 
 /* parser implementations */
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
+
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
@@ -3031,6 +2416,13 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	return bp - buf;
 }
 
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (default:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
+
 
 /* date getters, platform dependent */
 DEFUN struct dt_d_s
@@ -3282,12 +2674,6 @@ dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 {
 	return dt_dcmp(d, d1) >= 0 && dt_dcmp(d, d2) <= 0;
 }
-
-#if defined __INTEL_COMPILER
-# pragma warning (default:2203)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wcast-qual"
-#endif	/* __INTEL_COMPILER */
 
 #endif	/* INCLUDED_date_core_c_ */
 /* date-core.c ends here */

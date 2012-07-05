@@ -363,50 +363,12 @@ DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
  * 1 if D1 is younger than the D2. */
 DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
-/* more specific, yet useful funs */
+/* functions that really shouldn't be exposed */
 /**
  * Transform named format strings in FMT to their flag notation.
  * E.g. ymd -> %F */
 DECLF void __trans_dfmt(const char **fmt);
 
-/* textual representations of parts of the date */
-/**
- * Long weekday names, english only.
- * Monday, Tuesday, ... */
-DECLV const char *__long_wday[];
-DECLV const size_t __nlong_wday;
-
-/**
- * Abbrev'd weekday names, english only.
- * Mon, Tue, ... */
-DECLV const char *__abbr_wday[];
-DECLV const size_t __nabbr_wday;
-
-/**
- * Even-more-abbrev'd weekday names, english only.
- * M, T, W, ... */
-DECLV const char __abab_wday[];
-DECLV const size_t __nabab_wday;
-
-/**
- * Long month names, english only.
- * January, February, ... */
-DECLV const char *__long_mon[];
-DECLV const size_t __nlong_mon;
-
-/**
- * Abbrev'd month names, english only.
- * Jan, Feb, ... */
-DECLV const char *__abbr_mon[];
-DECLV const size_t __nabbr_mon;
-
-/**
- * Even-more-abbrev'd month names.
- * F, G, H, ... */
-DECLV const char __abab_mon[];
-DECLV const size_t __nabab_mon;
-
-/* functions that really shouldn't be exposed */
 /**
  * Get the week count of D in the year when weeks start at WDAYS_FROM. */
 DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
