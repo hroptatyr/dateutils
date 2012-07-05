@@ -227,7 +227,7 @@ __strf_tot_secs(struct dt_dt_s dur)
 static long int
 __strf_tot_mins(struct dt_dt_s dur)
 {
-	return __strf_tot_secs(dur) / (long int)SECS_PER_MINUTE;
+	return __strf_tot_secs(dur) / (long int)SECS_PER_MIN;
 }
 
 static long int
