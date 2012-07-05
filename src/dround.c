@@ -49,6 +49,8 @@
 #include "dt-io.h"
 #include "tzraw.h"
 #include "prchunk.h"
+/* parsers and formatters */
+#include "date-core-strpf.h"
 
 #if !defined assert
 # define assert(x)
