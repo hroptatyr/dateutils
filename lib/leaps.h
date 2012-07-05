@@ -76,6 +76,18 @@ struct zleap_s {
  * If the result is negative then leap seconds have been removed. */
 DECLF int leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2);
 
+/**
+ * Return the number of leap seconds inserted (>0) or removed (<0) on D. */
+DECLF int leaps_on(zleap_t lv, size_t nlv, uint32_t d);
+
+/**
+ * Return the number of leap seconds ever inserted till D. */
+DECLF int leaps_till(zleap_t lv, size_t nlv, uint32_t d);
+
+/**
+ * Return the number of leap seconds inserted after D. */
+DECLF int leaps_since(zleap_t lv, size_t nlv, uint32_t d);
+
 
 #if defined INCLUDE_LEAPS_IMPL
 # include "leaps.c"

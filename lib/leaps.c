@@ -85,6 +85,8 @@ find_idx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 }
 #endif	/* 1 */
 
+
+/* public apis */
 DEFUN int
 leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2)
 {
@@ -110,6 +112,47 @@ leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2)
 		return 0;
 	}
 	return lv[thi2].corr - lv[this].corr;
+}
+
+DEFUN int
+leaps_on(zleap_t lv, size_t nlv, uint32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_uidx(lv, nlv, d, this, min, max);
+	if (LIKELY(lv[this].u == d)) {
+		return 0;
+	} else if (this) {
+		return lv[this].corr - lv[this - 1].corr;
+	} else if (this + 1 < nlv) {
+		return lv[this + 1].corr - lv[this].corr;
+	}
+	/* huh?  this case means there's a fuckered array */
+	return 0;
+}
+
+DEFUN int
+leaps_till(zleap_t lv, size_t nlv, uint32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_uidx(lv, nlv, d, this, min, max);
+	return lv[this].corr - lv[0].corr;
+}
+
+DEFUN int
+leaps_since(zleap_t lv, size_t nlv, uint32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_uidx(lv, nlv, d, this, min, max);
+	return lv[nlv - 1].corr - lv[this].corr;
 }
 
 #endif	/* INCLUDED_leaps_c_ */
