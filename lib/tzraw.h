@@ -53,6 +53,12 @@ extern "C" {
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
+#if !defined DECLV
+# define DECLV		DECLF
+#endif	/* !DECLV */
+#if !defined DEFVAR
+# define DEFVAR		DEFUN
+#endif	/* !DEFVAR */
 #if !defined restrict
 # define restrict	__restrict
 #endif	/* !restrict */

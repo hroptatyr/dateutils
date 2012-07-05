@@ -58,6 +58,12 @@ extern "C" {
 #if !defined restrict
 # define restrict	__restrict
 #endif	/* !restrict */
+#if !defined DECLV
+# define DECLV		DECLF
+#endif	/* !DECLV */
+#if !defined DEFVAR
+# define DEFVAR		DEFUN
+#endif	/* !DEFVAR */
 
 typedef enum {
 	DT_DUNK,
@@ -357,6 +363,34 @@ DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
  * 1 if D1 is younger than the D2. */
 DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
+/* functions that really shouldn't be exposed */
+/**
+ * Transform named format strings in FMT to their flag notation.
+ * E.g. ymd -> %F */
+DECLF void __trans_dfmt(const char **fmt);
+
+/**
+ * Get the week count of D in the year when weeks start at WDAYS_FROM. */
+DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
+
+/**
+ * Like __ymd_get_wcnt() but for ISO week convention. */
+DECLF int __ymd_get_wcnt_iso(dt_ymd_t d);
+
+/**
+ * Return the N-th W-day in the year of THAT.
+ * This is equivalent with 8601's Y-W-D calendar where W is the week
+ * of the year and D the day in the week */
+DECLF unsigned int __ymcw_get_yday(dt_ymcw_t that);
+
+/**
+ * Get the number of days in month M of year Y. */
+DECLF unsigned int __get_mdays(unsigned int y, unsigned int m);
+
+/**
+ * Get the number of business days in month M of year Y. */
+DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_d_s
@@ -428,6 +462,31 @@ dt_make_daisydur(signed int d)
 	res.param = 0U;
 	res.daisydur = d;
 	return res;
+}
+
+static inline dt_bizda_param_t
+__get_bizda_param(struct dt_d_s that)
+{
+#if defined __C1X
+	dt_bizda_param_t p = {.bs = that.param};
+#else  /* !__C1X */
+	dt_bizda_param_t p;
+	p.bs = that.param;
+#endif	/* __C1X */
+	return p;
+}
+
+static inline dt_bizda_param_t
+__make_bizda_param(unsigned int ab, unsigned int ref)
+{
+#if defined __C1X
+	dt_bizda_param_t p = {.ab = ab, .ref = ref};
+#else  /* !__C1X */
+	dt_bizda_param_t p;
+	p.ab = ab;
+	p.ref = ref;
+#endif	/* __C1X */
+	return p;
 }
 
 
