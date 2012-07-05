@@ -52,7 +52,7 @@
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
 
-typedef size_t sidx_t;
+typedef ssize_t sidx_t;
 
 
 /* this can be called roughly 100m/sec */
@@ -145,7 +145,7 @@ leaps_on(zleap_t lv, size_t nlv, uint32_t d)
 		return 0;
 	} else if (this) {
 		return lv[this].corr - lv[this - 1].corr;
-	} else if (this + 1 < nlv) {
+	} else if (this + 1 < (sidx_t)nlv) {
 		return lv[this + 1].corr - lv[this].corr;
 	}
 	/* huh?  this case means there's a fuckered array */
@@ -214,7 +214,7 @@ leaps_son(zleap_t lv, size_t nlv, int32_t d)
 		return 0;
 	} else if (this) {
 		return lv[this].corr - lv[this - 1].corr;
-	} else if (this + 1 < nlv) {
+	} else if (this + 1 < (sidx_t)nlv) {
 		return lv[this + 1].corr - lv[this].corr;
 	}
 	/* huh?  this case means there's a fuckered array */
