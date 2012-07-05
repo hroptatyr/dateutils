@@ -124,7 +124,6 @@ typedef struct zih_s *zih_t;
 typedef struct ztr_s *ztr_t;
 typedef struct zty_s *zty_t;
 typedef struct ztrdtl_s *ztrdtl_t;
-typedef struct zleap_tr_s *zleap_tr_t;
 typedef char *znam_t;
 
 typedef enum {
@@ -208,8 +207,6 @@ struct zif_s {
 	ztrdtl_t tda;
 	/* zonename array */
 	znam_t zn;
-	/* leap second transitions */
-	zleap_tr_t ltr;
 
 	/* file descriptor, if >0 this also means all data is in BE */
 	int fd;

@@ -136,37 +136,20 @@ __init_zif(zif_t z)
 {
 	size_t ntr;
 	size_t nty;
-	size_t nch;
-	size_t nlp;
 
 	if (z->fd > STDIN_FILENO) {
 		/* probably in BE then, eh? */
 		ntr = be32toh(zif_ntrans(z));
 		nty = be32toh(zif_ntypes(z));
-		nch = be32toh(zif_nchars(z));
-		nlp = be32toh(zif_nleaps(z));
 	} else {
 		ntr = zif_ntrans(z);
 		nty = zif_ntypes(z);
-		nch = zif_nchars(z);
-		nlp = zif_nleaps(z);
 	}
 
 	z->trs = (ztr_t)(z->hdr + 1);
 	z->tys = (zty_t)(z->trs + ntr);
 	z->tda = (ztrdtl_t)(z->tys + ntr);
 	z->zn = (char*)(z->tda + nty);
-
-	/* leap transitions are special as they need aligning */
-	if (LIKELY(!nlp)) {
-		z->ltr = NULL;
-	} else if (z->fd > STDIN_FILENO) {
-		/* can't muck around with this one */
-		z->ltr = (zleap_tr_t)(z->zn + nch);
-	} else {
-		/* align it thoroughly */
-		z->ltr = (zleap_tr_t)((intptr_t)(z->zn + nch + 15) & ~15);
-	}
 	return;
 }
 
@@ -211,7 +194,6 @@ __conv_zif(zif_t tgt, zif_t src)
 	size_t ntr;
 	size_t nty;
 	size_t nch;
-	size_t nlp;
 
 	/* convert header to hbo */
 	__conv_hdr(tgt->hdr, src->hdr);
@@ -220,7 +202,6 @@ __conv_zif(zif_t tgt, zif_t src)
 	ntr = zif_ntrans(tgt);
 	nty = zif_ntypes(tgt);
 	nch = zif_nchars(tgt);
-	nlp = zif_nleaps(tgt);
 	__init_zif(tgt);
 
 	/* transition vector */
@@ -240,15 +221,6 @@ __conv_zif(zif_t tgt, zif_t src)
 
 	/* zone name array */
 	memcpy(tgt->zn, src->zn, nch * sizeof(*tgt->zn));
-
-	/* leaps */
-	if (nlp) {
-		memcpy(tgt->ltr, src->ltr, nlp * sizeof(*src->ltr));
-		for (size_t i = 0; i < nlp; i++) {
-			tgt->ltr[i].t = be32toh(tgt->ltr[i].t);
-			tgt->ltr[i].corr = be32toh(tgt->ltr[i].corr);
-		}
-	}
 	return;
 }
 
@@ -436,36 +408,23 @@ zif_find_zrng(zif_t z, int32_t t)
 }
 
 static int32_t
-__tai_offs(zif_t z, int32_t t)
+__tai_offs(int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
 	const int32_t tai_offs_epoch = 10;
-	const size_t leapcnt = zif_nleaps(z);
-	size_t idx;
 
-	if (UNLIKELY((idx = leapcnt) == 0U)) {
-		/* no leap second transitions recorded */
-		return 0;
-	}
-	/* slight optimisation, start from the back */
-	while (idx && t < z->ltr[--idx].t);
-	if (UNLIKELY(t < z->ltr[0].t)) {
-		/* we actually don't know what happened before the epoch */
-		return tai_offs_epoch;
-	}
-	/* idx now points to the transition before T */
-	return tai_offs_epoch + z->ltr[idx].corr;
+	return tai_offs_epoch + leaps_still(leaps_s, nleaps_s, t);
 }
 
 static int32_t
-__gps_offs(zif_t z, int32_t t)
+__gps_offs(int32_t t)
 {
 /* TAI - GPS = 19 on 1980-01-06, so use that identity here */
 	const int32_t gps_offs_epoch = 19;
 	if (UNLIKELY(t < 315964800)) {
 		return 0;
 	}
-	return __tai_offs(z, t) - gps_offs_epoch;
+	return __tai_offs(t) - gps_offs_epoch;
 }
 
 static inline int32_t
@@ -483,9 +442,9 @@ __offs(zif_t z, int32_t t)
 	case TZCZ_UTC:
 		return 0;
 	case TZCZ_TAI:
-		return __tai_offs(z, t);
+		return __tai_offs(t);
 	case TZCZ_GPS:
-		return __gps_offs(z, t);
+		return __gps_offs(t);
 	}
 
 	/* use the classic code */
