@@ -183,12 +183,12 @@ rhs
 			case DT_SPMOD_NORM:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__abbr_wday, countof(__abbr_wday));
+					__abbr_wday, __nabbr_wday);
 				break;
 			case DT_SPMOD_LONG:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__long_wday, countof(__long_wday));
+					__long_wday, __nlong_wday);
 				break;
 			case DT_SPMOD_ABBR: {
 				const char *pos;
@@ -208,12 +208,12 @@ rhs
 			case DT_SPMOD_NORM:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__abbr_mon, countof(__abbr_mon));
+					__abbr_mon, __nabbr_mon);
 				break;
 			case DT_SPMOD_LONG:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__long_mon, countof(__long_mon));
+					__long_mon, __nlong_mon);
 				break;
 			case DT_SPMOD_ABBR: {
 				const char *pos;
