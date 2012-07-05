@@ -46,6 +46,7 @@ libdut_a_SOURCES += leapseconds.def
 noinst_PROGRAMS += ltrcc
 ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 ltrcc_CPPFLAGS += -DDECLF=extern
+ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
 ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
 
