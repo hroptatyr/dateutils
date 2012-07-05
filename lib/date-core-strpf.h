@@ -175,7 +175,7 @@ __strfd_rom(
 DECLF size_t
 __strfd_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpd_s *d, struct dt_d_s UNUSED(that));
+	struct strpd_s *d, struct dt_d_s that);
 
 
 #if defined INCLUDE_DATE_CORE_STRPF_IMPL
