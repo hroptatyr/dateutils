@@ -369,6 +369,43 @@ DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
  * E.g. ymd -> %F */
 DECLF void __trans_dfmt(const char **fmt);
 
+/* textual representations of parts of the date */
+/**
+ * Long weekday names, english only.
+ * Monday, Tuesday, ... */
+DECLV const char *__long_wday[];
+DECLV const size_t __nlong_wday;
+
+/**
+ * Abbrev'd weekday names, english only.
+ * Mon, Tue, ... */
+DECLV const char *__abbr_wday[];
+DECLV const size_t __nabbr_wday;
+
+/**
+ * Even-more-abbrev'd weekday names, english only.
+ * M, T, W, ... */
+DECLV const char __abab_wday[];
+DECLV const size_t __nabab_wday;
+
+/**
+ * Long month names, english only.
+ * January, February, ... */
+DECLV const char *__long_mon[];
+DECLV const size_t __nlong_mon;
+
+/**
+ * Abbrev'd month names, english only.
+ * Jan, Feb, ... */
+DECLV const char *__abbr_mon[];
+DECLV const size_t __nabbr_mon;
+
+/**
+ * Even-more-abbrev'd month names.
+ * F, G, H, ... */
+DECLV const char __abab_mon[];
+DECLV const size_t __nabab_mon;
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_d_s

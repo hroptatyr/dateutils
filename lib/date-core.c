@@ -199,7 +199,7 @@ static uint16_t __mon_yday[] = {
 };
 #endif
 
-static const char *__long_wday[] = {
+DEFVAR const char *__long_wday[] = {
 	"Sunday",
 	"Monday",
 	"Tuesday",
@@ -209,14 +209,17 @@ static const char *__long_wday[] = {
 	"Saturday",
 	"Miracleday",
 };
+DEFVAR const size_t __nlong_wday = countof(__long_wday);
 
-static const char *__abbr_wday[] = {
+DEFVAR const char *__abbr_wday[] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
 };
+DEFVAR const size_t __nabbr_wday = countof(__abbr_wday);
 
-static const char __abab_wday[] = "SMTWRFAX";
+DEFVAR const char __abab_wday[] = "SMTWRFAX";
+DEFVAR const size_t __nabab_wday = countof(__abab_wday);
 
-static const char *__long_mon[] = {
+DEFVAR const char *__long_mon[] = {
 	"Miraculary",
 	"January",
 	"February",
@@ -231,8 +234,9 @@ static const char *__long_mon[] = {
 	"November",
 	"December",
 };
+DEFVAR const size_t __nlong_mon = countof(__long_mon);
 
-static const char *__abbr_mon[] = {
+DEFVAR const char *__abbr_mon[] = {
 	"Mir",
 	"Jan",
 	"Feb",
@@ -247,9 +251,11 @@ static const char *__abbr_mon[] = {
 	"Nov",
 	"Dec",
 };
+DEFVAR const size_t __nabbr_mon = countof(__abbr_mon);
 
 /* futures expiry codes, how convenient */
-static const char __abab_mon[] = "_FGHJKMNQUVXZ";
+DEFVAR const char __abab_mon[] = "_FGHJKMNQUVXZ";
+DEFVAR const size_t __nabab_mon = countof(__abab_mon);
 
 /* bizda definitions, reference dates */
 static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
