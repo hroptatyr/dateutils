@@ -443,7 +443,7 @@ __get_bizda_param(struct dt_d_s that)
 	dt_bizda_param_t p = {.bs = that.param};
 #else  /* !__C1X */
 	dt_bizda_param_t p;
-	p.u = that.param;
+	p.bs = that.param;
 #endif	/* __C1X */
 	return p;
 }
