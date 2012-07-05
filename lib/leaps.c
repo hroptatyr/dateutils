@@ -52,13 +52,12 @@
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
 
-typedef size_t sidx_t;
+typedef ssize_t sidx_t;
 
 
-#if 1
 /* this can be called roughly 100m/sec */
 static sidx_t
-find_idx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
+find_uidx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 {
 /* given a daisy C find the index of the transition before CT00:00:00 */
 	do {
@@ -70,9 +69,6 @@ find_idx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 		if (c > tl && c <= tu) {
 			/* found him */
 			return i;
-		} else if (max - 1 <= min) {
-			/* nearly found him */
-			return i + 1;
 		} else if (c > tu) {
 			min = i + 1;
 			i = (i + max) / 2;
@@ -80,11 +76,36 @@ find_idx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 			max = i - 1;
 			i = (i + min) / 2;
 		}
-	} while (i < nlv);
+	} while (max - min > 0 && i < (sidx_t)nlv);
 	return i;
 }
-#endif	/* 1 */
 
+static sidx_t
+find_sidx(zleap_t lv, size_t nlv, int32_t c, sidx_t i, sidx_t min, sidx_t max)
+{
+/* given a daisy C find the index of the transition before CT00:00:00 */
+	do {
+		int32_t tl, tu;
+
+		tl = lv[i].v;
+		tu = lv[i + 1].v;
+
+		if (c > tl && c <= tu) {
+			/* found him */
+			return i;
+		} else if (c > tu) {
+			min = i + 1;
+			i = (i + max) / 2;
+		} else if (c <= tl) {
+			max = i - 1;
+			i = (i + min) / 2;
+		}
+	} while (max - min > 0 && i < (sidx_t)nlv);
+	return i;
+}
+
+
+/* public apis */
 DEFUN int
 leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2)
 {
@@ -98,18 +119,128 @@ leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2)
 		return 0;
 	}
 
-	this = find_idx(lv, nlv, d1, this, min, max);
+	this = find_uidx(lv, nlv, d1, this, min, max);
 
 	if (d1 < d2) {
 		min = this;
 	} else {
 		max = this;
 	}
-	thi2 = find_idx(lv, nlv, d2, (min + max) / 2, min, max);
+	thi2 = find_uidx(lv, nlv, d2, (min + max) / 2, min, max);
 	if (LIKELY(this == thi2)) {
 		return 0;
 	}
 	return lv[thi2].corr - lv[this].corr;
+}
+
+DEFUN int
+leaps_on(zleap_t lv, size_t nlv, uint32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_uidx(lv, nlv, d, this, min, max);
+	if (LIKELY(lv[this].u == d)) {
+		return 0;
+	} else if (this) {
+		return lv[this].corr - lv[this - 1].corr;
+	} else if (this + 1 < (sidx_t)nlv) {
+		return lv[this + 1].corr - lv[this].corr;
+	}
+	/* huh?  this case means there's a fuckered array */
+	return 0;
+}
+
+DEFUN int
+leaps_till(zleap_t lv, size_t nlv, uint32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_uidx(lv, nlv, d, this, min, max);
+	return lv[this].corr - lv[0].corr;
+}
+
+DEFUN int
+leaps_since(zleap_t lv, size_t nlv, uint32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_uidx(lv, nlv, d, this, min, max);
+	return lv[nlv - 1].corr - lv[this].corr;
+}
+
+/* signed variants */
+DEFUN int
+leaps_sbetween(zleap_t lv, size_t nlv, int32_t d1, int32_t d2)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+	sidx_t thi2;
+
+	if (UNLIKELY(d1 == d2)) {
+		/* huh? */
+		return 0;
+	}
+
+	this = find_sidx(lv, nlv, d1, this, min, max);
+
+	if (d1 < d2) {
+		min = this;
+	} else {
+		max = this;
+	}
+	thi2 = find_sidx(lv, nlv, d2, (min + max) / 2, min, max);
+	if (LIKELY(this == thi2)) {
+		return 0;
+	}
+	return lv[thi2].corr - lv[this].corr;
+}
+
+DEFUN int
+leaps_son(zleap_t lv, size_t nlv, int32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_sidx(lv, nlv, d, this, min, max);
+	if (LIKELY(lv[this].u == d)) {
+		return 0;
+	} else if (this) {
+		return lv[this].corr - lv[this - 1].corr;
+	} else if (this + 1 < (sidx_t)nlv) {
+		return lv[this + 1].corr - lv[this].corr;
+	}
+	/* huh?  this case means there's a fuckered array */
+	return 0;
+}
+
+DEFUN int
+leaps_still(zleap_t lv, size_t nlv, int32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_sidx(lv, nlv, d, this, min, max);
+	return lv[this].corr - lv[0].corr;
+}
+
+DEFUN int
+leaps_ssince(zleap_t lv, size_t nlv, int32_t d)
+{
+	sidx_t min = 0;
+	sidx_t max = nlv - 1;
+	sidx_t this = max / 2;
+
+	this = find_sidx(lv, nlv, d, this, min, max);
+	return lv[nlv - 1].corr - lv[this].corr;
 }
 
 #endif	/* INCLUDED_leaps_c_ */

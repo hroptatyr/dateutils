@@ -99,6 +99,9 @@ struct strpdti_s {
 };
 
 #include "strops.c"
+#if defined WITH_LEAP_SECONDS && !defined SKIP_LEAP_ARITH
+# include "leapseconds.def"
+#endif	/* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
 
 
 /* converters and stuff */
@@ -1211,7 +1214,18 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		default:
 			break;
 		}
+#if !defined WITH_LEAP_SECONDS || defined SKIP_LEAP_ARITH
+		/* just go through with it */
 		d.sexy += carry;
+#else  /* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+		{
+			struct dt_dt_s orig = d;
+
+			d.sexy += carry;
+			d.sexy += leaps_sbetween(
+				leaps_s, nleaps_s, orig.sexy, d.sexy);
+		}
+#endif	/* !WITH_LEAP_SECONDS || SKIP_LEAP_ARITH */
 		return d;
 	}
 
@@ -1236,9 +1250,43 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 	/* demote D's and DUR's type temporarily */
 	if (d.typ != DT_SANDWICH_UNK && dur.d.typ != DT_DUNK) {
+#if !defined WITH_LEAP_SECONDS || defined SKIP_LEAP_ARITH
 	dadd:
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
+#else  /* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+		struct dt_d_s orig;
+		zleap_t lv;
+		size_t nlv;
+		int nlp;
+
+	dadd:
+		orig = d.d;
+		d.d = dt_dadd(d.d, dur.d);
+
+		switch (d.d.typ) {
+		case DT_YMD:
+			lv = leaps_ymd;
+			nlv = nleaps_ymd;
+			break;
+		case DT_YMCW:
+			lv = leaps_ymcw;
+			nlv = nleaps_ymcw;
+			break;
+		case DT_DAISY:
+			lv = leaps_d;
+			nlv = nleaps_d;
+			break;
+		default:
+			nlv = 0;
+			break;
+		}
+
+		if (nlv &&
+		    (nlp = leaps_between(lv, nlv, orig.ymd.u, d.d.ymd.u))) {
+			fprintf(stderr, "ltr! %d\n", nlp);
+		}
+#endif	/* !WITH_LEAP_SECONDS || SKIP_LEAP_ARITH */
 	} else if (dur.d.typ != DT_DUNK) {
 		/* put the carry back into d's daisydur slot */
 		d.d.daisydur += dur.d.daisydur;
@@ -1264,25 +1312,23 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		/* go for tdiff and ddiff independently */
 		res.t = dt_tdiff(d1.t, d2.t);
-#if !defined WITH_LEAP_SECONDS || !defined INCLUDED_ltrcc_generated_def_
+#if !defined WITH_LEAP_SECONDS || defined SKIP_LEAP_ARITH
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
 			(int64_t)res.d.daisydur * SECS_PER_DAY;
-#else  /* WITH_LEAP_SECONDS */
+#else  /* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
 		sxdur = res.t.sdur;
 		{
 			dt_daisy_t d1d = dt_conv_to_daisy(d1.d);
 			dt_daisy_t d2d = dt_conv_to_daisy(d2.d);
-			zleap_t lv = (const void*)leaps_d;
-			size_t nlv = countof(leaps_d);
 
 			res.d = __daisy_diff(d1d, d2d);
-			sxdur += leaps_between(lv, nlv, d1d, d2d);
+			sxdur += leaps_between(leaps_d, nleaps_d, d1d, d2d);
 		}
 		/* since target type is SEXY do the conversion here */
 		sxdur += (int64_t)res.d.daisydur * SECS_PER_DAY;
-#endif	/* !WITH_LEAP_SECONDS */
+#endif	/* !WITH_LEAP_SECONDS || SKIP_LEAP_ARITH */
 		/* set up the output here */
 		res.typ = DT_SEXY;
 		res.dur = 0;
