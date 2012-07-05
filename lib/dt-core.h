@@ -247,6 +247,12 @@ DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
 DECLF int
 dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
 
+/* more specific but still useful functions */
+/**
+ * Transform named format strings in FMT to their flag notation.
+ * E.g. ymd -> %FT%T */
+DECLF void __trans_dtfmt(const char **fmt);
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_dt_s
