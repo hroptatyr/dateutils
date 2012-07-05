@@ -58,6 +58,12 @@ extern "C" {
 #if !defined restrict
 # define restrict	__restrict
 #endif	/* !restrict */
+#if !defined DECLV
+# define DECLV		DECLF
+#endif	/* !DECLV */
+#if !defined DEFVAR
+# define DEFVAR		DEFUN
+#endif	/* !DEFVAR */
 
 typedef enum {
 	DT_DUNK,
