@@ -1214,7 +1214,18 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		default:
 			break;
 		}
+#if !defined WITH_LEAP_SECONDS || defined SKIP_LEAP_ARITH
+		/* just go through with it */
 		d.sexy += carry;
+#else  /* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+		{
+			struct dt_dt_s orig = d;
+
+			d.sexy += carry;
+			d.sexy += leaps_sbetween(
+				leaps_s, nleaps_s, orig.sexy, d.sexy);
+		}
+#endif	/* !WITH_LEAP_SECONDS || SKIP_LEAP_ARITH */
 		return d;
 	}
 
@@ -1239,9 +1250,43 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 	/* demote D's and DUR's type temporarily */
 	if (d.typ != DT_SANDWICH_UNK && dur.d.typ != DT_DUNK) {
+#if !defined WITH_LEAP_SECONDS || defined SKIP_LEAP_ARITH
 	dadd:
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
+#else  /* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+		struct dt_d_s orig;
+		zleap_t lv;
+		size_t nlv;
+		int nlp;
+
+	dadd:
+		orig = d.d;
+		d.d = dt_dadd(d.d, dur.d);
+
+		switch (d.d.typ) {
+		case DT_YMD:
+			lv = leaps_ymd;
+			nlv = nleaps_ymd;
+			break;
+		case DT_YMCW:
+			lv = leaps_ymcw;
+			nlv = nleaps_ymcw;
+			break;
+		case DT_DAISY:
+			lv = leaps_d;
+			nlv = nleaps_d;
+			break;
+		default:
+			nlv = 0;
+			break;
+		}
+
+		if (nlv &&
+		    (nlp = leaps_between(lv, nlv, orig.ymd.u, d.d.ymd.u))) {
+			fprintf(stderr, "ltr! %d\n", nlp);
+		}
+#endif	/* !WITH_LEAP_SECONDS || SKIP_LEAP_ARITH */
 	} else if (dur.d.typ != DT_DUNK) {
 		/* put the carry back into d's daisydur slot */
 		d.d.daisydur += dur.d.daisydur;
