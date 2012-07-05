@@ -101,7 +101,7 @@ tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
 
 	/* unpack t */
 	mdur = t.hms.h * SECS_PER_HOUR +
-		t.hms.m * SECS_PER_MINUTE +
+		t.hms.m * SECS_PER_MIN +
 		t.hms.s;
 	if (!(diff = mdur % dur.sdur) && !t.hms.ns && !nextp) {
 		return t;
@@ -122,8 +122,8 @@ tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
 	}
 	/* and convert back */
 	t.hms.ns = 0;
-	t.hms.s = mdur % SECS_PER_MINUTE;
-	mdur /= SECS_PER_MINUTE;
+	t.hms.s = mdur % SECS_PER_MIN;
+	mdur /= SECS_PER_MIN;
 	t.hms.m = mdur % MINS_PER_HOUR;
 	mdur /= MINS_PER_HOUR;
 	t.hms.h = mdur % HOURS_PER_DAY;

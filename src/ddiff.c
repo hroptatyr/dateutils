@@ -541,7 +541,7 @@ __strfdtdur(
 
 			if (f.has_min) {
 				/* minutes and seconds */
-				s %= (long int)SECS_PER_MINUTE;
+				s %= (long int)SECS_PER_MIN;
 			} else if (f.has_hour) {
 				/* hours and seconds */
 				s %= (long int)SECS_PER_HOUR;
