@@ -40,7 +40,14 @@
 
 #include "token.h"
 
-static struct dt_spec_s
+#if defined __INTEL_COMPILER
+/* we MUST return a char* */
+# pragma warning (disable:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
+
+struct dt_spec_s
 __tok_spec(const char *fp, char **ep)
 {
 	struct dt_spec_s res = spec_initialiser();
@@ -183,5 +190,11 @@ out:
 	}
 	return res;
 }
+
+#if defined __INTEL_COMPILER
+# pragma warning (default:2203)
+#elif defined __GNUC__
+# pragma GCC diagnostic warning "-Wcast-qual"
+#endif	/* __INTEL_COMPILER */
 
 #endif	/* INCLUDED_token_c_ */

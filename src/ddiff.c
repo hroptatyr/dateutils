@@ -227,7 +227,7 @@ __strf_tot_secs(struct dt_dt_s dur)
 static long int
 __strf_tot_mins(struct dt_dt_s dur)
 {
-	return __strf_tot_secs(dur) / (long int)SECS_PER_MINUTE;
+	return __strf_tot_secs(dur) / (long int)SECS_PER_MIN;
 }
 
 static long int
@@ -541,7 +541,7 @@ __strfdtdur(
 
 			if (f.has_min) {
 				/* minutes and seconds */
-				s %= (long int)SECS_PER_MINUTE;
+				s %= (long int)SECS_PER_MIN;
 			} else if (f.has_hour) {
 				/* hours and seconds */
 				s %= (long int)SECS_PER_HOUR;
@@ -701,11 +701,10 @@ main(int argc, char *argv[])
 		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t UNUSED(llen);
 				struct dt_dt_s d2;
 				struct dt_dt_s dur;
 
-				llen = prchunk_getline(pctx, &line);
+				(void)prchunk_getline(pctx, &line);
 				d2 = dt_io_strpdt(line, fmt, nfmt, NULL);
 
 				if (dt_unk_p(d2)) {

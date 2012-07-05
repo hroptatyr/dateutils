@@ -51,9 +51,9 @@
 #include <limits.h>
 #include "date-core.h"
 #include "time-core.h"
-#include "dt-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "dt-core.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect(!!(_x), 1)
@@ -67,6 +67,15 @@
 #if !defined UNUSED
 # define UNUSED(_x)	__attribute__((unused)) _x
 #endif	/* !UNUSED */
+
+#if !defined INCLUDED_date_core_c_
+# include "date-core.c"
+#endif	/* !INCLUDED_date_core_c_ */
+
+#if !defined INCLUDED_time_core_c_
+# include "time-core.c"
+#endif	/* INCLUDED_time_core_c_ */
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -124,6 +133,7 @@ __to_unix_epoch(struct dt_dt_s dt)
 }
 
 static inline dt_ssexy_t
+__attribute__((unused))
 __to_gps_epoch(struct dt_dt_s dt)
 {
 #define DAISY_GPS_BASE		(23016)
@@ -179,6 +189,7 @@ __epoch_to_ymdhms(dt_ssexy_t sx)
 }
 
 static inline struct dt_dt_s
+__attribute__((unused))
 __epoch_to_ymd_sandwich(dt_ssexy_t sx)
 {
 	struct dt_dt_s res;
@@ -206,7 +217,7 @@ static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 
-static void
+DEFUN void
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -1253,7 +1264,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		/* go for tdiff and ddiff independently */
 		res.t = dt_tdiff(d1.t, d2.t);
-#if !defined WITH_LEAP_SECONDS
+#if !defined WITH_LEAP_SECONDS || !defined INCLUDED_ltrcc_generated_def_
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
@@ -1263,9 +1274,11 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		{
 			dt_daisy_t d1d = dt_conv_to_daisy(d1.d);
 			dt_daisy_t d2d = dt_conv_to_daisy(d2.d);
+			zleap_t lv = (const void*)leaps_d;
+			size_t nlv = countof(leaps_d);
 
 			res.d = __daisy_diff(d1d, d2d);
-			sxdur += leaps_between(d1d, d2d);
+			sxdur += leaps_between(lv, nlv, d1d, d2d);
 		}
 		/* since target type is SEXY do the conversion here */
 		sxdur += (int64_t)res.d.daisydur * SECS_PER_DAY;

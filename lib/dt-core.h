@@ -56,6 +56,12 @@ extern "C" {
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
+#if !defined DECLV
+# define DECLV		DECLF
+#endif	/* !DECLV */
+#if !defined DEFVAR
+# define DEFVAR		DEFUN
+#endif	/* !DEFVAR */
 #if !defined restrict
 # define restrict	__restrict
 #endif	/* !restrict */
@@ -246,6 +252,12 @@ DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
  * 1 if D1 is younger than the D2. */
 DECLF int
 dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
+
+/* more specific but still useful functions */
+/**
+ * Transform named format strings in FMT to their flag notation.
+ * E.g. ymd -> %FT%T */
+DECLF void __trans_dtfmt(const char **fmt);
 
 
 /* some useful gimmicks, sort of */

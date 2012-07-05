@@ -37,7 +37,8 @@
 #if !defined INCLUDED_leaps_h_
 #define INCLUDED_leaps_h_
 
-#include "date-core.h"
+#include <unistd.h>
+#include <stdint.h>
 
 #if defined __cplusplus
 extern "C" {
@@ -50,11 +51,30 @@ extern "C" {
 #elif !defined DEFUN
 # define DEFUN
 #endif	/* !DECLF */
+#if !defined DECLV
+# define DECLV		DECLF
+#endif	/* !DECLV */
+#if !defined DEFVAR
+# define DEFVAR		DEFUN
+#endif	/* !DEFVAR */
 #if !defined restrict
 # define restrict	__restrict
 #endif	/* !restrict */
 
-DECLF int32_t leaps_between(dt_daisy_t d1, dt_daisy_t d2);
+typedef const struct zleap_s *zleap_t;
+
+struct zleap_s {
+	union {
+		uint32_t u;
+		int32_t v;
+	};
+	int32_t corr;
+};
+
+/**
+ * Return the number of leap seconds *inserted* between D1 and D2.
+ * If the result is negative then leap seconds have been removed. */
+DECLF int leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2);
 
 
 #if defined INCLUDE_LEAPS_IMPL
