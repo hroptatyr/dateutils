@@ -26,7 +26,7 @@ header_HEADERS += generics.h
 header_HEADERS += dt-core-tz-glue.h dt-core-tz-glue.c
 header_HEADERS += leapseconds.def
 
-noinst_LIBRARIES += libdut.a
+lib_LIBRARIES += libdut.a
 libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
 libdut_a_CPPFLAGS += -I$(builddir)
