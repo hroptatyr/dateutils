@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "token.h"
+#include "date-core-strpf.h"
 #include "dexpr.h"
 
 extern int yylex();
