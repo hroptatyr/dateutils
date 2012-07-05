@@ -436,6 +436,31 @@ dt_make_daisydur(signed int d)
 	return res;
 }
 
+static inline dt_bizda_param_t
+__get_bizda_param(struct dt_d_s that)
+{
+#if defined __C1X
+	dt_bizda_param_t p = {.bs = that.param};
+#else  /* !__C1X */
+	dt_bizda_param_t p;
+	p.u = that.param;
+#endif	/* __C1X */
+	return p;
+}
+
+static inline dt_bizda_param_t
+__make_bizda_param(unsigned int ab, unsigned int ref)
+{
+#if defined __C1X
+	dt_bizda_param_t p = {.ab = ab, .ref = ref};
+#else  /* !__C1X */
+	dt_bizda_param_t p;
+	p.ab = ab;
+	p.ref = ref;
+#endif	/* __C1X */
+	return p;
+}
+
 
 #if defined INCLUDE_DATE_CORE_IMPL
 # include "date-core.c"

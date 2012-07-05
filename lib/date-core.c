@@ -1116,31 +1116,6 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 	return 20 * (m - 1) + accum + that.bd;
 }
 
-static inline dt_bizda_param_t
-__get_bizda_param(struct dt_d_s that)
-{
-#if defined __C1X
-	dt_bizda_param_t p = {.bs = that.param};
-#else  /* !__C1X */
-	dt_bizda_param_t p;
-	p.u = that.param;
-#endif	/* __C1X */
-	return p;
-}
-
-static inline dt_bizda_param_t
-__make_bizda_param(unsigned int ab, unsigned int ref)
-{
-#if defined __C1X
-	dt_bizda_param_t p = {.ab = ab, .ref = ref};
-#else  /* !__C1X */
-	dt_bizda_param_t p;
-	p.ab = ab;
-	p.ref = ref;
-#endif	/* __C1X */
-	return p;
-}
-
 static dt_ymcw_t
 __ymd_to_ymcw(dt_ymd_t d)
 {
