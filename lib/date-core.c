@@ -135,16 +135,6 @@ strpd_initialiser(void)
 	return res;
 }
 
-#if !defined SECS_PER_MINUTE
-# define SECS_PER_MINUTE	(60U)
-#endif	/* !SECS_PER_MINUTE */
-#if !defined SECS_PER_HOUR
-# define SECS_PER_HOUR		(SECS_PER_MINUTE * 60U)
-#endif	/* !SECS_PER_HOUR */
-#if !defined SECS_PER_DAY
-# define SECS_PER_DAY		(SECS_PER_HOUR * 24U)
-#endif	/* !SECS_PER_DAY */
-
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1920)
 	{
