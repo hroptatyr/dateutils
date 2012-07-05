@@ -49,8 +49,25 @@
 
 #define DAISY_UNIX_BASE		(19359)
 
-/* forward, HACK */
-static inline dt_ssexy_t __to_unix_epoch(struct dt_dt_s);
+static inline dt_ssexy_t
+____to_unix_epoch(struct dt_dt_s dt)
+{
+/* daisy is competing with the prevalent unix epoch, this is the offset */
+#define DAISY_UNIX_BASE		(19359)
+	if (dt.typ == DT_SEXY) {
+		/* no way to find out, is there */
+		return dt.sexy;
+	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
+		struct dt_d_s d = dt_conv(DT_DAISY, dt.d);
+		dt_daisy_t dd = d.daisy;
+		dt_ssexy_t res = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY;
+		if (dt_sandwich_p(dt)) {
+			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		}
+		return res;
+	}
+	return 0;
+}
 
 static inline int
 __pos_mod(int num, int mod)
@@ -77,7 +94,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_unix = __to_unix_epoch(d);
+	d_unix = ____to_unix_epoch(d);
 	d_unix = zif_utc_time(zone, d_unix);
 
 	/* convert the date part back */
@@ -131,7 +148,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_unix = __to_unix_epoch(d);
+	d_unix = ____to_unix_epoch(d);
 	d_unix = zif_local_time(zone, d_unix);
 
 	/* convert the date part back */
