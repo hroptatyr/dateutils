@@ -421,6 +421,14 @@ DECLF int __ymd_get_wcnt_iso(dt_ymd_t d);
  * of the year and D the day in the week */
 DECLF unsigned int __ymcw_get_yday(dt_ymcw_t that);
 
+/**
+ * Get the number of days in month M of year Y. */
+DECLF unsigned int __get_mdays(unsigned int y, unsigned int m);
+
+/**
+ * Get the number of business days in month M of year Y. */
+DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_d_s

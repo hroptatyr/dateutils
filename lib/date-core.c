@@ -468,7 +468,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
-static inline unsigned int
+DEFUN inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
 /* get the number of days in Y-M */
@@ -556,7 +556,7 @@ __get_nbdays(unsigned int dur, dt_dow_t wd)
 	return dur - __get_nwedays(dur, wd);
 }
 
-static unsigned int
+DEFUN unsigned int
 __get_bdays(unsigned int y, unsigned int m)
 {
 /* the 28th exists in every month, and it's exactly 20 bdays
