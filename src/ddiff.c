@@ -701,11 +701,10 @@ main(int argc, char *argv[])
 		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t UNUSED(llen);
 				struct dt_dt_s d2;
 				struct dt_dt_s dur;
 
-				llen = prchunk_getline(pctx, &line);
+				(void)prchunk_getline(pctx, &line);
 				d2 = dt_io_strpdt(line, fmt, nfmt, NULL);
 
 				if (dt_unk_p(d2)) {
