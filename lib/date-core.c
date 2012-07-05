@@ -724,7 +724,7 @@ __ymcw_get_wday(dt_ymcw_t that)
 	return (dt_dow_t)that.w;
 }
 
-static unsigned int
+DEFUN unsigned int
 __ymcw_get_yday(dt_ymcw_t that)
 {
 /* return the N-th W-day in Y, this is equivalent with 8601's Y-W-D calendar
@@ -802,7 +802,7 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
-static int
+DEFUN int
 __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
 {
 	int yd = __ymd_get_yday(d);
@@ -817,7 +817,7 @@ __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
 	return (yd - wk + 7) / 7;
 }
 
-static int
+DEFUN int
 __ymd_get_wcnt_iso(dt_ymd_t d)
 {
 /* like __ymd_get_wcnt() but for iso week conventions

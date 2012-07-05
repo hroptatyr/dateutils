@@ -406,6 +406,21 @@ DECLV const size_t __nabbr_mon;
 DECLV const char __abab_mon[];
 DECLV const size_t __nabab_mon;
 
+/* functions that really shouldn't be exposed */
+/**
+ * Get the week count of D in the year when weeks start at WDAYS_FROM. */
+DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
+
+/**
+ * Like __ymd_get_wcnt() but for ISO week convention. */
+DECLF int __ymd_get_wcnt_iso(dt_ymd_t d);
+
+/**
+ * Return the N-th W-day in the year of THAT.
+ * This is equivalent with 8601's Y-W-D calendar where W is the week
+ * of the year and D the day in the week */
+DECLF unsigned int __ymcw_get_yday(dt_ymcw_t that);
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_d_s
