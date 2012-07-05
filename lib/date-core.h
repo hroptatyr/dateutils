@@ -357,6 +357,12 @@ DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
  * 1 if D1 is younger than the D2. */
 DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
+/* more specific, yet useful funs */
+/**
+ * Transform named format strings in FMT to their flag notation.
+ * E.g. ymd -> %F */
+DECLF void __trans_dfmt(const char **fmt);
+
 
 /* some useful gimmicks, sort of */
 static inline struct dt_d_s

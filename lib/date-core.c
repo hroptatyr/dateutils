@@ -2123,7 +2123,7 @@ static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
 
-static void
+DEFUN void
 __trans_dfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
