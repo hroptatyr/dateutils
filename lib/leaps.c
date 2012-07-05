@@ -69,9 +69,6 @@ find_uidx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 		if (c > tl && c <= tu) {
 			/* found him */
 			return i;
-		} else if (max - 1 <= min) {
-			/* nearly found him */
-			return i + 1;
 		} else if (c > tu) {
 			min = i + 1;
 			i = (i + max) / 2;
@@ -79,7 +76,7 @@ find_uidx(zleap_t lv, size_t nlv, uint32_t c, sidx_t i, sidx_t min, sidx_t max)
 			max = i - 1;
 			i = (i + min) / 2;
 		}
-	} while (i < nlv);
+	} while (max - min > 0 && i < (sidx_t)nlv);
 	return i;
 }
 
@@ -96,9 +93,6 @@ find_sidx(zleap_t lv, size_t nlv, int32_t c, sidx_t i, sidx_t min, sidx_t max)
 		if (c > tl && c <= tu) {
 			/* found him */
 			return i;
-		} else if (max - 1 <= min) {
-			/* nearly found him */
-			return i + 1;
 		} else if (c > tu) {
 			min = i + 1;
 			i = (i + max) / 2;
@@ -106,7 +100,7 @@ find_sidx(zleap_t lv, size_t nlv, int32_t c, sidx_t i, sidx_t min, sidx_t max)
 			max = i - 1;
 			i = (i + min) / 2;
 		}
-	} while (i < nlv);
+	} while (max - min > 0 && i < (sidx_t)nlv);
 	return i;
 }
 
