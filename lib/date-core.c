@@ -238,6 +238,9 @@ __leapp(unsigned int y)
 #endif	/* WITH_FAST_ARITH */
 }
 
+/* UTC has a constant day length */
+#define UTC_SECS_PER_DAY	(86400)
+
 static void
 ffff_gmtime(struct tm *tm, const time_t t)
 {
@@ -246,7 +249,7 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	const uint16_t *ip;
 
 	/* just go to day computation */
-	days = (int)(t / SECS_PER_DAY);
+	days = (int)(t / UTC_SECS_PER_DAY);
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
 	tm->tm_wday = (days + 4) % GREG_DAYS_P_WEEK;
 
