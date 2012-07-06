@@ -76,6 +76,10 @@ __to_unix_epoch(struct dt_dt_s dt)
 	return 0;
 }
 
+
+#define PROLOGUE	(-1UL)
+#define EPILOGUE	(0UL)
+
 static int
 pr_line_d(const char *line, size_t llen, va_list vap)
 {
@@ -86,7 +90,24 @@ pr_line_d(const char *line, size_t llen, va_list vap)
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
 
-	if (line[0] == '#') {
+	if (llen == PROLOGUE) {
+		/* prologue */
+		corr = 0;
+		fprintf(stdout, "\
+const struct zleap_s %s[] = {\n\
+	{0x00U/* 0 */, 0},\n", line);
+		return 0;
+	} else if (llen == EPILOGUE) {
+		/* epilogue */
+		fprintf(stdout, "\
+	{UINT32_MAX, %i}\n\
+};\n\
+const size_t n%s = countof(%s);\n\n", corr, line, line);
+		return 0;
+	} else if (line == NULL) {
+		/* something's fucked */
+		return -1;
+	} else if (line[0] == '#') {
 		/* comment line */
 		return 0;
 	} else if (line[0] == '\n') {
@@ -132,7 +153,24 @@ pr_line_dt(const char *line, size_t llen, va_list vap)
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
 
-	if (line[0] == '#') {
+	if (llen == PROLOGUE) {
+		/* prologue */
+		corr = 0;
+		fprintf(stdout, "\
+const struct zleap_s %s[] = {\n\
+	{0x00U/* 0 */, 0},\n", line);
+		return 0;
+	} else if (llen == EPILOGUE) {
+		/* epilogue */
+		fprintf(stdout, "\
+	{UINT32_MAX, %i}\n\
+};\n\
+const size_t n%s = countof(%s);\n\n", corr, line, line);
+		return 0;
+	} else if (line == NULL) {
+		/* buggre */
+		return -1;
+	} else if (line[0] == '#') {
 		/* comment line */
 		return 0;
 	} else if (line[0] == '\n') {
@@ -178,9 +216,9 @@ pr_file(FILE *fp, const char *var, int(*cb)(const char*, size_t, va_list), ...)
 	ssize_t nrd;
 
 	/* prologue */
-	fprintf(stdout, "\
-const struct zleap_s %s[] = {\n\
-	{0x00U/* 0 */, %i},\n", var, corr = 0);
+	va_start(vap, cb);
+	cb(var, PROLOGUE, vap);
+	va_end(vap);
 	/* main loop */
 	while ((nrd = getline(&line, &len, fp)) >= 0) {
 		va_start(vap, cb);
@@ -190,10 +228,7 @@ const struct zleap_s %s[] = {\n\
 		va_end(vap);
 	}
 	/* epilogue */
-	fprintf(stdout, "\
-	{UINT32_MAX, %i}\n\
-};\n\
-const size_t n%s = countof(%s);\n\n", corr, var, var);
+	cb(var, EPILOGUE, vap);
 
 	if (line) {
 		free(line);
