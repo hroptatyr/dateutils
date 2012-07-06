@@ -228,7 +228,9 @@ pr_file(FILE *fp, const char *var, int(*cb)(const char*, size_t, va_list), ...)
 		va_end(vap);
 	}
 	/* epilogue */
+	va_start(vap, cb);
 	cb(var, EPILOGUE, vap);
+	va_end(vap);
 
 	if (line) {
 		free(line);
