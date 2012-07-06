@@ -54,8 +54,6 @@
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
 
-static int32_t corr = 0;
-
 static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
 {
@@ -83,6 +81,7 @@ __to_unix_epoch(struct dt_dt_s dt)
 static int
 pr_line_d(const char *line, size_t llen, va_list vap)
 {
+	static int32_t corr = 0;
 	struct dt_d_s d;
 	dt_dtyp_t typ;
 	char *ep;
@@ -145,6 +144,7 @@ const size_t n%s = countof(%s);\n\n", corr, line, line);
 static int
 pr_line_dt(const char *line, size_t llen, va_list vap)
 {
+	static int32_t corr = 0;
 	struct dt_dt_s d;
 	dt_dtyp_t __attribute__((unused)) typ;
 	char *ep;
