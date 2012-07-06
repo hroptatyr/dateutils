@@ -53,6 +53,9 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
+#if !defined UNUSED
+# define UNUSED(x)	__attribute__((unused)) x
+#endif	/* !UNUSED */
 
 static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
@@ -79,29 +82,95 @@ __to_unix_epoch(struct dt_dt_s dt)
 #define EPILOGUE	(0UL)
 
 static int
-pr_line_d(const char *line, size_t llen, va_list vap)
+pr_line_corr(const char *line, size_t llen, va_list UNUSED(vap))
 {
 	static int32_t corr = 0;
-	struct dt_d_s d;
-	dt_dtyp_t typ;
 	char *ep;
-
-	/* extract type from inner list */
-	typ = va_arg(vap, dt_dtyp_t);
 
 	if (llen == PROLOGUE) {
 		/* prologue */
 		corr = 0;
 		fprintf(stdout, "\
+const int32_t %s[] = {\n\
+	0,\n", line);
+		return 0;
+	} else if (llen == EPILOGUE) {
+		fprintf(stdout, "\
+	%i\n\
+};\n", corr);
+		return 0;
+	} else if (line == NULL) {
+		/* grrrr */
+		return -1;
+	} else if (line[0] == '#') {
+		/* comment line */
+		return 0;
+	} else if (line[0] == '\n') {
+		/* empty line */
+		return 0;
+	}
+	/* otherwise process */
+	if ((dt_strpd(line, "Leap\t%Y\t%b\t%d\t", &ep), ep) == NULL) {
+		return -1;
+	} else if (llen - (ep - line) < 9) {
+		return -1;
+	} else if (ep[8] != '\t') {
+		return -1;
+	}
+
+	switch (ep[9]) {
+	case '+':
+		++corr;
+		break;
+	case '-':
+		--corr;
+		break;
+	default:
+		/* still buggered */
+		return -1;
+	}
+	/* output the correction then */
+	fprintf(stdout, "\t%i,\n", corr);
+	return 0;
+}
+
+static int
+pr_line_d(const char *line, size_t llen, va_list vap)
+{
+	static int32_t corr = 0;
+	struct dt_d_s d;
+	dt_dtyp_t typ;
+	int colp;
+	char *ep;
+
+	/* extract type from inner list */
+	typ = va_arg(vap, dt_dtyp_t);
+	colp = va_arg(vap, int);
+
+	if (llen == PROLOGUE) {
+		/* prologue */
+		corr = 0;
+		if (!colp) {
+			fprintf(stdout, "\
 const struct zleap_s %s[] = {\n\
 	{0x00U/* 0 */, 0},\n", line);
+		} else {
+			fprintf(stdout, "\
+const uint32_t %s[] = {\n\
+	0x00U/* 0 */,\n", line);
+		}
 		return 0;
 	} else if (llen == EPILOGUE) {
 		/* epilogue */
-		fprintf(stdout, "\
+		if (!colp) {
+			fprintf(stdout, "\
 	{UINT32_MAX, %i}\n\
-};\n\
-const size_t n%s = countof(%s);\n\n", corr, line, line);
+};\n", corr);
+		} else {
+			fputs("\
+	UINT32_MAX\n\
+};\n", stdout);
+		}
 		return 0;
 	} else if (line == NULL) {
 		/* something's fucked */
@@ -125,19 +194,24 @@ const size_t n%s = countof(%s);\n\n", corr, line, line);
 	/* convert to target type */
 	d = dt_conv(typ, d);
 
-	switch (ep[9]) {
-	case '+':
-		++corr;
-		break;
-	case '-':
-		--corr;
-		break;
-	default:
-		/* still buggered */
-		return -1;
+	if (!colp) {
+		switch (ep[9]) {
+		case '+':
+			++corr;
+			break;
+		case '-':
+			--corr;
+			break;
+		default:
+			/* still buggered */
+			return -1;
+		}
+		/* just output the line then */
+		fprintf(stdout, "\t{0x%xU/* %i */, %i},\n",
+			d.u, (int32_t)d.u, corr);
+	} else {
+		fprintf(stdout, "\t0x%xU/* %i */,\n", d.u, (int32_t)d.u);
 	}
-	/* just output the line then */
-	fprintf(stdout, "\t{0x%xU/* %i */, %i},\n", d.u, (int32_t)d.u, corr);
 	return 0;
 }
 
@@ -147,25 +221,38 @@ pr_line_dt(const char *line, size_t llen, va_list vap)
 	static int32_t corr = 0;
 	struct dt_dt_s d;
 	dt_dtyp_t __attribute__((unused)) typ;
+	int colp;
 	char *ep;
 	dt_ssexy_t val;
 
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
+	colp = va_arg(vap, int);
 
 	if (llen == PROLOGUE) {
 		/* prologue */
 		corr = 0;
-		fprintf(stdout, "\
+		if (!colp) {
+			fprintf(stdout, "\
 const struct zleap_s %s[] = {\n\
-	{0x00U/* 0 */, 0},\n", line);
+	{INT32_MIN, 0},\n", line);
+		} else {
+			fprintf(stdout, "\
+const int32_t %s[] = {\n\
+	INT32_MIN,\n", line);
+		}
 		return 0;
 	} else if (llen == EPILOGUE) {
 		/* epilogue */
-		fprintf(stdout, "\
-	{UINT32_MAX, %i}\n\
-};\n\
-const size_t n%s = countof(%s);\n\n", corr, line, line);
+		if (!colp) {
+			fprintf(stdout, "\
+	{INT32_MAX, %i}\n\
+};\n", corr);
+		} else {
+			fputs("\
+	INT32_MAX\n\
+};\n", stdout);
+		}
 		return 0;
 	} else if (line == NULL) {
 		/* buggre */
@@ -191,19 +278,25 @@ const size_t n%s = countof(%s);\n\n", corr, line, line);
 	d.t.hms.s--;
 	val = __to_unix_epoch(d);
 
-	switch (ep[1]) {
-	case '+':
-		++corr;
-		break;
-	case '-':
-		--corr;
-		break;
-	default:
-		/* still buggered */
-		return -1;
+	if (!colp) {
+		switch (ep[1]) {
+		case '+':
+			++corr;
+			break;
+		case '-':
+			--corr;
+			break;
+		default:
+			/* still buggered */
+			return -1;
+		}
+		/* just output the line then */
+		fprintf(stdout, "\t{0x%xU/* %li */, %i},\n",
+			(uint32_t)val, val, corr);
+	} else {
+		/* column-oriented mode */
+		fprintf(stdout, "\t0x%xU/* %li */,\n", (uint32_t)val, val);
 	}
-	/* just output the line then */
-	fprintf(stdout, "\t{0x%xU/* %li */, %i},\n", (uint32_t)val, val, corr);
 	return 0;
 }
 
@@ -231,12 +324,18 @@ pr_file(FILE *fp, const char *var, int(*cb)(const char*, size_t, va_list), ...)
 	va_start(vap, cb);
 	cb(var, EPILOGUE, vap);
 	va_end(vap);
+	/* standard epilogue */
+	fprintf(stdout, "\
+const size_t n%s = countof(%s);\n\n", var, var);
 
 	if (line) {
 		free(line);
 	}
 	return 0;
 }
+
+
+static int col = 0;
 
 static int
 parse_file(const char *file)
@@ -262,13 +361,18 @@ parse_file(const char *file)
 #endif	/* !countof */\n\
 \n", file);
 
-	pr_file(fp, "leaps_ymd", pr_line_d, DT_YMD);
+	if (col) {
+		pr_file(fp, "leaps_corr", pr_line_corr);
+		rewind(fp);
+	}
+
+	pr_file(fp, "leaps_ymd", pr_line_d, DT_YMD, col);
 	rewind(fp);
-	pr_file(fp, "leaps_ymcw", pr_line_d, DT_YMCW);
+	pr_file(fp, "leaps_ymcw", pr_line_d, DT_YMCW, col);
 	rewind(fp);
-	pr_file(fp, "leaps_d", pr_line_d, DT_DAISY);
+	pr_file(fp, "leaps_d", pr_line_d, DT_DAISY, col);
 	rewind(fp);
-	pr_file(fp, "leaps_s", pr_line_dt, DT_YMD);
+	pr_file(fp, "leaps_s", pr_line_dt, DT_YMD, col);
 
 	fputs("\
 #endif  /* INCLUDED_ltrcc_generated_def_ */\n", stdout);
@@ -294,6 +398,8 @@ Compile LEAPS_FILE into C source code.\n\
 \n\
   -h                    Print help and exit\n\
   -V                    Print version and exit\n\
+\n\
+  -C                    Column-oriented output\n\
 ", where);
 	return;
 }
@@ -303,8 +409,11 @@ main(int argc, char *argv[])
 {
 	const char *leaps;
 
-	for (int c; (c = getopt(argc, argv, "hVv")) != -1;) {
+	for (int c; (c = getopt(argc, argv, "ChVv")) != -1;) {
 		switch (c) {
+		case 'C':
+			col = 1;
+			break;
 		case 'h':
 			pr_usage(stdout);
 			return 0;
