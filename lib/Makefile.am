@@ -8,6 +8,7 @@ headerdir = $(includedir)/dateutils
 noinst_PROGRAMS =
 noinst_HEADERS =
 noinst_LIBRARIES =
+lib_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST =
