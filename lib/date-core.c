@@ -2034,7 +2034,14 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;
 		res.ymcw.m = d.m;
+#if defined WITH_FAST_ARITH
 		res.ymcw.c = d.c;
+#else  /* !WITH_FAST_ARITH */
+		if ((res.ymcw.c = d.c) >= 5) {
+			/* the user meant the LAST wday actually */
+			res.ymcw.c = __get_mcnt(d.y, d.m, (dt_dow_t)d.w);
+		}
+#endif	/* WITH_FAST_ARITH */
 		res.ymcw.w = d.w;
 	} else if (d.y && d.flags.bizda) {
 		/* d.c can be legit'ly naught */
