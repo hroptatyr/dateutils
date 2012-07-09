@@ -66,7 +66,7 @@ __to_unix_epoch(struct dt_dt_s dt)
 		/* no way to find out, is there */
 		return dt.sexy;
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
-		struct dt_d_s d = dt_conv(DT_DAISY, dt.d);
+		struct dt_d_s d = dt_dconv(DT_DAISY, dt.d);
 		dt_daisy_t dd = d.daisy;
 		dt_ssexy_t res = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY;
 		if (dt_sandwich_p(dt)) {
@@ -192,7 +192,7 @@ const uint32_t %s[] = {\n\
 	}
 
 	/* convert to target type */
-	d = dt_conv(typ, d);
+	d = dt_dconv(typ, d);
 
 	if (!colp) {
 		switch (ep[9]) {

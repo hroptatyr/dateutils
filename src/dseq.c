@@ -638,11 +638,12 @@ cannot mix dates and times as arguments");
 		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	}
 
+#define x_DAISY	((dt_dttyp_t)DT_DAISY)
 	/* convert to daisies */
 	if (dt_sandwich_only_d_p(clo.fst) &&
 	    __daisy_feasible_p(clo.ite, clo.nite) &&
-	    ((clo.fst = dt_dtconv(DT_DAISY, clo.fst)).d.typ != DT_DAISY ||
-	     (clo.lst = dt_dtconv(DT_DAISY, clo.lst)).d.typ != DT_DAISY)) {
+	    ((clo.fst = dt_dtconv(x_DAISY, clo.fst)).typ != DT_DAISY ||
+	     (clo.lst = dt_dtconv(x_DAISY, clo.lst)).typ != DT_DAISY)) {
 		if (!argi->quiet_given) {
 			error(0, "\
 cannot convert calendric system internally");

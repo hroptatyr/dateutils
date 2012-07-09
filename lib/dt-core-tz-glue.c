@@ -58,7 +58,7 @@ ____to_unix_epoch(struct dt_dt_s dt)
 		/* no way to find out, is there */
 		return dt.sexy;
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
-		struct dt_d_s d = dt_conv(DT_DAISY, dt.d);
+		struct dt_d_s d = dt_dconv(DT_DAISY, dt.d);
 		dt_daisy_t dd = d.daisy;
 		dt_ssexy_t res = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY;
 		if (dt_sandwich_p(dt)) {
@@ -104,7 +104,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 		/* temporarily go daisy */
 		res.d.typ = DT_DAISY;
 		res.d.daisy = d_unix / 86400 + DAISY_UNIX_BASE;
-		res.d = dt_conv(d.d.typ, res.d);
+		res.d = dt_dconv(d.d.typ, res.d);
 
 		/* set the other flags too */
 		res.sandwich = d.sandwich;
@@ -157,7 +157,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 
 		res.d.typ = DT_DAISY;
 		res.d.daisy = d_unix / 86400 + DAISY_UNIX_BASE;
-		res.d = dt_conv(d.d.typ, res.d);
+		res.d = dt_dconv(d.d.typ, res.d);
 
 		/* set the other flags too */
 		res.sandwich = d.sandwich;

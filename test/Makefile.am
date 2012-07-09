@@ -387,7 +387,9 @@ check_PROGRAMS += struct-8
 check_PROGRAMS += struct-9
 check_PROGRAMS += enum-1
 check_PROGRAMS += dtcore-strp
+check_PROGRAMS += dtcore-conv
 check_PROGRAMS += dtcore-add
+check_PROGRAMS += time-core-add
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -400,6 +402,8 @@ bin_tests += struct-8
 bin_tests += struct-9
 bin_tests += enum-1
 bin_tests += dtcore-strp
+bin_tests += dtcore-conv
 bin_tests += dtcore-add
+bin_tests += time-core-add
 
 ## Makefile.am ends here

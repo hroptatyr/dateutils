@@ -76,6 +76,7 @@ typedef enum {
 	DT_PACK = DT_NDTYP,
 	DT_YMDHMS = DT_PACK,
 	DT_SEXY,
+	DT_SEXYTAI,
 	DT_NDTTYP,
 } dt_dttyp_t;
 
@@ -134,8 +135,8 @@ struct dt_dt_s {
 			uint16_t dur:1;
 			/* negation indicator */
 			uint16_t neg:1;
-			/* pad to push the next 53 bits MSB-wards */
-			uint16_t:1;
+			/* whether to be aware of leap-seconds */
+			uint16_t tai:1;
 			union {
 				uint64_t u:53;
 				dt_ymdhms_t ymdhms;
@@ -223,7 +224,7 @@ DECLF struct dt_dt_s dt_datetime(dt_dttyp_t dttyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
-DECLF struct dt_dt_s dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s);
+DECLF struct dt_dt_s dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s);
 
 /**
  * Add duration DUR to date/time D.
