@@ -135,8 +135,8 @@ struct dt_dt_s {
 			uint16_t dur:1;
 			/* negation indicator */
 			uint16_t neg:1;
-			/* pad to push the next 53 bits MSB-wards */
-			uint16_t:1;
+			/* whether to be aware of leap-seconds */
+			uint16_t tai:1;
 			union {
 				uint64_t u:53;
 				dt_ymdhms_t ymdhms;
