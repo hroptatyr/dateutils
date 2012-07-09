@@ -437,17 +437,37 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
 
 	/* get both result in seconds since midnight */
 	res = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
-	res = res + dur.sdur - corr;
+	res = res + dur.sdur;
 
-	tmp = __tuidiv(res, SECS_PER_DAY);
-	res = __tuimod(res, SECS_PER_DAY) + corr;
+	if (LIKELY(corr == 0)) {
+		tmp = __tuidiv(res, SECS_PER_DAY);
+		res = __tuimod(res, SECS_PER_DAY);
 
-	/* fill up biggest first */
-	t.hms.h = res / SECS_PER_HOUR;
-	res = res % SECS_PER_HOUR;
-	t.hms.m = res / SECS_PER_MIN;
-	res = res % SECS_PER_MIN;
-	t.hms.s = res;
+		/* fill up biggest first */
+		t.hms.h = res / SECS_PER_HOUR;
+		res = res % SECS_PER_HOUR;
+		t.hms.m = res / SECS_PER_MIN;
+		res = res % SECS_PER_MIN;
+		t.hms.s = res;
+	} else {
+		/* doesn't work if we span more than 1 day */
+		tmp = __tuidiv(res, SECS_PER_DAY + corr);
+		res = __tuimod(res, SECS_PER_DAY + corr);
+
+		/* fill up biggest first */
+		if (res < SECS_PER_DAY) {
+			t.hms.h = res / SECS_PER_HOUR;
+			res = res % SECS_PER_HOUR;
+			t.hms.m = res / SECS_PER_MIN;
+			res = res % SECS_PER_MIN;
+			t.hms.s = res;
+		} else {
+			/* corr < 0 will always end up in the above case */
+			t.hms.h = 23;
+			t.hms.m = 59;
+			t.hms.s = 59 + corr;
+		}
+	}
 
 	/* set up the return type */
 	t.typ = DT_HMS;
