@@ -411,38 +411,64 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 	return bp - buf;
 }
 
+/* arithmetics helpers */
+static inline unsigned int
+__tuimod(signed int x, signed int m)
+{
+	int res = x % m;
+	return res >= 0 ? res : res + m;
+}
+
+static inline signed int
+__tuidiv(signed int x, signed int m)
+{
+/* uidiv expects its counterpart (the mod) to be computed with __uimod */
+	int res = x / m;
+	return x >= 0 ? res : x % m ? res - 1 : res;
+}
+
 
 /* arith */
 DEFUN struct dt_t_s
-dt_tadd(struct dt_t_s t, struct dt_t_s dur)
+dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
 {
-	signed int sec;
+	unsigned int res;
 	signed int tmp;
 
-	sec = dur.sdur;
-	sec += t.hms.s;
-	if ((tmp = sec % (signed int)SECS_PER_MIN) >= 0) {
-		t.hms.s = tmp;
+	/* get both result in seconds since midnight */
+	res = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+	res = res + dur.sdur;
+
+	if (LIKELY(corr == 0)) {
+		tmp = __tuidiv(res, SECS_PER_DAY);
+		res = __tuimod(res, SECS_PER_DAY);
+
+		/* fill up biggest first */
+		t.hms.h = res / SECS_PER_HOUR;
+		res = res % SECS_PER_HOUR;
+		t.hms.m = res / SECS_PER_MIN;
+		res = res % SECS_PER_MIN;
+		t.hms.s = res;
 	} else {
-		t.hms.s = tmp + SECS_PER_MIN;
-		sec -= SECS_PER_MIN;
+		/* doesn't work if we span more than 1 day */
+		tmp = __tuidiv(res, SECS_PER_DAY + corr);
+		res = __tuimod(res, SECS_PER_DAY + corr);
+
+		/* fill up biggest first */
+		if (res < SECS_PER_DAY) {
+			t.hms.h = res / SECS_PER_HOUR;
+			res = res % SECS_PER_HOUR;
+			t.hms.m = res / SECS_PER_MIN;
+			res = res % SECS_PER_MIN;
+			t.hms.s = res;
+		} else {
+			/* corr < 0 will always end up in the above case */
+			t.hms.h = 23;
+			t.hms.m = 59;
+			t.hms.s = 59 + corr;
+		}
 	}
 
-	sec /= (signed int)SECS_PER_MIN;
-	sec += t.hms.m;
-	if ((tmp = sec % (signed int)MINS_PER_HOUR) >= 0) {
-		t.hms.m = tmp;
-	} else {
-		t.hms.m = tmp + MINS_PER_HOUR;
-		sec -= MINS_PER_HOUR;
-	}
-
-	sec /= (signed int)MINS_PER_HOUR;
-	sec += t.hms.h;
-	/* hopefully goes to a divrem */
-	sec += 8 * HOURS_PER_DAY;
-	t.hms.h = sec % HOURS_PER_DAY;
-	tmp = sec / HOURS_PER_DAY - 8;
 	/* set up the return type */
 	t.typ = DT_HMS;
 	t.dur = 0;

@@ -144,8 +144,10 @@ DECLF size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s);
 
 /**
- * Add DUR to T and return its result. */
-DECLF struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur);
+ * Add DUR to T and return its result.
+ * Optional argument CORR is the number of leap-seconds to insert at
+ * the end of the day (or remove if negative). */
+DECLF struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr);
 
 /**
  * Compute the duration between T1 and T2 (as in T2 - T1) and return the
@@ -168,7 +170,8 @@ __attribute__((pure, const))
 dt_t_initialiser(void)
 {
 #if defined __C1X
-	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U, .u = 0U};
+	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U,
+			     .u = 0U, .carry = 0U};
 #else  /* !__C1X */
 	struct dt_t_s res;
 #endif	/* __C1X */
@@ -178,6 +181,7 @@ dt_t_initialiser(void)
 	res.dur = 0U;
 	res.neg = 0U;
 	res.u = 0U;
+	res.carry = 0U;
 #endif	/* !__C1X */
 	return res;
 }

@@ -286,7 +286,7 @@ DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
-DECLF struct dt_d_s dt_conv(dt_dtyp_t tgttyp, struct dt_d_s);
+DECLF struct dt_d_s dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s);
 
 /**
  * Get the year count (gregorian) of a date,
