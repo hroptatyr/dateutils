@@ -76,6 +76,7 @@ typedef enum {
 	DT_PACK = DT_NDTYP,
 	DT_YMDHMS = DT_PACK,
 	DT_SEXY,
+	DT_SEXYTAI,
 	DT_NDTTYP,
 } dt_dttyp_t;
 
