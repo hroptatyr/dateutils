@@ -1159,7 +1159,15 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 		res.d.ymcw = dt_conv_to_ymcw(d.d);
 		break;
 	case DT_DAISY:
+	case DT_SEXY:
+	case DT_SEXYTAI:
 		res.d.daisy = dt_conv_to_daisy(d.d);
+		if (tgttyp == DT_DAISY) {
+			break;
+		}
+		res.sexy = (res.d.daisy - DAISY_UNIX_BASE) * SECS_PER_DAY +
+			(res.t.hms.h * MINS_PER_HOUR + res.t.hms.m) *
+			SECS_PER_MIN + res.t.hms.s;
 		break;
 	case DT_BIZDA:
 		/* actually this is a parametrised date */
