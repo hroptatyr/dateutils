@@ -2470,7 +2470,7 @@ dt_date(dt_dtyp_t outtyp)
 }
 
 DEFUN struct dt_d_s
-dt_conv(dt_dtyp_t tgttyp, struct dt_d_s d)
+dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 {
 	struct dt_d_s res;
 

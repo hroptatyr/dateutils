@@ -280,7 +280,7 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		forw = !dur.neg;
 		tgt = dur.ymcw.w;
 
-		tmp = dt_conv(DT_DAISY, d);
+		tmp = dt_dconv(DT_DAISY, d);
 		wday = dt_get_wday(tmp);
 		diff = (signed)tgt - (signed)wday;
 
@@ -302,7 +302,7 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 
 		/* final assignment */
 		tmp.daisy += diff;
-		d = dt_conv(d.typ, tmp);
+		d = dt_dconv(d.typ, tmp);
 		break;
 	}
 
