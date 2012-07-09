@@ -1,4 +1,4 @@
-/*** date-core.h -- our universe of dates
+/*** date-core.c -- our universe of dates
  *
  * Copyright (C) 2011-2012 Sebastian Freundt
  *
