@@ -808,6 +808,7 @@ dt_strpdtdur(const char *str, char **ep)
 	}
 
 	d = strpdt_initialiser();
+sp:
 	switch (*sp++) {
 	case '\0':
 		/* must have been day then */
@@ -858,6 +859,10 @@ dt_strpdtdur(const char *str, char **ep)
 		d.st.s = tmp;
 		break;
 
+	case 'r':
+		/* real seconds */
+		res.tai = 1;
+		goto sp;
 	default:
 		sp = str;
 		goto out;
