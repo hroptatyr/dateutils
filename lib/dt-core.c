@@ -1227,6 +1227,10 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 DEFUN struct dt_dt_s
 dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 {
+/* we decompose the problem like so:
+ * carry <- dpart(dur);
+ * tpart(res), carry <- tadd(d, tpart(dur), corr);
+ * res <- dadd(dpart(res), carry); */
 	signed int carry = 0;
 	dt_dttyp_t typ = d.typ;
 
@@ -1234,6 +1238,14 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		/* probably +/-[n]m where `m' was meant to be `mo' */
 		dur.d.typ = DT_MD;
 		goto dadd;
+#if 0
+	} else if (dur.t.dur && UNLIKELY(dur.tai) || d.typ == DT_SEXY) {
+		dt_dttyp_t tgt = (!dur.tai ? DT_SEXY : DT_SEXYTAI);
+
+		d = dt_dtconv((dt_dtyp_t)tgt, d);
+		d.sexy = __sexy_add(d.sexy, dur);
+		return dt_dtconv((dt_dtyp_t)typ, d);
+#endif	/* 0 */
 	} else if (dur.t.dur && d.sandwich) {
 		/* make sure we don't blow the carry slot */
 		carry = dur.t.sdur / (signed int)SECS_PER_DAY;
