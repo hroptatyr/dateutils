@@ -1201,6 +1201,12 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			d.sexy = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY +
 				(d.t.hms.h * MINS_PER_HOUR + d.t.hms.m) *
 				SECS_PER_MIN + d.t.hms.s;
+#if defined WITH_LEAP_SECONDS && !defined SKIP_LEAP_ARITH
+			if (tgttyp == DT_SEXYTAI) {
+				d.sexy += leaps_ssince(
+					leaps_s, nleaps_s, d.sexy);
+			}
+#endif	/* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
 			break;
 		}
 		case DT_DUNK:
