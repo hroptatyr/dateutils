@@ -1178,45 +1178,44 @@ dt_datetime(dt_dttyp_t outtyp)
 DEFUN struct dt_dt_s
 dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	if (dt_sandwich_p(d) || dt_sandwich_only_d_p(d)) {
+		switch (tgttyp) {
+		case DT_YMD:
+			d.d.ymd = dt_conv_to_ymd(d.d);
+			break;
+		case DT_YMCW:
+			d.d.ymcw = dt_conv_to_ymcw(d.d);
+			break;
+		case DT_DAISY:
+			d.d.daisy = dt_conv_to_daisy(d.d);
+			break;
+		case DT_BIZDA:
+			/* actually this is a parametrised date */
+			d.d.bizda = dt_conv_to_bizda(d.d);
+			break;
+		case DT_SEXY:
+		case DT_SEXYTAI: {
+			dt_daisy_t dd = dt_conv_to_daisy(d.d);
 
-	switch (tgttyp) {
-	case DT_YMD:
-		res.d.ymd = dt_conv_to_ymd(d.d);
-		break;
-	case DT_YMCW:
-		res.d.ymcw = dt_conv_to_ymcw(d.d);
-		break;
-	case DT_DAISY:
-	case DT_SEXY:
-	case DT_SEXYTAI:
-		res.d.daisy = dt_conv_to_daisy(d.d);
-		if (tgttyp == DT_DAISY) {
+			d.sandwich = 0;
+			d.sexy = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY +
+				(d.t.hms.h * MINS_PER_HOUR + d.t.hms.m) *
+				SECS_PER_MIN + d.t.hms.s;
 			break;
 		}
-		res.sexy = (res.d.daisy - DAISY_UNIX_BASE) * SECS_PER_DAY +
-			(res.t.hms.h * MINS_PER_HOUR + res.t.hms.m) *
-			SECS_PER_MIN + res.t.hms.s;
-		break;
-	case DT_BIZDA:
-		/* actually this is a parametrised date */
-		res.d.bizda = dt_conv_to_bizda(d.d);
-		break;
-	case DT_DUNK:
-	default:
-		break;
-	}
-
-	if (dt_sandwich_p(d)) {
-		dt_make_sandwich(&res, tgttyp, DT_HMS);
-	} else if (dt_sandwich_only_d_p(d)) {
-		dt_make_d_only(&res, tgttyp);
+		case DT_DUNK:
+		default:
+			return dt_dt_initialiser();
+		}
+		d.d.typ = tgttyp;
 	} else if (dt_sandwich_only_t_p(d)) {
-		dt_make_t_only(&res, DT_HMS);
+		/* ah, how good is that? */
+		;
 	} else {
-		res.typ = DT_SANDWICH_UNK;
+		/* great, what now? */
+		;
 	}
-	return res;
+	return d;
 }
 
 DEFUN struct dt_dt_s
