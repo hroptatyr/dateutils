@@ -1203,9 +1203,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	} else if (dur.t.dur && d.sandwich) {
 		/* make sure we don't blow the carry slot */
 		carry = dur.t.sdur / (signed int)SECS_PER_DAY;
-		dur.t.sdur %= (signed int)SECS_PER_DAY;
+		dur.t.sdur = dur.t.sdur % (signed int)SECS_PER_DAY;
 		/* accept both t-onlies and sandwiches */
-		d.t = dt_tadd(d.t, dur.t);
+		d.t = dt_tadd(d.t, dur.t, 0);
 		carry += d.t.carry;
 	} else if (d.typ == DT_SEXY) {
 		/* sexy add
