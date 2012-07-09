@@ -1176,7 +1176,7 @@ dt_datetime(dt_dttyp_t outtyp)
 }
 
 DEFUN struct dt_dt_s
-dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
+dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 {
 	if (dt_sandwich_p(d) || dt_sandwich_only_d_p(d)) {
 		switch (tgttyp) {
@@ -1207,7 +1207,7 @@ dt_dtconv(dt_dtyp_t tgttyp, struct dt_dt_s d)
 		default:
 			return dt_dt_initialiser();
 		}
-		d.d.typ = tgttyp;
+		d.typ = tgttyp;
 	} else if (dt_sandwich_only_t_p(d)) {
 		/* ah, how good is that? */
 		;
