@@ -170,7 +170,8 @@ __attribute__((pure, const))
 dt_t_initialiser(void)
 {
 #if defined __C1X
-	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U, .u = 0U};
+	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U,
+			     .u = 0U, .carry = 0U};
 #else  /* !__C1X */
 	struct dt_t_s res;
 #endif	/* __C1X */
@@ -180,6 +181,7 @@ dt_t_initialiser(void)
 	res.dur = 0U;
 	res.neg = 0U;
 	res.u = 0U;
+	res.carry = 0U;
 #endif	/* !__C1X */
 	return res;
 }
