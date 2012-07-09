@@ -209,6 +209,30 @@ __epoch_to_ymd_sandwich(dt_ssexy_t sx)
 	return res;
 }
 
+static inline dt_sexy_t
+__sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
+{
+/* sexy add
+ * only works for continuous types (DAISY, etc.)
+ * we need to take leap seconds into account here */
+	signed int delta = 0;
+
+	switch (dur.d.typ) {
+	case DT_SEXY:
+	case DT_SEXYTAI:
+		delta = dur.sexydur;
+		break;
+	case DT_DAISY:
+		delta = dur.d.daisydur * SECS_PER_DAY;
+	case DT_DUNK:
+		delta += dur.t.sdur;
+	default:
+		break;
+	}
+	/* just go through with it */
+	return sx + delta;
+}
+
 
 /* guessing parsers */
 #include "token.c"
@@ -1213,22 +1237,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		d.t = dt_tadd(d.t, dur.t, 0);
 		carry += d.t.carry;
 	} else if (d.typ == DT_SEXY) {
-		/* sexy add
-		 * only works for continuous types (DAISY, etc.)
-		 * we need to take leap seconds into account here */
-		switch (dur.d.typ) {
-		case DT_SEXY:
-			carry = dur.sexydur;
-			break;
-		case DT_DAISY:
-			carry = dur.d.daisydur * SECS_PER_DAY;
-		case DT_DUNK:
-			carry += dur.t.sdur;
-		default:
-			break;
-		}
-		/* just go through with it */
-		d.sexy += carry;
+		d.sexy = __sexy_add(d.sexy, dur);
 		return d;
 	}
 
