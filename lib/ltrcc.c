@@ -317,7 +317,7 @@ pr_line_t(const char *line, size_t llen, va_list vap)
 		/* prologue */
 		fprintf(stdout, "\
 const uint64_t %s[] = {\n\
-	0,\n", line);
+	UINT64_MAX,\n", line);
 		return 0;
 	} else if (llen == EPILOGUE) {
 		/* epilogue */
@@ -348,7 +348,6 @@ const uint64_t %s[] = {\n\
 	}
 
 	/* fix up and convert to target type */
-	d.t.hms.s--;
 	val = d.t.u;
 	/* column-oriented mode */
 	fprintf(stdout, "\t0x%llxULL/* %llu */,\n", val, val);

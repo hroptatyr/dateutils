@@ -581,20 +581,40 @@ __strfdt_dur(
 static zidx_t
 leaps_before(struct dt_dt_s d)
 {
+	zidx_t res;
+	bool on;
+
 	switch (d.typ) {
 	case DT_YMD:
-		return leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
+		res = leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
+		on = res + 1 < nleaps_ymd && leaps_ymd[res + 1] == d.d.ymd.u;
+		break;
 	case DT_YMCW:
-		return leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
+		res = leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
+		on = res + 1 < nleaps_ymcw && leaps_ymcw[res + 1] == d.d.ymcw.u;
+		break;
 	case DT_DAISY:
-		return leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
+		res = leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
+		on = res + 1 < nleaps_d && leaps_d[res + 1] == d.d.daisy;
+		break;
 	case DT_SEXY:
 	case DT_SEXYTAI:
-		return leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
+		res = leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
+		on = res + 1 < nleaps_s && leaps_s[res + 1] == d.sexy;
+		break;
 	default:
+		res = 0;
+		on = false;
 		break;
 	}
-	return 0;
+
+	if (dt_sandwich_p(d) && on) {
+		/* check the time part too */
+		if (d.t.hms.u >= leaps_hms[res + 1]) {
+			res++;
+		}
+	}
+	return res;
 }
 #endif	/* WITH_LEAP_SECONDS */
 
@@ -1317,7 +1337,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 pre_corr:
 #if defined WITH_LEAP_SECONDS
-	if (UNLIKELY(dur.tai)) {
+	if (UNLIKELY(dur.tai) && d.typ != DT_SEXY) {
+		/* the reason we omitted SEXY is because there's simply
+		 * no representation in there */
 		zidx_t i_orig = leaps_before(orig);
 		zidx_t i_d = leaps_before(d);
 
@@ -1325,11 +1347,25 @@ pre_corr:
 			/* insert leaps */
 			int nltr = leaps_corr[i_orig] - leaps_corr[i_d];
 
+			/* save a copy of d again */
+			orig = d;
+			i_orig = i_d;
 			/* reuse dur for the correction */
 			dt_make_t_only(&dur, DT_HMS);
 			dur.tai = 0;
 			dur.t.sdur = nltr;
-			d = dt_dtadd(d, dur);
+			d = dt_dtadd(orig, dur);
+
+			/* check if we transitioned again */
+			if (d.typ == DT_SEXYTAI || (i_d = leaps_before(d), 0)) {
+				/* don't have to */
+				;
+			} else if (UNLIKELY(i_d < i_orig)) {
+				d.t.hms.s -= nltr;
+			} else if (UNLIKELY(i_d > i_orig)) {
+				d = orig;
+				d.t.hms.s += nltr;
+			}
 		}
 	}
 #endif	/* WITH_LEAP_SECONDS */
