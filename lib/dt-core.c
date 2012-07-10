@@ -83,6 +83,10 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if defined SKIP_LEAP_ARITH
+# undef WITH_LEAP_SECONDS
+#endif	/* SKIP_LEAP_ARITH */
+
 struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
@@ -99,9 +103,9 @@ struct strpdti_s {
 };
 
 #include "strops.c"
-#if defined WITH_LEAP_SECONDS && !defined SKIP_LEAP_ARITH
+#if defined WITH_LEAP_SECONDS
 # include "leapseconds.def"
-#endif	/* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+#endif	/* WITH_LEAP_SECONDS */
 
 
 /* converters and stuff */
@@ -1201,13 +1205,13 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			d.sexy = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY +
 				(d.t.hms.h * MINS_PER_HOUR + d.t.hms.m) *
 				SECS_PER_MIN + d.t.hms.s;
-#if defined WITH_LEAP_SECONDS && !defined SKIP_LEAP_ARITH
+#if defined WITH_LEAP_SECONDS
 			if (tgttyp == DT_SEXYTAI) {
 				zidx_t zi = leaps_before_si32(
 					leaps_s, nleaps_s, d.sexy);
 				d.sexy += leaps_corr[zi];
 			}
-#endif	/* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+#endif	/* WITH_LEAP_SECONDS */
 			break;
 		}
 		case DT_DUNK:
