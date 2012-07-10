@@ -38,7 +38,7 @@ conv_chk(struct dt_dt_s tes, struct dt_dt_s ref)
 
 	if (tes.typ == DT_SEXY || tes.typ == DT_SEXYTAI) {
 		/* make sure the padding leaves no garbage */
-		CHECK_RES(res, tes.sexy != ref.sexy,
+		CHECK_RES(1, tes.sexy != ref.sexy,
 			  "  VALUES DIFFER %u v %u\n",
 			  (unsigned int)tes.sexy, (unsigned int)ref.sexy);
 	}
