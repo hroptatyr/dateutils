@@ -11,6 +11,8 @@ info_TEXINFOS = dateutils.texi
 dateutils_TEXINFOS =
 dateutils_TEXINFOS += $(built_texis)
 dateutils_TEXINFOS += format.texi
+dateutils_TEXINFOS += format-ddiff.texi
+dateutils_TEXINFOS += units.texi
 
 man1_MANS =
 man1_MANS += $(built_mans)
