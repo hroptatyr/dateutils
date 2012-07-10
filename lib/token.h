@@ -125,8 +125,10 @@ struct dt_spec_s {
 		unsigned int cnt_weeks_iso:1;
 		unsigned int cnt_wdays_from:1;
 
+		/* want real seconds/minutes/etc. */
+		unsigned int tai:1;
 		/* pad to the next word */
-		unsigned int:6;
+		unsigned int:5;
 	};
 	dt_spfl_t spfl:8;
 };
