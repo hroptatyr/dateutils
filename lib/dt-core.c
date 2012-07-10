@@ -1337,7 +1337,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 pre_corr:
 #if defined WITH_LEAP_SECONDS
-	if (UNLIKELY(dur.tai)) {
+	if (UNLIKELY(dur.tai) && d.typ != DT_SEXY) {
+		/* the reason we omitted SEXY is because there's simply
+		 * no representation in there */
 		zidx_t i_orig = leaps_before(orig);
 		zidx_t i_d = leaps_before(d);
 
@@ -1345,11 +1347,25 @@ pre_corr:
 			/* insert leaps */
 			int nltr = leaps_corr[i_orig] - leaps_corr[i_d];
 
+			/* save a copy of d again */
+			orig = d;
+			i_orig = i_d;
 			/* reuse dur for the correction */
 			dt_make_t_only(&dur, DT_HMS);
 			dur.tai = 0;
 			dur.t.sdur = nltr;
-			d = dt_dtadd(d, dur);
+			d = dt_dtadd(orig, dur);
+
+			/* check if we transitioned again */
+			if (d.typ == DT_SEXYTAI || (i_d = leaps_before(d), 0)) {
+				/* don't have to */
+				;
+			} else if (UNLIKELY(i_d < i_orig)) {
+				d.t.hms.s -= nltr;
+			} else if (UNLIKELY(i_d > i_orig)) {
+				d = orig;
+				d.t.hms.s += nltr;
+			}
 		}
 	}
 #endif	/* WITH_LEAP_SECONDS */
