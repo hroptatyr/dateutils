@@ -1383,7 +1383,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	} else if (tgttyp > DT_UNK && tgttyp < DT_NDTYP) {
 		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
 		dt_make_d_only(&res, res.d.typ);
-	} else if (tgttyp == DT_SEXY) {
+	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {
 		int64_t sxdur;
 
 		/* go for tdiff and ddiff independently */
@@ -1392,11 +1392,27 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
 			(int64_t)res.d.daisydur * SECS_PER_DAY;
+
 		/* set up the output here */
-		res.typ = DT_SEXY;
+		res.typ = tgttyp;
 		res.dur = 0;
 		res.neg = 0;
+		res.tai = (uint16_t)(tgttyp == DT_SEXYTAI);
 		res.sexydur = sxdur;
+
+#if defined WITH_LEAP_SECONDS
+		if (tgttyp == DT_SEXYTAI) {
+			/* check for transitions */
+			zidx_t i_d1 = leaps_before(d1);
+			zidx_t i_d2 = leaps_before(d2);
+
+			if (UNLIKELY(i_d1 != i_d2)) {
+				int nltr = leaps_corr[i_d2] - leaps_corr[i_d1];
+
+				res.corr = nltr;
+			}
+		}
+#endif	/* WITH_LEAP_SECONDS */
 	}
 	return res;
 }

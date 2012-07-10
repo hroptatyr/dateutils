@@ -143,6 +143,10 @@ struct dt_dt_s {
 				dt_sexy_t sexy:53;
 				dt_ssexy_t sexydur:53;
 				dt_ssexy_t sxepoch:53;
+				struct {
+					int32_t soft:32;
+					int32_t corr:21;
+				};
 			};
 		} __attribute__((packed));
 		/* sandwich types */
