@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="'2012-07-01 00:00:05' -6s"
+COMMENT="adding soft-seconds across a leap second transition"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-06-30T23:59:59
+EOF
+
+## STDERR
+
+## dtadd.36.dt ends here
