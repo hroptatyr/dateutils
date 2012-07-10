@@ -206,6 +206,7 @@ be input.  Their syntax is covered in the final section.
 
 @include format.texi
 @include format-ddiff.texi
+@include units.texi
 
 @node Algorithms
 @chapter Algorithms
