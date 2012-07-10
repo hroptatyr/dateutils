@@ -111,7 +111,7 @@ main(void)
 
 	chk = dt_dt_initialiser();
 	chk.typ = DT_SEXYTAI;
-	chk.sexy = 1341100799 + 34;
+	chk.sexy = 1341100799 + 24;
 
 	if (res = dt_dtconv(DT_SEXYTAI, t), conv_chk(res, chk)) {
 		rc = 1;
@@ -132,7 +132,7 @@ main(void)
 
 	chk = dt_dt_initialiser();
 	chk.typ = DT_SEXYTAI;
-	chk.sexy = 1341100800 + 35;
+	chk.sexy = 1341100800 + 25;
 
 	if (res = dt_dtconv(DT_SEXYTAI, t), conv_chk(res, chk)) {
 		rc = 1;
