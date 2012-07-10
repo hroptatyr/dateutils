@@ -1393,6 +1393,13 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		sxdur = (int64_t)res.t.sdur +
 			(int64_t)res.d.daisydur * SECS_PER_DAY;
 
+		/* set up the output here */
+		res.typ = tgttyp;
+		res.dur = 0;
+		res.neg = 0;
+		res.tai = (uint16_t)(tgttyp == DT_SEXYTAI);
+		res.sexydur = sxdur;
+
 #if defined WITH_LEAP_SECONDS
 		if (tgttyp == DT_SEXYTAI) {
 			/* check for transitions */
@@ -1402,17 +1409,10 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			if (UNLIKELY(i_d1 != i_d2)) {
 				int nltr = leaps_corr[i_d2] - leaps_corr[i_d1];
 
-				sxdur += nltr;
+				res.corr = nltr;
 			}
 		}
 #endif	/* WITH_LEAP_SECONDS */
-
-		/* set up the output here */
-		res.typ = DT_SEXY;
-		res.dur = 0;
-		res.neg = 0;
-		res.tai = (uint16_t)(tgttyp == DT_SEXYTAI);
-		res.sexydur = sxdur;
 	}
 	return res;
 }
