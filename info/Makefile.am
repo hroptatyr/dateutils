@@ -128,8 +128,12 @@ dround_EXAMPLES += $(top_srcdir)/test/tround.2.dt
 dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
-EXTRA_DIST += author.h2m format.h2m $(dateutils_H2M_EX)
+EXTRA_DIST += author.h2m
+EXTRA_DIST += format.h2m
+EXTRA_DIST += format-ddiff.h2m
+EXTRA_DIST += $(dateutils_H2M_EX)
 BUILT_SOURCES += format.h2m
+BUILT_SOURCES += format-ddiff.h2m
 BUILT_SOURCES += $(built_texis)
 BUILT_SOURCES += $(built_mans)
 BUILT_SOURCES += $(dateutils_H2M_EX)
@@ -162,13 +166,21 @@ EXTRA_DIST += $(dateutils_TEXINFOS)
 
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
-__bld_man_0 = @echo "  HELP2MAN" $*;
+__bld_man_0 = @echo "  HELP2MAN" $@;
 %.man: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" \
 		-I "$(srcdir)/format.h2m" -I "$(builddir)/format.h2m" \
 		-I "$(srcdir)/author.h2m" \
 		-o $@ $(top_builddir)/src/$*
+
+## exception for ddiff
+ddiff.man: $(top_srcdir)/src/ddiff-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))ddiff" \
+		-I "$(srcdir)/ddiff.h2m" -I "$(builddir)/ddiff.h2m" \
+		-I "$(srcdir)/format-ddiff.h2m" -I "$(builddir)/format-ddiff.h2m" \
+		-I "$(srcdir)/author.h2m" \
+		-o $@ $(top_builddir)/src/ddiff
 
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
