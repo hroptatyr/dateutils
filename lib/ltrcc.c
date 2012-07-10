@@ -301,6 +301,61 @@ const int32_t %s[] = {\n\
 }
 
 static int
+pr_line_t(const char *line, size_t llen, va_list vap)
+{
+	struct dt_dt_s d;
+	dt_dtyp_t __attribute__((unused)) typ;
+	int colp;
+	char *ep;
+	long long unsigned int val;
+
+	/* extract type from inner list */
+	typ = va_arg(vap, dt_dtyp_t);
+	colp = va_arg(vap, int);
+
+	if (llen == PROLOGUE) {
+		/* prologue */
+		fprintf(stdout, "\
+const uint64_t %s[] = {\n\
+	0,\n", line);
+		return 0;
+	} else if (llen == EPILOGUE) {
+		/* epilogue */
+		fputs("\
+	UINT64_MAX\n\
+};\n", stdout);
+		return 0;
+	} else if (typ != DT_HMS || !colp) {
+		return 0;
+	} else if (line == NULL) {
+		/* do fuckall */
+		return -1;
+	} else if (line[0] == '#') {
+		/* comment line */
+		return 0;
+	} else if (line[0] == '\n') {
+		/* empty line */
+		return 0;
+	}
+	/* otherwise process */
+	if ((d = dt_strpdt(
+		     line, "Leap\t%Y\t%b\t%d\t%H:%M:%S", &ep), ep) == NULL) {
+		return -1;
+	} else if (llen - (ep - line) < 1) {
+		return -1;
+	} else if (ep[0] != '\t') {
+		return -1;
+	}
+
+	/* fix up and convert to target type */
+	d.t.hms.s--;
+	val = d.t.u;
+	/* column-oriented mode */
+	fprintf(stdout, "\t0x%llxULL/* %llu */,\n", val, val);
+	return 0;
+}
+
+static int
 pr_file(FILE *fp, const char *var, int(*cb)(const char*, size_t, va_list), ...)
 {
 	va_list vap;
@@ -373,6 +428,8 @@ parse_file(const char *file)
 	pr_file(fp, "leaps_d", pr_line_d, DT_DAISY, col);
 	rewind(fp);
 	pr_file(fp, "leaps_s", pr_line_dt, DT_YMD, col);
+	rewind(fp);
+	pr_file(fp, "leaps_hms", pr_line_t, DT_HMS, col);
 
 	fputs("\
 #endif  /* INCLUDED_ltrcc_generated_def_ */\n", stdout);
