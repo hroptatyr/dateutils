@@ -166,7 +166,7 @@ EXTRA_DIST += $(dateutils_TEXINFOS)
 
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
-__bld_man_0 = @echo "  HELP2MAN" $*;
+__bld_man_0 = @echo "  HELP2MAN" $@;
 %.man: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(srcdir)/$*.h2m" -I "$(builddir)/$*.h2m" \
