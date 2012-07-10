@@ -38,7 +38,7 @@ conv_chk(struct dt_dt_s tes, struct dt_dt_s ref)
 
 	if (tes.typ == DT_SEXY || tes.typ == DT_SEXYTAI) {
 		/* make sure the padding leaves no garbage */
-		CHECK_RES(res, tes.sexy != ref.sexy,
+		CHECK_RES(1, tes.sexy != ref.sexy,
 			  "  VALUES DIFFER %u v %u\n",
 			  (unsigned int)tes.sexy, (unsigned int)ref.sexy);
 	}
@@ -111,7 +111,7 @@ main(void)
 
 	chk = dt_dt_initialiser();
 	chk.typ = DT_SEXYTAI;
-	chk.sexy = 1341100799 + 34;
+	chk.sexy = 1341100799 + 24;
 
 	if (res = dt_dtconv(DT_SEXYTAI, t), conv_chk(res, chk)) {
 		rc = 1;
@@ -132,7 +132,7 @@ main(void)
 
 	chk = dt_dt_initialiser();
 	chk.typ = DT_SEXYTAI;
-	chk.sexy = 1341100800 + 35;
+	chk.sexy = 1341100800 + 25;
 
 	if (res = dt_dtconv(DT_SEXYTAI, t), conv_chk(res, chk)) {
 		rc = 1;

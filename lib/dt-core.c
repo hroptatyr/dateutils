@@ -83,6 +83,10 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if defined SKIP_LEAP_ARITH
+# undef WITH_LEAP_SECONDS
+#endif	/* SKIP_LEAP_ARITH */
+
 struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
@@ -99,9 +103,9 @@ struct strpdti_s {
 };
 
 #include "strops.c"
-#if defined WITH_LEAP_SECONDS && !defined SKIP_LEAP_ARITH
+#if defined WITH_LEAP_SECONDS
 # include "leapseconds.def"
-#endif	/* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+#endif	/* WITH_LEAP_SECONDS */
 
 
 /* converters and stuff */
@@ -572,6 +576,27 @@ __strfdt_dur(
 	}
 	return 1;
 }
+
+#if defined WITH_LEAP_SECONDS
+static zidx_t
+leaps_before(struct dt_dt_s d)
+{
+	switch (d.typ) {
+	case DT_YMD:
+		return leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
+	case DT_YMCW:
+		return leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
+	case DT_DAISY:
+		return leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
+	case DT_SEXY:
+	case DT_SEXYTAI:
+		return leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
+	default:
+		break;
+	}
+	return 0;
+}
+#endif	/* WITH_LEAP_SECONDS */
 
 
 /* parser implementations */
@@ -1201,13 +1226,13 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			d.sexy = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY +
 				(d.t.hms.h * MINS_PER_HOUR + d.t.hms.m) *
 				SECS_PER_MIN + d.t.hms.s;
-#if defined WITH_LEAP_SECONDS && !defined SKIP_LEAP_ARITH
+#if defined WITH_LEAP_SECONDS
 			if (tgttyp == DT_SEXYTAI) {
 				zidx_t zi = leaps_before_si32(
-					leaps_s, nleaps_s, d.sexy);
+					leaps_s, nleaps_s, (int32_t)d.sexy);
 				d.sexy += leaps_corr[zi];
 			}
-#endif	/* WITH_LEAP_SECONDS && !SKIP_LEAP_ARITH */
+#endif	/* WITH_LEAP_SECONDS */
 			break;
 		}
 		case DT_DUNK:
@@ -1234,19 +1259,19 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
  * res <- dadd(dpart(res), carry); */
 	signed int carry = 0;
 	dt_dttyp_t typ = d.typ;
+#if defined WITH_LEAP_SECONDS
+	struct dt_dt_s orig;
+
+	if (UNLIKELY(dur.tai)) {
+		/* make a copy */
+		orig = d;
+	}
+#endif	/* WITH_LEAP_SECONDS */
 
 	if (UNLIKELY(dur.t.dur && dt_sandwich_only_d_p(d))) {
 		/* probably +/-[n]m where `m' was meant to be `mo' */
 		dur.d.typ = DT_MD;
 		goto dadd;
-#if 0
-	} else if (dur.t.dur && UNLIKELY(dur.tai) || d.typ == DT_SEXY) {
-		dt_dttyp_t tgt = (!dur.tai ? DT_SEXY : DT_SEXYTAI);
-
-		d = dt_dtconv((dt_dtyp_t)tgt, d);
-		d.sexy = __sexy_add(d.sexy, dur);
-		return dt_dtconv((dt_dtyp_t)typ, d);
-#endif	/* 0 */
 	} else if (dur.t.dur && d.sandwich) {
 		/* make sure we don't blow the carry slot */
 		carry = dur.t.sdur / (signed int)SECS_PER_DAY;
@@ -1256,7 +1281,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 		carry += d.t.carry;
 	} else if (d.typ == DT_SEXY) {
 		d.sexy = __sexy_add(d.sexy, dur);
-		return d;
+		goto pre_corr;
 	}
 
 	/* store the carry somehow */
@@ -1289,6 +1314,25 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 	/* and promote the whole shebang again */
 	d.typ = typ;
+
+pre_corr:
+#if defined WITH_LEAP_SECONDS
+	if (UNLIKELY(dur.tai)) {
+		zidx_t i_orig = leaps_before(orig);
+		zidx_t i_d = leaps_before(d);
+
+		if (UNLIKELY(i_orig != i_d)) {
+			/* insert leaps */
+			int nltr = leaps_corr[i_orig] - leaps_corr[i_d];
+
+			/* reuse dur for the correction */
+			dt_make_t_only(&dur, DT_HMS);
+			dur.tai = 0;
+			dur.t.sdur = nltr;
+			d = dt_dtadd(d, dur);
+		}
+	}
+#endif	/* WITH_LEAP_SECONDS */
 	return d;
 }
 
