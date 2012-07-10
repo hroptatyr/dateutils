@@ -128,8 +128,12 @@ dround_EXAMPLES += $(top_srcdir)/test/tround.2.dt
 dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
-EXTRA_DIST += author.h2m format.h2m $(dateutils_H2M_EX)
+EXTRA_DIST += author.h2m
+EXTRA_DIST += format.h2m
+EXTRA_DIST += format-ddiff.h2m
+EXTRA_DIST += $(dateutils_H2M_EX)
 BUILT_SOURCES += format.h2m
+BUILT_SOURCES += format-ddiff.h2m
 BUILT_SOURCES += $(built_texis)
 BUILT_SOURCES += $(built_mans)
 BUILT_SOURCES += $(dateutils_H2M_EX)
