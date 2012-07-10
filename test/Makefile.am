@@ -320,6 +320,10 @@ dt_tests += dtadd.25.dt
 dt_tests += dtadd.26.dt
 dt_tests += dtadd.27.dt
 dt_tests += dtadd.28.dt
+dt_tests += dtadd.29.dt
+dt_tests += dtadd.30.dt
+dt_tests += dtadd.31.dt
+dt_tests += dtadd.32.dt
 
 dt_tests += dtgrep.1.dt
 dt_tests += dtgrep.2.dt

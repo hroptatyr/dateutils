@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="'2012-06-30 23:59:30' 30rs"
+COMMENT="adding stops on a leap transition"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-06-30T23:59:60
+EOF
+
+## STDERR
+
+## dtadd.30.dt ends here
