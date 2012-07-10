@@ -60,7 +60,7 @@ am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
 am__v_LTRCC_0 = @echo "  LTRCC   " $@;
 
 leapseconds.def: leapseconds $(builddir)/ltrcc$(EXEEXT)
-	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) $< > $@ || rm -f $@
+	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
 
 # 
 # Help the developers get nice post-processed source files
