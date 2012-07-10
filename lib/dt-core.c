@@ -581,20 +581,40 @@ __strfdt_dur(
 static zidx_t
 leaps_before(struct dt_dt_s d)
 {
+	zidx_t res;
+	bool on;
+
 	switch (d.typ) {
 	case DT_YMD:
-		return leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
+		res = leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
+		on = res + 1 < nleaps_ymd && leaps_ymd[res + 1] == d.d.ymd.u;
+		break;
 	case DT_YMCW:
-		return leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
+		res = leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
+		on = res + 1 < nleaps_ymcw && leaps_ymcw[res + 1] == d.d.ymcw.u;
+		break;
 	case DT_DAISY:
-		return leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
+		res = leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
+		on = res + 1 < nleaps_d && leaps_d[res + 1] == d.d.daisy;
+		break;
 	case DT_SEXY:
 	case DT_SEXYTAI:
-		return leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
+		res = leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
+		on = res + 1 < nleaps_s && leaps_s[res + 1] == d.sexy;
+		break;
 	default:
+		res = 0;
+		on = false;
 		break;
 	}
-	return 0;
+
+	if (dt_sandwich_p(d) && on) {
+		/* check the time part too */
+		if (d.t.hms.u >= leaps_hms[res + 1]) {
+			res++;
+		}
+	}
+	return res;
 }
 #endif	/* WITH_LEAP_SECONDS */
 
