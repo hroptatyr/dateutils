@@ -62,7 +62,10 @@ extern "C" {
 #endif	/* !restrict */
 
 typedef const struct zleap_s *zleap_t;
+typedef const int32_t *zltr_t;
+typedef size_t zidx_t;
 
+/* row-based */
 struct zleap_s {
 	union {
 		uint32_t u;
@@ -71,6 +74,7 @@ struct zleap_s {
 	int32_t corr;
 };
 
+/* row based funs */
 /**
  * Return the number of leap seconds *inserted* between D1 and D2.
  * If the result is negative then leap seconds have been removed. */
@@ -104,6 +108,23 @@ DECLF int leaps_still(zleap_t lv, size_t nlv, int32_t d);
 /**
  * Return the number of leap seconds inserted after D. */
 DECLF int leaps_ssince(zleap_t lv, size_t nlv, int32_t d);
+
+/* col-based funs */
+/**
+ * Return last leap transition before KEY in a uint32_t field FLD. */
+DECLF zidx_t leaps_before_ui32(const uint32_t fld[], size_t nfld, uint32_t key);
+
+/**
+ * Return last leap transition before KEY in a int32_t field FLD. */
+DECLF zidx_t leaps_before_si32(const int32_t fld[], size_t nfld, int32_t key);
+
+/**
+ * Return last leap transition before KEY in a uint64_t field FLD. */
+DECLF zidx_t leaps_before_ui64(const uint64_t fld[], size_t nfld, uint64_t key);
+
+/**
+ * Return last leap transition before KEY in a int64_t field FLD. */
+DECLF zidx_t leaps_before_si64(const int64_t fld[], size_t nfld, int64_t key);
 
 
 #if defined INCLUDE_LEAPS_IMPL

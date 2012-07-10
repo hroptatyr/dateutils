@@ -51,6 +51,9 @@
 #if !defined UNLIKELY
 # define UNLIKELY(_x)	__builtin_expect((_x), 0)
 #endif	/* !UNLIKELY */
+#if !defined UNUSED
+# define UNUSED(x)	__attribute__((unused)) x##_unused
+#endif	/* UNUSED */
 
 typedef ssize_t sidx_t;
 
@@ -103,6 +106,38 @@ find_sidx(zleap_t lv, size_t nlv, int32_t c, sidx_t i, sidx_t min, sidx_t max)
 	} while (max - min > 0 && i < (sidx_t)nlv);
 	return i;
 }
+
+#define DEF_FIND_BEFORE(N, X)					\
+static zidx_t							\
+find_before_##N(						\
+	const X v[], size_t nv, X key, zidx_t i, zidx_t min, zidx_t max) \
+{								\
+/* Given key K find the index of the transition before */	\
+	do {							\
+		typeof(key) lo, up;				\
+								\
+		lo = v[i];					\
+		up = v[i + 1];					\
+								\
+		if (key > lo && key <= up) {			\
+			/* found him */				\
+			break;					\
+		} else if (key > up) {				\
+			min = i + 1;				\
+			i = (i + max) / 2;			\
+		} else if (key <= lo) {				\
+			max = i - 1;				\
+			i = (i + min) / 2;			\
+		}						\
+	} while (max - min > 0 && i < nv);			\
+	return i;						\
+}								\
+static const int UNUSED(defined_find_before_##name##_p)
+
+DEF_FIND_BEFORE(ui32, uint32_t);
+DEF_FIND_BEFORE(si32, int32_t);
+DEF_FIND_BEFORE(ui64, uint64_t);
+DEF_FIND_BEFORE(si64, int64_t);
 
 
 /* public apis */
@@ -241,6 +276,48 @@ leaps_ssince(zleap_t lv, size_t nlv, int32_t d)
 
 	this = find_sidx(lv, nlv, d, this, min, max);
 	return lv[nlv - 1].corr - lv[this].corr;
+}
+
+
+/* col-based funs */
+DEFUN zidx_t
+leaps_before_ui32(const uint32_t fld[], size_t nfld, uint32_t key)
+{
+	zidx_t min = 0;
+	zidx_t max = nfld - 1;
+	zidx_t this = max / 2;
+
+	return find_before_ui32(fld, nfld, key, this, min, max);
+}
+
+DEFUN zidx_t
+leaps_before_si32(const int32_t fld[], size_t nfld, int32_t key)
+{
+	zidx_t min = 0;
+	zidx_t max = nfld - 1;
+	zidx_t this = max / 2;
+
+	return find_before_si32(fld, nfld, key, this, min, max);
+}
+
+DEFUN zidx_t
+leaps_before_ui64(const uint64_t fld[], size_t nfld, uint64_t key)
+{
+	zidx_t min = 0;
+	zidx_t max = nfld - 1;
+	zidx_t this = max / 2;
+
+	return find_before_ui64(fld, nfld, key, this, min, max);
+}
+
+DEFUN zidx_t
+leaps_before_si64(const int64_t fld[], size_t nfld, int64_t key)
+{
+	zidx_t min = 0;
+	zidx_t max = nfld - 1;
+	zidx_t this = max / 2;
+
+	return find_before_si64(fld, nfld, key, this, min, max);
 }
 
 #endif	/* INCLUDED_leaps_c_ */
