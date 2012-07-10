@@ -1,0 +1,38 @@
+@section Format specs for durations
+
+Durations are somewhat ambiguous when it comes to representing them
+through format specifiers.  Unlike point-in-time representations
+durations specifiers can have an intra-line relationship.  So for
+instance a duration of 128 seconds might be presented through @samp{%S}
+as @samp{128} but similarly through @samp{%M:%S} as @samp{02:08}.
+
+Date specs:
+@verbatim
+  %c  Equivalent to %w
+  %d  Durations in days
+  %F  Equivalent to %dd with no resorting to bigger units
+  %m  Durations in months
+  %w  Durations in weeks
+  %y  Equivalent to %Y
+  %Y  Durations in years
+
+  %db Duration in business days
+  %dB Equivalent to %db
+@end verbatim
+
+Time specs:
+@verbatim
+  %H  Durations in hours
+  %I  Equivalent to %H
+  %M  Durations in minutes
+  %S  Durations in seconds
+  %T  Equivalent to %Ss without resorting to bigger units
+@end verbatim
+
+General specs:
+@verbatim
+  %n  A newline character
+  %t  A tab character
+  %%  A literal % character
+@end verbatim
+

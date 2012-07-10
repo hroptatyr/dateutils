@@ -73,6 +73,7 @@ arise when dealing with large amounts of financial data.
 @menu
 * Introduction::        Motivation, background, etc.
 * Calendars::           Calendar concepts and format specs
+* Format specifiers and units:: How to control input and output
 * Algorithms::          Some notes on the algorithms used
 * dadd::                Add durations to dates or times
 * dconv::               Convert dates between calendars or time zones
@@ -191,7 +192,20 @@ The canonical input and output format is @code{%Y-%m-%db}, where
 ultimo.  Similarly, @code{%Y-%m-%dB} stands for the business days until
 this month's ultimo.
 
+@node Format specifiers and units
+@chapter Format specifiers and units
+
+The tools provided by dateutils would be pretty meaningless if you could
+not control how input is to be read or results are to be printed.
+Following the footsteps of proven systems (such as libc) output
+formatting is controlled through format specifiers (and flags), as
+covered by the next 2 sections.
+
+Nonetheless, some tools (@samp{dadd}, @samp{dseq}) require durations to
+be input.  Their syntax is covered in the final section.
+
 @include format.texi
+@include format-ddiff.texi
 
 @node Algorithms
 @chapter Algorithms
