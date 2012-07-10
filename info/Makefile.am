@@ -174,6 +174,14 @@ __bld_man_0 = @echo "  HELP2MAN" $@;
 		-I "$(srcdir)/author.h2m" \
 		-o $@ $(top_builddir)/src/$*
 
+## exception for ddiff
+ddiff.man: $(top_srcdir)/src/ddiff-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))ddiff" \
+		-I "$(srcdir)/ddiff.h2m" -I "$(builddir)/ddiff.h2m" \
+		-I "$(srcdir)/format-ddiff.h2m" -I "$(builddir)/format-ddiff.h2m" \
+		-I "$(srcdir)/author.h2m" \
+		-o $@ $(top_builddir)/src/ddiff
+
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
 __bld_h2m_0 = @echo "  GENH2M  " $*;
