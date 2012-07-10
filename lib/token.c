@@ -163,6 +163,10 @@ next:
 		/* roman numerals modifier */
 		res.rom = 1;
 		goto next;
+	case 'r':
+		/* real modifier */
+		res.tai = 1;
+		goto next;
 	}
 	/* check for ordinals */
 	if (res.spfl > DT_SPFL_UNK && res.spfl <= DT_SPFL_N_LAST &&

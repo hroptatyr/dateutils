@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="'2012-07-01 00:00:05' -5rs"
+COMMENT="adding stops before transition"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2012-07-01T00:00:00
+EOF
+
+## STDERR
+
+## dtadd.33.dt ends here

@@ -66,6 +66,8 @@ typedef union {
 		unsigned int has_min:1;
 		unsigned int has_sec:1;
 		unsigned int has_nano:1;
+
+		unsigned int has_tai:1;
 	};
 } durfmt_t;
 
@@ -132,6 +134,9 @@ determine_durfmt(const char *fmt)
 
 			case DT_SPFL_N_TSTD:
 			case DT_SPFL_N_SEC:
+				if (spec.tai) {
+					res.has_tai = 1;
+				}
 				res.has_sec = 1;
 				break;
 			case DT_SPFL_N_HOUR:
@@ -178,6 +183,10 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		}
 	} else if ((dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) ||
 		   (dt_sandwich_p(d1) && dt_sandwich_p(d2))) {
+		/* see if we has needs tais */
+		if (UNLIKELY(f.has_tai)) {
+			return (dt_dttyp_t)DT_SEXYTAI;
+		}
 		return (dt_dttyp_t)DT_SEXY;
 	}
 	return DT_UNK;
@@ -217,11 +226,24 @@ __strf_tot_secs(struct dt_dt_s dur)
 	long int res;
 
 	if (dur.typ == DT_SEXY) {
-		return dur.sexydur;
+		res = dur.sexydur;
+	} else if (dur.typ == DT_SEXYTAI) {
+		res = dur.soft;
+	} else {
+		/* otherwise */
+		res = dur.t.sdur;
 	}
-	/* otherwise */
-	res = dur.t.sdur;
 	return res;
+}
+
+static long int
+__strf_tot_corr(struct dt_dt_s dur)
+{
+	if (dur.typ == DT_SEXYTAI) {
+		return dur.corr;
+	}
+	/* otherwise no corrections */
+	return 0;
 }
 
 static long int
@@ -403,6 +425,10 @@ __strfdtdur(
 		if (fmt == NULL) {
 			fmt = sexy_dflt;
 		}
+	} else if (dur.typ == DT_SEXYTAI) {
+		if (fmt == NULL) {
+			fmt = sexy_dflt;
+		}
 	} else if (dt_sandwich_p(dur)) {
 		if (fmt == NULL) {
 			fmt = sexy_dflt;
@@ -533,6 +559,10 @@ __strfdtdur(
 			/* time specs */
 		case DT_SPFL_N_TSTD: {
 			long int s = __strf_tot_secs(dur);
+
+			if (UNLIKELY(spec.tai)) {
+				s += __strf_tot_corr(dur);
+			}
 			bp += snprintf(bp, eo - bp, "%lds", s);
 			break;
 		}
@@ -547,6 +577,9 @@ __strfdtdur(
 				s %= (long int)SECS_PER_HOUR;
 			} else if (f.has_day) {
 				s %= (long int)SECS_PER_DAY;
+			}
+			if (UNLIKELY(spec.tai)) {
+				s += __strf_tot_corr(dur);
 			}
 			bp += snprintf(bp, eo - bp, "%ld", s);
 			break;

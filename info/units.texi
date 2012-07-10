@@ -1,0 +1,21 @@
+@section Specifying durations
+
+Some tools (@samp{dadd}, @samp{dseq}) need durations as their input.
+Durations are generally incompatible with input formats as specified by
+@samp{-i|--input-format} and (at the moment) the input syntax is fixed.
+
+The general format is @samp{[+-]Nunit} where @samp{+} or @samp{-} is the
+sign, @samp{N} a number, and @samp{unit} the unit as discussed below.
+
+Units:
+@verbatim
+  s  seconds
+  m  minutes
+  h  hours
+  rs real-life seconds, as in including leap second transitions
+
+  d  days
+  b  business days
+  mo months
+  y  years
+@end verbatim
