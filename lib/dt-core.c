@@ -610,7 +610,7 @@ leaps_before(struct dt_dt_s d)
 
 	if (dt_sandwich_p(d) && on) {
 		/* check the time part too */
-		if (d.t.hms.u > leaps_hms[res + 1]) {
+		if (d.t.hms.u24 > leaps_hms[res + 1]) {
 			res++;
 		}
 	}
@@ -1199,9 +1199,15 @@ dt_datetime(dt_dttyp_t outtyp)
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
-	default:
+
 	case DT_MD:
 		/* this one doesn't make sense at all */
+
+	case DT_BIZDA:
+	case DT_BIZSI:
+		/* could be an idea to have those, innit? */
+
+	default:
 	case DT_DUNK:
 		break;
 	}
@@ -1255,6 +1261,9 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 #endif	/* WITH_LEAP_SECONDS */
 			break;
 		}
+		case DT_YMDHMS:
+			/* no support for this guy yet */
+
 		case DT_DUNK:
 		default:
 			return dt_dt_initialiser();
@@ -1406,10 +1415,22 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			zidx_t i_d1 = leaps_before(d1);
 			zidx_t i_d2 = leaps_before(d2);
 
+# if defined WORDS_BIGENDIAN
+			/* not needed on little-endians
+			 * the little means just that */
+			res.soft = sxdur;
+# endif	/* WORDS_BIGENDIAN */
+
 			if (UNLIKELY(i_d1 != i_d2)) {
 				int nltr = leaps_corr[i_d2] - leaps_corr[i_d1];
 
 				res.corr = nltr;
+# if defined WORDS_BIGENDIAN
+			} else {
+				/* always repack res.corr to remove clutter
+				 * from the earlier res.sexydur ass'ment */
+				res.corr = 0;
+# endif	 /* WORDS_BIGENDIAN */
 			}
 		}
 #endif	/* WITH_LEAP_SECONDS */

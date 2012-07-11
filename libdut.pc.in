@@ -4,9 +4,9 @@ includedir=@includedir@
 libdir=@libdir@
 libexecdir=@libexecdir@
 
-Name: libdudtcore
+Name: libdut
 Description: dateutils' date/time routines
 Version: @PACKAGE_VERSION@
-Libs:
+Libs: -L${libdir} -ldut
 Cflags: -I${includedir} -DINCLUDE_DATETIME_CORE_IMPL
 

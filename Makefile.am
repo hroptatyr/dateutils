@@ -9,6 +9,4 @@ EXTRA_DIST = git-version-gen
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
-pkgconfig_DATA += libdudcore.pc
-pkgconfig_DATA += libdutcore.pc
-pkgconfig_DATA += libdudtcore.pc
+pkgconfig_DATA += libdut.pc

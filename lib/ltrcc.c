@@ -307,7 +307,7 @@ pr_line_t(const char *line, size_t llen, va_list vap)
 	dt_dtyp_t __attribute__((unused)) typ;
 	int colp;
 	char *ep;
-	long long unsigned int val;
+	uint32_t val;
 
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
@@ -316,13 +316,13 @@ pr_line_t(const char *line, size_t llen, va_list vap)
 	if (llen == PROLOGUE) {
 		/* prologue */
 		fprintf(stdout, "\
-const uint64_t %s[] = {\n\
-	UINT64_MAX,\n", line);
+const uint32_t %s[] = {\n\
+	UINT32_MAX,\n", line);
 		return 0;
 	} else if (llen == EPILOGUE) {
 		/* epilogue */
 		fputs("\
-	UINT64_MAX\n\
+	UINT32_MAX\n\
 };\n", stdout);
 		return 0;
 	} else if (typ != DT_HMS || !colp) {
@@ -348,9 +348,9 @@ const uint64_t %s[] = {\n\
 	}
 
 	/* fix up and convert to target type */
-	val = d.t.u;
+	val = d.t.hms.u24;
 	/* column-oriented mode */
-	fprintf(stdout, "\t0x%llxULL/* %llu */,\n", val, val);
+	fprintf(stdout, "\t0x%xU/* %u */,\n", val, val);
 	return 0;
 }
 
