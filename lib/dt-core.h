@@ -281,12 +281,12 @@ dt_dt_initialiser(void)
 		.sandwich = 0U,
 		.dur = 0U,
 		.neg = 0U,
+		.tai = 0U,
 		.u = 0U,
 		.t = {
 			.typ = DT_TUNK,
 			.dur = 0U,
 			.neg = 0U,
-			.tai = 0U,
 			.u = 0U,
 		},
 	};
