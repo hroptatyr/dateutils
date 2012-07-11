@@ -114,7 +114,7 @@ struct dt_t_s {
 		signed int sdur;
 		dt_hms_t hms;
 	} __attribute__((packed));
-} __attribute__((packed));
+};
 
 
 /* helpers */
