@@ -1418,11 +1418,11 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			if (UNLIKELY(i_d1 != i_d2)) {
 				int nltr = leaps_corr[i_d2] - leaps_corr[i_d1];
 
-#if WORDS_BIGENDIAN
+# if defined WORDS_BIGENDIAN
 				/* not needed on little-endians
 				 * the little means just that */
 				res.soft = sxdur;
-#endif	/* WORDS_BIGENDIAN */
+# endif	/* WORDS_BIGENDIAN */
 				res.corr = nltr;
 			}
 		}
