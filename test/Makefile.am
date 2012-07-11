@@ -369,6 +369,14 @@ dt_tests += dtdiff.13.dt
 dt_tests += dtdiff.14.dt
 dt_tests += dtdiff.15.dt
 dt_tests += dtdiff.16.dt
+dt_tests += dtdiff.17.dt
+dt_tests += dtdiff.18.dt
+if WITH_LEAP_SECONDS
+dt_tests += dtdiff.19.dt
+dt_tests += dtdiff.20.dt
+dt_tests += dtdiff.21.dt
+dt_tests += dtdiff.22.dt
+endif  ## WITH_LEAP_SECONDS
 
 dt_tests += dtround.1.dt
 dt_tests += dtround.2.dt
