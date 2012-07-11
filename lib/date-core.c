@@ -777,11 +777,11 @@ DEFUN int
 __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
 {
 	int yd = __ymd_get_yday(d);
-	int y01 = (int)__get_jan01_wday(d.y);
+	dt_dow_t y01 = __get_jan01_wday(d.y);
 	int wk;
 
 	/* yd of the FIRST week of the year */
-	if ((wk = 8 - y01 + wdays_from) > 7) {
+	if ((wk = 8 - (int)y01 + wdays_from) > 7) {
 		wk -= 7;
 	}
 	/* and now express yd as 7k + n relative to jan01 */
@@ -800,7 +800,8 @@ __ymd_get_wcnt_iso(dt_ymd_t d)
 	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3};
 	int yd = __ymd_get_yday(d);
 	unsigned int y = d.y;
-	int y01 = (int)__get_jan01_wday(y);
+	dt_dow_t y01dow = __get_jan01_wday(y);
+	unsigned int y01 = (unsigned int)y01dow;
 	int wk;
 
 	/* express yd as 7k + n relative to jan01 */
@@ -1833,7 +1834,12 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 		 * we need the fact that p cannot be negative further down */
 		mc = (d.c - 1) * GREG_DAYS_P_WEEK + d.w + durcch.d;
 		q = __uidiv(mc, GREG_DAYS_P_WEEK);
-		tgtw = (dt_dow_t)__uimod(mc, GREG_DAYS_P_WEEK);
+		{
+			/* just so we don't mix enum types and ints */
+			unsigned int tmp = __uimod(mc, GREG_DAYS_P_WEEK);
+			/* final week day in tmp, so ass it */
+			tgtw = (dt_dow_t)tmp;
+		}
 
 		/* fixup q */
 		while (1) {
@@ -2621,6 +2627,11 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 			tmp.md.m = 0;
 			tmp.md.d = res.daisy;
 			break;
+
+		case DT_BIZDA:
+		case DT_BIZSI:
+		case DT_MD:
+		case DT_DUNK:
 		default:
 			break;
 		}

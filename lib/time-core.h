@@ -77,6 +77,15 @@ typedef union {
 	uint64_t u:56;
 	struct {
 #if defined WORDS_BIGENDIAN
+		uint32_t u24:24;
+		uint32_t:32;
+#else  /* !WORDS_BIGENDIAN */
+		uint32_t:32;
+		uint32_t u24:24;
+#endif	/* WORDS_BIGENDIAN */
+	} __attribute__((packed));
+	struct {
+#if defined WORDS_BIGENDIAN
 		uint64_t h:8;
 		uint64_t m:8;
 		uint64_t s:8;
@@ -105,7 +114,7 @@ struct dt_t_s {
 		signed int sdur;
 		dt_hms_t hms;
 	} __attribute__((packed));
-} __attribute__((packed));
+};
 
 
 /* helpers */

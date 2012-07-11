@@ -115,13 +115,12 @@ mass_add_dur(const struct mass_add_clo_s *clo)
 
 	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen;
-		const char *sp = NULL;
-		const char *ep = NULL;
+		char *sp = NULL;
+		char *ep = NULL;
 
 		llen = prchunk_getline(clo->pctx, &line);
 		/* check if line matches, */
-		d = dt_io_find_strpdt2(
-			line, clo->gra, (char**)&sp, (char**)&ep, clo->fromz);
+		d = dt_io_find_strpdt2(line, clo->gra, &sp, &ep, clo->fromz);
 
 		/* finish with newline again */
 		line[llen] = '\n';

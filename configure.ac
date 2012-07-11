@@ -91,11 +91,9 @@ AM_CONDITIONAL([WITH_LEAP_SECONDS], [test "1" = "1"])
 AM_CONDITIONAL([BUILD_DEXPR], [test "0" = "1"])
 
 ## trivial, no special stuff needed
-dapps=""
-tapps=""
-dtapps="dadd dconv ddiff dgrep dround dseq dtest"
+dut_apps="dadd dconv ddiff dgrep dround dseq dtest"
 if test "${have_strptime}" = "yes"; then
-	miscapps="strptime"
+	misc_apps="strptime"
 fi
 
 AC_CONFIG_FILES([Makefile])
@@ -103,9 +101,7 @@ AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
-AC_CONFIG_FILES([libdudcore.pc])
-AC_CONFIG_FILES([libdutcore.pc])
-AC_CONFIG_FILES([libdudtcore.pc])
+AC_CONFIG_FILES([libdut.pc])
 AC_OUTPUT
 
 cat <<EOF
@@ -113,10 +109,8 @@ cat <<EOF
 
 Build summary
 =============
-Build date apps:	${dapps}
-Build time apps:	${tapps}
-Build date/time apps:	${dtapps}
-Build misc apps:	${miscapps}
+Build date/time apps:	${dut_apps}
+Build misc apps:	${misc_apps}
 
 EOF
 
