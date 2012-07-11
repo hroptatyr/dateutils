@@ -74,41 +74,6 @@ struct zleap_s {
 	int32_t corr;
 };
 
-/* row based funs */
-/**
- * Return the number of leap seconds *inserted* between D1 and D2.
- * If the result is negative then leap seconds have been removed. */
-DECLF int leaps_between(zleap_t lv, size_t nlv, uint32_t d1, uint32_t d2);
-
-/**
- * Return the number of leap seconds inserted (>0) or removed (<0) on D. */
-DECLF int leaps_on(zleap_t lv, size_t nlv, uint32_t d);
-
-/**
- * Return the number of leap seconds ever inserted till D. */
-DECLF int leaps_till(zleap_t lv, size_t nlv, uint32_t d);
-
-/**
- * Return the number of leap seconds inserted after D. */
-DECLF int leaps_since(zleap_t lv, size_t nlv, uint32_t d);
-
-/**
- * Return the number of leap seconds *inserted* between D1 and D2.
- * If the result is negative then leap seconds have been removed. */
-DECLF int leaps_sbetween(zleap_t lv, size_t nlv, int32_t d1, int32_t d2);
-
-/**
- * Return the number of leap seconds inserted (>0) or removed (<0) on D. */
-DECLF int leaps_son(zleap_t lv, size_t nlv, int32_t d);
-
-/**
- * Return the number of leap seconds ever inserted till D. */
-DECLF int leaps_still(zleap_t lv, size_t nlv, int32_t d);
-
-/**
- * Return the number of leap seconds inserted after D. */
-DECLF int leaps_ssince(zleap_t lv, size_t nlv, int32_t d);
-
 /* col-based funs */
 /**
  * Return last leap transition before KEY in a uint32_t field FLD. */
