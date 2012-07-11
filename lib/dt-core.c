@@ -610,7 +610,7 @@ leaps_before(struct dt_dt_s d)
 
 	if (dt_sandwich_p(d) && on) {
 		/* check the time part too */
-		if (d.t.hms.u >= leaps_hms[res + 1]) {
+		if (d.t.hms.u > leaps_hms[res + 1]) {
 			res++;
 		}
 	}
