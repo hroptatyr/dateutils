@@ -321,12 +321,16 @@ dt_tests += dtadd.26.dt
 dt_tests += dtadd.27.dt
 dt_tests += dtadd.28.dt
 dt_tests += dtadd.29.dt
+if WITH_LEAP_SECONDS
 dt_tests += dtadd.30.dt
 dt_tests += dtadd.31.dt
+endif  ## WITH_LEAP_SECONDS
 dt_tests += dtadd.32.dt
 dt_tests += dtadd.33.dt
+if WITH_LEAP_SECONDS
 dt_tests += dtadd.34.dt
 dt_tests += dtadd.35.dt
+endif  ## WITH_LEAP_SECONDS
 dt_tests += dtadd.36.dt
 
 dt_tests += dtgrep.1.dt
@@ -365,6 +369,14 @@ dt_tests += dtdiff.13.dt
 dt_tests += dtdiff.14.dt
 dt_tests += dtdiff.15.dt
 dt_tests += dtdiff.16.dt
+dt_tests += dtdiff.17.dt
+dt_tests += dtdiff.18.dt
+if WITH_LEAP_SECONDS
+dt_tests += dtdiff.19.dt
+dt_tests += dtdiff.20.dt
+dt_tests += dtdiff.21.dt
+dt_tests += dtdiff.22.dt
+endif  ## WITH_LEAP_SECONDS
 
 dt_tests += dtround.1.dt
 dt_tests += dtround.2.dt

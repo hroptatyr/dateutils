@@ -265,6 +265,8 @@ AC_DEFUN([AX_ZONEINFO], [
 	ifelse([$1], [right], [
 		AC_REQUIRE([AX_ZONEINFO_RIGHT])
 	])
+
+	AC_ARG_VAR([TZDIR], [Directory with compiled zoneinfo files.])
 ])dnl AX_ZONEINFO
 
 dnl ax_zoneinfo.m4 ends here

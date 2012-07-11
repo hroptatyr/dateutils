@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="'2012-06-30 23:59:00' '2012-06-30 23:59:60' -f '%rT'"
+COMMENT="stopping on a leap second transition"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+60s
+EOF
+
+## STDERR
+
+## dtdiff.22.dt ends here
