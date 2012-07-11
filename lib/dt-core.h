@@ -144,8 +144,13 @@ struct dt_dt_s {
 				dt_ssexy_t sexydur:53;
 				dt_ssexy_t sxepoch:53;
 				struct {
+#if defined WORDS_BIGENDIAN
+					int32_t corr:21;
+					int32_t soft:32;
+#else  /* !WORDS_BIGENDIAN */
 					int32_t soft:32;
 					int32_t corr:21;
+#endif	/* WORDS_BIGENDIAN */
 				};
 			};
 		} __attribute__((packed));
