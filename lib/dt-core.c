@@ -1199,9 +1199,15 @@ dt_datetime(dt_dttyp_t outtyp)
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
-	default:
+
 	case DT_MD:
 		/* this one doesn't make sense at all */
+
+	case DT_BIZDA:
+	case DT_BIZSI:
+		/* could be an idea to have those, innit? */
+
+	default:
 	case DT_DUNK:
 		break;
 	}
@@ -1255,6 +1261,9 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 #endif	/* WITH_LEAP_SECONDS */
 			break;
 		}
+		case DT_YMDHMS:
+			/* no support for this guy yet */
+
 		case DT_DUNK:
 		default:
 			return dt_dt_initialiser();
