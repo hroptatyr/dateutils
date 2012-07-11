@@ -83,6 +83,10 @@ if test "${enable_fast_arith}" = "yes"; then
 		[whether to use fast but incorrect date routines])
 fi
 
+## always define this one for now
+AC_DEFINE([WITH_LEAP_SECONDS], [1], [Whether to use leap-second aware routines])
+AM_CONDITIONAL([WITH_LEAP_SECONDS], [test "1" = "1"])
+
 ## trivial conditional so that the dexpr scanner and parser are built
 AM_CONDITIONAL([BUILD_DEXPR], [test "0" = "1"])
 
