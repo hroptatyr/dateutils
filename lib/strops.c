@@ -42,14 +42,9 @@
 #include <string.h>
 /* for strncasecmp() */
 #include <strings.h>
+#include "nifty.h"
 #include "strops.h"
 
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif	/* !LIKELY */
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif	/* !UNLIKELY */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)

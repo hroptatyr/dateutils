@@ -53,20 +53,8 @@
 #include "time-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "nifty.h"
 #include "dt-core.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif
-#if !defined countof
-# define countof(x)	(sizeof(x) / sizeof(*(x)))
-#endif	/* !countof */
-#if !defined UNUSED
-# define UNUSED(_x)	__attribute__((unused)) _x
-#endif	/* !UNUSED */
 
 #if !defined INCLUDED_date_core_c_
 # include "date-core.c"
