@@ -109,8 +109,7 @@ struct strpdti_s {
 
 
 /* converters and stuff */
-static inline struct strpdt_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct strpdt_s
 strpdt_initialiser(void)
 {
 	struct strpdt_s res;
@@ -139,8 +138,7 @@ __to_unix_epoch(struct dt_dt_s dt)
 	return 0;
 }
 
-static inline dt_ssexy_t
-__attribute__((unused))
+static inline __attribute__((unused)) dt_ssexy_t
 __to_gps_epoch(struct dt_dt_s dt)
 {
 #define DAISY_GPS_BASE		(23016)
@@ -195,8 +193,7 @@ __epoch_to_ymdhms(dt_ssexy_t sx)
 	return res;
 }
 
-static inline struct dt_dt_s
-__attribute__((unused))
+static inline __attribute__((unused)) struct dt_dt_s
 __epoch_to_ymd_sandwich(dt_ssexy_t sx)
 {
 	struct dt_dt_s res;

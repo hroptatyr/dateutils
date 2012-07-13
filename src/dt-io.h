@@ -114,15 +114,13 @@ dt_io_strpdt_ep(
 	return res;
 }
 
-static struct dt_dt_s
-__attribute__((unused))
+static __attribute__((unused)) struct dt_dt_s
 dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt, zif_t zone)
 {
 	return dt_io_strpdt_ep(input, (const char*const*)fmt, nfmt, NULL, zone);
 }
 
-static struct dt_dt_s
-__attribute__((unused))
+static __attribute__((unused)) struct dt_dt_s
 dt_io_find_strpdt(
 	const char *str, char *const *fmt, size_t nfmt,
 	const char *needle, size_t needlen, char **sp, char **ep,
@@ -398,7 +396,7 @@ out:
 	return res;
 }
 
-static struct grep_atom_soa_s __attribute__((unused))
+static __attribute__((unused)) struct grep_atom_soa_s
 build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 {
 	struct grep_atom_soa_s res = make_grep_atom_soa(atoms, natoms);
@@ -451,7 +449,7 @@ out:
 	return res;
 }
 
-static struct dt_dt_s  __attribute__((unused))
+static __attribute__((unused)) struct dt_dt_s
 dt_io_find_strpdt2(
 	const char *str,
 	const struct grep_atom_soa_s *needles,
@@ -611,7 +609,7 @@ dt_io_strfdt_autonl(
 	return res;
 }
 
-static void __attribute__((unused))
+static __attribute__((unused)) void
 dt_io_unescape(char *s)
 {
 	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
@@ -637,7 +635,7 @@ dt_io_unescape(char *s)
 
 #define MAGIC_CHAR	'~'
 
-static void __attribute__((unused))
+static __attribute__((unused)) void
 fixup_argv(int argc, char *argv[], const char *additional)
 {
 	for (int i = 1; i < argc; i++) {
@@ -706,8 +704,7 @@ __io_eof_p(FILE *fp)
 #endif	/* __GLIBC__ */
 }
 
-static int
-__attribute__((unused))
+static __attribute__((unused)) int
 dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 {
 	static char buf[64];
@@ -721,8 +718,7 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 	return (n > 0) - 1;
 }
 
-static int
-__attribute__((unused))
+static __attribute__((unused)) int
 dt_io_write_sed(
 	struct dt_dt_s d, const char *fmt,
 	const char *line, size_t llen, const char *sp, const char *ep,
@@ -752,8 +748,7 @@ dt_io_write_sed(
 
 
 /* error messages, warnings, etc. */
-static void
-__attribute__((format(printf, 2, 3)))
+static __attribute__((format(printf, 2, 3))) void
 error(int eno, const char *fmt, ...);
 
 static inline void
@@ -811,7 +806,7 @@ __add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur)
 	return 0;
 }
 
-static int __attribute__((unused))
+static __attribute__((unused)) int
 dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */

@@ -50,10 +50,10 @@
 #include "prchunk.h"
 
 #if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect((_x), 1)
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
 #endif
 #if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect((_x), 0)
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif	/* !UNLIKELY */
 #if !defined UNUSED
 # define UNUSED(_x)	__attribute__((unused)) _x
@@ -284,7 +284,7 @@ init_prchunk(int fd)
 FDEFU void
 free_prchunk(prch_ctx_t ctx)
 {
-	if (LIKELY(ctx->buf != 0)) {
+	if (LIKELY(ctx->buf)) {
 		munmap(ctx->buf, MAP_LEN);
 		ctx->buf = NULL;
 	}

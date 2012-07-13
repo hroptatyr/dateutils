@@ -63,10 +63,10 @@
 #include "tzraw.h"
 
 #if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect((_x), 1)
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
 #endif	/* !LIKELY */
 #if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect((_x), 0)
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif	/* !UNLIKELY */
 
 #if !defined MAP_ANONYMOUS && defined MAP_ANON
@@ -461,7 +461,10 @@ __offs(zif_t z, int32_t t)
 		this = max - 1;
 		min = 0;
 	} else {
-		;
+		/* we shouldn't end up here at all */
+		this = 0;
+		min = 0;
+		max = 0;
 	}
 	return (z->cache = __find_zrng(z, t, this, min, max)).offs;
 }
