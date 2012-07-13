@@ -33,11 +33,11 @@ free_dexpr(dexpr_t root)
 	switch (root->type) {
 	case DEX_CONJ:
 	case DEX_DISJ:
-		if (root->left) {
+		if (root->left != NULL) {
 			free_dexpr(root->left);
 			free(root->left);
 		}
-		if (root->right) {
+		if (root->right != NULL) {
 			free_dexpr(root->right);
 			free(root->right);
 		}
@@ -191,7 +191,7 @@ __pr(dexpr_t root, size_t ind)
 		for (size_t i = 0; i < ind; i++) {
 			fputc(' ', stdout);
 		}
-		if (root->left) {
+		if (root->left != NULL) {
 			fputs("ROOT\n", stderr);
 			__pr(root->left, ind + 2);
 			break;
@@ -443,10 +443,10 @@ __denega(dexpr_t root)
 			return;
 		}
 
-		if ((left = root->left)) {
+		if ((left = root->left) != NULL) {
 			left->nega = ~left->nega;
 		}
-		if ((right = root->right)) {
+		if ((right = root->right) != NULL) {
 			right->nega = ~right->nega;
 		}
 	} else {
@@ -463,10 +463,10 @@ __denega(dexpr_t root)
 		}
 	}
 	/* descend */
-	if (left) {
+	if (left != NULL) {
 		__denega(left);
 	}
-	if (right) {
+	if (right != NULL) {
 		__denega(right);
 	}
 	return;

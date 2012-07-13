@@ -677,7 +677,7 @@ out:
 	if (clo.ite && clo.flags & CLO_FL_FREE_ITE) {
 		free(clo.ite);
 	}
-	if (clo.altite) {
+	if (clo.altite != NULL) {
 		free(clo.altite);
 	}
 	cmdline_parser_free(argi);
