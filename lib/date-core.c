@@ -2100,7 +2100,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 	/* set the end pointer */
 	res = __guess_dtyp(d);
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;
@@ -2278,7 +2278,7 @@ dt_strpddur(const char *str, char **ep)
 		res.md.m = d.y * GREG_MONTHS_P_YEAR + d.m;
 	}
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;

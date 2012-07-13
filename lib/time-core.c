@@ -150,7 +150,7 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	/* set the end pointer */
 	res = __guess_ttyp(d);
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;

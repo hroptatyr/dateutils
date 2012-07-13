@@ -144,12 +144,12 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 	}
 
 	/* assign end pointer */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return 0;
 fucked:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)str;
 	}
 	return -1;

@@ -275,7 +275,7 @@ init_prchunk(int fd)
 FDEFU void
 free_prchunk(prch_ctx_t ctx)
 {
-	if (LIKELY(ctx->buf)) {
+	if (LIKELY(ctx->buf != NULL)) {
 		munmap(ctx->buf, MAP_LEN);
 		ctx->buf = NULL;
 	}

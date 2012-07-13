@@ -373,7 +373,7 @@ pr_file(FILE *fp, const char *var, int(*cb)(const char*, size_t, va_list), ...)
 	fprintf(stdout, "\
 const size_t n%s = countof(%s);\n\n", var, var);
 
-	if (line) {
+	if (line != NULL) {
 		free(line);
 	}
 	return 0;

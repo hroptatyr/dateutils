@@ -154,12 +154,12 @@ __strpd_std(const char *str, char **ep)
 	/* guess what we're doing */
 	res = __guess_dtyp(d);
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;
 fucked:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)str;
 	}
 	return dt_d_initialiser();
@@ -235,7 +235,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			break;
 		case DT_SPMOD_ABBR: {
 			const char *pos;
-			if ((pos = strchr(__abab_wday, *sp++))) {
+			if ((pos = strchr(__abab_wday, *sp++)) != NULL) {
 				d->w = pos - __abab_wday;
 			} else {
 				d->w = -1;
@@ -262,7 +262,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			break;
 		case DT_SPMOD_ABBR: {
 			const char *pos;
-			if ((pos = strchr(__abab_mon, *sp++))) {
+			if ((pos = strchr(__abab_mon, *sp++)) != NULL) {
 				d->m = pos - __abab_mon;
 			} else {
 				d->m = -1U;
@@ -317,7 +317,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	}
 	/* assign end pointer */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;
@@ -360,7 +360,7 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = 0 - (d->c == -1U);
 		break;
 	}
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;

@@ -189,7 +189,7 @@ next:
 		}
 	}
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)(fp + 1);
 	}
 	return res;
