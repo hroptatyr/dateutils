@@ -38,14 +38,8 @@
 #if !defined INCLUDED_dt_core_tz_glue_c_
 #define INCLUDED_dt_core_tz_glue_c_
 
+#include "nifty.h"
 #include "dt-core-tz-glue.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif	/* !LIKELY */
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif	/* !UNLIKELY */
 
 #define DAISY_UNIX_BASE		(19359)
 

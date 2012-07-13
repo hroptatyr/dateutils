@@ -42,14 +42,9 @@
 #include <string.h>
 /* for strncasecmp() */
 #include <strings.h>
+#include "nifty.h"
 #include "strops.h"
 
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif	/* !LIKELY */
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif	/* !UNLIKELY */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
@@ -363,14 +358,14 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 		size_t len = strlen(chk);
 
 		if (strncasecmp(chk, buf, len) == 0) {
-			if (ep) {
+			if (ep != NULL) {
 				*ep = buf + len;
 			}
 			return i;
 		}
 	}
 	/* no matches */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = buf;
 	}
 	return -1U;
@@ -467,7 +462,7 @@ xstrpbrkp(const char *src, const char *set, size_t *set_offs)
 
 	set_up_table((const unsigned char*)set, true);
 	for (p = src; !in_current_set((unsigned char)*p); p++);
-	if (LIKELY(set_offs)) {
+	if (LIKELY(set_offs != NULL)) {
 		size_t idx;
 		for (idx = 0; set[idx] != *p; idx++);
 		*set_offs = idx;

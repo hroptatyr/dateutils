@@ -193,7 +193,8 @@ rhs
 				break;
 			case DT_SPMOD_ABBR: {
 				const char *pos;
-				if ((pos = strchr(__abab_wday, *$<sval>1))) {
+				if ((pos = strchr(
+					     __abab_wday, *$<sval>1)) != NULL) {
 					ckv->s = pos - __abab_wday;
 					break;
 				}
@@ -218,7 +219,8 @@ rhs
 				break;
 			case DT_SPMOD_ABBR: {
 				const char *pos;
-				if ((pos = strchr(__abab_mon, *$<sval>1))) {
+				if ((pos = strchr(
+					     __abab_mon, *$<sval>1)) != NULL) {
 					ckv->s = pos - __abab_mon;
 					break;
 				}

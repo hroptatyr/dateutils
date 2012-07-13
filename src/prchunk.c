@@ -47,17 +47,8 @@
 #include <stdarg.h>
 #include <errno.h>
 
+#include "nifty.h"
 #include "prchunk.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif	/* !UNLIKELY */
-#if !defined UNUSED
-# define UNUSED(_x)	__attribute__((unused)) _x
-#endif	/* !UNUSED */
 
 #define MAX_NLINES	(16384)
 #define MAX_LLEN	(1024)
@@ -284,7 +275,7 @@ init_prchunk(int fd)
 FDEFU void
 free_prchunk(prch_ctx_t ctx)
 {
-	if (LIKELY(ctx->buf)) {
+	if (LIKELY(ctx->buf != NULL)) {
 		munmap(ctx->buf, MAP_LEN);
 		ctx->buf = NULL;
 	}

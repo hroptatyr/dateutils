@@ -16,19 +16,7 @@
 #include "dt-core-tz-glue.h"
 #include "strops.h"
 #include "token.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif
-#if !defined UNUSED
-# define UNUSED(x)	__attribute__((unused)) x##_unused
-#endif
-#if !defined countof
-# define countof(x)	(sizeof(x) / sizeof(*(x)))
-#endif	/* !countof */
+#include "nifty.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -54,7 +42,7 @@ dt_io_strpdt_ep(
 	} now = STRPDT_UNK;
 
 	/* init */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = NULL;
 	}
 	/* basic sanity checks, catch phrases first */
@@ -617,7 +605,7 @@ dt_io_unescape(char *s)
 
 	if (UNLIKELY(s == NULL)) {
 		return;
-	} else if ((p = q = strchr(s, '\\'))) {
+	} else if ((p = q = strchr(s, '\\')) != NULL) {
 		do {
 			if (*p != '\\' || !*++p) {
 				*q++ = *p++;
@@ -731,11 +719,11 @@ dt_io_write_sed(
 		d = dtz_enrichz(d, zone);
 	}
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d);
-	if (sp) {
+	if (sp != NULL) {
 		__io_write(line, sp - line, stdout);
 	}
 	__io_write(buf, n, stdout);
-	if (ep) {
+	if (ep != NULL) {
 		size_t eolen = line + llen - ep;
 		if (LIKELY(eolen > 0)) {
 			__io_write(ep, line + llen - ep, stdout);
@@ -782,7 +770,7 @@ __strpdtdur_more_p(struct __strpdtdur_st_s *st)
 static inline void
 __strpdtdur_free(struct __strpdtdur_st_s *st)
 {
-	if (st->durs) {
+	if (st->durs != NULL) {
 		free(st->durs);
 	}
 	return;
@@ -815,9 +803,9 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 	int res = 0;
 
 	/* check if we should continue */
-	if (st->cont) {
+	if (st->cont != NULL) {
 		str = st->istr = st->cont;
-	} else if ((st->istr = str)) {
+	} else if ((st->istr = str) != NULL) {
 		;
 	} else {
 		goto out;
