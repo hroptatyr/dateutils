@@ -38,6 +38,9 @@
 #if !defined INCLUDED_token_c_
 #define INCLUDED_token_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include "token.h"
 
 #if defined __INTEL_COMPILER
