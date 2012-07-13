@@ -87,8 +87,7 @@ struct strpt_s {
 #include "token.c"
 #include "strops.c"
 
-static inline struct strpt_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct strpt_s
 strpt_initialiser(void)
 {
 	struct strpt_s res = {0};

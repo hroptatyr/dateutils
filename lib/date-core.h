@@ -393,8 +393,7 @@ DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
 
 
 /* some useful gimmicks, sort of */
-static inline struct dt_d_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct dt_d_s
 dt_d_initialiser(void)
 {
 #if defined __C1X

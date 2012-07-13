@@ -87,16 +87,14 @@ struct strpdi_s {
 
 
 /* helpers */
-static inline struct strpd_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct strpd_s
 strpd_initialiser(void)
 {
 	struct strpd_s res = {0};
 	return res;
 }
 
-static inline struct strpdi_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct strpdi_s
 strpdi_initialiser(void)
 {
 	struct strpdi_s res = {0};

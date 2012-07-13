@@ -271,8 +271,7 @@ DECLF void __trans_dtfmt(const char **fmt);
 
 
 /* some useful gimmicks, sort of */
-static inline struct dt_dt_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct dt_dt_s
 dt_dt_initialiser(void)
 {
 #if defined __C1X
