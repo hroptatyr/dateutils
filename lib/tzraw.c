@@ -63,10 +63,10 @@
 #include "tzraw.h"
 
 #if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect((_x), 1)
+# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
 #endif	/* !LIKELY */
 #if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect((_x), 0)
+# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
 #endif	/* !UNLIKELY */
 
 #if !defined MAP_ANONYMOUS && defined MAP_ANON
