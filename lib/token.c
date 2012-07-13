@@ -41,6 +41,7 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+#include <stddef.h>
 #include "token.h"
 
 #if defined __INTEL_COMPILER
