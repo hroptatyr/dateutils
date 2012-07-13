@@ -66,7 +66,7 @@ find_before_##N(						\
 {								\
 /* Given key K find the index of the transition before */	\
 	do {							\
-		typeof(key) lo, up;				\
+		X lo, up;					\
 								\
 		lo = v[i];					\
 		up = v[i + 1];					\
