@@ -38,6 +38,10 @@
 #if !defined INCLUDED_token_c_
 #define INCLUDED_token_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
+#include <stddef.h>
 #include "token.h"
 
 #if defined __INTEL_COMPILER
@@ -189,7 +193,7 @@ next:
 		}
 	}
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)(fp + 1);
 	}
 	return res;

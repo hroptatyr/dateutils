@@ -53,20 +53,8 @@
 #include "time-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "nifty.h"
 #include "dt-core.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif
-#if !defined countof
-# define countof(x)	(sizeof(x) / sizeof(*(x)))
-#endif	/* !countof */
-#if !defined UNUSED
-# define UNUSED(_x)	__attribute__((unused)) _x
-#endif	/* !UNUSED */
 
 #if !defined INCLUDED_date_core_c_
 # include "date-core.c"
@@ -109,8 +97,7 @@ struct strpdti_s {
 
 
 /* converters and stuff */
-static inline struct strpdt_s
-__attribute__((pure, const))
+static inline __attribute__((pure, const)) struct strpdt_s
 strpdt_initialiser(void)
 {
 	struct strpdt_s res;
@@ -139,8 +126,7 @@ __to_unix_epoch(struct dt_dt_s dt)
 	return 0;
 }
 
-static inline dt_ssexy_t
-__attribute__((unused))
+static inline __attribute__((unused)) dt_ssexy_t
 __to_gps_epoch(struct dt_dt_s dt)
 {
 #define DAISY_GPS_BASE		(23016)
@@ -195,8 +181,7 @@ __epoch_to_ymdhms(dt_ssexy_t sx)
 	return res;
 }
 
-static inline struct dt_dt_s
-__attribute__((unused))
+static inline __attribute__((unused)) struct dt_dt_s
 __epoch_to_ymd_sandwich(dt_ssexy_t sx)
 {
 	struct dt_dt_s res;
@@ -394,7 +379,7 @@ eval_time:
 	}
 out:
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;
@@ -459,7 +444,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	}
 	/* assign end pointer */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 out_direct:
@@ -694,12 +679,12 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	}
 
 	/* set the end pointer */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;
 fucked:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)str;
 	}
 	return dt_dt_initialiser();
@@ -975,7 +960,7 @@ sp:
 	}
 
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	res.dur = 1;

@@ -46,16 +46,7 @@
 #include "leaps.h"
 #include "date-core.h"
 #include "dt-core.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect((_x), 1)
-#endif	/* !LIKELY */
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect((_x), 0)
-#endif	/* !UNLIKELY */
-#if !defined UNUSED
-# define UNUSED(x)	__attribute__((unused)) x
-#endif	/* !UNUSED */
+#include "nifty.h"
 
 static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
@@ -382,7 +373,7 @@ pr_file(FILE *fp, const char *var, int(*cb)(const char*, size_t, va_list), ...)
 	fprintf(stdout, "\
 const size_t n%s = countof(%s);\n\n", var, var);
 
-	if (line) {
+	if (line != NULL) {
 		free(line);
 	}
 	return 0;

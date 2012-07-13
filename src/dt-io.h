@@ -16,19 +16,7 @@
 #include "dt-core-tz-glue.h"
 #include "strops.h"
 #include "token.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif
-#if !defined UNUSED
-# define UNUSED(x)	__attribute__((unused)) x##_unused
-#endif
-#if !defined countof
-# define countof(x)	(sizeof(x) / sizeof(*(x)))
-#endif	/* !countof */
+#include "nifty.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -54,7 +42,7 @@ dt_io_strpdt_ep(
 	} now = STRPDT_UNK;
 
 	/* init */
-	if (ep) {
+	if (ep != NULL) {
 		*ep = NULL;
 	}
 	/* basic sanity checks, catch phrases first */
@@ -114,15 +102,13 @@ dt_io_strpdt_ep(
 	return res;
 }
 
-static struct dt_dt_s
-__attribute__((unused))
+static __attribute__((unused)) struct dt_dt_s
 dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt, zif_t zone)
 {
 	return dt_io_strpdt_ep(input, (const char*const*)fmt, nfmt, NULL, zone);
 }
 
-static struct dt_dt_s
-__attribute__((unused))
+static __attribute__((unused)) struct dt_dt_s
 dt_io_find_strpdt(
 	const char *str, char *const *fmt, size_t nfmt,
 	const char *needle, size_t needlen, char **sp, char **ep,
@@ -398,7 +384,7 @@ out:
 	return res;
 }
 
-static struct grep_atom_soa_s __attribute__((unused))
+static __attribute__((unused)) struct grep_atom_soa_s
 build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt)
 {
 	struct grep_atom_soa_s res = make_grep_atom_soa(atoms, natoms);
@@ -451,7 +437,7 @@ out:
 	return res;
 }
 
-static struct dt_dt_s  __attribute__((unused))
+static __attribute__((unused)) struct dt_dt_s
 dt_io_find_strpdt2(
 	const char *str,
 	const struct grep_atom_soa_s *needles,
@@ -611,7 +597,7 @@ dt_io_strfdt_autonl(
 	return res;
 }
 
-static void __attribute__((unused))
+static __attribute__((unused)) void
 dt_io_unescape(char *s)
 {
 	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
@@ -619,7 +605,7 @@ dt_io_unescape(char *s)
 
 	if (UNLIKELY(s == NULL)) {
 		return;
-	} else if ((p = q = strchr(s, '\\'))) {
+	} else if ((p = q = strchr(s, '\\')) != NULL) {
 		do {
 			if (*p != '\\' || !*++p) {
 				*q++ = *p++;
@@ -637,7 +623,7 @@ dt_io_unescape(char *s)
 
 #define MAGIC_CHAR	'~'
 
-static void __attribute__((unused))
+static __attribute__((unused)) void
 fixup_argv(int argc, char *argv[], const char *additional)
 {
 	for (int i = 1; i < argc; i++) {
@@ -706,8 +692,7 @@ __io_eof_p(FILE *fp)
 #endif	/* __GLIBC__ */
 }
 
-static int
-__attribute__((unused))
+static __attribute__((unused)) int
 dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 {
 	static char buf[64];
@@ -721,8 +706,7 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 	return (n > 0) - 1;
 }
 
-static int
-__attribute__((unused))
+static __attribute__((unused)) int
 dt_io_write_sed(
 	struct dt_dt_s d, const char *fmt,
 	const char *line, size_t llen, const char *sp, const char *ep,
@@ -735,11 +719,11 @@ dt_io_write_sed(
 		d = dtz_enrichz(d, zone);
 	}
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d);
-	if (sp) {
+	if (sp != NULL) {
 		__io_write(line, sp - line, stdout);
 	}
 	__io_write(buf, n, stdout);
-	if (ep) {
+	if (ep != NULL) {
 		size_t eolen = line + llen - ep;
 		if (LIKELY(eolen > 0)) {
 			__io_write(ep, line + llen - ep, stdout);
@@ -752,8 +736,7 @@ dt_io_write_sed(
 
 
 /* error messages, warnings, etc. */
-static void
-__attribute__((format(printf, 2, 3)))
+static __attribute__((format(printf, 2, 3))) void
 error(int eno, const char *fmt, ...);
 
 static inline void
@@ -787,7 +770,7 @@ __strpdtdur_more_p(struct __strpdtdur_st_s *st)
 static inline void
 __strpdtdur_free(struct __strpdtdur_st_s *st)
 {
-	if (st->durs) {
+	if (st->durs != NULL) {
 		free(st->durs);
 	}
 	return;
@@ -811,7 +794,7 @@ __add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur)
 	return 0;
 }
 
-static int __attribute__((unused))
+static __attribute__((unused)) int
 dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 {
 /* at the moment we allow only one format */
@@ -820,9 +803,9 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 	int res = 0;
 
 	/* check if we should continue */
-	if (st->cont) {
+	if (st->cont != NULL) {
 		str = st->istr = st->cont;
-	} else if ((st->istr = str)) {
+	} else if ((st->istr = str) != NULL) {
 		;
 	} else {
 		goto out;

@@ -43,17 +43,8 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdint.h>
 #include <limits.h>
+#include "nifty.h"
 #include "leaps.h"
-
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect((_x), 1)
-#endif	/* !LIKELY */
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect((_x), 0)
-#endif	/* !UNLIKELY */
-#if !defined UNUSED
-# define UNUSED(x)	__attribute__((unused)) x##_unused
-#endif	/* UNUSED */
 
 typedef ssize_t sidx_t;
 
@@ -66,7 +57,7 @@ find_before_##N(						\
 {								\
 /* Given key K find the index of the transition before */	\
 	do {							\
-		typeof(key) lo, up;				\
+		X lo, up;					\
 								\
 		lo = v[i];					\
 		up = v[i + 1];					\

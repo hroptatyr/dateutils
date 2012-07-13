@@ -73,7 +73,7 @@ static int
 pars_line(struct tm *tm, const char *const *fmt, size_t nfmt, const char *line)
 {
 	for (size_t i = 0; i < nfmt; i++) {
-		if (strptime(line, fmt[i], tm)) {
+		if (strptime(line, fmt[i], tm) != NULL) {
 			return 0;
 		}
 	}

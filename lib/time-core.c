@@ -46,61 +46,20 @@
 
 #include "time-core.h"
 #include "strops.h"
+#include "nifty.h"
 
-#if !defined LIKELY
-# define LIKELY(_x)	__builtin_expect(!!(_x), 1)
-#endif
-#if !defined UNLIKELY
-# define UNLIKELY(_x)	__builtin_expect(!!(_x), 0)
-#endif
-#if !defined countof
-# define countof(x)	(sizeof(x) / sizeof(*(x)))
-#endif	/* !countof */
-#if !defined UNUSED
-# define UNUSED(x)	__attribute__((unused)) x
-#endif	/* !UNUSED */
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
-
-struct strpt_s {
-	unsigned int h;
-	unsigned int m;
-	unsigned int s;
-	unsigned int ns;
-	union {
-		unsigned int flags;
-		struct {
-			/* 0 for am, 1 for pm */
-			unsigned int am_pm_bit:1;
-			/* 0 if no component has been set, 1 otherwise */
-			unsigned int component_set:1;
-		};
-	};
-};
 
 
 /* guessing parsers */
 #include "token.c"
 #include "strops.c"
-
-static inline struct strpt_s
-__attribute__((pure, const))
-strpt_initialiser(void)
-{
-	struct strpt_s res = {0};
-	return res;
-}
-
-#if defined __INTEL_COMPILER
-/* we MUST return a char* */
-# pragma warning (disable:2203)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wcast-qual"
-#endif	/* __INTEL_COMPILER */
+#include "time-core-strpf.c"
 
 static const char hms_dflt[] = "%H:%M:%S";
 
@@ -157,178 +116,6 @@ __trans_tfmt(const char **fmt)
 	return;
 }
 
-static int
-__strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
-{
-	const char *sp = str;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		goto fucked;
-	case DT_SPFL_N_TSTD:
-		if ((d->h = strtoui_lim(sp, &sp, 0, 23)) == -1U ||
-		    *sp++ != ':') {
-			goto fucked;
-		} else if ((d->m = strtoui_lim(sp, &sp, 0, 59)) == -1U ||
-			   *sp++ != ':') {
-			goto fucked;
-		} else if ((d->s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_N_HOUR:
-		if (!s.sc12) {
-			d->h = strtoui_lim(sp, &sp, 0, 23);
-		} else {
-			d->h = strtoui_lim(sp, &sp, 1, 12);
-		}
-		if (d->h == -1U) {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_N_MIN:
-		if ((d->m = strtoui_lim(sp, &sp, 0, 59)) == -1U) {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_N_SEC:
-		if ((d->s = strtoui_lim(sp, &sp, 0, 60)) == -1U) {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_N_NANO:
-		/* nanoseconds */
-		if ((d->ns = strtoui_lim(sp, &sp, 0, 999999999)) == -1U) {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_S_AMPM: {
-		const unsigned int casebit = 0x20;
-
-		if ((sp[0] | casebit) == 'a' &&
-		    (sp[1] | casebit) == 'm') {
-			;
-		} else if ((sp[0] | casebit) == 'p' &&
-			   (sp[1] | casebit) == 'm') {
-			d->am_pm_bit = 1;
-		} else {
-			goto fucked;
-		}
-		sp += 2;
-		break;
-	}
-	case DT_SPFL_LIT_PERCENT:
-		if (*sp++ != '%') {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_LIT_TAB:
-		if (*sp++ != '\t') {
-			goto fucked;
-		}
-		break;
-	case DT_SPFL_LIT_NL:
-		if (*sp++ != '\n') {
-			goto fucked;
-		}
-		break;
-	}
-
-	/* check if components got set */
-	switch (s.spfl) {
-	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_HOUR:
-	case DT_SPFL_N_MIN:
-	case DT_SPFL_N_SEC:
-	case DT_SPFL_N_NANO:
-		d->component_set = 1;
-	default:
-		break;
-	}
-
-	/* assign end pointer */
-	if (ep) {
-		*ep = (char*)sp;
-	}
-	return 0;
-fucked:
-	if (ep) {
-		*ep = (char*)str;
-	}
-	return -1;
-}
-
-static size_t
-__strft_card(
-	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpt_s *d, struct dt_t_s UNUSED(that))
-{
-	size_t res = 0;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-	case DT_SPFL_N_TSTD:
-		if (LIKELY(bsz >= 8)) {
-			ui32tostr(buf + 0, bsz, d->h, 2);
-			buf[2] = ':';
-			ui32tostr(buf + 3, bsz, d->m, 2);
-			buf[5] = ':';
-			ui32tostr(buf + 6, bsz, d->s, 2);
-			res = 8;
-		}
-		break;
-	case DT_SPFL_N_HOUR:
-		if (!s.sc12 || (d->h >= 1 && d->h <= 12)) {
-			res = ui32tostr(buf, bsz, d->h, 2);
-		} else {
-			unsigned int h = d->h ? d->h - 12 : 12;
-			res = ui32tostr(buf, bsz, h, 2);
-		}
-		break;
-	case DT_SPFL_N_MIN:
-		res = ui32tostr(buf, bsz, d->m, 2);
-		break;
-	case DT_SPFL_N_SEC:
-		res = ui32tostr(buf, bsz, d->s, 2);
-		break;
-	case DT_SPFL_S_AMPM: {
-		unsigned int casebit = 0;
-
-		if (UNLIKELY(!s.cap)) {
-			casebit = 0x20;
-		}
-		if (d->h >= 12) {
-			buf[res++] = (char)('P' | casebit);
-			buf[res++] = (char)('M' | casebit);
-		} else {
-			buf[res++] = (char)('A' | casebit);
-			buf[res++] = (char)('M' | casebit);
-		}
-		break;
-	}
-	case DT_SPFL_N_NANO:
-		res = ui32tostr(buf, bsz, d->ns, 9);
-		break;
-
-	case DT_SPFL_LIT_PERCENT:
-		/* literal % */
-		buf[res++] = '%';
-		break;
-	case DT_SPFL_LIT_TAB:
-		/* literal tab */
-		buf[res++] = '\t';
-		break;
-	case DT_SPFL_LIT_NL:
-		/* literal \n */
-		buf[res++] = '\n';
-		break;
-	}
-	return res;
-}
-
 
 /* parser implementations */
 DEFUN struct dt_t_s
@@ -363,7 +150,7 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 	/* set the end pointer */
 	res = __guess_ttyp(d);
 out:
-	if (ep) {
+	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
 	return res;
