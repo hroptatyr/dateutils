@@ -56,6 +56,16 @@
 # include <byteswap.h>
 #endif	/* BYTESWAP_H */
 
+#if !defined be16toh
+# if defined betoh16
+#  define be16toh	betoh16
+# elif defined WORDS_BIGENDIAN
+#  define be16toh(x)	(x)
+# else
+#  define be16toh(x)	__bswap_16(x)
+# endif	 /* betoh16 */
+#endif	/* !be16toh */
+
 #if !defined le16toh
 # if defined letoh16
 #  define le16toh	letoh16
@@ -65,6 +75,22 @@
 #  define le16toh(x)	(x)
 # endif	 /* letoh16 */
 #endif	/* !le16toh */
+
+#if !defined htobe16
+# if defined WORDS_BIGENDIAN
+#  define htobe16(x)	(x)
+# else
+#  define htobe16(x)	__bswap_16(x)
+# endif
+#endif	/* !htobe16 */
+
+#if !defined htole16
+# if defined WORDS_BIGENDIAN
+#  define htole16(x)	__bswap_16(x)
+# else
+#  define htole16(x)	(x)
+# endif
+#endif	/* !htole16 */
 
 /* and even now we may be out of luck */
 #if !defined be32toh
@@ -102,6 +128,56 @@
 #  define htole32(x)	(x)
 # endif
 #endif	/* !htole32 */
+
+#if !defined be64toh
+# if defined betoh64
+#  define be64toh	betoh64
+# elif defined WORDS_BIGENDIAN
+#  define be64toh(x)	(x)
+# elif defined __bswap_64
+#  define be64toh(x)	__bswap_64(x)
+# else	/* FUCK */
+/* technically we could use the __bswap_32 and do it ourselves
+ * but I'm not in the mood */
+#  error cannot figure out how to convert big-endian uint64_t to host
+# endif
+#endif	/* !be64toh */
+
+#if !defined le64toh
+# if defined letoh64
+#  define le64toh	letoh64
+# elif defined WORDS_BIGENDIAN && defined __bswap_64
+#  define le64toh(x)	__bswap_64(x)
+# elif defined WORDS_BIGENDIAN	/* && !__bswap_64 */
+#  error cannot figure out how to convert little-endian uint64_t to host
+# else	/* we should be on little endian anyway */
+#  define le64toh(x)	(x)
+# endif
+#endif	/* !le64toh */
+
+#if !defined htobe64
+# if defined WORDS_BIGENDIAN
+#  define htobe64(x)	(x)
+# elif defined __bswap_64
+#  define htobe64(x)	__bswap_64(x)
+# else
+/* technically we could use the __bswap_32 and do it ourselves
+ * but I'm not in the mood */
+#  error cannot figure out how to convert host uint64_t to big-endian
+# endif
+#endif	/* !htobe64 */
+
+#if !defined htole64
+# if defined WORDS_BIGENDIAN && defined __bswap_64
+#  define htole64(x)	__bswap_64(x)
+# elif defined WORDS_BIGENDIAN
+/* technically we could use the __bswap_32 and do it ourselves
+ * but I'm not in the mood */
+#  error cannot figure out how to convert host uint64_t to little-endian
+# else
+#  define htole64(x)	(x)
+# endif
+#endif	/* !htole64 */
 
 /* we could technically include byteswap.h and to the swap ourselves
  * in the missing cases.  Instead we'll just leave it as is and wait
