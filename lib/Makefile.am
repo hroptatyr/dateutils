@@ -46,12 +46,14 @@ libdut_a_SOURCES += generics.h
 libdut_a_SOURCES += dt-core-tz-glue.h dt-core-tz-glue.c
 libdut_a_SOURCES += leapseconds.def
 
+if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
 ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 ltrcc_CPPFLAGS += -DDECLF=extern
 ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
 ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
+endif  ## BUILD_LTRCC
 
 EXTRA_DIST += leapseconds
 BUILT_SOURCES += leapseconds.def
@@ -61,7 +63,8 @@ AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
 am__v_LTRCC_0 = @echo "  LTRCC   " $@;
 
-leapseconds.def: leapseconds $(builddir)/ltrcc$(EXEEXT)
+leapseconds.def: leapseconds
+	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
 	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
 
 # 
