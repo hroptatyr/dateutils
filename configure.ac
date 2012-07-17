@@ -91,6 +91,8 @@ AM_CONDITIONAL([WITH_LEAP_SECONDS], [test "1" = "1"])
 ## trivial conditional so that the dexpr scanner and parser are built
 AM_CONDITIONAL([BUILD_DEXPR], [test "0" = "1"])
 
+AM_CONDITIONAL([BUILD_LTRCC], [test ! -f "${srcdir}/lib/leapseconds.def"])
+
 ## trivial, no special stuff needed
 dut_apps="dadd dconv ddiff dgrep dround dseq dtest"
 if test "${have_strptime}" = "yes"; then
