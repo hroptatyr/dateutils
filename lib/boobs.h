@@ -43,13 +43,15 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 /* *bsd except for openbsd */
-#if defined HAVE_ENDIAN_H
-# include <endian.h>
-#elif defined HAVE_SYS_ENDIAN_H
+#if defined HAVE_SYS_ENDIAN_H
 # include <sys/endian.h>
-#elif defined HAVE_BOOBS_H
+#elif defined HAVE_MACHINE_ENDIAN_H
+# include <machine/endian.h>
+#elif defined HAVE_ENDIAN_H
+# include <endian.h>
+#elif defined HAVE_BYTEORDER_H
 # include <byteorder.h>
-#endif	/* ENDIAN_H || SYS/ENDIAN_H || BOOBS_H */
+#endif	/* SYS/ENDIAN_H || MACHINE/ENDIAN_H || ENDIAN_H || BYTEORDER_H */
 
 /* check for byteswap to do the swapping ourselves if need be */
 #if defined HAVE_BYTESWAP_H
