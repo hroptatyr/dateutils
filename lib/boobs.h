@@ -138,6 +138,8 @@
 #  define be64toh(x)	(x)
 # elif defined __bswap_64
 #  define be64toh(x)	__bswap_64(x)
+# elif defined __swap64
+#  define be64toh(x)	__swap64(x)
 # else	/* FUCK */
 /* technically we could use the __bswap_32 and do it ourselves
  * but I'm not in the mood */
@@ -150,6 +152,8 @@
 #  define le64toh	letoh64
 # elif defined WORDS_BIGENDIAN && defined __bswap_64
 #  define le64toh(x)	__bswap_64(x)
+# elif defined WORDS_BIGENDIAN && defined __swap64
+#  define le64toh(x)	__swap64(x)
 # elif defined WORDS_BIGENDIAN	/* && !__bswap_64 */
 #  error cannot figure out how to convert little-endian uint64_t to host
 # else	/* we should be on little endian anyway */
@@ -162,6 +166,8 @@
 #  define htobe64(x)	(x)
 # elif defined __bswap_64
 #  define htobe64(x)	__bswap_64(x)
+# elif defined __swap64
+#  define htobe64(x)	__swap64(x)
 # else
 /* technically we could use the __bswap_32 and do it ourselves
  * but I'm not in the mood */
@@ -172,6 +178,8 @@
 #if !defined htole64
 # if defined WORDS_BIGENDIAN && defined __bswap_64
 #  define htole64(x)	__bswap_64(x)
+# elif defined WORDS_BIGENDIAN && defined __swap64
+#  define htole64(x)	__swap64(x)
 # elif defined WORDS_BIGENDIAN
 /* technically we could use the __bswap_32 and do it ourselves
  * but I'm not in the mood */
