@@ -100,16 +100,24 @@
 #  define be32toh	betoh32
 # elif defined WORDS_BIGENDIAN
 #  define be32toh(x)	(x)
-# else
+# elif defined __bswap_32
 #  define be32toh(x)	__bswap_32(x)
+# elif defined __swap32
+#  define be32toh(x)	__swap32(x)
+# else
+#  error cannot figure out how to convert big-endian uint32_t to host
 # endif
 #endif	/* !be32toh */
 
 #if !defined le32toh
 # if defined letoh32
 #  define le32toh	letoh32
-# elif defined WORDS_BIGENDIAN
+# elif defined WORDS_BIGENDIAN && defined __bswap_32
 #  define le32toh(x)	__bswap_32(x)
+# elif defined WORDS_BIGENDIAN && defined __swap32
+#  define le32toh(x)	__swap32(x)
+# elif defined WORDS_BIGENDIAN
+#  error cannot figure out how to convert little-endian uint32_t to host
 # else
 #  define le32toh(x)	(x)
 # endif	 /* letoh32 */
@@ -118,14 +126,22 @@
 #if !defined htobe32
 # if defined WORDS_BIGENDIAN
 #  define htobe32(x)	(x)
-# else
+# elif defined __bswap_32
 #  define htobe32(x)	__bswap_32(x)
+# elif defined __swap32
+#  define htobe32(x)	__swap32(x)
+# else
+#  error cannot figure out how to convert host uint32_t to big-endian
 # endif
 #endif	/* !be32toh */
 
 #if !defined htole32
-# if defined WORDS_BIGENDIAN
+# if defined WORDS_BIGENDIAN && defined __bswap_32
 #  define htole32(x)	__bswap_32(x)
+# elif defined WORDS_BIGENDIAN && defined __swap32
+#  define htole32(x)	__swap32(x)
+# elif defined WORDS_BIGENDIAN
+#  error cannot figure out how to convert host uint32_t to little-endian
 # else
 #  define htole32(x)	(x)
 # endif
