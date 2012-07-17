@@ -63,16 +63,24 @@
 #  define be16toh	betoh16
 # elif defined WORDS_BIGENDIAN
 #  define be16toh(x)	(x)
-# else
+# elif defined __bswap_16
 #  define be16toh(x)	__bswap_16(x)
+# elif defined __swap16
+#  define be16toh(x)	__swap16(x)
+# else
+#  error cannot figure out how to convert big-endian uint16_t to host
 # endif	 /* betoh16 */
 #endif	/* !be16toh */
 
 #if !defined le16toh
 # if defined letoh16
 #  define le16toh	letoh16
-# elif defined WORDS_BIGENDIAN
+# elif defined WORDS_BIGENDIAN && defined __bswap_16
 #  define le16toh(x)	__bswap_16(x)
+# elif defined WORDS_BIGENDIAN && defined __swap16
+#  define le16toh(x)	__swap16(x)
+# elif defined WORDS_BIGENDIAN
+#  error cannot figure out how to convert little-endian uint16_t to host
 # else
 #  define le16toh(x)	(x)
 # endif	 /* letoh16 */
@@ -81,14 +89,22 @@
 #if !defined htobe16
 # if defined WORDS_BIGENDIAN
 #  define htobe16(x)	(x)
-# else
+# elif defined __bswap_16
 #  define htobe16(x)	__bswap_16(x)
+# elif defined __swap16
+#  define htobe16(x)	__swap16(x)
+# else
+#  error cannot figure out how to convert host uint16_t to big-endian
 # endif
 #endif	/* !htobe16 */
 
 #if !defined htole16
-# if defined WORDS_BIGENDIAN
+# if defined WORDS_BIGENDIAN && defined __bswap_16
 #  define htole16(x)	__bswap_16(x)
+# elif defined WORDS_BIGENDIAN && defined __swap16
+#  define htole16(x)	__swap16(x)
+# elif defined WORDS_BIGENDIAN
+#  error cannot figure out how to convert host uint16_t to little-endian
 # else
 #  define htole16(x)	(x)
 # endif
