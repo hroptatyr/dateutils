@@ -311,7 +311,13 @@ dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
 		for i in []stds[]; do
 			SXE_CHECK_COMPILER_FLAGS([-std="${i}"], [
 				std="-std=${i}"
-				break
+				save_CC="${CC}"
+				CC="${CC} ${std}"
+				SXE_CHECK_ANON_STRUCTS
+				CC="${save_CC}"
+				if test "${sxe_cv_have_anon_structs}" = "yes"; then
+					break
+				fi
 			])
 		done
 
