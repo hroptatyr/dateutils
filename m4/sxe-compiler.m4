@@ -325,6 +325,9 @@ dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
 		AC_MSG_CHECKING([for preferred CC std])
 		AC_MSG_RESULT([${std}])
 		CC="${CC} ${std}"
+
+		## while we're at it, check for anon initialising too
+		SXE_CHECK_ANON_STRUCTS_INIT
 		;;
 	esac
 
