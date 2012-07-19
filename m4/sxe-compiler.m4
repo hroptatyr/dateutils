@@ -393,7 +393,8 @@ union __test_u {
 };
 	]], [[
 	/* nothing to do really*/
-	;
+	union __test_u foo;
+	foo.c = 0;
 	]])], [
 		sxe_cv_have_anon_structs_decl="yes"
 	], [
