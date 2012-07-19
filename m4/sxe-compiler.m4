@@ -366,7 +366,7 @@ union __test_u {
 
 	if test "${sxe_cv_have_anon_structs_init}" = "yes"; then
 		AC_DEFINE([HAVE_ANON_STRUCTS_INIT], [1], [dnl
-Whether c1x anon struct initialising works])
+Whether c11 anon struct initialising works])
 		$1
 		:
 	else
@@ -410,7 +410,7 @@ union __test_u {
 
 	if test "${sxe_cv_have_anon_structs_decl}" = "yes"; then
 		AC_DEFINE([HAVE_ANON_STRUCTS_DECL], [1], [dnl
-Whether c1x anon structs declaring works])
+Whether c11 anon structs declaring works])
 		$1
 		:
 	else
