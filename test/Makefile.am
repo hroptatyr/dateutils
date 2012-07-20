@@ -389,6 +389,8 @@ dt_tests += dtdiff.22.dt
 endif  ## WITH_LEAP_SECONDS
 dt_tests += dtdiff.23.dt
 dt_tests += dtdiff.24.dt
+dt_tests += dtdiff.25.dt
+dt_tests += dtdiff.26.dt
 
 dt_tests += dtround.1.dt
 dt_tests += dtround.2.dt
