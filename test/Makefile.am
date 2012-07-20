@@ -139,6 +139,8 @@ dt_tests += ddiff.7.dt
 dt_tests += ddiff.8.dt
 dt_tests += ddiff.9.dt
 dt_tests += ddiff.10.dt
+dt_tests += ddiff.11.dt
+dt_tests += ddiff.12.dt
 
 dt_tests += dgrep.1.dt
 dt_tests += dgrep.2.dt
