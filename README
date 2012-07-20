@@ -23,6 +23,7 @@ unix commands for reasons of intuition.  The only exception being
 + `dconv`               Convert dates or times between calendars
 + `ddiff`               Compute durations between dates or times
 + `dgrep`               Grep dates or times in input streams
++ `dround`              Round dates or times to "fuller" values
 + `dseq`                Generate sequences of dates or times
 + `dtest`               Compare dates or times
 
@@ -167,6 +168,19 @@ dadd
     =>
       2012-03-11T08:05:00
 
+  As of version v0.2.2 leap-second adjusted calculations are built-in.
+  Use the unit `rs` to denote "real" seconds:
+
+    dadd '2012-06-30 23:59:30' +30rs
+    =>
+      2012-06-30T23:59:60
+
+  as opposed to:
+
+    dadd '2012-06-30 23:59:30' +30s
+    =>
+      2012-07-01T00:00:00
+
 ddiff
 -----
   A tool to calculate the difference between two (or more) dates.  This
@@ -202,6 +216,14 @@ ddiff
     ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Hh %Ss'
     =>
       1d 1h 2580s
+
+  As of version v0.2.2 leap-second adjusted calculations can be made.
+  Use the format specifier `%rS` to get the elapsed time in "real"
+  seconds:
+
+    ddiff '2012-06-30 23:59:30' '2012-07-01 00:00:30' -f '%rS'
+    =>
+      61
 
 dgrep
 -----
