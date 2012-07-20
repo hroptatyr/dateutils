@@ -2600,7 +2600,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		/* fix up result in case it's bizsi, i.e. kick weekends */
 		if (tgttyp == DT_BIZSI) {
 			dt_dow_t wdb = __daisy_get_wday(tmp2);
-			res.bizsidur = __get_nbdays(res.daisy, wdb);
+			res.bizsidur = __get_nbdays(res.daisydur, wdb);
 		}
 		break;
 	}
