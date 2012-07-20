@@ -1,0 +1,17 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="'2012-05-30 14:00:00' '2012-05-18 17:00:00' -f '%db'"
+COMMENT="ordinary business day difference"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+-8b
+EOF
+
+## STDERR
+
+## dtdiff.24.dt ends here

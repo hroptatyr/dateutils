@@ -1,0 +1,45 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="2012-05-13 -f '%db'"
+COMMENT="mass-diffing business days"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXX")
+cat > "${stdin}" <<EOF
+2012-05-01
+2012-05-02
+2012-05-03
+2012-05-04
+2012-05-05
+2012-05-06
+2012-05-07
+2012-05-08
+2012-05-09
+2012-05-10
+2012-05-11
+2012-05-12
+2012-05-13
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+-8b
+-7b
+-6b
+-5b
+-5b
+-5b
+-4b
+-3b
+-2b
+-1b
+0b
+0b
+0b
+EOF
+
+## STDERR
+
+## ddiff.14.dt ends here
