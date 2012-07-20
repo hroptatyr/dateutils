@@ -60,6 +60,7 @@ unix commands for reasons of intuition.  The only exception being
 + `dconv`               Convert dates or times between calendars
 + `ddiff`               Compute durations between dates or times
 + `dgrep`               Grep dates or times in input streams
++ `dround`              Round dates or times to "fuller" values
 + `dseq`                Generate sequences of dates or times
 + `dtest`               Compare dates or times
 
