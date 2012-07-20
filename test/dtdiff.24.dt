@@ -9,7 +9,7 @@ COMMENT="ordinary business day difference"
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
--7b
+-8b
 EOF
 
 ## STDERR
