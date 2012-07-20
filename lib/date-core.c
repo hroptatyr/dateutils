@@ -466,8 +466,8 @@ __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 	}
 }
 
-static unsigned int
-__get_nwedays(unsigned int dur, dt_dow_t wd)
+static int
+__get_nwedays(int dur, dt_dow_t wd)
 {
 /* get the number of weekend days in a sequence of DUR days ending on WD
  * The minimum number of weekend days is simply 2 for every 7 days
@@ -489,31 +489,59 @@ __get_nwedays(unsigned int dur, dt_dow_t wd)
  * That means
  * (mod7 == 0) -> 0
  * (WD == SAT) -> 1
- * (mod7 - WD) > 1 -> 2
- * (mod7 - WD) > 0 -> 1
+ * (mod7 > WD + 1) -> 2
+ * (mod7 > WD) -> 1
  * 
- * and that's all the magic behind the following code */
-	unsigned int nss = (dur / GREG_DAYS_P_WEEK) * 2;
-	unsigned int mod = (dur % GREG_DAYS_P_WEEK);
+ * and that's all the magic behind the following code
+ *
+ * Note: If the number of weekend days in a sequence of DUR days starting on WD
+ * (or, equivalently, -DUR days ending on WD before the start day) is sought
+ * after, just use -DUR as input.
+ *
+ * Here's the table for the converse:
+ *    S M T W R F A
+ * 0  0 0 0 0 0 0 0
+ * 1  1 0 0 0 0 1 2
+ * 2  1 0 0 0 1 2 2
+ * 3  1 0 0 1 2 2 2
+ * 4  1 0 1 2 2 2 2
+ * 5  1 1 2 2 2 2 2
+ * 6  1 2 2 2 2 2 2
+ *
+ * mod7 == 0 -> 0
+ * wd == SUN -> 1
+ * (mod7 + wd >= 7) -> 2
+ * (mod7 + wd >= 6) -> 1  */
+	int nss = (dur / (signed)GREG_DAYS_P_WEEK) * 2;
+	int mod = (dur % (signed)GREG_DAYS_P_WEEK);
 
 	if (mod == 0) {
 		return nss;
-	} else if (wd == DT_SATURDAY) {
+	} else if (UNLIKELY(wd == DT_SATURDAY && dur > 0)) {
 		return nss + 1;
-	} else if (((signed)mod - (int)wd) > 1) {
+	} else if (UNLIKELY(wd == DT_SATURDAY && dur < 0)) {
+		return nss - 1;
+	} else if (mod > (int)wd + 1) {
 		return nss + 2;
-	} else if (((signed)mod - (int)wd) > 0) {
+	} else if (mod > (int)wd) {
 		return nss + 1;
+	} else if (mod + 7 <= (int)wd) {
+		return nss - 2;
+	} else if (mod + 6 <= (int)wd) {
+		return nss - 1;
 	}
 	return nss;
 }
 
-static unsigned int
-__get_nbdays(unsigned int dur, dt_dow_t wd)
+static int
+__get_nbdays(int dur, dt_dow_t wd)
 {
 /* get the number of business days in a sequence of DUR days ending on WD
  * which is simply the number of days minus the number of weekend-days */
-	return dur - __get_nwedays(dur, wd);
+	if (dur) {
+		return dur - __get_nwedays(dur, wd);
+	}
+	return 0;
 }
 
 DEFUN unsigned int
@@ -2572,7 +2600,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		/* fix up result in case it's bizsi, i.e. kick weekends */
 		if (tgttyp == DT_BIZSI) {
 			dt_dow_t wdb = __daisy_get_wday(tmp2);
-			res.bizsidur = __get_nbdays(res.daisy, wdb);
+			res.bizsidur = __get_nbdays(res.daisydur, wdb);
 		}
 		break;
 	}
