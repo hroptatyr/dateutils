@@ -226,17 +226,17 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		case DT_SPMOD_NORM:
 			d->w = strtoarri(
 				sp, &sp,
-				__abbr_wday, __nabbr_wday);
+				dut_abbr_wday, dut_nabbr_wday);
 			break;
 		case DT_SPMOD_LONG:
 			d->w = strtoarri(
 				sp, &sp,
-				__long_wday, __nlong_wday);
+				dut_long_wday, dut_nlong_wday);
 			break;
 		case DT_SPMOD_ABBR: {
 			const char *pos;
-			if ((pos = strchr(__abab_wday, *sp++)) != NULL) {
-				d->w = pos - __abab_wday;
+			if ((pos = strchr(dut_abab_wday, *sp++)) != NULL) {
+				d->w = pos - dut_abab_wday;
 			} else {
 				d->w = -1;
 			}
@@ -253,17 +253,17 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		case DT_SPMOD_NORM:
 			d->m = strtoarri(
 				sp, &sp,
-				__abbr_mon, __nabbr_mon);
+				dut_abbr_mon, dut_nabbr_mon);
 			break;
 		case DT_SPMOD_LONG:
 			d->m = strtoarri(
 				sp, &sp,
-				__long_mon, __nlong_mon);
+				dut_long_mon, dut_nlong_mon);
 			break;
 		case DT_SPMOD_ABBR: {
 			const char *pos;
-			if ((pos = strchr(__abab_mon, *sp++)) != NULL) {
-				d->m = pos - __abab_mon;
+			if ((pos = strchr(dut_abab_mon, *sp++)) != NULL) {
+				d->m = pos - dut_abab_mon;
 			} else {
 				d->m = -1U;
 			}
@@ -433,17 +433,17 @@ __strfd_card(
 		case DT_SPMOD_NORM:
 			res = arritostr(
 				buf, bsz, d->w,
-				__abbr_wday, __nabbr_wday);
+				dut_abbr_wday, dut_nabbr_wday);
 			break;
 		case DT_SPMOD_LONG:
 			res = arritostr(
 				buf, bsz, d->w,
-				__long_wday, __nlong_wday);
+				dut_long_wday, dut_nlong_wday);
 			break;
 		case DT_SPMOD_ABBR:
 			/* super abbrev'd wday */
-			if (d->w < __nabab_wday) {
-				buf[res++] = __abab_wday[d->w];
+			if (d->w < dut_nabab_wday) {
+				buf[res++] = dut_abab_wday[d->w];
 			}
 			break;
 		case DT_SPMOD_ILL:
@@ -456,17 +456,17 @@ __strfd_card(
 		case DT_SPMOD_NORM:
 			res = arritostr(
 				buf, bsz, d->m,
-				__abbr_mon, __nabbr_mon);
+				dut_abbr_mon, dut_nabbr_mon);
 			break;
 		case DT_SPMOD_LONG:
 			res = arritostr(
 				buf, bsz, d->m,
-				__long_mon, __nlong_mon);
+				dut_long_mon, dut_nlong_mon);
 			break;
 		case DT_SPMOD_ABBR:
 			/* super abbrev'd month */
-			if (d->m < __nabab_mon) {
-				buf[res++] = __abab_mon[d->m];
+			if (d->m < dut_nabab_mon) {
+				buf[res++] = dut_abab_mon[d->m];
 			}
 			break;
 		case DT_SPMOD_ILL:

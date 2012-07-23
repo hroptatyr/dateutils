@@ -184,18 +184,18 @@ rhs
 			case DT_SPMOD_NORM:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__abbr_wday, __nabbr_wday);
+					dut_abbr_wday, dut_nabbr_wday);
 				break;
 			case DT_SPMOD_LONG:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__long_wday, __nlong_wday);
+					dut_long_wday, dut_nlong_wday);
 				break;
 			case DT_SPMOD_ABBR: {
 				const char *pos;
 				if ((pos = strchr(
-					     __abab_wday, *$<sval>1)) != NULL) {
-					ckv->s = pos - __abab_wday;
+					     dut_abab_wday, *$<sval>1)) != NULL) {
+					ckv->s = pos - dut_abab_wday;
 					break;
 				}
 			}
@@ -210,18 +210,18 @@ rhs
 			case DT_SPMOD_NORM:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__abbr_mon, __nabbr_mon);
+					dut_abbr_mon, dut_nabbr_mon);
 				break;
 			case DT_SPMOD_LONG:
 				ckv->s = strtoarri(
 					$<sval>1, NULL,
-					__long_mon, __nlong_mon);
+					dut_long_mon, dut_nlong_mon);
 				break;
 			case DT_SPMOD_ABBR: {
 				const char *pos;
 				if ((pos = strchr(
-					     __abab_mon, *$<sval>1)) != NULL) {
-					ckv->s = pos - __abab_mon;
+					     dut_abab_mon, *$<sval>1)) != NULL) {
+					ckv->s = pos - dut_abab_mon;
 					break;
 				}
 			}
