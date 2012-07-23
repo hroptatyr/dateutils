@@ -973,7 +973,7 @@ __bizda_get_wday(dt_bizda_t that)
 	/* find first of the month first */
 	wd01 = __get_m01_wday(that.y, that.m);
 	b = that.bd;
-	magic = (b - 1 + (wd01 ?: 6) - 1);
+	magic = (b - 1 + (wd01 ? wd01 : 6) - 1);
 	/* now just add up bdays */
 	return (dt_dow_t)((magic % DUWW_BDAYS_P_WEEK) + DT_MONDAY);
 }
