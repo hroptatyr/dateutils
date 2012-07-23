@@ -216,7 +216,7 @@ error(int eno, const char *fmt, ...)
 	if (eno || errno) {
 		fputc(':', stderr);
 		fputc(' ', stderr);
-		fputs(strerror(eno ?: errno), stderr);
+		fputs(strerror(eno ? eno : errno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
