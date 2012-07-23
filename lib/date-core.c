@@ -156,7 +156,7 @@ static uint16_t __mon_yday[] = {
 };
 #endif
 
-DEFVAR const char *__long_wday[] = {
+static const char *__long_wday[] = {
 	"Sunday",
 	"Monday",
 	"Tuesday",
@@ -166,17 +166,20 @@ DEFVAR const char *__long_wday[] = {
 	"Saturday",
 	"Miracleday",
 };
-DEFVAR const size_t __nlong_wday = countof(__long_wday);
+DEFVAR const char **dut_long_wday = __long_wday;
+DEFVAR const size_t dut_nlong_wday = countof(__long_wday);
 
-DEFVAR const char *__abbr_wday[] = {
+static const char *__abbr_wday[] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
 };
-DEFVAR const size_t __nabbr_wday = countof(__abbr_wday);
+DEFVAR const char **dut_abbr_wday = __abbr_wday;
+DEFVAR const size_t dut_nabbr_wday = countof(__abbr_wday);
 
-DEFVAR const char __abab_wday[] = "SMTWRFAX";
-DEFVAR const size_t __nabab_wday = countof(__abab_wday);
+static const char __abab_wday[] = "SMTWRFAX";
+DEFVAR const char *dut_abab_wday = __abab_wday;
+DEFVAR const size_t dut_nabab_wday = countof(__abab_wday);
 
-DEFVAR const char *__long_mon[] = {
+static const char *__long_mon[] = {
 	"Miraculary",
 	"January",
 	"February",
@@ -191,9 +194,10 @@ DEFVAR const char *__long_mon[] = {
 	"November",
 	"December",
 };
-DEFVAR const size_t __nlong_mon = countof(__long_mon);
+DEFVAR const char **dut_long_mon = __long_mon;
+DEFVAR const size_t dut_nlong_mon = countof(__long_mon);
 
-DEFVAR const char *__abbr_mon[] = {
+static const char *__abbr_mon[] = {
 	"Mir",
 	"Jan",
 	"Feb",
@@ -208,11 +212,13 @@ DEFVAR const char *__abbr_mon[] = {
 	"Nov",
 	"Dec",
 };
-DEFVAR const size_t __nabbr_mon = countof(__abbr_mon);
+DEFVAR const char **dut_abbr_mon = __abbr_mon;
+DEFVAR const size_t dut_nabbr_mon = countof(__abbr_mon);
 
 /* futures expiry codes, how convenient */
-DEFVAR const char __abab_mon[] = "_FGHJKMNQUVXZ";
-DEFVAR const size_t __nabab_mon = countof(__abab_mon);
+static const char __abab_mon[] = "_FGHJKMNQUVXZ";
+DEFVAR const char *dut_abab_mon = __abab_mon;
+DEFVAR const size_t dut_nabab_mon = countof(__abab_mon);
 
 /* bizda definitions, reference dates */
 static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
@@ -967,7 +973,7 @@ __bizda_get_wday(dt_bizda_t that)
 	/* find first of the month first */
 	wd01 = __get_m01_wday(that.y, that.m);
 	b = that.bd;
-	magic = (b - 1 + (wd01 ?: 6) - 1);
+	magic = (b - 1 + (wd01 ? wd01 : 6) - 1);
 	/* now just add up bdays */
 	return (dt_dow_t)((magic % DUWW_BDAYS_P_WEEK) + DT_MONDAY);
 }
