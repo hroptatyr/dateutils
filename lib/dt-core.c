@@ -732,6 +732,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		break;
 	case DT_YCW:
 		d.sd.y = that.d.ycw.y;
+		d.sd.m = 0;
 		d.sd.c = that.d.ycw.c;
 		d.sd.w = that.d.ycw.w;
 		if (fmt == NULL && dt_sandwich_p(that)) {

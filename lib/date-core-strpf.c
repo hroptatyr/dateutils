@@ -403,9 +403,16 @@ __strfd_card(
 			res = ui32tostr(buf, bsz, d->y, 2);
 		}
 		break;
-	case DT_SPFL_N_MON:
-		res = ui32tostr(buf, bsz, d->m, 2);
+	case DT_SPFL_N_MON: {
+		unsigned int m = d->m;
+
+		if (UNLIKELY(!m)) {
+			/* monthless calendars, the greatest joy */
+			m = dt_get_mon(that);
+		}
+		res = ui32tostr(buf, bsz, m, 2);
 		break;
+	}
 	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode check? */
 		if (LIKELY(!s.bizda)) {
