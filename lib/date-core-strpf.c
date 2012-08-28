@@ -530,6 +530,9 @@ __strfd_card(
 		case DT_YMCW:
 			yw = __ymcw_get_yday(that.ymcw);
 			break;
+		case DT_YCW:
+			yw = that.ycw.c;
+			break;
 		default:
 			yw = 0;
 			break;
