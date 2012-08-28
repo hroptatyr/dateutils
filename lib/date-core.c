@@ -1969,6 +1969,7 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char ycw_dflt[] = "%Y-%C-%w";
 static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
@@ -1986,6 +1987,8 @@ __trans_dfmt(const char **fmt)
 		*fmt = ymd_dflt;
 	} else if (strcasecmp(*fmt, "ymcw") == 0) {
 		*fmt = ymcw_dflt;
+	} else if (strcasecmp(*fmt, "ycw") == 0) {
+		*fmt = ycw_dflt;
 	} else if (strcasecmp(*fmt, "bizda") == 0) {
 		*fmt = bizda_dflt;
 	} else if (strcasecmp(*fmt, "daisy") == 0) {
@@ -2018,7 +2021,7 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !d.flags.bizda)) {
+	if (LIKELY(d.y && d.c == 0 && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
@@ -2038,6 +2041,11 @@ __guess_dtyp(struct strpd_s d)
 			res.ymd.d = r.d;
 		}
 #endif	/* !WITH_FAST_ARITH */
+	} else if (d.y && d.m == 0 && !d.flags.bizda) {
+		res.typ = DT_YCW;
+		res.ycw.y = d.y;
+		res.ycw.c = d.c;
+		res.ycw.w = d.w;
 	} else if (d.y && d.c && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
