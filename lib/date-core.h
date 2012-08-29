@@ -73,6 +73,7 @@ typedef enum {
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
+	DT_YCW,
 	DT_NDTYP,
 } dt_dtyp_t;
 
@@ -122,6 +123,44 @@ typedef union {
 #endif	/* WORDS_BIGENDIAN */
 	};
 } dt_ymcw_t;
+
+/** ycws
+ * ycws are year-count-weekday bcd coded.
+ * By coincidence ycw's y and w slots are accessible through the ymcw bit field,
+ * whether that's useful or not will occur to us later and then we might change
+ * the layout. */
+typedef union {
+	uint32_t u;
+	struct {
+#define YCW_ABSWK_CNT	(0)
+#define YCW_MONWK_CNT	(1)
+#define YCW_SUNWK_CNT	(2)
+#define YCW_ISOWK_CNT	(3)
+#if defined WORDS_BIGENDIAN
+		/* 10 bits left */
+		unsigned int:10;
+		unsigned int y:12;
+		unsigned int c:7;
+		unsigned int w:3;
+#else  /* !WORDS_BIGENDIAN */
+		unsigned int w:3;
+		unsigned int c:7;
+		unsigned int y:12;
+		/* 10 bits left */
+		unsigned int:10;
+#endif	/* WORDS_BIGENDIAN */
+	};
+} dt_ycw_t;
+
+typedef union {
+	uint16_t u;
+	uint32_t bs:16;
+	struct {
+		/* counting convention */
+		unsigned int cc:2;
+		unsigned int:14;
+	};
+} __attribute__((__packed__)) dt_ycw_param_t;
 
 /** daysi
  * daisys are days since X, 1917-01-01 here */
@@ -198,6 +237,7 @@ struct dt_d_s {
 		uint32_t u;
 		dt_ymd_t ymd;
 		dt_ymcw_t ymcw;
+		dt_ycw_t ycw;
 		dt_daisy_t daisy;
 		dt_daisy_t bizsi;
 		/* all bizdas mixed into this */
@@ -378,6 +418,10 @@ DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
 DECLF int __ymd_get_wcnt_iso(dt_ymd_t d);
 
 /**
+ * Like __ymd_get_wcnt() but disregard what day the year started with. */
+DECLF int __ymd_get_wcnt_abs(dt_ymd_t d);
+
+/**
  * Return the N-th W-day in the year of THAT.
  * This is equivalent with 8601's Y-W-D calendar where W is the week
  * of the year and D the day in the week */
@@ -486,6 +530,24 @@ __make_bizda_param(unsigned int ab, unsigned int ref)
 	p.ref = ref;
 #endif	/* __C1X */
 	return p;
+}
+
+static inline dt_ycw_param_t
+__get_ycw_param(struct dt_d_s that)
+{
+	return (dt_ycw_param_t){.bs = that.param};
+}
+
+static inline dt_ycw_param_t
+__make_ycw_param(unsigned int cc)
+{
+#if defined __C1X
+	return (dt_ycw_param_t){.cc = cc};
+#else  /* !__C1X */
+	dt_ycw_param_t p;
+	p.cc = cc;
+	return p;
+#endif	/* __C1X */
 }
 
 
