@@ -386,7 +386,13 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		d->d = d->d ? d->d : (unsigned int)dt_get_mday(that);
+		if (UNLIKELY(!d->d && !d->m)) {
+			struct __md_s x = dt_get_md(that);
+			d->m = x.m;
+			d->d = x.d;
+		} else if (UNLIKELY(!d->d)) {
+			d->d = dt_get_mday(that);
+		}
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
 			buf[4] = '-';
@@ -403,16 +409,16 @@ __strfd_card(
 			res = ui32tostr(buf, bsz, d->y, 2);
 		}
 		break;
-	case DT_SPFL_N_MON: {
-		unsigned int m = d->m;
-
-		if (UNLIKELY(!m)) {
-			/* monthless calendars, the greatest joy */
-			m = dt_get_mon(that);
+	case DT_SPFL_N_MON:
+		if (UNLIKELY(!d->d && !d->m)) {
+			struct __md_s x = dt_get_md(that);
+			d->m = x.m;
+			d->d = x.d;
+		} else if (UNLIKELY(!d->d)) {
+			d->m = dt_get_mon(that);
 		}
-		res = ui32tostr(buf, bsz, m, 2);
+		res = ui32tostr(buf, bsz, d->m, 2);
 		break;
-	}
 	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode check? */
 		if (LIKELY(!s.bizda)) {
