@@ -437,7 +437,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_WCNT_MON:
 		/* ymcw mode check? */
-		d->c = d->c ? d->c : (unsigned int)dt_get_count(that);
+		d->c = d->c ? d->c : (unsigned int)dt_get_wcnt_mon(that);
 		res = ui32tostr(buf, bsz, d->c, 2);
 		break;
 	case DT_SPFL_S_WDAY:
@@ -589,7 +589,7 @@ __strfd_rom(
 		res = ui32tostrrom(buf, bsz, d->d);
 		break;
 	case DT_SPFL_N_WCNT_MON:
-		d->c = d->c ? d->c : (unsigned int)dt_get_count(that);
+		d->c = d->c ? d->c : (unsigned int)dt_get_wcnt_mon(that);
 		res = ui32tostrrom(buf, bsz, d->c);
 		break;
 	}

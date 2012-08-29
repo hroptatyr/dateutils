@@ -1410,7 +1410,7 @@ dt_get_md(struct dt_d_s this)
 
 /* too exotic to be public */
 static int
-dt_get_count(struct dt_d_s that)
+dt_get_wcnt_mon(struct dt_d_s that)
 {
 	if (LIKELY(that.typ == DT_YMCW)) {
 		return that.ymcw.c;
