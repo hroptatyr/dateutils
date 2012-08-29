@@ -2257,6 +2257,14 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
+	case DT_YCW:
+		d.y = that.ycw.y;
+		d.c = that.ycw.c;
+		d.w = that.ycw.w;
+		if (fmt == NULL) {
+			fmt = ycw_dflt;
+		}
+		break;
 	default:
 	case DT_DUNK:
 		bp = buf;
