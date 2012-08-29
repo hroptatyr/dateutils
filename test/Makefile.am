@@ -89,6 +89,14 @@ dt_tests += dconv.47.dt
 dt_tests += dconv.48.dt
 dt_tests += dconv.49.dt
 dt_tests += dconv.50.dt
+dt_tests += dconv.51.dt
+dt_tests += dconv.52.dt
+dt_tests += dconv.53.dt
+dt_tests += dconv.54.dt
+dt_tests += dconv.55.dt
+dt_tests += dconv.56.dt
+dt_tests += dconv.57.dt
+dt_tests += dconv.58.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
