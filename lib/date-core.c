@@ -796,6 +796,28 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
+static unsigned int
+__ycw_get_yday(dt_ycw_t d, dt_ycw_param_t p)
+{
+	dt_dow_t j01w = __get_jan01_wday(d.y);
+	unsigned int yday;
+
+	switch (p.cc) {
+	case YCW_ABS_CNT:
+	case YCW_MONWK_CNT:
+		yday = 7 * (d.c - (d.w >= j01w)) + d.w - j01w + 1;
+		break;
+	case YCW_SUNWK_CNT:
+		yday = 7 * (d.c - (j01w >= DT_MONDAY)) + d.w - j01w + 1;
+		break;
+	case YCW_ISOWK_CNT:
+	default:
+		yday = 0;
+		break;
+	}
+	return yday;
+}
+
 DEFUN int
 __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
 {
