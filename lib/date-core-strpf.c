@@ -432,14 +432,22 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
-		d->w = d->w ? d->w : dt_get_wday(that);
+		if (!d->w) {
+			d->w = dt_get_wday(that);
+		}
 		res = ui32tostr(buf, bsz, d->w, 2);
 		break;
-	case DT_SPFL_N_WCNT_MON:
+	case DT_SPFL_N_WCNT_MON: {
+		unsigned int c = d->c;
+
 		/* ymcw mode check? */
-		d->c = d->c ? d->c : (unsigned int)dt_get_wcnt_mon(that);
-		res = ui32tostr(buf, bsz, d->c, 2);
+		if (!c || that.typ == DT_YCW) {
+			/* don't store it */
+			c = (unsigned int)dt_get_wcnt_mon(that);
+		}
+		res = ui32tostr(buf, bsz, c, 2);
 		break;
+	}
 	case DT_SPFL_S_WDAY:
 		/* get the weekday in ymd mode!! */
 		d->w = d->w ? d->w : dt_get_wday(that);
@@ -588,10 +596,16 @@ __strfd_rom(
 	case DT_SPFL_N_DCNT_MON:
 		res = ui32tostrrom(buf, bsz, d->d);
 		break;
-	case DT_SPFL_N_WCNT_MON:
-		d->c = d->c ? d->c : (unsigned int)dt_get_wcnt_mon(that);
-		res = ui32tostrrom(buf, bsz, d->c);
+	case DT_SPFL_N_WCNT_MON: {
+		unsigned int c = d->c;
+
+		if (!c) {
+			/* don't store the result */
+			c = (unsigned int)dt_get_wcnt_mon(that);
+		}
+		res = ui32tostrrom(buf, bsz, c);
 		break;
+	}
 	}
 	return res;
 }
