@@ -1415,6 +1415,8 @@ dt_get_yday(struct dt_d_s that)
 		return __daisy_get_yday(that.daisy);
 	case DT_BIZDA:
 		return __bizda_get_yday(that.bizda, __get_bizda_param(that));
+	case DT_YCW:
+		return __ycw_get_yday(that.ycw, __get_ycw_param(that));
 	default:
 	case DT_DUNK:
 		return 0;
