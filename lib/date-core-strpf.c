@@ -542,10 +542,14 @@ __strfd_card(
 		/* %C/%W week count */
 		switch (that.typ) {
 		case DT_YMD:
-			if (s.cnt_weeks_iso) {
+			if (s.isowk_cnt) {
 				yw = __ymd_get_wcnt_iso(that.ymd);
+			} else if (s.abswk_cnt) {
+				yw = __ymd_get_wcnt_abs(that.ymd);
 			} else {
-				yw = __ymd_get_wcnt(that.ymd, s.cnt_wdays_from);
+				/* using monwk_cnt is a minor trick
+				 * from = 1 = Mon or 0 = Sun */
+				yw = __ymd_get_wcnt(that.ymd, s.monwk_cnt);
 			}
 			break;
 		case DT_YMCW:

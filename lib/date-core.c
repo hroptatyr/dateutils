@@ -844,6 +844,17 @@ __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
 }
 
 DEFUN int
+__ymd_get_wcnt_abs(dt_ymd_t d)
+{
+/* absolutely count the n-th occurrence of WD regardless what WD
+ * the year started with */
+	int yd = __ymd_get_yday(d);
+
+	/* and now express yd as 7k + n relative to jan01 */
+	return (yd - 1) / 7 + 1;
+}
+
+DEFUN int
 __ymd_get_wcnt_iso(dt_ymd_t d)
 {
 /* like __ymd_get_wcnt() but for iso week conventions
