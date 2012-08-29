@@ -132,6 +132,10 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
+#define YCW_ABS_CNT	(0)
+#define YCW_MONWK_CNT	(1)
+#define YCW_SUNWK_CNT	(2)
+#define YCW_ISOWK_CNT	(3)
 #if defined WORDS_BIGENDIAN
 		/* 10 bits left */
 		unsigned int:10;
@@ -147,6 +151,16 @@ typedef union {
 #endif	/* WORDS_BIGENDIAN */
 	};
 } dt_ycw_t;
+
+typedef union {
+	uint16_t u;
+	uint32_t bs:16;
+	struct {
+		/* counting convention */
+		unsigned int cc:2;
+		unsigned int:14;
+	};
+} __attribute__((__packed__)) dt_ycw_param_t;
 
 /** daysi
  * daisys are days since X, 1917-01-01 here */
@@ -512,6 +526,24 @@ __make_bizda_param(unsigned int ab, unsigned int ref)
 	p.ref = ref;
 #endif	/* __C1X */
 	return p;
+}
+
+static inline dt_ycw_param_t
+__get_ycw_param(struct dt_d_s that)
+{
+	return (dt_ycw_param_t){.bs = that.param};
+}
+
+static inline dt_ycw_param_t
+__make_ycw_param(unsigned int cc)
+{
+#if defined __C1X
+	return (dt_ycw_param_t){.cc = cc};
+#else  /* !__C1X */
+	dt_ycw_param_t p;
+	p.cc = cc;
+	return p;
+#endif	/* __C1X */
 }
 
 
