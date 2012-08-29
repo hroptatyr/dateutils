@@ -667,7 +667,7 @@ __yday_get_md(unsigned int year, unsigned int doy)
 		d = doy - (m++ * 32 - 19 + cake);
 	}
 yay:
-	return (__extension__(struct __md_s){.m = m, .d = d});
+	return (struct __md_s){.m = m, .d = d};
 #undef GET_REM
 }
 
@@ -1207,7 +1207,7 @@ __daisy_to_ymd(dt_daisy_t that)
 	doy = that - j00;
 	md = __yday_get_md(y, doy);
 #if defined __C1X
-	return (__extension__(dt_ymd_t){.y = y, .m = md.m, .d = md.d});
+	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
 #else  /* !__C1X */
 	{
 		dt_ymd_t res;
