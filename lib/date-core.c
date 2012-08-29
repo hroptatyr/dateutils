@@ -1312,8 +1312,6 @@ dt_get_mon(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
-	case DT_YCW:
-		return 0;
 	default:
 	case DT_DUNK:
 		return 0;
@@ -2044,11 +2042,13 @@ __guess_dtyp(struct strpd_s d)
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.m == 0 && !d.flags.bizda) {
-		res.typ = DT_YCW;
-		res.ycw.y = d.y;
-		res.ycw.c = d.c;
-		res.ycw.w = d.w;
-	} else if (d.y && d.c && !d.flags.bizda) {
+		/* we allow d.c to be 0 here */
+		res.typ = DT_YMCW;
+		res.ymcw.y = d.y;
+		res.ymcw.m = 0;
+		res.ymcw.c = 0;
+		res.ymcw.w = d.w;
+	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;

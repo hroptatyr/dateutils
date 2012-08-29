@@ -73,7 +73,6 @@ typedef enum {
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
-	DT_YCW,
 	DT_NDTYP,
 } dt_dtyp_t;
 
@@ -123,30 +122,6 @@ typedef union {
 #endif	/* WORDS_BIGENDIAN */
 	};
 } dt_ymcw_t;
-
-/** ycws
- * ycws are year-count-weekday bcd coded.
- * By coincidence ycw's y and w slots are accessible through the ymcw bit field,
- * whether that's useful or not will occur to us later and then we might change
- * the layout. */
-typedef union {
-	uint32_t u;
-	struct {
-#if defined WORDS_BIGENDIAN
-		/* 10 bits left */
-		unsigned int:10;
-		unsigned int y:12;
-		unsigned int c:7;
-		unsigned int w:3;
-#else  /* !WORDS_BIGENDIAN */
-		unsigned int w:3;
-		unsigned int c:7;
-		unsigned int y:12;
-		/* 10 bits left */
-		unsigned int:10;
-#endif	/* WORDS_BIGENDIAN */
-	};
-} dt_ycw_t;
 
 /** daysi
  * daisys are days since X, 1917-01-01 here */
@@ -223,7 +198,6 @@ struct dt_d_s {
 		uint32_t u;
 		dt_ymd_t ymd;
 		dt_ymcw_t ymcw;
-		dt_ycw_t ycw;
 		dt_daisy_t daisy;
 		dt_daisy_t bizsi;
 		/* all bizdas mixed into this */
