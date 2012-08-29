@@ -418,6 +418,10 @@ DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
 DECLF int __ymd_get_wcnt_iso(dt_ymd_t d);
 
 /**
+ * Like __ymd_get_wcnt() but disregard what day the year started with. */
+DECLF int __ymd_get_wcnt_abs(dt_ymd_t d);
+
+/**
  * Return the N-th W-day in the year of THAT.
  * This is equivalent with 8601's Y-W-D calendar where W is the week
  * of the year and D the day in the week */
