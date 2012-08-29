@@ -667,7 +667,7 @@ __yday_get_md(unsigned int year, unsigned int doy)
 		d = doy - (m++ * 32 - 19 + cake);
 	}
 yay:
-	return (__extension__(struct __md_s){.m = m, .d = d});
+	return (struct __md_s){.m = m, .d = d};
 #undef GET_REM
 }
 
@@ -794,6 +794,38 @@ __ymcw_get_mday(dt_ymcw_t that)
 		res -= GREG_DAYS_P_WEEK;
 	}
 	return res;
+}
+
+static unsigned int
+__ycw_get_yday(dt_ycw_t d, dt_ycw_param_t p)
+{
+	dt_dow_t j01w = __get_jan01_wday(d.y);
+	unsigned int yday;
+
+	switch (p.cc) {
+	case YCW_ABSWK_CNT:
+	case YCW_MONWK_CNT:
+		yday = 7 * (d.c - (d.w >= j01w)) + d.w - j01w + 1;
+		break;
+	case YCW_SUNWK_CNT:
+		yday = 7 * (d.c - (j01w >= DT_MONDAY)) + d.w - j01w + 1;
+		break;
+	case YCW_ISOWK_CNT:
+	default:
+		yday = 0;
+		break;
+	}
+	return yday;
+}
+
+static unsigned int
+__ycw_get_wcnt_mon(dt_ycw_t d, dt_ycw_param_t p)
+{
+/* given a YCW with week-count within the year (wrt week-count conventions in p)
+ * return the week-count within the month (ABSWK_CNT convention) */
+	unsigned int yd = __ycw_get_yday(d, p);
+	struct __md_s x = __yday_get_md(d.y, yd);
+	return (x.d - 1) / 7 + 1;
 }
 
 DEFUN int
@@ -1185,7 +1217,7 @@ __daisy_to_ymd(dt_daisy_t that)
 	doy = that - j00;
 	md = __yday_get_md(y, doy);
 #if defined __C1X
-	return (__extension__(dt_ymd_t){.y = y, .m = md.m, .d = md.d});
+	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
 #else  /* !__C1X */
 	{
 		dt_ymd_t res;
@@ -1312,6 +1344,8 @@ dt_get_mon(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
+	case DT_YCW:
+		return 0;
 	default:
 	case DT_DUNK:
 		return 0;
@@ -1357,9 +1391,36 @@ dt_get_mday(struct dt_d_s that)
 	}
 }
 
+static struct __md_s
+dt_get_md(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return (struct __md_s){.m = this.ymd.m, .d = this.ymd.d};
+	case DT_YMCW:
+		return (struct __md_s){.m = this.ymcw.m,
+				.d = __ymcw_get_mday(this.ymcw)};
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		return (struct __md_s){.m = tmp.m, .d = tmp.d};
+	}
+	case DT_BIZDA:
+		return (struct __md_s){.m = this.bizda.m,
+				.d = __bizda_get_mday(this.bizda)};
+	case DT_YCW: {
+		dt_ycw_param_t p = __get_ycw_param(this);
+		unsigned int yd = __ycw_get_yday(this.ycw, p);
+		return __yday_get_md(this.ycw.y, yd);
+	}
+	default:
+	case DT_DUNK:
+		return (struct __md_s){.m = 0, .d = 0};
+	}
+}
+
 /* too exotic to be public */
 static int
-dt_get_count(struct dt_d_s that)
+dt_get_wcnt_mon(struct dt_d_s that)
 {
 	if (LIKELY(that.typ == DT_YMCW)) {
 		return that.ymcw.c;
@@ -1373,6 +1434,8 @@ dt_get_count(struct dt_d_s that)
 		return __bizda_get_count(that.bizda);
 	case DT_YMCW:
 		/* to shut gcc up */
+	case DT_YCW:
+		return __ycw_get_wcnt_mon(that.ycw, __get_ycw_param(that));
 	default:
 	case DT_DUNK:
 		return 0;
@@ -1391,6 +1454,8 @@ dt_get_yday(struct dt_d_s that)
 		return __daisy_get_yday(that.daisy);
 	case DT_BIZDA:
 		return __bizda_get_yday(that.bizda, __get_bizda_param(that));
+	case DT_YCW:
+		return __ycw_get_yday(that.ycw, __get_ycw_param(that));
 	default:
 	case DT_DUNK:
 		return 0;
@@ -1969,6 +2034,7 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
+static const char ycw_dflt[] = "%Y-%C-%w";
 static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
@@ -1986,6 +2052,8 @@ __trans_dfmt(const char **fmt)
 		*fmt = ymd_dflt;
 	} else if (strcasecmp(*fmt, "ymcw") == 0) {
 		*fmt = ymcw_dflt;
+	} else if (strcasecmp(*fmt, "ycw") == 0) {
+		*fmt = ycw_dflt;
 	} else if (strcasecmp(*fmt, "bizda") == 0) {
 		*fmt = bizda_dflt;
 	} else if (strcasecmp(*fmt, "daisy") == 0) {
@@ -2018,7 +2086,7 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	if (LIKELY(d.y && (d.m == 0 || d.c == 0) && !d.flags.bizda)) {
+	if (LIKELY(d.y && d.c == 0 && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
@@ -2038,7 +2106,12 @@ __guess_dtyp(struct strpd_s d)
 			res.ymd.d = r.d;
 		}
 #endif	/* !WITH_FAST_ARITH */
-	} else if (d.y && d.c && !d.flags.bizda) {
+	} else if (d.y && d.m == 0 && !d.flags.bizda) {
+		res.typ = DT_YCW;
+		res.ycw.y = d.y;
+		res.ycw.c = d.c;
+		res.ycw.w = d.w;
+	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;
@@ -2196,6 +2269,14 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
+	case DT_YCW:
+		d.y = that.ycw.y;
+		d.c = that.ycw.c;
+		d.w = that.ycw.w;
+		if (fmt == NULL) {
+			fmt = ycw_dflt;
+		}
+		break;
 	default:
 	case DT_DUNK:
 		bp = buf;
