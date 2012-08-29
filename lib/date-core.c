@@ -818,6 +818,16 @@ __ycw_get_yday(dt_ycw_t d, dt_ycw_param_t p)
 	return yday;
 }
 
+static unsigned int
+__ycw_get_wcnt_mon(dt_ycw_t d, dt_ycw_param_t p)
+{
+/* given a YCW with week-count within the year (wrt week-count conventions in p)
+ * return the week-count within the month (ABSWK_CNT convention) */
+	unsigned int yd = __ycw_get_yday(d, p);
+	struct __md_s x = __yday_get_md(d.y, yd);
+	return (x.d - 1) / 7 + 1;
+}
+
 DEFUN int
 __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
 {
@@ -1424,6 +1434,8 @@ dt_get_wcnt_mon(struct dt_d_s that)
 		return __bizda_get_count(that.bizda);
 	case DT_YMCW:
 		/* to shut gcc up */
+	case DT_YCW:
+		return __ycw_get_wcnt_mon(that.ycw, __get_ycw_param(that));
 	default:
 	case DT_DUNK:
 		return 0;
