@@ -132,7 +132,7 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-#define YCW_ABS_CNT	(0)
+#define YCW_ABSWK_CNT	(0)
 #define YCW_MONWK_CNT	(1)
 #define YCW_SUNWK_CNT	(2)
 #define YCW_ISOWK_CNT	(3)

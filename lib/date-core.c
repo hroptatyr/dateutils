@@ -803,7 +803,7 @@ __ycw_get_yday(dt_ycw_t d, dt_ycw_param_t p)
 	unsigned int yday;
 
 	switch (p.cc) {
-	case YCW_ABS_CNT:
+	case YCW_ABSWK_CNT:
 	case YCW_MONWK_CNT:
 		yday = 7 * (d.c - (d.w >= j01w)) + d.w - j01w + 1;
 		break;
