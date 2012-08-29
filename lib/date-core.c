@@ -2099,7 +2099,7 @@ __guess_dtyp(struct strpd_s d)
 		res.ycw.y = d.y;
 		res.ycw.c = d.c;
 		res.ycw.w = d.w;
-	} else if (d.y && d.c && !d.flags.bizda) {
+	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;
