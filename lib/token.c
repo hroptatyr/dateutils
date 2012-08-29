@@ -92,19 +92,18 @@ next:
 		res.spfl = DT_SPFL_N_WCNT_MON;
 		break;
 	case 'U':
-		res.cnt_weeks_iso = 0;
-		res.cnt_wdays_from = 0;
+		res.sunwk_cnt = 1;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'V':
-		res.cnt_weeks_iso = 1;
-		res.cnt_wdays_from = 1;
+		res.isowk_cnt = 1;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'C':
+		res.abswk_cnt = 1;
+		res.spfl = DT_SPFL_N_WCNT_YEAR;
 	case 'W':
-		res.cnt_weeks_iso = 0;
-		res.cnt_wdays_from = 1;
+		res.monwk_cnt = 1;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'A':
