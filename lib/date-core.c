@@ -1381,6 +1381,33 @@ dt_get_mday(struct dt_d_s that)
 	}
 }
 
+static struct __md_s
+dt_get_md(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YMD:
+		return (struct __md_s){.m = this.ymd.m, .d = this.ymd.d};
+	case DT_YMCW:
+		return (struct __md_s){.m = this.ymcw.m,
+				.d = __ymcw_get_mday(this.ymcw)};
+	case DT_DAISY: {
+		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
+		return (struct __md_s){.m = tmp.m, .d = tmp.d};
+	}
+	case DT_BIZDA:
+		return (struct __md_s){.m = this.bizda.m,
+				.d = __bizda_get_mday(this.bizda)};
+	case DT_YCW: {
+		dt_ycw_param_t p = __get_ycw_param(this);
+		unsigned int yd = __ycw_get_yday(this.ycw, p);
+		return __yday_get_md(this.ycw.y, yd);
+	}
+	default:
+	case DT_DUNK:
+		return (struct __md_s){.m = 0, .d = 0};
+	}
+}
+
 /* too exotic to be public */
 static int
 dt_get_count(struct dt_d_s that)
