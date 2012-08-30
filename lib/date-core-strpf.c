@@ -442,7 +442,7 @@ __strfd_card(
 		unsigned int c = d->c;
 
 		/* ymcw mode check? */
-		if (!c || that.typ == DT_YCW) {
+		if (!c || that.typ == DT_YWD) {
 			/* don't store it */
 			c = (unsigned int)dt_get_wcnt_mon(that);
 		}
