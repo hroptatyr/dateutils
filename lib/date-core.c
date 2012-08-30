@@ -1453,6 +1453,44 @@ dt_get_wcnt_mon(struct dt_d_s that)
 	}
 }
 
+static int
+dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
+{
+	int res;
+
+	switch (this.typ) {
+	case DT_YMD:
+		switch (wkcnt_convention) {
+		default:
+		case YCW_ABSWK_CNT:
+			res = __ymd_get_wcnt_abs(this.ymd);
+			break;
+		case YCW_ISOWK_CNT:
+			res = __ymd_get_wcnt_iso(this.ymd);
+			break;
+		case YCW_MONWK_CNT:
+		case YCW_SUNWK_CNT: {
+			/* using monwk_cnt is a minor trick
+			 * from = 1 = Mon or 0 = Sun */
+			int from = wkcnt_convention == YCW_MONWK_CNT;
+			res = __ymd_get_wcnt(this.ymd, from);
+			break;
+		}
+		}
+		break;
+	case DT_YMCW:
+		res = __ymcw_get_yday(this.ymcw);
+		break;
+	case DT_YCW:
+		res = this.ycw.c;
+		break;
+	default:
+		res = 0;
+		break;
+	}
+	return res;
+}
+
 DEFUN unsigned int
 dt_get_yday(struct dt_d_s that)
 {

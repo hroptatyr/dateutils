@@ -538,38 +538,7 @@ __strfd_card(
 		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR: {
-		int yw;
-		/* %C/%W week count */
-		switch (that.typ) {
-		case DT_YMD:
-			switch (s.wk_cnt) {
-			case YCW_ISOWK_CNT:
-				yw = __ymd_get_wcnt_iso(that.ymd);
-				break;
-			case YCW_ABSWK_CNT:
-			default:
-				yw = __ymd_get_wcnt_abs(that.ymd);
-				break;
-			case YCW_MONWK_CNT:
-			case YCW_SUNWK_CNT: {
-				/* using monwk_cnt is a minor trick
-				 * from = 1 = Mon or 0 = Sun */
-				int from = s.wk_cnt == YCW_MONWK_CNT;
-				yw = __ymd_get_wcnt(that.ymd, from);
-				break;
-			}
-			}
-			break;
-		case DT_YMCW:
-			yw = __ymcw_get_yday(that.ymcw);
-			break;
-		case DT_YCW:
-			yw = that.ycw.c;
-			break;
-		default:
-			yw = 0;
-			break;
-		}
+		int yw = dt_get_wcnt_year(that, s.wk_cnt);
 		res = ui32tostr(buf, bsz, yw, 2);
 		break;
 	}
