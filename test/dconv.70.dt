@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="2007-01-01 -i '%Y-%V-%w' -f ymd"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2007-01-01
+EOF
+
+## dconv.70.dt ends here
