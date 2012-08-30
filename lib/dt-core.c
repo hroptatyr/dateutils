@@ -228,7 +228,7 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 
 static const char ymdhms_dflt[] = "%FT%T";
 static const char ymcwhms_dflt[] = "%Y-%m-%c-%wT%T";
-static const char ywdhms_dflt[] = "%Y-%C-%wT%T";
+static const char ywdhms_dflt[] = "%Y-W%V-%wT%T";
 static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";

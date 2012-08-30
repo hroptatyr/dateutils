@@ -8,7 +8,7 @@ CMDLINE="2012-35-02 -i '%Y-%C-%w'"
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2012-35-02
+2012-W35-02
 EOF
 
 ## dconv.46.dt ends here
