@@ -43,6 +43,8 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include "token.h"
+/* for YWD_*WK_CNT */
+#include "date-core.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -92,18 +94,19 @@ next:
 		res.spfl = DT_SPFL_N_WCNT_MON;
 		break;
 	case 'U':
-		res.sunwk_cnt = 1;
+		res.wk_cnt = YWD_SUNWK_CNT;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'V':
-		res.isowk_cnt = 1;
+		res.wk_cnt = YWD_ISOWK_CNT;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'C':
-		res.abswk_cnt = 1;
+		res.wk_cnt = YWD_ABSWK_CNT;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
+		break;
 	case 'W':
-		res.monwk_cnt = 1;
+		res.wk_cnt = YWD_MONWK_CNT;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
 		break;
 	case 'A':

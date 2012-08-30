@@ -314,6 +314,9 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_WCNT_YEAR:
 		/* was %C, cannot be used at the moment */
 		d->c = strtoui_lim(sp, &sp, 0, 53);
+		d->flags.wk_cnt = s.wk_cnt;
+		/* let everyone know d->c has a week-count in there */
+		d->flags.c_wcnt_p = 1;
 		res = 0;
 		break;
 	}
@@ -374,6 +377,26 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 # pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+static void
+__get_md(struct strpd_s *d, struct dt_d_s that)
+{
+	struct __md_s x = dt_get_md(that);
+
+	if (LIKELY(x.m >= 1 && x.m <= 12)) {
+		d->m = x.m;
+		d->d = x.d;
+	} else if (x.m == 0 && x.d) {
+		d->m = 12;
+		d->d = x.d - 1;
+		d->y--;
+	} else if (x.m > 12) {
+		d->m = 1;
+		d->d = x.d;
+		d->y++;
+	}
+	return;
+}
+
 DEFUN size_t
 __strfd_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
@@ -387,9 +410,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_DSTD:
 		if (UNLIKELY(!d->d && !d->m)) {
-			struct __md_s x = dt_get_md(that);
-			d->m = x.m;
-			d->d = x.d;
+			__get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			d->d = dt_get_mday(that);
 		}
@@ -411,9 +432,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_MON:
 		if (UNLIKELY(!d->d && !d->m)) {
-			struct __md_s x = dt_get_md(that);
-			d->m = x.m;
-			d->d = x.d;
+			__get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			d->m = dt_get_mon(that);
 		}
@@ -441,7 +460,7 @@ __strfd_card(
 		unsigned int c = d->c;
 
 		/* ymcw mode check? */
-		if (!c || that.typ == DT_YCW) {
+		if (!c || that.typ == DT_YWD) {
 			/* don't store it */
 			c = (unsigned int)dt_get_wcnt_mon(that);
 		}
@@ -538,30 +557,7 @@ __strfd_card(
 		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR: {
-		int yw;
-		/* %C/%W week count */
-		switch (that.typ) {
-		case DT_YMD:
-			if (s.isowk_cnt) {
-				yw = __ymd_get_wcnt_iso(that.ymd);
-			} else if (s.abswk_cnt) {
-				yw = __ymd_get_wcnt_abs(that.ymd);
-			} else {
-				/* using monwk_cnt is a minor trick
-				 * from = 1 = Mon or 0 = Sun */
-				yw = __ymd_get_wcnt(that.ymd, s.monwk_cnt);
-			}
-			break;
-		case DT_YMCW:
-			yw = __ymcw_get_yday(that.ymcw);
-			break;
-		case DT_YCW:
-			yw = that.ycw.c;
-			break;
-		default:
-			yw = 0;
-			break;
-		}
+		int yw = dt_get_wcnt_year(that, s.wk_cnt);
 		res = ui32tostr(buf, bsz, yw, 2);
 		break;
 	}

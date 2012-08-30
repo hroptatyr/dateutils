@@ -228,7 +228,7 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 
 static const char ymdhms_dflt[] = "%FT%T";
 static const char ymcwhms_dflt[] = "%Y-%m-%c-%wT%T";
-static const char ycwhms_dflt[] = "%Y-%C-%wT%T";
+static const char ywdhms_dflt[] = "%Y-W%V-%wT%T";
 static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
@@ -730,15 +730,15 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			goto try_time;
 		}
 		break;
-	case DT_YCW:
-		d.sd.y = that.d.ycw.y;
+	case DT_YWD:
+		d.sd.y = that.d.ywd.y;
 		d.sd.m = 0;
-		d.sd.c = that.d.ycw.c;
-		d.sd.w = that.d.ycw.w;
+		d.sd.c = that.d.ywd.c;
+		d.sd.w = that.d.ywd.w;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ycwhms_dflt;
+			fmt = ywdhms_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ycw_dflt;
+			fmt = ywd_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}

@@ -122,15 +122,12 @@ struct dt_spec_s {
 		unsigned int cap:1;
 
 		/* week-count conventions */
-		unsigned int abswk_cnt:1;
-		unsigned int monwk_cnt:1;
-		unsigned int sunwk_cnt:1;
-		unsigned int isowk_cnt:1;
+		unsigned int wk_cnt:2;
 
 		/* want real seconds/minutes/etc. */
 		unsigned int tai:1;
 		/* pad to the next word */
-		unsigned int:3;
+		unsigned int:5;
 	};
 	dt_spfl_t spfl:8;
 };
