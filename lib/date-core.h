@@ -73,7 +73,8 @@ typedef enum {
 	DT_DAISY,
 	DT_BIZSI,
 	DT_MD,
-	DT_YCW,
+	DT_YWD,
+	DT_YD,
 	DT_NDTYP,
 } dt_dtyp_t;
 
@@ -124,33 +125,39 @@ typedef union {
 	};
 } dt_ymcw_t;
 
-/** ycws
- * ycws are year-count-weekday bcd coded.
+/** ywds
+ * ywds are ISO 8601's year-week-day calendars.
  * By coincidence ycw's y and w slots are accessible through the ymcw bit field,
  * whether that's useful or not will occur to us later and then we might change
- * the layout. */
+ * the layout.
+ * Also, there's one auxiliary parameter the number of overhanging days
+ * before the first day (Mon) in the first week, this number is in the
+ * range of -3 to 3.  For a year to start on Sunday it's +1, for a year
+ * to start on Tuesday it's -1. */
 typedef union {
 	uint32_t u;
 	struct {
-#define YCW_ABSWK_CNT	(0)
-#define YCW_MONWK_CNT	(1)
-#define YCW_SUNWK_CNT	(2)
-#define YCW_ISOWK_CNT	(3)
+#define YWD_SUNWK_CNT	(0)
+#define YWD_MONWK_CNT	(1)
+#define YWD_ISOWK_CNT	(2)
+#define YWD_ABSWK_CNT	(3)
 #if defined WORDS_BIGENDIAN
-		/* 10 bits left */
-		unsigned int:10;
+		/* 8 bits left */
+		unsigned int:7;
 		unsigned int y:12;
 		unsigned int c:7;
 		unsigned int w:3;
+		signed int hang:3;
 #else  /* !WORDS_BIGENDIAN */
+		signed int hang:3;
 		unsigned int w:3;
 		unsigned int c:7;
 		unsigned int y:12;
-		/* 10 bits left */
-		unsigned int:10;
+		/* 8 bits left */
+		unsigned int:7;
 #endif	/* WORDS_BIGENDIAN */
 	};
-} dt_ycw_t;
+} dt_ywd_t;
 
 typedef union {
 	uint16_t u;
@@ -160,7 +167,7 @@ typedef union {
 		unsigned int cc:2;
 		unsigned int:14;
 	};
-} __attribute__((__packed__)) dt_ycw_param_t;
+} __attribute__((__packed__)) dt_ywd_param_t;
 
 /** daysi
  * daisys are days since X, 1917-01-01 here */
@@ -237,7 +244,7 @@ struct dt_d_s {
 		uint32_t u;
 		dt_ymd_t ymd;
 		dt_ymcw_t ymcw;
-		dt_ycw_t ycw;
+		dt_ywd_t ywd;
 		dt_daisy_t daisy;
 		dt_daisy_t bizsi;
 		/* all bizdas mixed into this */
@@ -532,19 +539,19 @@ __make_bizda_param(unsigned int ab, unsigned int ref)
 	return p;
 }
 
-static inline dt_ycw_param_t
-__get_ycw_param(struct dt_d_s that)
+static inline dt_ywd_param_t
+__get_ywd_param(struct dt_d_s that)
 {
-	return (dt_ycw_param_t){.bs = that.param};
+	return (dt_ywd_param_t){.bs = that.param};
 }
 
-static inline dt_ycw_param_t
-__make_ycw_param(unsigned int cc)
+static inline dt_ywd_param_t
+__make_ywd_param(unsigned int cc)
 {
 #if defined __C1X
-	return (dt_ycw_param_t){.cc = cc};
+	return (dt_ywd_param_t){.cc = cc};
 #else  /* !__C1X */
-	dt_ycw_param_t p;
+	dt_ywd_param_t p;
 	p.cc = cc;
 	return p;
 #endif	/* __C1X */

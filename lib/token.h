@@ -139,13 +139,6 @@ struct dt_spec_s {
 # define BIZDA_BEFORE	(1U)/*<*/
 #endif	/* !BIZDA_BEFORE */
 
-#if !defined YCW_ABSWK_CNT
-# define YCW_ABSWK_CNT	(0)
-# define YCW_MONWK_CNT	(1)
-# define YCW_SUNWK_CNT	(2)
-# define YCW_ISOWK_CNT	(3)
-#endif	/* !YCW_*WK_CNT */
-
 extern struct dt_spec_s __tok_spec(const char *fp, char **ep);
 
 

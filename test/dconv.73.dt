@@ -1,14 +1,14 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="2012-35-02 -i '%Y-%C-%w'"
+CMDLINE="2007-W01-01 -i '%Y-W%U-%w'"
 
 ## STDIN
 
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2012-W35-02
+2007-W02-01
 EOF
 
-## dconv.46.dt ends here
+## dconv.73.dt ends here
