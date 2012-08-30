@@ -560,13 +560,20 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 		/* %C/%W week count */
 		switch (d.d.typ) {
 		case DT_YMD:
-			if (dkv->sp.isowk_cnt) {
-				cmp = __ymd_get_wcnt_iso(d.d.ymd);
-			} else if (dkv->sp.abswk_cnt) {
+			switch (dkv->sp.wk_cnt) {
+			default:
+			case YCW_ABSWK_CNT:
 				cmp = __ymd_get_wcnt_abs(d.d.ymd);
-			} else {
-				cmp = __ymd_get_wcnt(
-					d.d.ymd, dkv->sp.monwk_cnt);
+				break;
+			case YCW_ISOWK_CNT:
+				cmp = __ymd_get_wcnt_iso(d.d.ymd);
+				break;
+			case YCW_MONWK_CNT:
+			case YCW_SUNWK_CNT: {
+				int from = dkv->sp.wk_cnt == YCW_MONWK_CNT;
+				cmp = __ymd_get_wcnt(d.d.ymd, from);
+				break;
+			}
 			}
 			break;
 		case DT_YMCW:

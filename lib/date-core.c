@@ -2118,10 +2118,16 @@ __guess_dtyp(struct strpd_s d)
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.m == 0 && !d.flags.bizda) {
+		dt_ycw_param_t cp = __make_ycw_param(d.flags.wk_cnt);
+
 		res.typ = DT_YCW;
 		res.ycw.y = d.y;
 		res.ycw.c = d.c;
 		res.ycw.w = d.w;
+
+		/* assign week-count convention */
+		res.param = cp.bs;
+
 	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
