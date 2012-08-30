@@ -122,15 +122,12 @@ struct dt_spec_s {
 		unsigned int cap:1;
 
 		/* week-count conventions */
-		unsigned int abswk_cnt:1;
-		unsigned int monwk_cnt:1;
-		unsigned int sunwk_cnt:1;
-		unsigned int isowk_cnt:1;
+		unsigned int wk_cnt:2;
 
 		/* want real seconds/minutes/etc. */
 		unsigned int tai:1;
 		/* pad to the next word */
-		unsigned int:3;
+		unsigned int:5;
 	};
 	dt_spfl_t spfl:8;
 };
@@ -141,6 +138,13 @@ struct dt_spec_s {
 #if !defined BIZDA_BEFORE
 # define BIZDA_BEFORE	(1U)/*<*/
 #endif	/* !BIZDA_BEFORE */
+
+#if !defined YCW_ABSWK_CNT
+# define YCW_ABSWK_CNT	(0)
+# define YCW_MONWK_CNT	(1)
+# define YCW_SUNWK_CNT	(2)
+# define YCW_ISOWK_CNT	(3)
+#endif	/* !YCW_*WK_CNT */
 
 extern struct dt_spec_s __tok_spec(const char *fp, char **ep);
 

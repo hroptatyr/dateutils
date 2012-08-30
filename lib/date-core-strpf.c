@@ -314,6 +314,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_WCNT_YEAR:
 		/* was %C, cannot be used at the moment */
 		d->c = strtoui_lim(sp, &sp, 0, 53);
+		d->flags.wk_cnt = s.wk_cnt;
 		res = 0;
 		break;
 	}
@@ -538,30 +539,7 @@ __strfd_card(
 		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR: {
-		int yw;
-		/* %C/%W week count */
-		switch (that.typ) {
-		case DT_YMD:
-			if (s.isowk_cnt) {
-				yw = __ymd_get_wcnt_iso(that.ymd);
-			} else if (s.abswk_cnt) {
-				yw = __ymd_get_wcnt_abs(that.ymd);
-			} else {
-				/* using monwk_cnt is a minor trick
-				 * from = 1 = Mon or 0 = Sun */
-				yw = __ymd_get_wcnt(that.ymd, s.monwk_cnt);
-			}
-			break;
-		case DT_YMCW:
-			yw = __ymcw_get_yday(that.ymcw);
-			break;
-		case DT_YCW:
-			yw = that.ycw.c;
-			break;
-		default:
-			yw = 0;
-			break;
-		}
+		int yw = dt_get_wcnt_year(that, s.wk_cnt);
 		res = ui32tostr(buf, bsz, yw, 2);
 		break;
 	}

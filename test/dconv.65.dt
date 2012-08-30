@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="2007-01-01 -i '%Y-%W-%w' -f %F"
+COMMENT="Testing week-count conventions"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2007-01-01
+EOF
+
+## dconv.65.dt ends here

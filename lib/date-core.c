@@ -818,6 +818,12 @@ __ycw_get_yday(dt_ycw_t d, dt_ycw_param_t p)
 	return yday;
 }
 
+static dt_dow_t
+__ycw_get_wday(dt_ycw_t that)
+{
+	return (dt_dow_t)that.w;
+}
+
 static unsigned int
 __ycw_get_wcnt_mon(dt_ycw_t d, dt_ycw_param_t p)
 {
@@ -1375,6 +1381,8 @@ dt_get_wday(struct dt_d_s that)
 		return __daisy_get_wday(that.daisy);
 	case DT_BIZDA:
 		return __bizda_get_wday(that.bizda);
+	case DT_YCW:
+		return __ycw_get_wday(that.ycw);
 	default:
 	case DT_DUNK:
 		return DT_MIRACLEDAY;
@@ -1451,6 +1459,44 @@ dt_get_wcnt_mon(struct dt_d_s that)
 	case DT_DUNK:
 		return 0;
 	}
+}
+
+static int
+dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
+{
+	int res;
+
+	switch (this.typ) {
+	case DT_YMD:
+		switch (wkcnt_convention) {
+		default:
+		case YCW_ABSWK_CNT:
+			res = __ymd_get_wcnt_abs(this.ymd);
+			break;
+		case YCW_ISOWK_CNT:
+			res = __ymd_get_wcnt_iso(this.ymd);
+			break;
+		case YCW_MONWK_CNT:
+		case YCW_SUNWK_CNT: {
+			/* using monwk_cnt is a minor trick
+			 * from = 1 = Mon or 0 = Sun */
+			int from = wkcnt_convention == YCW_MONWK_CNT;
+			res = __ymd_get_wcnt(this.ymd, from);
+			break;
+		}
+		}
+		break;
+	case DT_YMCW:
+		res = __ymcw_get_yday(this.ymcw);
+		break;
+	case DT_YCW:
+		res = this.ycw.c;
+		break;
+	default:
+		res = 0;
+		break;
+	}
+	return res;
 }
 
 DEFUN unsigned int
@@ -2118,10 +2164,16 @@ __guess_dtyp(struct strpd_s d)
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.m == 0 && !d.flags.bizda) {
+		dt_ycw_param_t cp = __make_ycw_param(d.flags.wk_cnt);
+
 		res.typ = DT_YCW;
 		res.ycw.y = d.y;
 		res.ycw.c = d.c;
 		res.ycw.w = d.w;
+
+		/* assign week-count convention */
+		res.param = cp.bs;
+
 	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;

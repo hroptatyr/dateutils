@@ -558,24 +558,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 		break;
 	case DT_SPFL_N_WCNT_YEAR:
 		/* %C/%W week count */
-		switch (d.d.typ) {
-		case DT_YMD:
-			if (dkv->sp.isowk_cnt) {
-				cmp = __ymd_get_wcnt_iso(d.d.ymd);
-			} else if (dkv->sp.abswk_cnt) {
-				cmp = __ymd_get_wcnt_abs(d.d.ymd);
-			} else {
-				cmp = __ymd_get_wcnt(
-					d.d.ymd, dkv->sp.monwk_cnt);
-			}
-			break;
-		case DT_YMCW:
-			cmp = __ymcw_get_yday(d.d.ymcw);
-			break;
-		default:
-			cmp = 0;
-			break;
-		}
+		cmp = dt_get_wcnt_year(d.d, dkv->sp.wk_cnt);
 		break;
 	case DT_SPFL_N_STD:
 	default:
