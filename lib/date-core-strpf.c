@@ -314,6 +314,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_WCNT_YEAR:
 		/* was %C, cannot be used at the moment */
 		d->c = strtoui_lim(sp, &sp, 0, 53);
+		d->flags.wk_cnt = s.wk_cnt;
 		res = 0;
 		break;
 	}
