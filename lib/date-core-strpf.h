@@ -73,6 +73,7 @@ struct strpd_s {
 		unsigned int ab:1;
 		unsigned int bizda:1;
 		unsigned int d_dcnt_p:1;
+		unsigned int c_wcnt_p:1;
 		unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
 	} flags;
 	unsigned int b;

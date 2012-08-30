@@ -2230,7 +2230,7 @@ __guess_dtyp(struct strpd_s d)
 		d.c = 0;
 	}
 
-	if (LIKELY(d.y && d.c == 0 && !d.flags.bizda)) {
+	if (LIKELY(d.y && d.c == 0 && !d.flags.c_wcnt_p && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
