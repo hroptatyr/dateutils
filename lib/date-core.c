@@ -1449,8 +1449,10 @@ dt_get_mon(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
-	case DT_YWD:
-		return 0;
+	case DT_YWD: {
+		unsigned int yd = __ywd_get_yday(that.ywd);
+		return __yday_get_md(that.ywd.y, yd).m;
+	}
 	default:
 	case DT_DUNK:
 		return 0;
