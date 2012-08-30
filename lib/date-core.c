@@ -796,7 +796,7 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
-static __attribute__((unused)) dt_dow_t
+static dt_dow_t
 __ywd_get_jan01_wday(dt_ywd_t d)
 {
 /* hang of 0 means Mon, -1 Tue, -2 Wed, -3 Thu, 3 Fri, 2 Sat, 1 Sun */
@@ -814,8 +814,52 @@ __ywd_get_jan01_hang(dt_dow_t j01)
 /* Mon means hang of 0, Tue -1, Wed -2, Thu -3, Fri 3, Sat 2, Sun 1 */
 	int res;
 
-	if (UNLIKELY((res = 1 - (int)j01) < 0)) {
+	if (UNLIKELY((res = 1 - (int)j01) < -3)) {
 		return (int)(GREG_DAYS_P_WEEK + res);
+	}
+	return res;
+}
+
+static dt_ywd_t
+__make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
+{
+/* build a 8601 compliant ywd object from year Y, week C and weekday W
+ * where C conforms to week-count convention cc */
+	dt_ywd_t res = {0};
+	dt_dow_t j01 = __get_jan01_wday(y);
+
+	/* this one's special as it needs the hang helper slot */
+	res.hang = __ywd_get_jan01_hang(j01);
+
+	res.y = y;
+	res.w = w;
+
+	switch (cc) {
+	default:
+	case YWD_ISOWK_CNT:
+		res.c = c;
+		break;
+	case YWD_ABSWK_CNT:
+		if (res.hang <= 0 || w < j01 || w && !j01/*j01 Sun, w not*/) {
+			res.c = c;
+		} else {
+			res.c = c + 1;
+		}
+		break;
+	case YWD_SUNWK_CNT:
+		if (j01 == DT_SUNDAY) {
+			res.c = c;
+		} else {
+			res.c = c + 1;
+		}
+		break;
+	case YWD_MONWK_CNT:
+		if (j01 <= DT_MONDAY) {
+			res.c = c;
+		} else {
+			res.c = c + 1;
+		}
+		break;
 	}
 	return res;
 }
@@ -825,7 +869,7 @@ __ywd_get_yday(dt_ywd_t d)
 {
 /* since everything is in ISO 8601 format, getting the doy is a matter of
  * counting how many days there are in a week. */
-	return GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
+	return GREG_DAYS_P_WEEK * (d.c - 1) + (d.w ? d.w : 7) + d.hang;
 }
 
 static dt_dow_t
@@ -847,10 +891,34 @@ __ywd_get_wcnt_mon(dt_ywd_t d)
 static int
 __ywd_get_wcnt_year(dt_ywd_t d, unsigned int tgtcc)
 {
+	dt_dow_t j01;
+
 	if (tgtcc == YWD_ISOWK_CNT) {
 		return d.c;
 	}
 	/* otherwise we need to shift things */
+	j01 = __ywd_get_jan01_wday(d);
+	switch (tgtcc) {
+	case YWD_ABSWK_CNT:
+		if (d.w < j01) {
+			return d.c - 1;
+		} else if (d.hang < 0) {
+			return d.c + 1;
+		}
+		break;
+	case YWD_MONWK_CNT:
+		if (j01 >= DT_TUESDAY) {
+			return d.c - 1;
+		}
+		break;
+	case YWD_SUNWK_CNT:
+		if (j01 >= DT_MONDAY) {
+			return d.c - 1;
+		}
+		break;
+	default:
+		break;
+	}
 	return d.c;
 }
 
@@ -2184,13 +2252,7 @@ __guess_dtyp(struct strpd_s d)
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.m == 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
-		res.ywd.y = d.y;
-		res.ywd.c = d.c;
-		res.ywd.w = d.w;
-
-		/* this one's special as it needs the hang helper slot */
-		res.ywd.hang = __ywd_get_jan01_hang(__get_jan01_wday(d.y));
-
+		res.ywd = __make_ywd(d.y, d.c, d.w, d.flags.wk_cnt);
 	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
