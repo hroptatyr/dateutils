@@ -796,7 +796,7 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
-static dt_dow_t
+static __attribute__((unused)) dt_dow_t
 __ywd_get_jan01_wday(dt_ywd_t d)
 {
 /* hang of 0 means Mon, -1 Tue, -2 Wed, -3 Thu, 3 Fri, 2 Sat, 1 Sun */
@@ -806,6 +806,18 @@ __ywd_get_jan01_wday(dt_ywd_t d)
 		return (dt_dow_t)(GREG_DAYS_P_WEEK + res);
 	}
 	return (dt_dow_t)res;
+}
+
+static int
+__ywd_get_jan01_hang(dt_dow_t j01)
+{
+/* Mon means hang of 0, Tue -1, Wed -2, Thu -3, Fri 3, Sat 2, Sun 1 */
+	int res;
+
+	if (UNLIKELY((res = 1 - (int)j01) < 0)) {
+		return (int)(GREG_DAYS_P_WEEK + res);
+	}
+	return res;
 }
 
 static unsigned int
@@ -2171,15 +2183,13 @@ __guess_dtyp(struct strpd_s d)
 		}
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.m == 0 && !d.flags.bizda) {
-		dt_ywd_param_t cp = __make_ywd_param(d.flags.wk_cnt);
-
 		res.typ = DT_YWD;
 		res.ywd.y = d.y;
 		res.ywd.c = d.c;
 		res.ywd.w = d.w;
 
-		/* assign week-count convention */
-		res.param = cp.bs;
+		/* this one's special as it needs the hang helper slot */
+		res.ywd.hang = __ywd_get_jan01_hang(__get_jan01_wday(d.y));
 
 	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
