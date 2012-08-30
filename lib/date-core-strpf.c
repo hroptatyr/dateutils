@@ -377,6 +377,26 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 # pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+static void
+__get_md(struct strpd_s *d, struct dt_d_s that)
+{
+	struct __md_s x = dt_get_md(that);
+
+	if (LIKELY(x.m >= 1 && x.m <= 12)) {
+		d->m = x.m;
+		d->d = x.d;
+	} else if (x.m == 0 && x.d) {
+		d->m = 12;
+		d->d = x.d - 1;
+		d->y--;
+	} else if (x.m > 12) {
+		d->m = 1;
+		d->d = x.d;
+		d->y++;
+	}
+	return;
+}
+
 DEFUN size_t
 __strfd_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
@@ -390,9 +410,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_DSTD:
 		if (UNLIKELY(!d->d && !d->m)) {
-			struct __md_s x = dt_get_md(that);
-			d->m = x.m;
-			d->d = x.d;
+			__get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			d->d = dt_get_mday(that);
 		}
@@ -414,9 +432,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_MON:
 		if (UNLIKELY(!d->d && !d->m)) {
-			struct __md_s x = dt_get_md(that);
-			d->m = x.m;
-			d->d = x.d;
+			__get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			d->m = dt_get_mon(that);
 		}
