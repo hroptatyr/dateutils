@@ -818,6 +818,12 @@ __ycw_get_yday(dt_ycw_t d, dt_ycw_param_t p)
 	return yday;
 }
 
+static dt_dow_t
+__ycw_get_wday(dt_ycw_t that)
+{
+	return (dt_dow_t)that.w;
+}
+
 static unsigned int
 __ycw_get_wcnt_mon(dt_ycw_t d, dt_ycw_param_t p)
 {
@@ -1375,6 +1381,8 @@ dt_get_wday(struct dt_d_s that)
 		return __daisy_get_wday(that.daisy);
 	case DT_BIZDA:
 		return __bizda_get_wday(that.bizda);
+	case DT_YCW:
+		return __ycw_get_wday(that.ycw);
 	default:
 	case DT_DUNK:
 		return DT_MIRACLEDAY;
