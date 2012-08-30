@@ -137,10 +137,10 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-#define YWD_ABSWK_CNT	(0)
+#define YWD_SUNWK_CNT	(0)
 #define YWD_MONWK_CNT	(1)
-#define YWD_SUNWK_CNT	(2)
-#define YWD_ISOWK_CNT	(3)
+#define YWD_ISOWK_CNT	(2)
+#define YWD_ABSWK_CNT	(3)
 #if defined WORDS_BIGENDIAN
 		/* 8 bits left */
 		unsigned int:7;

@@ -43,6 +43,8 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include "token.h"
+/* for YWD_*WK_CNT */
+#include "date-core.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
