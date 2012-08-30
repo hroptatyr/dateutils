@@ -102,6 +102,7 @@ next:
 	case 'C':
 		res.wk_cnt = YCW_ABSWK_CNT;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
+		break;
 	case 'W':
 		res.wk_cnt = YCW_MONWK_CNT;
 		res.spfl = DT_SPFL_N_WCNT_YEAR;
