@@ -731,10 +731,8 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		}
 		break;
 	case DT_YWD:
-		d.sd.y = that.d.ywd.y;
-		d.sd.m = 0;
-		d.sd.c = that.d.ywd.c;
-		d.sd.w = that.d.ywd.w;
+		__prep_strfd_ywd(&d.sd, that.d, fmt);
+
 		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = ywdhms_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {

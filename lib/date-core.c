@@ -2258,6 +2258,36 @@ __guess_dtyp(struct strpd_s d)
 	return res;
 }
 
+static void
+__prep_strfd_ywd(struct strpd_s *d, struct dt_d_s this, const char *fmt)
+{
+/* place ywd data of THIS into D for printing with FMT. */
+	if (this.ywd.c == 1 &&
+	    this.ywd.w < __ywd_get_jan01_wday(this.ywd) && this.ywd.w) {
+		/* put gregorian year into y and real year into q */
+		d->y = this.ywd.y - 1;
+		d->q = this.ywd.y;
+	} else if (this.ywd.c >= 53) {
+		/* bit of service for the %Y printer */
+		d->y = this.ywd.y + 1;
+		d->q = this.ywd.y;
+	} else {
+		d->y = this.ywd.y;
+		d->q = this.ywd.y;
+	}
+	/* business as usual here */
+	d->c = this.ywd.c;
+	d->w = this.ywd.w;
+	if (fmt != NULL) {
+		/* service for the %m and %d printer */
+		unsigned int yday = __ywd_get_yday(this.ywd);
+		struct __md_s grrr = __yday_get_md(d->y, yday);
+		d->m = grrr.m;
+		d->d = grrr.d;
+	}
+	return;
+}
+
 
 /* parser implementations */
 #if defined __INTEL_COMPILER
@@ -2388,9 +2418,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	case DT_YWD:
-		d.y = that.ywd.y;
-		d.c = that.ywd.c;
-		d.w = that.ywd.w;
+		__prep_strfd_ywd(&d, that, fmt);
 		if (fmt == NULL) {
 			fmt = ywd_dflt;
 		}
