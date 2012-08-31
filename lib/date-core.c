@@ -2084,8 +2084,10 @@ __trans_dfmt_special(const char *fmt)
 		return DT_YWD;
 	} else if (strcasecmp(fmt, "daisy") == 0) {
 		return DT_DAISY;
+# if defined DT_SEXY_BASE_YEAR
 	} else if (strcasecmp(fmt, "sexy") == 0) {
-		return DT_SEXY;
+		return (dt_dtyp_t)DT_SEXY;
+# endif	 /* DT_SEXY_BASE_YEAR */
 	} else if (strcasecmp(fmt, "bizsi") == 0) {
 		return DT_BIZSI;
 	}
