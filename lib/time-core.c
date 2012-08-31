@@ -268,13 +268,13 @@ DEFUN struct dt_t_s
 dt_tdiff(struct dt_t_s t1, struct dt_t_s t2)
 {
 /* compute t2 - t1 */
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	struct dt_t_s dur = {.u = 0};
 #else
 	struct dt_t_s dur;
 #endif
 
-#if !defined __C1X
+#if !defined HAVE_ANON_STRUCTS_INIT
 /* thanks gcc */
 	dur.u = 0;
 #endif
@@ -299,7 +299,7 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 DEFUN struct dt_t_s
 dt_time(void)
 {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	struct dt_t_s res = {.u = 0};
 #else
 	struct dt_t_s res;
@@ -307,7 +307,7 @@ dt_time(void)
 	struct timeval tv;
 	unsigned int tonly;
 
-#if !defined __C1X
+#if !defined HAVE_ANON_STRUCTS_INIT
 /* thanks gcc */
 	res.u = 0;
 #endif
