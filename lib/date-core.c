@@ -1132,23 +1132,6 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 	return 20 * (m - 1) + accum + that.bd;
 }
 
-static dt_ymcw_t
-__ymd_to_ymcw(dt_ymd_t d)
-{
-	unsigned int c = __ymd_get_count(d);
-	unsigned int w = __ymd_get_wday(d);
-#if defined __C1X
-	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
-#else
-	dt_ymcw_t res;
-	res.y = d.y;
-	res.m = d.m;
-	res.c = c;
-	res.w = w;
-	return res;
-#endif
-}
-
 static dt_dow_t
 __daisy_get_wday(dt_daisy_t d)
 {
