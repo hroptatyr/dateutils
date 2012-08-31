@@ -401,13 +401,19 @@ __strfd_card(
 			res = 10;
 		}
 		break;
-	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
-			res = ui32tostr(buf, bsz, d->y, 4);
-		} else if (s.abbr == DT_SPMOD_ABBR) {
-			res = ui32tostr(buf, bsz, d->y, 2);
+	case DT_SPFL_N_YEAR: {
+		unsigned int y = d->y;
+		int prec = 4;
+
+		if (UNLIKELY(s.tai && d->flags.real_y_in_q)) {
+			y = d->q;
 		}
+		if (UNLIKELY(s.abbr == DT_SPMOD_ABBR)) {
+			prec = 2;
+		}
+		res = ui32tostr(buf, bsz, y, prec);
 		break;
+	}
 	case DT_SPFL_N_MON:
 		if (UNLIKELY(!d->d)) {
 			d->m = dt_get_mon(that);
