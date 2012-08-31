@@ -35,6 +35,9 @@ Date specs:
   %Oy The two digit year as roman numerals
   %OY The year including the century as roman numerals
 
+  %rY In calendars with years that don't coincide with the Gregorian
+      years, this selects the calendar's year.
+
   %dth  The day of the month as an ordinal number, 1st, 2nd, 3rd, etc.
   %mth  The month of the year as an ordinal number, 1st, 2nd, 3rd, etc.
 
@@ -64,6 +67,7 @@ General specs:
 Modifiers:
 @verbatim
   %O  Modifier to turn decimal numbers into Roman numerals
+  %r  Modifier to turn units into real units
   th  Suffix.  Read and print ordinal numbers
   b   Treat date as business date
 @end verbatim
