@@ -826,13 +826,14 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 /* build a 8601 compliant ywd object from year Y, week C and weekday W
  * where C conforms to week-count convention cc */
 	dt_ywd_t res = {0};
-	dt_dow_t j01 = __get_jan01_wday(y);
+	dt_dow_t j01;
 
 	/* this one's special as it needs the hang helper slot */
+	j01 = __get_jan01_wday(y);
 	res.hang = __ywd_get_jan01_hang(j01);
 
 	res.y = y;
-	res.w = w;
+	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
 
 	switch (cc) {
 	default:
