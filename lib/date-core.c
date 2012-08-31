@@ -2050,12 +2050,48 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 #include "strops.c"
 #include "date-core-strpf.c"
 
+#if defined HAVE_GPERF
+#include "fmt-special.c"
+#endif	/* HAVE_GPERF */
+
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
 static const char ywd_dflt[] = "%rY-W%V-%w";
 static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
+
+static dt_dtyp_t
+__trans_dfmt_special(const char *fmt)
+{
+#if defined HAVE_GPERF
+	size_t len = strlen(fmt);
+	const struct dt_fmt_special_s *res;
+
+	if (UNLIKELY((res = __fmt_special(fmt, len)) != NULL)) {
+		return res->e;
+	}
+#else  /* !HAVE_GPERF */
+	if (0) {
+		;
+	} else if (strcasecmp(*fmt, "ymd") == 0) {
+		return DT_YMD;
+	} else if (strcasecmp(*fmt, "ymcw") == 0) {
+		return DT_YMCW;
+	} else if (strcasecmp(*fmt, "bizda") == 0) {
+		return DT_BIZDA;
+	} else if (strcasecmp(*fmt, "ywd") == 0) {
+		return DT_YWD;
+	} else if (strcasecmp(*fmt, "daisy") == 0) {
+		return DT_DAISY;
+	} else if (strcasecmp(*fmt, "sexy") == 0) {
+		return DT_SEXY;
+	} else if (strcasecmp(*fmt, "bizsi") == 0) {
+		return DT_BIZSI;
+	}
+#endif	/* HAVE_GPERF */
+	return DT_DUNK;
+}
 
 DEFUN void
 __trans_dfmt(const char **fmt)
@@ -2066,18 +2102,29 @@ __trans_dfmt(const char **fmt)
 	} else if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
 		;
-	} else if (strcasecmp(*fmt, "ymd") == 0) {
-		*fmt = ymd_dflt;
-	} else if (strcasecmp(*fmt, "ymcw") == 0) {
-		*fmt = ymcw_dflt;
-	} else if (strcasecmp(*fmt, "ywd") == 0) {
-		*fmt = ywd_dflt;
-	} else if (strcasecmp(*fmt, "bizda") == 0) {
-		*fmt = bizda_dflt;
-	} else if (strcasecmp(*fmt, "daisy") == 0) {
-		*fmt = daisy_dflt;
-	} else if (strcasecmp(*fmt, "bizsi") == 0) {
-		*fmt = bizsi_dflt;
+	} else {
+		switch (__trans_dfmt_special(*fmt)) {
+		default:
+			break;
+		case DT_YMD:
+			*fmt = ymd_dflt;
+			break;
+		case DT_YMCW:
+			*fmt = ymcw_dflt;
+			break;
+		case DT_YWD:
+			*fmt = ywd_dflt;
+			break;
+		case DT_BIZDA:
+			*fmt = bizda_dflt;
+			break;
+		case DT_DAISY:
+			*fmt = daisy_dflt;
+			break;
+		case DT_BIZSI:
+			*fmt = bizsi_dflt;
+			break;
+		}
 	}
 	return;
 }
