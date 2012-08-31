@@ -2278,6 +2278,8 @@ __prep_strfd_ywd(struct strpd_s *d, struct dt_d_s this, const char *fmt)
 	/* business as usual here */
 	d->c = this.ywd.c;
 	d->w = this.ywd.w;
+	d->flags.real_y_in_q = 1;
+
 	if (fmt != NULL) {
 		/* service for the %m and %d printer */
 		unsigned int yday = __ywd_get_yday(this.ywd);
