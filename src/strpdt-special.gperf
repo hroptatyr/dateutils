@@ -1,0 +1,28 @@
+%{
+%}
+%7bit
+%readonly-tables
+%switch=1
+%ignore-case
+%enum
+%struct-type
+%define slot-name special
+%define hash-function-name ____strpdt_special
+%define lookup-function-name __strpdt_special
+%null-strings
+
+struct dt_strpdt_special_s {
+	const char *special;
+	dt_strpdt_special_t e;
+};
+
+%%
+now, STRPDT_NOW
+today, STRPDT_DATE
+date, STRPDT_DATE
+tomo, STRPDT_TOMO
+tomorrow, STRPDT_TOMO
+yday, STRPDT_YDAY
+yest, STRPDT_YDAY
+yesterday, STRPDT_YDAY
+time, STRPDT_TIME
