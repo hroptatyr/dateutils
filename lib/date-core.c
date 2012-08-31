@@ -1514,7 +1514,14 @@ dt_get_md(struct dt_d_s that)
 	}
 	case DT_YWD: {
 		unsigned int yday = __ywd_get_yday(that.ywd);
-		return __yday_get_md(that.ywd.y, yday);
+		struct __md_s res = __yday_get_md(that.ywd.y, yday);
+		if (UNLIKELY(res.m == 0)) {
+			res.m = 12;
+			res.d--;
+		} else if (UNLIKELY(res.m == 13)) {
+			res.m = 1;
+		}
+		return res;
 	}
 	}
 }
