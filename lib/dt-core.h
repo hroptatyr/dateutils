@@ -274,7 +274,7 @@ DECLF void __trans_dtfmt(const char **fmt);
 static inline __attribute__((pure, const)) struct dt_dt_s
 dt_dt_initialiser(void)
 {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	struct dt_dt_s res = {
 		.typ = DT_UNK,
 		.sandwich = 0U,
@@ -289,11 +289,11 @@ dt_dt_initialiser(void)
 			.u = 0U,
 		},
 	};
-#else  /* !__C1X */
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	struct dt_dt_s res;
-#endif	/* __C1X */
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 
-#if !defined __C1X
+#if !defined HAVE_ANON_STRUCTS_INIT
 	res.typ = DT_UNK;
 	res.sandwich = 0U;
 	res.dur = 0U;
@@ -305,7 +305,7 @@ dt_dt_initialiser(void)
 	res.t.dur = 0U;
 	res.t.neg = 0U;
 	res.t.u = 0U;
-#endif	/* !__C1X */
+#endif	/* !HAVE_ANON_STRUCTS_INIT */
 	return res;
 }
 

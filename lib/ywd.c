@@ -226,7 +226,7 @@ __ymd_to_ymcw(dt_ymd_t d)
 {
 	unsigned int c = __ymd_get_count(d);
 	unsigned int w = __ymd_get_wday(d);
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
 #else
 	dt_ymcw_t res;

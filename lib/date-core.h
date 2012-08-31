@@ -447,7 +447,7 @@ DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
 static inline __attribute__((pure, const)) struct dt_d_s
 dt_d_initialiser(void)
 {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	struct dt_d_s res = {
 		.typ = DT_DUNK,
 		.dur = 0U,
@@ -455,17 +455,17 @@ dt_d_initialiser(void)
 		.param = 0U,
 		.u = 0U
 	};
-#else  /* !__C1X */
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	struct dt_d_s res;
-#endif	/* __C1X */
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 
-#if !defined __C1X
+#if !defined HAVE_ANON_STRUCTS_INIT
 	res.typ = DT_DUNK;
 	res.dur = 0U;
 	res.neg = 0U;
 	res.param = 0U;
 	res.u = 0U;
-#endif	/* !__C1X */
+#endif	/* !HAVE_ANON_STRUCTS_INIT */
 	return res;
 }
 
@@ -517,25 +517,25 @@ dt_make_daisydur(signed int d)
 static inline dt_bizda_param_t
 __get_bizda_param(struct dt_d_s that)
 {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	dt_bizda_param_t p = {.bs = that.param};
-#else  /* !__C1X */
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_bizda_param_t p;
 	p.bs = that.param;
-#endif	/* __C1X */
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 	return p;
 }
 
 static inline dt_bizda_param_t
 __make_bizda_param(unsigned int ab, unsigned int ref)
 {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	dt_bizda_param_t p = {.ab = ab, .ref = ref};
-#else  /* !__C1X */
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_bizda_param_t p;
 	p.ab = ab;
 	p.ref = ref;
-#endif	/* __C1X */
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 	return p;
 }
 
@@ -548,13 +548,13 @@ __get_ywd_param(struct dt_d_s that)
 static inline dt_ywd_param_t
 __make_ywd_param(unsigned int cc)
 {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ywd_param_t){.cc = cc};
-#else  /* !__C1X */
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_ywd_param_t p;
 	p.cc = cc;
 	return p;
-#endif	/* __C1X */
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 
