@@ -1171,7 +1171,7 @@ dt_datetime(dt_dttyp_t outtyp)
 			res.d.ymd.d = tm.tm_mday;
 			break;
 		case DT_YMCW: {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
 				.m = tm.tm_mon,

@@ -1182,9 +1182,9 @@ __daisy_to_ymd(dt_daisy_t that)
 	j00 = __jan00_daisy(y);
 	doy = that - j00;
 	md = __yday_get_md(y, doy);
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
-#else  /* !__C1X */
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	{
 		dt_ymd_t res;
 		res.y = y;
@@ -1192,7 +1192,7 @@ __daisy_to_ymd(dt_daisy_t that)
 		res.d = md.d;
 		return res;
 	}
-#endif	/* __C1X */
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 static dt_ymcw_t
@@ -1208,7 +1208,7 @@ __daisy_to_ymcw(dt_daisy_t that)
 	tmp = __daisy_to_ymd(that);
 	c = __ymd_get_count(tmp);
 	w = __daisy_get_wday(that);
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymcw_t){.y = tmp.y, .m = tmp.m, .c = c, .w = w};
 #else
 	{
@@ -1226,7 +1226,7 @@ static dt_ymd_t
 __ymcw_to_ymd(dt_ymcw_t d)
 {
 	unsigned int md = __ymcw_get_mday(d);
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
 #else
 	dt_ymd_t res;
@@ -2558,7 +2558,7 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymd.d = tm.tm_mday;
 			break;
 		case DT_YMCW: {
-#if defined __C1X
+#if defined HAVE_ANON_STRUCTS_INIT
 			dt_ymd_t tmp = {
 				.y = tm.tm_year,
 				.m = tm.tm_mon,
