@@ -1927,14 +1927,21 @@ __ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
 
 		/* otherwise we may need to fixup the day, let's do that
 		 * in the next step */
+		/* @fallthrough@ */
 	case DT_DAISY:
 	case DT_BIZSI: {
 		signed int q;
 		signed int mc;
 
-		/* get the trivial bits */
-		tgty = d.y;
-		tgtm = d.m;
+		switch (dur.typ) {
+		case DT_DAISY:
+		case DT_BIZSI:
+			/* get the trivial bits */
+			tgty = d.y;
+			tgtm = d.m;
+		default:
+			break;
+		}
 
 		/* factorise 7d.c + d.w + durcch.d into 7q + p, 0 <= p < 7
 		 * we need the fact that p cannot be negative further down */
