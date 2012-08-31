@@ -473,6 +473,12 @@ __strfd_card(
 		if (!d->w) {
 			d->w = dt_get_wday(that);
 		}
+		if (UNLIKELY(d->w == 0)) {
+			if (s.wk_cnt == YWD_MONWK_CNT) {
+				/* turn Sun 00 to Sun 07 */
+				d->w = 7;
+			}
+		}
 		res = ui32tostr(buf, bsz, d->w, 2);
 		break;
 	case DT_SPFL_N_WCNT_MON: {

@@ -16,11 +16,14 @@ Date specs:
   %c  The count of the weekday within the month (range 00 to 05)
   %C  The count of the weekday within the year (range 00 to 53)
   %d  The day of the month, 2 digits (range 00 to 31)
+  %D  The day of the year, 3 digits (range 000 to 366)
   %F  Equivalent to %Y-%m-%d (ymd's canonical format)
-  %j  The day of the year, see ISO 8601 ordinal date
+  %j  Equivalent to %D
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)
   %q  The number of the quarter (range 01 to 04)
+  %s  The number of seconds since the Epoch.
+  %u  The weekday as number (range 01 to 07, Sunday being 07)
   %U  The week count, first day of week is Sun (range 00 to 53)
   %V  The ISO week count, first day of week is Mon (range 01 to 53)
   %w  The weekday as number (range 00 to 06, Sunday being 00)
@@ -32,6 +35,11 @@ Date specs:
   %Om The month as roman numerals
   %Oy The two digit year as roman numerals
   %OY The year including the century as roman numerals
+
+  %rs In time systems whose Epoch is different from the unix Epoch, this
+      selects the number of seconds since then.
+  %rY In calendars with years that don't coincide with the Gregorian
+      years, this selects the calendar's year.
 
   %dth  The day of the month as an ordinal number, 1st, 2nd, 3rd, etc.
   %mth  The month of the year as an ordinal number, 1st, 2nd, 3rd, etc.
@@ -62,8 +70,17 @@ General specs:
 Modifiers:
 @verbatim
   %O  Modifier to turn decimal numbers into Roman numerals
+  %r  Modifier to turn units into real units
   th  Suffix.  Read and print ordinal numbers
   b   Treat date as business date
 @end verbatim
 
 By design dates before 1917-01-01 are not supported.
+
+For conformity here is a list of time spec names and their meaning:
+@verbatim
+  ymd   %Y-%m-%d
+  ymcw  %Y-%m-%c-%w
+  ywd   %rY-W%V-%u
+  bizda %Y-%m-%db
+@end verbatim
