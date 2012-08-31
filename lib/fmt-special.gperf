@@ -1,0 +1,30 @@
+%{
+#if !defined DT_SEXY_BASE_YEAR
+# define DT_SEXY	DT_DUNK
+#endif  /* !DT_SEXY_BASE_YEAR */
+%}
+%7bit
+%readonly-tables
+%switch=1
+%ignore-case
+%enum
+%struct-type
+%define slot-name special
+%define hash-function-name ____fmt_special
+%define lookup-function-name __fmt_special
+%null-strings
+
+struct dt_fmt_special_s {
+	const char *special;
+	dt_dtyp_t e;
+};
+
+%%
+ymd, DT_YMD
+ymcw, DT_YMCW
+bizda, DT_BIZDA
+daisy, DT_DAISY
+sexy, (dt_dtyp_t)DT_SEXY
+bizsi, DT_BIZSI
+ywd, DT_YWD
+yd, DT_YD

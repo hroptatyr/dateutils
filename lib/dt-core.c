@@ -243,18 +243,32 @@ __trans_dtfmt(const char **fmt)
 	} else if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
 		;
-	} else if (strcasecmp(*fmt, "ymd") == 0) {
-		*fmt = ymdhms_dflt;
-	} else if (strcasecmp(*fmt, "ymcw") == 0) {
-		*fmt = ymcwhms_dflt;
-	} else if (strcasecmp(*fmt, "bizda") == 0) {
-		*fmt = bizdahms_dflt;
-	} else if (strcasecmp(*fmt, "daisy") == 0) {
-		*fmt = daisyhms_dflt;
-	} else if (strcasecmp(*fmt, "sexy") == 0) {
-		*fmt = sexy_dflt;
-	} else if (strcasecmp(*fmt, "bizsi") == 0) {
-		*fmt = bizsihms_dflt;
+	} else {
+		switch (__trans_dfmt_special(*fmt)) {
+		default:
+			break;
+		case DT_YMD:
+			*fmt = ymdhms_dflt;
+			break;
+		case DT_YMCW:
+			*fmt = ymcwhms_dflt;
+			break;
+		case DT_BIZDA:
+			*fmt = bizdahms_dflt;
+			break;
+		case DT_DAISY:
+			*fmt = daisyhms_dflt;
+			break;
+		case DT_SEXY:
+			*fmt = sexy_dflt;
+			break;
+		case DT_BIZSI:
+			*fmt = bizsihms_dflt;
+			break;
+		case DT_YWD:
+			*fmt = ywdhms_dflt;
+			break;
+		}
 	}
 	return;
 }

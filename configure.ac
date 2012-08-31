@@ -71,6 +71,13 @@ AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 AM_PROG_LEX
 AC_PROG_YACC
 
+AM_MISSING_PROG([GPERF], [gperf])
+AM_CONDITIONAL([HAVE_GPERF], [test -n "${GPERF}"])
+if test -n "${GPERF}"; then
+	AC_DEFINE([HAVE_GPERF], [1], [define when gperf tool is present])
+fi
+
+
 AC_ARG_ENABLE([fast-arith],
 	[AS_HELP_STRING([--enable-fast-arith], [
 Whether to enable fast date handling and arithmetic routines at the cost
