@@ -218,7 +218,18 @@ __ywd_to_ymd(dt_ywd_t d)
 	} else {
 		y = d.y;
 	}
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	{
+		dt_ymd_t res;
+
+		res.y = y;
+		res.m = md.m;
+		res.d = md.d;
+		return res;
+	}
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 static dt_ymcw_t
