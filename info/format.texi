@@ -16,8 +16,9 @@ Date specs:
   %c  The count of the weekday within the month (range 00 to 05)
   %C  The count of the weekday within the year (range 00 to 53)
   %d  The day of the month, 2 digits (range 00 to 31)
+  %D  The day of the year, 3 digits (range 000 to 366)
   %F  Equivalent to %Y-%m-%d (ymd's canonical format)
-  %j  The day of the year, see ISO 8601 ordinal date
+  %j  Equivalent to %D
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)
   %q  The number of the quarter (range 01 to 04)
