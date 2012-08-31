@@ -1786,6 +1786,19 @@ dt_conv_to_bizda(struct dt_d_s that)
 	return (dt_bizda_t){.u = 0};
 }
 
+static dt_ywd_t
+dt_conv_to_ywd(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YWD:
+		/* yay, that was quick */
+		return this.ywd;
+	default:
+		break;
+	}
+	return (dt_ywd_t){.u = 0};
+}
+
 
 /* arithmetic */
 static int
@@ -2761,6 +2774,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 	case DT_BIZDA:
 		/* actually this is a parametrised date */
 		res.bizda = dt_conv_to_bizda(d);
+		break;
+	case DT_YWD:
+		res.ywd = dt_conv_to_ywd(d);
 		break;
 	case DT_DUNK:
 	default:
