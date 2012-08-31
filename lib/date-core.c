@@ -826,13 +826,14 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 /* build a 8601 compliant ywd object from year Y, week C and weekday W
  * where C conforms to week-count convention cc */
 	dt_ywd_t res = {0};
-	dt_dow_t j01 = __get_jan01_wday(y);
+	dt_dow_t j01;
 
 	/* this one's special as it needs the hang helper slot */
+	j01 = __get_jan01_wday(y);
 	res.hang = __ywd_get_jan01_hang(j01);
 
 	res.y = y;
-	res.w = w;
+	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
 
 	switch (cc) {
 	default:
@@ -1501,28 +1502,28 @@ dt_get_mday(struct dt_d_s that)
 }
 
 static struct __md_s
-dt_get_md(struct dt_d_s this)
+dt_get_md(struct dt_d_s that)
 {
-	switch (this.typ) {
-	case DT_YMD:
-		return (struct __md_s){.m = this.ymd.m, .d = this.ymd.d};
-	case DT_YMCW:
-		return (struct __md_s){.m = this.ymcw.m,
-				.d = __ymcw_get_mday(this.ymcw)};
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
-		return (struct __md_s){.m = tmp.m, .d = tmp.d};
-	}
-	case DT_BIZDA:
-		return (struct __md_s){.m = this.bizda.m,
-				.d = __bizda_get_mday(this.bizda)};
-	case DT_YWD: {
-		unsigned int yd = __ywd_get_yday(this.ywd);
-		return __yday_get_md(this.ywd.y, yd);
-	}
+	switch (that.typ) {
 	default:
-	case DT_DUNK:
 		return (struct __md_s){.m = 0, .d = 0};
+	case DT_YMD:
+		return (struct __md_s){.m = that.ymd.m, .d = that.ymd.d};
+	case DT_YMCW: {
+		unsigned int d = __ymcw_get_mday(that.ymcw);
+		return (struct __md_s){.m = that.ymcw.m, .d = d};
+	}
+	case DT_YWD: {
+		unsigned int yday = __ywd_get_yday(that.ywd);
+		struct __md_s res = __yday_get_md(that.ywd.y, yday);
+		if (UNLIKELY(res.m == 0)) {
+			res.m = 12;
+			res.d--;
+		} else if (UNLIKELY(res.m == 13)) {
+			res.m = 1;
+		}
+		return res;
+	}
 	}
 }
 
@@ -2180,7 +2181,7 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char ywd_dflt[] = "%Y-W%V-%w";
+static const char ywd_dflt[] = "%rY-W%V-%w";
 static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
@@ -2224,9 +2225,6 @@ __guess_dtyp(struct strpd_s d)
 	}
 	if (UNLIKELY(d.d == -1U)) {
 		d.d = 0;
-	}
-	if (UNLIKELY(d.w == -1U)) {
-		d.w = 0;
 	}
 	if (UNLIKELY(d.c == -1U)) {
 		d.c = 0;
@@ -2282,6 +2280,30 @@ __guess_dtyp(struct strpd_s d)
 		;
 	}
 	return res;
+}
+
+static void
+__prep_strfd_ywd(struct strpd_s *d, struct dt_d_s this)
+{
+/* place ywd data of THIS into D for printing with FMT. */
+	if (this.ywd.c == 1 &&
+	    this.ywd.w < __ywd_get_jan01_wday(this.ywd) && this.ywd.w) {
+		/* put gregorian year into y and real year into q */
+		d->y = this.ywd.y - 1;
+		d->q = this.ywd.y;
+	} else if (this.ywd.c >= 53) {
+		/* bit of service for the %Y printer */
+		d->y = this.ywd.y + 1;
+		d->q = this.ywd.y;
+	} else {
+		d->y = this.ywd.y;
+		d->q = this.ywd.y;
+	}
+	/* business as usual here */
+	d->c = this.ywd.c;
+	d->w = this.ywd.w;
+	d->flags.real_y_in_q = 1;
+	return;
 }
 
 
@@ -2414,9 +2436,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	case DT_YWD:
-		d.y = that.ywd.y;
-		d.c = that.ywd.c;
-		d.w = that.ywd.w;
+		__prep_strfd_ywd(&d, that);
 		if (fmt == NULL) {
 			fmt = ywd_dflt;
 		}
