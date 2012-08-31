@@ -22,6 +22,7 @@ Date specs:
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)
   %q  The number of the quarter (range 01 to 04)
+  %s  The number of seconds since the Epoch.
   %u  The weekday as number (range 01 to 07, Sunday being 07)
   %U  The week count, first day of week is Sun (range 00 to 53)
   %V  The ISO week count, first day of week is Mon (range 01 to 53)
@@ -35,6 +36,8 @@ Date specs:
   %Oy The two digit year as roman numerals
   %OY The year including the century as roman numerals
 
+  %rs In time systems whose Epoch is different from the unix Epoch, this
+      selects the number of seconds since then.
   %rY In calendars with years that don't coincide with the Gregorian
       years, this selects the calendar's year.
 
