@@ -52,17 +52,19 @@ have_strptime="${ac_cv_func_strptime}"
 AM_CONDITIONAL([HAVE_STRPTIME], [test "${have_strptime}" = "yes"])
 
 ## check for working c1x features
-SXE_CHECK_ANON_STRUCTS([
-	AC_DEFINE([__C1X], [1], [Whether c1x work])
-	], [
-	AC_MSG_WARN([C compiler unusable
+SXE_CHECK_ANON_STRUCTS_DECL
+SXE_CHECK_ANON_STRUCTS_INIT
+
+if test "${sxe_cv_have_anon_structs_decl}" != "yes"; then
+	AC_MSG_ERROR([C compiler unusable
 
 dateutils make extensive use of c11 anonymous structs/unions but your
 compiler does not fully support them.
 Change either the CFLAGS or the compiler.
 Good day.
 ])
-])
+fi
+
 
 AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
 
