@@ -50,6 +50,10 @@ EXTRA_libdut_a_SOURCES =
 EXTRA_libdut_a_SOURCES += date-core.c
 EXTRA_libdut_a_SOURCES += time-core.c
 EXTRA_libdut_a_SOURCES += ywd.c
+EXTRA_libdut_a_SOURCES += fmt-special.gperf
+if HAVE_GPERF
+BUILT_SOURCES += fmt-special.c
+endif  HAVE_GPERF
 
 if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
@@ -71,6 +75,10 @@ am__v_LTRCC_0 = @echo "  LTRCC   " $@;
 leapseconds.def: leapseconds
 	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
 	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
+
+## gperf rule
+%.c: %.gperf
+	$(AM_V_GEN) $(GPERF) $< --output-file $@
 
 # 
 # Help the developers get nice post-processed source files

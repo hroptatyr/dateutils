@@ -25,6 +25,45 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+typedef enum {
+	STRPDT_UNK,
+	STRPDT_DATE,
+	STRPDT_TIME,
+	STRPDT_NOW,
+	STRPDT_YDAY,
+	STRPDT_TOMO,
+} dt_strpdt_special_t;
+
+#if defined HAVE_GPERF
+#include "strpdt-special.c"
+#endif	/* HAVE_GPERF */
+
+static dt_strpdt_special_t
+dt_io_strpdt_special(const char *str)
+{
+#if defined HAVE_GPERF
+	size_t len = strlen(str);
+	const struct dt_strpdt_special_s *res;
+
+	if (UNLIKELY((res = __strpdt_special(str, len)) != NULL)) {
+		return res->e;
+	}
+#else  /* !HAVE_GPERF */
+	if (!strcasecmp(str, "now")) {
+		return STRPDT_NOW;
+	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
+		return STRPDT_DATE;
+	} else if (!strcasecmp(str, "tomo") || !strcasecmp(str, "tomorrow")) {
+		return STRPDT_TOMO;
+	} else if (!strcasecmp(str, "yday") || !strcasecmp(str, "yesterday")) {
+		return STRPDT_YDAY;
+	} else if (!strcasecmp(str, "time")) {
+		return STRPDT_TIME;
+	}
+#endif	/* HAVE_GPERF */
+	return STRPDT_UNK;
+}
+
 static struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
@@ -32,31 +71,15 @@ dt_io_strpdt_ep(
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	enum {
-		STRPDT_UNK,
-		STRPDT_DATE,
-		STRPDT_TIME,
-		STRPDT_NOW,
-		STRPDT_YDAY,
-		STRPDT_TOMO,
-	} now = STRPDT_UNK;
+	dt_strpdt_special_t now;
 
 	/* init */
 	if (ep != NULL) {
 		*ep = NULL;
 	}
 	/* basic sanity checks, catch phrases first */
-	if (!strcasecmp(str, "now")) {
-		now = STRPDT_NOW;
-	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
-		now = STRPDT_DATE;
-	} else if (!strcasecmp(str, "tomo") || !strcasecmp(str, "tomorrow")) {
-		now = STRPDT_TOMO;
-	} else if (!strcasecmp(str, "yday") || !strcasecmp(str, "yesterday")) {
-		now = STRPDT_YDAY;
-	} else if (!strcasecmp(str, "time")) {
-		now = STRPDT_TIME;
-	}
+	now = dt_io_strpdt_special(str);
+
 	if (now > STRPDT_UNK) {
 		res = dt_datetime((dt_dttyp_t)DT_YMD);
 		/* rinse according to flags */

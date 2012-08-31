@@ -192,6 +192,20 @@ The canonical input and output format is @code{%Y-%m-%db}, where
 ultimo.  Similarly, @code{%Y-%m-%dB} stands for the business days until
 this month's ultimo.
 
+@section ywd
+
+This calendar is ISO's 8601 year-week-day calendar.  Every year is
+divided into 52 weeks.  Every week is divided into 7 days, starting with
+Monday.  To make up for ``missing days'' a leap week is introduced every
+now and again, i.e. years with leap weeks are 53 weeks long and called
+leap years (note: ISO does not use the term leap year or leap week).
+
+The canonical input and output format is @code{%rY-W%V-%u}, so
+e.g. 2012-W04-02.  Note that ywd years don't necessarily correspond to
+Gregorian/ymd years, hence the @code{r} modifier in the spec
+(@code{%rY} is used in calendars to select the ``real'' calendar year).
+
+
 @node Format specifiers and units
 @chapter Format specifiers and units
 
