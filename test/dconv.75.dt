@@ -9,7 +9,7 @@ COMMENT="Gregorian year is 2010 already."
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-2009-W53-00
+2009-W53-07
 EOF
 
 ## dconv.75.dt ends here
