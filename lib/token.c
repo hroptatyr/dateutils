@@ -83,8 +83,13 @@ next:
 	case 'd':
 		res.spfl = DT_SPFL_N_DCNT_MON;
 		break;
+	case 'u':
+		res.spfl = DT_SPFL_N_DCNT_WEEK;
+		res.wk_cnt = YWD_MONWK_CNT;
+		break;
 	case 'w':
 		res.spfl = DT_SPFL_N_DCNT_WEEK;
+		res.wk_cnt = YWD_SUNWK_CNT;
 		break;
 	case 'D':
 	case 'j':
