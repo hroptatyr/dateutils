@@ -796,131 +796,9 @@ __ymcw_get_mday(dt_ymcw_t that)
 	return res;
 }
 
-static dt_dow_t
-__ywd_get_jan01_wday(dt_ywd_t d)
-{
-/* hang of 0 means Mon, -1 Tue, -2 Wed, -3 Thu, 3 Fri, 2 Sat, 1 Sun */
-	int res;
-
-	if (UNLIKELY((res = 1 - d.hang) < 0)) {
-		return (dt_dow_t)(GREG_DAYS_P_WEEK + res);
-	}
-	return (dt_dow_t)res;
-}
-
-static int
-__ywd_get_jan01_hang(dt_dow_t j01)
-{
-/* Mon means hang of 0, Tue -1, Wed -2, Thu -3, Fri 3, Sat 2, Sun 1 */
-	int res;
-
-	if (UNLIKELY((res = 1 - (int)j01) < -3)) {
-		return (int)(GREG_DAYS_P_WEEK + res);
-	}
-	return res;
-}
-
-static dt_ywd_t
-__make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
-{
-/* build a 8601 compliant ywd object from year Y, week C and weekday W
- * where C conforms to week-count convention cc */
-	dt_ywd_t res = {0};
-	dt_dow_t j01 = __get_jan01_wday(y);
-
-	/* this one's special as it needs the hang helper slot */
-	res.hang = __ywd_get_jan01_hang(j01);
-
-	res.y = y;
-	res.w = w;
-
-	switch (cc) {
-	default:
-	case YWD_ISOWK_CNT:
-		res.c = c;
-		break;
-	case YWD_ABSWK_CNT:
-		if (res.hang <= 0 || w < j01 || w && !j01/*j01 Sun, w not*/) {
-			res.c = c;
-		} else {
-			res.c = c + 1;
-		}
-		break;
-	case YWD_SUNWK_CNT:
-		if (j01 == DT_SUNDAY) {
-			res.c = c;
-		} else {
-			res.c = c + 1;
-		}
-		break;
-	case YWD_MONWK_CNT:
-		if (j01 <= DT_MONDAY) {
-			res.c = c;
-		} else {
-			res.c = c + 1;
-		}
-		break;
-	}
-	return res;
-}
-
-static unsigned int
-__ywd_get_yday(dt_ywd_t d)
-{
-/* since everything is in ISO 8601 format, getting the doy is a matter of
- * counting how many days there are in a week. */
-	return GREG_DAYS_P_WEEK * (d.c - 1) + (d.w ? d.w : 7) + d.hang;
-}
-
-static dt_dow_t
-__ywd_get_wday(dt_ywd_t that)
-{
-	return (dt_dow_t)that.w;
-}
-
-static unsigned int
-__ywd_get_wcnt_mon(dt_ywd_t d)
-{
-/* given a YWD with week-count within the year (ISOWK_CNT convention)
- * return the week-count within the month (ABSWK_CNT convention) */
-	unsigned int yd = __ywd_get_yday(d);
-	struct __md_s x = __yday_get_md(d.y, yd);
-	return (x.d - 1) / 7 + 1;
-}
-
-static int
-__ywd_get_wcnt_year(dt_ywd_t d, unsigned int tgtcc)
-{
-	dt_dow_t j01;
-
-	if (tgtcc == YWD_ISOWK_CNT) {
-		return d.c;
-	}
-	/* otherwise we need to shift things */
-	j01 = __ywd_get_jan01_wday(d);
-	switch (tgtcc) {
-	case YWD_ABSWK_CNT:
-		if (d.w < j01) {
-			return d.c - 1;
-		} else if (d.hang < 0) {
-			return d.c + 1;
-		}
-		break;
-	case YWD_MONWK_CNT:
-		if (j01 >= DT_TUESDAY) {
-			return d.c - 1;
-		}
-		break;
-	case YWD_SUNWK_CNT:
-		if (j01 >= DT_MONDAY) {
-			return d.c - 1;
-		}
-		break;
-	default:
-		break;
-	}
-	return d.c;
-}
+#define ASPECT_GETTERS
+#include "ywd.c"
+#undef ASPECT_GETTERS
 
 DEFUN int
 __ymd_get_wcnt(dt_ymd_t d, int wdays_from)
@@ -1254,23 +1132,6 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 	return 20 * (m - 1) + accum + that.bd;
 }
 
-static dt_ymcw_t
-__ymd_to_ymcw(dt_ymd_t d)
-{
-	unsigned int c = __ymd_get_count(d);
-	unsigned int w = __ymd_get_wday(d);
-#if defined __C1X
-	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
-#else
-	dt_ymcw_t res;
-	res.y = d.y;
-	res.m = d.m;
-	res.c = c;
-	res.w = w;
-	return res;
-#endif
-}
-
 static dt_dow_t
 __daisy_get_wday(dt_daisy_t d)
 {
@@ -1375,6 +1236,10 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	return res;
 #endif
 }
+
+#define ASPECT_CONV
+#include "ywd.c"
+#undef ASPECT_CONV
 
 static int
 __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
@@ -1501,28 +1366,20 @@ dt_get_mday(struct dt_d_s that)
 }
 
 static struct __md_s
-dt_get_md(struct dt_d_s this)
+dt_get_md(struct dt_d_s that)
 {
-	switch (this.typ) {
-	case DT_YMD:
-		return (struct __md_s){.m = this.ymd.m, .d = this.ymd.d};
-	case DT_YMCW:
-		return (struct __md_s){.m = this.ymcw.m,
-				.d = __ymcw_get_mday(this.ymcw)};
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(this.daisy);
-		return (struct __md_s){.m = tmp.m, .d = tmp.d};
-	}
-	case DT_BIZDA:
-		return (struct __md_s){.m = this.bizda.m,
-				.d = __bizda_get_mday(this.bizda)};
-	case DT_YWD: {
-		unsigned int yd = __ywd_get_yday(this.ywd);
-		return __yday_get_md(this.ywd.y, yd);
-	}
+	switch (that.typ) {
 	default:
-	case DT_DUNK:
 		return (struct __md_s){.m = 0, .d = 0};
+	case DT_YMD:
+		return (struct __md_s){.m = that.ymd.m, .d = that.ymd.d};
+	case DT_YMCW: {
+		unsigned int d = __ymcw_get_mday(that.ymcw);
+		return (struct __md_s){.m = that.ymcw.m, .d = d};
+	}
+	case DT_YWD:
+		/* should have come throught the GETTERS aspect */
+		return __ywd_get_md(that.ywd);
 	}
 }
 
@@ -1740,6 +1597,8 @@ dt_conv_to_ymd(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy);
 	case DT_BIZDA:
 		break;
+	case DT_YWD:
+		return __ywd_to_ymd(that.ywd);
 	case DT_DUNK:
 	default:
 		break;
@@ -1783,6 +1642,19 @@ dt_conv_to_bizda(struct dt_d_s that)
 		break;
 	}
 	return (dt_bizda_t){.u = 0};
+}
+
+static dt_ywd_t
+dt_conv_to_ywd(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YWD:
+		/* yay, that was quick */
+		return this.ywd;
+	default:
+		break;
+	}
+	return (dt_ywd_t){.u = 0};
 }
 
 
@@ -2180,7 +2052,7 @@ __ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char ywd_dflt[] = "%Y-W%V-%w";
+static const char ywd_dflt[] = "%rY-W%V-%w";
 static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
@@ -2224,9 +2096,6 @@ __guess_dtyp(struct strpd_s d)
 	}
 	if (UNLIKELY(d.d == -1U)) {
 		d.d = 0;
-	}
-	if (UNLIKELY(d.w == -1U)) {
-		d.w = 0;
 	}
 	if (UNLIKELY(d.c == -1U)) {
 		d.c = 0;
@@ -2357,6 +2226,10 @@ out:
 	return res;
 }
 
+#define ASPECT_STRF
+#include "ywd.c"
+#undef ASPECT_STRF
+
 DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
@@ -2414,9 +2287,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	case DT_YWD:
-		d.y = that.ywd.y;
-		d.c = that.ywd.c;
-		d.w = that.ywd.w;
+		__prep_strfd_ywd(&d, that.ywd);
 		if (fmt == NULL) {
 			fmt = ywd_dflt;
 		}
@@ -2741,6 +2612,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 	case DT_BIZDA:
 		/* actually this is a parametrised date */
 		res.bizda = dt_conv_to_bizda(d);
+		break;
+	case DT_YWD:
+		res.ywd = dt_conv_to_ywd(d);
 		break;
 	case DT_DUNK:
 	default:

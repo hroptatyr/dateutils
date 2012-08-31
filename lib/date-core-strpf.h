@@ -75,6 +75,7 @@ struct strpd_s {
 		unsigned int d_dcnt_p:1;
 		unsigned int c_wcnt_p:1;
 		unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
+		unsigned int real_y_in_q:1;
 	} flags;
 	unsigned int b;
 	unsigned int q;

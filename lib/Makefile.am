@@ -16,6 +16,7 @@ EXTRA_DIST =
 header_HEADERS =
 header_HEADERS += date-core.h date-core.c
 header_HEADERS += date-core-strpf.h date-core-strpf.c
+header_HEADERS += ywd.c
 header_HEADERS += time-core.h time-core.c
 header_HEADERS += time-core-strpf.h time-core-strpf.c
 header_HEADERS += dt-core.h dt-core.c
@@ -45,6 +46,10 @@ libdut_a_SOURCES += boobs.h
 libdut_a_SOURCES += generics.h
 libdut_a_SOURCES += dt-core-tz-glue.h dt-core-tz-glue.c
 libdut_a_SOURCES += leapseconds.def
+EXTRA_libdut_a_SOURCES =
+EXTRA_libdut_a_SOURCES += date-core.c
+EXTRA_libdut_a_SOURCES += time-core.c
+EXTRA_libdut_a_SOURCES += ywd.c
 
 if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
