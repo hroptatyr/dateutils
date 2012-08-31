@@ -73,3 +73,11 @@ Modifiers:
 @end verbatim
 
 By design dates before 1917-01-01 are not supported.
+
+For conformity here is a list of time spec names and their meaning:
+@verbatim
+  ymd   %Y-%m-%d
+  ymcw  %Y-%m-%c-%w
+  ywd   %rY-W%V-%u
+  bizda %Y-%m-%db
+@end verbatim
