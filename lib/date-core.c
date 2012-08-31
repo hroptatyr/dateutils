@@ -2074,19 +2074,19 @@ __trans_dfmt_special(const char *fmt)
 #else  /* !HAVE_GPERF */
 	if (0) {
 		;
-	} else if (strcasecmp(*fmt, "ymd") == 0) {
+	} else if (strcasecmp(fmt, "ymd") == 0) {
 		return DT_YMD;
-	} else if (strcasecmp(*fmt, "ymcw") == 0) {
+	} else if (strcasecmp(fmt, "ymcw") == 0) {
 		return DT_YMCW;
-	} else if (strcasecmp(*fmt, "bizda") == 0) {
+	} else if (strcasecmp(fmt, "bizda") == 0) {
 		return DT_BIZDA;
-	} else if (strcasecmp(*fmt, "ywd") == 0) {
+	} else if (strcasecmp(fmt, "ywd") == 0) {
 		return DT_YWD;
-	} else if (strcasecmp(*fmt, "daisy") == 0) {
+	} else if (strcasecmp(fmt, "daisy") == 0) {
 		return DT_DAISY;
-	} else if (strcasecmp(*fmt, "sexy") == 0) {
+	} else if (strcasecmp(fmt, "sexy") == 0) {
 		return DT_SEXY;
-	} else if (strcasecmp(*fmt, "bizsi") == 0) {
+	} else if (strcasecmp(fmt, "bizsi") == 0) {
 		return DT_BIZSI;
 	}
 #endif	/* HAVE_GPERF */
