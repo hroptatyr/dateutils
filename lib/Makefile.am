@@ -16,6 +16,7 @@ EXTRA_DIST =
 header_HEADERS =
 header_HEADERS += date-core.h date-core.c
 header_HEADERS += date-core-strpf.h date-core-strpf.c
+header_HEADERS += ywd.c
 header_HEADERS += time-core.h time-core.c
 header_HEADERS += time-core-strpf.h time-core-strpf.c
 header_HEADERS += dt-core.h dt-core.c
