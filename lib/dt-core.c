@@ -731,7 +731,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		}
 		break;
 	case DT_YWD:
-		__prep_strfd_ywd(&d.sd, that.d, fmt);
+		__prep_strfd_ywd(&d.sd, that.d);
 
 		if (fmt == NULL && dt_sandwich_p(that)) {
 			fmt = ywdhms_dflt;

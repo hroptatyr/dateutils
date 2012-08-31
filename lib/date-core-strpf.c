@@ -370,12 +370,36 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	return res;
 }
 
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (default:2203)
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
+
+static void
+__strfd_get_md(struct strpd_s *d, struct dt_d_s this)
+{
+	struct __md_s both = dt_get_md(this);
+	d->m = both.m;
+	d->d = both.d;
+	return;
+}
+
+static void
+__strfd_get_m(struct strpd_s *d, struct dt_d_s this)
+{
+	d->m = dt_get_mon(this);
+	return;
+}
+
+static void
+__strfd_get_d(struct strpd_s *d, struct dt_d_s this)
+{
+	d->d = dt_get_mday(this);
+	return;
+}
 
 DEFUN size_t
 __strfd_card(
@@ -389,8 +413,10 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		if (UNLIKELY(!d->d)) {
-			d->d = dt_get_mday(that);
+		if (UNLIKELY(!d->m && !d->d)) {
+			__strfd_get_md(d, that);
+		} else if (UNLIKELY(!d->d)) {
+			__strfd_get_d(d, that);
 		}
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
@@ -415,22 +441,33 @@ __strfd_card(
 		break;
 	}
 	case DT_SPFL_N_MON:
-		if (UNLIKELY(!d->d)) {
-			d->m = dt_get_mon(that);
+		if (UNLIKELY(!d->m && !d->d)) {
+			__strfd_get_md(d, that);
+		} else if (UNLIKELY(!d->m)) {
+			__strfd_get_m(d, that);
 		}
 		res = ui32tostr(buf, bsz, d->m, 2);
 		break;
-	case DT_SPFL_N_DCNT_MON:
+	case DT_SPFL_N_DCNT_MON: {
 		/* ymd mode check? */
+		unsigned int pd;
+
 		if (LIKELY(!s.bizda)) {
-			d->d = d->d ? d->d : (unsigned int)dt_get_mday(that);
-			res = ui32tostr(buf, bsz, d->d, 2);
+			if (UNLIKELY(!d->m && !d->d)) {
+				__strfd_get_md(d, that);
+			} else if (UNLIKELY(!d->d)) {
+				__strfd_get_d(d, that);
+				pd = d->d;
+			}
+			pd = d->d;
 		} else {
-			int bd = dt_get_bday_q(
+			/* must be bizda now */
+			pd = dt_get_bday_q(
 				that, __make_bizda_param(s.ab, BIZDA_ULTIMO));
-			res = ui32tostr(buf, bsz, bd, 2);
 		}
+		res = ui32tostr(buf, bsz, pd, 2);
 		break;
+	}
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
 		if (!d->w) {

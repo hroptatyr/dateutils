@@ -1500,6 +1500,25 @@ dt_get_mday(struct dt_d_s that)
 	}
 }
 
+static struct __md_s
+dt_get_md(struct dt_d_s that)
+{
+	switch (that.typ) {
+	default:
+		return (struct __md_s){.m = 0, .d = 0};
+	case DT_YMD:
+		return (struct __md_s){.m = that.ymd.m, .d = that.ymd.d};
+	case DT_YMCW: {
+		unsigned int d = __ymcw_get_mday(that.ymcw);
+		return (struct __md_s){.m = that.ymcw.m, .d = d};
+	}
+	case DT_YWD: {
+		unsigned int yday = __ywd_get_yday(that.ywd);
+		return __yday_get_md(that.ywd.y, yday);
+	}
+	}
+}
+
 /* too exotic to be public */
 static int
 dt_get_wcnt_mon(struct dt_d_s that)
@@ -2259,7 +2278,7 @@ __guess_dtyp(struct strpd_s d)
 }
 
 static void
-__prep_strfd_ywd(struct strpd_s *d, struct dt_d_s this, const char *fmt)
+__prep_strfd_ywd(struct strpd_s *d, struct dt_d_s this)
 {
 /* place ywd data of THIS into D for printing with FMT. */
 	if (this.ywd.c == 1 &&
@@ -2279,14 +2298,6 @@ __prep_strfd_ywd(struct strpd_s *d, struct dt_d_s this, const char *fmt)
 	d->c = this.ywd.c;
 	d->w = this.ywd.w;
 	d->flags.real_y_in_q = 1;
-
-	if (fmt != NULL) {
-		/* service for the %m and %d printer */
-		unsigned int yday = __ywd_get_yday(this.ywd);
-		struct __md_s grrr = __yday_get_md(d->y, yday);
-		d->m = grrr.m;
-		d->d = grrr.d;
-	}
 	return;
 }
 
@@ -2420,7 +2431,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	}
 	case DT_YWD:
-		__prep_strfd_ywd(&d, that, fmt);
+		__prep_strfd_ywd(&d, that);
 		if (fmt == NULL) {
 			fmt = ywd_dflt;
 		}
