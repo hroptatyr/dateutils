@@ -2226,9 +2226,6 @@ __guess_dtyp(struct strpd_s d)
 	if (UNLIKELY(d.d == -1U)) {
 		d.d = 0;
 	}
-	if (UNLIKELY(d.w == -1U)) {
-		d.w = 0;
-	}
 	if (UNLIKELY(d.c == -1U)) {
 		d.c = 0;
 	}
