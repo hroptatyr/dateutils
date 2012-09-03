@@ -731,103 +731,15 @@ __yday_get_md(unsigned int year, unsigned int yday)
 #include "ymcw.c"
 #include "ywd.c"
 #include "bizda.c"
+#include "daisy.c"
 #undef ASPECT_GETTERS
-
-static dt_dow_t
-__daisy_get_wday(dt_daisy_t d)
-{
-/* daisy wdays are simple because the base year is chosen so that day 0
- * in the daisy calendar is a sunday */
-	return (dt_dow_t)(d % GREG_DAYS_P_WEEK);
-}
-
-static unsigned int
-__daisy_get_year(dt_daisy_t d)
-{
-/* given days since 1917-01-01 (Mon), compute a year */
-	int by;
-
-	if (UNLIKELY(d == 0)) {
-		return 0;
-	}
-	for (by = d / 365; __jan00_daisy(TO_YEAR(by)) >= d; by--);
-	return TO_YEAR(by);
-}
-
-static unsigned int
-__daisy_get_yday(dt_daisy_t d)
-{
-	dt_daisy_t j00;
-	unsigned int y;
-
-	if (UNLIKELY(d == 0)) {
-		return 0U;
-	}
-	y = __daisy_get_year(d);
-	j00 = __jan00_daisy(y);
-	return d - j00;
-}
-
-static dt_ymd_t
-__daisy_to_ymd(dt_daisy_t that)
-{
-	dt_daisy_t j00;
-	unsigned int doy;
-	unsigned int y;
-	struct __md_s md;
-
-	if (UNLIKELY(that == 0)) {
-		return (dt_ymd_t){.u = 0};
-	}
-	y = __daisy_get_year(that);
-	j00 = __jan00_daisy(y);
-	doy = that - j00;
-	md = __yday_get_md(y, doy);
-#if defined HAVE_ANON_STRUCTS_INIT
-	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
-	{
-		dt_ymd_t res;
-		res.y = y;
-		res.m = md.m;
-		res.d = md.d;
-		return res;
-	}
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-}
-
-static dt_ymcw_t
-__daisy_to_ymcw(dt_daisy_t that)
-{
-	dt_ymd_t tmp;
-	unsigned int c;
-	unsigned int w;
-
-	if (UNLIKELY(that == 0)) {
-		return (dt_ymcw_t){.u = 0};
-	}
-	tmp = __daisy_to_ymd(that);
-	c = __ymd_get_count(tmp);
-	w = __daisy_get_wday(that);
-#if defined HAVE_ANON_STRUCTS_INIT
-	return (dt_ymcw_t){.y = tmp.y, .m = tmp.m, .c = c, .w = w};
-#else
-	{
-		dt_ymcw_t res;
-		res.y = tmp.y;
-		res.m = tmp.m;
-		res.c = c;
-		res.w = w;
-		return res;
-	}
-#endif
-}
 
 #define ASPECT_CONV
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
 #include "bizda.c"
+#include "daisy.c"
 #undef ASPECT_CONV
 
 static int
@@ -1874,6 +1786,7 @@ out:
 #define ASPECT_STRF
 #include "ywd.c"
 #include "bizda.c"
+#include "daisy.c"
 #undef ASPECT_STRF
 
 DEFUN size_t
@@ -1905,17 +1818,13 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = ymcw_dflt;
 		}
 		break;
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.daisy);
-		d.y = tmp.y;
-		d.m = tmp.m;
-		d.d = tmp.d;
+	case DT_DAISY:
+		__prep_strfd_daisy(&d, that.daisy);
 		if (fmt == NULL) {
 			/* subject to change */
 			fmt = "%F";
 		}
 		break;
-	}
 	case DT_BIZDA:
 		__prep_strfd_bizda(&d, that.bizda, __get_bizda_param(that));
 		if (fmt == NULL) {

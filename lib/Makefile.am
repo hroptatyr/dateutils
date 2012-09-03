@@ -20,6 +20,7 @@ header_HEADERS += ymd.c
 header_HEADERS += ymcw.c
 header_HEADERS += ywd.c
 header_HEADERS += bizda.c
+header_HEADERS += daisy.c
 header_HEADERS += time-core.h time-core.c
 header_HEADERS += time-core-strpf.h time-core-strpf.c
 header_HEADERS += dt-core.h dt-core.c
@@ -57,6 +58,7 @@ EXTRA_libdut_a_SOURCES += ymd.c
 EXTRA_libdut_a_SOURCES += ymcw.c
 EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += bizda.c
+EXTRA_libdut_a_SOURCES += daisy.c
 EXTRA_libdut_a_SOURCES += fmt-special.gperf
 if HAVE_GPERF
 BUILT_SOURCES += fmt-special.c

@@ -461,11 +461,8 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			goto try_time;
 		}
 		break;
-	case DT_DAISY: {
-		dt_ymd_t tmp = __daisy_to_ymd(that.d.daisy);
-		d.sd.y = tmp.y;
-		d.sd.m = tmp.m;
-		d.sd.d = tmp.d;
+	case DT_DAISY:
+		__prep_strfd_daisy(&d.sd, that.d.daisy);
 		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
 			fmt = ymdhms_dflt;
@@ -475,7 +472,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			goto try_time;
 		}
 		break;
-	}
+
 	case DT_BIZDA:
 		__prep_strfd_bizda(
 			&d.sd, that.d.bizda, __get_bizda_param(that.d));
