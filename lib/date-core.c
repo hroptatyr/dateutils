@@ -740,6 +740,8 @@ __ymd_get_yday(dt_ymd_t that)
 	return res;
 }
 
+#if 1
+/* lookup version */
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
 {
@@ -752,6 +754,35 @@ __ymd_get_wday(dt_ymd_t that)
 	}
 	return DT_MIRACLEDAY;
 }
+
+#elif 0
+/* Zeller algorithm */
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t that)
+{
+/* this is Zeller's method, but there's a problem when we use this for
+ * the bizda calendar. */
+	int ydm = that.m;
+	int ydy = that.y;
+	int ydd = that.d;
+	int w;
+	int c, x;
+	int d, y;
+
+	if ((ydm -= 2) <= 0) {
+		ydm += 12;
+		ydy--;
+	}
+
+	d = ydy / 100;
+	c = ydy % 100;
+	x = c / 4;
+	y = d / 4;
+
+	w = (13 * ydm - 1) / 5;
+	return (dt_dow_t)((w + x + y + ydd + c - 2 * d) % GREG_DAYS_P_WEEK);
+}
+#endif	/* 0 */
 
 static unsigned int
 __ymd_get_count(dt_ymd_t that)
