@@ -1871,6 +1871,7 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_YWD:
+		d.ywd = __ywd_add(d.ywd, dur);
 		break;
 
 	case DT_DUNK:
