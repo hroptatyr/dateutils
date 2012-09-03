@@ -610,6 +610,8 @@ struct __md_s {
 	unsigned int d;
 };
 
+#if 1
+/* Freundt's 32-adic algo */
 static struct __md_s
 __yday_get_md(unsigned int year, unsigned int doy)
 {
@@ -671,6 +673,58 @@ yay:
 #undef GET_REM
 }
 
+#elif 0
+/* Trimester algo, we can't figure out which one's faster */
+static struct __md_s
+__yday_get_md(unsigned int year, unsigned int yday)
+{
+/* The idea here is that the year can be divided into trimesters:
+ * Mar  31   Aug  31   Jan 31
+ * Apr  30   Sep  30   Feb 28/29
+ * May  31   Oct  31
+ * Jun  30   Nov  30
+ * Jul  31   Dec  31
+ *
+ * The first two trimesters have 153 days each, and given one of those
+ * the m/d calculation is simply:
+ *   m,d <- yday divrem 30.5
+ *
+ * where 30.5 is achieved by:
+ *   m,d <- 2 * yday divrem 61
+ * of course.
+ *
+ * Normally given the trimester and the m,d within the trimester you
+ * could assemble the m,d of a gregorian year as:
+ *   m <- 5 * trimstr + m + 3
+ *   d <- d
+ * given 0-counting.  And wrap around months 13 and 14 to 01 and 02;
+ * so from this the subtrahend in the 2nd trimester case should be
+ * 153 (as opposed to -30 now).
+ *
+ * We employ a simpler version here that ``inserts'' 2 days after February,
+ * yday 60 is 29 Feb, yday 61 is 30 Feb, then proceed as per usual until
+ * the end of July where another (unnamed) 30-day month is inserted that
+ * goes seamlessly with the 31,30,31,30... cycle */
+	int m;
+	int d;
+
+	if ((yday -= 1 + __leapp(year)) < 59) {
+		/* 3rd trimester */
+		yday += __leapp(year);
+	} else if ((yday += 2) < 153 + 61) {
+		/* 1st trimester */
+		;
+	} else {
+		/* 2nd trimester */
+		yday += 30;
+	}
+
+	m = 2 * yday / 61;
+	d = 2 * yday % 61;
+	return (struct __md_s){.m = m + 1 - (m >= 7), .d = d / 2 + 1};
+}
+#endif	/* 0 */
+
 
 static unsigned int
 __ymd_get_yday(dt_ymd_t that)
@@ -686,6 +740,8 @@ __ymd_get_yday(dt_ymd_t that)
 	return res;
 }
 
+#if 1
+/* lookup version */
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
 {
@@ -698,6 +754,51 @@ __ymd_get_wday(dt_ymd_t that)
 	}
 	return DT_MIRACLEDAY;
 }
+
+#elif 0
+/* Zeller algorithm */
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t that)
+{
+/* this is Zeller's method, but there's a problem when we use this for
+ * the bizda calendar. */
+	int ydm = that.m;
+	int ydy = that.y;
+	int ydd = that.d;
+	int w;
+	int c, x;
+	int d, y;
+
+	if ((ydm -= 2) <= 0) {
+		ydm += 12;
+		ydy--;
+	}
+
+	d = ydy / 100;
+	c = ydy % 100;
+	x = c / 4;
+	y = d / 4;
+
+	w = (13 * ydm - 1) / 5;
+	return (dt_dow_t)((w + x + y + ydd + c - 2 * d) % GREG_DAYS_P_WEEK);
+}
+#elif 1
+/* Sakamoto method */
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t that)
+{
+	static int t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+	int y = that.y;
+	int m = that.m;
+	int d = that.d;
+	int res;
+
+	y -= m < 3;
+	res = y + y / 4 - y / 100 + y / 400;
+	res += t[m - 1] + d;
+	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
+}
+#endif	/* 0 */
 
 static unsigned int
 __ymd_get_count(dt_ymd_t that)
