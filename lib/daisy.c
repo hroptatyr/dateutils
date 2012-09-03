@@ -143,6 +143,50 @@ __daisy_to_ymcw(dt_daisy_t that)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined DAISY_ASPECT_ADD_
+#define DAISY_ASPECT_ADD_
+static dt_daisy_t
+__daisy_add(dt_daisy_t d, struct dt_d_s dur)
+{
+/* add DUR to D, doesn't check if DUR has the dur flag */
+	switch (dur.typ) {
+	case DT_DAISY:
+		d += dur.daisydur;
+		break;
+	case DT_BIZSI: {
+		dt_dow_t dow = __daisy_get_wday(d);
+		int dequiv = __get_d_equiv(dow, dur.bizsidur);
+		d += dequiv;
+		break;
+	}
+	case DT_YMD:
+	case DT_YMCW:
+	case DT_BIZDA:
+		/* daisies have no notion of years and months */
+	case DT_DUNK:
+	default:
+		break;
+	}
+	return d;
+}
+#endif	/* ASPECT_ADD */
+
+
+#if defined ASPECT_DIFF && !defined DAISY_ASPECT_DIFF_
+#define DAISY_ASPECT_DIFF_
+static struct dt_d_s
+__daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
+{
+/* compute d2 - d1 */
+	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
+	int32_t diff = d2 - d1;
+
+	res.daisydur = diff;
+	return res;
+}
+#endif	/* ASPECT_DIFF */
+
+
 #if defined ASPECT_STRF && !defined DAISY_ASPECT_STRF_
 #define DAISY_ASPECT_STRF_
 

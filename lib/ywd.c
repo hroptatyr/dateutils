@@ -234,6 +234,87 @@ __ywd_to_ymd(dt_ywd_t d)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined YWD_ASPECT_ADD_
+#define YWD_ASPECT_ADD_
+static dt_ywd_t
+__ywd_add(dt_ywd_t d, struct dt_d_s dur)
+{
+/* here's a short draft of the ywd-arithmetic:
+ * Y-w-d + n years -> (Y + n)-w-d
+ * Y-w-d + n weeks -> Y'-(w + n)-d
+ * Y-w-d + n days -> Y'-w'-(d + n)
+ *
+ * YWD is a month-less calendar, so adding n mo(nths) is undefined
+ * but as of 0.2.3 there is no global policy on how to signal such
+ * conditions so we just do fuckall. */
+	unsigned int tgty;
+	unsigned int tgtc;
+	dt_dow_t tgtw;
+	struct strpdi_s durcch = strpdi_initialiser();
+
+	/* first off, give DUR a make-over */
+	__fill_strpdi(&durcch, dur);
+
+	switch (dur.typ) {
+	case DT_YMD:
+	case DT_MD:
+	case DT_YMCW:
+	case DT_BIZDA:
+	case DT_DAISY:
+	case DT_BIZSI: {
+		signed int q;
+		signed int mc;
+
+		tgty = d.y + durcch.m / 12;
+
+		/* factorise 7d.c + d.w + durcch.d into 7q + p, 0 <= p < 7
+		 * we need the fact that p cannot be negative further down */
+		mc = (d.c - 1) * GREG_DAYS_P_WEEK + d.w - 1+ durcch.d;
+		q = __uidiv(mc, GREG_DAYS_P_WEEK);
+		{
+			/* just so we don't mix enum types and ints */
+			unsigned int tmp = __uimod(mc, GREG_DAYS_P_WEEK) + 1;
+			/* final week day in tmp, so ass it */
+			tgtw = (dt_dow_t)tmp;
+		}
+
+		/* fixup q */
+		while (1) {
+			if (q < 0) {
+				tgty--;
+				q += 52;
+			} else if (q >= 52) {
+				tgty++;
+				q -= 52;
+			} else {
+				break;
+			}
+		}
+
+		/* re-instantiate the count within the month */
+		tgtc = q + 1;
+		break;
+	}
+	default:
+		tgty = tgtc = 0;
+		tgtw = DT_MIRACLEDAY;
+		break;
+	}
+	/* reassign to the guy we were asked to add upon */
+	d.y = tgty;
+	d.c = tgtc;
+	d.w = tgtw;
+	return d;
+}
+#endif	/* ASPECT_ADD */
+
+
+#if defined ASPECT_DIFF && !defined YWD_ASPECT_DIFF_
+#define YWD_ASPECT_DIFF_
+
+#endif	/* ASPECT_DIFF */
+
+
 #if defined ASPECT_STRF && !defined YWD_ASPECT_STRF_
 #define YWD_ASPECT_STRF_
 static void
