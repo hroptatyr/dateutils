@@ -782,6 +782,22 @@ __ymd_get_wday(dt_ymd_t that)
 	w = (13 * ydm - 1) / 5;
 	return (dt_dow_t)((w + x + y + ydd + c - 2 * d) % GREG_DAYS_P_WEEK);
 }
+#elif 1
+/* Sakamoto method */
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t that)
+{
+	static int t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+	int y = that.y;
+	int m = that.m;
+	int d = that.d;
+	int res;
+
+	y -= m < 3;
+	res = y + y / 4 - y / 100 + y / 400;
+	res += t[m - 1] + d;
+	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
+}
 #endif	/* 0 */
 
 static unsigned int
