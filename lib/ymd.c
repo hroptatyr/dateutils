@@ -366,6 +366,56 @@ __ymd_add(dt_ymd_t d, struct dt_d_s dur)
 #endif	/* ASPECT_ADD */
 
 
+#if defined ASPECT_DIFF && !defined YMD_ASPECT_DIFF_
+#define YMD_ASPECT_DIFF_
+static struct dt_d_s
+__ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
+{
+/* compute d2 - d1 entirely in terms of ymd */
+	struct dt_d_s res = {.typ = DT_YMD, .dur = 1};
+	signed int tgtd;
+	signed int tgtm;
+
+	if (d1.u > d2.u) {
+		/* swap d1 and d2 */
+		dt_ymd_t tmp = d1;
+		res.neg = 1;
+		d1 = d2;
+		d2 = tmp;
+	}
+
+	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
+	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
+		/* if tgtm is 0 it remains 0 and tgtd remains negative */
+		/* get the target month's mdays */
+		unsigned int d2m = d2.m;
+		unsigned int d2y = d2.y;
+
+		if (--d2m < 1) {
+			d2m = GREG_MONTHS_P_YEAR;
+			d2y--;
+		}
+		tgtd += __get_mdays(d2y, d2m);
+		tgtm--;
+#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
+		/* the non-fast arith has done the fixup already */
+#else  /* WITH_FAST_ARITH && !defined OMIT_FIXUPS */
+	} else if (tgtm == 0) {
+		/* check if we're not diffing two lazy representations
+		 * e.g. 2010-02-28 and 2010-02-31 */
+		;
+#endif	/* !OMIT_FIXUPS */
+	}
+	/* fill in the results */
+	res.ymd.y = tgtm / GREG_MONTHS_P_YEAR;
+	res.ymd.m = tgtm % GREG_MONTHS_P_YEAR;
+	res.ymd.d = tgtd;
+	return res;
+}
+#endif	/* ASPECT_DIFF */
+
+
 #if defined ASPECT_STRF && !defined YMD_ASPECT_STRF_
 #define YMD_ASPECT_STRF_
 

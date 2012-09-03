@@ -1227,121 +1227,12 @@ __get_d_equiv(dt_dow_t dow, int b)
 #include "daisy.c"
 #undef ASPECT_ADD
 
-static struct dt_d_s
-__daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
-{
-/* compute d2 - d1 */
-	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
-	int32_t diff = d2 - d1;
-
-	res.daisydur = diff;
-	return res;
-}
-
-static struct dt_d_s
-__ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
-{
-/* compute d2 - d1 entirely in terms of ymd */
-	struct dt_d_s res = {.typ = DT_YMD, .dur = 1};
-	signed int tgtd;
-	signed int tgtm;
-
-	if (d1.u > d2.u) {
-		/* swap d1 and d2 */
-		dt_ymd_t tmp = d1;
-		res.neg = 1;
-		d1 = d2;
-		d2 = tmp;
-	}
-
-	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
-	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
-	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
-		/* if tgtm is 0 it remains 0 and tgtd remains negative */
-		/* get the target month's mdays */
-		unsigned int d2m = d2.m;
-		unsigned int d2y = d2.y;
-
-		if (--d2m < 1) {
-			d2m = GREG_MONTHS_P_YEAR;
-			d2y--;
-		}
-		tgtd += __get_mdays(d2y, d2m);
-		tgtm--;
-#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
-		/* the non-fast arith has done the fixup already */
-#else  /* WITH_FAST_ARITH && !defined OMIT_FIXUPS */
-	} else if (tgtm == 0) {
-		/* check if we're not diffing two lazy representations
-		 * e.g. 2010-02-28 and 2010-02-31 */
-		;
-#endif	/* !OMIT_FIXUPS */
-	}
-	/* fill in the results */
-	res.ymd.y = tgtm / GREG_MONTHS_P_YEAR;
-	res.ymd.m = tgtm % GREG_MONTHS_P_YEAR;
-	res.ymd.d = tgtd;
-	return res;
-}
-
-static struct dt_d_s
-__ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
-{
-/* compute d2 - d1 entirely in terms of ymd */
-	struct dt_d_s res = {.typ = DT_YMCW, .dur = 1};
-	signed int tgtd;
-	signed int tgtm;
-	dt_dow_t wd01, wd02;
-
-	if (__ymcw_cmp(d1, d2) > 0) {
-		dt_ymcw_t tmp = d1;
-		d1 = d2;
-		d2 = tmp;
-		res.neg = 1;
-	}
-
-	wd01 = __get_m01_wday(d1.y, d1.m);
-	if (d2.y != d1.y || d2.m != d1.m) {
-		wd02 = __get_m01_wday(d2.y, d2.m);
-	} else {
-		wd02 = wd01;
-	}
-
-	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
-	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
-	/* using the firsts of the month WD01, represent d1 and d2 as
-	 * the C-th WD01 plus OFF */
-	{
-		unsigned int off1;
-		unsigned int off2;
-
-		off1 = __uimod(d1.w - wd01, GREG_DAYS_P_WEEK);
-		off2 = __uimod(d2.w - wd02, GREG_DAYS_P_WEEK);
-		tgtd = off2 - off1 + GREG_DAYS_P_WEEK * (d2.c - d1.c);
-	}
-
-	/* fixups */
-	if (tgtd < (signed int)GREG_DAYS_P_WEEK && tgtm > 0) {
-		/* if tgtm is 0 it remains 0 and tgtd remains negative */
-		/* get the target month's mdays */
-		unsigned int d2m = d2.m;
-		unsigned int d2y = d2.y;
-
-		if (--d2m < 1) {
-			d2m = GREG_MONTHS_P_YEAR;
-			d2y--;
-		}
-		tgtd += __get_mdays(d2y, d2m);
-		tgtm--;
-	}
-
-	/* fill in the results */
-	res.ymcw.y = tgtm / GREG_MONTHS_P_YEAR;
-	res.ymcw.m = tgtm % GREG_MONTHS_P_YEAR;
-	res.ymcw.c = tgtd / GREG_DAYS_P_WEEK;
-	res.ymcw.w = tgtd % GREG_DAYS_P_WEEK;
-	return res;
-}
+#define ASPECT_DIFF
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "daisy.c"
+#undef ASPECT_DIFF
 
 
 /* guessing parsers */

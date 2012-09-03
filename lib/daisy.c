@@ -172,6 +172,21 @@ __daisy_add(dt_daisy_t d, struct dt_d_s dur)
 #endif	/* ASPECT_ADD */
 
 
+#if defined ASPECT_DIFF && !defined DAISY_ASPECT_DIFF_
+#define DAISY_ASPECT_DIFF_
+static struct dt_d_s
+__daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
+{
+/* compute d2 - d1 */
+	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
+	int32_t diff = d2 - d1;
+
+	res.daisydur = diff;
+	return res;
+}
+#endif	/* ASPECT_DIFF */
+
+
 #if defined ASPECT_STRF && !defined DAISY_ASPECT_STRF_
 #define DAISY_ASPECT_STRF_
 
