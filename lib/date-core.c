@@ -730,210 +730,8 @@ __yday_get_md(unsigned int year, unsigned int yday)
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
+#include "bizda.c"
 #undef ASPECT_GETTERS
-
-static unsigned int
-__bizda_get_mday(dt_bizda_t that)
-{
-	dt_dow_t wd01;
-	unsigned int res;
-
-	/* find first of the month first */
-	wd01 = __get_m01_wday(that.y, that.m);
-
-	switch (wd01) {
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		res = 1;
-		break;
-	case DT_SATURDAY:
-		wd01 = DT_MONDAY;
-		res = 3;
-		break;
-	case DT_SUNDAY:
-		wd01 = DT_MONDAY;
-		res = 2;
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		res = 0;
-		break;
-	}
-	/* now just add up bdays */
-	{
-		unsigned int wk;
-		unsigned int nd;
-		unsigned int b = that.bd;
-		unsigned int magic = (b - 1 + wd01 - 1);
-
-		assert(b - 1 + wd01 - 1 >= 0);
-		wk = magic / DUWW_BDAYS_P_WEEK;
-		nd = magic % DUWW_BDAYS_P_WEEK;
-		res += wk * GREG_DAYS_P_WEEK + nd - wd01 + 1;
-	}
-	/* fixup mdays */
-	if (res > __get_mdays(that.y, that.m)) {
-		res = 0;
-	}
-	return res;
-}
-
-static dt_dow_t
-__bizda_get_wday(dt_bizda_t that)
-{
-	dt_dow_t wd01;
-	unsigned int b;
-	unsigned int magic;
-
-	/* find first of the month first */
-	wd01 = __get_m01_wday(that.y, that.m);
-	b = that.bd;
-	magic = (b - 1 + (wd01 ? wd01 : 6) - 1);
-	/* now just add up bdays */
-	return (dt_dow_t)((magic % DUWW_BDAYS_P_WEEK) + DT_MONDAY);
-}
-
-static unsigned int
-__bizda_get_count(dt_bizda_t that)
-{
-/* get N where N is the N-th occurrence of wday in the month of that year */
-	unsigned int bd = __get_bdays(that.y, that.m);
-
-	if (UNLIKELY(that.bd + DUWW_BDAYS_P_WEEK > bd)) {
-		return DUWW_BDAYS_P_WEEK;
-	}
-	return (that.bd - 1U) / DUWW_BDAYS_P_WEEK + 1U;
-}
-
-static unsigned int
-__bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
-{
-/* return the N-th business day in Y,
- * the meaning of ultimo will be stretched to Y-ultimo, either last year's
- * or this year's, other reference points are not yet supported
- *
- * we use the following table (days beyond 20 bdays per month (across)):
- * Mon  3  0  2   1  3  1   2  3  0   3  2  1 
- * Mon  3  1  1   rest like Tue
- * Tue  3  0  1   2  3  0   3  2  1   3  1  2 
- * Tue  3  1  1   rest like Wed
- * Wed  3  0  1   2  2  1   3  1  2   3  0  3 
- * Wed  3  0  2   rest like Thu
- * Thu  2  0  2   2  1  2   3  1  2   2  1  3 
- * Thu  2  0  3   rest like Fri
- * Fri  1  0  3   2  1  2   2  2  2   1  2  3 
- * Fri  1  1  3   rest like Sat
- * Sat  1  0  3   1  2  2   1  3  2   1  2  2 
- * Sat  1  1  3   rest like Sun
- * Sun  2  0  3   0  3  2   1  3  1   2  2  1 
- * Sun  2  1  2   rest like Mon
- * */
-	struct __bdays_by_wday_s {
-		unsigned int jan:2;
-		unsigned int feb:2;
-		unsigned int mar:2;
-		unsigned int apr:2;
-		unsigned int may:2;
-		unsigned int jun:2;
-		unsigned int jul:2;
-		unsigned int aug:2;
-		unsigned int sep:2;
-		unsigned int oct:2;
-		unsigned int nov:2;
-		unsigned int dec:2;
-
-		unsigned int feb_leap:2;
-		unsigned int mar_leap:2;
-
-		/* 4 bits left */
-		unsigned int flags:4;
-	};
-	static struct __bdays_by_wday_s tbl[7] = {
-		{
-			/* DT_SUNDAY */
-			2, 0, 3,  0, 3, 2,  1, 3, 1,  2, 2, 1,  1, 2, 0
-		}, {
-			/* DT_MONDAY */
-			3, 0, 2,  1, 3, 1,  2, 3, 0,  3, 2, 1,  1, 1, 0
-		}, {
-			/* DT_TUESDAY */
-			3, 0, 1,  2, 3, 0,  3, 2, 1,  3, 1, 2,  1, 1, 0
-		}, {
-			/* DT_WEDNESDAY */
-			3, 0, 1,  2, 2, 1,  3, 1, 2,  3, 0, 3,  0, 2, 0
-		}, {
-			/* DT_THURSDAY */
-			2, 0, 2,  2, 1, 2,  3, 1, 2,  2, 1, 3,  0, 3, 0
-		}, {
-			/* DT_FRIDAY */
-			1, 0, 3,  2, 1, 2,  2, 2, 2,  1, 2, 3,  1, 3, 0
-		}, {
-			/* DT_SATURDAY */
-			1, 0, 3,  1, 2, 2,  1, 3, 2,  1, 2, 2,  1, 3, 0
-		},
-	};
-	dt_dow_t j01wd;
-	unsigned int y = that.y;
-	unsigned int m = that.m;
-	unsigned int accum = 0;
-
-	if (UNLIKELY(param.ref != BIZDA_ULTIMO)) {
-		return 0;
-	}
-	j01wd = __get_jan01_wday(that.y);
-
-	if (LIKELY(!__leapp(y))) {
-		union {
-			uint32_t u;
-			uint32_t lu:2;
-			struct __bdays_by_wday_s s;
-		} page = {
-			.s = tbl[j01wd],
-		};
-		for (unsigned int i = 0; i < m - 1; i++) {
-			accum += page.lu;
-#if defined WORDS_BIGENDIAN
-			page.u <<= 2;
-#else  /* !WORDS_BIGENDIAN */
-			page.u >>= 2;
-#endif	/* WORDS_BIGENDIAN */
-		}
-	} else if (m > 1) {
-		union {
-			uint32_t u;
-			uint32_t lu:2;
-			struct __bdays_by_wday_s s;
-		} page = {
-			.s = tbl[j01wd],
-		};
-		accum += page.lu;
-		if (m > 2) {
-			accum += page.s.feb_leap;
-		}
-		if (m > 3) {
-			accum += page.s.mar_leap;
-		}
-		/* load a different page now, shift to the right month */
-		page.s = tbl[(j01wd + DT_MONDAY) % GREG_DAYS_P_WEEK];
-#if defined WORDS_BIGENDIAN
-		page.u <<= 6;
-#else  /* !WORDS_BIGENDIAN */
-		page.u >>= 6;
-#endif	/* WORDS_BIGENDIAN */
-		for (unsigned int i = 4; i < m; i++) {
-			accum += page.lu;
-#if defined WORDS_BIGENDIAN
-			page.u <<= 2;
-#else  /* !WORDS_BIGENDIAN */
-			page.u >>= 2;
-#endif	/* WORDS_BIGENDIAN */
-		}
-	}
-	return 20 * (m - 1) + accum + that.bd;
-}
 
 static dt_dow_t
 __daisy_get_wday(dt_daisy_t d)
@@ -1029,6 +827,7 @@ __daisy_to_ymcw(dt_daisy_t that)
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
+#include "bizda.c"
 #undef ASPECT_CONV
 
 static int
@@ -2074,6 +1873,7 @@ out:
 
 #define ASPECT_STRF
 #include "ywd.c"
+#include "bizda.c"
 #undef ASPECT_STRF
 
 DEFUN size_t
@@ -2116,22 +1916,12 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
-	case DT_BIZDA: {
-		dt_bizda_param_t bparam = __get_bizda_param(that);
-		d.y = that.bizda.y;
-		d.m = that.bizda.m;
-		d.b = that.bizda.bd;
-		if (LIKELY(bparam.ab == BIZDA_AFTER)) {
-			d.flags.ab = BIZDA_AFTER;
-		} else {
-			d.flags.ab = BIZDA_BEFORE;
-		}
-		d.flags.bizda = 1;
+	case DT_BIZDA:
+		__prep_strfd_bizda(&d, that.bizda, __get_bizda_param(that));
 		if (fmt == NULL) {
 			fmt = bizda_dflt;
 		}
 		break;
-	}
 	case DT_YWD:
 		__prep_strfd_ywd(&d, that.ywd);
 		if (fmt == NULL) {
