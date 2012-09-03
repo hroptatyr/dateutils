@@ -231,23 +231,6 @@ __ywd_to_ymd(dt_ywd_t d)
 	}
 #endif	/* HAVE_ANON_STRUCTS_INIT */
 }
-
-static dt_ymcw_t
-__ymd_to_ymcw(dt_ymd_t d)
-{
-	unsigned int c = __ymd_get_count(d);
-	unsigned int w = __ymd_get_wday(d);
-#if defined HAVE_ANON_STRUCTS_INIT
-	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
-#else
-	dt_ymcw_t res;
-	res.y = d.y;
-	res.m = d.m;
-	res.c = c;
-	res.w = w;
-	return res;
-#endif
-}
 #endif	/* ASPECT_CONV */
 
 
