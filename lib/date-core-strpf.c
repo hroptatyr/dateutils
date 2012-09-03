@@ -112,6 +112,16 @@ __strpd_std(const char *str, char **ep)
 	    *sp++ != '-') {
 		goto fucked;
 	}
+	/* check for ywd dates */
+	if (UNLIKELY(*sp == 'W')) {
+		/* brilliant */
+		if ((sp++, d.c = strtoui_lim(sp, &sp, 1, 53)) == -1U ||
+		    *sp++ != '-') {
+			goto fucked;
+		}
+		d.flags.wk_cnt = YWD_ISOWK_CNT;
+		goto dow;
+	}
 	/* read the month */
 	if ((d.m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) == -1U ||
 	    *sp++ != '-') {
@@ -132,6 +142,7 @@ __strpd_std(const char *str, char **ep)
 		}
 		d.d = 0;
 		sp++;
+	dow:
 		if ((d.w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) == -1U) {
 			/* didn't work, fuck off */
 			goto fucked;

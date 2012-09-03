@@ -303,6 +303,16 @@ __strpdt_std(const char *str, char **ep)
 		sp = str;
 		goto try_time;
 	}
+	/* check for ywd dates */
+	if (UNLIKELY(*sp == 'W')) {
+		/* brilliant */
+		if ((sp++, d.sd.c = strtoui_lim(sp, &sp, 1, 53)) == -1U ||
+		    *sp++ != '-') {
+			goto try_time;
+		}
+		d.sd.flags.wk_cnt = YWD_ISOWK_CNT;
+		goto dow;
+	}
 	/* read the month */
 	if ((d.sd.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
 	    *sp++ != '-') {
@@ -324,6 +334,7 @@ __strpdt_std(const char *str, char **ep)
 			break;
 		}
 		d.sd.d = 0;
+	dow:
 		if ((d.sd.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
 			/* didn't work, fuck off */
 			sp = str;
