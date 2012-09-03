@@ -1867,6 +1867,12 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		d.ymcw = __ymcw_add(d.ymcw, dur);
 		break;
 
+	case DT_BIZDA:
+		break;
+
+	case DT_YWD:
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1948,6 +1954,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymcw_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_YWD:
 	case DT_BIZDA:
 	case DT_DUNK:
 	default:
