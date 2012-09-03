@@ -20,6 +20,7 @@ header_HEADERS += ywd.c
 header_HEADERS += time-core.h time-core.c
 header_HEADERS += time-core-strpf.h time-core-strpf.c
 header_HEADERS += dt-core.h dt-core.c
+header_HEADERS += dt-core-strpf.h dt-core-strpf.c
 header_HEADERS += strops.h strops.c
 header_HEADERS += token.h token.c
 header_HEADERS += tzraw.h tzraw.c

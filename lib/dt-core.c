@@ -55,6 +55,8 @@
 #include "leaps.h"
 #include "nifty.h"
 #include "dt-core.h"
+/* parsers and formatters */
+#include "date-core-strpf.h"
 
 #if !defined INCLUDED_date_core_c_
 # include "date-core.c"
@@ -90,7 +92,6 @@ struct strpdti_s {
 	signed int S;
 };
 
-#include "strops.c"
 #if defined WITH_LEAP_SECONDS
 # include "leapseconds.def"
 #endif	/* WITH_LEAP_SECONDS */
@@ -222,9 +223,18 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 	return sx + delta;
 }
 
+#if defined WITH_LEAP_SECONDS && defined SKIP_LEAP_ARITH
+#error "bugger"
+#endif
+
 
 /* guessing parsers */
 #include "token.c"
+#include "strops.c"
+#if defined WITH_LEAP_SECONDS && defined SKIP_LEAP_ARITH
+#error "bugger"
+#endif
+#include "dt-core-strpf.c"
 
 static const char ymdhms_dflt[] = "%FT%T";
 static const char ymcwhms_dflt[] = "%Y-%m-%c-%wT%T";
@@ -271,321 +281,6 @@ __trans_dtfmt(const char **fmt)
 		}
 	}
 	return;
-}
-
-static struct dt_dt_s
-__strpdt_std(const char *str, char **ep)
-{
-	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d = {{0}, {0}};
-	const char *sp;
-
-	if ((sp = str) == NULL) {
-		goto out;
-	}
-	/* check for epoch notation */
-	if (*sp == '@') {
-		/* yay, epoch */
-		const char *tmp;
-		d.i = strtoi(++sp, &tmp);
-		if (UNLIKELY(d.i == -1 && sp == tmp)) {
-			sp--;
-		} else {
-			/* let's make a DT_SEXY */
-			res.typ = DT_SEXY;
-			res.sxepoch = d.i;
-		}
-		goto out;
-	}
-	/* read the year */
-	if ((d.sd.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
-	    *sp++ != '-') {
-		sp = str;
-		goto try_time;
-	}
-	/* check for ywd dates */
-	if (UNLIKELY(*sp == 'W')) {
-		/* brilliant */
-		if ((sp++, d.sd.c = strtoui_lim(sp, &sp, 1, 53)) == -1U ||
-		    *sp++ != '-') {
-			goto try_time;
-		}
-		d.sd.flags.wk_cnt = YWD_ISOWK_CNT;
-		goto dow;
-	}
-	/* read the month */
-	if ((d.sd.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
-	    *sp++ != '-') {
-		sp = str;
-		goto out;
-	}
-	/* read the day or the count */
-	if ((d.sd.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
-		/* didn't work, fuck off */
-		sp = str;
-		goto out;
-	}
-	/* check the date type */
-	switch (*sp) {
-	case '-':
-		/* it is a YMCW date */
-		if ((d.sd.c = d.sd.d) > 5) {
-			/* nope, it was bollocks */
-			break;
-		}
-		d.sd.d = 0;
-	dow:
-		if ((d.sd.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
-			/* didn't work, fuck off */
-			sp = str;
-			goto out;
-		}
-		break;
-	case 'B':
-		/* it's a bizda/YMDU before ultimo date */
-		d.sd.flags.ab = BIZDA_BEFORE;
-	case 'b':
-		/* it's a bizda/YMDU after ultimo date */
-		d.sd.flags.bizda = 1;
-		d.sd.b = d.sd.d;
-		d.sd.d = 0;
-		sp++;
-		break;
-	default:
-		/* we don't care */
-		break;
-	}
-	/* guess what we're doing */
-	if ((res.d = __guess_dtyp(d.sd)).typ == DT_DUNK) {
-		/* not much use parsing on */
-		goto out;
-	}
-	/* check for the d/t separator */
-	switch (*sp) {
-	case 'T':
-	case ' ':
-	case '\t':
-		/* could be a time, could be something, else
-		 * make sure we leave a mark */
-		str = sp++;
-		break;
-	default:
-		/* should be a no-op */
-		dt_make_d_only(&res, res.d.typ);
-		goto out;
-	}
-try_time:
-	/* and now parse the time */
-	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
-		sp = str;
-		goto out;
-	} else if (*sp != ':') {
-		goto eval_time;
-	} else if ((d.st.m = strtoui_lim(++sp, &sp, 0, 59)) == -1U) {
-		d.st.m = 0;
-		goto eval_time;
-	} else if (*sp != ':') {
-		goto eval_time;
-	} else if ((d.st.s = strtoui_lim(++sp, &sp, 0, 60)) == -1U) {
-		d.st.s = 0;
-	} else if (*sp != '.') {
-		goto eval_time;
-	} else if ((d.st.ns = strtoui_lim(++sp, &sp, 0, 999999999)) == -1U) {
-		d.st.ns = 0;
-		goto eval_time;
-	}
-eval_time:
-	res.t.hms.h = d.st.h;
-	res.t.hms.m = d.st.m;
-	res.t.hms.s = d.st.s;
-	if (res.d.typ > DT_DUNK) {
-		dt_make_sandwich(&res, res.d.typ, DT_HMS);
-	} else {
-		dt_make_t_only(&res, DT_HMS);
-	}
-out:
-	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
-	if (ep != NULL) {
-		*ep = (char*)sp;
-	}
-	return res;
-}
-
-static int
-__strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
-{
-	int res = 0;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		res = -1;
-		break;
-	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_YEAR:
-	case DT_SPFL_N_MON:
-	case DT_SPFL_N_DCNT_MON:
-	case DT_SPFL_N_DCNT_WEEK:
-	case DT_SPFL_N_DCNT_YEAR:
-	case DT_SPFL_N_WCNT_MON:
-	case DT_SPFL_N_WCNT_YEAR:
-	case DT_SPFL_S_WDAY:
-	case DT_SPFL_S_MON:
-	case DT_SPFL_S_QTR:
-	case DT_SPFL_N_QTR:
-		res = __strpd_card(&d->sd, sp, s, ep);
-		goto out_direct;
-
-	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_HOUR:
-	case DT_SPFL_N_MIN:
-	case DT_SPFL_N_SEC:
-	case DT_SPFL_N_NANO:
-	case DT_SPFL_S_AMPM:
-		res = __strpt_card(&d->st, sp, s, ep);
-		goto out_direct;
-
-	case DT_SPFL_N_EPOCH:
-		/* read over @ */
-		if (UNLIKELY(*sp == '@')) {
-			sp++;
-		}
-		d->i = strtoi(sp, &sp);
-		break;
-
-	case DT_SPFL_LIT_PERCENT:
-		if (*sp++ != '%') {
-			res = -1;
-		}
-		break;
-	case DT_SPFL_LIT_TAB:
-		if (*sp++ != '\t') {
-			res = -1;
-		}
-		break;
-	case DT_SPFL_LIT_NL:
-		if (*sp++ != '\n') {
-			res = -1;
-		}
-		break;
-	}
-	/* assign end pointer */
-	if (ep != NULL) {
-		*ep = (char*)sp;
-	}
-out_direct:
-	return res;
-}
-
-static size_t
-__strfdt_card(
-	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpdt_s *d, struct dt_dt_s that)
-{
-	size_t res = 0;
-
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		break;
-	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_YEAR:
-	case DT_SPFL_N_MON:
-	case DT_SPFL_N_DCNT_WEEK:
-	case DT_SPFL_N_DCNT_MON:
-	case DT_SPFL_N_DCNT_YEAR:
-	case DT_SPFL_N_WCNT_MON:
-	case DT_SPFL_N_WCNT_YEAR:
-	case DT_SPFL_S_WDAY:
-	case DT_SPFL_S_MON:
-	case DT_SPFL_S_QTR:
-	case DT_SPFL_N_QTR:
-		res = __strfd_card(buf, bsz, s, &d->sd, that.d);
-		break;
-
-	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_HOUR:
-	case DT_SPFL_N_MIN:
-	case DT_SPFL_N_SEC:
-	case DT_SPFL_S_AMPM:
-	case DT_SPFL_N_NANO:
-		res = __strft_card(buf, bsz, s, &d->st, that.t);
-		break;
-
-	case DT_SPFL_N_EPOCH: {
-		/* convert to sexy */
-		int64_t sexy = dt_conv_to_sexy(that).sexy;
-		res = snprintf(buf, bsz, "%" PRIi64, sexy);
-		break;
-	}
-
-	case DT_SPFL_LIT_PERCENT:
-		/* literal % */
-		buf[res++] = '%';
-		break;
-	case DT_SPFL_LIT_TAB:
-		/* literal tab */
-		buf[res++] = '\t';
-		break;
-	case DT_SPFL_LIT_NL:
-		/* literal \n */
-		buf[res++] = '\n';
-		break;
-	}
-	return res;
-}
-
-static size_t
-__strfdt_dur(
-	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpdt_s *d, struct dt_dt_s that)
-{
-	switch (s.spfl) {
-	default:
-	case DT_SPFL_UNK:
-		return 0;
-
-	case DT_SPFL_N_DSTD:
-	case DT_SPFL_N_YEAR:
-	case DT_SPFL_N_MON:
-	case DT_SPFL_N_DCNT_WEEK:
-	case DT_SPFL_N_DCNT_MON:
-	case DT_SPFL_N_DCNT_YEAR:
-	case DT_SPFL_N_WCNT_MON:
-	case DT_SPFL_N_WCNT_YEAR:
-	case DT_SPFL_S_WDAY:
-	case DT_SPFL_S_MON:
-	case DT_SPFL_S_QTR:
-	case DT_SPFL_N_QTR:
-		return __strfd_dur(buf, bsz, s, &d->sd, that.d);
-
-		/* noone's ever bothered doing the same thing for times */
-	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_SEC:
-		if (that.typ == DT_SEXY) {
-			/* use the sexy slot */
-			int64_t dur = that.sexydur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi64 "s", dur);
-		} else {
-			/* replace me!!! */
-			int32_t dur = that.t.sdur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi32 "s", dur);
-		}
-
-	case DT_SPFL_LIT_PERCENT:
-		/* literal % */
-		*buf = '%';
-		break;
-	case DT_SPFL_LIT_TAB:
-		/* literal tab */
-		*buf = '\t';
-		break;
-	case DT_SPFL_LIT_NL:
-		/* literal \n */
-		*buf = '\n';
-		break;
-	}
-	return 1;
 }
 
 #if defined WITH_LEAP_SECONDS
