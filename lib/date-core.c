@@ -610,6 +610,8 @@ struct __md_s {
 	unsigned int d;
 };
 
+#if 1
+/* Freundt's 32-adic algo */
 static struct __md_s
 __yday_get_md(unsigned int year, unsigned int doy)
 {
@@ -670,6 +672,58 @@ yay:
 	return (struct __md_s){.m = m, .d = d};
 #undef GET_REM
 }
+
+#elif 0
+/* Trimester algo, we can't figure out which one's faster */
+static struct __md_s
+__yday_get_md(unsigned int year, unsigned int yday)
+{
+/* The idea here is that the year can be divided into trimesters:
+ * Mar  31   Aug  31   Jan 31
+ * Apr  30   Sep  30   Feb 28/29
+ * May  31   Oct  31
+ * Jun  30   Nov  30
+ * Jul  31   Dec  31
+ *
+ * The first two trimesters have 153 days each, and given one of those
+ * the m/d calculation is simply:
+ *   m,d <- yday divrem 30.5
+ *
+ * where 30.5 is achieved by:
+ *   m,d <- 2 * yday divrem 61
+ * of course.
+ *
+ * Normally given the trimester and the m,d within the trimester you
+ * could assemble the m,d of a gregorian year as:
+ *   m <- 5 * trimstr + m + 3
+ *   d <- d
+ * given 0-counting.  And wrap around months 13 and 14 to 01 and 02;
+ * so from this the subtrahend in the 2nd trimester case should be
+ * 153 (as opposed to -30 now).
+ *
+ * We employ a simpler version here that ``inserts'' 2 days after February,
+ * yday 60 is 29 Feb, yday 61 is 30 Feb, then proceed as per usual until
+ * the end of July where another (unnamed) 30-day month is inserted that
+ * goes seamlessly with the 31,30,31,30... cycle */
+	int m;
+	int d;
+
+	if ((yday -= 1 + __leapp(year)) < 59) {
+		/* 3rd trimester */
+		yday += __leapp(year);
+	} else if ((yday += 2) < 153 + 61) {
+		/* 1st trimester */
+		;
+	} else {
+		/* 2nd trimester */
+		yday += 30;
+	}
+
+	m = 2 * yday / 61;
+	d = 2 * yday % 61;
+	return (struct __md_s){.m = m + 1 - (m >= 7), .d = d / 2 + 1};
+}
+#endif	/* 0 */
 
 
 static unsigned int
