@@ -1220,337 +1220,19 @@ __get_d_equiv(dt_dow_t dow, int b)
 	return res;
 }
 
-static dt_daisy_t
-__daisy_add(dt_daisy_t d, struct dt_d_s dur)
-{
-/* add DUR to D, doesn't check if DUR has the dur flag */
-	switch (dur.typ) {
-	case DT_DAISY:
-		d += dur.daisydur;
-		break;
-	case DT_BIZSI: {
-		dt_dow_t dow = __daisy_get_wday(d);
-		int dequiv = __get_d_equiv(dow, dur.bizsidur);
-		d += dequiv;
-		break;
-	}
-	case DT_YMD:
-	case DT_YMCW:
-	case DT_BIZDA:
-		/* daisies have no notion of years and months */
-	case DT_DUNK:
-	default:
-		break;
-	}
-	return d;
-}
+#define ASPECT_ADD
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "daisy.c"
+#undef ASPECT_ADD
 
-static struct dt_d_s
-__daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
-{
-/* compute d2 - d1 */
-	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
-	int32_t diff = d2 - d1;
-
-	res.daisydur = diff;
-	return res;
-}
-
-static dt_ymd_t
-__ymd_add(dt_ymd_t d, struct dt_d_s dur)
-{
-/* add DUR to D, doesn't check if DUR has the dur flag */
-	unsigned int tgty = 0;
-	unsigned int tgtm = 0;
-	signed int tgtd = 0;
-	struct strpdi_s durcch = strpdi_initialiser();
-
-	/* using the strpdi blob is easier */
-	__fill_strpdi(&durcch, dur);
-
-	switch (dur.typ) {
-		unsigned int mdays;
-	case DT_YMD:
-	case DT_YMCW:
-	case DT_BIZDA:
-	case DT_MD:
-		/* construct new month */
-		durcch.m += d.m - 1;
-		tgty = __uidiv(durcch.m, GREG_MONTHS_P_YEAR) + d.y;
-		tgtm = __uimod(durcch.m, GREG_MONTHS_P_YEAR) + 1;
-
-		/* fixup day */
-		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
-			tgtd = mdays;
-		}
-		/* otherwise we may need to fixup the day, let's do that
-		 * in the next step */
-		/* @fallthrough@ */
-	case DT_DAISY:
-	case DT_BIZSI:
-		switch (dur.typ) {
-		case DT_YMD:
-		case DT_MD:
-			/* fallthrough from above */
-			tgtd += durcch.d;
-			break;
-		case DT_DAISY:
-			tgtd = d.d + durcch.d;
-			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
-			break;
-		case DT_BIZDA: {
-			/* fallthrough from above */
-			/* construct a tentative result */
-			dt_dow_t tent = __ymd_get_wday(d);
-			d.y = tgty;
-			d.m = tgtm;
-			d.d = tgtd;
-			tgtd += __get_d_equiv(tent, durcch.b);
-			break;
-		}
-		case DT_BIZSI: {
-			/* construct a tentative result */
-			dt_dow_t tent = __ymd_get_wday(d);
-			tgtd = d.d + __get_d_equiv(tent, durcch.b);
-			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
-			break;
-		}
-		case DT_YMCW:
-			/* doesn't happen as the dur parser won't
-			 * hand out durs of type YMCW */
-			/* @fallthrough@ */
-		default:
-			mdays = 0;
-			tgtd = 0;
-			break;
-		}
-		/* fixup the day */
-		while (tgtd > (int)mdays) {
-			tgtd -= mdays;
-			if (++tgtm > GREG_MONTHS_P_YEAR) {
-				++tgty;
-				tgtm = 1;
-			}
-			mdays = __get_mdays(tgty, tgtm);
-		}
-		/* and the other direction */
-		while (tgtd < 1) {
-			if (--tgtm < 1) {
-				--tgty;
-				tgtm = GREG_MONTHS_P_YEAR;
-			}
-			mdays = __get_mdays(tgty, tgtm);
-			tgtd += mdays;
-		}
-		break;
-	case DT_DUNK:
-	default:
-		break;
-	}
-	d.y = tgty;
-	d.m = tgtm;
-	d.d = tgtd;
-	return d;
-}
-
-static struct dt_d_s
-__ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
-{
-/* compute d2 - d1 entirely in terms of ymd */
-	struct dt_d_s res = {.typ = DT_YMD, .dur = 1};
-	signed int tgtd;
-	signed int tgtm;
-
-	if (d1.u > d2.u) {
-		/* swap d1 and d2 */
-		dt_ymd_t tmp = d1;
-		res.neg = 1;
-		d1 = d2;
-		d2 = tmp;
-	}
-
-	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
-	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
-	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
-		/* if tgtm is 0 it remains 0 and tgtd remains negative */
-		/* get the target month's mdays */
-		unsigned int d2m = d2.m;
-		unsigned int d2y = d2.y;
-
-		if (--d2m < 1) {
-			d2m = GREG_MONTHS_P_YEAR;
-			d2y--;
-		}
-		tgtd += __get_mdays(d2y, d2m);
-		tgtm--;
-#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
-		/* the non-fast arith has done the fixup already */
-#else  /* WITH_FAST_ARITH && !defined OMIT_FIXUPS */
-	} else if (tgtm == 0) {
-		/* check if we're not diffing two lazy representations
-		 * e.g. 2010-02-28 and 2010-02-31 */
-		;
-#endif	/* !OMIT_FIXUPS */
-	}
-	/* fill in the results */
-	res.ymd.y = tgtm / GREG_MONTHS_P_YEAR;
-	res.ymd.m = tgtm % GREG_MONTHS_P_YEAR;
-	res.ymd.d = tgtd;
-	return res;
-}
-
-static dt_ymcw_t
-__ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
-{
-/* here's a short draft of the arithmetic for ymcw dates:
- * Y-m-c-w + n years -> (Y + n)-m-c-w
- * Y-m-c-w + n months -> Y-(m + n)-c-w
- * Y-m-c-w + n weeks -> Y'-m'-c'-w
- * Y-m-c-w + n days -> Y'-m'-c'-w' */
-	unsigned int tgty;
-	unsigned int tgtm;
-	unsigned int tgtc;
-	dt_dow_t tgtw;
-	struct strpdi_s durcch = strpdi_initialiser();
-
-	/* first off, give DUR a make-over */
-	__fill_strpdi(&durcch, dur);
-
-	switch (dur.typ) {
-	case DT_YMD:
-	case DT_MD:
-	case DT_YMCW:
-	case DT_BIZDA:
-		/* construct new month */
-		durcch.m += d.m - 1;
-		tgty = __uidiv(durcch.m, 12) + d.y;
-		tgtm = __uimod(durcch.m, 12) + 1;
-
-		/* otherwise we may need to fixup the day, let's do that
-		 * in the next step */
-		/* @fallthrough@ */
-	case DT_DAISY:
-	case DT_BIZSI: {
-		signed int q;
-		signed int mc;
-
-		switch (dur.typ) {
-		case DT_DAISY:
-		case DT_BIZSI:
-			/* get the trivial bits */
-			tgty = d.y;
-			tgtm = d.m;
-		default:
-			break;
-		}
-
-		/* factorise 7d.c + d.w + durcch.d into 7q + p, 0 <= p < 7
-		 * we need the fact that p cannot be negative further down */
-		mc = (d.c - 1) * GREG_DAYS_P_WEEK + d.w + durcch.d;
-		q = __uidiv(mc, GREG_DAYS_P_WEEK);
-		{
-			/* just so we don't mix enum types and ints */
-			unsigned int tmp = __uimod(mc, GREG_DAYS_P_WEEK);
-			/* final week day in tmp, so ass it */
-			tgtw = (dt_dow_t)tmp;
-		}
-
-		/* fixup q */
-		while (1) {
-			if (q < 0) {
-				if (UNLIKELY(--tgtm < 1)) {
-					tgtm = GREG_MONTHS_P_YEAR;
-					tgty--;
-				}
-				mc = __get_mcnt(tgty, tgtm, tgtw);
-				q += mc;
-			} else if (q >= (mc = __get_mcnt(tgty, tgtm, tgtw))) {
-				q -= mc;
-				if (UNLIKELY(++tgtm > GREG_MONTHS_P_YEAR)) {
-					tgtm = 1;
-					tgty++;
-				}
-			} else {
-				break;
-			}
-		}
-
-		/* re-instantiate the count within the month */
-		tgtc = q + 1;
-		break;
-	}
-	case DT_DUNK:
-	default:
-		tgty = tgtm = tgtc = 0;
-		tgtw = DT_MIRACLEDAY;
-		break;
-	}
-	/* reassign to the guy in question */
-	d.y = tgty;
-	d.m = tgtm;
-	d.c = tgtc;
-	d.w = tgtw;
-	return d;
-}
-
-static struct dt_d_s
-__ymcw_diff(dt_ymcw_t d1, dt_ymcw_t d2)
-{
-/* compute d2 - d1 entirely in terms of ymd */
-	struct dt_d_s res = {.typ = DT_YMCW, .dur = 1};
-	signed int tgtd;
-	signed int tgtm;
-	dt_dow_t wd01, wd02;
-
-	if (__ymcw_cmp(d1, d2) > 0) {
-		dt_ymcw_t tmp = d1;
-		d1 = d2;
-		d2 = tmp;
-		res.neg = 1;
-	}
-
-	wd01 = __get_m01_wday(d1.y, d1.m);
-	if (d2.y != d1.y || d2.m != d1.m) {
-		wd02 = __get_m01_wday(d2.y, d2.m);
-	} else {
-		wd02 = wd01;
-	}
-
-	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
-	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
-	/* using the firsts of the month WD01, represent d1 and d2 as
-	 * the C-th WD01 plus OFF */
-	{
-		unsigned int off1;
-		unsigned int off2;
-
-		off1 = __uimod(d1.w - wd01, GREG_DAYS_P_WEEK);
-		off2 = __uimod(d2.w - wd02, GREG_DAYS_P_WEEK);
-		tgtd = off2 - off1 + GREG_DAYS_P_WEEK * (d2.c - d1.c);
-	}
-
-	/* fixups */
-	if (tgtd < (signed int)GREG_DAYS_P_WEEK && tgtm > 0) {
-		/* if tgtm is 0 it remains 0 and tgtd remains negative */
-		/* get the target month's mdays */
-		unsigned int d2m = d2.m;
-		unsigned int d2y = d2.y;
-
-		if (--d2m < 1) {
-			d2m = GREG_MONTHS_P_YEAR;
-			d2y--;
-		}
-		tgtd += __get_mdays(d2y, d2m);
-		tgtm--;
-	}
-
-	/* fill in the results */
-	res.ymcw.y = tgtm / GREG_MONTHS_P_YEAR;
-	res.ymcw.m = tgtm % GREG_MONTHS_P_YEAR;
-	res.ymcw.c = tgtd / GREG_DAYS_P_WEEK;
-	res.ymcw.w = tgtd % GREG_DAYS_P_WEEK;
-	return res;
-}
+#define ASPECT_DIFF
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "daisy.c"
+#undef ASPECT_DIFF
 
 
 /* guessing parsers */
@@ -2185,6 +1867,12 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		d.ymcw = __ymcw_add(d.ymcw, dur);
 		break;
 
+	case DT_BIZDA:
+		break;
+
+	case DT_YWD:
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -2266,6 +1954,7 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __ymcw_diff(tmp1, tmp2);
 		break;
 	}
+	case DT_YWD:
 	case DT_BIZDA:
 	case DT_DUNK:
 	default:

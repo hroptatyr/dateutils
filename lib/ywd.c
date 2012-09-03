@@ -234,6 +234,18 @@ __ywd_to_ymd(dt_ywd_t d)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined YWD_ASPECT_ADD_
+#define YWD_ASPECT_ADD_
+
+#endif	/* ASPECT_ADD */
+
+
+#if defined ASPECT_DIFF && !defined YWD_ASPECT_DIFF_
+#define YWD_ASPECT_DIFF_
+
+#endif	/* ASPECT_DIFF */
+
+
 #if defined ASPECT_STRF && !defined YWD_ASPECT_STRF_
 #define YWD_ASPECT_STRF_
 static void
