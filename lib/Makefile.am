@@ -16,6 +16,7 @@ EXTRA_DIST =
 header_HEADERS =
 header_HEADERS += date-core.h date-core.c
 header_HEADERS += date-core-strpf.h date-core-strpf.c
+header_HEADERS += ymcw.c
 header_HEADERS += ywd.c
 header_HEADERS += time-core.h time-core.c
 header_HEADERS += time-core-strpf.h time-core-strpf.c
@@ -50,6 +51,7 @@ libdut_a_SOURCES += leapseconds.def
 EXTRA_libdut_a_SOURCES =
 EXTRA_libdut_a_SOURCES += date-core.c
 EXTRA_libdut_a_SOURCES += time-core.c
+EXTRA_libdut_a_SOURCES += ymcw.c
 EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += fmt-special.gperf
 if HAVE_GPERF
