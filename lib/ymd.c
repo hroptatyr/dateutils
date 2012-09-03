@@ -265,6 +265,107 @@ __ymd_to_ymcw(dt_ymd_t d)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined YMD_ASPECT_ADD_
+#define YMD_ASPECT_ADD_
+static dt_ymd_t
+__ymd_add(dt_ymd_t d, struct dt_d_s dur)
+{
+/* add DUR to D, doesn't check if DUR has the dur flag */
+	unsigned int tgty = 0;
+	unsigned int tgtm = 0;
+	signed int tgtd = 0;
+	struct strpdi_s durcch = strpdi_initialiser();
+
+	/* using the strpdi blob is easier */
+	__fill_strpdi(&durcch, dur);
+
+	switch (dur.typ) {
+		unsigned int mdays;
+	case DT_YMD:
+	case DT_YMCW:
+	case DT_BIZDA:
+	case DT_MD:
+		/* construct new month */
+		durcch.m += d.m - 1;
+		tgty = __uidiv(durcch.m, GREG_MONTHS_P_YEAR) + d.y;
+		tgtm = __uimod(durcch.m, GREG_MONTHS_P_YEAR) + 1;
+
+		/* fixup day */
+		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
+			tgtd = mdays;
+		}
+		/* otherwise we may need to fixup the day, let's do that
+		 * in the next step */
+		/* @fallthrough@ */
+	case DT_DAISY:
+	case DT_BIZSI:
+		switch (dur.typ) {
+		case DT_YMD:
+		case DT_MD:
+			/* fallthrough from above */
+			tgtd += durcch.d;
+			break;
+		case DT_DAISY:
+			tgtd = d.d + durcch.d;
+			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
+			break;
+		case DT_BIZDA: {
+			/* fallthrough from above */
+			/* construct a tentative result */
+			dt_dow_t tent = __ymd_get_wday(d);
+			d.y = tgty;
+			d.m = tgtm;
+			d.d = tgtd;
+			tgtd += __get_d_equiv(tent, durcch.b);
+			break;
+		}
+		case DT_BIZSI: {
+			/* construct a tentative result */
+			dt_dow_t tent = __ymd_get_wday(d);
+			tgtd = d.d + __get_d_equiv(tent, durcch.b);
+			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
+			break;
+		}
+		case DT_YMCW:
+			/* doesn't happen as the dur parser won't
+			 * hand out durs of type YMCW */
+			/* @fallthrough@ */
+		default:
+			mdays = 0;
+			tgtd = 0;
+			break;
+		}
+		/* fixup the day */
+		while (tgtd > (int)mdays) {
+			tgtd -= mdays;
+			if (++tgtm > GREG_MONTHS_P_YEAR) {
+				++tgty;
+				tgtm = 1;
+			}
+			mdays = __get_mdays(tgty, tgtm);
+		}
+		/* and the other direction */
+		while (tgtd < 1) {
+			if (--tgtm < 1) {
+				--tgty;
+				tgtm = GREG_MONTHS_P_YEAR;
+			}
+			mdays = __get_mdays(tgty, tgtm);
+			tgtd += mdays;
+		}
+		break;
+	case DT_DUNK:
+	default:
+		break;
+	}
+	d.y = tgty;
+	d.m = tgtm;
+	d.d = tgtd;
+	return d;
+}
+#endif	/* ASPECT_ADD */
+
+
 #if defined ASPECT_STRF && !defined YMD_ASPECT_STRF_
 #define YMD_ASPECT_STRF_
 

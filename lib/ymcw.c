@@ -179,6 +179,104 @@ __ymcw_to_ymd(dt_ymcw_t d)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined YMCW_ASPECT_ADD_
+#define YMCW_ASPECT_ADD_
+static dt_ymcw_t
+__ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
+{
+/* here's a short draft of the arithmetic for ymcw dates:
+ * Y-m-c-w + n years -> (Y + n)-m-c-w
+ * Y-m-c-w + n months -> Y-(m + n)-c-w
+ * Y-m-c-w + n weeks -> Y'-m'-c'-w
+ * Y-m-c-w + n days -> Y'-m'-c'-w' */
+	unsigned int tgty;
+	unsigned int tgtm;
+	unsigned int tgtc;
+	dt_dow_t tgtw;
+	struct strpdi_s durcch = strpdi_initialiser();
+
+	/* first off, give DUR a make-over */
+	__fill_strpdi(&durcch, dur);
+
+	switch (dur.typ) {
+	case DT_YMD:
+	case DT_MD:
+	case DT_YMCW:
+	case DT_BIZDA:
+		/* construct new month */
+		durcch.m += d.m - 1;
+		tgty = __uidiv(durcch.m, 12) + d.y;
+		tgtm = __uimod(durcch.m, 12) + 1;
+
+		/* otherwise we may need to fixup the day, let's do that
+		 * in the next step */
+		/* @fallthrough@ */
+	case DT_DAISY:
+	case DT_BIZSI: {
+		signed int q;
+		signed int mc;
+
+		switch (dur.typ) {
+		case DT_DAISY:
+		case DT_BIZSI:
+			/* get the trivial bits */
+			tgty = d.y;
+			tgtm = d.m;
+		default:
+			break;
+		}
+
+		/* factorise 7d.c + d.w + durcch.d into 7q + p, 0 <= p < 7
+		 * we need the fact that p cannot be negative further down */
+		mc = (d.c - 1) * GREG_DAYS_P_WEEK + d.w + durcch.d;
+		q = __uidiv(mc, GREG_DAYS_P_WEEK);
+		{
+			/* just so we don't mix enum types and ints */
+			unsigned int tmp = __uimod(mc, GREG_DAYS_P_WEEK);
+			/* final week day in tmp, so ass it */
+			tgtw = (dt_dow_t)tmp;
+		}
+
+		/* fixup q */
+		while (1) {
+			if (q < 0) {
+				if (UNLIKELY(--tgtm < 1)) {
+					tgtm = GREG_MONTHS_P_YEAR;
+					tgty--;
+				}
+				mc = __get_mcnt(tgty, tgtm, tgtw);
+				q += mc;
+			} else if (q >= (mc = __get_mcnt(tgty, tgtm, tgtw))) {
+				q -= mc;
+				if (UNLIKELY(++tgtm > GREG_MONTHS_P_YEAR)) {
+					tgtm = 1;
+					tgty++;
+				}
+			} else {
+				break;
+			}
+		}
+
+		/* re-instantiate the count within the month */
+		tgtc = q + 1;
+		break;
+	}
+	case DT_DUNK:
+	default:
+		tgty = tgtm = tgtc = 0;
+		tgtw = DT_MIRACLEDAY;
+		break;
+	}
+	/* reassign to the guy in question */
+	d.y = tgty;
+	d.m = tgtm;
+	d.c = tgtc;
+	d.w = tgtw;
+	return d;
+}
+#endif	/* ASPECT_ADD */
+
+
 #if defined ASPECT_STRF && !defined YMCW_ASPECT_STRF_
 #define YMCW_ASPECT_STRF_
 
