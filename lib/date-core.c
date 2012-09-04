@@ -1859,9 +1859,23 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		d.daisy = __daisy_add(d.daisy, dur);
 		break;
 
-	case DT_YMD:
-		d.ymd = __ymd_add(d.ymd, dur);
+	case DT_YMD: {
+		struct strpdi_s durcch = strpdi_initialiser();
+
+		__fill_strpdi(&durcch, dur);
+
+		if (durcch.d || durcch.w) {
+			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
+			d.ymd = __ymd_add_d(d.ymd, totd);
+		}
+		if (durcch.b) {
+			d.ymd = __ymd_add_b(d.ymd, durcch.b);
+		}
+		if (durcch.m) {
+			d.ymd = __ymd_add_m(d.ymd, durcch.m);
+		}
 		break;
+	}
 
 	case DT_YMCW:
 		d.ymcw = __ymcw_add(d.ymcw, dur);

@@ -39,7 +39,22 @@
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
+static dt_ymd_t
+__ymd_fixup(dt_ymd_t d)
+{
+/* given dates like 2012-02-32 this returns 2012-02-29 */
+	int mdays;
 
+	if (LIKELY(d.d <= 28)) {
+		/* every month has 28 days in our range */
+		;
+	} else if (UNLIKELY(d.m == 0 || d.m > GREG_MONTHS_P_YEAR)) {
+		;
+	} else if (d.d > (mdays = __get_mdays(d.y, d.m))) {
+		d.d = mdays;
+	}
+	return d;
+}
 #endif	/* YMD_ASPECT_HELPERS_ */
 
 
@@ -268,99 +283,96 @@ __ymd_to_ymcw(dt_ymd_t d)
 #if defined ASPECT_ADD && !defined YMD_ASPECT_ADD_
 #define YMD_ASPECT_ADD_
 static dt_ymd_t
-__ymd_add(dt_ymd_t d, struct dt_d_s dur)
+__fixup_d(unsigned int y, signed int m, signed int d)
 {
-/* add DUR to D, doesn't check if DUR has the dur flag */
-	unsigned int tgty = 0;
-	unsigned int tgtm = 0;
-	signed int tgtd = 0;
-	struct strpdi_s durcch = strpdi_initialiser();
+	dt_ymd_t res;
 
-	/* using the strpdi blob is easier */
-	__fill_strpdi(&durcch, dur);
+	if (LIKELY(d >= 1 && d <= 28)) {
+		/* all months in our design range have at least 28 days */
+		;
+	} else if (d < 1) {
+		int mdays;
 
-	switch (dur.typ) {
-		unsigned int mdays;
-	case DT_YMD:
-	case DT_YMCW:
-	case DT_BIZDA:
-	case DT_MD:
-		/* construct new month */
-		durcch.m += d.m - 1;
-		tgty = __uidiv(durcch.m, GREG_MONTHS_P_YEAR) + d.y;
-		tgtm = __uimod(durcch.m, GREG_MONTHS_P_YEAR) + 1;
-
-		/* fixup day */
-		if ((tgtd = d.d) > (int)(mdays = __get_mdays(tgty, tgtm))) {
-			tgtd = mdays;
-		}
-		/* otherwise we may need to fixup the day, let's do that
-		 * in the next step */
-		/* @fallthrough@ */
-	case DT_DAISY:
-	case DT_BIZSI:
-		switch (dur.typ) {
-		case DT_YMD:
-		case DT_MD:
-			/* fallthrough from above */
-			tgtd += durcch.d;
-			break;
-		case DT_DAISY:
-			tgtd = d.d + durcch.d;
-			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
-			break;
-		case DT_BIZDA: {
-			/* fallthrough from above */
-			/* construct a tentative result */
-			dt_dow_t tent = __ymd_get_wday(d);
-			d.y = tgty;
-			d.m = tgtm;
-			d.d = tgtd;
-			tgtd += __get_d_equiv(tent, durcch.b);
-			break;
-		}
-		case DT_BIZSI: {
-			/* construct a tentative result */
-			dt_dow_t tent = __ymd_get_wday(d);
-			tgtd = d.d + __get_d_equiv(tent, durcch.b);
-			mdays = __get_mdays((tgty = d.y), (tgtm = d.m));
-			break;
-		}
-		case DT_YMCW:
-			/* doesn't happen as the dur parser won't
-			 * hand out durs of type YMCW */
-			/* @fallthrough@ */
-		default:
-			mdays = 0;
-			tgtd = 0;
-			break;
-		}
-		/* fixup the day */
-		while (tgtd > (int)mdays) {
-			tgtd -= mdays;
-			if (++tgtm > GREG_MONTHS_P_YEAR) {
-				++tgty;
-				tgtm = 1;
+		do {
+			if (--m < 1) {
+				--y;
+				m = GREG_MONTHS_P_YEAR;
 			}
-			mdays = __get_mdays(tgty, tgtm);
-		}
-		/* and the other direction */
-		while (tgtd < 1) {
-			if (--tgtm < 1) {
-				--tgty;
-				tgtm = GREG_MONTHS_P_YEAR;
+			mdays = __get_mdays(y, m);
+			d += mdays;
+		} while (d < 1);
+
+	} else {
+		int mdays = __get_mdays(y, m);
+
+		while (d > mdays) {
+			d -= mdays;
+			if (++m > (signed int)GREG_MONTHS_P_YEAR) {
+				++y;
+				m = 1;
 			}
-			mdays = __get_mdays(tgty, tgtm);
-			tgtd += mdays;
+			mdays = __get_mdays(y, m);
 		}
-		break;
-	case DT_DUNK:
-	default:
-		break;
 	}
-	d.y = tgty;
+
+	res.y = y;
+	res.m = m;
+	res.d = d;
+	return res;
+}
+
+static dt_ymd_t
+__ymd_add_d(dt_ymd_t d, int n)
+{
+/* add N days to D */
+	signed int tgtd = d.d + n;
+
+	/* fixup the day */
+	return __fixup_d(d.y, d.m, tgtd);
+}
+
+static dt_ymd_t
+__ymd_add_b(dt_ymd_t d, int n)
+{
+/* add N business days to D */
+	dt_dow_t wd = __ymd_get_wday(d);
+	int tgtd = d.d + __get_d_equiv(wd, n);
+
+	/* fixup the day, i.e. 2012-01-34 -> 2012-02-03 */
+	return __fixup_d(d.y, d.m, tgtd);
+}
+
+static __attribute__((unused)) dt_ymd_t
+__ymd_add_w(dt_ymd_t d, int n)
+{
+/* add N weeks to D */
+	return __ymd_add_d(d, GREG_DAYS_P_WEEK * n);
+}
+
+static dt_ymd_t
+__ymd_add_m(dt_ymd_t d, int n)
+{
+/* add N months to D */
+	signed int tgtm = d.m + n;
+
+	while (tgtm > (signed int)GREG_MONTHS_P_YEAR) {
+		tgtm -= GREG_MONTHS_P_YEAR;
+		++d.y;
+	}
+	while (tgtm < 1) {
+		tgtm += GREG_MONTHS_P_YEAR;
+		--d.y;
+	}
+	/* final assignment */
 	d.m = tgtm;
-	d.d = tgtd;
+	return __ymd_fixup(d);
+}
+
+static __attribute__((unused)) dt_ymd_t
+__ymd_add_y(dt_ymd_t d, int n)
+{
+/* add N years to D */
+	d.y += n;
 	return d;
 }
 #endif	/* ASPECT_ADD */
