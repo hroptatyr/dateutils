@@ -1067,10 +1067,16 @@ pre_corr:
 			orig = d;
 			i_orig = i_d;
 			/* reuse dur for the correction */
-			dt_make_t_only(&dur, DT_HMS);
-			dur.tai = 0;
-			dur.t.sdur = nltr;
-			d = dt_dtadd(orig, dur);
+			if ((dur.t.sdur = nltr) &&
+			    /* get our special tadd with carry */
+			    (d.t = dt_tadd(d.t, dur.t, 0), d.t.carry)) {
+				/* great, we need to sub/add again
+				 * as there's been a wrap-around at
+				 * midnight, spooky */
+				dur.d.typ = DT_DAISY;
+				dur.d.daisydur = d.t.carry;
+				d.d = dt_dadd(d.d, dur.d);
+			}
 
 			/* check if we transitioned again */
 			if (d.typ == DT_SEXYTAI || (i_d = leaps_before(d), 0)) {

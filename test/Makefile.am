@@ -160,6 +160,12 @@ dt_tests += dadd.41.dt
 dt_tests += dadd.42.dt
 dt_tests += dadd.43.dt
 dt_tests += dadd.44.dt
+dt_tests += dadd.45.dt
+dt_tests += dadd.46.dt
+dt_tests += dadd.47.dt
+dt_tests += dadd.48.dt
+dt_tests += dadd.49.dt
+dt_tests += dadd.50.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
