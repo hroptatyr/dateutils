@@ -264,6 +264,18 @@ __ymcw_add_d(dt_ymcw_t d, int n)
 		ad += GREG_DAYS_P_WEEK;
 		aw--;
 	}
+
+	/* fixup for abswk count, m01 may be any wd */
+	{
+		dt_dow_t m01 = __get_m01_wday(d.y, d.m);
+
+		if ((dt_dow_t)d.w < m01 && (dt_dow_t)ad >= m01) {
+			aw++;
+		} else if ((dt_dow_t)d.w >= m01 && (dt_dow_t)ad < m01) {
+			aw--;
+		}
+	}
+
 	d.w = (dt_dow_t)ad;
 	return __ymcw_add_w(d, aw);
 }
