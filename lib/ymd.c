@@ -36,6 +36,8 @@
  **/
 #define ASPECT_YMD
 
+#include "nifty.h"
+
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
@@ -294,7 +296,7 @@ __fixup_d(unsigned int y, signed int m, signed int d)
 		int mdays;
 
 		do {
-			if (--m < 1) {
+			if (UNLIKELY(--m < 1)) {
 				--y;
 				m = GREG_MONTHS_P_YEAR;
 			}
@@ -303,15 +305,14 @@ __fixup_d(unsigned int y, signed int m, signed int d)
 		} while (d < 1);
 
 	} else {
-		int mdays = __get_mdays(y, m);
+		int mdays;
 
-		while (d > mdays) {
+		while (d > (mdays = __get_mdays(y, m))) {
 			d -= mdays;
-			if (++m > (signed int)GREG_MONTHS_P_YEAR) {
+			if (UNLIKELY(++m > (signed int)GREG_MONTHS_P_YEAR)) {
 				++y;
 				m = 1;
 			}
-			mdays = __get_mdays(y, m);
 		}
 	}
 
