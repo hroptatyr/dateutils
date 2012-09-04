@@ -36,6 +36,8 @@
  **/
 #define ASPECT_DAISY
 
+#include "nifty.h"
+
 
 #if !defined DAISY_ASPECT_HELPERS_
 #define DAISY_ASPECT_HELPERS_
@@ -145,28 +147,46 @@ __daisy_to_ymcw(dt_daisy_t that)
 
 #if defined ASPECT_ADD && !defined DAISY_ASPECT_ADD_
 #define DAISY_ASPECT_ADD_
+#define ASPECT_GETTERS
+#include "daisy.c"
+#undef ASPECT_GETTERS
+
 static dt_daisy_t
-__daisy_add(dt_daisy_t d, struct dt_d_s dur)
+__daisy_add_d(dt_daisy_t d, int n)
 {
-/* add DUR to D, doesn't check if DUR has the dur flag */
-	switch (dur.typ) {
-	case DT_DAISY:
-		d += dur.daisydur;
-		break;
-	case DT_BIZSI: {
-		dt_dow_t dow = __daisy_get_wday(d);
-		int dequiv = __get_d_equiv(dow, dur.bizsidur);
-		d += dequiv;
-		break;
-	}
-	case DT_YMD:
-	case DT_YMCW:
-	case DT_BIZDA:
-		/* daisies have no notion of years and months */
-	case DT_DUNK:
-	default:
-		break;
-	}
+/* add N days to D */
+	d += n;
+	return d;
+}
+
+static dt_daisy_t
+__daisy_add_b(dt_daisy_t d, int n)
+{
+/* add N business days to D */
+	dt_dow_t dow = __daisy_get_wday(d);
+	int equ = __get_d_equiv(dow, n);
+	d += equ;
+	return d;
+}
+
+static dt_daisy_t
+__daisy_add_w(dt_daisy_t d, int n)
+{
+/* add N weeks to D */
+	return __daisy_add_d(d, GREG_DAYS_P_WEEK * n);
+}
+
+static dt_daisy_t
+__daisy_add_m(dt_daisy_t d, int UNUSED(n))
+{
+/* daisies have no notion of months, so do fuckall */
+	return d;
+}
+
+static __attribute__((unused)) dt_daisy_t
+__daisy_add_y(dt_daisy_t d, int UNUSED(n))
+{
+/* daisies have no notion of years, do fuckall */
 	return d;
 }
 #endif	/* ASPECT_ADD */

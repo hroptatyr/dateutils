@@ -1854,17 +1854,46 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 DEFUN struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 {
+	struct strpdi_s durcch = strpdi_initialiser();
+
+	__fill_strpdi(&durcch, dur);
+
 	switch (d.typ) {
 	case DT_DAISY:
-		d.daisy = __daisy_add(d.daisy, dur);
+		if (durcch.d) {
+			d.daisy = __daisy_add_d(d.daisy, durcch.d);
+		} else if (durcch.w) {
+			d.daisy = __daisy_add_w(d.daisy, durcch.w);
+		} else if (durcch.b) {
+			d.daisy = __daisy_add_b(d.daisy, durcch.b);
+		}
+		if (durcch.m) {
+			d.daisy = __daisy_add_m(d.daisy, durcch.m);
+		}
 		break;
 
 	case DT_YMD:
-		d.ymd = __ymd_add(d.ymd, dur);
+		if (durcch.d || durcch.w) {
+			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
+			d.ymd = __ymd_add_d(d.ymd, totd);
+		} else if (durcch.b) {
+			d.ymd = __ymd_add_b(d.ymd, durcch.b);
+		}
+		if (durcch.m) {
+			d.ymd = __ymd_add_m(d.ymd, durcch.m);
+		}
 		break;
 
 	case DT_YMCW:
-		d.ymcw = __ymcw_add(d.ymcw, dur);
+		if (durcch.d || durcch.w) {
+			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
+			d.ymcw = __ymcw_add_d(d.ymcw, totd);
+		} else if (durcch.b) {
+			d.ymcw = __ymcw_add_b(d.ymcw, durcch.b);
+		}
+		if (durcch.m) {
+			d.ymcw = __ymcw_add_m(d.ymcw, durcch.m);
+		}
 		break;
 
 	case DT_BIZDA:
