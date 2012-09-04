@@ -1885,7 +1885,15 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_YMCW:
-		d.ymcw = __ymcw_add(d.ymcw, dur);
+		if (durcch.d || durcch.w) {
+			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
+			d.ymcw = __ymcw_add_d(d.ymcw, totd);
+		} else if (durcch.b) {
+			d.ymcw = __ymcw_add_b(d.ymcw, durcch.b);
+		}
+		if (durcch.m) {
+			d.ymcw = __ymcw_add_m(d.ymcw, durcch.m);
+		}
 		break;
 
 	case DT_BIZDA:

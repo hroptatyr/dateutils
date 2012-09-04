@@ -40,6 +40,23 @@
 #if !defined YMCW_ASPECT_HELPERS_
 #define YMCW_ASPECT_HELPERS_
 
+static dt_ymcw_t
+__ymcw_fixup(dt_ymcw_t d)
+{
+/* given dates like 2012-02-05-01 this returns 2012-02-04-01 */
+	int mc;
+
+	if (LIKELY(d.c <= 4)) {
+		/* every month has 4 occurrences of any weekday */
+		;
+	} else if (d.m == 0 || d.w == DT_MIRACLEDAY) {
+		/* um */
+		;
+	} else if (d.c > (mc = __get_mcnt(d.y, d.m, (dt_dow_t)d.w))) {
+		d.c = mc;
+	}
+	return d;
+}
 #endif	/* YMCW_ASPECT_HELPERS_ */
 
 
@@ -181,97 +198,107 @@ __ymcw_to_ymd(dt_ymcw_t d)
 
 #if defined ASPECT_ADD && !defined YMCW_ASPECT_ADD_
 #define YMCW_ASPECT_ADD_
+
 static dt_ymcw_t
-__ymcw_add(dt_ymcw_t d, struct dt_d_s dur)
+__fixup_c(unsigned int y, signed int m, signed int c, dt_dow_t w)
 {
-/* here's a short draft of the arithmetic for ymcw dates:
- * Y-m-c-w + n years -> (Y + n)-m-c-w
- * Y-m-c-w + n months -> Y-(m + n)-c-w
- * Y-m-c-w + n weeks -> Y'-m'-c'-w
- * Y-m-c-w + n days -> Y'-m'-c'-w' */
-	unsigned int tgty;
-	unsigned int tgtm;
-	unsigned int tgtc;
-	dt_dow_t tgtw;
-	struct strpdi_s durcch = strpdi_initialiser();
+	dt_ymcw_t res;
 
-	/* first off, give DUR a make-over */
-	__fill_strpdi(&durcch, dur);
+	/* fixup q */
+	if (LIKELY(c >= 1 && c <= 4)) {
+		/* all months in our design range have 4 occurrences of
+		 * any weekday, so YAAAY*/
+		;
+	} else if (c < 1) {
+		int mc;
 
-	switch (dur.typ) {
-	case DT_YMD:
-	case DT_MD:
-	case DT_YMCW:
-	case DT_BIZDA:
-		/* construct new month */
-		durcch.m += d.m - 1;
-		tgty = __uidiv(durcch.m, 12) + d.y;
-		tgtm = __uimod(durcch.m, 12) + 1;
+		do {
+			if (UNLIKELY(--m < 1)) {
+				--y;
+				m = GREG_MONTHS_P_YEAR;
+			}
+			mc = __get_mcnt(y, m, w);
+			c += mc;
+		} while (c < 1);
+	} else {
+		int mc;
 
-		/* otherwise we may need to fixup the day, let's do that
-		 * in the next step */
-		/* @fallthrough@ */
-	case DT_DAISY:
-	case DT_BIZSI: {
-		signed int q;
-		signed int mc;
-
-		switch (dur.typ) {
-		case DT_DAISY:
-		case DT_BIZSI:
-			/* get the trivial bits */
-			tgty = d.y;
-			tgtm = d.m;
-		default:
-			break;
-		}
-
-		/* factorise 7d.c + d.w + durcch.d into 7q + p, 0 <= p < 7
-		 * we need the fact that p cannot be negative further down */
-		mc = (d.c - 1) * GREG_DAYS_P_WEEK + d.w + durcch.d;
-		q = __uidiv(mc, GREG_DAYS_P_WEEK);
-		{
-			/* just so we don't mix enum types and ints */
-			unsigned int tmp = __uimod(mc, GREG_DAYS_P_WEEK);
-			/* final week day in tmp, so ass it */
-			tgtw = (dt_dow_t)tmp;
-		}
-
-		/* fixup q */
-		while (1) {
-			if (q < 0) {
-				if (UNLIKELY(--tgtm < 1)) {
-					tgtm = GREG_MONTHS_P_YEAR;
-					tgty--;
-				}
-				mc = __get_mcnt(tgty, tgtm, tgtw);
-				q += mc;
-			} else if (q >= (mc = __get_mcnt(tgty, tgtm, tgtw))) {
-				q -= mc;
-				if (UNLIKELY(++tgtm > GREG_MONTHS_P_YEAR)) {
-					tgtm = 1;
-					tgty++;
-				}
-			} else {
-				break;
+		while (c > (mc = __get_mcnt(y, m, w))) {
+			c -= mc;
+			if (UNLIKELY(++m > (signed int)GREG_MONTHS_P_YEAR)) {
+				++y;
+				m = 1;
 			}
 		}
+	}
 
-		/* re-instantiate the count within the month */
-		tgtc = q + 1;
-		break;
+	/* final assignment */
+	res.y = y;
+	res.m = m;
+	res.c = c;
+	res.w = w;
+	return res;
+}
+
+static dt_ymcw_t
+__ymcw_add_w(dt_ymcw_t d, int n)
+{
+/* add N weeks to D */
+	signed int tgtc = d.c + n;
+
+	return __fixup_c(d.y, d.m, tgtc, (dt_dow_t)d.w);
+}
+
+static dt_ymcw_t
+__ymcw_add_d(dt_ymcw_t d, int n)
+{
+/* add N days to D
+ * we reduce this to __ymcw_add_w() */
+	signed int aw = n / 7;
+	signed int ad = n % 7;
+
+	if ((ad += d.w) >= (signed int)GREG_DAYS_P_WEEK) {
+		ad -= GREG_DAYS_P_WEEK;
+		aw++;
+	} else if (ad < 0) {
+		ad += GREG_DAYS_P_WEEK;
+		aw--;
 	}
-	case DT_DUNK:
-	default:
-		tgty = tgtm = tgtc = 0;
-		tgtw = DT_MIRACLEDAY;
-		break;
+	d.w = (dt_dow_t)ad;
+	return __ymcw_add_w(d, aw);
+}
+
+static dt_ymcw_t
+__ymcw_add_b(dt_ymcw_t d, int UNUSED(n))
+{
+/* add N business days to D */
+	return d;
+}
+
+static dt_ymcw_t
+__ymcw_add_m(dt_ymcw_t d, int n)
+{
+/* add N months to D */
+	signed int tgtm = d.m + n;
+
+	while (tgtm > (signed int)GREG_MONTHS_P_YEAR) {
+		tgtm -= GREG_MONTHS_P_YEAR;
+		++d.y;
 	}
-	/* reassign to the guy in question */
-	d.y = tgty;
+	while (tgtm < 1) {
+		tgtm += GREG_MONTHS_P_YEAR;
+		--d.y;
+	}
+	/* final assignment */
 	d.m = tgtm;
-	d.c = tgtc;
-	d.w = tgtw;
+	return __ymcw_fixup(d);
+}
+
+static __attribute__((unused)) dt_ymcw_t
+__ymcw_add_y(dt_ymcw_t d, int n)
+{
+/* add N years to D */
+	d.y += n;
 	return d;
 }
 #endif	/* ASPECT_ADD */
