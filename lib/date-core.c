@@ -1862,13 +1862,17 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 	case DT_DAISY:
 		if (durcch.d) {
 			d.daisy = __daisy_add_d(d.daisy, durcch.d);
-		} else if (durcch.w) {
-			d.daisy = __daisy_add_w(d.daisy, durcch.w);
 		} else if (durcch.b) {
 			d.daisy = __daisy_add_b(d.daisy, durcch.b);
 		}
+		if (durcch.w) {
+			d.daisy = __daisy_add_w(d.daisy, durcch.w);
+		}
 		if (durcch.m) {
 			d.daisy = __daisy_add_m(d.daisy, durcch.m);
+		}
+		if (durcch.y) {
+			d.daisy = __daisy_add_y(d.daisy, durcch.y);
 		}
 		break;
 
@@ -1882,6 +1886,9 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		if (durcch.m) {
 			d.ymd = __ymd_add_m(d.ymd, durcch.m);
 		}
+		if (durcch.y) {
+			d.ymd = __ymd_add_y(d.ymd, durcch.y);
+		}
 		break;
 
 	case DT_YMCW:
@@ -1894,13 +1901,29 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		if (durcch.m) {
 			d.ymcw = __ymcw_add_m(d.ymcw, durcch.m);
 		}
+		if (durcch.y) {
+			d.ymcw = __ymcw_add_y(d.ymcw, durcch.y);
+		}
 		break;
 
 	case DT_BIZDA:
 		break;
 
 	case DT_YWD:
-		d.ywd = __ywd_add(d.ywd, dur);
+		if (durcch.d) {
+			d.ywd = __ywd_add_d(d.ywd, durcch.d);
+		} else if (durcch.b) {
+			d.ywd = __ywd_add_b(d.ywd, durcch.b);
+		}
+		if (durcch.w) {
+			d.ywd = __ywd_add_w(d.ywd, durcch.w);
+		}
+		if (durcch.m) {
+			d.ywd = __ywd_add_m(d.ywd, durcch.m);
+		}
+		if (durcch.y) {
+			d.ywd = __ywd_add_y(d.ywd, durcch.y);
+		}
 		break;
 
 	case DT_DUNK:

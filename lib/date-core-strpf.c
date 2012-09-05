@@ -58,7 +58,8 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 {
 	switch (dur.typ) {
 	case DT_YMD:
-		tgt->m = dur.ymd.y * GREG_MONTHS_P_YEAR + dur.ymd.m;
+		tgt->y = dur.ymd.y;
+		tgt->m = dur.ymd.m;
 		tgt->d = dur.ymd.d;
 		break;
 	case DT_DAISY:
@@ -70,11 +71,13 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 		/* we don't need the negation, so return here */
 		return;
 	case DT_BIZDA:
-		tgt->m = dur.bizda.y * GREG_MONTHS_P_YEAR + dur.bizda.m;
+		tgt->y = dur.bizda.y;
+		tgt->m = dur.bizda.m;
 		tgt->b = dur.bizda.bd;
 		break;
 	case DT_YMCW:
-		tgt->m = dur.ymcw.y * GREG_MONTHS_P_YEAR + dur.ymcw.m;
+		tgt->y = dur.ymcw.y;
+		tgt->m = dur.ymcw.m;
 		tgt->w = dur.ymcw.c;
 		tgt->d = dur.ymcw.w;
 		break;
@@ -87,6 +90,7 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 	}
 
 	if (UNLIKELY(dur.neg)) {
+		tgt->y = -tgt->y;
 		tgt->m = -tgt->m;
 		tgt->d = -tgt->d;
 		tgt->w = -tgt->w;
