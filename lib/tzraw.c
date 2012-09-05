@@ -381,12 +381,17 @@ __find_zrng(zif_t z, int32_t t, int this, int min, int max)
 {
 	struct zrng_s res;
 	size_t ntr = zif_ntrans(z);
-	int trno = __find_trno(z, t, this, min, max);
+	unsigned int trno = __find_trno(z, t, this, min, max);
 
 	res.trno = (uint8_t)trno;
 	res.prev = zif_trans(z, trno);
-	/* special case for GMT+/- zones */
-	res.next = res.trno < ntr - 1 ? zif_trans(z, trno + 1) : INT_MAX;
+	if (LIKELY(trno < ntr - 1)) {
+		res.next = zif_trans(z, trno + 1);
+	} else {
+		res.next = INT_MAX;
+		/* use the last transition */
+		trno = ntr - 1;
+	}
 	res.offs = zif_troffs(z, trno);
 	return res;
 }

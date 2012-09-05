@@ -462,6 +462,12 @@ dt_tests += dtround.14.dt
 dt_tests += strptime.1.dt
 dt_tests += strptime.2.dt
 
+## we should check if the zones in these tests actually exist
+## also failing tests here should be soft-fails because that could
+## easily be an outdated zoneinfo file
+dt_tests += dtz.1.dt
+dt_tests += dtz.2.dt
+
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
 check_PROGRAMS += struct-3
