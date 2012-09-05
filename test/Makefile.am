@@ -477,6 +477,7 @@ check_PROGRAMS += dtcore-conv
 check_PROGRAMS += dtcore-add
 check_PROGRAMS += time-core-add
 check_PROGRAMS += basic_ymd_get_wday
+check_PROGRAMS += basic_get_jan01_wday
 
 bin_tests += struct-1
 bin_tests += struct-2
