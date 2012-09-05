@@ -82,16 +82,26 @@ typedef struct {
 	unsigned int rest:2;
 } __jan01_wday_block_t;
 
-#define M	(unsigned int)(DT_MONDAY)
-#define T	(unsigned int)(DT_TUESDAY)
-#define W	(unsigned int)(DT_WEDNESDAY)
-#define R	(unsigned int)(DT_THURSDAY)
-#define F	(unsigned int)(DT_FRIDAY)
-#define A	(unsigned int)(DT_SATURDAY)
-#define S	(unsigned int)(DT_SUNDAY)
+/* algo for jan01 wd determination */
+#if defined GET_JAN01_WDAY_FULL_LOOKUP
+#elif defined GET_JAN01_WDAY_28Y_LOOKUP
+#elif defined GET_JAN01_WDAY_28Y_SWITCH
+#elif defined GET_JAN01_WDAY_SAKAMOTO
+#else
+# define GET_JAN01_WDAY_28Y_LOOKUP
+#endif
 
 
 /* helpers */
+#if defined GET_JAN01_WDAY_FULL_LOOKUP
+# define M	(unsigned int)(DT_MONDAY)
+# define T	(unsigned int)(DT_TUESDAY)
+# define W	(unsigned int)(DT_WEDNESDAY)
+# define R	(unsigned int)(DT_THURSDAY)
+# define F	(unsigned int)(DT_FRIDAY)
+# define A	(unsigned int)(DT_SATURDAY)
+# define S	(unsigned int)(DT_SUNDAY)
+
 static const __jan01_wday_block_t __jan01_wday[] = {
 #define __JAN01_WDAY_BEG	(1920)
 	{
@@ -140,14 +150,42 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 	/* 2060 - 2069 is 1920 - 1929 */
 #define __JAN01_WDAY_END	(2059)
 };
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
 
-#undef M
-#undef T
-#undef W
-#undef R
-#undef F
-#undef A
-#undef S
+#elif defined GET_JAN01_WDAY_28Y_LOOKUP
+# define M	(DT_MONDAY)
+# define T	(DT_TUESDAY)
+# define W	(DT_WEDNESDAY)
+# define R	(DT_THURSDAY)
+# define F	(DT_FRIDAY)
+# define A	(DT_SATURDAY)
+# define S	(DT_SUNDAY)
+
+static const dt_dow_t __jan01_28y_wday[] = {
+	/* 1904 - 1910 */
+	F, S, M, T, W, F, A,
+	/* 1911 - 1917 */
+	S, M, W, R, F, A, M,
+	/* 1918 - 1924 */
+	T, W, R, A, S, M, T,
+	/* 1925 - 1931 */
+	R, F, A, S, T, W, R,
+};
+
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
+#endif
 
 #if 1
 static uint16_t __mon_yday[] = {
@@ -320,13 +358,7 @@ __uidiv(signed int x, signed int m)
 
 
 /* converters and getters */
-static inline __jan01_wday_block_t
-__get_jan01_block(unsigned int year)
-{
-	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
-}
-
-static inline dt_daisy_t
+static inline __attribute__((pure)) dt_daisy_t
 __jan00_daisy(unsigned int year)
 {
 /* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
@@ -336,7 +368,15 @@ __jan00_daisy(unsigned int year)
 	return by * 365 + by / 4;
 }
 
-static inline dt_dow_t
+#if defined GET_JAN01_WDAY_FULL_LOOKUP
+
+static inline __attribute__((pure)) __jan01_wday_block_t
+__get_jan01_block(unsigned int year)
+{
+	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
+}
+
+static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR */
@@ -390,7 +430,117 @@ __get_jan01_wday(unsigned int year)
 	return (dt_dow_t)res;
 }
 
-static unsigned int
+#elif defined GET_JAN01_WDAY_28Y_LOOKUP
+
+static inline __attribute__((pure)) dt_dow_t
+__get_jan01_wday(unsigned int year)
+{
+/* get the weekday of jan01 in YEAR
+ * using the 28y cycle thats valid till the year 2399
+ * 1920 = 16 mod 28 */
+	return __jan01_28y_wday[year % 28];
+}
+
+#elif defined GET_JAN01_WDAY_28Y_SWITCH
+
+static inline __attribute__((pure)) dt_dow_t
+__get_jan01_wday(unsigned int year)
+{
+/* get the weekday of jan01 in YEAR
+ * using the 28y cycle thats valid till the year 2399
+ * 1920 = 16 mod 28
+ * switch variant */
+# define M	(DT_MONDAY)
+# define T	(DT_TUESDAY)
+# define W	(DT_WEDNESDAY)
+# define R	(DT_THURSDAY)
+# define F	(DT_FRIDAY)
+# define A	(DT_SATURDAY)
+# define S	(DT_SUNDAY)
+	switch (year % 28) {
+	case 0:
+		return F;
+	case 1:
+		return S;
+	case 2:
+		return M;
+	case 3:
+		return T;
+	case 4:
+		return W;
+	case 5:
+		return F;
+	case 6:
+		return A;
+	case 7:
+		return S;
+	case 8:
+		return M;
+	case 9:
+		return W;
+	case 10:
+		return R;
+	case 11:
+		return F;
+	case 12:
+		return A;
+	case 13:
+		return M;
+	case 14:
+		return T;
+	case 15:
+		return W;
+	case 16:
+		return R;
+	case 17:
+		return A;
+	case 18:
+		return S;
+	case 19:
+		return M;
+	case 20:
+		return T;
+	case 21:
+		return R;
+	case 22:
+		return F;
+	case 23:
+		return A;
+	case 24:
+		return S;
+	case 25:
+		return T;
+	case 26:
+		return W;
+	case 27:
+		return R;
+	default:
+		return DT_MIRACLEDAY;
+	}
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
+}
+
+#elif defined GET_JAN01_WDAY_SAKAMOTO
+
+static inline __attribute__((pure)) dt_dow_t
+__get_jan01_wday(unsigned int year)
+{
+	unsigned int res;
+
+	year--,
+		res = year + year / 4 - year / 100 + year / 400 + 1;
+	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
+}
+
+#endif	/* GET_JAN01_WDAY_* */
+
+static inline __attribute__((pure)) unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
 #if 1
@@ -449,7 +599,7 @@ __get_mdays(unsigned int y, unsigned int m)
 	return res - __md_get_yday(y, m, 0);
 }
 
-static inline unsigned int
+static __attribute__((pure)) unsigned int
 __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 {
 /* get the number of weekdays W in Y-M, which is the max count

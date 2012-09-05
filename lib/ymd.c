@@ -38,6 +38,15 @@
 
 #include "nifty.h"
 
+/* some algorithmic choices */
+#if defined YMD_GET_WDAY_LOOKUP
+#elif defined YMD_GET_WDAY_ZELLER
+#elif defined YMD_GET_WDAY_SAKAMOTO
+#else
+/* default algo */
+# define YMD_GET_WDAY_LOOKUP
+#endif
+
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
@@ -76,7 +85,7 @@ __ymd_get_yday(dt_ymd_t that)
 	return res;
 }
 
-#if 1
+#if defined YMD_GET_WDAY_LOOKUP
 /* lookup version */
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
@@ -91,7 +100,7 @@ __ymd_get_wday(dt_ymd_t that)
 	return DT_MIRACLEDAY;
 }
 
-#elif 0
+#elif defined YMD_GET_WDAY_ZELLER
 /* Zeller algorithm */
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
@@ -118,7 +127,7 @@ __ymd_get_wday(dt_ymd_t that)
 	w = (13 * ydm - 1) / 5;
 	return (dt_dow_t)((w + x + y + ydd + c - 2 * d) % GREG_DAYS_P_WEEK);
 }
-#elif 1
+#elif defined YMD_GET_WDAY_SAKAMOTO
 /* Sakamoto method */
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
