@@ -44,7 +44,7 @@
 #elif defined YMD_GET_WDAY_SAKAMOTO
 #else
 /* default algo */
-# define YMD_GET_WDAY_SAKAMOTO
+# define YMD_GET_WDAY_LOOKUP
 #endif
 
 
