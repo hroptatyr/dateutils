@@ -496,5 +496,6 @@ bin_tests += dtcore-add
 bin_tests += time-core-add
 bin_tests += basic_ymd_get_wday
 bin_tests += basic_get_jan01_wday
+bin_tests += basic_md_get_yday
 
 ## Makefile.am ends here
