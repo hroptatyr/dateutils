@@ -50,7 +50,7 @@
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
-static dt_ymd_t
+static __attribute__((pure)) dt_ymd_t
 __ymd_fixup(dt_ymd_t d)
 {
 /* given dates like 2012-02-32 this returns 2012-02-29 */
@@ -293,7 +293,7 @@ __ymd_to_ymcw(dt_ymd_t d)
 
 #if defined ASPECT_ADD && !defined YMD_ASPECT_ADD_
 #define YMD_ASPECT_ADD_
-static dt_ymd_t
+static __attribute__((pure)) dt_ymd_t
 __ymd_fixup_d(unsigned int y, signed int m, signed int d)
 {
 	dt_ymd_t res = {0};
