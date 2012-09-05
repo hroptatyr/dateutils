@@ -462,6 +462,12 @@ dt_tests += dtround.14.dt
 dt_tests += strptime.1.dt
 dt_tests += strptime.2.dt
 
+## we should check if the zones in these tests actually exist
+## also failing tests here should be soft-fails because that could
+## easily be an outdated zoneinfo file
+dt_tests += dtz.1.dt
+dt_tests += dtz.2.dt
+
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
 check_PROGRAMS += struct-3
@@ -496,5 +502,6 @@ bin_tests += dtcore-add
 bin_tests += time-core-add
 bin_tests += basic_ymd_get_wday
 bin_tests += basic_get_jan01_wday
+bin_tests += basic_md_get_yday
 
 ## Makefile.am ends here

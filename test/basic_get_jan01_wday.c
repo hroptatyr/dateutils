@@ -3,10 +3,10 @@
 static unsigned int
 super(unsigned int super)
 {
-	for (int y = 1917; y < 4096; y++) {
+	for (int y = 1917; y < 2199; y++) {
 		dt_dow_t w;
 		w = __get_jan01_wday(y);
-		super += w;
+		super += y * w;
 	}
 	return super;
 }
@@ -20,8 +20,7 @@ main(void)
 		supersum += super(supersum);
 	}
 	printf("super %u\n", supersum);
-	if (supersum != 4294960763U/*28y cycle*/ &&
-	    supersum != 4294960773U/*400y cycle*/) {
+	if (supersum != 4293232403U) {
 		return 1;
 	}
 	return 0;
