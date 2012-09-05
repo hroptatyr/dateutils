@@ -2027,11 +2027,13 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_YMD:
-		if (durcch.d || durcch.w) {
-			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
-			d.ymd = __ymd_add_d(d.ymd, totd);
+		if (durcch.d) {
+			d.ymd = __ymd_add_d(d.ymd, durcch.d);
 		} else if (durcch.b) {
 			d.ymd = __ymd_add_b(d.ymd, durcch.b);
+		}
+		if (durcch.w) {
+			d.ymd = __ymd_add_w(d.ymd, durcch.w);
 		}
 		if (durcch.m) {
 			d.ymd = __ymd_add_m(d.ymd, durcch.m);
@@ -2042,11 +2044,13 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_YMCW:
-		if (durcch.d || durcch.w) {
-			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
-			d.ymcw = __ymcw_add_d(d.ymcw, totd);
+		if (durcch.d) {
+			d.ymcw = __ymcw_add_d(d.ymcw, durcch.d);
 		} else if (durcch.b) {
 			d.ymcw = __ymcw_add_b(d.ymcw, durcch.b);
+		}
+		if (durcch.w) {
+			d.ymcw = __ymcw_add_w(d.ymcw, durcch.w);
 		}
 		if (durcch.m) {
 			d.ymcw = __ymcw_add_m(d.ymcw, durcch.m);
