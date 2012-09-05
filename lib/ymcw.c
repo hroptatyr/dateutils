@@ -200,7 +200,7 @@ __ymcw_to_ymd(dt_ymcw_t d)
 #define YMCW_ASPECT_ADD_
 
 static dt_ymcw_t
-__fixup_c(unsigned int y, signed int m, signed int c, dt_dow_t w)
+__ymcw_fixup_c(unsigned int y, signed int m, signed int c, dt_dow_t w)
 {
 	dt_ymcw_t res = {0};
 
@@ -246,7 +246,7 @@ __ymcw_add_w(dt_ymcw_t d, int n)
 /* add N weeks to D */
 	signed int tgtc = d.c + n;
 
-	return __fixup_c(d.y, d.m, tgtc, (dt_dow_t)d.w);
+	return __ymcw_fixup_c(d.y, d.m, tgtc, (dt_dow_t)d.w);
 }
 
 static dt_ymcw_t
