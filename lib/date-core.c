@@ -358,7 +358,7 @@ __uidiv(signed int x, signed int m)
 
 
 /* converters and getters */
-static inline dt_daisy_t
+static inline __attribute__((pure)) dt_daisy_t
 __jan00_daisy(unsigned int year)
 {
 /* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
@@ -370,13 +370,13 @@ __jan00_daisy(unsigned int year)
 
 #if defined GET_JAN01_WDAY_FULL_LOOKUP
 
-static inline __jan01_wday_block_t
+static inline __attribute__((pure)) __jan01_wday_block_t
 __get_jan01_block(unsigned int year)
 {
 	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
 }
 
-static inline dt_dow_t
+static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR */
@@ -432,7 +432,7 @@ __get_jan01_wday(unsigned int year)
 
 #elif defined GET_JAN01_WDAY_28Y_LOOKUP
 
-static inline dt_dow_t
+static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR
@@ -443,7 +443,7 @@ __get_jan01_wday(unsigned int year)
 
 #elif defined GET_JAN01_WDAY_28Y_SWITCH
 
-static inline dt_dow_t
+static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR
@@ -528,7 +528,7 @@ __get_jan01_wday(unsigned int year)
 
 #elif defined GET_JAN01_WDAY_SAKAMOTO
 
-static inline dt_dow_t
+static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 	unsigned int res;
@@ -540,7 +540,7 @@ __get_jan01_wday(unsigned int year)
 
 #endif	/* GET_JAN01_WDAY_* */
 
-static unsigned int
+static inline __attribute__((pure)) unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
 #if 1
@@ -599,7 +599,7 @@ __get_mdays(unsigned int y, unsigned int m)
 	return res - __md_get_yday(y, m, 0);
 }
 
-static inline unsigned int
+static __attribute__((pure)) unsigned int
 __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 {
 /* get the number of weekdays W in Y-M, which is the max count
