@@ -202,7 +202,7 @@ __ymcw_to_ymd(dt_ymcw_t d)
 static dt_ymcw_t
 __fixup_c(unsigned int y, signed int m, signed int c, dt_dow_t w)
 {
-	dt_ymcw_t res;
+	dt_ymcw_t res = {0};
 
 	/* fixup q */
 	if (LIKELY(c >= 1 && c <= 4)) {
