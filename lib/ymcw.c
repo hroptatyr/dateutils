@@ -306,12 +306,11 @@ __ymcw_add_m(dt_ymcw_t d, int n)
 	return __ymcw_fixup(d);
 }
 
-static __attribute__((unused)) dt_ymcw_t
+static dt_ymcw_t
 __ymcw_add_y(dt_ymcw_t d, int n)
 {
 /* add N years to D */
-	d.y += n;
-	return d;
+	return __ymcw_fixup_c(d.y + n, d.m, d.c, (dt_dow_t)d.w);
 }
 #endif	/* ASPECT_ADD */
 
