@@ -166,6 +166,10 @@ dt_tests += dadd.47.dt
 dt_tests += dadd.48.dt
 dt_tests += dadd.49.dt
 dt_tests += dadd.50.dt
+dt_tests += dadd.51.dt
+dt_tests += dadd.52.dt
+dt_tests += dadd.53.dt
+dt_tests += dadd.54.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
@@ -472,6 +476,9 @@ check_PROGRAMS += dtcore-strp
 check_PROGRAMS += dtcore-conv
 check_PROGRAMS += dtcore-add
 check_PROGRAMS += time-core-add
+check_PROGRAMS += basic_ymd_get_wday
+check_PROGRAMS += basic_get_jan01_wday
+check_PROGRAMS += basic_md_get_yday
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -487,5 +494,7 @@ bin_tests += dtcore-strp
 bin_tests += dtcore-conv
 bin_tests += dtcore-add
 bin_tests += time-core-add
+bin_tests += basic_ymd_get_wday
+bin_tests += basic_get_jan01_wday
 
 ## Makefile.am ends here

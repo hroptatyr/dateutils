@@ -200,9 +200,9 @@ __ymcw_to_ymd(dt_ymcw_t d)
 #define YMCW_ASPECT_ADD_
 
 static dt_ymcw_t
-__fixup_c(unsigned int y, signed int m, signed int c, dt_dow_t w)
+__ymcw_fixup_c(unsigned int y, signed int m, signed int c, dt_dow_t w)
 {
-	dt_ymcw_t res;
+	dt_ymcw_t res = {0};
 
 	/* fixup q */
 	if (LIKELY(c >= 1 && c <= 4)) {
@@ -246,7 +246,7 @@ __ymcw_add_w(dt_ymcw_t d, int n)
 /* add N weeks to D */
 	signed int tgtc = d.c + n;
 
-	return __fixup_c(d.y, d.m, tgtc, (dt_dow_t)d.w);
+	return __ymcw_fixup_c(d.y, d.m, tgtc, (dt_dow_t)d.w);
 }
 
 static dt_ymcw_t
@@ -254,8 +254,8 @@ __ymcw_add_d(dt_ymcw_t d, int n)
 {
 /* add N days to D
  * we reduce this to __ymcw_add_w() */
-	signed int aw = n / 7;
-	signed int ad = n % 7;
+	signed int aw = n / (signed int)GREG_DAYS_P_WEEK;
+	signed int ad = n % (signed int)GREG_DAYS_P_WEEK;
 
 	if ((ad += d.w) >= (signed int)GREG_DAYS_P_WEEK) {
 		ad -= GREG_DAYS_P_WEEK;
@@ -306,12 +306,11 @@ __ymcw_add_m(dt_ymcw_t d, int n)
 	return __ymcw_fixup(d);
 }
 
-static __attribute__((unused)) dt_ymcw_t
+static dt_ymcw_t
 __ymcw_add_y(dt_ymcw_t d, int n)
 {
 /* add N years to D */
-	d.y += n;
-	return d;
+	return __ymcw_fixup_c(d.y + n, d.m, d.c, (dt_dow_t)d.w);
 }
 #endif	/* ASPECT_ADD */
 

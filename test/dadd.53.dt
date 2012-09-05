@@ -1,0 +1,38 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2010-W51-06"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+0d
+1d
+2d
+3
+4d
+5
+6d
+7
+8d
+9d
+10d
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2010-W51-06
+2010-W51-07
+2010-W52-01
+2010-W52-02
+2010-W52-03
+2010-W52-04
+2010-W52-05
+2010-W52-06
+2010-W52-07
+2011-W01-01
+2011-W01-02
+EOF
+
+## dadd.53.dt ends here
