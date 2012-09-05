@@ -254,8 +254,8 @@ __ymcw_add_d(dt_ymcw_t d, int n)
 {
 /* add N days to D
  * we reduce this to __ymcw_add_w() */
-	signed int aw = n / 7;
-	signed int ad = n % 7;
+	signed int aw = n / (signed int)GREG_DAYS_P_WEEK;
+	signed int ad = n % (signed int)GREG_DAYS_P_WEEK;
 
 	if ((ad += d.w) >= (signed int)GREG_DAYS_P_WEEK) {
 		ad -= GREG_DAYS_P_WEEK;
