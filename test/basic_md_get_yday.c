@@ -3,12 +3,12 @@
 static unsigned int
 super(unsigned int super)
 {
-	for (int y = 1917; y < 4096; y++) {
+	for (int y = 1917; y < 2299; y++) {
 		for (int m = 1; m <= 12; m++) {
 			for (int d = 0; d < 32; d++) {
 				unsigned int yd;
 				yd = __md_get_yday(y, m, d);
-				super += yd;
+				super += y * m * yd + d;
 			}
 		}
 	}
@@ -45,7 +45,7 @@ main(void)
 		supersum += super(supersum);
 	}
 	printf("super %u\n", supersum);
-	if (supersum != 4142512064U) {
+	if (supersum != 2780223808U) {
 		return 1;
 	}
 	return 0;
