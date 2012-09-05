@@ -37,6 +37,8 @@
 /* this is an attempt to code aspect-oriented */
 #define ASPECT_YWD
 
+#include "nifty.h"
+
 /* table of 53-week years (years % 400)
 
   {4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105,
@@ -44,6 +46,9 @@
   195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274,
   280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359,
   364, 370, 376, 381, 387, 392, 398};
+
+  we could use gperf to get a perfect hash, thank god the list is fixed, but
+  at the moment we let the compiler work it out
  */
 
 
@@ -71,6 +76,89 @@ __ywd_get_jan01_hang(dt_dow_t j01)
 		return (int)(GREG_DAYS_P_WEEK + res);
 	}
 	return res;
+}
+
+static unsigned int
+__get_isowk(unsigned int y)
+{
+/* return the number of iso weeks in Y */
+	switch (y % 400) {
+	default:
+		break;
+	case 4:
+	case 9:
+	case 15:
+	case 20:
+	case 26:
+	case 32:
+	case 37:
+	case 43:
+	case 48:
+	case 54:
+	case 60:
+	case 65:
+	case 71:
+	case 76:
+	case 82:
+	case 88:
+	case 93:
+	case 99:
+	case 105:
+	case 111:
+	case 116:
+	case 122:
+	case 128:
+	case 133:
+	case 139:
+	case 144:
+	case 150:
+	case 156:
+	case 161:
+	case 167:
+	case 172:
+	case 178:
+	case 184:
+	case 189:
+	case 195:
+	case 201:
+	case 207:
+	case 212:
+	case 218:
+	case 224:
+	case 229:
+	case 235:
+	case 240:
+	case 246:
+	case 252:
+	case 257:
+	case 263:
+	case 268:
+	case 274:
+	case 280:
+	case 285:
+	case 291:
+	case 296:
+	case 303:
+	case 308:
+	case 314:
+	case 320:
+	case 325:
+	case 331:
+	case 336:
+	case 342:
+	case 348:
+	case 353:
+	case 359:
+	case 364:
+	case 370:
+	case 376:
+	case 381:
+	case 387:
+	case 392:
+	case 398:
+		return 53;
+	}
+	return 52;
 }
 #endif	/* !YWD_ASPECT_HELPERS_ */
 
@@ -236,75 +324,93 @@ __ywd_to_ymd(dt_ywd_t d)
 
 #if defined ASPECT_ADD && !defined YWD_ASPECT_ADD_
 #define YWD_ASPECT_ADD_
+
 static dt_ywd_t
-__ywd_add(dt_ywd_t d, struct dt_d_s dur)
+__ywd_fixup_w(unsigned int y, signed int w, dt_dow_t d)
 {
-/* here's a short draft of the ywd-arithmetic:
- * Y-w-d + n years -> (Y + n)-w-d
- * Y-w-d + n weeks -> Y'-(w + n)-d
- * Y-w-d + n days -> Y'-w'-(d + n)
- *
- * YWD is a month-less calendar, so adding n mo(nths) is undefined
- * but as of 0.2.3 there is no global policy on how to signal such
- * conditions so we just do fuckall. */
-	unsigned int tgty;
-	unsigned int tgtc;
-	dt_dow_t tgtw;
-	struct strpdi_s durcch = strpdi_initialiser();
+	dt_ywd_t res = {0};
 
-	/* first off, give DUR a make-over */
-	__fill_strpdi(&durcch, dur);
+	/* fixup q */
+	if (LIKELY(w >= 1 && w <= 52)) {
+		/* all years support this */
+		;
+	} else if (w < 1) {
+		int nw;
 
-	switch (dur.typ) {
-	case DT_YMD:
-	case DT_MD:
-	case DT_YMCW:
-	case DT_BIZDA:
-	case DT_DAISY:
-	case DT_BIZSI: {
-		signed int q;
-		signed int mc;
+		do {
+			nw = __get_isowk(--y);
+			w += nw;
+		} while (w < 1);
+	} else {
+		int nw;
 
-		tgty = d.y + durcch.m / 12;
-
-		/* factorise 7d.c + d.w + durcch.d into 7q + p, 0 <= p < 7
-		 * we need the fact that p cannot be negative further down */
-		mc = (d.c - 1) * GREG_DAYS_P_WEEK + d.w - 1+ durcch.d;
-		q = __uidiv(mc, GREG_DAYS_P_WEEK);
-		{
-			/* just so we don't mix enum types and ints */
-			unsigned int tmp = __uimod(mc, GREG_DAYS_P_WEEK) + 1;
-			/* final week day in tmp, so ass it */
-			tgtw = (dt_dow_t)tmp;
+		while (w > (nw = __get_isowk(y))) {
+			w -= nw;
+			y++;
 		}
-
-		/* fixup q */
-		while (1) {
-			if (q < 0) {
-				tgty--;
-				q += 52;
-			} else if (q >= 52) {
-				tgty++;
-				q -= 52;
-			} else {
-				break;
-			}
-		}
-
-		/* re-instantiate the count within the month */
-		tgtc = q + 1;
-		break;
 	}
-	default:
-		tgty = tgtc = 0;
-		tgtw = DT_MIRACLEDAY;
-		break;
+
+	/* final assignment */
+	res.y = y;
+	res.c = w;
+	res.w = d;
+	return res;
+}
+
+static dt_ywd_t
+__ywd_add_w(dt_ywd_t d, int n)
+{
+/* add N weeks to D */
+	signed int tgtc = d.c + n;
+
+	return __ywd_fixup_w(d.y, tgtc, (dt_dow_t)d.w);
+}
+
+static dt_ywd_t
+__ywd_add_d(dt_ywd_t d, int n)
+{
+/* add N days to D
+ * we reduce this to __ywd_add_w() */
+	signed int aw = n / 7;
+	signed int ad = n % 7;
+
+	if ((ad += d.w) >= (signed int)GREG_DAYS_P_WEEK) {
+		ad -= GREG_DAYS_P_WEEK;
+		aw++;
+	} else if (ad < 0) {
+		ad += GREG_DAYS_P_WEEK;
+		aw--;
 	}
-	/* reassign to the guy we were asked to add upon */
-	d.y = tgty;
-	d.c = tgtc;
-	d.w = tgtw;
+
+	/* fixup Sun/Mon wrap around */
+	if ((dt_dow_t)d.w < DT_MONDAY && (dt_dow_t)ad >= DT_MONDAY) {
+		aw++;
+	} else if ((dt_dow_t)d.w >= DT_MONDAY && (dt_dow_t)ad < DT_MONDAY) {
+		aw--;
+	}
+
+	d.w = (dt_dow_t)ad;
+	return __ywd_add_w(d, aw);
+}
+
+static dt_ywd_t
+__ywd_add_b(dt_ywd_t d, int UNUSED(n))
+{
+/* add N business days to D */
 	return d;
+}
+
+static dt_ywd_t
+__ywd_add_m(dt_ywd_t d, int UNUSED(n))
+{
+	return d;
+}
+
+static __attribute__((unused)) dt_ywd_t
+__ywd_add_y(dt_ywd_t d, int n)
+{
+/* add N years to D */
+	return __ywd_fixup_w(d.y + n, d.c, (dt_dow_t)d.w);
 }
 #endif	/* ASPECT_ADD */
 

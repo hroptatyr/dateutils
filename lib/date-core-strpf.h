@@ -82,6 +82,7 @@ struct strpd_s {
 };
 
 struct strpdi_s {
+	signed int y;
 	signed int m;
 	signed int d;
 	signed int w;

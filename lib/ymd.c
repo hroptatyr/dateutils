@@ -285,7 +285,7 @@ __ymd_to_ymcw(dt_ymd_t d)
 #if defined ASPECT_ADD && !defined YMD_ASPECT_ADD_
 #define YMD_ASPECT_ADD_
 static dt_ymd_t
-__fixup_d(unsigned int y, signed int m, signed int d)
+__ymd_fixup_d(unsigned int y, signed int m, signed int d)
 {
 	dt_ymd_t res = {0};
 
@@ -329,7 +329,7 @@ __ymd_add_d(dt_ymd_t d, int n)
 	signed int tgtd = d.d + n;
 
 	/* fixup the day */
-	return __fixup_d(d.y, d.m, tgtd);
+	return __ymd_fixup_d(d.y, d.m, tgtd);
 }
 
 static dt_ymd_t
@@ -340,7 +340,7 @@ __ymd_add_b(dt_ymd_t d, int n)
 	int tgtd = d.d + __get_d_equiv(wd, n);
 
 	/* fixup the day, i.e. 2012-01-34 -> 2012-02-03 */
-	return __fixup_d(d.y, d.m, tgtd);
+	return __ymd_fixup_d(d.y, d.m, tgtd);
 }
 
 static __attribute__((unused)) dt_ymd_t
