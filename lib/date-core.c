@@ -2013,6 +2013,20 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_BIZDA:
+		if (durcch.d) {
+			d.bizda = __bizda_add_d(d.bizda, durcch.d);
+		} else if (durcch.b) {
+			d.bizda = __bizda_add_b(d.bizda, durcch.b);
+		}
+		if (durcch.w) {
+			d.bizda = __bizda_add_w(d.bizda, durcch.w);
+		}
+		if (durcch.m) {
+			d.bizda = __bizda_add_m(d.bizda, durcch.m);
+		}
+		if (durcch.y) {
+			d.bizda = __bizda_add_y(d.bizda, durcch.y);
+		}
 		break;
 
 	case DT_YWD:
