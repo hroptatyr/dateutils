@@ -584,7 +584,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
-DEFUN inline unsigned int
+DEFUN __attribute__((pure)) inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
 /* get the number of days in Y-M */
