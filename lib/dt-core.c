@@ -973,6 +973,9 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			/* actually this is a parametrised date */
 			d.d.bizda = dt_conv_to_bizda(d.d);
 			break;
+		case DT_YWD:
+			d.d.ywd = dt_conv_to_ywd(d.d);
+			break;
 		case DT_SEXY:
 		case DT_SEXYTAI: {
 			dt_daisy_t dd = dt_conv_to_daisy(d.d);
