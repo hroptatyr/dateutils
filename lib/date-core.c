@@ -1255,7 +1255,7 @@ dt_conv_to_ymd(struct dt_d_s that)
 	case DT_DAISY:
 		return __daisy_to_ymd(that.daisy);
 	case DT_BIZDA:
-		break;
+		return __bizda_to_ymd(that.bizda);
 	case DT_YWD:
 		return __ywd_to_ymd(that.ywd);
 	case DT_DUNK:
