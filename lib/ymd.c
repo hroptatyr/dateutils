@@ -360,7 +360,7 @@ __ymd_add_b(dt_ymd_t d, int n)
 	return __ymd_fixup_d(d.y, d.m, tgtd);
 }
 
-static __attribute__((unused)) dt_ymd_t
+static dt_ymd_t
 __ymd_add_w(dt_ymd_t d, int n)
 {
 /* add N weeks to D */
