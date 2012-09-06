@@ -182,6 +182,10 @@ dt_tests += dadd.63.dt
 dt_tests += dadd.64.dt
 dt_tests += dadd.65.dt
 dt_tests += dadd.66.dt
+dt_tests += dadd.67.dt
+dt_tests += dadd.68.dt
+dt_tests += dadd.69.dt
+dt_tests += dadd.70.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
