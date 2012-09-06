@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2012-02-29 -12y"
+COMMENT="testing fix ups"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2000-02-29
+EOF
+
+## dadd.63.dt ends here
