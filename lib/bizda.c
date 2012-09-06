@@ -34,12 +34,78 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+/* set aspect temporarily */
 #define ASPECT_BIZDA
+/* permanent aspect, to be read as have we ever seen aspect_bizda */
+#if !defined ASPECT_BIZDA_
+#define ASPECT_BIZDA_
+#endif	/* !ASPECT_BIZDA_ */
 
 
 #if !defined BIZDA_ASPECT_HELPERS_
 #define BIZDA_ASPECT_HELPERS_
 
+#if defined ASPECT_YMD
+static int
+__get_d_equiv(dt_dow_t dow, int b)
+{
+	int res = 0;
+
+	switch (dow) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
+		b %= (signed int)DUWW_BDAYS_P_WEEK;
+		break;
+	case DT_SATURDAY:
+		res++;
+	case DT_SUNDAY:
+		res++;
+		b--;
+		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
+		if ((b %= (signed int)DUWW_BDAYS_P_WEEK) < 0) {
+			/* act as if we're on the monday after */
+			res++;
+		}
+		dow = DT_MONDAY;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		break;
+	}
+
+	/* fixup b */
+	if (b < 0) {
+		res -= GREG_DAYS_P_WEEK;
+		b += DUWW_BDAYS_P_WEEK;
+	}
+	/* b >= 0 && b < 5 */
+	switch (dow) {
+	case DT_SUNDAY:
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		if ((int)dow + b <= (int)DT_FRIDAY) {
+			res += b;
+		} else {
+			res += b + 2;
+		}
+		break;
+	case DT_SATURDAY:
+		res += b + 1;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		res = 0;
+	}
+	return res;
+}
+#endif	/* ASPECT_YMD */
 #endif	/* BIZDA_ASPECT_HELPERS_ */
 
 
@@ -275,5 +341,7 @@ __prep_strfd_bizda(struct strpd_s *tgt, dt_bizda_t d, dt_bizda_param_t bp)
 	return;
 }
 #endif	/* ASPECT_STRF */
+
+#undef ASPECT_BIZDA
 
 /* bizda.c ends here */

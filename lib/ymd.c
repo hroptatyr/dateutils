@@ -34,7 +34,12 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+/* set aspect temporarily */
 #define ASPECT_YMD
+/* permanent aspect, to be read as have we ever seen aspect_ymd */
+#if !defined ASPECT_YMD_
+#define ASPECT_YMD_
+#endif	/* !ASPECT_YMD_ */
 
 #include "nifty.h"
 
@@ -66,6 +71,9 @@ __ymd_fixup(dt_ymd_t d)
 	}
 	return d;
 }
+
+/* try to get helpers like __get_d_equiv() et al */
+#include "bizda.c"
 #endif	/* YMD_ASPECT_HELPERS_ */
 
 
@@ -442,5 +450,7 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 #define YMD_ASPECT_STRF_
 
 #endif	/* ASPECT_STRF */
+
+#undef ASPECT_YMD
 
 /* ymd.c ends here */

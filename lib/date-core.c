@@ -875,6 +875,14 @@ __yday_get_md(unsigned int year, unsigned int yday)
 }
 #endif	/* 0 */
 
+/* helpers from the calendar files, don't define any aspect, so only
+ * the helpers should get included */
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "bizda.c"
+#include "daisy.c"
+
 
 #define ASPECT_GETTERS
 #include "ymd.c"
@@ -1310,70 +1318,11 @@ dt_conv_to_ywd(struct dt_d_s this)
 
 
 /* arithmetic */
-static int
-__get_d_equiv(dt_dow_t dow, int b)
-{
-	int res = 0;
-
-	switch (dow) {
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
-		b %= (signed int)DUWW_BDAYS_P_WEEK;
-		break;
-	case DT_SATURDAY:
-		res++;
-	case DT_SUNDAY:
-		res++;
-		b--;
-		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
-		if ((b %= (signed int)DUWW_BDAYS_P_WEEK) < 0) {
-			/* act as if we're on the monday after */
-			res++;
-		}
-		dow = DT_MONDAY;
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		break;
-	}
-
-	/* fixup b */
-	if (b < 0) {
-		res -= GREG_DAYS_P_WEEK;
-		b += DUWW_BDAYS_P_WEEK;
-	}
-	/* b >= 0 && b < 5 */
-	switch (dow) {
-	case DT_SUNDAY:
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		if ((int)dow + b <= (int)DT_FRIDAY) {
-			res += b;
-		} else {
-			res += b + 2;
-		}
-		break;
-	case DT_SATURDAY:
-		res += b + 1;
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		res = 0;
-	}
-	return res;
-}
-
 #define ASPECT_ADD
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
+#include "bizda.c"
 #include "daisy.c"
 #undef ASPECT_ADD
 
@@ -1381,6 +1330,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
+#include "bizda.c"
 #include "daisy.c"
 #undef ASPECT_DIFF
 
@@ -1616,6 +1566,8 @@ out:
 }
 
 #define ASPECT_STRF
+#include "ymd.c"
+#include "ymcw.c"
 #include "ywd.c"
 #include "bizda.c"
 #include "daisy.c"
