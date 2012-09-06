@@ -180,6 +180,23 @@ __get_b_equiv(dt_dow_t dow, int d)
 	}
 	return res;
 }
+
+static __attribute__((pure)) dt_bizda_t
+__bizda_fixup(dt_bizda_t d)
+{
+/* given dates like 2013-08-23b this returns 2013-08-22b */
+	int bdays;
+
+	if (LIKELY(d.bd <= 20)) {
+		/* every month has 20 business days */
+		;
+	} else if (UNLIKELY(d.m == 0 || d.m > GREG_MONTHS_P_YEAR)) {
+		;
+	} else if (d.bd > (bdays = __get_bdays(d.y, d.m))) {
+		d.bd = bdays;
+	}
+	return d;
+}
 #endif	/* BIZDA_ASPECT_HELPERS_ */
 
 
@@ -456,6 +473,41 @@ __bizda_add_d(dt_bizda_t d, int n)
 
 	return __bizda_fixup_b(d.y, d.m, tgtb);
 }
+
+static dt_bizda_t
+__bizda_add_w(dt_bizda_t d, int n)
+{
+/* add N weeks to D */
+	return __bizda_add_d(d, GREG_DAYS_P_WEEK * n);
+}
+
+static dt_bizda_t
+__bizda_add_m(dt_bizda_t d, int n)
+{
+/* add N months to D */
+	signed int tgtm = d.m + n;
+
+	while (tgtm > (signed int)GREG_MONTHS_P_YEAR) {
+		tgtm -= GREG_MONTHS_P_YEAR;
+		++d.y;
+	}
+	while (tgtm < 1) {
+		tgtm += GREG_MONTHS_P_YEAR;
+		--d.y;
+	}
+	/* final assignment */
+	d.m = tgtm;
+	return __bizda_fixup(d);
+}
+
+static dt_bizda_t
+__bizda_add_y(dt_bizda_t d, int n)
+{
+/* add N years to D */
+	d.y += n;
+	return __bizda_fixup(d);
+}
+
 #endif	/* ASPECT_ADD */
 
 
