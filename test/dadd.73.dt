@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2012-W52-07 1"
+COMMENT="Gregorian year is 2012, but ISO8601 year is 2013 already."
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2013-W01-01
+EOF
+
+## dadd.73.dt ends here

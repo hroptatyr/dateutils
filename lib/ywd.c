@@ -160,6 +160,21 @@ __get_isowk(unsigned int y)
 	}
 	return 52;
 }
+
+static __attribute__((pure)) dt_ywd_t
+__ywd_fixup(dt_ywd_t d)
+{
+/* given dates like 2012-W53-01 this returns 2013-W01-01 */
+	int nw;
+
+	if (LIKELY(d.c <= 52)) {
+		/* brill all years have 52 weeks */
+		;
+	} else if (UNLIKELY(d.c > (nw = __get_isowk(d.y)))) {
+		d.c = nw;
+	}
+	return d;
+}
 #endif	/* !YWD_ASPECT_HELPERS_ */
 
 
@@ -410,7 +425,8 @@ static dt_ywd_t
 __ywd_add_y(dt_ywd_t d, int n)
 {
 /* add N years to D */
-	return __ywd_fixup_w(d.y + n, d.c, (dt_dow_t)d.w);
+	d.y += n;
+	return __ywd_fixup(d);
 }
 #endif	/* ASPECT_ADD */
 
