@@ -584,7 +584,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
-DEFUN inline unsigned int
+DEFUN __attribute__((pure)) inline unsigned int
 __get_mdays(unsigned int y, unsigned int m)
 {
 /* get the number of days in Y-M */
@@ -874,6 +874,14 @@ __yday_get_md(unsigned int year, unsigned int yday)
 	return (struct __md_s){.m = m + 1 - (m >= 7), .d = d / 2 + 1};
 }
 #endif	/* 0 */
+
+/* helpers from the calendar files, don't define any aspect, so only
+ * the helpers should get included */
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "bizda.c"
+#include "daisy.c"
 
 
 #define ASPECT_GETTERS
@@ -1310,70 +1318,11 @@ dt_conv_to_ywd(struct dt_d_s this)
 
 
 /* arithmetic */
-static int
-__get_d_equiv(dt_dow_t dow, int b)
-{
-	int res = 0;
-
-	switch (dow) {
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
-		b %= (signed int)DUWW_BDAYS_P_WEEK;
-		break;
-	case DT_SATURDAY:
-		res++;
-	case DT_SUNDAY:
-		res++;
-		b--;
-		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
-		if ((b %= (signed int)DUWW_BDAYS_P_WEEK) < 0) {
-			/* act as if we're on the monday after */
-			res++;
-		}
-		dow = DT_MONDAY;
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		break;
-	}
-
-	/* fixup b */
-	if (b < 0) {
-		res -= GREG_DAYS_P_WEEK;
-		b += DUWW_BDAYS_P_WEEK;
-	}
-	/* b >= 0 && b < 5 */
-	switch (dow) {
-	case DT_SUNDAY:
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		if ((int)dow + b <= (int)DT_FRIDAY) {
-			res += b;
-		} else {
-			res += b + 2;
-		}
-		break;
-	case DT_SATURDAY:
-		res += b + 1;
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		res = 0;
-	}
-	return res;
-}
-
 #define ASPECT_ADD
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
+#include "bizda.c"
 #include "daisy.c"
 #undef ASPECT_ADD
 
@@ -1381,6 +1330,7 @@ __get_d_equiv(dt_dow_t dow, int b)
 #include "ymd.c"
 #include "ymcw.c"
 #include "ywd.c"
+#include "bizda.c"
 #include "daisy.c"
 #undef ASPECT_DIFF
 
@@ -1616,6 +1566,8 @@ out:
 }
 
 #define ASPECT_STRF
+#include "ymd.c"
+#include "ymcw.c"
 #include "ywd.c"
 #include "bizda.c"
 #include "daisy.c"
@@ -2027,11 +1979,13 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_YMD:
-		if (durcch.d || durcch.w) {
-			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
-			d.ymd = __ymd_add_d(d.ymd, totd);
+		if (durcch.d) {
+			d.ymd = __ymd_add_d(d.ymd, durcch.d);
 		} else if (durcch.b) {
 			d.ymd = __ymd_add_b(d.ymd, durcch.b);
+		}
+		if (durcch.w) {
+			d.ymd = __ymd_add_w(d.ymd, durcch.w);
 		}
 		if (durcch.m) {
 			d.ymd = __ymd_add_m(d.ymd, durcch.m);
@@ -2042,11 +1996,13 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_YMCW:
-		if (durcch.d || durcch.w) {
-			int totd = durcch.d + GREG_DAYS_P_WEEK * durcch.w;
-			d.ymcw = __ymcw_add_d(d.ymcw, totd);
+		if (durcch.d) {
+			d.ymcw = __ymcw_add_d(d.ymcw, durcch.d);
 		} else if (durcch.b) {
 			d.ymcw = __ymcw_add_b(d.ymcw, durcch.b);
+		}
+		if (durcch.w) {
+			d.ymcw = __ymcw_add_w(d.ymcw, durcch.w);
 		}
 		if (durcch.m) {
 			d.ymcw = __ymcw_add_m(d.ymcw, durcch.m);
@@ -2057,6 +2013,20 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		break;
 
 	case DT_BIZDA:
+		if (durcch.d) {
+			d.bizda = __bizda_add_d(d.bizda, durcch.d);
+		} else if (durcch.b) {
+			d.bizda = __bizda_add_b(d.bizda, durcch.b);
+		}
+		if (durcch.w) {
+			d.bizda = __bizda_add_w(d.bizda, durcch.w);
+		}
+		if (durcch.m) {
+			d.bizda = __bizda_add_m(d.bizda, durcch.m);
+		}
+		if (durcch.y) {
+			d.bizda = __bizda_add_y(d.bizda, durcch.y);
+		}
 		break;
 
 	case DT_YWD:

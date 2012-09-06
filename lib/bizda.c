@@ -34,12 +34,169 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+/* set aspect temporarily */
 #define ASPECT_BIZDA
+/* permanent aspect, to be read as have we ever seen aspect_bizda */
+#if !defined ASPECT_BIZDA_
+#define ASPECT_BIZDA_
+#endif	/* !ASPECT_BIZDA_ */
 
 
 #if !defined BIZDA_ASPECT_HELPERS_
 #define BIZDA_ASPECT_HELPERS_
 
+#if defined ASPECT_YMD
+static int
+__get_d_equiv(dt_dow_t dow, int b)
+{
+	int res = 0;
+
+	switch (dow) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
+		b %= (signed int)DUWW_BDAYS_P_WEEK;
+		break;
+	case DT_SATURDAY:
+		res++;
+	case DT_SUNDAY:
+		res++;
+		b--;
+		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
+		if ((b %= (signed int)DUWW_BDAYS_P_WEEK) < 0) {
+			/* act as if we're on the monday after */
+			res++;
+		}
+		dow = DT_MONDAY;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		break;
+	}
+
+	/* fixup b */
+	if (b < 0) {
+		res -= GREG_DAYS_P_WEEK;
+		b += DUWW_BDAYS_P_WEEK;
+	}
+	/* b >= 0 && b < 5 */
+	switch (dow) {
+	case DT_SUNDAY:
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		if ((int)dow + b <= (int)DT_FRIDAY) {
+			res += b;
+		} else {
+			res += b + 2;
+		}
+		break;
+	case DT_SATURDAY:
+		res += b + 1;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		res = 0;
+	}
+	return res;
+}
+#endif	/* ASPECT_YMD */
+
+static int
+__get_b_equiv(dt_dow_t dow, int d)
+{
+	int res = 0;
+
+	switch (dow) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res += DUWW_BDAYS_P_WEEK * (d / (signed int)GREG_DAYS_P_WEEK);
+		d %= (signed int)GREG_DAYS_P_WEEK;
+		break;
+	case DT_SATURDAY:
+		res--;
+	case DT_SUNDAY:
+		res--;
+		d--;
+		res += DUWW_BDAYS_P_WEEK * (d / (signed int)GREG_DAYS_P_WEEK);
+		if ((d %= (signed int)GREG_DAYS_P_WEEK) < 0) {
+			/* act as if we're on the friday before */
+			res++;
+		}
+		dow = DT_MONDAY;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		break;
+	}
+
+	/* invariant dow + d \in [-6,13] */
+	switch ((int)dow + d) {
+	case -6:
+	case -5:
+	case -4:
+	case -3:
+	case -2:
+		res += d + 2;
+		break;
+	case -1:
+		res += d + 2;
+		break;
+	case 0:
+		res += d + 1;
+		break;
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+		res += d;
+		break;
+	case 6:
+		res += d - 1;
+		break;
+	case 7:
+		res += d - 2;
+		break;
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+	case 12:
+		res += d - 2;
+		break;
+	case 13:
+		res += d - 2 - 1;
+	default:
+		break;
+	}
+	return res;
+}
+
+static __attribute__((pure)) dt_bizda_t
+__bizda_fixup(dt_bizda_t d)
+{
+/* given dates like 2013-08-23b this returns 2013-08-22b */
+	int bdays;
+
+	if (LIKELY(d.bd <= 20)) {
+		/* every month has 20 business days */
+		;
+	} else if (UNLIKELY(d.m == 0 || d.m > GREG_MONTHS_P_YEAR)) {
+		;
+	} else if (d.bd > (bdays = __get_bdays(d.y, d.m))) {
+		d.bd = bdays;
+	}
+	return d;
+}
 #endif	/* BIZDA_ASPECT_HELPERS_ */
 
 
@@ -257,6 +414,103 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined BIZDA_ASPECT_ADD_
+#define BIZDA_ASPECT_ADD_
+
+static dt_bizda_t
+__bizda_fixup_b(unsigned int y, signed int m, signed int b)
+{
+	dt_bizda_t res = {0};
+
+	if (LIKELY(b >= 1 && b <= 20)) {
+		/* all months in our design range have at least 20 bdays */
+		;
+	} else if (b < 1) {
+		int bdays;
+
+		do {
+			if (UNLIKELY(--m < 1)) {
+				--y;
+				m = GREG_MONTHS_P_YEAR;
+			}
+			bdays = __get_bdays(y, m);
+			b += bdays;
+		} while (b < 1);
+
+	} else {
+		int bdays;
+
+		while (b > (bdays = __get_bdays(y, m))) {
+			b -= bdays;
+			if (UNLIKELY(++m > (signed int)GREG_MONTHS_P_YEAR)) {
+				++y;
+				m = 1;
+			}
+		}
+	}
+
+	res.y = y;
+	res.m = m;
+	res.bd = b;
+	return res;
+}
+
+static dt_bizda_t
+__bizda_add_b(dt_bizda_t d, int n)
+{
+/* add N business days to D */
+	int tgtb = d.bd + n;
+
+	return __bizda_fixup_b(d.y, d.m, tgtb);
+}
+
+static dt_bizda_t
+__bizda_add_d(dt_bizda_t d, int n)
+{
+/* add N real days to D */
+	dt_dow_t wd = __bizda_get_wday(d);
+	int tgtb = d.bd + __get_b_equiv(wd, n);
+
+	return __bizda_fixup_b(d.y, d.m, tgtb);
+}
+
+static dt_bizda_t
+__bizda_add_w(dt_bizda_t d, int n)
+{
+/* add N weeks to D */
+	return __bizda_add_d(d, GREG_DAYS_P_WEEK * n);
+}
+
+static dt_bizda_t
+__bizda_add_m(dt_bizda_t d, int n)
+{
+/* add N months to D */
+	signed int tgtm = d.m + n;
+
+	while (tgtm > (signed int)GREG_MONTHS_P_YEAR) {
+		tgtm -= GREG_MONTHS_P_YEAR;
+		++d.y;
+	}
+	while (tgtm < 1) {
+		tgtm += GREG_MONTHS_P_YEAR;
+		--d.y;
+	}
+	/* final assignment */
+	d.m = tgtm;
+	return __bizda_fixup(d);
+}
+
+static dt_bizda_t
+__bizda_add_y(dt_bizda_t d, int n)
+{
+/* add N years to D */
+	d.y += n;
+	return __bizda_fixup(d);
+}
+
+#endif	/* ASPECT_ADD */
+
+
 #if defined ASPECT_STRF && !defined BIZDA_ASPECT_STRF_
 #define BIZDA_ASPECT_STRF_
 
@@ -275,5 +529,7 @@ __prep_strfd_bizda(struct strpd_s *tgt, dt_bizda_t d, dt_bizda_param_t bp)
 	return;
 }
 #endif	/* ASPECT_STRF */
+
+#undef ASPECT_BIZDA
 
 /* bizda.c ends here */

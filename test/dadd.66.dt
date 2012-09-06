@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="2013-08-23b +1mo"
+COMMENT="testing fix ups"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2013-09-21b
+EOF
+
+## dadd.66.dt ends here

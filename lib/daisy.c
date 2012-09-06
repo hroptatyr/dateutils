@@ -183,7 +183,7 @@ __daisy_add_m(dt_daisy_t d, int UNUSED(n))
 	return d;
 }
 
-static __attribute__((unused)) dt_daisy_t
+static dt_daisy_t
 __daisy_add_y(dt_daisy_t d, int UNUSED(n))
 {
 /* daisies have no notion of years, do fuckall */
