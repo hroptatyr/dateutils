@@ -386,12 +386,12 @@ __ymd_add_m(dt_ymd_t d, int n)
 	return __ymd_fixup(d);
 }
 
-static __attribute__((unused)) dt_ymd_t
+static dt_ymd_t
 __ymd_add_y(dt_ymd_t d, int n)
 {
 /* add N years to D */
 	d.y += n;
-	return d;
+	return __ymd_fixup(d);
 }
 #endif	/* ASPECT_ADD */
 
