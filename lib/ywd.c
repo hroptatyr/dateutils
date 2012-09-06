@@ -222,7 +222,11 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 		}
 		break;
 	}
+#if defined WITH_FAST_ARITH
 	return res;
+#else  /* !WITH_FAST_ARITH */
+	return __ywd_fixup(res);
+#endif	/* WITH_FAST_ARITH */
 }
 
 static unsigned int
