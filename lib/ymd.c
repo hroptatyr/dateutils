@@ -296,6 +296,14 @@ __ymd_to_ymcw(dt_ymd_t d)
 	return res;
 #endif
 }
+
+static dt_ywd_t
+__ymd_to_ywd(dt_ymd_t d)
+{
+	unsigned int w = __ymd_get_wday(d);
+	unsigned int c = __ymd_get_wcnt_abs(d);
+	return __make_ywd(d.y, c, w, YWD_ABSWK_CNT);
+}
 #endif	/* ASPECT_CONV */
 
 
