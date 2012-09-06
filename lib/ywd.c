@@ -203,8 +203,11 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 	case YWD_ABSWK_CNT:
 		if (res.hang <= 0 || w < j01 || w && !j01/*j01 Sun, w not*/) {
 			res.c = c;
+		} else if (c - 1) {
+			res.c = c - 1;
 		} else {
-			res.c = c + 1;
+			res.y--;
+			res.c = 53;
 		}
 		break;
 	case YWD_SUNWK_CNT:
