@@ -106,6 +106,80 @@ __get_d_equiv(dt_dow_t dow, int b)
 	return res;
 }
 #endif	/* ASPECT_YMD */
+
+static int
+__get_b_equiv(dt_dow_t dow, int d)
+{
+	int res = 0;
+
+	switch (dow) {
+	case DT_MONDAY:
+	case DT_TUESDAY:
+	case DT_WEDNESDAY:
+	case DT_THURSDAY:
+	case DT_FRIDAY:
+		res += DUWW_BDAYS_P_WEEK * (d / (signed int)GREG_DAYS_P_WEEK);
+		d %= (signed int)GREG_DAYS_P_WEEK;
+		break;
+	case DT_SATURDAY:
+		res--;
+	case DT_SUNDAY:
+		res--;
+		d--;
+		res += DUWW_BDAYS_P_WEEK * (d / (signed int)GREG_DAYS_P_WEEK);
+		if ((d %= (signed int)GREG_DAYS_P_WEEK) < 0) {
+			/* act as if we're on the friday before */
+			res++;
+		}
+		dow = DT_MONDAY;
+		break;
+	case DT_MIRACLEDAY:
+	default:
+		break;
+	}
+
+	/* invariant dow + d \in [-6,13] */
+	switch ((int)dow + d) {
+	case -6:
+	case -5:
+	case -4:
+	case -3:
+	case -2:
+		res += d + 2;
+		break;
+	case -1:
+		res += d + 2;
+		break;
+	case 0:
+		res += d + 1;
+		break;
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+		res += d;
+		break;
+	case 6:
+		res += d - 1;
+		break;
+	case 7:
+		res += d - 2;
+		break;
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+	case 12:
+		res += d - 2;
+		break;
+	case 13:
+		res += d - 2 - 1;
+	default:
+		break;
+	}
+	return res;
+}
 #endif	/* BIZDA_ASPECT_HELPERS_ */
 
 
