@@ -201,9 +201,13 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 		res.c = c;
 		break;
 	case YWD_ABSWK_CNT:
-		if (res.hang <= 0 || w < j01 || w && !j01/*j01 Sun, w not*/) {
+		if (UNLIKELY(c > __get_isowk(y))) {
+			res.y++;
+			res.c = 1;
+		} else if (res.hang <= 0 || w < j01 ||
+			   w && !j01 /* w is not sun but j01 is */) {
 			res.c = c;
-		} else if (c - 1) {
+		} else if (LIKELY(c - 1)) {
 			res.c = c - 1;
 		} else {
 			res.y--;
