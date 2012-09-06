@@ -201,10 +201,17 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 		res.c = c;
 		break;
 	case YWD_ABSWK_CNT:
-		if (res.hang <= 0 || w < j01 || w && !j01/*j01 Sun, w not*/) {
+		if (UNLIKELY(c > __get_isowk(y))) {
+			res.y++;
+			res.c = 1;
+		} else if (res.hang <= 0 || w < j01 ||
+			   w && !j01 /* w is not sun but j01 is */) {
 			res.c = c;
+		} else if (LIKELY(c - 1)) {
+			res.c = c - 1;
 		} else {
-			res.c = c + 1;
+			res.y--;
+			res.c = 53;
 		}
 		break;
 	case YWD_SUNWK_CNT:
@@ -222,7 +229,11 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 		}
 		break;
 	}
+#if defined WITH_FAST_ARITH
 	return res;
+#else  /* !WITH_FAST_ARITH */
+	return __ywd_fixup(res);
+#endif	/* WITH_FAST_ARITH */
 }
 
 static unsigned int

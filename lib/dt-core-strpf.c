@@ -60,6 +60,7 @@
 DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
+/* code dupe, see __strpd_std() */
 	struct dt_dt_s res = dt_dt_initialiser();
 	struct strpdt_s d = {{0}, {0}};
 	const char *sp;
@@ -90,10 +91,11 @@ __strpdt_std(const char *str, char **ep)
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		if ((sp++, d.sd.c = strtoui_lim(sp, &sp, 1, 53)) == -1U ||
+		if ((sp++, d.sd.c = strtoui_lim(sp, &sp, 0, 53)) == -1U ||
 		    *sp++ != '-') {
 			goto try_time;
 		}
+		d.sd.flags.c_wcnt_p = 1;
 		d.sd.flags.wk_cnt = YWD_ISOWK_CNT;
 		goto dow;
 	}

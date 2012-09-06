@@ -414,76 +414,108 @@ fucked:
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d;
+	struct strpdt_s d = strpdt_initialiser();
 	const char *fp;
 	char *bp;
+	dt_dtyp_t tgttyp;
+	int set_fmt = 0;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		bp = buf;
 		goto out;
 	}
 
-	d = strpdt_initialiser();
+	if (LIKELY(fmt == NULL)) {
+		/* um, great */
+		set_fmt = 1;
+	} else if (LIKELY(*fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else if ((tgttyp = __trans_dfmt_special(fmt)) != DT_UNK) {
+		that = dt_dtconv((dt_dttyp_t)tgttyp, that);
+		set_fmt = 1;
+	}
+
+	if (set_fmt && dt_sandwich_p(that)) {
+		switch (that.typ) {
+		case DT_YMD:
+			fmt = ymdhms_dflt;
+			break;
+		case DT_YMCW:
+			fmt = ymcwhms_dflt;
+			break;
+		case DT_YWD:
+			fmt = ywdhms_dflt;
+			break;
+		case DT_DAISY:
+			/* subject to change */
+			fmt = ymdhms_dflt;
+			break;
+		case DT_BIZDA:
+			fmt = bizdahms_dflt;
+			break;
+		case DT_SEXY:
+		case DT_YMDHMS:
+			fmt = ymdhms_dflt;
+			break;
+		default:
+			/* fuck */
+			abort();
+			break;
+		}
+	} else if (set_fmt && dt_sandwich_only_d_p(that)) {
+		switch (that.d.typ) {
+		case DT_YMD:
+			fmt = ymd_dflt;
+			break;
+		case DT_YMCW:
+			fmt = ymcw_dflt;
+			break;
+		case DT_YWD:
+			fmt = ywd_dflt;
+			break;
+		case DT_DAISY:
+			/* subject to change */
+			fmt = ymd_dflt;
+			break;
+		case DT_BIZDA:
+			fmt = bizda_dflt;
+			break;
+		default:
+			/* fuck */
+			abort();
+			break;
+		}
+	} else if (set_fmt && that.typ >= DT_PACK && that.typ < DT_NDTTYP) {
+		/* must be sexy or ymdhms */
+		fmt = ymdhms_dflt;
+	} else if (dt_sandwich_only_t_p(that)) {
+		/* transform time specs */
+		__trans_tfmt(&fmt);
+	}
+
 	switch (that.typ) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
-		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ymdhms_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymd_dflt;
-		} else if (fmt == NULL) {
-			goto try_time;
-		}
 		break;
 	case DT_YMCW:
 		d.sd.y = that.d.ymcw.y;
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
 		d.sd.w = that.d.ymcw.w;
-		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ymcwhms_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymcw_dflt;
-		} else if (fmt == NULL) {
-			goto try_time;
-		}
 		break;
 	case DT_YWD:
 		__prep_strfd_ywd(&d.sd, that.d.ywd);
-
-		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ywdhms_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ywd_dflt;
-		} else if (fmt == NULL) {
-			goto try_time;
-		}
 		break;
 	case DT_DAISY:
 		__prep_strfd_daisy(&d.sd, that.d.daisy);
-		if (fmt == NULL && dt_sandwich_p(that)) {
-			/* subject to change */
-			fmt = ymdhms_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymd_dflt;
-		} else if (fmt == NULL) {
-			goto try_time;
-		}
 		break;
 
 	case DT_BIZDA:
 		__prep_strfd_bizda(
 			&d.sd, that.d.bizda, __get_bizda_param(that.d));
-
-		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = bizdahms_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = bizda_dflt;
-		} else if (fmt == NULL) {
-			goto try_time;
-		}
 		break;
 
 	case DT_SEXY: {
@@ -494,30 +526,13 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.y = tmp.y;
 		d.sd.m = tmp.m;
 		d.sd.d = tmp.d;
+		break;
 	}
 	case DT_YMDHMS:
-		if (fmt == NULL) {
-			fmt = ymdhms_dflt;
-		}
 		break;
 	default:
 	case DT_DUNK:
 		break;
-	}
-	/* translate high-level format names */
-	if (dt_sandwich_p(that)) {
-		__trans_dtfmt(&fmt);
-	} else if (dt_sandwich_only_d_p(that)) {
-		__trans_dfmt(&fmt);
-	} else if (dt_sandwich_only_t_p(that)) {
-	try_time:
-		__trans_tfmt(&fmt);
-	} else if (that.typ >= DT_PACK && that.typ < DT_NDTTYP) {
-		/* nothing to check in this case */
-		;
-	} else {
-		bp = buf;
-		goto out;
 	}
 
 	if (dt_sandwich_p(that) || dt_sandwich_only_t_p(that)) {
@@ -526,6 +541,13 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.st.m = that.t.hms.m;
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
+	} else if (dt_sandwich_only_d_p(that)) {
+		;
+	} else if (that.typ >= DT_PACK && that.typ < DT_NDTTYP) {
+		;
+	} else {
+		bp = buf;
+		goto out;
 	}
 
 	/* assign and go */
@@ -950,6 +972,9 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 		case DT_BIZDA:
 			/* actually this is a parametrised date */
 			d.d.bizda = dt_conv_to_bizda(d.d);
+			break;
+		case DT_YWD:
+			d.d.ywd = dt_conv_to_ywd(d.d);
 			break;
 		case DT_SEXY:
 		case DT_SEXYTAI: {

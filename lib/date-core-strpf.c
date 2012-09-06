@@ -102,6 +102,7 @@ __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 DEFUN struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
+/* code dupe, see __strpdt_std() */
 	struct dt_d_s res;
 	struct strpd_s d;
 	const char *sp;
@@ -119,10 +120,11 @@ __strpd_std(const char *str, char **ep)
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		if ((sp++, d.c = strtoui_lim(sp, &sp, 1, 53)) == -1U ||
+		if ((sp++, d.c = strtoui_lim(sp, &sp, 0, 53)) == -1U ||
 		    *sp++ != '-') {
 			goto fucked;
 		}
+		d.flags.c_wcnt_p = 1;
 		d.flags.wk_cnt = YWD_ISOWK_CNT;
 		goto dow;
 	}

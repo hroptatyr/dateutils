@@ -410,7 +410,21 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 
 #if defined ASPECT_CONV && !defined BIZDA_ASPECT_CONV_
 #define BIZDA_ASPECT_CONV_
+static dt_ymd_t
+__bizda_to_ymd(dt_bizda_t d)
+{
+	unsigned int tgtd = __bizda_get_mday(d);
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymd_t){.y = d.y, .m = d.m, .d = tgtd};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	dt_ymd_t res;
 
+	res.y = d.y;
+	res.m = d.m;
+	res.d = tgtd;
+	return res;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+}
 #endif	/* ASPECT_CONV */
 
 

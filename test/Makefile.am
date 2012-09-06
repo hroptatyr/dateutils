@@ -115,6 +115,10 @@ dt_tests += dconv.73.dt
 dt_tests += dconv.74.dt
 dt_tests += dconv.75.dt
 dt_tests += dconv.76.dt
+dt_tests += dconv.77.dt
+dt_tests += dconv.78.dt
+dt_tests += dconv.79.dt
+dt_tests += dconv.80.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
