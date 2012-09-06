@@ -310,7 +310,8 @@ static dt_ymcw_t
 __ymcw_add_y(dt_ymcw_t d, int n)
 {
 /* add N years to D */
-	return __ymcw_fixup_c(d.y + n, d.m, d.c, (dt_dow_t)d.w);
+	d.y += n;
+	return __ymcw_fixup(d);
 }
 #endif	/* ASPECT_ADD */
 
