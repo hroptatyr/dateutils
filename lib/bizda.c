@@ -397,6 +397,68 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 #endif	/* ASPECT_CONV */
 
 
+#if defined ASPECT_ADD && !defined BIZDA_ASPECT_ADD_
+#define BIZDA_ASPECT_ADD_
+
+static dt_bizda_t
+__bizda_fixup_b(unsigned int y, signed int m, signed int b)
+{
+	dt_bizda_t res = {0};
+
+	if (LIKELY(b >= 1 && b <= 20)) {
+		/* all months in our design range have at least 20 bdays */
+		;
+	} else if (b < 1) {
+		int bdays;
+
+		do {
+			if (UNLIKELY(--m < 1)) {
+				--y;
+				m = GREG_MONTHS_P_YEAR;
+			}
+			bdays = __get_bdays(y, m);
+			b += bdays;
+		} while (b < 1);
+
+	} else {
+		int bdays;
+
+		while (b > (bdays = __get_bdays(y, m))) {
+			b -= bdays;
+			if (UNLIKELY(++m > (signed int)GREG_MONTHS_P_YEAR)) {
+				++y;
+				m = 1;
+			}
+		}
+	}
+
+	res.y = y;
+	res.m = m;
+	res.bd = b;
+	return res;
+}
+
+static dt_bizda_t
+__bizda_add_b(dt_bizda_t d, int n)
+{
+/* add N business days to D */
+	int tgtb = d.bd + n;
+
+	return __bizda_fixup_b(d.y, d.m, tgtb);
+}
+
+static dt_bizda_t
+__bizda_add_d(dt_bizda_t d, int n)
+{
+/* add N real days to D */
+	dt_dow_t wd = __bizda_get_wday(d);
+	int tgtb = d.bd + __get_b_equiv(wd, n);
+
+	return __bizda_fixup_b(d.y, d.m, tgtb);
+}
+#endif	/* ASPECT_ADD */
+
+
 #if defined ASPECT_STRF && !defined BIZDA_ASPECT_STRF_
 #define BIZDA_ASPECT_STRF_
 
