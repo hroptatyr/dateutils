@@ -34,7 +34,12 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+/* set aspect temporarily */
 #define ASPECT_YMD
+/* permanent aspect, to be read as have we ever seen aspect_ymd */
+#if !defined ASPECT_YMD_
+#define ASPECT_YMD_
+#endif	/* !ASPECT_YMD_ */
 
 #include "nifty.h"
 
@@ -50,7 +55,7 @@
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
-static dt_ymd_t
+static __attribute__((pure)) dt_ymd_t
 __ymd_fixup(dt_ymd_t d)
 {
 /* given dates like 2012-02-32 this returns 2012-02-29 */
@@ -66,6 +71,9 @@ __ymd_fixup(dt_ymd_t d)
 	}
 	return d;
 }
+
+/* try to get helpers like __get_d_equiv() et al */
+#include "bizda.c"
 #endif	/* YMD_ASPECT_HELPERS_ */
 
 
@@ -288,12 +296,20 @@ __ymd_to_ymcw(dt_ymd_t d)
 	return res;
 #endif
 }
+
+static dt_ywd_t
+__ymd_to_ywd(dt_ymd_t d)
+{
+	unsigned int w = __ymd_get_wday(d);
+	unsigned int c = __ymd_get_wcnt_abs(d);
+	return __make_ywd(d.y, c, w, YWD_ABSWK_CNT);
+}
 #endif	/* ASPECT_CONV */
 
 
 #if defined ASPECT_ADD && !defined YMD_ASPECT_ADD_
 #define YMD_ASPECT_ADD_
-static dt_ymd_t
+static __attribute__((pure)) dt_ymd_t
 __ymd_fixup_d(unsigned int y, signed int m, signed int d)
 {
 	dt_ymd_t res = {0};
@@ -352,7 +368,7 @@ __ymd_add_b(dt_ymd_t d, int n)
 	return __ymd_fixup_d(d.y, d.m, tgtd);
 }
 
-static __attribute__((unused)) dt_ymd_t
+static dt_ymd_t
 __ymd_add_w(dt_ymd_t d, int n)
 {
 /* add N weeks to D */
@@ -378,12 +394,12 @@ __ymd_add_m(dt_ymd_t d, int n)
 	return __ymd_fixup(d);
 }
 
-static __attribute__((unused)) dt_ymd_t
+static dt_ymd_t
 __ymd_add_y(dt_ymd_t d, int n)
 {
 /* add N years to D */
 	d.y += n;
-	return d;
+	return __ymd_fixup(d);
 }
 #endif	/* ASPECT_ADD */
 
@@ -442,5 +458,7 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 #define YMD_ASPECT_STRF_
 
 #endif	/* ASPECT_STRF */
+
+#undef ASPECT_YMD
 
 /* ymd.c ends here */

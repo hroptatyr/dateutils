@@ -281,10 +281,39 @@ __ymcw_add_d(dt_ymcw_t d, int n)
 }
 
 static dt_ymcw_t
-__ymcw_add_b(dt_ymcw_t d, int UNUSED(n))
+__ymcw_add_b(dt_ymcw_t d, int n)
 {
 /* add N business days to D */
-	return d;
+#if 0
+/* trivial trait, reduce to _add_d() problem and dispatch */
+	dt_dow_t wd = __ymcw_get_wday(d);
+	return __ymcw_add_d(d, __get_d_equiv(wd, n));
+#else
+	signed int aw = n / (signed int)DUWW_BDAYS_P_WEEK;
+	signed int ad = n % (signed int)DUWW_BDAYS_P_WEEK;
+
+	if ((ad += d.w) > (signed int)DUWW_BDAYS_P_WEEK) {
+		ad -= DUWW_BDAYS_P_WEEK;
+		aw++;
+	} else if (ad <= 0) {
+		ad += DUWW_BDAYS_P_WEEK;
+		aw--;
+	}
+
+	/* fixup for abswk count, m01 may be any wd */
+	{
+		dt_dow_t m01 = __get_m01_wday(d.y, d.m);
+
+		if ((dt_dow_t)d.w < m01 && (dt_dow_t)ad >= m01) {
+			aw++;
+		} else if ((dt_dow_t)d.w >= m01 && (dt_dow_t)ad < m01) {
+			aw--;
+		}
+	}
+
+	d.w = (dt_dow_t)ad;
+	return __ymcw_add_w(d, aw);
+#endif
 }
 
 static dt_ymcw_t
@@ -310,7 +339,8 @@ static dt_ymcw_t
 __ymcw_add_y(dt_ymcw_t d, int n)
 {
 /* add N years to D */
-	return __ymcw_fixup_c(d.y + n, d.m, d.c, (dt_dow_t)d.w);
+	d.y += n;
+	return __ymcw_fixup(d);
 }
 #endif	/* ASPECT_ADD */
 
