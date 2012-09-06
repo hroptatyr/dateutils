@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="2010-W53-07"
+COMMENT="2010 hasn't got 53 weeks, so all's fine"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2010-W52-07
+EOF
+
+## dconv.80.dt ends here

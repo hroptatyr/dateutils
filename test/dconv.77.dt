@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="2012-12-31 -f ywd"
+COMMENT="Gregorian year is 2012, but ISO8601 year is 2013 already."
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2013-W01-01
+EOF
+
+## dconv.77.dt ends here
