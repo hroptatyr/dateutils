@@ -538,4 +538,12 @@ bin_tests += basic_ymd_get_wday
 bin_tests += basic_get_jan01_wday
 bin_tests += basic_md_get_yday
 
+## batch checks
+convt_tests += ymd-ymcw.convt
+convt_tests += ymd-ywd.convt
+convt_tests += ywd-ymd.convt
+convt_tests += ywd-ymcw.convt
+convt_tests += ymcw-ymd.convt
+convt_tests += ymcw-ywd.convt
+
 ## Makefile.am ends here
