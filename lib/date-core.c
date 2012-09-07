@@ -807,10 +807,6 @@ __yday_get_md(unsigned int year, unsigned int doy)
 		/* note how all leap-affected cakes are < 16 */
 		beef += beef < 16U;
 		cake++;
-	} else if (UNLIKELY(doy == 366)) {
-		m = 0;
-		d = 0;
-		goto yay;
 	}
 
 	if (d <= cake) {
@@ -818,7 +814,6 @@ __yday_get_md(unsigned int year, unsigned int doy)
 	} else {
 		d = doy - (m++ * 32 - 19 + cake);
 	}
-yay:
 	return (struct __md_s){.m = m, .d = d};
 #undef GET_REM
 }
