@@ -339,16 +339,39 @@ __ywd_get_md(dt_ywd_t d)
 static dt_ymd_t
 __ywd_to_ymd(dt_ywd_t d)
 {
-	unsigned int y;
+	unsigned int y = d.y;
 
 	struct __md_s md = __ywd_get_md(d);
 
-	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w) {
-		y = d.y - 1;
-	} else if (d.c >= 53/* max weeks per year*/) {
-		y = d.y + 1;
-	} else {
-		y = d.y;
+	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w/*>=DT_SUNDAY*/) {
+		y--;
+
+	} else if (d.c == 53) {
+		switch (d.w) {
+		case DT_MONDAY:
+		case DT_TUESDAY:
+		case DT_WEDNESDAY:
+		case DT_THURSDAY:
+			/* d.w \in {M, T, W, R} is definitely the old year */
+			break;
+
+		case DT_SATURDAY:
+		case DT_SUNDAY:
+			/* d.w \in {A, S} is definitely the new year */
+			y++;
+			break;
+
+		case DT_FRIDAY:
+			/* in leap years its the old year {1920, 1948, ...} */
+			if (LIKELY(!__leapp(y))) {
+				/* otherwise we need to add one */
+				y++;
+			}
+			break;
+		default:
+		case DT_MIRACLEDAY:
+			break;
+		}
 	}
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
