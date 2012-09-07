@@ -1585,9 +1585,47 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	struct strpd_s d = strpd_initialiser();
 	const char *fp;
 	char *bp;
+	dt_dtyp_t tgttyp;
+	int set_fmt = 0;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		return 0;
+	}
+
+	if (LIKELY(fmt == NULL)) {
+		/* um, great */
+		set_fmt = 1;
+	} else if (LIKELY(*fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else if ((tgttyp = __trans_dfmt_special(fmt)) != DT_DUNK) {
+		that = dt_dconv(tgttyp, that);
+		set_fmt = 1;
+	}
+
+	if (set_fmt) {
+		switch (that.typ) {
+		case DT_YMD:
+			fmt = ymd_dflt;
+			break;
+		case DT_YMCW:
+			fmt = ymcw_dflt;
+			break;
+		case DT_YWD:
+			fmt = ywd_dflt;
+			break;
+		case DT_DAISY:
+			/* subject to change */
+			fmt = ymd_dflt;
+			break;
+		case DT_BIZDA:
+			fmt = bizda_dflt;
+			break;
+		default:
+			/* fuck */
+			abort();
+			break;
+		}
 	}
 
 	switch (that.typ) {
@@ -1595,45 +1633,27 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.y = that.ymd.y;
 		d.m = that.ymd.m;
 		d.d = that.ymd.d;
-		if (fmt == NULL) {
-			fmt = ymd_dflt;
-		}
 		break;
 	case DT_YMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
 		d.c = that.ymcw.c;
 		d.w = that.ymcw.w;
-		if (fmt == NULL) {
-			fmt = ymcw_dflt;
-		}
 		break;
 	case DT_DAISY:
 		__prep_strfd_daisy(&d, that.daisy);
-		if (fmt == NULL) {
-			/* subject to change */
-			fmt = "%F";
-		}
 		break;
 	case DT_BIZDA:
 		__prep_strfd_bizda(&d, that.bizda, __get_bizda_param(that));
-		if (fmt == NULL) {
-			fmt = bizda_dflt;
-		}
 		break;
 	case DT_YWD:
 		__prep_strfd_ywd(&d, that.ywd);
-		if (fmt == NULL) {
-			fmt = ywd_dflt;
-		}
 		break;
 	default:
 	case DT_DUNK:
 		bp = buf;
 		goto out;
 	}
-	/* translate high-level format names */
-	__trans_dfmt(&fmt);
 
 	/* assign and go */
 	bp = buf;
