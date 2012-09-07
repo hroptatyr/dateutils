@@ -187,48 +187,66 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
  * where C conforms to week-count convention cc */
 	dt_ywd_t res = {0};
 	dt_dow_t j01;
+	int hang;
 
 	/* this one's special as it needs the hang helper slot */
 	j01 = __get_jan01_wday(y);
-	res.hang = __ywd_get_jan01_hang(j01);
-
-	res.y = y;
-	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	hang = __ywd_get_jan01_hang(j01);
 
 	switch (cc) {
 	default:
 	case YWD_ISOWK_CNT:
-		res.c = c;
 		break;
 	case YWD_ABSWK_CNT:
+		if (hang == 1 && w >= DT_MONDAY) {
+			/* n-th W in the year is n-th week,
+			 * year starts on sunday, so w >= DT_MONDAY is
+			 * equivalent to w < DT_SUNDAY */
+			;
+		} else if (hang > 0 && w >= DT_MONDAY && w < j01) {
+			/* n-th W in the year is n-th week,
+			 * in this case the year doesnt start on sunday */
+			;
+		} else if (hang <= 0 && (w >= j01 || w == DT_SUNDAY)) {
+			/* n-th W in the year is n-th week */
+			;
+		} else if (hang > 0) {
+			/* those weekdays that hang over into the last year */
+			c--;
+		} else if (hang <= 0) {
+			/* weekdays missing in the first week of Y */
+			c++;
+		}
+
 		if (UNLIKELY(c > __get_isowk(y))) {
-			res.y++;
-			res.c = 1;
-		} else if (res.hang <= 0 || w < j01 ||
-			   w && !j01 /* w is not sun but j01 is */) {
-			res.c = c;
-		} else if (LIKELY(c - 1)) {
-			res.c = c - 1;
-		} else {
-			res.y--;
-			res.c = 53;
+			y++;
+			c = 1;
+		} else if (UNLIKELY(c == 0)) {
+			y--;
+			c = __get_isowk(y);
 		}
 		break;
 	case YWD_SUNWK_CNT:
 		if (j01 == DT_SUNDAY) {
-			res.c = c;
+			;
 		} else {
-			res.c = c + 1;
+			c++;
 		}
 		break;
 	case YWD_MONWK_CNT:
 		if (j01 <= DT_MONDAY) {
-			res.c = c;
+			;
 		} else {
-			res.c = c + 1;
+			c++;
 		}
 		break;
 	}
+
+	/* assign and fuck off */
+	res.y = y;
+	res.c = c;
+	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	res.hang = hang;
 #if defined WITH_FAST_ARITH
 	return res;
 #else  /* !WITH_FAST_ARITH */
