@@ -42,6 +42,25 @@
 #if !defined DAISY_ASPECT_HELPERS_
 #define DAISY_ASPECT_HELPERS_
 
+static inline __attribute__((pure)) dt_daisy_t
+__jan00_daisy(unsigned int year)
+{
+/* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
+#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
+#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
+	unsigned int by = TO_BASE(year);
+
+#if defined WITH_FAST_ARITH
+	return by * 365U + by / 4U;
+#else  /* !WITH_FAST_ARITH */
+	by = by * 365U + by / 4U;
+	if (UNLIKELY(year > 2100U)) {
+		by -= (year - 2001U) / 100U;
+		by += (year - 2001U) / 400U;
+	}
+	return by;
+#endif	/* WITH_FAST_ARITH */
+}
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
 

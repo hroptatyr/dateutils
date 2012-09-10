@@ -187,48 +187,66 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
  * where C conforms to week-count convention cc */
 	dt_ywd_t res = {0};
 	dt_dow_t j01;
+	int hang;
 
 	/* this one's special as it needs the hang helper slot */
 	j01 = __get_jan01_wday(y);
-	res.hang = __ywd_get_jan01_hang(j01);
-
-	res.y = y;
-	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	hang = __ywd_get_jan01_hang(j01);
 
 	switch (cc) {
 	default:
 	case YWD_ISOWK_CNT:
-		res.c = c;
 		break;
 	case YWD_ABSWK_CNT:
+		if (hang == 1 && w >= DT_MONDAY) {
+			/* n-th W in the year is n-th week,
+			 * year starts on sunday, so w >= DT_MONDAY is
+			 * equivalent to w < DT_SUNDAY */
+			;
+		} else if (hang > 0 && w >= DT_MONDAY && w < j01) {
+			/* n-th W in the year is n-th week,
+			 * in this case the year doesnt start on sunday */
+			;
+		} else if (hang <= 0 && (w >= j01 || w == DT_SUNDAY)) {
+			/* n-th W in the year is n-th week */
+			;
+		} else if (hang > 0) {
+			/* those weekdays that hang over into the last year */
+			c--;
+		} else if (hang <= 0) {
+			/* weekdays missing in the first week of Y */
+			c++;
+		}
+
 		if (UNLIKELY(c > __get_isowk(y))) {
-			res.y++;
-			res.c = 1;
-		} else if (res.hang <= 0 || w < j01 ||
-			   w && !j01 /* w is not sun but j01 is */) {
-			res.c = c;
-		} else if (LIKELY(c - 1)) {
-			res.c = c - 1;
-		} else {
-			res.y--;
-			res.c = 53;
+			y++;
+			c = 1;
+		} else if (UNLIKELY(c == 0)) {
+			y--;
+			c = __get_isowk(y);
 		}
 		break;
 	case YWD_SUNWK_CNT:
 		if (j01 == DT_SUNDAY) {
-			res.c = c;
+			;
 		} else {
-			res.c = c + 1;
+			c++;
 		}
 		break;
 	case YWD_MONWK_CNT:
 		if (j01 <= DT_MONDAY) {
-			res.c = c;
+			;
 		} else {
-			res.c = c + 1;
+			c++;
 		}
 		break;
 	}
+
+	/* assign and fuck off */
+	res.y = y;
+	res.c = c;
+	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	res.hang = hang;
 #if defined WITH_FAST_ARITH
 	return res;
 #else  /* !WITH_FAST_ARITH */
@@ -321,16 +339,39 @@ __ywd_get_md(dt_ywd_t d)
 static dt_ymd_t
 __ywd_to_ymd(dt_ywd_t d)
 {
-	unsigned int y;
+	unsigned int y = d.y;
 
 	struct __md_s md = __ywd_get_md(d);
 
-	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w) {
-		y = d.y - 1;
-	} else if (d.c >= 53/* max weeks per year*/) {
-		y = d.y + 1;
-	} else {
-		y = d.y;
+	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w/*>=DT_SUNDAY*/) {
+		y--;
+
+	} else if (d.c == 53) {
+		switch (d.w) {
+		case DT_MONDAY:
+		case DT_TUESDAY:
+		case DT_WEDNESDAY:
+		case DT_THURSDAY:
+			/* d.w \in {M, T, W, R} is definitely the old year */
+			break;
+
+		case DT_SATURDAY:
+		case DT_SUNDAY:
+			/* d.w \in {A, S} is definitely the new year */
+			y++;
+			break;
+
+		case DT_FRIDAY:
+			/* in leap years its the old year {1920, 1948, ...} */
+			if (LIKELY(!__leapp(y))) {
+				/* otherwise we need to add one */
+				y++;
+			}
+			break;
+		default:
+		case DT_MIRACLEDAY:
+			break;
+		}
 	}
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};

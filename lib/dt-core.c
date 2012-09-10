@@ -532,7 +532,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		break;
 	default:
 	case DT_DUNK:
-		break;
+		if (!dt_sandwich_only_t_p(that)) {
+			bp = buf;
+			goto out;
+		}
 	}
 
 	if (dt_sandwich_p(that) || dt_sandwich_only_t_p(that)) {
@@ -541,13 +544,6 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.st.m = that.t.hms.m;
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
-	} else if (dt_sandwich_only_d_p(that)) {
-		;
-	} else if (that.typ >= DT_PACK && that.typ < DT_NDTTYP) {
-		;
-	} else {
-		bp = buf;
-		goto out;
 	}
 
 	/* assign and go */
