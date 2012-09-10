@@ -72,6 +72,7 @@ AM_PROG_LEX
 AC_PROG_YACC
 
 AC_PATH_PROG([GPERF], [gperf])
+AC_ARG_VAR([GPERF], [full path to the gperf tool])
 AM_CONDITIONAL([HAVE_GPERF], [test -n "${GPERF}"])
 if test -n "${GPERF}"; then
 	AC_DEFINE([HAVE_GPERF], [1], [define when gperf tool is present])
