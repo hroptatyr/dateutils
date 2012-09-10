@@ -55,8 +55,8 @@ __jan00_daisy(unsigned int year)
 #else  /* !WITH_FAST_ARITH */
 	by = by * 365U + by / 4U;
 	if (UNLIKELY(year > 2100U)) {
-		by -= (year - 2000U) / 100U;
-		by += (year - 2000U) / 400U;
+		by -= (year - 2001U) / 100U;
+		by += (year - 2001U) / 400U;
 	}
 	return by;
 #endif	/* WITH_FAST_ARITH */
