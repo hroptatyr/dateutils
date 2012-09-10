@@ -126,12 +126,16 @@ static unsigned int
 __daisy_get_year(dt_daisy_t d)
 {
 /* given days since 1917-01-01 (Mon), compute a year */
-	int by;
+	unsigned int by;
 
 	if (UNLIKELY(d == 0)) {
 		return 0;
 	}
-	for (by = d / 365; __jan00_daisy(TO_YEAR(by)) >= d; by--);
+	/* get an estimate for the year and readjust */
+	by = d / 365U;
+	if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
+		by--;
+	}
 	return TO_YEAR(by);
 }
 
