@@ -51,6 +51,12 @@
   at the moment we let the compiler work it out
  */
 
+#if defined GET_ISOWK_FULL_SWITCH
+#elif defined GET_ISOWK_28Y_SWITCH
+#else
+# define GET_ISOWK_FULL_SWITCH
+#endif
+
 
 #if !defined YWD_ASPECT_HELPERS_
 #define YWD_ASPECT_HELPERS_
@@ -78,6 +84,19 @@ __ywd_get_jan01_hang(dt_dow_t j01)
 	return res;
 }
 
+static __attribute__((unused)) dt_dow_t
+__ywd_get_dec31_wday(dt_ywd_t d)
+{
+/* a year starting on W ends on W if not a leap year */
+	dt_dow_t res = __ywd_get_jan01_wday(d);
+
+	if (UNLIKELY(__leapp(d.y))) {
+		res = (dt_dow_t)((res + 1) % 7);
+	}
+	return res;
+}
+
+#if defined GET_ISOWK_FULL_SWITCH
 static unsigned int
 __get_isowk(unsigned int y)
 {
@@ -159,6 +178,202 @@ __get_isowk(unsigned int y)
 		return 53;
 	}
 	return 52;
+}
+
+#elif defined GET_ISOWK_28Y_SWITCH
+static unsigned int
+__get_isowk(unsigned int y)
+{
+	switch (y % 28U) {
+	default:
+		break;
+	case 16:
+		/* 1920, 1948, ... */
+	case 21:
+		/* 1925, 1953, ... */
+	case 27:
+		/* 1931, 1959, ... */
+	case 4:
+		/* 1936, 1964, ... */
+	case 10:
+		/* 1942, 1970, ... */
+		return 53;
+	}
+	return 52;
+}
+#endif	/* GET_ISOWK_* */
+
+static unsigned int
+__get_z31wk(unsigned int y)
+{
+/* return the week number of 31 dec in year Y, where weeks hanging over into
+ * the new year are treated as 53
+ * In the 400 year cycle, there's 243 years with 53 weeks and
+ * 157 years with 52 weeks. */
+	switch (y % 400) {
+	default:
+		break;
+	case 0:
+	case 5:
+	case 6:
+	case 10:
+	case 11:
+	case 16:
+	case 17:
+	case 21:
+	case 22:
+	case 23:
+	case 27:
+	case 28:
+	case 33:
+	case 34:
+	case 38:
+	case 39:
+	case 44:
+	case 45:
+	case 49:
+	case 50:
+	case 51:
+	case 55:
+	case 56:
+	case 61:
+	case 62:
+	case 66:
+	case 67:
+	case 72:
+	case 73:
+	case 77:
+	case 78:
+	case 79:
+	case 83:
+	case 84:
+	case 89:
+	case 90:
+	case 94:
+	case 95:
+	case 100:
+	case 101:
+	case 102:
+	case 106:
+	case 107:
+	case 112:
+	case 113:
+	case 117:
+	case 118:
+	case 119:
+	case 123:
+	case 124:
+	case 129:
+	case 130:
+	case 134:
+	case 135:
+	case 140:
+	case 141:
+	case 145:
+	case 146:
+	case 147:
+	case 151:
+	case 152:
+	case 157:
+	case 158:
+	case 162:
+	case 163:
+	case 168:
+	case 169:
+	case 173:
+	case 174:
+	case 175:
+	case 179:
+	case 180:
+	case 185:
+	case 186:
+	case 190:
+	case 191:
+	case 196:
+	case 197:
+	case 202:
+	case 203:
+	case 208:
+	case 209:
+	case 213:
+	case 214:
+	case 215:
+	case 219:
+	case 220:
+	case 225:
+	case 226:
+	case 230:
+	case 231:
+	case 236:
+	case 237:
+	case 241:
+	case 242:
+	case 243:
+	case 247:
+	case 248:
+	case 253:
+	case 254:
+	case 258:
+	case 259:
+	case 264:
+	case 265:
+	case 269:
+	case 270:
+	case 271:
+	case 275:
+	case 276:
+	case 281:
+	case 282:
+	case 286:
+	case 287:
+	case 292:
+	case 293:
+	case 297:
+	case 298:
+	case 299:
+	case 304:
+	case 305:
+	case 309:
+	case 310:
+	case 311:
+	case 315:
+	case 316:
+	case 321:
+	case 322:
+	case 326:
+	case 327:
+	case 332:
+	case 333:
+	case 337:
+	case 338:
+	case 339:
+	case 343:
+	case 344:
+	case 349:
+	case 350:
+	case 354:
+	case 355:
+	case 360:
+	case 361:
+	case 365:
+	case 366:
+	case 367:
+	case 371:
+	case 372:
+	case 377:
+	case 378:
+	case 382:
+	case 383:
+	case 388:
+	case 389:
+	case 393:
+	case 394:
+	case 395:
+	case 399:
+		return 52;
+	}
+	/* more weeks with 53, so default to that */
+	return 53;
 }
 
 static __attribute__((pure)) dt_ywd_t
@@ -340,37 +555,20 @@ static dt_ymd_t
 __ywd_to_ymd(dt_ywd_t d)
 {
 	unsigned int y = d.y;
-
 	struct __md_s md = __ywd_get_md(d);
 
-	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w/*>=DT_SUNDAY*/) {
-		y--;
+	if (d.c == 1) {
+		dt_dow_t f01 = __ywd_get_jan01_wday(d);
 
-	} else if (d.c == 53) {
-		switch (d.w) {
-		case DT_MONDAY:
-		case DT_TUESDAY:
-		case DT_WEDNESDAY:
-		case DT_THURSDAY:
-			/* d.w \in {M, T, W, R} is definitely the old year */
-			break;
+		if (d.hang <= 0 && d.w >= DT_MONDAY && d.w < f01) {
+			y--;
+		}
 
-		case DT_SATURDAY:
-		case DT_SUNDAY:
-			/* d.w \in {A, S} is definitely the new year */
+	} else if (d.c >= __get_z31wk(y)) {
+		dt_dow_t z31 = __ywd_get_dec31_wday(d);
+
+		if (z31 && (d.w > z31 || d.w == DT_SUNDAY)) {
 			y++;
-			break;
-
-		case DT_FRIDAY:
-			/* in leap years its the old year {1920, 1948, ...} */
-			if (LIKELY(!__leapp(y))) {
-				/* otherwise we need to add one */
-				y++;
-			}
-			break;
-		default:
-		case DT_MIRACLEDAY:
-			break;
 		}
 	}
 #if defined HAVE_ANON_STRUCTS_INIT

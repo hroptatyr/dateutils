@@ -1301,8 +1301,10 @@ dt_conv_to_ywd(struct dt_d_s this)
 		return __ymd_to_ywd(this.ymd);
 	case DT_YMCW:
 		break;
+	case DT_DAISY:
+		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
-		break;
+	case DT_DUNK:
 	default:
 		break;
 	}

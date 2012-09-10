@@ -61,6 +61,53 @@ __jan00_daisy(unsigned int year)
 	return by;
 #endif	/* WITH_FAST_ARITH */
 }
+
+static unsigned int
+__get_cumwk(unsigned int year)
+{
+/* return the number of weeks elapsed since 1917 for the first week of YEAR */
+	unsigned int by = TO_BASE(year);
+	unsigned int add = 0U;
+
+	switch (by % 28U) {
+	case 27/*1944*/:
+	case 26/*1943*/:
+		add++;
+	case 25/*1942*/:
+	case 24/*1941*/:
+	case 23/*1940*/:
+	case 22/*1939*/:
+	case 21/*1938*/:
+	case 20/*1937*/:
+		add++;
+	case 19/*1936*/:
+	case 18/*1935*/:
+	case 17/*1934*/:
+	case 16/*1933*/:
+	case 15/*1932*/:
+		add++;
+	case 14/*1931*/:
+	case 13/*1930*/:
+	case 12/*1929*/:
+	case 11/*1928*/:
+	case 10/*1927*/:
+	case 9/*1926*/:
+		add++;
+	case 8/*1925*/:
+	case 7/*1924*/:
+	case 6/*1923*/:
+	case 5/*1922*/:
+		add++;
+	case 4/*1921*/:
+	case 3/*1920*/:
+	case 2/*1919*/:
+	case 1/*1918*/:
+	case 0/*1917*/:
+	default:
+		break;
+	}
+	return 52U * by + (by / 28U + 1) * add;
+}
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
 
@@ -79,12 +126,16 @@ static unsigned int
 __daisy_get_year(dt_daisy_t d)
 {
 /* given days since 1917-01-01 (Mon), compute a year */
-	int by;
+	unsigned int by;
 
 	if (UNLIKELY(d == 0)) {
 		return 0;
 	}
-	for (by = d / 365; __jan00_daisy(TO_YEAR(by)) >= d; by--);
+	/* get an estimate for the year and readjust */
+	by = d / 365U;
+	if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
+		by--;
+	}
 	return TO_YEAR(by);
 }
 
@@ -160,6 +211,30 @@ __daisy_to_ymcw(dt_daisy_t that)
 		return res;
 	}
 #endif
+}
+
+static dt_ywd_t
+__daisy_to_ywd(dt_daisy_t that)
+{
+	unsigned int wk = (that + 6) / 7;
+	unsigned int wd = (that + 6) % 7;
+	unsigned int y;
+	unsigned int yw;
+	dt_ywd_t res;
+
+	/* get an estimate for the year and readjust */
+	y = TO_YEAR((wk - 1U) / 52U);
+	/* get the cumulative week count */
+	if (UNLIKELY((yw = wk - __get_cumwk(y)) == 0)) {
+		yw = 53U;
+		y--;
+	}
+
+	/* final assignment */
+	res.y = y;
+	res.c = yw;
+	res.w = (wd + 1U) % 7U;
+	return res;
 }
 #endif	/* ASPECT_CONV */
 
