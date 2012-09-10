@@ -275,8 +275,14 @@ __daisy_feasible_p(struct dt_dt_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->typ == (dt_dttyp_t)DT_YMD && dur->d.ymd.m) {
-		return false;
+	} else if (dur->typ == (dt_dttyp_t)DT_YMD) {
+		if (dur->d.ymd.y || dur->d.ymd.m) {
+			return false;
+		}
+	} else if (dur->typ == (dt_dttyp_t)DT_MD) {
+		if (dur->d.md.m) {
+			return false;
+		}
 	} else if (dur->typ == (dt_dttyp_t)DT_BIZDA && (dur->d.bizda.bd)) {
 		return false;
 	}
