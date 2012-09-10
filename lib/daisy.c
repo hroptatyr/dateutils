@@ -48,8 +48,18 @@ __jan00_daisy(unsigned int year)
 /* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
 #define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
 #define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
-	int by = TO_BASE(year);
-	return by * 365 + by / 4;
+	unsigned int by = TO_BASE(year);
+
+#if defined WITH_FAST_ARITH
+	return by * 365U + by / 4U;
+#else  /* !WITH_FAST_ARITH */
+	by = by * 365U + by / 4U;
+	if (UNLIKELY(year > 2100U)) {
+		by -= (year - 2000U) / 100U;
+		by += (year - 2000U) / 400U;
+	}
+	return by;
+#endif	/* WITH_FAST_ARITH */
 }
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
