@@ -157,35 +157,7 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 # undef F
 # undef A
 # undef S
-
-#elif defined GET_JAN01_WDAY_28Y_LOOKUP
-# define M	(DT_MONDAY)
-# define T	(DT_TUESDAY)
-# define W	(DT_WEDNESDAY)
-# define R	(DT_THURSDAY)
-# define F	(DT_FRIDAY)
-# define A	(DT_SATURDAY)
-# define S	(DT_SUNDAY)
-
-static const dt_dow_t __jan01_28y_wday[] = {
-	/* 1904 - 1910 */
-	F, S, M, T, W, F, A,
-	/* 1911 - 1917 */
-	S, M, W, R, F, A, M,
-	/* 1918 - 1924 */
-	T, W, R, A, S, M, T,
-	/* 1925 - 1931 */
-	R, F, A, S, T, W, R,
-};
-
-# undef M
-# undef T
-# undef W
-# undef R
-# undef F
-# undef A
-# undef S
-#endif
+#endif	/* GET_JAN01_WDAY_FULL_LOOKUP */
 
 #if 1
 static uint16_t __mon_yday[] = {
@@ -421,6 +393,48 @@ __get_jan01_wday(unsigned int year)
 }
 
 #elif defined GET_JAN01_WDAY_28Y_LOOKUP
+# define M	(DT_MONDAY)
+# define T	(DT_TUESDAY)
+# define W	(DT_WEDNESDAY)
+# define R	(DT_THURSDAY)
+# define F	(DT_FRIDAY)
+# define A	(DT_SATURDAY)
+# define S	(DT_SUNDAY)
+
+static const dt_dow_t __jan01_28y_wday[] = {
+	/* 1904 - 1910 */
+	F, S, M, T, W, F, A,
+	/* 1911 - 1917 */
+	S, M, W, R, F, A, M,
+	/* 1918 - 1924 */
+	T, W, R, A, S, M, T,
+	/* 1925 - 1931 */
+	R, F, A, S, T, W, R,
+};
+
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
+
+static __attribute__((pure)) unsigned int
+__get_28y_year_equiv(unsigned year)
+{
+/* the 28y cycle works for 1901 to 2100, for other years find an equivalent */
+	year = year % 400U;
+
+	if (year > 300U) {
+		return year + 1600U;
+	} else if (year > 200U) {
+		return year + 1724U;
+	} else if (year > 100U) {
+		return year + 1820U;
+	}
+	return year + 2000;
+}
 
 static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
@@ -428,7 +442,12 @@ __get_jan01_wday(unsigned int year)
 /* get the weekday of jan01 in YEAR
  * using the 28y cycle thats valid till the year 2399
  * 1920 = 16 mod 28 */
-	return __jan01_28y_wday[year % 28];
+#if !defined WITH_FAST_ARITH
+	if (UNLIKELY(year > 2100U)) {
+		year = __get_28y_year_equiv(year);
+	}
+#endif	/* !WITH_FAST_ARITH */
+	return __jan01_28y_wday[year % 28U];
 }
 
 #elif defined GET_JAN01_WDAY_28Y_SWITCH
