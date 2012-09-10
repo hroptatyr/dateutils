@@ -1300,7 +1300,7 @@ dt_conv_to_ywd(struct dt_d_s this)
 	case DT_YMD:
 		return __ymd_to_ywd(this.ymd);
 	case DT_YMCW:
-		return __ymcw_to_ywd(this.ymcw);
+		break;
 	case DT_DAISY:
 		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
