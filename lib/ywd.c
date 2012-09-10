@@ -51,6 +51,12 @@
   at the moment we let the compiler work it out
  */
 
+#if defined GET_ISOWK_FULL_SWITCH
+#elif defined GET_ISOWK_28Y_SWITCH
+#else
+# define GET_ISOWK_FULL_SWITCH
+#endif
+
 
 #if !defined YWD_ASPECT_HELPERS_
 #define YWD_ASPECT_HELPERS_
@@ -90,6 +96,7 @@ __ywd_get_dec31_wday(dt_ywd_t d)
 	return res;
 }
 
+#if defined GET_ISOWK_FULL_SWITCH
 static unsigned int
 __get_isowk(unsigned int y)
 {
@@ -172,6 +179,29 @@ __get_isowk(unsigned int y)
 	}
 	return 52;
 }
+
+#elif defined GET_ISOWK_28Y_SWITCH
+static unsigned int
+__get_isowk(unsigned int y)
+{
+	switch (y % 28U) {
+	default:
+		break;
+	case 16:
+		/* 1920, 1948, ... */
+	case 21:
+		/* 1925, 1953, ... */
+	case 27:
+		/* 1931, 1959, ... */
+	case 4:
+		/* 1936, 1964, ... */
+	case 10:
+		/* 1942, 1970, ... */
+		return 53;
+	}
+	return 52;
+}
+#endif	/* GET_ISOWK_* */
 
 static unsigned int
 __get_z31wk(unsigned int y)
