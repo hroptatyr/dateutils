@@ -540,6 +540,10 @@ bin_tests += basic_md_get_yday
 
 ## batch checks
 bin_tests += dseq-cnt.1.sh
+bin_tests += dseq-cnt.2.sh
+bin_tests += dseq-cnt.3.sh
+bin_tests += dconv-batch.1.sh
+bin_tests += dconv-batch.2.sh
 convt_tests += ymd-ymcw.convt
 convt_tests += ymd-ywd.convt
 convt_tests += ywd-ymd.convt
