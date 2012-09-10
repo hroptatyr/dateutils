@@ -42,6 +42,15 @@
 #if !defined DAISY_ASPECT_HELPERS_
 #define DAISY_ASPECT_HELPERS_
 
+static inline __attribute__((pure)) dt_daisy_t
+__jan00_daisy(unsigned int year)
+{
+/* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
+#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
+#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
+	int by = TO_BASE(year);
+	return by * 365 + by / 4;
+}
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
 

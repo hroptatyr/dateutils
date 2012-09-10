@@ -193,6 +193,24 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	return res;
 #endif
 }
+
+static dt_daisy_t
+__ymcw_to_daisy(dt_ymcw_t d)
+{
+	dt_daisy_t res;
+	unsigned int sy = d.y;
+	unsigned int sm = d.m;
+	unsigned int sd;
+
+	if (UNLIKELY((signed int)TO_BASE(sy) < 0)) {
+		return 0;
+	}
+
+	sd = __ymcw_get_mday(d);
+	res = __jan00_daisy(sy);
+	res += __md_get_yday(sy, sm, sd);
+	return res;
+}
 #endif	/* ASPECT_CONV */
 
 

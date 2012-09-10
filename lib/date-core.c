@@ -358,16 +358,6 @@ __uidiv(signed int x, signed int m)
 
 
 /* converters and getters */
-static inline __attribute__((pure)) dt_daisy_t
-__jan00_daisy(unsigned int year)
-{
-/* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
-#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
-#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
-	int by = TO_BASE(year);
-	return by * 365 + by / 4;
-}
-
 #if defined GET_JAN01_WDAY_FULL_LOOKUP
 
 static inline __attribute__((pure)) __jan01_wday_block_t
@@ -1206,37 +1196,20 @@ dt_get_quarter(struct dt_d_s that)
 static dt_daisy_t
 dt_conv_to_daisy(struct dt_d_s that)
 {
-	dt_daisy_t res;
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-
-	if (that.typ == DT_DAISY) {
+	switch (that.typ) {
+	case DT_DAISY:
 		return that.daisy;
-	} else if (that.typ == DT_DUNK) {
-		return 0;
+	case DT_YMD:
+		return __ymd_to_daisy(that.ymd);
+	case DT_YMCW:
+		return __ymcw_to_daisy(that.ymcw);
+	case DT_YWD:
+	case DT_BIZDA:
+	case DT_DUNK:
+	default:
+		break;
 	}
-
-	y = dt_get_year(that);
-	m = dt_get_mon(that);
-#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
-	/* the non-fast arith has done the fixup already */
-	d = dt_get_mday(that);
-#else  /* WITH_FAST_ARITH && !OMIT_FIXUPS */
-	{
-		unsigned int tmp = __get_mdays(y, m);
-		if (UNLIKELY((d = dt_get_mday(that)) > tmp)) {
-			d = tmp;
-		}
-	}
-#endif	/* !WITH_FAST_ARITH || OMIT_FIXUPS */
-
-	if (UNLIKELY((signed int)TO_BASE(y) < 0)) {
-		return 0;
-	}
-	res = __jan00_daisy(y);
-	res += __md_get_yday(y, m, d);
-	return res;
+	return (dt_daisy_t)0;
 }
 
 static dt_ymd_t
