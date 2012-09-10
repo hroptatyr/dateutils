@@ -20,7 +20,7 @@ main(void)
 		supersum += super(supersum);
 	}
 	printf("super %u\n", supersum);
-	if (supersum != 4293232403U) {
+	if (supersum != 4293232620U) {
 		return 1;
 	}
 	return 0;
