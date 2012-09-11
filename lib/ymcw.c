@@ -185,13 +185,13 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	unsigned int md = __ymcw_get_mday(d);
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = d.y, .m = d.m, .d = md};
-#else
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_ymd_t res;
 	res.y = d.y;
 	res.m = d.m;
 	res.d = md;
 	return res;
-#endif
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 static dt_daisy_t
