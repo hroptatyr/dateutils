@@ -180,29 +180,6 @@ __get_isowk(unsigned int y)
 	return 52;
 }
 
-#elif defined GET_ISOWK_28Y_SWITCH
-static unsigned int
-__get_isowk(unsigned int y)
-{
-	switch (y % 28U) {
-	default:
-		break;
-	case 16:
-		/* 1920, 1948, ... */
-	case 21:
-		/* 1925, 1953, ... */
-	case 27:
-		/* 1931, 1959, ... */
-	case 4:
-		/* 1936, 1964, ... */
-	case 10:
-		/* 1942, 1970, ... */
-		return 53;
-	}
-	return 52;
-}
-#endif	/* GET_ISOWK_* */
-
 static unsigned int
 __get_z31wk(unsigned int y)
 {
@@ -210,7 +187,7 @@ __get_z31wk(unsigned int y)
  * the new year are treated as 53
  * In the 400 year cycle, there's 243 years with 53 weeks and
  * 157 years with 52 weeks. */
-	switch (y % 400) {
+	switch (y % 400U) {
 	default:
 		break;
 	case 0:
@@ -375,6 +352,58 @@ __get_z31wk(unsigned int y)
 	/* more weeks with 53, so default to that */
 	return 53;
 }
+
+#elif defined GET_ISOWK_28Y_SWITCH
+static unsigned int
+__get_isowk(unsigned int y)
+{
+	switch (y % 28U) {
+	default:
+		break;
+	case 16:
+		/* 1920, 1948, ... */
+	case 21:
+		/* 1925, 1953, ... */
+	case 27:
+		/* 1931, 1959, ... */
+	case 4:
+		/* 1936, 1964, ... */
+	case 10:
+		/* 1942, 1970, ... */
+		return 53;
+	}
+	return 52;
+}
+
+static unsigned int
+__get_z31wk(unsigned int y)
+{
+/* return the week number of 31 dec in year Y, where weeks hanging over into
+ * the new year are treated as 53
+ * In the 400 year cycle, there's 243 years with 53 weeks and
+ * 157 years with 52 weeks. */
+	switch (y % 28U) {
+	default:
+		break;
+		/* pattern in the 28y cycle is: 5 1 4 1 5 1 4 1 1 4 1 */
+	case 0:
+	case 5:
+	case 6:
+	case 10:
+	case 11:
+	case 16:
+	case 17:
+	case 21:
+	case 22:
+	case 23:
+	case 27:
+		return 52;
+	}
+	/* more weeks with 53, so default to that */
+	return 53;
+}
+
+#endif	/* GET_ISOWK_* */
 
 static __attribute__((pure)) dt_ywd_t
 __ywd_fixup(dt_ywd_t d)

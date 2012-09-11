@@ -41,13 +41,13 @@
 
 #if !defined DAISY_ASPECT_HELPERS_
 #define DAISY_ASPECT_HELPERS_
+#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
+#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
 
 static inline __attribute__((pure)) dt_daisy_t
 __jan00_daisy(unsigned int year)
 {
 /* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
-#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
-#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
 	unsigned int by = TO_BASE(year);
 
 #if defined WITH_FAST_ARITH
@@ -65,7 +65,8 @@ __jan00_daisy(unsigned int year)
 static unsigned int
 __get_cumwk(unsigned int year)
 {
-/* return the number of weeks elapsed since 1917 for the first week of YEAR */
+/* return the number of weeks elapsed since 1917 for the first week of YEAR
+ * we follow the 28y cycle */
 	unsigned int by = TO_BASE(year);
 	unsigned int add = 0U;
 
@@ -106,7 +107,7 @@ __get_cumwk(unsigned int year)
 	default:
 		break;
 	}
-	return 52U * by + (by / 28U + 1) * add;
+	return 52U * by + 5U * (by / 28U) + add;
 }
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
@@ -228,11 +229,15 @@ __daisy_to_ywd(dt_daisy_t that)
 	dt_ywd_t res;
 
 	/* get an estimate for the year and readjust */
-	y = TO_YEAR((wk - 1U) / 52U);
+	y = __daisy_get_year(that);
 	/* get the cumulative week count */
 	if (UNLIKELY((yw = wk - __get_cumwk(y)) == 0)) {
-		yw = 53U;
 		y--;
+		yw = __get_isowk(y);
+	} else if (UNLIKELY(yw > __get_isowk(y))) {
+		/* hanging over into the new year */
+		yw = 1U;
+		y++;
 	}
 
 	/* final assignment */
