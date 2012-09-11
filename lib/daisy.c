@@ -232,8 +232,12 @@ __daisy_to_ywd(dt_daisy_t that)
 	y = __daisy_get_year(that);
 	/* get the cumulative week count */
 	if (UNLIKELY((yw = wk - __get_cumwk(y)) == 0)) {
-		yw = 53U;
 		y--;
+		yw = __get_isowk(y);
+	} else if (UNLIKELY(yw > __get_isowk(y))) {
+		/* hanging over into the new year */
+		yw = 1U;
+		y++;
 	}
 
 	/* final assignment */
