@@ -157,35 +157,7 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 # undef F
 # undef A
 # undef S
-
-#elif defined GET_JAN01_WDAY_28Y_LOOKUP
-# define M	(DT_MONDAY)
-# define T	(DT_TUESDAY)
-# define W	(DT_WEDNESDAY)
-# define R	(DT_THURSDAY)
-# define F	(DT_FRIDAY)
-# define A	(DT_SATURDAY)
-# define S	(DT_SUNDAY)
-
-static const dt_dow_t __jan01_28y_wday[] = {
-	/* 1904 - 1910 */
-	F, S, M, T, W, F, A,
-	/* 1911 - 1917 */
-	S, M, W, R, F, A, M,
-	/* 1918 - 1924 */
-	T, W, R, A, S, M, T,
-	/* 1925 - 1931 */
-	R, F, A, S, T, W, R,
-};
-
-# undef M
-# undef T
-# undef W
-# undef R
-# undef F
-# undef A
-# undef S
-#endif
+#endif	/* GET_JAN01_WDAY_FULL_LOOKUP */
 
 #if 1
 static uint16_t __mon_yday[] = {
@@ -358,16 +330,6 @@ __uidiv(signed int x, signed int m)
 
 
 /* converters and getters */
-static inline __attribute__((pure)) dt_daisy_t
-__jan00_daisy(unsigned int year)
-{
-/* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
-#define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
-#define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
-	int by = TO_BASE(year);
-	return by * 365 + by / 4;
-}
-
 #if defined GET_JAN01_WDAY_FULL_LOOKUP
 
 static inline __attribute__((pure)) __jan01_wday_block_t
@@ -431,6 +393,48 @@ __get_jan01_wday(unsigned int year)
 }
 
 #elif defined GET_JAN01_WDAY_28Y_LOOKUP
+# define M	(DT_MONDAY)
+# define T	(DT_TUESDAY)
+# define W	(DT_WEDNESDAY)
+# define R	(DT_THURSDAY)
+# define F	(DT_FRIDAY)
+# define A	(DT_SATURDAY)
+# define S	(DT_SUNDAY)
+
+static const dt_dow_t __jan01_28y_wday[] = {
+	/* 1904 - 1910 */
+	F, S, M, T, W, F, A,
+	/* 1911 - 1917 */
+	S, M, W, R, F, A, M,
+	/* 1918 - 1924 */
+	T, W, R, A, S, M, T,
+	/* 1925 - 1931 */
+	R, F, A, S, T, W, R,
+};
+
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
+
+static __attribute__((pure)) unsigned int
+__get_28y_year_equiv(unsigned year)
+{
+/* the 28y cycle works for 1901 to 2100, for other years find an equivalent */
+	year = year % 400U;
+
+	if (year > 300U) {
+		return year + 1600U;
+	} else if (year > 200U) {
+		return year + 1724U;
+	} else if (year > 100U) {
+		return year + 1820U;
+	}
+	return year + 2000;
+}
 
 static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
@@ -438,7 +442,12 @@ __get_jan01_wday(unsigned int year)
 /* get the weekday of jan01 in YEAR
  * using the 28y cycle thats valid till the year 2399
  * 1920 = 16 mod 28 */
-	return __jan01_28y_wday[year % 28];
+#if !defined WITH_FAST_ARITH
+	if (UNLIKELY(year > 2100U)) {
+		year = __get_28y_year_equiv(year);
+	}
+#endif	/* !WITH_FAST_ARITH */
+	return __jan01_28y_wday[year % 28U];
 }
 
 #elif defined GET_JAN01_WDAY_28Y_SWITCH
@@ -807,10 +816,6 @@ __yday_get_md(unsigned int year, unsigned int doy)
 		/* note how all leap-affected cakes are < 16 */
 		beef += beef < 16U;
 		cake++;
-	} else if (UNLIKELY(doy == 366)) {
-		m = 0;
-		d = 0;
-		goto yay;
 	}
 
 	if (d <= cake) {
@@ -818,7 +823,6 @@ __yday_get_md(unsigned int year, unsigned int doy)
 	} else {
 		d = doy - (m++ * 32 - 19 + cake);
 	}
-yay:
 	return (struct __md_s){.m = m, .d = d};
 #undef GET_REM
 }
@@ -973,10 +977,8 @@ dt_get_mon(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
-	case DT_YWD: {
-		unsigned int yd = __ywd_get_yday(that.ywd);
-		return __yday_get_md(that.ywd.y, yd).m;
-	}
+	case DT_YWD:
+		return __ywd_get_mon(that.ywd);
 	default:
 	case DT_DUNK:
 		return 0;
@@ -1211,37 +1213,20 @@ dt_get_quarter(struct dt_d_s that)
 static dt_daisy_t
 dt_conv_to_daisy(struct dt_d_s that)
 {
-	dt_daisy_t res;
-	unsigned int y;
-	unsigned int m;
-	unsigned int d;
-
-	if (that.typ == DT_DAISY) {
+	switch (that.typ) {
+	case DT_DAISY:
 		return that.daisy;
-	} else if (that.typ == DT_DUNK) {
-		return 0;
+	case DT_YMD:
+		return __ymd_to_daisy(that.ymd);
+	case DT_YMCW:
+		return __ymcw_to_daisy(that.ymcw);
+	case DT_YWD:
+	case DT_BIZDA:
+	case DT_DUNK:
+	default:
+		break;
 	}
-
-	y = dt_get_year(that);
-	m = dt_get_mon(that);
-#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
-	/* the non-fast arith has done the fixup already */
-	d = dt_get_mday(that);
-#else  /* WITH_FAST_ARITH && !OMIT_FIXUPS */
-	{
-		unsigned int tmp = __get_mdays(y, m);
-		if (UNLIKELY((d = dt_get_mday(that)) > tmp)) {
-			d = tmp;
-		}
-	}
-#endif	/* !WITH_FAST_ARITH || OMIT_FIXUPS */
-
-	if (UNLIKELY((signed int)TO_BASE(y) < 0)) {
-		return 0;
-	}
-	res = __jan00_daisy(y);
-	res += __md_get_yday(y, m, d);
-	return res;
+	return (dt_daisy_t)0;
 }
 
 static dt_ymd_t
@@ -1277,6 +1262,8 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		return __daisy_to_ymcw(that.daisy);
 	case DT_BIZDA:
 		break;
+	case DT_YWD:
+		return __ywd_to_ymcw(that.ywd);
 	case DT_DUNK:
 	default:
 		break;
@@ -1313,9 +1300,11 @@ dt_conv_to_ywd(struct dt_d_s this)
 	case DT_YMD:
 		return __ymd_to_ywd(this.ymd);
 	case DT_YMCW:
-		break;
+		return __ymcw_to_ywd(this.ymcw);
+	case DT_DAISY:
+		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
-		break;
+	case DT_DUNK:
 	default:
 		break;
 	}
@@ -1585,9 +1574,47 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	struct strpd_s d = strpd_initialiser();
 	const char *fp;
 	char *bp;
+	dt_dtyp_t tgttyp;
+	int set_fmt = 0;
 
 	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		return 0;
+	}
+
+	if (LIKELY(fmt == NULL)) {
+		/* um, great */
+		set_fmt = 1;
+	} else if (LIKELY(*fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else if ((tgttyp = __trans_dfmt_special(fmt)) != DT_DUNK) {
+		that = dt_dconv(tgttyp, that);
+		set_fmt = 1;
+	}
+
+	if (set_fmt) {
+		switch (that.typ) {
+		case DT_YMD:
+			fmt = ymd_dflt;
+			break;
+		case DT_YMCW:
+			fmt = ymcw_dflt;
+			break;
+		case DT_YWD:
+			fmt = ywd_dflt;
+			break;
+		case DT_DAISY:
+			/* subject to change */
+			fmt = ymd_dflt;
+			break;
+		case DT_BIZDA:
+			fmt = bizda_dflt;
+			break;
+		default:
+			/* fuck */
+			abort();
+			break;
+		}
 	}
 
 	switch (that.typ) {
@@ -1595,45 +1622,27 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.y = that.ymd.y;
 		d.m = that.ymd.m;
 		d.d = that.ymd.d;
-		if (fmt == NULL) {
-			fmt = ymd_dflt;
-		}
 		break;
 	case DT_YMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
 		d.c = that.ymcw.c;
 		d.w = that.ymcw.w;
-		if (fmt == NULL) {
-			fmt = ymcw_dflt;
-		}
 		break;
 	case DT_DAISY:
 		__prep_strfd_daisy(&d, that.daisy);
-		if (fmt == NULL) {
-			/* subject to change */
-			fmt = "%F";
-		}
 		break;
 	case DT_BIZDA:
 		__prep_strfd_bizda(&d, that.bizda, __get_bizda_param(that));
-		if (fmt == NULL) {
-			fmt = bizda_dflt;
-		}
 		break;
 	case DT_YWD:
 		__prep_strfd_ywd(&d, that.ywd);
-		if (fmt == NULL) {
-			fmt = ywd_dflt;
-		}
 		break;
 	default:
 	case DT_DUNK:
 		bp = buf;
 		goto out;
 	}
-	/* translate high-level format names */
-	__trans_dfmt(&fmt);
 
 	/* assign and go */
 	bp = buf;

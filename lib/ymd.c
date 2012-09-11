@@ -304,6 +304,35 @@ __ymd_to_ywd(dt_ymd_t d)
 	unsigned int c = __ymd_get_wcnt_abs(d);
 	return __make_ywd(d.y, c, w, YWD_ABSWK_CNT);
 }
+
+static dt_daisy_t
+__ymd_to_daisy(dt_ymd_t d)
+{
+	dt_daisy_t res;
+	unsigned int sy = d.y;
+	unsigned int sm = d.m;
+	unsigned int sd;
+
+	if (UNLIKELY((signed int)TO_BASE(sy) < 0)) {
+		return 0;
+	}
+
+#if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
+	/* the non-fast arith has done the fixup already */
+	sd = d.d;
+#else  /* WITH_FAST_ARITH && !OMIT_FIXUPS */
+	{
+		unsigned int tmp = __get_mdays(sy, sm);
+		if (UNLIKELY((sd = d.m) > tmp)) {
+			sd = tmp;
+		}
+	}
+#endif	/* !WITH_FAST_ARITH || OMIT_FIXUPS */
+
+	res = __jan00_daisy(sy);
+	res += __md_get_yday(sy, sm, sd);
+	return res;
+}
 #endif	/* ASPECT_CONV */
 
 

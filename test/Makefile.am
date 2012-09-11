@@ -9,16 +9,24 @@ libdir = $(abs_top_srcdir)/lib
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_CPPFLAGS += -DTEST -I$(libdir) -I$(abs_top_builddir)/lib
 
-EXTRA_DIST = $(dt_tests) $(DT_LOG_COMPILER)
-TESTS = $(bin_tests) $(dt_tests)
+EXTRA_DIST =
+EXTRA_DIST += $(dt_tests) $(DT_LOG_COMPILER)
+EXTRA_DIST += $(convt_tests) $(CONVT_LOG_COMPILER)
+TESTS = $(bin_tests) $(dt_tests) $(convt_tests)
+TEST_EXTENSIONS =
 dt_tests =
 bin_tests =
+convt_tests =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
 
-TEST_EXTENSIONS = .dt
+TEST_EXTENSIONS += .dt
 DT_LOG_COMPILER = $(srcdir)/dt-test.sh
 AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
+
+TEST_EXTENSIONS += .convt
+CONVT_LOG_COMPILER = $(srcdir)/dconv-test.sh
+AM_CONVT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
 
 dt_tests += dseq.1.dt
 dt_tests += dseq.2.dt
@@ -119,6 +127,12 @@ dt_tests += dconv.77.dt
 dt_tests += dconv.78.dt
 dt_tests += dconv.79.dt
 dt_tests += dconv.80.dt
+dt_tests += dconv.81.dt
+dt_tests += dconv.82.dt
+dt_tests += dconv.83.dt
+dt_tests += dconv.84.dt
+dt_tests += dconv.85.dt
+dt_tests += dconv.86.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
@@ -529,5 +543,18 @@ bin_tests += time-core-add
 bin_tests += basic_ymd_get_wday
 bin_tests += basic_get_jan01_wday
 bin_tests += basic_md_get_yday
+
+## batch checks
+bin_tests += dseq-cnt.1.sh
+bin_tests += dseq-cnt.2.sh
+bin_tests += dseq-cnt.3.sh
+bin_tests += dconv-batch.1.sh
+bin_tests += dconv-batch.2.sh
+convt_tests += ymd-ymcw.convt
+convt_tests += ymd-ywd.convt
+convt_tests += ywd-ymd.convt
+convt_tests += ywd-ymcw.convt
+convt_tests += ymcw-ymd.convt
+convt_tests += ymcw-ywd.convt
 
 ## Makefile.am ends here

@@ -51,6 +51,12 @@
   at the moment we let the compiler work it out
  */
 
+#if defined GET_ISOWK_FULL_SWITCH
+#elif defined GET_ISOWK_28Y_SWITCH
+#else
+# define GET_ISOWK_FULL_SWITCH
+#endif
+
 
 #if !defined YWD_ASPECT_HELPERS_
 #define YWD_ASPECT_HELPERS_
@@ -78,6 +84,19 @@ __ywd_get_jan01_hang(dt_dow_t j01)
 	return res;
 }
 
+static __attribute__((unused)) dt_dow_t
+__ywd_get_dec31_wday(dt_ywd_t d)
+{
+/* a year starting on W ends on W if not a leap year */
+	dt_dow_t res = __ywd_get_jan01_wday(d);
+
+	if (UNLIKELY(__leapp(d.y))) {
+		res = (dt_dow_t)((res + 1) % 7);
+	}
+	return res;
+}
+
+#if defined GET_ISOWK_FULL_SWITCH
 static unsigned int
 __get_isowk(unsigned int y)
 {
@@ -161,6 +180,231 @@ __get_isowk(unsigned int y)
 	return 52;
 }
 
+static unsigned int
+__get_z31wk(unsigned int y)
+{
+/* return the week number of 31 dec in year Y, where weeks hanging over into
+ * the new year are treated as 53
+ * In the 400 year cycle, there's 243 years with 53 weeks and
+ * 157 years with 52 weeks. */
+	switch (y % 400U) {
+	default:
+		break;
+	case 0:
+	case 5:
+	case 6:
+	case 10:
+	case 11:
+	case 16:
+	case 17:
+	case 21:
+	case 22:
+	case 23:
+	case 27:
+	case 28:
+	case 33:
+	case 34:
+	case 38:
+	case 39:
+	case 44:
+	case 45:
+	case 49:
+	case 50:
+	case 51:
+	case 55:
+	case 56:
+	case 61:
+	case 62:
+	case 66:
+	case 67:
+	case 72:
+	case 73:
+	case 77:
+	case 78:
+	case 79:
+	case 83:
+	case 84:
+	case 89:
+	case 90:
+	case 94:
+	case 95:
+	case 100:
+	case 101:
+	case 102:
+	case 106:
+	case 107:
+	case 112:
+	case 113:
+	case 117:
+	case 118:
+	case 119:
+	case 123:
+	case 124:
+	case 129:
+	case 130:
+	case 134:
+	case 135:
+	case 140:
+	case 141:
+	case 145:
+	case 146:
+	case 147:
+	case 151:
+	case 152:
+	case 157:
+	case 158:
+	case 162:
+	case 163:
+	case 168:
+	case 169:
+	case 173:
+	case 174:
+	case 175:
+	case 179:
+	case 180:
+	case 185:
+	case 186:
+	case 190:
+	case 191:
+	case 196:
+	case 197:
+	case 202:
+	case 203:
+	case 208:
+	case 209:
+	case 213:
+	case 214:
+	case 215:
+	case 219:
+	case 220:
+	case 225:
+	case 226:
+	case 230:
+	case 231:
+	case 236:
+	case 237:
+	case 241:
+	case 242:
+	case 243:
+	case 247:
+	case 248:
+	case 253:
+	case 254:
+	case 258:
+	case 259:
+	case 264:
+	case 265:
+	case 269:
+	case 270:
+	case 271:
+	case 275:
+	case 276:
+	case 281:
+	case 282:
+	case 286:
+	case 287:
+	case 292:
+	case 293:
+	case 297:
+	case 298:
+	case 299:
+	case 304:
+	case 305:
+	case 309:
+	case 310:
+	case 311:
+	case 315:
+	case 316:
+	case 321:
+	case 322:
+	case 326:
+	case 327:
+	case 332:
+	case 333:
+	case 337:
+	case 338:
+	case 339:
+	case 343:
+	case 344:
+	case 349:
+	case 350:
+	case 354:
+	case 355:
+	case 360:
+	case 361:
+	case 365:
+	case 366:
+	case 367:
+	case 371:
+	case 372:
+	case 377:
+	case 378:
+	case 382:
+	case 383:
+	case 388:
+	case 389:
+	case 393:
+	case 394:
+	case 395:
+	case 399:
+		return 52;
+	}
+	/* more weeks with 53, so default to that */
+	return 53;
+}
+
+#elif defined GET_ISOWK_28Y_SWITCH
+static unsigned int
+__get_isowk(unsigned int y)
+{
+	switch (y % 28U) {
+	default:
+		break;
+	case 16:
+		/* 1920, 1948, ... */
+	case 21:
+		/* 1925, 1953, ... */
+	case 27:
+		/* 1931, 1959, ... */
+	case 4:
+		/* 1936, 1964, ... */
+	case 10:
+		/* 1942, 1970, ... */
+		return 53;
+	}
+	return 52;
+}
+
+static unsigned int
+__get_z31wk(unsigned int y)
+{
+/* return the week number of 31 dec in year Y, where weeks hanging over into
+ * the new year are treated as 53
+ * In the 400 year cycle, there's 243 years with 53 weeks and
+ * 157 years with 52 weeks. */
+	switch (y % 28U) {
+	default:
+		break;
+		/* pattern in the 28y cycle is: 5 1 4 1 5 1 4 1 1 4 1 */
+	case 0:
+	case 5:
+	case 6:
+	case 10:
+	case 11:
+	case 16:
+	case 17:
+	case 21:
+	case 22:
+	case 23:
+	case 27:
+		return 52;
+	}
+	/* more weeks with 53, so default to that */
+	return 53;
+}
+
+#endif	/* GET_ISOWK_* */
+
 static __attribute__((pure)) dt_ywd_t
 __ywd_fixup(dt_ywd_t d)
 {
@@ -187,48 +431,66 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
  * where C conforms to week-count convention cc */
 	dt_ywd_t res = {0};
 	dt_dow_t j01;
+	int hang;
 
 	/* this one's special as it needs the hang helper slot */
 	j01 = __get_jan01_wday(y);
-	res.hang = __ywd_get_jan01_hang(j01);
-
-	res.y = y;
-	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	hang = __ywd_get_jan01_hang(j01);
 
 	switch (cc) {
 	default:
 	case YWD_ISOWK_CNT:
-		res.c = c;
 		break;
 	case YWD_ABSWK_CNT:
+		if (hang == 1 && w >= DT_MONDAY) {
+			/* n-th W in the year is n-th week,
+			 * year starts on sunday, so w >= DT_MONDAY is
+			 * equivalent to w < DT_SUNDAY */
+			;
+		} else if (hang > 0 && w >= DT_MONDAY && w < j01) {
+			/* n-th W in the year is n-th week,
+			 * in this case the year doesnt start on sunday */
+			;
+		} else if (hang <= 0 && (w >= j01 || w == DT_SUNDAY)) {
+			/* n-th W in the year is n-th week */
+			;
+		} else if (hang > 0) {
+			/* those weekdays that hang over into the last year */
+			c--;
+		} else if (hang <= 0) {
+			/* weekdays missing in the first week of Y */
+			c++;
+		}
+
 		if (UNLIKELY(c > __get_isowk(y))) {
-			res.y++;
-			res.c = 1;
-		} else if (res.hang <= 0 || w < j01 ||
-			   w && !j01 /* w is not sun but j01 is */) {
-			res.c = c;
-		} else if (LIKELY(c - 1)) {
-			res.c = c - 1;
-		} else {
-			res.y--;
-			res.c = 53;
+			y++;
+			c = 1;
+		} else if (UNLIKELY(c == 0)) {
+			y--;
+			c = __get_isowk(y);
 		}
 		break;
 	case YWD_SUNWK_CNT:
 		if (j01 == DT_SUNDAY) {
-			res.c = c;
+			;
 		} else {
-			res.c = c + 1;
+			c++;
 		}
 		break;
 	case YWD_MONWK_CNT:
 		if (j01 <= DT_MONDAY) {
-			res.c = c;
+			;
 		} else {
-			res.c = c + 1;
+			c++;
 		}
 		break;
 	}
+
+	/* assign and fuck off */
+	res.y = y;
+	res.c = c;
+	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	res.hang = hang;
 #if defined WITH_FAST_ARITH
 	return res;
 #else  /* !WITH_FAST_ARITH */
@@ -308,6 +570,13 @@ __ywd_get_md(dt_ywd_t d)
 	}
 	return res;
 }
+
+static unsigned int
+__ywd_get_mon(dt_ywd_t d)
+{
+	unsigned int yd = __ywd_get_yday(d);
+	return __yday_get_md(d.y, yd).m;
+}
 #endif	/* ASPECT_GETTERS */
 
 
@@ -321,16 +590,22 @@ __ywd_get_md(dt_ywd_t d)
 static dt_ymd_t
 __ywd_to_ymd(dt_ywd_t d)
 {
-	unsigned int y;
-
+	unsigned int y = d.y;
 	struct __md_s md = __ywd_get_md(d);
 
-	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w) {
-		y = d.y - 1;
-	} else if (d.c >= 53/* max weeks per year*/) {
-		y = d.y + 1;
-	} else {
-		y = d.y;
+	if (d.c == 1) {
+		dt_dow_t f01 = __ywd_get_jan01_wday(d);
+
+		if (d.hang <= 0 && d.w >= DT_MONDAY && d.w < f01) {
+			y--;
+		}
+
+	} else if (d.c >= __get_z31wk(y)) {
+		dt_dow_t z31 = __ywd_get_dec31_wday(d);
+
+		if (z31 && (d.w > z31 || d.w == DT_SUNDAY)) {
+			y++;
+		}
 	}
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
@@ -341,6 +616,46 @@ __ywd_to_ymd(dt_ywd_t d)
 		res.y = y;
 		res.m = md.m;
 		res.d = md.d;
+		return res;
+	}
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+}
+
+static dt_ymcw_t
+__ywd_to_ymcw(dt_ywd_t d)
+{
+	unsigned int y = d.y;
+	struct __md_s md = __ywd_get_md(d);
+	unsigned int c;
+
+	if (d.c == 1) {
+		dt_dow_t f01 = __ywd_get_jan01_wday(d);
+
+		if (d.hang <= 0 && d.w >= DT_MONDAY && d.w < f01) {
+			y--;
+		}
+
+	} else if (d.c >= __get_z31wk(y)) {
+		dt_dow_t z31 = __ywd_get_dec31_wday(d);
+
+		if (z31 && (d.w > z31 || d.w == DT_SUNDAY)) {
+			y++;
+		}
+	}
+
+	/* we obtain C from weekifying the month */
+	c = (md.d - 1U) / GREG_DAYS_P_WEEK + 1U;
+
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymcw_t){.y = y, .m = md.m, .c = c, .w = d.w};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	{
+		dt_ymcw_t res;
+
+		res.y = y;
+		res.m = md.m;
+		res.c = c;
+		res.w = d.w;
 		return res;
 	}
 #endif	/* HAVE_ANON_STRUCTS_INIT */
