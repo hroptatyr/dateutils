@@ -977,10 +977,8 @@ dt_get_mon(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).m;
 	case DT_BIZDA:
 		return that.bizda.m;
-	case DT_YWD: {
-		unsigned int yd = __ywd_get_yday(that.ywd);
-		return __yday_get_md(that.ywd.y, yd).m;
-	}
+	case DT_YWD:
+		return __ywd_get_mon(that.ywd);
 	default:
 	case DT_DUNK:
 		return 0;
@@ -1264,6 +1262,8 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		return __daisy_to_ymcw(that.daisy);
 	case DT_BIZDA:
 		break;
+	case DT_YWD:
+		return __ywd_to_ymcw(that.ywd);
 	case DT_DUNK:
 	default:
 		break;
@@ -1300,7 +1300,7 @@ dt_conv_to_ywd(struct dt_d_s this)
 	case DT_YMD:
 		return __ymd_to_ywd(this.ymd);
 	case DT_YMCW:
-		break;
+		return __ymcw_to_ywd(this.ymcw);
 	case DT_DAISY:
 		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:

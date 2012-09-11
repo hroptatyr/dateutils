@@ -86,43 +86,115 @@ __ymcw_get_yday(dt_ymcw_t that)
  * 5 - leap Ws in oct
  * 4 Ws in nov
  * 5 Ws in dec,
- * so go back to the last W, and compute its number instead */
-	/* we guess the number of Ws up to the previous month */
-	unsigned int ws = 4 * (that.m - 1);
+ * so go back to the last W, and compute its number instead
+ *
+ * Here's the full schema:
+ * For W+0
+ * 5 4 4 5 4 4  5 4 4 5 4 5  non-leap
+ * 5 4 4 5 4 4  5 4 5 4 4 5  leap  flip9
+ *
+ * For W+1
+ * 5 4 4 4 5 4  5 4 4 5 4 4  non-leap
+ * 5 4 4 5 4 4  5 4 4 5 4 5  leap  flip4  flip12
+ *
+ * For W+2
+ * 5 4 4 4 5 4  4 5 4 5 4 4  non-leap
+ * 5 4 4 4 5 4  5 4 4 5 4 4  leap  flip7
+ *
+ * For W+3
+ * 4 4 5 4 5 4  4 5 4 4 5 4  non-leap
+ * 4 5 4 4 5 4  4 5 4 5 4 4  leap  flip2  flip10
+ *
+ * For W+4
+ * 4 4 5 4 4 5  4 5 4 4 5 4  non-leap
+ * 4 4 5 4 5 4  4 5 4 4 5 4  leap  flip5
+ *
+ * For W+5
+ * 4 4 5 4 4 5  4 4 5 4 4 5  non-leap
+ * 4 4 5 4 4 5  4 5 4 4 5 4  leap  flip8  flip11
+ *
+ * For W+6
+ * 4 4 4 5 4 4  5 4 5 4 4 5  non-leap
+ * 4 4 5 4 4 5  4 4 5 4 4 5  leap  flip3  flip6
+ *
+ * flipN denotes which month in a leap year becomes 5 where the
+ * month in the non-leap year equivalent has value 4.
+ *
+ * The flips for W+1 W+2, W+4, W+5, W+6 can be presented through
+ * non-leap rules:
+ *
+ * 544544544545544544544545
+ * 544544545445544544545445
+ *
+ * 544454544544544454544544
+ * 544544544545544544544545 = non-leap W+0
+ *
+ * 544454454544544454454544
+ * 544454544544544454544544 = non-leap W+1
+ *
+ * 445454454454445454454454
+ * 454454454544454454454544
+ *
+ * 445445454454445445454454
+ * 445454454454445454454454 = non-leap W+3
+ *
+ * 445445445445445445445445
+ * 445445454454445445454454 = non-leap W+4
+ *
+ * 444544545445444544545445
+ * 445445445445445445445445 = non-leap W+5
+ */
+	static uint8_t ycum[][12] = {
+		{
+			/* W+0 */
+			0, 5, 9, 13, 18, 22, 26,  31, 35, 39, 44, 48, /*53*/
+		}, {
+			/* W+1 */
+			0, 5, 9, 13, 17, 22, 26,  31, 35, 39, 44, 48, /*52*/
+		}, {
+			/* W+2 */
+			0, 5, 9, 13, 17, 22, 26,  30, 35, 39, 44, 48, /*52*/
+		}, {
+			/* W+3 */
+			0, 4, 8, 13, 17, 22, 26,  30, 35, 39, 43, 48, /*52*/
+		}, {
+			/* W+4 */
+			0, 4, 8, 13, 17, 21, 26,  30, 35, 39, 43, 48, /*52*/
+		}, {
+			/* W+5 */
+			0, 4, 8, 13, 17, 21, 26,  30, 34, 39, 43, 47, /*52*/
+		}, {
+			/* W+6 */
+			0, 4, 8, 12, 17, 21, 25,  30, 34, 39, 43, 47, /*52*/
+		}, {
+			/* leap-year rule W+0 */
+			0, 5, 9, 13, 18, 22, 26,  31, 35, 40, 44, 48, /*53*/
+			/* leap-year rule W+3 = W+0 + 1mo + 4 */
+		},
+	};
 	dt_dow_t j01w = __get_jan01_wday(that.y);
-	dt_dow_t m01w = __get_m01_wday(that.y, that.m);
+	unsigned int diff = j01w <= that.w ? that.w - j01w : that.w + 7 - j01w;
 
-	switch (that.m) {
-	case 10:
-		ws += 3 + (__leapp(that.y) ? 1 : 0);
-		break;
-	case 11:
-		ws++;
-	case 9:
-	case 8:
-		ws++;
-	case 7:
-	case 6:
-	case 5:
-		ws++;
-	case 4:
-	case 3:
-	case 2:
-		ws++;
-	case 1:
-	case 12:
-		break;
-	default:
-		return 0U;
+	if (UNLIKELY(__leapp(that.y))) {
+		switch (diff) {
+		case 3:
+			if (UNLIKELY(that.m < 2)) {
+				return that.c;
+			}
+			return that.c + (ycum[7])[that.m - 2] + 4;
+		case 0:
+			return that.c + (ycum[7])[that.m - 1];
+		default:
+		case 1:
+		case 2:
+		case 4:
+		case 5:
+		case 6:
+			diff--;
+			break;
+		}
 	}
-	/* now find the count of the last W before/eq today */
-	if (m01w <= j01w &&
-	    that.w >= m01w && that.w < j01w) {
-		ws--;
-	} else if (that.w >= m01w || that.w < j01w) {
-		ws--;
-	}
-	return ws + that.c;
+	return that.c + (ycum[diff])[that.m - 1];
 }
 
 static unsigned int
@@ -192,6 +264,15 @@ __ymcw_to_ymd(dt_ymcw_t d)
 	res.d = md;
 	return res;
 #endif	/* HAVE_ANON_STRUCTS_INIT */
+}
+
+static dt_ywd_t
+__ymcw_to_ywd(dt_ymcw_t d)
+{
+	unsigned int y = d.y;
+	unsigned int w = d.w;
+	unsigned int c = __ymcw_get_yday(d);
+	return __make_ywd(y, c, w, YWD_ABSWK_CNT);
 }
 
 static dt_daisy_t
