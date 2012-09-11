@@ -194,6 +194,15 @@ __ymcw_to_ymd(dt_ymcw_t d)
 #endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
+static dt_ywd_t
+__ymcw_to_ywd(dt_ymcw_t d)
+{
+	unsigned int y = d.y;
+	unsigned int w = d.w;
+	unsigned int c = __ymcw_get_yday(d);
+	return __make_ywd(y, c, w, YWD_ABSWK_CNT);
+}
+
 static dt_daisy_t
 __ymcw_to_daisy(dt_ymcw_t d)
 {

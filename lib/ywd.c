@@ -570,6 +570,13 @@ __ywd_get_md(dt_ywd_t d)
 	}
 	return res;
 }
+
+static unsigned int
+__ywd_get_mon(dt_ywd_t d)
+{
+	unsigned int yd = __ywd_get_yday(d);
+	return __yday_get_md(d.y, yd).m;
+}
 #endif	/* ASPECT_GETTERS */
 
 
@@ -609,6 +616,46 @@ __ywd_to_ymd(dt_ywd_t d)
 		res.y = y;
 		res.m = md.m;
 		res.d = md.d;
+		return res;
+	}
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+}
+
+static dt_ymcw_t
+__ywd_to_ymcw(dt_ywd_t d)
+{
+	unsigned int y = d.y;
+	struct __md_s md = __ywd_get_md(d);
+	unsigned int c;
+
+	if (d.c == 1) {
+		dt_dow_t f01 = __ywd_get_jan01_wday(d);
+
+		if (d.hang <= 0 && d.w >= DT_MONDAY && d.w < f01) {
+			y--;
+		}
+
+	} else if (d.c >= __get_z31wk(y)) {
+		dt_dow_t z31 = __ywd_get_dec31_wday(d);
+
+		if (z31 && (d.w > z31 || d.w == DT_SUNDAY)) {
+			y++;
+		}
+	}
+
+	/* we obtain C from weekifying the month */
+	c = (md.d - 1U) / GREG_DAYS_P_WEEK + 1U;
+
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymcw_t){.y = y, .m = md.m, .c = c, .w = d.w};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	{
+		dt_ymcw_t res;
+
+		res.y = y;
+		res.m = md.m;
+		res.c = c;
+		res.w = d.w;
 		return res;
 	}
 #endif	/* HAVE_ANON_STRUCTS_INIT */
