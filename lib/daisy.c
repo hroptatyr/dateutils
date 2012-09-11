@@ -65,7 +65,8 @@ __jan00_daisy(unsigned int year)
 static unsigned int
 __get_cumwk(unsigned int year)
 {
-/* return the number of weeks elapsed since 1917 for the first week of YEAR */
+/* return the number of weeks elapsed since 1917 for the first week of YEAR
+ * we follow the 28y cycle */
 	unsigned int by = TO_BASE(year);
 	unsigned int add = 0U;
 
@@ -106,7 +107,7 @@ __get_cumwk(unsigned int year)
 	default:
 		break;
 	}
-	return 52U * by + (by / 28U + 1) * add;
+	return 52U * by + 5U * (by / 28U) + add;
 }
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
