@@ -116,10 +116,9 @@ __ymcw_get_yday(dt_ymcw_t that)
 		return 0U;
 	}
 	/* now find the count of the last W before/eq today */
-	if (m01w <= j01w &&
-	    that.w >= m01w && that.w < j01w) {
+	if (m01w <= j01w && that.w >= m01w && that.w < j01w) {
 		ws--;
-	} else if (that.w >= m01w || that.w < j01w) {
+	} else if (m01w > j01w && (that.w >= m01w || that.w == DT_SUNDAY)) {
 		ws--;
 	}
 	return ws + that.c;
