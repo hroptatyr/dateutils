@@ -228,7 +228,7 @@ __daisy_to_ywd(dt_daisy_t that)
 	dt_ywd_t res;
 
 	/* get an estimate for the year and readjust */
-	y = TO_YEAR((wk - 1U) / 52U);
+	y = __daisy_get_year(that);
 	/* get the cumulative week count */
 	if (UNLIKELY((yw = wk - __get_cumwk(y)) == 0)) {
 		yw = 53U;
