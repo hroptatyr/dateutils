@@ -2,9 +2,9 @@
 
 BEG="1917-12-31"
 if test "${have_gdate_2039}" = "yes"; then
-	END="4095-01-01"
+	END="4095-12-31"
 else
-	END="2038-01-01"
+	END="2037-12-31"
 fi
 
 if test "${have_gdate}" != "yes"; then
