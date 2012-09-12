@@ -1,0 +1,29 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="-f daisy"
+COMMENT="easy to check conversion ywd->daisy (printed as ymd)"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+1917-W01-01
+1918-W01-01
+1918-W01-02
+1919-W01-01
+1919-W01-02
+1919-W01-03
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+1917-01-01
+1917-12-31
+1918-01-01
+1918-12-30
+1918-12-31
+1919-01-01
+EOF
+
+## dconv.87.dt ends here
