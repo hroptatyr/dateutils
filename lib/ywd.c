@@ -660,6 +660,16 @@ __ywd_to_ymcw(dt_ywd_t d)
 	}
 #endif	/* HAVE_ANON_STRUCTS_INIT */
 }
+
+static dt_daisy_t
+__ywd_to_daisy(dt_ywd_t d)
+{
+	dt_daisy_t res;
+
+	res = __jan00_daisy(d.y);
+	res += __ywd_get_yday(d);
+	return res;
+}
 #endif	/* ASPECT_CONV */
 
 
