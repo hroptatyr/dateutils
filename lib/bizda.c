@@ -570,6 +570,20 @@ __bizda_to_ywd(dt_bizda_t d, dt_bizda_param_t p)
 
 	return __make_ywd_ybd(d.y, yd);
 }
+
+static dt_daisy_t
+__bizda_to_daisy(dt_bizda_t d, dt_bizda_param_t p)
+{
+	dt_daisy_t res;
+	unsigned int ybd;
+	unsigned int wd;
+
+	res = __jan00_daisy(d.y);
+	wd = __daisy_get_wday(res);
+	ybd = __bizda_get_yday(d, p);
+	res += __get_d_equiv((dt_dow_t)wd, ybd);
+	return res;
+}
 #endif	/* ASPECT_CONV */
 
 
