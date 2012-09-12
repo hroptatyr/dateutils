@@ -1361,96 +1361,28 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 }
 
 DEFUN struct dt_d_s
-dt_dadd(struct dt_d_s d, struct dt_d_s dur)
+dt_dadd_d(struct dt_d_s d, int n)
 {
-	struct strpdi_s durcch = strpdi_initialiser();
-
-	__fill_strpdi(&durcch, dur);
-
+/* add N (gregorian) days to D */
 	switch (d.typ) {
 	case DT_DAISY:
-		if (durcch.d) {
-			d.daisy = __daisy_add_d(d.daisy, durcch.d);
-		} else if (durcch.b) {
-			d.daisy = __daisy_add_b(d.daisy, durcch.b);
-		}
-		if (durcch.w) {
-			d.daisy = __daisy_add_w(d.daisy, durcch.w);
-		}
-		if (durcch.m) {
-			d.daisy = __daisy_add_m(d.daisy, durcch.m);
-		}
-		if (durcch.y) {
-			d.daisy = __daisy_add_y(d.daisy, durcch.y);
-		}
+		d.daisy = __daisy_add_d(d.daisy, n);
 		break;
 
 	case DT_YMD:
-		if (durcch.d) {
-			d.ymd = __ymd_add_d(d.ymd, durcch.d);
-		} else if (durcch.b) {
-			d.ymd = __ymd_add_b(d.ymd, durcch.b);
-		}
-		if (durcch.w) {
-			d.ymd = __ymd_add_w(d.ymd, durcch.w);
-		}
-		if (durcch.m) {
-			d.ymd = __ymd_add_m(d.ymd, durcch.m);
-		}
-		if (durcch.y) {
-			d.ymd = __ymd_add_y(d.ymd, durcch.y);
-		}
+		d.ymd = __ymd_add_d(d.ymd, n);
 		break;
 
 	case DT_YMCW:
-		if (durcch.d) {
-			d.ymcw = __ymcw_add_d(d.ymcw, durcch.d);
-		} else if (durcch.b) {
-			d.ymcw = __ymcw_add_b(d.ymcw, durcch.b);
-		}
-		if (durcch.w) {
-			d.ymcw = __ymcw_add_w(d.ymcw, durcch.w);
-		}
-		if (durcch.m) {
-			d.ymcw = __ymcw_add_m(d.ymcw, durcch.m);
-		}
-		if (durcch.y) {
-			d.ymcw = __ymcw_add_y(d.ymcw, durcch.y);
-		}
+		d.ymcw = __ymcw_add_d(d.ymcw, n);
 		break;
 
 	case DT_BIZDA:
-		if (durcch.d) {
-			d.bizda = __bizda_add_d(d.bizda, durcch.d);
-		} else if (durcch.b) {
-			d.bizda = __bizda_add_b(d.bizda, durcch.b);
-		}
-		if (durcch.w) {
-			d.bizda = __bizda_add_w(d.bizda, durcch.w);
-		}
-		if (durcch.m) {
-			d.bizda = __bizda_add_m(d.bizda, durcch.m);
-		}
-		if (durcch.y) {
-			d.bizda = __bizda_add_y(d.bizda, durcch.y);
-		}
+		d.bizda = __bizda_add_d(d.bizda, n);
 		break;
 
 	case DT_YWD:
-		if (durcch.d) {
-			d.ywd = __ywd_add_d(d.ywd, durcch.d);
-		} else if (durcch.b) {
-			d.ywd = __ywd_add_b(d.ywd, durcch.b);
-		}
-		if (durcch.w) {
-			d.ywd = __ywd_add_w(d.ywd, durcch.w);
-		}
-		if (durcch.m) {
-			d.ywd = __ywd_add_m(d.ywd, durcch.m);
-		}
-		if (durcch.y) {
-			d.ywd = __ywd_add_y(d.ywd, durcch.y);
-		}
+		d.ywd = __ywd_add_d(d.ywd, n);
 		break;
 
 	case DT_DUNK:
@@ -1458,6 +1390,166 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 		d.typ = DT_DUNK;
 		d.u = 0;
 		break;
+	}
+	return d;
+}
+
+DEFUN struct dt_d_s
+dt_dadd_b(struct dt_d_s d, int n)
+{
+/* add N business days to D */
+	switch (d.typ) {
+	case DT_DAISY:
+		d.daisy = __daisy_add_b(d.daisy, n);
+		break;
+
+	case DT_YMD:
+		d.ymd = __ymd_add_b(d.ymd, n);
+		break;
+
+	case DT_YMCW:
+		d.ymcw = __ymcw_add_b(d.ymcw, n);
+		break;
+
+	case DT_BIZDA:
+		d.bizda = __bizda_add_b(d.bizda, n);
+		break;
+
+	case DT_YWD:
+		d.ywd = __ywd_add_b(d.ywd, n);
+		break;
+
+	case DT_DUNK:
+	default:
+		d.typ = DT_DUNK;
+		d.u = 0;
+		break;
+	}
+	return d;
+}
+
+DEFUN struct dt_d_s
+dt_dadd_w(struct dt_d_s d, int n)
+{
+/* add N weeks to D */
+	switch (d.typ) {
+	case DT_DAISY:
+		d.daisy = __daisy_add_w(d.daisy, n);
+		break;
+
+	case DT_YMD:
+		d.ymd = __ymd_add_w(d.ymd, n);
+		break;
+
+	case DT_YMCW:
+		d.ymcw = __ymcw_add_w(d.ymcw, n);
+		break;
+
+	case DT_BIZDA:
+		d.bizda = __bizda_add_w(d.bizda, n);
+		break;
+
+	case DT_YWD:
+		d.ywd = __ywd_add_w(d.ywd, n);
+		break;
+
+	case DT_DUNK:
+	default:
+		d.typ = DT_DUNK;
+		d.u = 0;
+		break;
+	}
+	return d;
+}
+
+DEFUN struct dt_d_s
+dt_dadd_m(struct dt_d_s d, int n)
+{
+/* add N months to D */
+	switch (d.typ) {
+	case DT_DAISY:
+		/* daisy objects have no notion of months */
+		break;
+
+	case DT_YMD:
+		d.ymd = __ymd_add_m(d.ymd, n);
+		break;
+
+	case DT_YMCW:
+		d.ymcw = __ymcw_add_m(d.ymcw, n);
+		break;
+
+	case DT_BIZDA:
+		d.bizda = __bizda_add_m(d.bizda, n);
+		break;
+
+	case DT_YWD:
+		/* ywd have no notion of months */
+		break;
+
+	case DT_DUNK:
+	default:
+		d.typ = DT_DUNK;
+		d.u = 0;
+		break;
+	}
+	return d;
+}
+
+DEFUN struct dt_d_s
+dt_dadd_y(struct dt_d_s d, int n)
+{
+/* add N years to D */
+	switch (d.typ) {
+	case DT_DAISY:
+		/* daisy objects have no notion of years */
+		break;
+
+	case DT_YMD:
+		d.ymd = __ymd_add_y(d.ymd, n);
+		break;
+
+	case DT_YMCW:
+		d.ymcw = __ymcw_add_y(d.ymcw, n);
+		break;
+
+	case DT_BIZDA:
+		d.bizda = __bizda_add_y(d.bizda, n);
+		break;
+
+	case DT_YWD:
+		d.ywd = __ywd_add_y(d.ywd, n);
+		break;
+
+	case DT_DUNK:
+	default:
+		d.typ = DT_DUNK;
+		d.u = 0;
+		break;
+	}
+	return d;
+}
+
+DEFUN struct dt_d_s
+dt_dadd(struct dt_d_s d, struct dt_d_s dur)
+{
+	struct strpdi_s durcch = strpdi_initialiser();
+
+	__fill_strpdi(&durcch, dur);
+
+	if (durcch.d) {
+		d = dt_dadd_d(d, durcch.d);
+	} else if (durcch.b) {
+		d = dt_dadd_b(d, durcch.b);
+	}
+	if (durcch.w) {
+		d = dt_dadd_w(d, durcch.w);
+	}
+	if (durcch.m) {
+		d = dt_dadd_m(d, durcch.m);
+	}
+	if (durcch.y) {
+		d = dt_dadd_y(d, durcch.y);
 	}
 	return d;
 }

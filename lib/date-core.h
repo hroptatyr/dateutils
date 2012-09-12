@@ -376,11 +376,36 @@ DECLF int dt_get_quarter(struct dt_d_s d);
 DECLF unsigned int dt_get_yday(struct dt_d_s d);
 
 /**
- * Add duration DUR to date D.
- * The result will be in the calendar as specified by TGTTYP, or if
- * DT_DUNK is given, the calendar of D will be used. */
+ * Add duration DUR to date D. */
 DECLF struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_d_s dur);
+
+/**
+ * Add N (gregorian) days to date D. */
+DECLF struct dt_d_s
+dt_dadd_d(struct dt_d_s d, int n);
+
+/**
+ * Add N business days to date D. */
+DECLF struct dt_d_s
+dt_dadd_b(struct dt_d_s d, int n);
+
+/**
+ * Add N weeks to date D. */
+DECLF struct dt_d_s
+dt_dadd_w(struct dt_d_s d, int n);
+
+/**
+ * Add N months to date D.
+ * For calendars without the notion of months the result is D. */
+DECLF struct dt_d_s
+dt_dadd_m(struct dt_d_s d, int n);
+
+/**
+ * Add N years to date D.
+ * For calendars without the notion of years the result is D. */
+DECLF struct dt_d_s
+dt_dadd_y(struct dt_d_s d, int n);
 
 /**
  * Negate the duration. */
