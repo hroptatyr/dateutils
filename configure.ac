@@ -101,6 +101,8 @@ if test -n "${GDATE}" -a "${have_gdate}" = "yes"; then
 	fi
 	AC_MSG_RESULT([${have_gdate_2039}])
 fi
+AC_ARG_VAR([have_gdate], [yes if GDATE is of GNU flavour])
+AC_ARG_VAR([have_gdate_2039], [yes if GDATE can handle years beyond 2038])
 AM_CONDITIONAL([HAVE_GDATE], [test "${have_gdate}" = "yes"])
 AM_CONDITIONAL([HAVE_GDATE_2039], [test "${have_gdate_2039}" = "yes"])
 
