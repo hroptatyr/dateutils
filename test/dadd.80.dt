@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dadd
+CMDLINE="1921-W01-01 -1d -f ymd"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+1921-01-02
+EOF
+
+## dadd.80.dt ends here

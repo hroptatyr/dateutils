@@ -223,6 +223,14 @@ dt_tests += dadd.73.dt
 dt_tests += dadd.74.dt
 dt_tests += dadd.75.dt
 dt_tests += dadd.76.dt
+dt_tests += dadd.77.dt
+dt_tests += dadd.78.dt
+dt_tests += dadd.79.dt
+dt_tests += dadd.80.dt
+dt_tests += dadd.81.dt
+dt_tests += dadd.82.dt
+dt_tests += dadd.83.dt
+dt_tests += dadd.84.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
