@@ -571,6 +571,23 @@ __bizda_to_ywd(dt_bizda_t d, dt_bizda_param_t p)
 	return __make_ywd_ybd(d.y, yd);
 }
 
+static dt_ymcw_t
+__bizda_to_ymcw(dt_bizda_t d, dt_bizda_param_t UNUSED(p))
+{
+	unsigned int c = __bizda_get_count(d);
+	unsigned int w = __bizda_get_wday(d);
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
+#else
+	dt_ymcw_t res;
+	res.y = d.y;
+	res.m = d.m;
+	res.c = c;
+	res.w = w;
+	return res;
+#endif
+}
+
 static dt_daisy_t
 __bizda_to_daisy(dt_bizda_t d, dt_bizda_param_t p)
 {
