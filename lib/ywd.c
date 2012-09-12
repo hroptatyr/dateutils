@@ -419,13 +419,14 @@ __ywd_fixup(dt_ywd_t d)
 	}
 	return d;
 }
+
 #endif	/* !YWD_ASPECT_HELPERS_ */
 
 
 #if defined ASPECT_GETTERS && !defined YWD_ASPECT_GETTERS_
 #define YWD_ASPECT_GETTERS_
 static dt_ywd_t
-__make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
+__make_ywd_c(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 {
 /* build a 8601 compliant ywd object from year Y, week C and weekday W
  * where C conforms to week-count convention cc */
