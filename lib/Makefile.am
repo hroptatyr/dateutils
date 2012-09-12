@@ -53,6 +53,7 @@ EXTRA_libdut_a_SOURCES += date-core.c
 EXTRA_libdut_a_SOURCES += date-core-strpf.c
 EXTRA_libdut_a_SOURCES += time-core.c
 EXTRA_libdut_a_SOURCES += time-core-strpf.c
+EXTRA_libdut_a_SOURCES += yd.c
 EXTRA_libdut_a_SOURCES += ymd.c
 EXTRA_libdut_a_SOURCES += ymcw.c
 EXTRA_libdut_a_SOURCES += ywd.c
