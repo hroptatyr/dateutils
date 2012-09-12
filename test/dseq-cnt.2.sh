@@ -1,18 +1,26 @@
 #!/bin/sh
 
 BEG="1917-01-01"
-END="4095-01-01"
+if test "${have_gdate_2039}" = "yes"; then
+	END="4095-01-01"
+else
+	END="2038-01-01"
+fi
+
+if test "${have_gdate}" != "yes"; then
+	## SKIP in new automake
+	exit 77
+fi
 
 TOOLDIR="$(pwd)/../src"
 
 DSEQ="${TOOLDIR}/dseq"
-GDATE="date"
 
 foo=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 "${DSEQ}" "${BEG}" +1y "${END}" -f '%F	%a' > "${foo}"
-for y in `seq 1917 4095`; do
+for y in `seq ${BEG/-*/} ${END/-*/}`; do
 	"${GDATE}" -d "${y}-01-01" '+%F	%a'
 done > "${bar}"
 
