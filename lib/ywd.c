@@ -354,7 +354,7 @@ __get_z31wk(unsigned int y)
 }
 
 #elif defined GET_ISOWK_28Y_SWITCH
-static unsigned int
+static inline __attribute__((pure))  unsigned int
 __get_isowk(unsigned int y)
 {
 	switch (y % 28U) {
