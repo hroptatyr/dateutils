@@ -33,6 +33,7 @@ AM_CONVT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
+TESTS_ENVIRONMENT += have_gdate="$(have_gdate)"
 
 dt_tests += dseq.1.dt
 dt_tests += dseq.2.dt
@@ -558,10 +559,14 @@ bin_tests += basic_md_get_yday
 
 ## batch checks
 batch_tests += dseq-cnt.1.sh
+if HAVE_GDATE
+TESTS_ENVIRONMENT += have_gdate_2039="$(have_gdate_2039)"
 batch_tests += dseq-cnt.2.sh
 batch_tests += dseq-cnt.3.sh
 batch_tests += dconv-batch.1.sh
 batch_tests += dconv-batch.2.sh
+endif  HAVE_GDATE
+
 convt_tests += ymd-ymcw.convt
 convt_tests += ymd-ywd.convt
 convt_tests += ywd-ymd.convt
