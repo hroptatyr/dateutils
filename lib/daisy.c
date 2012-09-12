@@ -279,20 +279,6 @@ __daisy_add_w(dt_daisy_t d, int n)
 /* add N weeks to D */
 	return __daisy_add_d(d, GREG_DAYS_P_WEEK * n);
 }
-
-static dt_daisy_t
-__daisy_add_m(dt_daisy_t d, int UNUSED(n))
-{
-/* daisies have no notion of months, so do fuckall */
-	return d;
-}
-
-static dt_daisy_t
-__daisy_add_y(dt_daisy_t d, int UNUSED(n))
-{
-/* daisies have no notion of years, do fuckall */
-	return d;
-}
 #endif	/* ASPECT_ADD */
 
 

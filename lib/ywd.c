@@ -809,12 +809,6 @@ __ywd_add_b(dt_ywd_t d, int UNUSED(n))
 }
 
 static dt_ywd_t
-__ywd_add_m(dt_ywd_t d, int UNUSED(n))
-{
-	return d;
-}
-
-static dt_ywd_t
 __ywd_add_y(dt_ywd_t d, int n)
 {
 /* add N years to D */
