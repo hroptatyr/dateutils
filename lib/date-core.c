@@ -658,6 +658,9 @@ dt_conv_to_ymcw(struct dt_d_s that)
 static dt_bizda_t
 dt_conv_to_bizda(struct dt_d_s that)
 {
+/* the problem with this conversion is that not all dates can be mapped
+ * to a bizda date, so we need a policy first what to do in case things
+ * go massively pear-shaped. */
 	switch (that.typ) {
 	case DT_BIZDA:
 		return that.bizda;
