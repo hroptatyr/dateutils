@@ -658,6 +658,9 @@ dt_conv_to_ymcw(struct dt_d_s that)
 static dt_bizda_t
 dt_conv_to_bizda(struct dt_d_s that)
 {
+/* the problem with this conversion is that not all dates can be mapped
+ * to a bizda date, so we need a policy first what to do in case things
+ * go massively pear-shaped. */
 	switch (that.typ) {
 	case DT_BIZDA:
 		return that.bizda;
@@ -688,6 +691,7 @@ dt_conv_to_ywd(struct dt_d_s this)
 	case DT_DAISY:
 		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
+		return __bizda_to_ywd(this.bizda, __get_bizda_param(this));
 	case DT_DUNK:
 	default:
 		break;
@@ -843,7 +847,7 @@ __guess_dtyp(struct strpd_s d)
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y && d.m == 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
-		res.ywd = __make_ywd(d.y, d.c, d.w, d.flags.wk_cnt);
+		res.ywd = __make_ywd_c(d.y, d.c, d.w, d.flags.wk_cnt);
 	} else if (d.y && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;

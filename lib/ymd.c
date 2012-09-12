@@ -332,7 +332,7 @@ __ymd_to_ywd(dt_ymd_t d)
 {
 	unsigned int w = __ymd_get_wday(d);
 	unsigned int c = __ymd_get_wcnt_abs(d);
-	return __make_ywd(d.y, c, w, YWD_ABSWK_CNT);
+	return __make_ywd_c(d.y, c, w, YWD_ABSWK_CNT);
 }
 
 static dt_daisy_t

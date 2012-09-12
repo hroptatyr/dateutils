@@ -558,6 +558,14 @@ __bizda_to_ymd(dt_bizda_t d)
 	return res;
 #endif	/* HAVE_ANON_STRUCTS_INIT */
 }
+
+static dt_ywd_t
+__bizda_to_ywd(dt_bizda_t d, dt_bizda_param_t p)
+{
+	unsigned int yd = __bizda_get_yday(d, p);
+
+	return __make_ywd_ybd(d.y, yd);
+}
 #endif	/* ASPECT_CONV */
 
 

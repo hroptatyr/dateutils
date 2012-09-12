@@ -1,0 +1,31 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="-f ywd"
+COMMENT="easy to check conversion bizda->ywd"
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+1917-01-01b
+1917-02-06b
+1917-03-13b
+1917-12-21b
+1918-01-01b
+1918-12-21b
+1918-12-22b
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+1917-W01-01
+1917-W06-04
+1917-W12-01
+1918-W01-01
+1918-W01-02
+1919-W01-01
+1919-W01-02
+EOF
+
+## dconv.90.dt ends here
