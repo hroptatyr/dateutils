@@ -578,35 +578,6 @@ __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 #endif	/* 1 */
 }
 
-static dt_dow_t
-__get_m01_wday(unsigned int year, unsigned int mon)
-{
-/* get the weekday of the first of MONTH in YEAR */
-	unsigned int off;
-	dt_dow_t cand;
-
-	if (UNLIKELY(mon < 1 && mon > GREG_MONTHS_P_YEAR)) {
-		return DT_MIRACLEDAY;
-	}
-	cand = __get_jan01_wday(year);
-	off = __md_get_yday(year, mon, 0);
-	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
-}
-
-DEFUN __attribute__((pure)) inline unsigned int
-__get_mdays(unsigned int y, unsigned int m)
-{
-/* get the number of days in Y-M */
-	unsigned int res;
-
-	if (UNLIKELY(m < 1 || m > GREG_MONTHS_P_YEAR)) {
-		return 0;
-	}
-
-	/* use our cumulative yday array */
-	res = __md_get_yday(y, m + 1, 0);
-	return res - __md_get_yday(y, m, 0);
-}
 
 static __attribute__((pure)) unsigned int
 __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
