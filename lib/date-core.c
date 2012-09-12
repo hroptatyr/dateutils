@@ -688,6 +688,7 @@ dt_conv_to_ywd(struct dt_d_s this)
 	case DT_DAISY:
 		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
+		return __bizda_to_ywd(this.bizda, __get_bizda_param(this));
 	case DT_DUNK:
 	default:
 		break;

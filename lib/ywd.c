@@ -498,6 +498,52 @@ __make_ywd(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 #endif	/* WITH_FAST_ARITH */
 }
 
+static dt_ywd_t
+__make_ywd_ybd(unsigned int y, int yd)
+{
+/* build a 8601 compliant ywd object from year Y and year-business-day YD */
+	dt_ywd_t res = {0};
+	dt_dow_t j01;
+	unsigned int c;
+	unsigned int nwk;
+	int w;
+	int hang;
+
+	/* this one's special as it needs the hang helper slot */
+	j01 = __get_jan01_wday(y);
+	hang = __ywd_get_jan01_hang(j01);
+
+	/* compute weekday, decompose yd into 7p + q */
+	c = (yd - 1) / (signed int)DUWW_BDAYS_P_WEEK;
+	w = (yd - 1) % (signed int)DUWW_BDAYS_P_WEEK;
+	if ((w += j01) > (signed int)DUWW_BDAYS_P_WEEK) {
+		w -= DUWW_BDAYS_P_WEEK;
+		c++;
+	} else if (w < (signed int)DT_MONDAY) {
+		w += DUWW_BDAYS_P_WEEK;
+		c--;
+	}
+
+	/* fixup c (and y) */
+	c++;
+	if (LIKELY(c >= 1 && c <= 52)) {
+		/* all years support this */
+		;
+	} else if (UNLIKELY(c < 1)) {
+		c += __get_isowk(--y);
+	} else if (UNLIKELY(c > (nwk = __get_isowk(y)))) {
+		c -= nwk;
+		y++;
+	}
+
+	/* assign and fuck off */
+	res.y = y;
+	res.c = c;
+	res.w = w;
+	res.hang = hang;
+	return res;
+}
+
 static unsigned int
 __ywd_get_yday(dt_ywd_t d)
 {
@@ -701,7 +747,7 @@ __ywd_fixup_w(unsigned int y, signed int w, dt_dow_t d)
 		}
 	}
 
-	/* final assignment */
+	/* final assignment, what about the hang? */
 	res.y = y;
 	res.c = w;
 	res.w = d;
