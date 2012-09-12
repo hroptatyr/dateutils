@@ -222,6 +222,15 @@ __ymd_get_wcnt_abs(dt_ymd_t d)
 	return (yd - 1) / 7 + 1;
 }
 
+static inline __attribute__((pure)) int
+__get_isowk_wd(unsigned int yd, dt_dow_t f01)
+{
+/* given the weekday the year starts with, F01, and the year-day YD
+ * return the iso week number */
+	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3, 2};
+	return (yd - iso[f01]) / GREG_DAYS_P_WEEK + 1;
+}
+
 DEFUN int
 __ymd_get_wcnt_iso(dt_ymd_t d)
 {
@@ -231,15 +240,13 @@ __ymd_get_wcnt_iso(dt_ymd_t d)
  * a year starting on M is the first week
  * a year starting on T ... */
 	/* iso weeks always start on Mon */
-	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3};
 	int yd = __ymd_get_yday(d);
 	unsigned int y = d.y;
-	dt_dow_t y01dow = __get_jan01_wday(y);
-	unsigned int y01 = (unsigned int)y01dow;
+	unsigned int y01 = __get_jan01_wday(y);
 	int wk;
 
 	/* express yd as 7k + n relative to jan01 */
-	if (UNLIKELY((wk = (yd - iso[y01] + 7) / 7) < 1)) {
+	if (UNLIKELY((wk = __get_isowk_wd(yd, (dt_dow_t)y01)) < 1)) {
 		/* get last years y01
 		 * which is basically y01 - (365|366 % 7) */
 		if (LIKELY(!__leapp(--y))) {
@@ -251,11 +258,11 @@ __ymd_get_wcnt_iso(dt_ymd_t d)
 			y01 += 5;
 			yd += 366;
 		}
-		if (y01 >= DT_MIRACLEDAY) {
-			y01 -= 7;
+		if (y01 >= GREG_DAYS_P_WEEK) {
+			y01 -= GREG_DAYS_P_WEEK;
 		}
 		/* same computation now */
-		wk = (yd - iso[y01] + 7) / 7;
+		wk = __get_isowk_wd(yd, (dt_dow_t)y01);
 	}
 	if (UNLIKELY(wk == 53)) {
 		/* check next year's y01 */
