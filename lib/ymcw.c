@@ -40,6 +40,29 @@
 #if !defined YMCW_ASPECT_HELPERS_
 #define YMCW_ASPECT_HELPERS_
 
+static __attribute__((pure)) unsigned int
+__get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
+{
+/* get the number of weekdays W in Y-M, which is the max count
+ * for a weekday W in ymcw dates in year Y and month M */
+	dt_dow_t wd01 = __get_m01_wday(y, m);
+	unsigned int md = __get_mdays(y, m);
+	/* the maximum number of WD01s in Y-M */
+	unsigned int wd01cnt = (md - 1) / GREG_DAYS_P_WEEK + 1;
+	/* modulus */
+	unsigned int wd01mod = (md - 1) % GREG_DAYS_P_WEEK;
+
+	/* now the next WD01MOD days also have WD01CNT occurrences
+	 * if wd01 + wd01mod exceeds the DAYS_PER_WEEK barrier wrap
+	 * around by extending W to W + DAYS_PER_WEEK */
+	if ((w >= wd01 && w <= wd01 + wd01mod) ||
+	    (w + GREG_DAYS_P_WEEK) <= wd01 + wd01mod) {
+		return wd01cnt;
+	} else {
+		return wd01cnt - 1;
+	}
+}
+
 static dt_ymcw_t
 __ymcw_fixup(dt_ymcw_t d)
 {
@@ -272,7 +295,7 @@ __ymcw_to_ywd(dt_ymcw_t d)
 	unsigned int y = d.y;
 	unsigned int w = d.w;
 	unsigned int c = __ymcw_get_yday(d);
-	return __make_ywd(y, c, w, YWD_ABSWK_CNT);
+	return __make_ywd_c(y, c, w, YWD_ABSWK_CNT);
 }
 
 static dt_daisy_t

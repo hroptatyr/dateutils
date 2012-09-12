@@ -55,6 +55,21 @@
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
+DEFUN __attribute__((pure)) inline unsigned int
+__get_mdays(unsigned int y, unsigned int m)
+{
+/* get the number of days in Y-M */
+	unsigned int res;
+
+	if (UNLIKELY(m < 1 || m > GREG_MONTHS_P_YEAR)) {
+		return 0;
+	}
+
+	/* use our cumulative yday array */
+	res = __md_get_yday(y, m + 1, 0);
+	return res - __md_get_yday(y, m, 0);
+}
+
 static __attribute__((pure)) dt_ymd_t
 __ymd_fixup(dt_ymd_t d)
 {
@@ -70,6 +85,21 @@ __ymd_fixup(dt_ymd_t d)
 		d.d = mdays;
 	}
 	return d;
+}
+
+static dt_dow_t
+__get_m01_wday(unsigned int year, unsigned int mon)
+{
+/* get the weekday of the first of MONTH in YEAR */
+	unsigned int off;
+	dt_dow_t cand;
+
+	if (UNLIKELY(mon < 1 && mon > GREG_MONTHS_P_YEAR)) {
+		return DT_MIRACLEDAY;
+	}
+	cand = __get_jan01_wday(year);
+	off = __md_get_yday(year, mon, 0);
+	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
 /* try to get helpers like __get_d_equiv() et al */
@@ -302,7 +332,7 @@ __ymd_to_ywd(dt_ymd_t d)
 {
 	unsigned int w = __ymd_get_wday(d);
 	unsigned int c = __ymd_get_wcnt_abs(d);
-	return __make_ywd(d.y, c, w, YWD_ABSWK_CNT);
+	return __make_ywd_c(d.y, c, w, YWD_ABSWK_CNT);
 }
 
 static dt_daisy_t
