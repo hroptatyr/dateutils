@@ -197,6 +197,139 @@ __bizda_fixup(dt_bizda_t d)
 	}
 	return d;
 }
+
+static int
+__get_nwedays(int dur, dt_dow_t wd)
+{
+/* get the number of weekend days in a sequence of DUR days ending on WD
+ * The minimum number of weekend days is simply 2 for every 7 days
+ * to get the exact number observe the following:
+ *
+ * The number of remaining weekend days depends on the remaining number
+ * of days and the DOW of the end point.
+ *
+ * here's the matrix, mod7 down, WD right:
+ *    S M T W R F A
+ * 0  0 0 0 0 0 0 0
+ * 1  1 0 0 0 0 0 1
+ * 2  2 1 0 0 0 0 1
+ * 3  2 2 1 0 0 0 1
+ * 4  2 2 2 1 0 0 1
+ * 5  2 2 2 2 1 0 1
+ * 6  2 2 2 2 2 1 1
+ *
+ * That means
+ * (mod7 == 0) -> 0
+ * (WD == SAT) -> 1
+ * (mod7 > WD + 1) -> 2
+ * (mod7 > WD) -> 1
+ *
+ * and that's all the magic behind the following code
+ *
+ * Note: If the number of weekend days in a sequence of DUR days starting on WD
+ * (or, equivalently, -DUR days ending on WD before the start day) is sought
+ * after, just use -DUR as input.
+ *
+ * Here's the table for the converse:
+ *    S M T W R F A
+ * 0  0 0 0 0 0 0 0
+ * 1  1 0 0 0 0 1 2
+ * 2  1 0 0 0 1 2 2
+ * 3  1 0 0 1 2 2 2
+ * 4  1 0 1 2 2 2 2
+ * 5  1 1 2 2 2 2 2
+ * 6  1 2 2 2 2 2 2
+ *
+ * mod7 == 0 -> 0
+ * wd == SUN -> 1
+ * (mod7 + wd >= 7) -> 2
+ * (mod7 + wd >= 6) -> 1  */
+	int nss = (dur / (signed)GREG_DAYS_P_WEEK) * 2;
+	int mod = (dur % (signed)GREG_DAYS_P_WEEK);
+
+	if (mod == 0) {
+		return nss;
+	} else if (UNLIKELY(wd == DT_SATURDAY && dur > 0)) {
+		return nss + 1;
+	} else if (UNLIKELY(wd == DT_SATURDAY && dur < 0)) {
+		return nss - 1;
+	} else if (mod > (int)wd + 1) {
+		return nss + 2;
+	} else if (mod > (int)wd) {
+		return nss + 1;
+	} else if (mod + 7 <= (int)wd) {
+		return nss - 2;
+	} else if (mod + 6 <= (int)wd) {
+		return nss - 1;
+	}
+	return nss;
+}
+
+static int
+__get_nbdays(int dur, dt_dow_t wd)
+{
+/* get the number of business days in a sequence of DUR days ending on WD
+ * which is simply the number of days minus the number of weekend-days */
+	if (dur) {
+		return dur - __get_nwedays(dur, wd);
+	}
+	return 0;
+}
+
+DEFUN unsigned int
+__get_bdays(unsigned int y, unsigned int m)
+{
+/* the 28th exists in every month, and it's exactly 20 bdays
+ * away from the first, oh and it's -1 mod 7
+ * then to get the number of bdays remaining in the month
+ * from the number of days remaining in the month R
+ * we use a multiplication table, downwards the weekday of the
+ * 28th, rightwards the days in excess of the 28th
+ * Miracleday is only there to make the left hand side of the
+ * multiplication 3 bits wide:
+ *
+ * r->  0  1  2  3
+ * Sun  0  1  2  3
+ * Mon  0  1  2  3
+ * Tue  0  1  2  3
+ * Wed  0  1  2  2
+ * Thu  0  1  1  1
+ * Fri  0  0  0  1
+ * Sat  0  0  1  2
+ * Mir  0  0  0  0
+ */
+	unsigned int md = __get_mdays(y, m);
+	unsigned int rd = (unsigned int)(md - 28U);
+	dt_dow_t m01wd;
+	unsigned int m28wd;
+
+	/* rd should not overflow */
+	assert((signed int)md - 28 >= 0);
+
+	/* wday of the 1st and 28th */
+	m01wd = __get_m01_wday(y, m);
+	m28wd = __uimod((signed int)m01wd - 1, GREG_DAYS_P_WEEK);
+	if (LIKELY(rd > 0)) {
+		switch ((dt_dow_t)m28wd) {
+		case DT_SUNDAY:
+		case DT_MONDAY:
+		case DT_TUESDAY:
+			return 20 + rd;
+		case DT_WEDNESDAY:
+			return 20 + rd - (rd == 3);
+		case DT_THURSDAY:
+			return 21;
+		case DT_FRIDAY:
+			return 20 + (rd == 3);
+		case DT_SATURDAY:
+			return 20 + rd - 1;
+		case DT_MIRACLEDAY:
+		default:
+			abort();
+		}
+	}
+	return 20U;
+}
 #endif	/* BIZDA_ASPECT_HELPERS_ */
 
 
