@@ -727,6 +727,7 @@ static dt_ywd_t
 __ywd_fixup_w(unsigned int y, signed int w, dt_dow_t d)
 {
 	dt_ywd_t res = {0};
+	int new_hang_p = 0;
 
 	/* fixup q */
 	if (LIKELY(w >= 1 && w <= 52)) {
@@ -739,13 +740,22 @@ __ywd_fixup_w(unsigned int y, signed int w, dt_dow_t d)
 			nw = __get_isowk(--y);
 			w += nw;
 		} while (w < 1);
+		new_hang_p = 1;
+
 	} else {
 		int nw;
 
 		while (w > (nw = __get_isowk(y))) {
 			w -= nw;
 			y++;
+			new_hang_p = 1;
 		}
+	}
+
+	if (new_hang_p) {
+		/* recompute hang */
+		dt_dow_t j01 = __get_jan01_wday(y);
+		res.hang = __ywd_get_jan01_hang(j01);
 	}
 
 	/* final assignment, what about the hang? */
@@ -808,7 +818,12 @@ static dt_ywd_t
 __ywd_add_y(dt_ywd_t d, int n)
 {
 /* add N years to D */
-	d.y += n;
+	dt_dow_t j01;
+
+	d.y = d.y + n;
+	/* recompute hang */
+	j01 = __get_jan01_wday(d.y);
+	d.hang = __ywd_get_jan01_hang(j01);
 	return __ywd_fixup(d);
 }
 #endif	/* ASPECT_ADD */
