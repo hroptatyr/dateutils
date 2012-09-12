@@ -20,7 +20,7 @@ foo=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 "${DSEQ}" "${BEG}" +1y "${END}" -f '%F	%a' > "${foo}"
-for y in `seq ${BEG/*-/} ${END/*-/}`; do
+for y in `seq ${BEG/-*/} ${END/-*/}`; do
 	"${GDATE}" -d "${y}-12-31" '+%F	%a'
 done > "${bar}"
 
