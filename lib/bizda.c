@@ -49,6 +49,8 @@
 static int
 __get_d_equiv(dt_dow_t dow, int b)
 {
+/* return the number of gregorian days B business days away from now,
+ * where the first day is on a DOW. */
 	int res = 0;
 
 	switch (dow) {
@@ -110,6 +112,8 @@ __get_d_equiv(dt_dow_t dow, int b)
 static int
 __get_b_equiv(dt_dow_t dow, int d)
 {
+/* return the number of business days D gregorian days away from now,
+ * where the first day is on a DOW. */
 	int res = 0;
 
 	switch (dow) {
@@ -565,6 +569,37 @@ __bizda_to_ywd(dt_bizda_t d, dt_bizda_param_t p)
 	unsigned int yd = __bizda_get_yday(d, p);
 
 	return __make_ywd_ybd(d.y, yd);
+}
+
+static dt_ymcw_t
+__bizda_to_ymcw(dt_bizda_t d, dt_bizda_param_t UNUSED(p))
+{
+	unsigned int c = __bizda_get_count(d);
+	unsigned int w = __bizda_get_wday(d);
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
+#else
+	dt_ymcw_t res;
+	res.y = d.y;
+	res.m = d.m;
+	res.c = c;
+	res.w = w;
+	return res;
+#endif
+}
+
+static dt_daisy_t
+__bizda_to_daisy(dt_bizda_t d, dt_bizda_param_t p)
+{
+	dt_daisy_t res;
+	unsigned int ybd;
+	unsigned int wd;
+
+	res = __jan00_daisy(d.y);
+	wd = __daisy_get_wday(res);
+	ybd = __bizda_get_yday(d, p);
+	res += __get_d_equiv((dt_dow_t)wd, ybd);
+	return res;
 }
 #endif	/* ASPECT_CONV */
 
