@@ -49,6 +49,8 @@
 static int
 __get_d_equiv(dt_dow_t dow, int b)
 {
+/* return the number of gregorian days B business days away from now,
+ * where the first day is on a DOW. */
 	int res = 0;
 
 	switch (dow) {
@@ -110,6 +112,8 @@ __get_d_equiv(dt_dow_t dow, int b)
 static int
 __get_b_equiv(dt_dow_t dow, int d)
 {
+/* return the number of business days D gregorian days away from now,
+ * where the first day is on a DOW. */
 	int res = 0;
 
 	switch (dow) {
