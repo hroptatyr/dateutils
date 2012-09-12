@@ -604,6 +604,7 @@ dt_conv_to_daisy(struct dt_d_s that)
 	case DT_YMCW:
 		return __ymcw_to_daisy(that.ymcw);
 	case DT_YWD:
+		return __ywd_to_daisy(that.ywd);
 	case DT_BIZDA:
 	case DT_DUNK:
 	default:
