@@ -15,7 +15,6 @@ fi
 TOOLDIR="$(pwd)/../src"
 
 DSEQ="${TOOLDIR}/dseq"
-GDATE="date"
 
 foo=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`
