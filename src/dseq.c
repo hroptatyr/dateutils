@@ -157,8 +157,12 @@ __parse_wd(const char *str)
 }
 
 static __skipspec_t
-__skip_dow(__skipspec_t ss, dt_dow_t wd)
+__skip_dow(__skipspec_t ss, unsigned int wd)
 {
+	if (wd > GREG_DAYS_P_WEEK) {
+		wd -= GREG_DAYS_P_WEEK;
+	}
+
 	switch (wd) {
 	case DT_MONDAY:
 		/* monday */
@@ -229,7 +233,7 @@ __skip_1spec(__skipspec_t ss, char *spec)
 	from = __parse_wd(spec);
 	till = __parse_wd(tmp + 1);
 	for (int d = from, e = till >= from ? till : till + 7; d <= e; d++) {
-		ss = __skip_dow(ss, (dt_dow_t)(d % 7));
+		ss = __skip_dow(ss, d);
 	}
 	return ss;
 }
