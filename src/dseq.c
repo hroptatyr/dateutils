@@ -103,13 +103,13 @@ skipp(__skipspec_t ss, struct dt_dt_s dt)
 	return (ss & (1 << dow)) != 0;
 }
 
-#define SKIP_MON	(2)
-#define SKIP_TUE	(4)
-#define SKIP_WED	(8)
-#define SKIP_THU	(16)
-#define SKIP_FRI	(32)
-#define SKIP_SAT	(64)
-#define SKIP_SUN	(1)
+#define SKIP_MON	(1 << DT_MONDAY)
+#define SKIP_TUE	(1 << DT_TUESDAY)
+#define SKIP_WED	(1 << DT_WEDNESDAY)
+#define SKIP_THU	(1 << DT_THURSDAY)
+#define SKIP_FRI	(1 << DT_FRIDAY)
+#define SKIP_SAT	(1 << DT_SATURDAY)
+#define SKIP_SUN	(1 << DT_SUNDAY)
 
 static inline int
 __toupper(int c)
@@ -157,8 +157,12 @@ __parse_wd(const char *str)
 }
 
 static __skipspec_t
-__skip_dow(__skipspec_t ss, dt_dow_t wd)
+__skip_dow(__skipspec_t ss, unsigned int wd)
 {
+	if (wd > GREG_DAYS_P_WEEK) {
+		wd -= GREG_DAYS_P_WEEK;
+	}
+
 	switch (wd) {
 	case DT_MONDAY:
 		/* monday */
@@ -200,7 +204,7 @@ __skip_str(__skipspec_t ss, const char *str)
 {
 	dt_dow_t tmp;
 
-	if ((tmp = __parse_wd(str)) < DT_MIRACLEDAY) {
+	if ((tmp = __parse_wd(str)) != DT_MIRACLEDAY) {
 		ss = __skip_dow(ss, tmp);
 	} else {
 		int s1 = __toupper(str[0]);
@@ -229,7 +233,7 @@ __skip_1spec(__skipspec_t ss, char *spec)
 	from = __parse_wd(spec);
 	till = __parse_wd(tmp + 1);
 	for (int d = from, e = till >= from ? till : till + 7; d <= e; d++) {
-		ss = __skip_dow(ss, (dt_dow_t)(d % 7));
+		ss = __skip_dow(ss, d);
 	}
 	return ss;
 }

@@ -1,12 +1,20 @@
 #!/bin/sh
 
 BEG="1917"
-END="4095"
+if test "${have_gdate_2039}" = "yes"; then
+	END="4095"
+else
+	END="2038"
+fi
+
+if test "${have_gdate}" != "yes"; then
+	## SKIP in new automake
+	exit 77
+fi
 
 TOOLDIR="$(pwd)/../src"
 
 DCONV="${TOOLDIR}/dconv"
-GDATE="date"
 
 foo=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`

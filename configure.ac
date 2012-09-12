@@ -79,6 +79,34 @@ if test -n "${GPERF}"; then
 fi
 
 
+AC_PATH_PROG([GDATE], [date])
+AC_ARG_VAR([GDATE], [full path to the date tool])
+if test -n "${GDATE}"; then
+	## try and use -d
+	AC_MSG_CHECKING([if date is of GNU flavour])
+	if "${GDATE}" -d "2012-01-01" >/dev/null 2>/dev/null; then
+		have_gdate="yes"
+	else
+		have_gdate="no"
+	fi
+	AC_MSG_RESULT([${have_gdate}])
+fi
+if test -n "${GDATE}" -a "${have_gdate}" = "yes"; then
+	## try and use -d with a big year
+	AC_MSG_CHECKING([if date is immune to year 2038 problem])
+	if "${GDATE}" -d "4095-01-01" >/dev/null 2>/dev/null; then
+		have_gdate_2039="yes"
+	else
+		have_gdate_2039="no"
+	fi
+	AC_MSG_RESULT([${have_gdate_2039}])
+fi
+AC_ARG_VAR([have_gdate], [yes if GDATE is of GNU flavour])
+AC_ARG_VAR([have_gdate_2039], [yes if GDATE can handle years beyond 2038])
+AM_CONDITIONAL([HAVE_GDATE], [test "${have_gdate}" = "yes"])
+AM_CONDITIONAL([HAVE_GDATE_2039], [test "${have_gdate_2039}" = "yes"])
+
+
 AC_ARG_ENABLE([fast-arith],
 	[AS_HELP_STRING([--enable-fast-arith], [
 Whether to enable fast date handling and arithmetic routines at the cost
