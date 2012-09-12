@@ -14,6 +14,7 @@ EXTRA_DIST += $(dt_tests) $(DT_LOG_COMPILER)
 EXTRA_DIST += $(convt_tests) $(CONVT_LOG_COMPILER)
 EXTRA_DIST += $(batch_tests)
 TESTS = $(bin_tests) $(dt_tests) $(convt_tests) $(batch_tests)
+TESTS_ENVIRONMENT =
 TEST_EXTENSIONS =
 dt_tests =
 bin_tests =
@@ -29,6 +30,9 @@ AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
 TEST_EXTENSIONS += .convt
 CONVT_LOG_COMPILER = $(srcdir)/dconv-test.sh
 AM_CONVT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
+
+TESTS_ENVIRONMENT += GPERF=$(GPERF)
+TESTS_ENVIRONMENT += GDATE=$(GDATE)
 
 dt_tests += dseq.1.dt
 dt_tests += dseq.2.dt
