@@ -139,6 +139,8 @@ dt_tests += dconv.87.dt
 dt_tests += dconv.88.dt
 dt_tests += dconv.89.dt
 dt_tests += dconv.90.dt
+dt_tests += dconv.91.dt
+dt_tests += dconv.92.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
