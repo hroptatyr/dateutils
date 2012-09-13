@@ -83,7 +83,7 @@ __strpdt_std(const char *str, char **ep)
 		goto out;
 	}
 	/* read the year */
-	if ((d.sd.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
+	if ((d.sd.y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) < 0 ||
 	    *sp++ != '-') {
 		sp = str;
 		goto try_time;
@@ -91,7 +91,7 @@ __strpdt_std(const char *str, char **ep)
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		if ((sp++, d.sd.c = strtoui_lim(sp, &sp, 0, 53)) == -1U ||
+		if ((sp++, d.sd.c = strtoi_lim(sp, &sp, 0, 53)) < 0 ||
 		    *sp++ != '-') {
 			goto try_time;
 		}
@@ -100,13 +100,13 @@ __strpdt_std(const char *str, char **ep)
 		goto dow;
 	}
 	/* read the month */
-	if ((d.sd.m = strtoui_lim(sp, &sp, 0, 12)) == -1U ||
+	if ((d.sd.m = strtoi_lim(sp, &sp, 0, 12)) < 0 ||
 	    *sp++ != '-') {
 		sp = str;
 		goto out;
 	}
 	/* read the day or the count */
-	if ((d.sd.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+	if ((d.sd.d = strtoi_lim(sp, &sp, 0, 31)) < 0) {
 		/* didn't work, fuck off */
 		sp = str;
 		goto out;
@@ -121,7 +121,7 @@ __strpdt_std(const char *str, char **ep)
 		}
 		d.sd.d = 0;
 	dow:
-		if ((d.sd.w = strtoui_lim(++sp, &sp, 0, 7)) == -1U) {
+		if ((d.sd.w = strtoi_lim(++sp, &sp, 0, 7)) < 0) {
 			/* didn't work, fuck off */
 			sp = str;
 			goto out;
@@ -162,21 +162,21 @@ __strpdt_std(const char *str, char **ep)
 	}
 try_time:
 	/* and now parse the time */
-	if ((d.st.h = strtoui_lim(sp, &sp, 0, 23)) == -1U) {
+	if ((d.st.h = strtoi_lim(sp, &sp, 0, 23)) < 0) {
 		sp = str;
 		goto out;
 	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.m = strtoui_lim(++sp, &sp, 0, 59)) == -1U) {
+	} else if ((d.st.m = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
 		d.st.m = 0;
 		goto eval_time;
 	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.s = strtoui_lim(++sp, &sp, 0, 60)) == -1U) {
+	} else if ((d.st.s = strtoi_lim(++sp, &sp, 0, 60)) < 0) {
 		d.st.s = 0;
 	} else if (*sp != '.') {
 		goto eval_time;
-	} else if ((d.st.ns = strtoui_lim(++sp, &sp, 0, 999999999)) == -1U) {
+	} else if ((d.st.ns = strtoi_lim(++sp, &sp, 0, 999999999)) < 0) {
 		d.st.ns = 0;
 		goto eval_time;
 	}

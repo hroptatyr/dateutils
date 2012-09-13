@@ -71,16 +71,16 @@ __guess_ttyp(struct strpt_s t)
 	if (UNLIKELY(!t.component_set)) {
 		goto fucked;
 	}
-	if (UNLIKELY(t.h == -1U)) {
+	if (UNLIKELY(t.h < 0)) {
 		goto fucked;
 	}
-	if (UNLIKELY(t.m == -1U)) {
+	if (UNLIKELY(t.m < 0)) {
 		goto fucked;
 	}
-	if (UNLIKELY(t.s == -1U)) {
+	if (UNLIKELY(t.s < 0)) {
 		goto fucked;
 	}
-	if (UNLIKELY(t.ns == -1U)) {
+	if (UNLIKELY(t.ns < 0)) {
 		goto fucked;
 	}
 

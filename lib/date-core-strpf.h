@@ -60,14 +60,14 @@ extern "C" {
 #endif	/* !DEFVAR */
 
 struct strpd_s {
-	unsigned int y;
-	unsigned int m;
+	signed int y;
+	signed int m;
 	union {
-		unsigned int d;
+		signed int d;
 		signed int sd;
 	};
-	unsigned int c;
-	unsigned int w;
+	signed int c;
+	signed int w;
 	/* general flags */
 	struct {
 		unsigned int ab:1;
@@ -77,8 +77,8 @@ struct strpd_s {
 		unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
 		unsigned int real_y_in_q:1;
 	} flags;
-	unsigned int b;
-	unsigned int q;
+	signed int b;
+	signed int q;
 };
 
 struct strpdi_s {
@@ -110,37 +110,37 @@ strpdi_initialiser(void)
  * Long weekday names, english only.
  * Monday, Tuesday, ... */
 DECLV const char **dut_long_wday;
-DECLV const size_t dut_nlong_wday;
+DECLV const ssize_t dut_nlong_wday;
 
 /**
  * Abbrev'd weekday names, english only.
  * Mon, Tue, ... */
 DECLV const char **dut_abbr_wday;
-DECLV const size_t dut_nabbr_wday;
+DECLV const ssize_t dut_nabbr_wday;
 
 /**
  * Even-more-abbrev'd weekday names, english only.
  * M, T, W, ... */
 DECLV const char *dut_abab_wday;
-DECLV const size_t dut_nabab_wday;
+DECLV const ssize_t dut_nabab_wday;
 
 /**
  * Long month names, english only.
  * January, February, ... */
 DECLV const char **dut_long_mon;
-DECLV const size_t dut_nlong_mon;
+DECLV const ssize_t dut_nlong_mon;
 
 /**
  * Abbrev'd month names, english only.
  * Jan, Feb, ... */
 DECLV const char **dut_abbr_mon;
-DECLV const size_t dut_nabbr_mon;
+DECLV const ssize_t dut_nabbr_mon;
 
 /**
  * Even-more-abbrev'd month names.
  * F, G, H, ... */
 DECLV const char *dut_abab_mon;
-DECLV const size_t dut_nabab_mon;
+DECLV const ssize_t dut_nabab_mon;
 
 #if defined INCLUDED_date_core_h_
 /**

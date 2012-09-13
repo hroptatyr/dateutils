@@ -96,70 +96,6 @@ static uint16_t __mon_yday[] = {
 };
 #endif
 
-static const char *__long_wday[] = {
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-	"Miracleday",
-};
-DEFVAR const char **dut_long_wday = __long_wday;
-DEFVAR const size_t dut_nlong_wday = countof(__long_wday);
-
-static const char *__abbr_wday[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
-};
-DEFVAR const char **dut_abbr_wday = __abbr_wday;
-DEFVAR const size_t dut_nabbr_wday = countof(__abbr_wday);
-
-static const char __abab_wday[] = "SMTWRFAX";
-DEFVAR const char *dut_abab_wday = __abab_wday;
-DEFVAR const size_t dut_nabab_wday = countof(__abab_wday);
-
-static const char *__long_mon[] = {
-	"Miraculary",
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December",
-};
-DEFVAR const char **dut_long_mon = __long_mon;
-DEFVAR const size_t dut_nlong_mon = countof(__long_mon);
-
-static const char *__abbr_mon[] = {
-	"Mir",
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec",
-};
-DEFVAR const char **dut_abbr_mon = __abbr_mon;
-DEFVAR const size_t dut_nabbr_mon = countof(__abbr_mon);
-
-/* futures expiry codes, how convenient */
-static const char __abab_mon[] = "_FGHJKMNQUVXZ";
-DEFVAR const char *dut_abab_mon = __abab_mon;
-DEFVAR const size_t dut_nabab_mon = countof(__abab_mon);
-
 /* bizda definitions, reference dates */
 static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 
@@ -813,20 +749,7 @@ __guess_dtyp(struct strpd_s d)
 {
 	struct dt_d_s res = dt_d_initialiser();
 
-	if (UNLIKELY(d.y == -1U)) {
-		d.y = 0;
-	}
-	if (UNLIKELY(d.m == -1U)) {
-		d.m = 0;
-	}
-	if (UNLIKELY(d.d == -1U)) {
-		d.d = 0;
-	}
-	if (UNLIKELY(d.c == -1U)) {
-		d.c = 0;
-	}
-
-	if (LIKELY(d.y && d.c == 0 && !d.flags.c_wcnt_p && !d.flags.bizda)) {
+	if (LIKELY(d.y > 0 && d.c <= 0 && !d.flags.c_wcnt_p && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
@@ -835,9 +758,10 @@ __guess_dtyp(struct strpd_s d)
 #if defined WITH_FAST_ARITH
 			res.ymd.d = d.d;
 #else  /* !WITH_FAST_ARITH */
+			unsigned int md = __get_mdays(d.y, d.m);
 			/* check for illegal dates, like 31st of April */
-			if ((res.ymd.d = __get_mdays(d.y, d.m)) > d.d) {
-				res.ymd.d = d.d;
+			if ((res.ymd.d = d.d) > md) {
+				res.ymd.d = md;
 			}
 		} else {
 			/* convert dcnt to m + d */
@@ -846,10 +770,10 @@ __guess_dtyp(struct strpd_s d)
 			res.ymd.d = r.d;
 		}
 #endif	/* !WITH_FAST_ARITH */
-	} else if (d.y && d.m == 0 && !d.flags.bizda) {
+	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
 		res.ywd = __make_ywd_c(d.y, d.c, d.w, d.flags.wk_cnt);
-	} else if (d.y && !d.flags.bizda) {
+	} else if (d.y > 0 && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;
 		res.ymcw.y = d.y;
@@ -863,7 +787,7 @@ __guess_dtyp(struct strpd_s d)
 		}
 #endif	/* WITH_FAST_ARITH */
 		res.ymcw.w = d.w;
-	} else if (d.y && d.flags.bizda) {
+	} else if (d.y > 0 && d.flags.bizda) {
 		/* d.c can be legit'ly naught */
 		dt_bizda_param_t bp = __make_bizda_param(d.flags.ab, 0);
 		res.param = bp.u;
@@ -1118,12 +1042,12 @@ dt_strpddur(const char *str, char **ep)
 		goto out;
 	}
 	/* assess */
-	if (d.b && ((d.m >= 1 && d.m <= GREG_MONTHS_P_YEAR) || d.y)) {
+	if (d.b && (d.y || d.m >= 1)) {
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.q * 3 + d.m;
 		res.bizda.bd = d.b + d.w * DUWW_BDAYS_P_WEEK;
-	} else if (LIKELY((d.m >= 1 && d.m <= GREG_MONTHS_P_YEAR) || d.y)) {
+	} else if (LIKELY(d.y || d.m >= 1)) {
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		res.ymd.m = d.q * 3 + d.m;
