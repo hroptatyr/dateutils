@@ -78,7 +78,7 @@ typedef enum {
 	DT_NDTYP,
 } dt_dtyp_t;
 
-#define DT_MIN_YEAR	(0)
+#define DT_MIN_YEAR	(1917)
 #define DT_MAX_YEAR	(4095)
 
 /** ymds
