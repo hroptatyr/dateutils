@@ -53,13 +53,13 @@
 #endif	/* __INTEL_COMPILER */
 
 /* stolen from Klaus Klein/David Laight's strptime() */
-DEFUN uint32_t
-strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+DEFUN int32_t
+strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
-	uint32_t res = 0;
+	int32_t res = 0;
 	const char *sp;
 	/* we keep track of the number of digits via rulim */
-	uint32_t rulim;
+	int32_t rulim;
 
 	for (sp = str, rulim = ulim > 10 ? ulim : 10;
 	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
@@ -68,9 +68,9 @@ strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 		res += *sp - '0';
 	}
 	if (UNLIKELY(sp == str)) {
-		res = -1U;
+		res = -1;
 	} else if (UNLIKELY(res < llim || res > ulim)) {
-		res = -1U;
+		res = -2;
 	}
 	*ep = (char*)sp;
 	return res;
@@ -81,18 +81,18 @@ strtoi(const char *str, const char **ep)
 {
 	const char *sp = str;
 	bool negp = false;
-	uint32_t res;
+	int32_t res;
 
 	if (*str == '-') {
 		negp = true;
 		sp++;
 	}
-	if ((res = strtoui_lim(sp, ep, 0U, -1U)) == -1U) {
+	if ((res = strtoi_lim(sp, ep, 0, INT32_MAX)) < 0) {
 		*ep = str;
 	} else if (negp) {
 		res = -res;
 	}
-	return (int32_t)res;
+	return res;
 }
 
 DEFUN size_t
@@ -170,10 +170,10 @@ __romstr_v(const char c)
 	}
 }
 
-DEFUN uint32_t
-romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+DEFUN int32_t
+romstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
-	uint32_t res = 0;
+	int32_t res = 0;
 	const char *sp;
 	uint32_t v;
 
@@ -191,9 +191,9 @@ romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 		v = nv;
 	}
 	if (UNLIKELY(sp == str)) {
-		res = -1U;
+		res = -1;
 	} else if (UNLIKELY(res < llim || res > ulim)) {
-		res = -1U;
+		res = -2;
 	}
 	*ep = (char*)sp;
 	return res;

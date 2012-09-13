@@ -62,9 +62,9 @@ extern "C" {
 
 /* stolen from Klaus Klein/David Laight's strptime() */
 /**
- * Convert STR to ui32 and point to the end of the string in EP. */
-DECLF uint32_t
-strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim);
+ * Convert STR to i32 and point to the end of the string in EP. */
+DECLF int32_t
+strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
 
 /**
  * Convert STR to i32 and point to the end of the string in EP. */
@@ -77,9 +77,9 @@ DECLF size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad);
 
 /**
- * Convert roman numeral (string) to ui32 and point to its end in EP. */
-DECLF uint32_t
-romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim);
+ * Convert roman numeral (string) to i32 and point to its end in EP. */
+DECLF int32_t
+romstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
 
 /**
  * Convert D to a roman numeral string and put it into BUF, return the size. */
