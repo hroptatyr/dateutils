@@ -106,7 +106,7 @@ int	[0-9]+
 	RETURN_TOKEN(TOK_INT);
 }
 
-[^ \t\v\n\f()!&|<>=]*	{
+[^\v\n\f()!&|<>=]*	{
 	/* return for parsing with our strpdt reader */
 	yylval->sval = yytext;
 	RETURN_TOKEN(TOK_DATETIME);
