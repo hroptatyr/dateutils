@@ -53,6 +53,71 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+static const char *__long_wday[] = {
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+	"Miracleday",
+};
+DEFVAR const char **dut_long_wday = __long_wday;
+DEFVAR const ssize_t dut_nlong_wday = countof(__long_wday);
+
+static const char *__abbr_wday[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
+};
+DEFVAR const char **dut_abbr_wday = __abbr_wday;
+DEFVAR const ssize_t dut_nabbr_wday = countof(__abbr_wday);
+
+static const char __abab_wday[] = "SMTWRFAX";
+DEFVAR const char *dut_abab_wday = __abab_wday;
+DEFVAR const ssize_t dut_nabab_wday = countof(__abab_wday);
+
+static const char *__long_mon[] = {
+	"Miraculary",
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+};
+DEFVAR const char **dut_long_mon = __long_mon;
+DEFVAR const ssize_t dut_nlong_mon = countof(__long_mon);
+
+static const char *__abbr_mon[] = {
+	"Mir",
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+};
+DEFVAR const char **dut_abbr_mon = __abbr_mon;
+DEFVAR const ssize_t dut_nabbr_mon = countof(__abbr_mon);
+
+/* futures expiry codes, how convenient */
+static const char __abab_mon[] = "_FGHJKMNQUVXZ";
+DEFVAR const char *dut_abab_mon = __abab_mon;
+DEFVAR const ssize_t dut_nabab_mon = countof(__abab_mon);
+
+
 DEFUN inline void
 __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 {
@@ -113,14 +178,14 @@ __strpd_std(const char *str, char **ep)
 
 	d = strpd_initialiser();
 	/* read the year */
-	if ((d.y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) == -1U ||
+	if ((d.y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) < 0 ||
 	    *sp++ != '-') {
 		goto fucked;
 	}
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		if ((sp++, d.c = strtoui_lim(sp, &sp, 0, 53)) == -1U ||
+		if ((sp++, d.c = strtoi_lim(sp, &sp, 0, 53)) < 0 ||
 		    *sp++ != '-') {
 			goto fucked;
 		}
@@ -129,12 +194,12 @@ __strpd_std(const char *str, char **ep)
 		goto dow;
 	}
 	/* read the month */
-	if ((d.m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) == -1U ||
+	if ((d.m = strtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) < 0 ||
 	    *sp++ != '-') {
 		goto fucked;
 	}
 	/* read the day or the count */
-	if ((d.d = strtoui_lim(sp, &sp, 0, 31)) == -1U) {
+	if ((d.d = strtoi_lim(sp, &sp, 0, 31)) < 0) {
 		/* didn't work, fuck off */
 		goto fucked;
 	}
@@ -149,7 +214,7 @@ __strpd_std(const char *str, char **ep)
 		d.d = 0;
 		sp++;
 	dow:
-		if ((d.w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) == -1U) {
+		if ((d.w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) < 0) {
 			/* didn't work, fuck off */
 			goto fucked;
 		}
@@ -193,49 +258,49 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
+		d->y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 		sp++;
-		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
+		d->m = strtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
 		sp++;
-		d->d = strtoui_lim(sp, &sp, 0, 31);
-		res = 0 - (d->y == -1U || d->m == -1U || d->d == -1U);
+		d->d = strtoi_lim(sp, &sp, 0, 31);
+		res = 0 - (d->y < 0 || d->m < 0 || d->d < 0);
 		break;
 	case DT_SPFL_N_YEAR:
 		if (s.abbr == DT_SPMOD_NORM) {
-			d->y = strtoui_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
+			d->y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 		} else if (s.abbr == DT_SPMOD_ABBR) {
-			d->y = strtoui_lim(sp, &sp, 0, 99);
-			if (UNLIKELY(d->y == -1U)) {
+			d->y = strtoi_lim(sp, &sp, 0, 99);
+			if (UNLIKELY(d->y < 0)) {
 				;
 			} else if ((d->y += 2000) > 2068) {
 				d->y -= 100;
 			}
 		}
-		res = 0 - (d->y == -1U);
+		res = 0 - (d->y < 0);
 		break;
 	case DT_SPFL_N_MON:
-		d->m = strtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		res = 0 - (d->m == -1U);
+		d->m = strtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
+		res = 0 - (d->m < 0);
 		break;
 	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode? */
 		if (LIKELY(!s.bizda)) {
-			d->d = strtoui_lim(sp, &sp, 0, 31);
-			res = 0 - (d->d == -1U);
+			d->d = strtoi_lim(sp, &sp, 0, 31);
+			res = 0 - (d->d < 0);
 		} else {
-			d->b = strtoui_lim(sp, &sp, 0, 23);
-			res = 0 - (d->b == -1U);
+			d->b = strtoi_lim(sp, &sp, 0, 23);
+			res = 0 - (d->b < 0);
 		}
 		break;
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode? */
-		d->w = strtoui_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
-		res = 0 - (d->w == -1U);
+		d->w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
+		res = 0 - (d->w < 0);
 		break;
 	case DT_SPFL_N_WCNT_MON:
 		/* ymcw mode? */
-		d->c = strtoui_lim(sp, &sp, 0, 5);
-		res = 0 - (d->c == -1U);
+		d->c = strtoi_lim(sp, &sp, 0, 5);
+		res = 0 - (d->c < 0);
 		break;
 	case DT_SPFL_S_WDAY:
 		/* ymcw mode? */
@@ -263,7 +328,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		default:
 			break;
 		}
-		res = 0 - (d->w == -1U);
+		res = 0 - (d->w < 0);
 		break;
 	case DT_SPFL_S_MON:
 		switch (s.abbr) {
@@ -282,7 +347,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			if ((pos = strchr(dut_abab_mon, *sp++)) != NULL) {
 				d->m = pos - dut_abab_mon;
 			} else {
-				d->m = -1U;
+				d->m = -1;
 			}
 			break;
 		}
@@ -290,7 +355,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		default:
 			break;
 		}
-		res = 0 - (d->m == -1U);
+		res = 0 - (d->m < 0);
 		break;
 	case DT_SPFL_S_QTR:
 		if (*sp++ != 'Q') {
@@ -298,8 +363,8 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		}
 	case DT_SPFL_N_QTR:
 		if (d->m == 0) {
-			unsigned int q;
-			if ((q = strtoui_lim(sp, &sp, 1, 4)) < -1U) {
+			int q;
+			if ((q = strtoi_lim(sp, &sp, 1, 4)) >= 0) {
 				d->m = q * 3 - 2;
 				res = 0;
 			}
@@ -323,14 +388,14 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 	case DT_SPFL_N_DCNT_YEAR:
 		/* was %D and %j, cannot be used at the moment */
-		if ((d->d = strtoui_lim(sp, &sp, 1, 366)) < -1U) {
+		if ((d->d = strtoi_lim(sp, &sp, 1, 366)) >= 0) {
 			res = 0;
 			d->flags.d_dcnt_p = 1;
 		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR:
 		/* was %C, cannot be used at the moment */
-		d->c = strtoui_lim(sp, &sp, 0, 53);
+		d->c = strtoi_lim(sp, &sp, 0, 53);
 		d->flags.wk_cnt = s.wk_cnt;
 		/* let everyone know d->c has a week-count in there */
 		d->flags.c_wcnt_p = 1;
@@ -356,29 +421,29 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 
 	case DT_SPFL_N_YEAR:
 		if (s.abbr == DT_SPMOD_NORM) {
-			d->y = romstrtoui_lim(
+			d->y = romstrtoi_lim(
 				sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
 		} else if (s.abbr == DT_SPMOD_ABBR) {
-			d->y = romstrtoui_lim(sp, &sp, 0, 99);
-			if (UNLIKELY(d->y == -1U)) {
+			d->y = romstrtoi_lim(sp, &sp, 0, 99);
+			if (UNLIKELY(d->y < 0)) {
 				;
 			} else if ((d->y += 2000) > 2068) {
 				d->y -= 100;
 			}
 		}
-		res = 0 - (d->y == -1U);
+		res = 0 - (d->y < 0);
 		break;
 	case DT_SPFL_N_MON:
-		d->m = romstrtoui_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
-		res = 0 - (d->m == -1U);
+		d->m = romstrtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR);
+		res = 0 - (d->m < 0);
 		break;
 	case DT_SPFL_N_DCNT_MON:
-		d->d = romstrtoui_lim(sp, &sp, 0, 31);
-		res = 0 - (d->d == -1U);
+		d->d = romstrtoi_lim(sp, &sp, 0, 31);
+		res = 0 - (d->d < 0);
 		break;
 	case DT_SPFL_N_WCNT_MON:
-		d->c = romstrtoui_lim(sp, &sp, 0, 5);
-		res = 0 - (d->c == -1U);
+		d->c = romstrtoi_lim(sp, &sp, 0, 5);
+		res = 0 - (d->c < 0);
 		break;
 	}
 	if (ep != NULL) {
@@ -674,10 +739,10 @@ __strfd_dur(
 			d->y = __uidiv(d->m, GREG_MONTHS_P_YEAR);
 			d->m = __uimod(d->m, GREG_MONTHS_P_YEAR);
 		}
-		res = snprintf(buf, bsz, "%u", d->y);
+		res = snprintf(buf, bsz, "%d", d->y);
 		break;
 	case DT_SPFL_N_MON:
-		res = snprintf(buf, bsz, "%u", d->m);
+		res = snprintf(buf, bsz, "%d", d->m);
 		break;
 	case DT_SPFL_N_DCNT_WEEK:
 		if (!d->w) {
@@ -686,10 +751,10 @@ __strfd_dur(
 			d->w = __uidiv(d->d, GREG_DAYS_P_WEEK);
 			d->d = __uimod(d->d, GREG_DAYS_P_WEEK);
 		}
-		res = snprintf(buf, bsz, "%u", d->w);
+		res = snprintf(buf, bsz, "%d", d->w);
 		break;
 	case DT_SPFL_N_WCNT_MON:
-		res = snprintf(buf, bsz, "%u", d->c);
+		res = snprintf(buf, bsz, "%d", d->c);
 		break;
 	case DT_SPFL_S_WDAY:
 	case DT_SPFL_S_MON:

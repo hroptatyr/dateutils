@@ -53,13 +53,13 @@
 #endif	/* __INTEL_COMPILER */
 
 /* stolen from Klaus Klein/David Laight's strptime() */
-DEFUN uint32_t
-strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+DEFUN int32_t
+strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
-	uint32_t res = 0;
+	int32_t res = 0;
 	const char *sp;
 	/* we keep track of the number of digits via rulim */
-	uint32_t rulim;
+	int32_t rulim;
 
 	for (sp = str, rulim = ulim > 10 ? ulim : 10;
 	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
@@ -68,9 +68,9 @@ strtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 		res += *sp - '0';
 	}
 	if (UNLIKELY(sp == str)) {
-		res = -1U;
+		res = -1;
 	} else if (UNLIKELY(res < llim || res > ulim)) {
-		res = -1U;
+		res = -2;
 	}
 	*ep = (char*)sp;
 	return res;
@@ -81,18 +81,18 @@ strtoi(const char *str, const char **ep)
 {
 	const char *sp = str;
 	bool negp = false;
-	uint32_t res;
+	int32_t res;
 
 	if (*str == '-') {
 		negp = true;
 		sp++;
 	}
-	if ((res = strtoui_lim(sp, ep, 0U, -1U)) == -1U) {
+	if ((res = strtoi_lim(sp, ep, 0, INT32_MAX)) < 0) {
 		*ep = str;
 	} else if (negp) {
 		res = -res;
 	}
-	return (int32_t)res;
+	return res;
 }
 
 DEFUN size_t
@@ -137,7 +137,7 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 
 
 /* roman numerals */
-static uint32_t
+static int32_t
 __romstr_v(const char c)
 {
 	switch (c) {
@@ -166,24 +166,24 @@ __romstr_v(const char c)
 	case 'M':
 		return 1000;
 	default:
-		return -1U;
+		return -1;
 	}
 }
 
-DEFUN uint32_t
-romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
+DEFUN int32_t
+romstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
-	uint32_t res = 0;
+	int32_t res = 0;
 	const char *sp;
-	uint32_t v;
+	int32_t v;
 
 	/* loops through characters */
 	for (sp = str, v = __romstr_v(*sp); *sp; sp++) {
-		uint32_t nv = __romstr_v(sp[1]);
+		int32_t nv = __romstr_v(sp[1]);
 
-		if (UNLIKELY(v == -1U)) {
+		if (UNLIKELY(v < 0)) {
 			break;
-		} else if (LIKELY(nv == -1U || v >= nv)) {
+		} else if (LIKELY(nv < 0 || v >= nv)) {
 			res += v;
 		} else {
 			res -= v;
@@ -191,9 +191,9 @@ romstrtoui_lim(const char *str, const char **ep, uint32_t llim, uint32_t ulim)
 		v = nv;
 	}
 	if (UNLIKELY(sp == str)) {
-		res = -1U;
+		res = -1;
 	} else if (UNLIKELY(res < llim || res > ulim)) {
-		res = -1U;
+		res = -2;
 	}
 	*ep = (char*)sp;
 	return res;
@@ -348,11 +348,11 @@ __ordtostr(char *buf, size_t bsz)
 
 
 /* string array funs */
-DEFUN uint32_t
+DEFUN int32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 /* take a string, compare it to an array of string (case-insensitively) and
- * return its index if found or -1U if not */
+ * return its index if found or -1 if not */
 	for (size_t i = 0; i < narr; i++) {
 		const char *chk = arr[i];
 		size_t len = strlen(chk);
@@ -368,7 +368,7 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 	if (ep != NULL) {
 		*ep = buf;
 	}
-	return -1U;
+	return -1;
 }
 
 DEFUN size_t
