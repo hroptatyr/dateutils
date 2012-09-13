@@ -1,0 +1,73 @@
+.TH DATEUTILS "1" "September 2012" "dateutils" "User Commands"
+.SH NAME
+dateutils \- command line date and time utilities
+
+.SH DESCRIPTION
+dateutils are a bunch of tools that revolve around fiddling with dates
+and times in the command line with a strong focus on use cases that
+arise when dealing with large amounts of financial data.
+.PP
+
+.SH COMMANDS
+.PP
+\fBdadd\fR(1)
+.RS 4
+Add durations to dates or times
+.RE
+
+.PP
+\fBdconv\fR(1)
+.RS 4
+Convert dates between calendars or time zones
+.RE
+
+.PP
+\fBddiff\fR(1)
+.RS 4
+Compute durations between dates and times
+.RE
+
+.PP
+\fBdgrep\fR(1)
+.RS 4
+Find date or time matches in input stream
+.RE
+
+.PP
+\fBdround\fR(1)
+.RS 4
+Round dates or times to designated values
+.RE
+
+.PP
+\fBdseq\fR(1)
+.RS 4
+Generate sequences of dates or times
+.RE
+
+.PP
+\fBdtest\fR(1)
+.RS 4
+Compare dates or times
+.RE
+
+.PP
+\fBstrptime\fR(1)
+.RS 4
+Command line version of the C function
+.RE
+
+.SH AUTHOR
+Written by Sebastian Freundt <freundt@fresse.org>
+.SH "REPORTING BUGS"
+Report bugs to: https://github.com/hroptatyr/dateutils/issues
+.SH "SEE ALSO"
+The full documentation for
+.B dateutils
+is maintained as a Texinfo manual.  If the
+.B info
+program is properly installed at your site, the command
+.IP
+.B info dateutils
+.PP
+should give you access to the complete manual.
