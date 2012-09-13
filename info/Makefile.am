@@ -16,6 +16,7 @@ dateutils_TEXINFOS += units.texi
 
 man1_MANS =
 man1_MANS += $(built_mans)
+man1_MANS += dateutils.man
 
 dateutils_EXAMPLES =
 dateutils_H2M_EX =
