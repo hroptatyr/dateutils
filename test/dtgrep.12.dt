@@ -1,0 +1,23 @@
+## -*- shell-script -*-
+
+TOOL=dgrep
+CMDLINE="'<2012-01-03T00:00:00' -i '%d.%m.%Y %H:%M:%S' "
+COMMENT="Testing input formats."
+
+## STDIN
+stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdin}" <<EOF
+28.02.2012 10:00:00
+02.03.2012 10:00:00
+01.03.2012 10:00:00
+29.02.2012 10:00:00
+EOF
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+28.02.2012 10:00:00
+29.02.2012 10:00:00
+EOF
+
+## dtgrep.12.dt ends here

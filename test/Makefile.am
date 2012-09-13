@@ -275,6 +275,8 @@ dt_tests += dgrep.13.dt
 #dt_tests += dgrep.14.dt
 dt_tests += dgrep.15.dt
 dt_tests += dgrep.16.dt
+dt_tests += dgrep.17.dt
+dt_tests += dgrep.18.dt
 
 dt_tests += dround.1.dt
 dt_tests += dround.2.dt
@@ -464,6 +466,10 @@ dt_tests += dtgrep.5.dt
 dt_tests += dtgrep.6.dt
 dt_tests += dtgrep.7.dt
 dt_tests += dtgrep.8.dt
+dt_tests += dtgrep.9.dt
+dt_tests += dtgrep.10.dt
+dt_tests += dtgrep.11.dt
+dt_tests += dtgrep.12.dt
 
 dt_tests += dttest.1.dt
 dt_tests += dttest.2.dt
