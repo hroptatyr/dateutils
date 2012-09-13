@@ -72,12 +72,10 @@ extern int yyparse();
 
 string	\"(\\.|[^\\\"])*\"|'(\\.|[^\\\'])*'
 /* only canonical dates are allowed */
-date	[0-9]{4,4}-[01][0-9]-[0-3][0-9]
-time	[0-2][0-9]:[0-5][0-9]:[0-6][0-9]
 int	[0-9]+
 
 %%
-"==?"	{ RETURN_TOKEN(TOK_EQ); }
+"="=?	{ RETURN_TOKEN(TOK_EQ); }
 "!="	{ RETURN_TOKEN(TOK_NE); }
 "<"	{ RETURN_TOKEN(TOK_LT); }
 "<="	{ RETURN_TOKEN(TOK_LE); }
@@ -103,22 +101,15 @@ int	[0-9]+
 	RETURN_TOKEN(TOK_STRING);
 }
 
-{date}[\t T]{time} {
-	yylval->sval = yytext;
-	RETURN_TOKEN(TOK_DATETIME);
-}
-
-{date} {
-	yylval->sval = yytext;
-	RETURN_TOKEN(TOK_DATETIME);
-}
-{time} {
-	yylval->sval = yytext;
-	RETURN_TOKEN(TOK_DATETIME);
-}
-{int} {
+{int}	{
 	yylval->sval = yytext;
 	RETURN_TOKEN(TOK_INT);
+}
+
+[^ \t\v\n\f()!&|<>=]*	{
+	/* return for parsing with our strpdt reader */
+	yylval->sval = yytext;
+	RETURN_TOKEN(TOK_DATETIME);
 }
 
 [ \t\v\n\f]	{ /* ignore whitespace */ }

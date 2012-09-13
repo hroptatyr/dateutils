@@ -75,6 +75,9 @@ yyerror(dexpr_t *cur __attribute__((unused)), const char *errmsg)
 
 /* static stuff */
 static struct dexkv_s ckv[1];
+
+static char *const *ckv_fmt = NULL;
+static size_t ckv_nfmt = 0;
 %}
 
 %union {
@@ -165,7 +168,11 @@ spec
 
 rhs
 	: TOK_DATETIME {
-		ckv->d = dt_strpdt($<sval>1, NULL, NULL);
+		ckv->d = dt_io_strpdt($<sval>1, ckv_fmt, ckv_nfmt, NULL);
+		if (ckv->d.typ == DT_UNK) {
+			/* one more try */
+			ckv->d = dt_strpdt($<sval>1, NULL, NULL);
+		}
 		ckv->sp.spfl = DT_SPFL_N_STD;
 	}
 	| TOK_STRING {

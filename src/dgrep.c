@@ -106,8 +106,8 @@ main(int argc, char *argv[])
 	}
 
 	/* init and unescape sequences, maybe */
-	fmt = argi->input_format_arg;
-	nfmt = argi->input_format_given;
+	ckv_fmt = fmt = argi->input_format_arg;
+	ckv_nfmt = nfmt = argi->input_format_given;
 	if (argi->backslash_escapes_given) {
 		for (size_t i = 0; i < nfmt; i++) {
 			dt_io_unescape(fmt[i]);
