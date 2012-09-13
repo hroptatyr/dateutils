@@ -169,6 +169,10 @@ spec
 rhs
 	: TOK_DATETIME {
 		ckv->d = dt_io_strpdt($<sval>1, ckv_fmt, ckv_nfmt, NULL);
+		if (ckv->d.typ == DT_UNK) {
+			/* one more try */
+			ckv->d = dt_strpdt($<sval>1, NULL, NULL);
+		}
 		ckv->sp.spfl = DT_SPFL_N_STD;
 	}
 	| TOK_STRING {
