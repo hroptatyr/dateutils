@@ -137,7 +137,7 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 
 
 /* roman numerals */
-static uint32_t
+static int32_t
 __romstr_v(const char c)
 {
 	switch (c) {
@@ -166,7 +166,7 @@ __romstr_v(const char c)
 	case 'M':
 		return 1000;
 	default:
-		return -1U;
+		return -1;
 	}
 }
 
@@ -175,15 +175,15 @@ romstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
 	int32_t res = 0;
 	const char *sp;
-	uint32_t v;
+	int32_t v;
 
 	/* loops through characters */
 	for (sp = str, v = __romstr_v(*sp); *sp; sp++) {
-		uint32_t nv = __romstr_v(sp[1]);
+		int32_t nv = __romstr_v(sp[1]);
 
-		if (UNLIKELY(v == -1U)) {
+		if (UNLIKELY(v < 0)) {
 			break;
-		} else if (LIKELY(nv == -1U || v >= nv)) {
+		} else if (LIKELY(nv < 0 || v >= nv)) {
 			res += v;
 		} else {
 			res -= v;
@@ -348,11 +348,11 @@ __ordtostr(char *buf, size_t bsz)
 
 
 /* string array funs */
-DEFUN uint32_t
+DEFUN int32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 /* take a string, compare it to an array of string (case-insensitively) and
- * return its index if found or -1U if not */
+ * return its index if found or -1 if not */
 	for (size_t i = 0; i < narr; i++) {
 		const char *chk = arr[i];
 		size_t len = strlen(chk);
@@ -368,7 +368,7 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 	if (ep != NULL) {
 		*ep = buf;
 	}
-	return -1U;
+	return -1;
 }
 
 DEFUN size_t

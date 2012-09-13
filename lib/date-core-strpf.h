@@ -60,14 +60,14 @@ extern "C" {
 #endif	/* !DEFVAR */
 
 struct strpd_s {
-	unsigned int y;
-	unsigned int m;
+	signed int y;
+	signed int m;
 	union {
-		unsigned int d;
+		signed int d;
 		signed int sd;
 	};
-	unsigned int c;
-	unsigned int w;
+	signed int c;
+	signed int w;
 	/* general flags */
 	struct {
 		unsigned int ab:1;
@@ -77,8 +77,8 @@ struct strpd_s {
 		unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
 		unsigned int real_y_in_q:1;
 	} flags;
-	unsigned int b;
-	unsigned int q;
+	signed int b;
+	signed int q;
 };
 
 struct strpdi_s {

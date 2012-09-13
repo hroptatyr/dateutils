@@ -60,10 +60,10 @@ extern "C" {
 #endif	/* !DEFVAR */
 
 struct strpt_s {
-	unsigned int h;
-	unsigned int m;
-	unsigned int s;
-	unsigned int ns;
+	signed int h;
+	signed int m;
+	signed int s;
+	signed int ns;
 	union {
 		unsigned int flags;
 		struct {

@@ -63,13 +63,13 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 	case DT_SPFL_UNK:
 		goto fucked;
 	case DT_SPFL_N_TSTD:
-		if ((d->h = strtoi_lim(sp, &sp, 0, 23)) == -1U ||
+		if ((d->h = strtoi_lim(sp, &sp, 0, 23)) < 0 ||
 		    *sp++ != ':') {
 			goto fucked;
-		} else if ((d->m = strtoi_lim(sp, &sp, 0, 59)) == -1U ||
+		} else if ((d->m = strtoi_lim(sp, &sp, 0, 59)) < 0 ||
 			   *sp++ != ':') {
 			goto fucked;
-		} else if ((d->s = strtoi_lim(sp, &sp, 0, 60)) == -1U) {
+		} else if ((d->s = strtoi_lim(sp, &sp, 0, 60)) < 0) {
 			goto fucked;
 		}
 		break;
@@ -79,23 +79,23 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 		} else {
 			d->h = strtoi_lim(sp, &sp, 1, 12);
 		}
-		if (d->h == -1U) {
+		if (d->h < 0) {
 			goto fucked;
 		}
 		break;
 	case DT_SPFL_N_MIN:
-		if ((d->m = strtoi_lim(sp, &sp, 0, 59)) == -1U) {
+		if ((d->m = strtoi_lim(sp, &sp, 0, 59)) < 0) {
 			goto fucked;
 		}
 		break;
 	case DT_SPFL_N_SEC:
-		if ((d->s = strtoi_lim(sp, &sp, 0, 60)) == -1U) {
+		if ((d->s = strtoi_lim(sp, &sp, 0, 60)) < 0) {
 			goto fucked;
 		}
 		break;
 	case DT_SPFL_N_NANO:
 		/* nanoseconds */
-		if ((d->ns = strtoi_lim(sp, &sp, 0, 999999999)) == -1U) {
+		if ((d->ns = strtoi_lim(sp, &sp, 0, 999999999)) < 0) {
 			goto fucked;
 		}
 		break;
