@@ -53,6 +53,71 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+static const char *__long_wday[] = {
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+	"Miracleday",
+};
+DEFVAR const char **dut_long_wday = __long_wday;
+DEFVAR const ssize_t dut_nlong_wday = countof(__long_wday);
+
+static const char *__abbr_wday[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
+};
+DEFVAR const char **dut_abbr_wday = __abbr_wday;
+DEFVAR const ssize_t dut_nabbr_wday = countof(__abbr_wday);
+
+static const char __abab_wday[] = "SMTWRFAX";
+DEFVAR const char *dut_abab_wday = __abab_wday;
+DEFVAR const ssize_t dut_nabab_wday = countof(__abab_wday);
+
+static const char *__long_mon[] = {
+	"Miraculary",
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+};
+DEFVAR const char **dut_long_mon = __long_mon;
+DEFVAR const ssize_t dut_nlong_mon = countof(__long_mon);
+
+static const char *__abbr_mon[] = {
+	"Mir",
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+};
+DEFVAR const char **dut_abbr_mon = __abbr_mon;
+DEFVAR const ssize_t dut_nabbr_mon = countof(__abbr_mon);
+
+/* futures expiry codes, how convenient */
+static const char __abab_mon[] = "_FGHJKMNQUVXZ";
+DEFVAR const char *dut_abab_mon = __abab_mon;
+DEFVAR const ssize_t dut_nabab_mon = countof(__abab_mon);
+
+
 DEFUN inline void
 __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
 {
