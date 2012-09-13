@@ -109,7 +109,7 @@ int	[0-9]+
 [^ \t\v\n\f()!&|<>=]*	{
 	/* return for parsing with our strpdt reader */
 	yylval->sval = yytext;
-	RETURN_TOKEN(TOK_STRING);
+	RETURN_TOKEN(TOK_DATETIME);
 }
 
 [ \t\v\n\f]	{ /* ignore whitespace */ }
