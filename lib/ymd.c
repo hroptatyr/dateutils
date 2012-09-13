@@ -47,6 +47,7 @@
 #if defined YMD_GET_WDAY_LOOKUP
 #elif defined YMD_GET_WDAY_ZELLER
 #elif defined YMD_GET_WDAY_SAKAMOTO
+#elif defined YMD_GET_WDAY_7YM
 #else
 /* default algo */
 # define YMD_GET_WDAY_LOOKUP
@@ -181,6 +182,159 @@ __ymd_get_wday(dt_ymd_t that)
 	res += t[m - 1] + d;
 	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
 }
+
+#elif defined YMD_GET_WDAY_7YM
+/* this one's work in progress
+ * first observe the 7 patterns in months FG and H..Z and how leap years
+ * correspond to ordinary years.
+ *
+ * Use:
+ *   dseq 1917-01-01 1mo 2417-12-01 -f '%Y %m %_a' |           \
+ *     awk 'BEGIN{FS=" "}                                      \
+ *          {a[$1] = "" a[$1] "" ($2=="03" ? " " : "") "" $3;} \
+ *          END{for (i in a) print(i "\t" a[i]);}' |           \
+ *     sort | sort -k3 -k2 -u
+ *
+ * for instance to get this table (months FG and months H..Z):
+ *   1924	TF ATRSTFMWAM
+ *   1919	WA ATRSTFMWAM
+ *   1940	MR FMWAMRSTFS
+ *   1918	TF FMWAMRSTFS
+ *   1926	FM MRATRSWFMW
+ *   1920	RS MRATRSWFMW
+ *   1917	MR RSTFSWAMRA
+ *   1928	SW RSTFSWAMRA
+ *   1925	RS SWFMWATRST
+ *   1936	WA SWFMWATRST
+ *   1921	AT TFSWFMRATR
+ *   1932	FM TFSWFMRATR
+ *   1944	AT WAMRATFSWF
+ *   1922	SW WAMRATFSWF
+ *
+ * and note how leap years and ordinary years pair up.
+ *
+ * After a bit of number crunching (consider all years mod 28) we'll find:
+ *           H..Z
+ *  0 -> 6 -> 17 -> 23
+ *  4 -> 10 -> 21 -> 27
+ *  8 -> 14 -> 25 -> 3
+ * 12 -> 18 -> 1 -> 7
+ * 16 -> 22 -> 5 -> 11
+ * 20 -> 26 -> 9 -> 15
+ * 24 -> 2 -> 13 -> 19
+ *
+ * where obviously the FG years are a permutation (13 14 15 21 22 17 18)^-1
+ * of the H..Z years.
+ *
+ * It's quite easy to see how this system forms an orbit through C28 via:
+ *
+ *   [0]C4 + 0 = [4]C4 + 1 = [1]C4 + 2 = [5]C4 + 3
+ *   [1]C4 + 0 = [5]C4 + 1 = [2]C4 + 2 = [6]C4 + 3
+ *   [2]C4 + 0 = [6]C4 + 1 = [3]C4 + 2 = [0]C4 + 3
+ *   [3]C4 + 0 = [0]C4 + 1 = [4]C4 + 2 = [1]C4 + 3
+ *   [4]C4 + 0 = [1]C4 + 1 = [5]C4 + 2 = [2]C4 + 3
+ *   [5]C4 + 0 = [2]C4 + 1 = [6]C4 + 2 = [3]C4 + 3
+ *   [6]C4 + 0 = [3]C4 + 1 = [0]C4 + 2 = [4]C4 + 3
+ *
+ * and so by decomposing a year mod 28 and into C7*C4 we can map it to the
+ * weekday.
+ *
+ * Here's the algo:
+ * input: year
+ * output: idx, weekday series index for H..
+ *
+ * year <- year mod 28
+ * x,y  <- decompose year as [x]C4 + y
+ * idx  <- x - 0, if y = 0
+ *         x - 4, if y = 1
+ *         x - 1, if y = 2
+ *         x - 5, if y = 3
+ *
+ * Proceed similar for FG series.
+ * That's how the formulas below came into being. */
+static unsigned int
+__get_widx_H(unsigned int y)
+{
+/* return the equivalence class number for H.. weekdays for year Y. */
+	static unsigned int add[] = {0, 3, 6, 2};
+	unsigned int idx, res;
+
+	y = y % 28U;
+	idx = y / 4U;
+	res = y % 4U;
+	return (idx + add[res]) % GREG_DAYS_P_WEEK;
+}
+
+static unsigned int
+__get_widx_FG(unsigned int y)
+{
+/* return the equivalence class number for FG weekdays for year Y. */
+	static unsigned int add[] = {0, 6, 2, 5};
+	unsigned int idx, res;
+
+	y = y % 28U;
+	idx = y / 4U;
+	res = y % 4U;
+	return (idx + add[res]) % GREG_DAYS_P_WEEK;
+}
+
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t that)
+{
+# define M	(DT_MONDAY)
+# define T	(DT_TUESDAY)
+# define W	(DT_WEDNESDAY)
+# define R	(DT_THURSDAY)
+# define F	(DT_FRIDAY)
+# define A	(DT_SATURDAY)
+# define S	(DT_SUNDAY)
+	static uint8_t ser[][12] = {
+		{
+			/* 1932 = [[0]C4 + 0]C28 */
+			F, M,  T, F, S, W, F, M, R, A, T, R,
+		}, {
+			/* 1936 = [[1]C4 + 0]C28 */
+			W, A,  S, W, F, M, W, A, T, R, S, T,
+		}, {
+			/* 1940 = [[2]C4 + 0]C28 */
+			M, R,  F, M, W, A, M, R, S, T, F, S,
+		}, {
+			/* 1944 = [[3]C4 + 0]C28 */
+			A, T,  W, A, M, R, A, T, F, S, W, F,
+		}, {
+			/* 1920 = [[4]C4 + 0]C28 */
+			R, S,  M, R, A, T, R, S, W, F, M, W,
+		}, {
+			/* 1924 = [[5]C4 + 0]C28 */
+			T, F,  A, T, R, S, T, F, M, W, A, M,
+		}, {
+			/* 1928 = [[6]C4 + 0]C28 */
+			S, W,  R, S, T, F, S, W, A, M, R, A,
+		},
+	};
+	unsigned int by = that.y;
+	unsigned int bm = that.m - 1;
+	unsigned int bd = that.d - 1;
+	unsigned int idx;
+
+	if (bm < 2U) {
+		/* FG */
+		idx = __get_widx_FG(by);
+	} else {
+		idx = __get_widx_H(by);
+	}
+
+	/* implicit assumption DT_SUN == 0! */
+	return (dt_dow_t)((ser[idx][bm] + bd) % GREG_DAYS_P_WEEK);
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
+}
+
 #endif	/* 0 */
 
 static unsigned int
