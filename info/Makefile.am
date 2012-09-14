@@ -186,6 +186,23 @@ ddiff.man: $(top_srcdir)/src/ddiff-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/con
 		-I "$(srcdir)/author.h2m" \
 		-o $@ $(top_builddir)/src/ddiff
 
+## exceptions for dadd and dseq
+dadd.man: $(top_srcdir)/src/dadd-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))dadd" \
+		-I "$(builddir)/dadd.h2m" \
+		-I "$(builddir)/format.h2m" \
+		-I "$(builddir)/units.h2m" \
+		-I "$(srcdir)/author.h2m" \
+		-o $@ $(top_builddir)/src/dadd
+
+dseq.man: $(top_srcdir)/src/dseq-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))dseq" \
+		-I "$(builddir)/dseq.h2m" \
+		-I "$(builddir)/format.h2m" \
+		-I "$(builddir)/units.h2m" \
+		-I "$(srcdir)/author.h2m" \
+		-o $@ $(top_builddir)/src/dseq
+
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
 __bld_h2m_0 = @echo "  GENH2M  " $*;
