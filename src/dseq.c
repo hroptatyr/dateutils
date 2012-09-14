@@ -554,22 +554,27 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			/* emulates old dseq(1) */
 			if (argi->inputs_num == 1) {
 				lst.d = dt_date(DT_YMD);
+				dt_make_d_only(&lst, DT_YMD);
 			}
 
-			dt_make_d_only(&ite_p1, DT_DAISY);
-			ite_p1.d.daisy = 1;
+			dt_make_d_only(clo.ite, DT_DAISY);
+			clo.ite->d.daisy = 1;
 		} else if (dt_sandwich_only_t_p(fst)) {
 			/* emulates old tseq(1) */
 			if (argi->inputs_num == 1) {
 				lst.t = dt_time();
+				dt_make_t_only(&lst, DT_HMS);
 			}
+			/* let the guesser do the work */
+			clo.ite->t.sdur = 0;
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->inputs_num == 1) {
 				lst = dt_datetime((dt_dttyp_t)DT_YMD);
+				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
 			}
 
-			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
-			ite_p1.d.daisy = 1;
+			dt_make_sandwich(clo.ite, DT_DAISY, DT_TUNK);
+			clo.ite->d.daisy = 1;
 		} else {
 			error(0, "\
 don't know how to handle single argument case");
@@ -579,6 +584,7 @@ don't know how to handle single argument case");
 
 		clo.fst = fst;
 		clo.lst = lst;
+		clo.ite->dur = 1;
 		break;
 	case 3: {
 		struct __strpdtdur_st_s st = {0};
