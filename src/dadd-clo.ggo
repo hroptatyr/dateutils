@@ -13,8 +13,8 @@ The unit symbols can be written lower-case as well (y, mo, w, d, \
 h, m, s) and the unit symbol `d' can be omitted.
 
 Note that duration addition is not commutative!
-  2000-03-30 +1m1d -> 2000-05-01
-  2000-03-30 +1d1m -> 2000-04-30
+  2000-03-30 +1mo +1d -> 2000-05-01
+  2000-03-30 +1d +1mo -> 2000-04-30
 
 If there is any ambiguity between durations and dates, durations can \
 be prefixed with P as ISO 8601 suggests."
