@@ -74,7 +74,6 @@ ltrcc_SOURCES += dt-core.c dt-core.h
 endif  ## BUILD_LTRCC
 
 BUILT_SOURCES += leapseconds.def
-CLEANFILES += $(BUILT_SOURCES)
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
