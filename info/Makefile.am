@@ -163,7 +163,7 @@ built_mans += ddiff.mand
 built_mans += dgrep.man
 built_mans += dseq.manu
 built_mans += dtest.man
-built_mans += dround.man
+built_mans += dround.manu
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
