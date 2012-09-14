@@ -1,8 +1,8 @@
 args "--unamed-opts --long-help"
 package "dconv"
-usage "dconv [OPTION]... DATEs"
-description "Convert DATEs between calendrical systems.  If DATEs are \
-omitted they are read from stdin.
+usage "dconv [OPTION]... [DT_ARG]..."
+description "Convert DT_ARG{}s between calendrical systems.
+If DT_ARG{} is omitted DT_STR{}s are read from stdin.
 
 SPECIALS"
 

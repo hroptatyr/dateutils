@@ -1,6 +1,6 @@
 args "--unamed-opts --long-help"
 package "dtest"
-usage "dtest [OPTION]... DATE1 OP DATE2"
+usage "dtest [OPTION]... DT_ARG{}1 OP DT_ARG{}2"
 description "Like test(1) but for dates."
 
 QUIET
@@ -10,39 +10,39 @@ BACKSLASH_ESCAPES
 defgroup "op" groupdesc="Following operations are supported" required
 
 groupoption "eq" -
-	"DATE1 is the same as DATE2"
+	"DT_ARG{}1 is the same as DT_ARG{}2"
 	group="op"
 
 groupoption "ne" -
-	"DATE1 is not the same as DATE2"
+	"DT_ARG{}1 is not the same as DT_ARG{}2"
 	group="op"
 
 groupoption "gt" -
-	"DATE1 is newer than DATE2"
+	"DT_ARG{}1 is newer than DT_ARG{}2"
 	group="op"
 
 groupoption "lt" -
-	"DATE1 is older than DATE2"
+	"DT_ARG{}1 is older than DT_ARG{}2"
 	group="op"
 
 groupoption "ge" -
-	"DATE1 is newer than or equals DATE2"
+	"DT_ARG{}1 is newer than or equals DT_ARG{}2"
 	group="op"
 
 groupoption "le" -
-	"DATE1 is older than or equals DATE2"
+	"DT_ARG{}1 is older than or equals DT_ARG{}2"
 	group="op"
 
 ## convenience
 groupoption "nt" -
-	"DATE1 is newer than DATE2"
+	"DT_ARG{}1 is newer than DT_ARG{}2"
 	group="op"
 
 groupoption "ot" -
-	"DATE1 is older than DATE2"
+	"DT_ARG{}1 is older than DT_ARG{}2"
 	group="op"
 
 groupoption "cmp" -
-	"compare DATE1 to DATE2, return with 0 if equal, \
+	"compare DT_ARG{}1 to DT_ARG{}2, return with 0 if equal, \
 1 if left argument was newer and 2 if right argument was newer"
 	group="op"
