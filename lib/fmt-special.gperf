@@ -28,3 +28,7 @@ sexy, (dt_dtyp_t)DT_SEXY
 bizsi, DT_BIZSI
 ywd, DT_YWD
 yd, DT_YD
+julian, DT_JDN
+jdn, DT_JDN
+lilian, DT_LDN
+ldn, DT_LDN

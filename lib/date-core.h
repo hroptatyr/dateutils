@@ -75,6 +75,8 @@ typedef enum {
 	DT_MD,
 	DT_YWD,
 	DT_YD,
+	DT_JDN,
+	DT_LDN,
 	DT_NDTYP,
 } dt_dtyp_t;
 
@@ -176,6 +178,17 @@ typedef uint32_t dt_daisy_t;
 /* and a signed version for durations */
 typedef int32_t dt_sdaisy_t;
 
+/** jdn (julian day number)
+ * julian days are whole solar days since noon 1 Jan 4713 BC.
+ * We will mostly use the daisy type for this. */
+typedef float dt_jdn_t;
+
+/** ldn (lilian day number)
+ * lilian days are whole solar days since the inception of the Gregorian
+ * calendar, i.e. 15 Oct 1582.
+ * We will mostly use the daisy type for this. */
+typedef dt_daisy_t dt_ldn_t;
+
 /** bizda
  * bizdas is a calendar that counts business days before or after a
  * certain day in the month, mostly ultimo. */
@@ -247,6 +260,8 @@ struct dt_d_s {
 		dt_ywd_t ywd;
 		dt_daisy_t daisy;
 		dt_daisy_t bizsi;
+		dt_jdn_t jdn;
+		dt_ldn_t ldn;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
 		/* for durations only */

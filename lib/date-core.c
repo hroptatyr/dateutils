@@ -1247,8 +1247,22 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		res.ymcw = dt_conv_to_ymcw(d);
 		break;
 	case DT_DAISY:
-		res.daisy = dt_conv_to_daisy(d);
+	case DT_JDN:
+	case DT_LDN: {
+		dt_daisy_t tmp = dt_conv_to_daisy(d);
+		switch (tgttyp) {
+		case DT_DAISY:
+			res.daisy = tmp;
+			break;
+		case DT_LDN:
+			res.ldn = __daisy_to_ldn(tmp);
+			break;
+		case DT_JDN:
+			res.jdn = __daisy_to_jdn(tmp);
+			break;
+		}
 		break;
+	}
 	case DT_BIZDA:
 		/* actually this is a parametrised date */
 		res.bizda = dt_conv_to_bizda(d);

@@ -164,6 +164,39 @@ __daisy_get_yday(dt_daisy_t d)
 #if defined ASPECT_CONV && !defined DAISY_ASPECT_CONV_
 #define DAISY_ASPECT_CONV_
 
+static dt_ldn_t
+__daisy_to_ldn(dt_daisy_t d)
+{
+	return d + 122068U/*lilian's 1917-01-00*/;
+}
+
+static dt_jdn_t
+__daisy_to_jdn(dt_daisy_t d)
+{
+	return (dt_jdn_t)d + 2421228.5f/*julian's 1917-01-00*/;
+}
+
+static __attribute__((unused)) dt_daisy_t
+__ldn_to_daisy(dt_ldn_t d)
+{
+	dt_sdaisy_t tmp;
+
+	if ((tmp = d - 122068U/*lilian's 1917-01-00*/) > 0) {
+		return (dt_daisy_t)tmp;
+	}
+	return 0U;
+}
+
+static __attribute__((unused)) dt_daisy_t
+__jdn_to_daisy(dt_jdn_t d)
+{
+	float tmp;
+	if ((tmp = d - 2421228.5f/*julian's 1917-01-00*/) > 0.0f) {
+		return (dt_daisy_t)tmp;
+	}
+	return 0U;
+}
+
 static dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
