@@ -157,11 +157,11 @@ built_texis += dround.texi
 
 built_mans =
 built_mans += strptime.man
-built_mans += dadd.man
+built_mans += dadd.manu
 built_mans += dconv.man
 built_mans += ddiff.mand
 built_mans += dgrep.man
-built_mans += dseq.man
+built_mans += dseq.manu
 built_mans += dtest.man
 built_mans += dround.man
 
