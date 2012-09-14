@@ -1,9 +1,10 @@
 args "--unamed-opts --long-help"
 package "dadd"
-usage "dadd [OPTION]... [DATE] [DURATION]"
-description "Add DURATION to DATE and print the result, if \
-DATE is omitted but DURATION is given, read a list of DATEs from stdin.
-If DURATION is omitted but DATE is given, read a list of DURATIONs \
+usage "dadd [OPTION]... [DT_ARG] [DUR_ARG]"
+description "Add DUR_ARG to DT_ARG and print the result.
+If DT_ARG is omitted but DUR_ARG is given, read a list of DT_ARG{}s \
+from stdin.
+If DUR_ARG is omitted but DT_ARG is given, read a list of DUR_ARG{}s \
 from stdin.
 
 Durations are specified as nY, nMO, nW, or nD for years, months, \
@@ -15,9 +16,10 @@ h, m, s) and the unit symbol `d' can be omitted.
 Note that duration addition is not commutative!
   2000-03-30 +1mo +1d -> 2000-05-01
   2000-03-30 +1d +1mo -> 2000-04-30
-
-If there is any ambiguity between durations and dates, durations can \
-be prefixed with P as ISO 8601 suggests."
+"
+dnl really?
+dnl If there is any ambiguity between durations and dates, durations can \
+dnl be prefixed with P as ISO 8601 suggests."
 
 QUIET
 FORMAT
