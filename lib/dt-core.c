@@ -243,6 +243,7 @@ static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
+static const char repoch_dflt[] = "%rs";
 
 DEFUN void
 __trans_dtfmt(const char **fmt)
@@ -451,6 +452,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			/* subject to change */
 			fmt = ymdhms_dflt;
 			break;
+		case DT_JDN:
+		case DT_LDN:
+			fmt = repoch_dflt;
+			break;
 		case DT_BIZDA:
 			fmt = bizdahms_dflt;
 			break;
@@ -480,6 +485,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_BIZDA:
 			fmt = bizda_dflt;
+			break;
+		case DT_JDN:
+		case DT_LDN:
+			fmt = repoch_dflt;
 			break;
 		default:
 			/* fuck */
