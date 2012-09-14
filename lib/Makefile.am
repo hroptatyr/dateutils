@@ -60,9 +60,7 @@ EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
 EXTRA_libdut_a_SOURCES += fmt-special.gperf
-if HAVE_GPERF
 BUILT_SOURCES += fmt-special.c
-endif  HAVE_GPERF
 
 if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
