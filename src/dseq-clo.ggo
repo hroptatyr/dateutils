@@ -1,7 +1,16 @@
 args "--unamed-opts --long-help"
 package "dseq"
 usage "dseq [OPTION]... FIRST [[INCREMENT] LAST]"
-description "Like seq(1) but for dates."
+description "Generate a sequence of DT_STR{}s from FIRST to LAST, \
+optionally in steps of INCREMENT (which defaults to `1d').
+
+If LAST is omitted it defaults to `now' if FIRST is a DT_STR, or \
+`today' if FIRST is a date, or `time' if FIRST is a time.
+
+The values of FIRST and LAST are always inclusive and no DT_STR{}s \
+before FIRST and no DT_STR{}s after LAST will be printed.
+
+Negative INCREMENTs must be given, i.e. if FIRST is newer than LAST."
 
 QUIET
 FORMAT
@@ -9,22 +18,29 @@ INPUT_FORMAT
 BACKSLASH_ESCAPES
 
 option "skip" s
-	"skip weekday specified by STRING, use multiple times \
-or comma separated to skip several days, use `ss' to skip \
-weekends (sat+sun) altogether, date ranges can be specified \
-like `mo-we' for monday to wednesday"
+	"Skip weekdays specified by STRING.
+STRING can be a single weekday (Mon, Tue, etc.), and to skip several \
+days the --skip option can be used multiple times.
+STRING can also be a comma-separated list of weekday names, or `ss' \
+to skip weekends (sat+sun) altogether.
+STRING can also contain date ranges like `mo-we' for monday to \
+wednesday."
 	string optional multiple
 
 option "alt-inc" -
 	"Alternative increment to use when a date is hit that is \
-skipped as per --skip.  This increment will be applied until a \
-non-skipped date is reached.  The special case `0' (default) \
-deactivates alternative incrementing.
+skipped as per --skip.
+This increment will be applied until a non-skipped date is reached.
+The special case `0' (default) deactivates alternative incrementing.  \
 A useful value could be `1d' for increasing sequences and `-1d' for \
 decreasing sequences, so if a skipped date is encountered the next \
 non-skipped date after/before will be used."
 	string optional
 
 option "compute-from-last" -
-	"Compute the value of FIRST from LAST using INCREMENT."
+	"Compute a start value from LAST using INCREMENT.
+This option has an effect only when INCREMENT is not a divisor of the \
+duration between FIRST and LAST.  In such case, an alternative FIRST \
+will be computed by consecutively subtracting INCREMENT from LAST \
+until FIRST is hit or crossed."
 	optional
