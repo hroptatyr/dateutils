@@ -11,7 +11,7 @@ noinst_LIBRARIES =
 lib_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
-EXTRA_DIST =
+EXTRA_DIST = $(BUILT_SOURCES)
 
 header_HEADERS =
 header_HEADERS += date-core.h
@@ -59,10 +59,10 @@ EXTRA_libdut_a_SOURCES += ymcw.c
 EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
-EXTRA_libdut_a_SOURCES += fmt-special.gperf
-if HAVE_GPERF
+EXTRA_libdut_a_SOURCES += fmt-special.gperf fmt-special.c
+EXTRA_libdut_a_SOURCES += leapseconds
 BUILT_SOURCES += fmt-special.c
-endif  HAVE_GPERF
+BUILT_SOURCES += leapseconds.def
 
 if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
@@ -73,9 +73,6 @@ ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
 endif  ## BUILD_LTRCC
 
-EXTRA_DIST += leapseconds
-BUILT_SOURCES += leapseconds.def
-CLEANFILES += $(BUILT_SOURCES)
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
