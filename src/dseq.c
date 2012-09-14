@@ -554,6 +554,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			/* emulates old dseq(1) */
 			if (argi->inputs_num == 1) {
 				lst.d = dt_date(DT_YMD);
+				dt_make_d_only(&lst, DT_YMD);
 			}
 
 			dt_make_d_only(&ite_p1, DT_DAISY);
@@ -562,10 +563,12 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			/* emulates old tseq(1) */
 			if (argi->inputs_num == 1) {
 				lst.t = dt_time();
+				dt_make_t_only(&lst, DT_HMS);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->inputs_num == 1) {
 				lst = dt_datetime((dt_dttyp_t)DT_YMD);
+				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
 			}
 
 			dt_make_sandwich(&ite_p1, DT_DAISY, DT_TUNK);
