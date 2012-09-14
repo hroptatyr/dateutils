@@ -76,6 +76,11 @@ AC_ARG_VAR([GPERF], [full path to the gperf tool])
 AM_CONDITIONAL([HAVE_GPERF], [test -n "${GPERF}"])
 if test -n "${GPERF}"; then
 	AC_DEFINE([HAVE_GPERF], [1], [define when gperf tool is present])
+elif test -f "${srcdir}/lib/fmt-special.c"; then
+	AC_DEFINE([HAVE_GPERF], [1], [define when gperf file is found])
+else
+	AC_MSG_WARN([gperf tool not present and fmt-special.c not
+built.  This build is going to fail.])
 fi
 
 

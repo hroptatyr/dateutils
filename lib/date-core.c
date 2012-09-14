@@ -663,7 +663,9 @@ dt_conv_to_ywd(struct dt_d_s this)
 #include "date-core-strpf.c"
 
 #if defined HAVE_GPERF
-#include "fmt-special.c"
+# include "fmt-special.c"
+#else  /* !HAVE_GPERF */
+# error gperf-generated file fmt-special.c not found
 #endif	/* HAVE_GPERF */
 
 static const char ymd_dflt[] = "%F";
@@ -676,34 +678,12 @@ static const char bizda_dflt[] = "%Y-%m-%db";
 static dt_dtyp_t
 __trans_dfmt_special(const char *fmt)
 {
-#if defined HAVE_GPERF
 	size_t len = strlen(fmt);
 	const struct dt_fmt_special_s *res;
 
 	if (UNLIKELY((res = __fmt_special(fmt, len)) != NULL)) {
 		return res->e;
 	}
-#else  /* !HAVE_GPERF */
-	if (0) {
-		;
-	} else if (strcasecmp(fmt, "ymd") == 0) {
-		return DT_YMD;
-	} else if (strcasecmp(fmt, "ymcw") == 0) {
-		return DT_YMCW;
-	} else if (strcasecmp(fmt, "bizda") == 0) {
-		return DT_BIZDA;
-	} else if (strcasecmp(fmt, "ywd") == 0) {
-		return DT_YWD;
-	} else if (strcasecmp(fmt, "daisy") == 0) {
-		return DT_DAISY;
-# if defined DT_SEXY_BASE_YEAR
-	} else if (strcasecmp(fmt, "sexy") == 0) {
-		return (dt_dtyp_t)DT_SEXY;
-# endif	 /* DT_SEXY_BASE_YEAR */
-	} else if (strcasecmp(fmt, "bizsi") == 0) {
-		return DT_BIZSI;
-	}
-#endif	/* HAVE_GPERF */
 	return DT_DUNK;
 }
 

@@ -1,76 +1,68 @@
 dnl -*- m4 -*-
 changequote(`[', `]')
 
-define([DT_DATE_MACROES], [
-	]define([DT_STRF_F], [dt_strfd])[
-	]define([DT_STRP_F], [dt_strpd])[
-	]define([DT_TYPE], [DATE])[
-	]define([DT_CAL], [calendar])[
-])
-define([DT_TIME_MACROES], [
-	]define([DT_STRF_F], [dt_strft])[
-	]define([DT_STRP_F], [dt_strpt])[
-	]define([DT_TYPE], [TIME])[
-	]define([DT_CAL], [time spec])[
-])
+define([DT_DATE_MACROES], [])
+define([DT_TIME_MACROES], [])
 
-dnl default to date macroes
-DT_DATE_MACROES
+dnl just a few terms that we use throughout the text
+define([DT_FMT], [specifier string])
+define([DT_STR], [date/time])
+define([DUR_STR], [duration])
+define([DT_ARG], [DATE/TIME])
+define([DUR_ARG], [DURATION])
+define([DT_CAL], [calendar])
 
 define([FORMAT], [dnl
 option "format" f
-	"Output format as passed to ]DT_STRF_F[(), this can either be a \
-spec string (similar to strftime()'s FMT) or the name of a ]DT_CAL[."
+	"Output format.  This can either be a ]DT_FMT[ \
+(similar to strftime()'s FMT) or the name of a ]DT_CAL[."
 	string optional
 ])dnl FORMAT
 
 define([INPUT_FORMAT], [dnl
 option "input-format" i
-	"Input format as passed to ]DT_STRP_F[(), can be used \
-multiple times.
-Each ]DT_TYPE[ will be passed to the input format parsers in the \
-order they are given, if ]DT_TYPE[ can be read successfully with \
-a given input format that value will be used."
+	"Input format, can be used multiple times.
+Each ]DT_STR[ will be passed to the input format parsers in the \
+order they are given, if a ]DT_STR[ can be read successfully with \
+a given input format ]DT_FMT[, that value will be used."
 	string optional multiple
 ])dnl INPUT_FORMAT
 
 define([BACKSLASH_ESCAPES], [dnl
 option "backslash-escapes" e
 	"Enable interpretation of backslash escapes in the output and \
-input format strings"
+input format ]DT_FMT[s."
 	optional
 ])dnl BACKSLASH_ESCAPES
 
 define([SED_MODE], [dnl
 option "sed-mode" S
-	"Copy parts from the input before and after the date string.  \
-Optional DELIM specifies where the date input starts and defaults to \
-the tab character."
+	"Copy parts from the input before and after the ]DT_STR[."
 	optional
 ])dnl SED_MODE
 
 define([QUIET], [dnl
 option "quiet" q
-	"Suppress message about date and duration parser errors."
+	"Suppress message about ]DT_STR[ and ]DUR_STR[ parser errors."
 	optional
 ])dnl QUIET
 
 define([FROM_ZONE], [dnl
 option "from-zone" -
 	"Interpret dates on stdin or the command line as coming from \
-the time zone ZONE"
+the time zone ZONE."
 	string optional typestr="ZONE"
 ])dnl FROM_ZONE
 
 define([TO_ZONE], [dnl
 option "zone" z
 	"Convert dates printed on stdout to time zone ZONE, \
-default: UTC"
+default: UTC."
 	string optional typestr="ZONE"
 ])dnl TO_ZONE
 
 define([SPECIALS], [dnl
-DATE can also be one of the following specials:
+]DT_ARG[ can also be one of the following specials:
 - `now', interpreted as the current (UTC) time stamp
 - `time', the time part of the current (UTC) time stamp
 - `today', the current date (according to UTC)
@@ -78,4 +70,4 @@ DATE can also be one of the following specials:
 - `y[ester]day', yesterday's date (according to UTC)dnl
 ])dnl SPECIALS
 
-changequote([[]], [[]])
+changequote([{], [}])

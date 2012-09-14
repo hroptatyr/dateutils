@@ -137,6 +137,7 @@ EXTRA_DIST += format-ddiff.h2m
 EXTRA_DIST += $(dateutils_H2M_EX)
 BUILT_SOURCES += format.h2m
 BUILT_SOURCES += format-ddiff.h2m
+BUILT_SOURCES += units.h2m
 BUILT_SOURCES += $(built_texis)
 BUILT_SOURCES += $(built_mans)
 BUILT_SOURCES += $(dateutils_H2M_EX)
@@ -156,13 +157,13 @@ built_texis += dround.texi
 
 built_mans =
 built_mans += strptime.man
-built_mans += dadd.man
+built_mans += dadd.manu
 built_mans += dconv.man
-built_mans += ddiff.man
+built_mans += ddiff.mand
 built_mans += dgrep.man
-built_mans += dseq.man
+built_mans += dseq.manu
 built_mans += dtest.man
-built_mans += dround.man
+built_mans += dround.manu
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
@@ -177,13 +178,22 @@ __bld_man_0 = @echo "  HELP2MAN" $@;
 		-I "$(srcdir)/author.h2m" \
 		-o $@ $(top_builddir)/src/$*
 
-## exception for ddiff
-ddiff.man: $(top_srcdir)/src/ddiff-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))ddiff" \
-		-I "$(builddir)/ddiff.h2m" \
+## generic rule with format-ddiff instead of format
+%.mand: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
+		-I "$(builddir)/$*.h2m" \
 		-I "$(builddir)/format-ddiff.h2m" \
 		-I "$(srcdir)/author.h2m" \
-		-o $@ $(top_builddir)/src/ddiff
+		-o $@ $(top_builddir)/src/$*
+
+## generic rule for man pages with units section
+%.manu: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
+		-I "$(builddir)/$*.h2m" \
+		-I "$(builddir)/format.h2m" \
+		-I "$(builddir)/units.h2m" \
+		-I "$(srcdir)/author.h2m" \
+		-o $@ $(top_builddir)/src/$*
 
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
