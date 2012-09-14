@@ -59,8 +59,10 @@ EXTRA_libdut_a_SOURCES += ymcw.c
 EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
-EXTRA_libdut_a_SOURCES += fmt-special.gperf
+EXTRA_libdut_a_SOURCES += fmt-special.gperf fmt-special.c
+EXTRA_libdut_a_SOURCES += leapseconds
 BUILT_SOURCES += fmt-special.c
+BUILT_SOURCES += leapseconds.def
 
 if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
@@ -71,7 +73,6 @@ ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
 endif  ## BUILD_LTRCC
 
-BUILT_SOURCES += leapseconds.def
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
