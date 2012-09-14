@@ -584,6 +584,7 @@ don't know how to handle single argument case");
 
 		clo.fst = fst;
 		clo.lst = lst;
+		clo.ite->dur = 1;
 		break;
 	case 3: {
 		struct __strpdtdur_st_s st = {0};
