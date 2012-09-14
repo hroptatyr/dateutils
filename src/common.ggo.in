@@ -70,4 +70,4 @@ define([SPECIALS], [dnl
 - `y[ester]day', yesterday's date (according to UTC)dnl
 ])dnl SPECIALS
 
-changequote([[]], [[]])
+changequote([{], [}])
