@@ -178,30 +178,22 @@ __bld_man_0 = @echo "  HELP2MAN" $@;
 		-I "$(srcdir)/author.h2m" \
 		-o $@ $(top_builddir)/src/$*
 
-## exception for ddiff
-ddiff.man: $(top_srcdir)/src/ddiff-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))ddiff" \
-		-I "$(builddir)/ddiff.h2m" \
+## generic rule with format-ddiff instead of format
+%.mand: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
+		-I "$(builddir)/$*.h2m" \
 		-I "$(builddir)/format-ddiff.h2m" \
 		-I "$(srcdir)/author.h2m" \
-		-o $@ $(top_builddir)/src/ddiff
+		-o $@ $(top_builddir)/src/$*
 
-## exceptions for dadd and dseq
-dadd.man: $(top_srcdir)/src/dadd-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))dadd" \
-		-I "$(builddir)/dadd.h2m" \
+## generic rule for man pages with units section
+%.manu: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
+	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
+		-I "$(builddir)/$*.h2m" \
 		-I "$(builddir)/format.h2m" \
 		-I "$(builddir)/units.h2m" \
 		-I "$(srcdir)/author.h2m" \
-		-o $@ $(top_builddir)/src/dadd
-
-dseq.man: $(top_srcdir)/src/dseq-clo.ggo $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))dseq" \
-		-I "$(builddir)/dseq.h2m" \
-		-I "$(builddir)/format.h2m" \
-		-I "$(builddir)/units.h2m" \
-		-I "$(srcdir)/author.h2m" \
-		-o $@ $(top_builddir)/src/dseq
+		-o $@ $(top_builddir)/src/$*
 
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
