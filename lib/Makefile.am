@@ -11,7 +11,7 @@ noinst_LIBRARIES =
 lib_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
-EXTRA_DIST =
+EXTRA_DIST = $(BUILT_SOURCES)
 
 header_HEADERS =
 header_HEADERS += date-core.h
@@ -73,7 +73,6 @@ ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
 endif  ## BUILD_LTRCC
 
-EXTRA_DIST += leapseconds
 BUILT_SOURCES += leapseconds.def
 CLEANFILES += $(BUILT_SOURCES)
 
