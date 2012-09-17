@@ -413,6 +413,8 @@ dt_tests += dtconv.38.dt
 dt_tests += dtconv.39.dt
 dt_tests += dtconv.40.dt
 dt_tests += dtconv.41.dt
+dt_tests += dtconv.42.dt
+dt_tests += dtconv.43.dt
 
 dt_tests += dtseq.1.dt
 dt_tests += dtseq.2.dt

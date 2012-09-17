@@ -55,6 +55,12 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+static inline unsigned int
+__secs_since_midnight(struct dt_t_s t)
+{
+	return (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+}
+
 
 /* guessing parsers */
 #include "token.c"
