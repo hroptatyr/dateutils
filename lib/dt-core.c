@@ -967,6 +967,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 {
 	if (dt_sandwich_p(d) || dt_sandwich_only_d_p(d)) {
 		switch (tgttyp) {
+			short unsigned int sw;
 		case DT_YMD:
 		case DT_YMCW:
 		case DT_BIZDA:
@@ -977,7 +978,12 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 		case DT_YD:
 		case DT_JDN:
 		case DT_LDN:
+			/* backup sandwich state */
+			sw = d.sandwich;
+			/* convert */
 			d.d = dt_dconv((dt_dtyp_t)tgttyp, d.d);
+			/* restore sandwich state */
+			d.sandwich = sw;
 			break;
 		case DT_SEXY:
 		case DT_SEXYTAI: {
