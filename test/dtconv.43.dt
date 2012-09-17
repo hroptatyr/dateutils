@@ -1,15 +1,15 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="2012-01-01 -f lilian"
-COMMENT="convert cmd-line to lilian"
+CMDLINE="2011-01-01T12:00:00 -f julian"
+COMMENT="convert cmd-line to julian"
 
 ## STDIN
 
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-156767.000000
+2455563.000000
 EOF
 
-## dconv.93.dt ends here
+## dtconv.43.dt ends here

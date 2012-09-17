@@ -243,7 +243,6 @@ static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
-static const char repoch_dflt[] = "%rD";
 
 DEFUN void
 __trans_dtfmt(const char **fmt)
@@ -454,8 +453,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
-			fmt = repoch_dflt;
-			break;
+			/* short cut, just print the guy here */
+			bp = buf + __strfdt_xdn(buf, bsz, that);
+			goto out;
 		case DT_BIZDA:
 			fmt = bizdahms_dflt;
 			break;
@@ -488,8 +488,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
-			fmt = repoch_dflt;
-			break;
+			/* short cut, print the guy in here */
+			bp = buf + __strfdt_xdn(buf, bsz, that);
+			goto out;
 		default:
 			/* fuck */
 			abort();
@@ -537,12 +538,12 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.d = tmp.d;
 		break;
 	}
-	case DT_LDN:
-	case DT_JDN:
 	case DT_YMDHMS:
 		break;
 	default:
 	case DT_DUNK:
+	case DT_LDN:
+	case DT_JDN:
 		if (!dt_sandwich_only_t_p(that)) {
 			bp = buf;
 			goto out;
@@ -966,35 +967,59 @@ DEFUN struct dt_dt_s
 dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 {
 	if (dt_sandwich_p(d) || dt_sandwich_only_d_p(d)) {
-		if (tgttyp > DT_DUNK && tgttyp < DT_NDTYP) {
+		switch (tgttyp) {
+			short unsigned int sw;
+		case DT_YMD:
+		case DT_YMCW:
+		case DT_BIZDA:
+		case DT_DAISY:
+		case DT_BIZSI:
+		case DT_MD:
+		case DT_YWD:
+		case DT_YD:
+		case DT_JDN:
+		case DT_LDN:
+			/* backup sandwich state */
+			sw = d.sandwich;
+			/* convert */
 			d.d = dt_dconv((dt_dtyp_t)tgttyp, d.d);
-		} else {
-			switch (tgttyp) {
-			case DT_SEXY:
-			case DT_SEXYTAI: {
-				dt_daisy_t dd = dt_conv_to_daisy(d.d);
+			/* restore sandwich state */
+			d.sandwich = sw;
+			break;
+		case DT_SEXY:
+		case DT_SEXYTAI: {
+			dt_daisy_t dd = dt_conv_to_daisy(d.d);
+			unsigned int ss = __secs_since_midnight(d.t);
 
-				d.sandwich = 0;
-				d.sexy = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY +
-					(d.t.hms.h * MINS_PER_HOUR + d.t.hms.m) *
-					SECS_PER_MIN + d.t.hms.s;
+			switch (tgttyp) {
+				int32_t sx;
 #if defined WITH_LEAP_SECONDS
-				if (tgttyp == DT_SEXYTAI) {
-					zidx_t zi = leaps_before_si32(
-						leaps_s, nleaps_s, (int32_t)d.sexy);
-					d.sexy += leaps_corr[zi];
-				}
-#endif	/* WITH_LEAP_SECONDS */
+			case DT_SEXYTAI: {
+				zidx_t zi;
+
+				sx = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY + ss;
+				zi = leaps_before_si32(leaps_s, nleaps_s, sx);
+				d.sexy = sx + leaps_corr[zi];
 				break;
 			}
-			case DT_YMDHMS:
-				/* no support for this guy yet */
-
-			case DT_DUNK:
-			default:
-				return dt_dt_initialiser();
+#else  /* !WITH_LEAP_SECONDS */
+			case DT_SEXYTAI:
+#endif	/* WITH_LEAP_SECONDS */
+			case DT_SEXY:
+				sx = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY + ss;
+				d.sexy = sx;
+				break;
 			}
+			d.sandwich = 0;
 			d.typ = tgttyp;
+			break;
+		}
+		case DT_YMDHMS:
+			/* no support for this guy yet */
+
+		case DT_DUNK:
+		default:
+			return dt_dt_initialiser();
 		}
 	} else if (dt_sandwich_only_t_p(d)) {
 		/* ah, how good is that? */

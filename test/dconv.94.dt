@@ -9,7 +9,7 @@ COMMENT="convert cmd-line to lilian"
 ## STDOUT
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
-122069
+122069.000000
 EOF
 
 ## dconv.94.dt ends here
