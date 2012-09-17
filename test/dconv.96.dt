@@ -1,0 +1,15 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="1917-01-01 -f julian"
+COMMENT="convert cmd-line to julian"
+
+## STDIN
+
+## STDOUT
+stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+cat > "${stdout}" <<EOF
+2421229.500000
+EOF
+
+## dconv.96.dt ends here
