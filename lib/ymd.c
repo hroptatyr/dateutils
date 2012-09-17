@@ -278,6 +278,25 @@ __get_widx_FG(unsigned int y)
 	return (idx + add[res]) % GREG_DAYS_P_WEEK;
 }
 
+#if !defined WITH_FAST_ARITH
+static inline __attribute__((pure)) unsigned int
+__get_28y_year_equiv_H(unsigned year)
+{
+/* like __get_28y_year_equiv() but for months H..Z
+ * needed for 7YM algo */
+	year = year % 400U;
+
+	if (year >= 300U) {
+		return year + 1600U;
+	} else if (year >= 200U) {
+		return year + 1724U;
+	} else if (year >= 100U) {
+		return year + 1820U;
+	}
+	return year + 2000;
+}
+#endif	/* !WITH_FAST_ARITH */
+
 static dt_dow_t
 __ymd_get_wday(dt_ymd_t that)
 {
@@ -312,7 +331,11 @@ __ymd_get_wday(dt_ymd_t that)
 			S, W,  R, S, T, F, S, W, A, M, R, A,
 		},
 	};
+#if defined WITH_FAST_ARITH
 	unsigned int by = that.y;
+#else  /* !WITH_FAST_ARITH */
+	unsigned int by = __get_28y_year_equiv_H(that.y);
+#endif	/* WITH_FAST_ARITH */
 	unsigned int bm = that.m - 1;
 	unsigned int bd = that.d - 1;
 	unsigned int idx;
