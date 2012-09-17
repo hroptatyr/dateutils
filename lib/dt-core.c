@@ -243,7 +243,7 @@ static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
-static const char repoch_dflt[] = "%rs";
+static const char repoch_dflt[] = "%rD";
 
 DEFUN void
 __trans_dtfmt(const char **fmt)
