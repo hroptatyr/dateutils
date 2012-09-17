@@ -1237,7 +1237,7 @@ dt_date(dt_dtyp_t outtyp)
 DEFUN struct dt_d_s
 dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 {
-	struct dt_d_s res;
+	struct dt_d_s res = dt_d_initialiser();
 
 	switch ((res.typ = tgttyp)) {
 	case DT_YMD:
