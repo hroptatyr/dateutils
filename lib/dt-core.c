@@ -537,6 +537,8 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.sd.d = tmp.d;
 		break;
 	}
+	case DT_LDN:
+	case DT_JDN:
 	case DT_YMDHMS:
 		break;
 	default:
