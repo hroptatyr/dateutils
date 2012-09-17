@@ -645,7 +645,9 @@ __strfd_card(
 		break;
 
 	case DT_SPFL_N_DCNT_YEAR:
-		if (that.typ == DT_YMD || that.typ == DT_BIZDA) {
+		switch (that.typ) {
+		case DT_YMD:
+		case DT_BIZDA: {
 			/* %j */
 			int yd;
 			if (LIKELY(!s.bizda)) {
@@ -661,6 +663,16 @@ __strfd_card(
 				buf[res++] = '0';
 				buf[res++] = '0';
 			}
+			break;
+		}
+		case DT_LDN:
+			res = snprintf(buf, bsz, "%u", that.ldn);
+			break;
+		case DT_JDN:
+			res = snprintf(buf, bsz, "%.6f", that.jdn);
+			break;
+		default:
+			break;
 		}
 		break;
 	case DT_SPFL_N_WCNT_YEAR: {
