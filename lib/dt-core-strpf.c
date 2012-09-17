@@ -374,4 +374,28 @@ __strfdt_dur(
 	return 1;
 }
 
+static size_t
+__strfdt_xdn(char *buf, size_t bsz, struct dt_dt_s that)
+{
+	double dn;
+
+	switch (that.d.typ) {
+	case DT_JDN:
+		dn = (double)that.d.jdn;
+		break;
+	case DT_LDN:
+		dn = (double)that.d.ldn;
+		break;
+	default:
+		return 0;
+	}
+
+	if (dt_sandwich_p(that)) {
+		unsigned int ss = __secs_since_midnight(that.t);
+		dn += (double)ss / (double)SECS_PER_DAY;
+	}
+
+	return snprintf(buf, bsz, "%.6f", dn);
+}
+
 #endif	/* INCLUDED_dt_core_strpf_c_ */
