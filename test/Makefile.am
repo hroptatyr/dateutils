@@ -558,6 +558,7 @@ check_PROGRAMS += time-core-add
 check_PROGRAMS += basic_ymd_get_wday
 check_PROGRAMS += basic_get_jan01_wday
 check_PROGRAMS += basic_md_get_yday
+check_PROGRAMS += basic_get_dom_wday
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -575,6 +576,7 @@ bin_tests += dtcore-add
 bin_tests += time-core-add
 bin_tests += basic_ymd_get_wday
 bin_tests += basic_get_jan01_wday
+bin_tests += basic_get_dom_wday
 bin_tests += basic_md_get_yday
 
 ## batch checks
