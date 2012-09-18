@@ -47,7 +47,8 @@
 #if defined YMD_GET_WDAY_LOOKUP
 #elif defined YMD_GET_WDAY_ZELLER
 #elif defined YMD_GET_WDAY_SAKAMOTO
-#elif defined YMD_GET_WDAY_7YM
+#elif defined YMD_GET_WDAY_7YM_ALL
+#elif defined YMD_GET_WDAY_7YM_REP
 #else
 /* default algo */
 # define YMD_GET_WDAY_LOOKUP
@@ -103,37 +104,16 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
 }
 
-/* try to get helpers like __get_d_equiv() et al */
-#include "bizda.c"
-#endif	/* YMD_ASPECT_HELPERS_ */
-
-
-#if defined ASPECT_GETTERS && !defined YMD_ASPECT_GETTERS_
-#define YMD_ASPECT_GETTERS_
-static unsigned int
-__ymd_get_yday(dt_ymd_t that)
-{
-	unsigned int res;
-
-	if (UNLIKELY(that.y == 0 ||
-		     that.m == 0 || that.m > GREG_MONTHS_P_YEAR)) {
-		return 0;
-	}
-	/* process */
-	res = __md_get_yday(that.y, that.m, that.d);
-	return res;
-}
-
 #if defined YMD_GET_WDAY_LOOKUP
 /* lookup version */
 static dt_dow_t
-__ymd_get_wday(dt_ymd_t that)
+__get_dom_wday(unsigned int year, unsigned int mon, unsigned int dom)
 {
 	unsigned int yd;
 	unsigned int j01_wd;
 
-	if ((yd = __ymd_get_yday(that)) > 0 &&
-	    (j01_wd = __get_jan01_wday(that.y)) != DT_MIRACLEDAY) {
+	if ((yd = __md_get_yday(year, mon, dom)) > 0 &&
+	    (j01_wd = __get_jan01_wday(year)) != DT_MIRACLEDAY) {
 		return (dt_dow_t)((yd - 1 + j01_wd) % GREG_DAYS_P_WEEK);
 	}
 	return DT_MIRACLEDAY;
@@ -142,48 +122,42 @@ __ymd_get_wday(dt_ymd_t that)
 #elif defined YMD_GET_WDAY_ZELLER
 /* Zeller algorithm */
 static dt_dow_t
-__ymd_get_wday(dt_ymd_t that)
+__get_dom_wday(int year, int mon, int dom)
 {
 /* this is Zeller's method, but there's a problem when we use this for
  * the bizda calendar. */
-	int ydm = that.m;
-	int ydy = that.y;
-	int ydd = that.d;
 	int w;
 	int c, x;
 	int d, y;
 
-	if ((ydm -= 2) <= 0) {
-		ydm += 12;
-		ydy--;
+	if ((mon -= 2) <= 0) {
+		mon += 12;
+		year--;
 	}
 
-	d = ydy / 100;
-	c = ydy % 100;
+	d = year / 100;
+	c = year % 100;
 	x = c / 4;
 	y = d / 4;
 
-	w = (13 * ydm - 1) / 5;
-	return (dt_dow_t)((w + x + y + ydd + c - 2 * d) % GREG_DAYS_P_WEEK);
+	w = (13 * mon - 1) / 5;
+	return (dt_dow_t)((w + x + y + dom + c - 2 * d) % GREG_DAYS_P_WEEK);
 }
 #elif defined YMD_GET_WDAY_SAKAMOTO
 /* Sakamoto method */
 static dt_dow_t
-__ymd_get_wday(dt_ymd_t that)
+__get_dom_wday(int year, int mon, int dom)
 {
 	static int t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
-	int y = that.y;
-	int m = that.m;
-	int d = that.d;
 	int res;
 
-	y -= m < 3;
-	res = y + y / 4 - y / 100 + y / 400;
-	res += t[m - 1] + d;
+	year -= mon < 3;
+	res = year + year / 4 - year / 100 + year / 400;
+	res += t[mon - 1] + dom;
 	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
 }
 
-#elif defined YMD_GET_WDAY_7YM
+#elif defined YMD_GET_WDAY_7YM_ALL || defined YMD_GET_WDAY_7YM_REP
 /* this one's work in progress
  * first observe the 7 patterns in months FG and H..Z and how leap years
  * correspond to ordinary years.
@@ -251,7 +225,11 @@ __ymd_get_wday(dt_ymd_t that)
  *         x - 5, if y = 3
  *
  * Proceed similar for FG series.
- * That's how the formulas below came into being. */
+ * That's how the formulas below came into being.
+ *
+ * For the shortened version (REP for representant) you have observe
+ * that from leap year to leap year the weekday difference for each
+ * respective month is 5. */
 static unsigned int
 __get_widx_H(unsigned int y)
 {
@@ -297,8 +275,9 @@ __get_28y_year_equiv_H(unsigned year)
 }
 #endif	/* !WITH_FAST_ARITH */
 
-static dt_dow_t
-__ymd_get_wday(dt_ymd_t that)
+#if defined YMD_GET_WDAY_7YM_ALL
+static inline __attribute__((pure)) unsigned int
+__get_ser(unsigned int class, unsigned int mon)
 {
 # define M	(DT_MONDAY)
 # define T	(DT_TUESDAY)
@@ -331,24 +310,6 @@ __ymd_get_wday(dt_ymd_t that)
 			S, W,  R, S, T, F, S, W, A, M, R, A,
 		},
 	};
-#if defined WITH_FAST_ARITH
-	unsigned int by = that.y;
-#else  /* !WITH_FAST_ARITH */
-	unsigned int by = __get_28y_year_equiv_H(that.y);
-#endif	/* WITH_FAST_ARITH */
-	unsigned int bm = that.m - 1;
-	unsigned int bd = that.d - 1;
-	unsigned int idx;
-
-	if (bm < 2U) {
-		/* FG */
-		idx = __get_widx_FG(by);
-	} else {
-		idx = __get_widx_H(by);
-	}
-
-	/* implicit assumption DT_SUN == 0! */
-	return (dt_dow_t)((ser[idx][bm] + bd) % GREG_DAYS_P_WEEK);
 # undef M
 # undef T
 # undef W
@@ -356,9 +317,90 @@ __ymd_get_wday(dt_ymd_t that)
 # undef F
 # undef A
 # undef S
+	return ser[class][mon];
+}
+#elif defined YMD_GET_WDAY_7YM_REP
+static inline __attribute__((pure)) unsigned int
+__get_ser(unsigned int class, unsigned int mon)
+{
+# define M	(DT_MONDAY)
+# define T	(DT_TUESDAY)
+# define W	(DT_WEDNESDAY)
+# define R	(DT_THURSDAY)
+# define F	(DT_FRIDAY)
+# define A	(DT_SATURDAY)
+# define S	(DT_SUNDAY)
+	static unsigned int ser[12] = {
+		/* 1932 = [[0]C4 + 0]C28 */
+		F, M,  T, F, S, W, F, M, R, A, T, R,
+	};
+# undef M
+# undef T
+# undef W
+# undef R
+# undef F
+# undef A
+# undef S
+	return ser[mon] + 5 * class;
+}
+#endif	/* 7YM_ALL | 7YM_RES */
+
+static dt_dow_t
+__get_dom_wday(unsigned int year, unsigned int mon, unsigned int dom)
+{
+	unsigned int bm = mon - 1;
+	unsigned int bd = dom - 1;
+	unsigned int idx;
+
+	if (bm < 2U) {
+		/* FG */
+#if defined WITH_FAST_ARITH
+		unsigned int by = year;
+#else  /* !WITH_FAST_ARITH */
+		unsigned int by = __get_28y_year_equiv(year);
+#endif	/* !WITH_FAST_ARITH */
+		idx = __get_widx_FG(by);
+	} else {
+#if defined WITH_FAST_ARITH
+		unsigned int by = year;
+#else  /* !WITH_FAST_ARITH */
+		unsigned int by = __get_28y_year_equiv_H(year);
+#endif  /* !WITH_FAST_ARITH */
+		idx = __get_widx_H(by);
+	}
+
+	/* implicit assumption DT_SUN == 0! */
+	return (dt_dow_t)((__get_ser(idx, bm) + bd) % GREG_DAYS_P_WEEK);
 }
 
 #endif	/* 0 */
+
+/* try to get helpers like __get_d_equiv() et al */
+#include "bizda.c"
+#endif	/* YMD_ASPECT_HELPERS_ */
+
+
+#if defined ASPECT_GETTERS && !defined YMD_ASPECT_GETTERS_
+#define YMD_ASPECT_GETTERS_
+static unsigned int
+__ymd_get_yday(dt_ymd_t that)
+{
+	unsigned int res;
+
+	if (UNLIKELY(that.y == 0 ||
+		     that.m == 0 || that.m > GREG_MONTHS_P_YEAR)) {
+		return 0;
+	}
+	/* process */
+	res = __md_get_yday(that.y, that.m, that.d);
+	return res;
+}
+
+static dt_dow_t
+__ymd_get_wday(dt_ymd_t that)
+{
+	return __get_dom_wday(that.y, that.m, that.d);
+}
 
 static unsigned int
 __ymd_get_count(dt_ymd_t that)
