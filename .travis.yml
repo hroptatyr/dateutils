@@ -5,6 +5,7 @@ compiler:
 
 before_script:
   - sudo apt-get install -qq gengetopt
+  - sudo apt-get install -qq gperf
   - autoreconf -vfi
 
 script: ./configure && make && make check
