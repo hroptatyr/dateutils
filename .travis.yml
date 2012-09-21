@@ -1,0 +1,20 @@
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - sudo apt-get install -qq gengetopt
+
+script: ./configure && make && make check
+
+## whitelist
+branches:
+  only:
+    - master
+    - next
+
+notifications:
+  email:
+    - devel@fresse.org
