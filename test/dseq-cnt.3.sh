@@ -20,7 +20,11 @@ foo=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 "${DSEQ}" "${BEG}" +1y "${END}" -f '%F	%a' > "${foo}"
-for y in `seq ${BEG/-*/} ${END/-*/}`; do
+
+## strip month and dom from BEG and END in a way that works on dash
+BEG=`echo ${BEG} | sed 's/-.*//'`
+END=`echo ${END} | sed 's/-.*//'`
+for y in `seq ${BEG} ${END}`; do
 	"${GDATE}" -d "${y}-12-31" '+%F	%a'
 done > "${bar}"
 
