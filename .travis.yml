@@ -12,7 +12,7 @@ before_script:
   - sudo apt-get install -qq flex
   - autoreconf -vfi
 
-script: ./configure && make clean all check distcheck || cat test/test-suite.log
+script: ./configure && make clean all check distcheck || (cat test/test-suite.log && /bin/false)
 
 ## whitelist
 branches:
