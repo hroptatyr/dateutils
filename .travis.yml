@@ -2,6 +2,7 @@ language: c
 
 compiler:
   - gcc
+  - clang
 
 before_script:
   - sudo apt-get install -qq gengetopt
@@ -10,6 +11,7 @@ before_script:
   - sudo apt-get install -qq texinfo
   - sudo apt-get install -qq bison
   - sudo apt-get install -qq flex
+  - sudo apt-get install -qq texlive
   - autoreconf -vfi
 
 script: ./configure && make clean all check distcheck || (cat test/test-suite.log && /bin/false)
