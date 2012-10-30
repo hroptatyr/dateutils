@@ -211,7 +211,7 @@ calc_grep_atom(const char *fmt)
 	/* rest here ... */
 	while (*fp) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		/* pre checks */
 		switch (spec.spfl) {

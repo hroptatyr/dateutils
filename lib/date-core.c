@@ -803,7 +803,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
@@ -941,7 +941,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	fp = fmt;
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
@@ -1143,7 +1143,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	}
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
