@@ -354,7 +354,7 @@ dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur, bool nextp)
 static int
 dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 {
-	const char *sp = NULL;
+	char *sp = NULL;
 	struct strpd_s d = strpd_initialiser();
 	struct dt_spec_s s = spec_initialiser();
 	struct dt_dt_s payload = dt_dt_initialiser();
@@ -375,7 +375,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	/* try weekdays, set up s */
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
-	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+	if (__strpd_card(&d, str, s, &sp) >= 0) {
 		payload.d = dt_make_ymcw(0, 0, 0, d.w);
 		/* make sure it's d-only */
 		payload.sandwich = 0;
@@ -385,7 +385,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	/* try months, set up s */
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
-	if (__strpd_card(&d, str, s, (char**)&sp) >= 0) {
+	if (__strpd_card(&d, str, s, &sp) >= 0) {
 		payload.d = dt_make_ymd(0, d.m, 0);
 		/* make sure it's d-only */
 		payload.sandwich = 0;
@@ -548,14 +548,13 @@ no durations given");
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen;
-				const char *sp = NULL;
-				const char *ep = NULL;
+				char *sp = NULL;
+				char *ep = NULL;
 
 				llen = prchunk_getline(pctx, &line);
 				/* check if line matches, */
 				d = dt_io_find_strpdt2(
-					line, &ndlsoa,
-					(char**)&sp, (char**)&ep, fromz);
+					line, &ndlsoa, &sp, &ep, fromz);
 
 				/* finish with newline again */
 				line[llen] = '\n';

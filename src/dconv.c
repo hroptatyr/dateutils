@@ -160,14 +160,13 @@ main(int argc, char *argv[])
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen;
 				struct dt_dt_s d;
-				const char *sp = NULL;
-				const char *ep = NULL;
+				char *sp = NULL;
+				char *ep = NULL;
 
 				llen = prchunk_getline(pctx, &line);
 				/* check if line matches */
 				d = dt_io_find_strpdt2(
-					line, &ndlsoa,
-					(char**)&sp, (char**)&ep, fromz);
+					line, &ndlsoa, &sp, &ep, fromz);
 
 				/* finish with newline again */
 				line[llen] = '\n';
