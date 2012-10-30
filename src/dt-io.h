@@ -467,12 +467,10 @@ dt_io_find_strpdt2(
 		while (*np++ == *p) {
 			const struct grpatm_payload_s f = *fp++;
 			const char *fmt = f.fmt;
-			const char *q;
+			const char *q = p + f.off_min;
 
-			if (UNLIKELY((p + f.off_min) <= str)) {
+			if (UNLIKELY(q <= str)) {
 				q = str;
-			} else {
-				q = p + f.off_min;
 			}
 			for (const char *r = p + f.off_max; *q && q <= r; q++) {
 				if (!dt_unk_p(d = dt_strpdt(q, fmt, ep))) {
