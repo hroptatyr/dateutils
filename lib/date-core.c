@@ -661,12 +661,8 @@ dt_conv_to_ywd(struct dt_d_s this)
 #include "token.c"
 #include "strops.c"
 #include "date-core-strpf.c"
-
-#if defined HAVE_GPERF
-# include "fmt-special.c"
-#else  /* !HAVE_GPERF */
-# error gperf-generated file fmt-special.c not found
-#endif	/* HAVE_GPERF */
+/* we assume this file is in the dist, it's gen'd from fmt-special.gperf */
+#include "fmt-special.c"
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
