@@ -211,7 +211,7 @@ calc_grep_atom(const char *fmt)
 	/* rest here ... */
 	while (*fp) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		/* pre checks */
 		switch (spec.spfl) {
@@ -467,14 +467,14 @@ dt_io_find_strpdt2(
 		while (*np++ == *p) {
 			const struct grpatm_payload_s f = *fp++;
 			const char *fmt = f.fmt;
-			const char *q;
+			const char *q = p + f.off_min;
+			const char *r = p + f.off_max;
 
-			if (UNLIKELY((p + f.off_min) <= str)) {
+			if (UNLIKELY(q < str)) {
 				q = str;
-			} else {
-				q = p + f.off_min;
 			}
-			for (const char *r = p + f.off_max; *q && q <= r; q++) {
+
+			for (; *q && q <= r; q++) {
 				if (!dt_unk_p(d = dt_strpdt(q, fmt, ep))) {
 					p = q;
 					goto found;

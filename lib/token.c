@@ -54,7 +54,7 @@
 #endif	/* __INTEL_COMPILER */
 
 struct dt_spec_s
-__tok_spec(const char *fp, char **ep)
+__tok_spec(const char *fp, const char **ep)
 {
 	struct dt_spec_s res = spec_initialiser();
 
