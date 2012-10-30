@@ -34,33 +34,17 @@ typedef enum {
 	STRPDT_TOMO,
 } dt_strpdt_special_t;
 
-#if defined HAVE_GPERF
 #include "strpdt-special.c"
-#endif	/* HAVE_GPERF */
 
 static dt_strpdt_special_t
 dt_io_strpdt_special(const char *str)
 {
-#if defined HAVE_GPERF
 	size_t len = strlen(str);
 	const struct dt_strpdt_special_s *res;
 
 	if (UNLIKELY((res = __strpdt_special(str, len)) != NULL)) {
 		return res->e;
 	}
-#else  /* !HAVE_GPERF */
-	if (!strcasecmp(str, "now")) {
-		return STRPDT_NOW;
-	} else if (!strcasecmp(str, "today") || !strcasecmp(str, "date")) {
-		return STRPDT_DATE;
-	} else if (!strcasecmp(str, "tomo") || !strcasecmp(str, "tomorrow")) {
-		return STRPDT_TOMO;
-	} else if (!strcasecmp(str, "yday") || !strcasecmp(str, "yesterday")) {
-		return STRPDT_YDAY;
-	} else if (!strcasecmp(str, "time")) {
-		return STRPDT_TIME;
-	}
-#endif	/* HAVE_GPERF */
 	return STRPDT_UNK;
 }
 
@@ -227,7 +211,7 @@ calc_grep_atom(const char *fmt)
 	/* rest here ... */
 	while (*fp) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		/* pre checks */
 		switch (spec.spfl) {
@@ -483,14 +467,14 @@ dt_io_find_strpdt2(
 		while (*np++ == *p) {
 			const struct grpatm_payload_s f = *fp++;
 			const char *fmt = f.fmt;
-			const char *q;
+			const char *q = p + f.off_min;
+			const char *r = p + f.off_max;
 
-			if (UNLIKELY((p + f.off_min) <= str)) {
+			if (UNLIKELY(q < str)) {
 				q = str;
-			} else {
-				q = p + f.off_min;
 			}
-			for (const char *r = p + f.off_max; *q && q <= r; q++) {
+
+			for (; *q && q <= r; q++) {
 				if (!dt_unk_p(d = dt_strpdt(q, fmt, ep))) {
 					p = q;
 					goto found;

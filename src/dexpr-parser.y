@@ -49,7 +49,7 @@
 #include "dexpr.h"
 
 extern int yylex();
-extern int yyerror();
+extern int yyerror(dexpr_t *cur __attribute__((unused)), const char *errmsg);
 extern char *yytext;
 
 /* grrrrr, bug in bison */

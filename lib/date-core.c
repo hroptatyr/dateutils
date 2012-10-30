@@ -661,12 +661,8 @@ dt_conv_to_ywd(struct dt_d_s this)
 #include "token.c"
 #include "strops.c"
 #include "date-core-strpf.c"
-
-#if defined HAVE_GPERF
-# include "fmt-special.c"
-#else  /* !HAVE_GPERF */
-# error gperf-generated file fmt-special.c not found
-#endif	/* HAVE_GPERF */
+/* we assume this file is in the dist, it's gen'd from fmt-special.gperf */
+#include "fmt-special.c"
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
@@ -807,7 +803,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
@@ -945,7 +941,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	fp = fmt;
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */
@@ -1147,7 +1143,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	}
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
 		const char *fp_sav = fp;
-		struct dt_spec_s spec = __tok_spec(fp_sav, (char**)&fp);
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal then */

@@ -20,9 +20,7 @@ DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
 noinst_HEADERS += dt-io.h
 noinst_HEADERS += dexpr.h
 EXTRA_DIST += strpdt-special.gperf
-if HAVE_GPERF
 BUILT_SOURCES += strpdt-special.c
-endif  HAVE_GPERF
 
 bin_PROGRAMS += dseq
 dseq_SOURCES = dseq.c dseq-clo.ggo
