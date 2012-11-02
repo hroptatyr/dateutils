@@ -425,7 +425,7 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_dt_s d;
-	struct __strpdtdur_st_s st = {0};
+	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 	char *inp;
 	const char *ofmt;
 	char **fmt;

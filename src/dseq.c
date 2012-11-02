@@ -501,7 +501,7 @@ main(int argc, char *argv[])
 	}
 
 	if (argi->alt_inc_given) {
-		struct __strpdtdur_st_s st = {0};
+		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
 		unfixup_arg(argi->alt_inc_arg);
 		do {
@@ -587,7 +587,7 @@ don't know how to handle single argument case");
 		clo.ite->dur = 1;
 		break;
 	case 3: {
-		struct __strpdtdur_st_s st = {0};
+		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
 		/* get lower bound */
 		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);

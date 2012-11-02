@@ -782,6 +782,13 @@ struct __strpdtdur_st_s {
 	struct dt_dt_s *durs;
 };
 
+static inline __attribute__((pure, const)) struct __strpdtdur_st_s
+__strpdtdur_st_initialiser(void)
+{
+	static const struct __strpdtdur_st_s res;
+	return res;
+}
+
 static inline int
 __strpdtdur_more_p(struct __strpdtdur_st_s *st)
 {

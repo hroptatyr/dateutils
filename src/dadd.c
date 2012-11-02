@@ -161,7 +161,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
  * output */
 	size_t lno = 0;
 	struct dt_dt_s d;
-	struct __strpdtdur_st_s st = {0};
+	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
 	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen;
@@ -225,7 +225,7 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_dt_s d;
-	struct __strpdtdur_st_s st = {0};
+	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 	char *inp;
 	const char *ofmt;
 	char **fmt;
