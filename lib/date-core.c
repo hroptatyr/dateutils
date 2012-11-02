@@ -973,10 +973,10 @@ DEFUN struct dt_d_s
 dt_strpddur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_d_s res = {DT_DUNK};
+	struct dt_d_s res = dt_d_initialiser();
+	struct strpd_s d = strpd_initialiser();
 	const char *sp = str;
 	int tmp;
-	struct strpd_s d = strpd_initialiser();
 
 	if (str == NULL) {
 		goto out;
@@ -1256,6 +1256,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		case DT_JDN:
 			res.jdn = __daisy_to_jdn(tmp);
 			break;
+		default:
+			/* nice one gcc */
+			;
 		}
 		break;
 	}

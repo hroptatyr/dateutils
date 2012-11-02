@@ -420,8 +420,8 @@ __strfdtdur(
 	struct dt_dt_s dur, durfmt_t f)
 {
 /* like strfdtdur() but do some calculations based on F on the way there */
-	static const char sexy_dflt[] = "%T";
-	static const char ddur_dflt[] = "%d";
+	static const char sexy_dflt_dur[] = "%T";
+	static const char ddur_dflt_dur[] = "%d";
 	const char *fp;
 	char *bp;
 
@@ -433,27 +433,27 @@ __strfdtdur(
 	/* translate high-level format names */
 	if (dur.typ == DT_SEXY) {
 		if (fmt == NULL) {
-			fmt = sexy_dflt;
+			fmt = sexy_dflt_dur;
 		}
 	} else if (dur.typ == DT_SEXYTAI) {
 		if (fmt == NULL) {
-			fmt = sexy_dflt;
+			fmt = sexy_dflt_dur;
 		}
 	} else if (dt_sandwich_p(dur)) {
 		if (fmt == NULL) {
-			fmt = sexy_dflt;
+			fmt = sexy_dflt_dur;
 		} else {
 			__trans_dtfmt(&fmt);
 		}
 	} else if (dt_sandwich_only_d_p(dur)) {
 		if (fmt == NULL) {
-			fmt = ddur_dflt;
+			fmt = ddur_dflt_dur;
 		} else {
 			__trans_dfmt(&fmt);
 		}
 	} else if (dt_sandwich_only_t_p(dur)) {
 		if (fmt == NULL) {
-			fmt = sexy_dflt;
+			fmt = sexy_dflt_dur;
 		}
 	} else {
 		bp = buf;
@@ -651,6 +651,7 @@ ddiff_prnt(struct dt_dt_s dur, const char *fmt, durfmt_t f)
 # pragma warning (disable:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 #include "ddiff-clo.h"
 #include "ddiff-clo.c"
@@ -659,6 +660,7 @@ ddiff_prnt(struct dt_dt_s dur, const char *fmt, durfmt_t f)
 # pragma warning (default:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wswitch-enum"
+# pragma GCC diagnostic warning "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 
 int

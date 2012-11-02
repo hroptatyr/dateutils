@@ -80,7 +80,7 @@ struct strpt_s {
 static inline __attribute__((pure, const)) struct strpt_s
 strpt_initialiser(void)
 {
-	struct strpt_s res = {0};
+	static const struct strpt_s res;
 	return res;
 }
 

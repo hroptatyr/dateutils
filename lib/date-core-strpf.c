@@ -576,7 +576,7 @@ __strfd_card(
 	}
 	case DT_SPFL_S_WDAY:
 		/* get the weekday in ymd mode!! */
-		d->w = d->w ? d->w : dt_get_wday(that);
+		d->w = d->w ? (dt_dow_t)d->w : dt_get_wday(that);
 		switch (s.abbr) {
 		case DT_SPMOD_NORM:
 			res = arritostr(
