@@ -152,8 +152,18 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		warnflags="$warnflags -Wmissing-declarations"])
 	SXE_CHECK_COMPILER_FLAGS([-Wmissing-prototypes], [
 		warnflags="$warnflags -Wmissing-prototypes"])
-	SXE_CHECK_COMPILER_FLAGS([-Winline], [
-		warnflags="$warnflags -Winline"])
+
+	## gcc can't practically inline anything, so exclude this
+	case "${CC}" in
+	dnl (
+	*"gcc"*)
+		;;
+	dnl (
+	*)
+		SXE_CHECK_COMPILER_FLAGS([-Winline], [
+			warnflags="$warnflags -Winline"])
+		;;
+	esac
 	SXE_CHECK_COMPILER_FLAGS([-Wbad-function-cast], [
 		warnflags="$warnflags -Wbad-function-cast"])
 	SXE_CHECK_COMPILER_FLAGS([-Wcast-qual], [
