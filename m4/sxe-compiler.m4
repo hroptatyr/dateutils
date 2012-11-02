@@ -207,6 +207,9 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 	SXE_CHECK_COMPILER_FLAGS([-Wdeprecated], [
 		warnflags="$warnflags -Wdeprecated"])
 
+	SXE_CHECK_COMPILER_FLAGS([-Wparentheses], [
+		warnflags="${warnflags} -Wparentheses"])
+
 	## icc specific
 	SXE_CHECK_COMPILER_FLAGS([-diag-disable 10237], [dnl
 		warnflags="${warnflags} -diag-disable 10237"], [
