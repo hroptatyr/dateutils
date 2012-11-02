@@ -436,13 +436,17 @@ Whether c11 anon structs declaring works])
 ])dnl SXE_CHECK_ANON_STRUCTS_DECL
 
 AC_DEFUN([SXE_CHECK_SLOPPY_STRUCTS_INIT], [
-	AC_MSG_CHECKING([dnl
-whether C compiler can initialise structs and unions in a sloppy way])
 	AC_LANG_PUSH([C])
 
 	## backup our CFLAGS and unset it
 	save_CFLAGS="${CFLAGS}"
 	CFLAGS="-Werror"
+
+	SXE_CHECK_COMPILER_FLAGS([-Wmissing-field-initializers], [
+		CFLAGS="${CFLAGS} -Wmissing-field-initializers"])
+
+	AC_MSG_CHECKING([dnl
+whether C compiler can initialise structs and unions in a sloppy way])
 
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 struct __test_s {
