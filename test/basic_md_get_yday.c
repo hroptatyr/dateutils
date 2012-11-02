@@ -1,18 +1,21 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include "dt-core.h"
 
 static unsigned int
-super(unsigned int super)
+super(unsigned int res)
 {
 	for (int y = 1917; y < 2299; y++) {
 		for (int m = 1; m <= 12; m++) {
 			for (int d = 0; d < 32; d++) {
 				unsigned int yd;
 				yd = __md_get_yday(y, m, d);
-				super += y * m * yd + d;
+				res += y * m * yd + d;
 			}
 		}
 	}
-	return super;
+	return res;
 }
 
 #if 0

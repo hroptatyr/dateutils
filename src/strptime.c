@@ -35,6 +35,9 @@
  *
  ***/
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -89,13 +92,24 @@ prnt_line(const char *ofmt, struct tm *tm)
 	return;
 }
 
+static inline __attribute__((pure, const)) struct tm
+__tm_initialiser(void)
+{
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct tm res = {};
+#else
+	static const struct tm res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
+	return res;
+}
+
 static void
 proc_line(
 	const char *ln, const char *const *fmt, size_t nfmt,
 	const char *ofmt,
 	int quietp)
 {
-	struct tm tm = {0};
+	struct tm tm = __tm_initialiser();
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
 		if (!quietp) {
@@ -136,6 +150,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 # pragma warning (disable:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 #include "strptime-clo.h"
 #include "strptime-clo.c"
@@ -144,6 +159,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 # pragma warning (default:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wswitch-enum"
+# pragma GCC diagnostic warning "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 
 int

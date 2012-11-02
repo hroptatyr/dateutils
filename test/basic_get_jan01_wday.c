@@ -1,14 +1,17 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include "dt-core.h"
 
 static unsigned int
-super(unsigned int super)
+super(unsigned int res)
 {
 	for (int y = 1917; y < 2199; y++) {
 		dt_dow_t w;
 		w = __get_jan01_wday(y);
-		super += y * w;
+		res += y * w;
 	}
-	return super;
+	return res;
 }
 
 int

@@ -1,10 +1,13 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include "dt-core.h"
 
 static unsigned int
 super(void)
 {
 	dt_ymd_t x = {0};
-	unsigned int super = 0;
+	unsigned int res = 0;
 
 	for (int y = 1917; y < 2199; y++) {
 		for (int m = 1; m <= 12; m ++) {
@@ -14,11 +17,11 @@ super(void)
 				x.m = m;
 				x.d = d;
 				w = __ymd_get_wday(x);
-				super += y * m * w + d;
+				res += y * m * w + d;
 			}
 		}
 	}
-	return super;
+	return res;
 }
 
 int

@@ -38,6 +38,9 @@
 #if !defined INCLUDED_dt_core_tz_glue_c_
 #define INCLUDED_dt_core_tz_glue_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include "nifty.h"
 #include "dt-core-tz-glue.h"
 
@@ -92,7 +95,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	d_unix = zif_utc_time(zone, d_unix);
 
 	/* convert the date part back */
-	if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
+	if (d.typ > (dt_dttyp_t)DT_DUNK && d.typ < (dt_dttyp_t)DT_NDTYP) {
 		int32_t sexy = __pos_mod(d_unix, 86400);
 
 		/* temporarily go daisy */
@@ -146,7 +149,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	d_unix = zif_local_time(zone, d_unix);
 
 	/* convert the date part back */
-	if (d.typ > DT_DUNK && d.typ < DT_NDTYP) {
+	if (d.typ > (dt_dttyp_t)DT_DUNK && d.typ < (dt_dttyp_t)DT_NDTYP) {
 		int32_t sexy = __pos_mod(d_unix, 86400);
 
 		res.d.typ = DT_DAISY;

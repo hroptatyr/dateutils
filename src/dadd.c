@@ -161,7 +161,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
  * output */
 	size_t lno = 0;
 	struct dt_dt_s d;
-	struct __strpdtdur_st_s st = {0};
+	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
 	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen;
@@ -210,6 +210,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
 # pragma warning (disable:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 #include "dadd-clo.h"
 #include "dadd-clo.c"
@@ -218,6 +219,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
 # pragma warning (default:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wswitch-enum"
+# pragma GCC diagnostic warning "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 
 int
@@ -225,7 +227,7 @@ main(int argc, char *argv[])
 {
 	struct gengetopt_args_info argi[1];
 	struct dt_dt_s d;
-	struct __strpdtdur_st_s st = {0};
+	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 	char *inp;
 	const char *ofmt;
 	char **fmt;

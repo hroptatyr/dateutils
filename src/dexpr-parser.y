@@ -48,7 +48,7 @@
 #include "date-core-strpf.h"
 #include "dexpr.h"
 
-extern int yylex();
+extern int yylex(YYSTYPE *yylval_param);
 extern int yyerror(dexpr_t *cur __attribute__((unused)), const char *errmsg);
 extern char *yytext;
 

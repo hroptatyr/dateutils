@@ -144,7 +144,11 @@ extern struct dt_spec_s __tok_spec(const char *fp, const char **ep);
 static inline __attribute__((pure, const)) struct dt_spec_s
 spec_initialiser(void)
 {
-	struct dt_spec_s res = {{0}, DT_SPFL_UNK};
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct dt_spec_s res = {};
+#else
+	static const struct dt_spec_s res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

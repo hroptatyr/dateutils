@@ -172,10 +172,32 @@ struct grep_atom_soa_s {
 	struct grpatm_payload_s *flesh;
 };
 
+static inline __attribute__((pure, const)) struct grep_atom_s
+__grep_atom_initialiser(void)
+{
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct grep_atom_s res = {0};
+#else
+	static const struct grep_atom_s res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
+	return res;
+}
+
+static inline __attribute__((pure, const)) struct grep_atom_soa_s
+__grep_atom_soa_initialiser(void)
+{
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct grep_atom_soa_s res = {0};
+#else
+	static const struct grep_atom_soa_s res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
+	return res;
+}
+
 static struct grep_atom_soa_s
 make_grep_atom_soa(grep_atom_t atoms, size_t natoms)
 {
-	struct grep_atom_soa_s res = {.natoms = 0};
+	struct grep_atom_soa_s res = __grep_atom_soa_initialiser();
 
 	res.needle = (char*)atoms;
 	res.flesh = (void*)(res.needle + natoms);
@@ -187,7 +209,7 @@ make_grep_atom_soa(grep_atom_t atoms, size_t natoms)
 static struct grep_atom_s
 calc_grep_atom(const char *fmt)
 {
-	struct grep_atom_s res = {0};
+	struct grep_atom_s res = __grep_atom_initialiser();
 	int8_t andl_idx = 0;
 	int8_t bndl_idx = 0;
 	int8_t pndl_idx = 0;
@@ -767,6 +789,17 @@ struct __strpdtdur_st_s {
 	size_t ndurs;
 	struct dt_dt_s *durs;
 };
+
+static inline __attribute__((pure, const)) struct __strpdtdur_st_s
+__strpdtdur_st_initialiser(void)
+{
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct __strpdtdur_st_s res = {};
+#else
+	static const struct __strpdtdur_st_s res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
+	return res;
+}
 
 static inline int
 __strpdtdur_more_p(struct __strpdtdur_st_s *st)
