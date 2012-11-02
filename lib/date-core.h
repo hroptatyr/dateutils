@@ -67,16 +67,27 @@ extern "C" {
 
 typedef enum {
 	DT_DUNK,
+#define DT_DUNK		(dt_dtyp_t)(DT_DUNK)
 	DT_YMD,
+#define DT_YMD		(dt_dtyp_t)(DT_YMD)
 	DT_YMCW,
+#define DT_YMCW		(dt_dtyp_t)(DT_YMCW)
 	DT_BIZDA,
+#define DT_BIZDA	(dt_dtyp_t)(DT_BIZDA)
 	DT_DAISY,
+#define DT_DAISY	(dt_dtyp_t)(DT_DAISY)
 	DT_BIZSI,
+#define DT_BIZSI	(dt_dtyp_t)(DT_BIZSI)
 	DT_MD,
+#define DT_MD		(dt_dtyp_t)(DT_MD)
 	DT_YWD,
+#define DT_YWD		(dt_dtyp_t)(DT_YWD)
 	DT_YD,
+#define DT_YD		(dt_dtyp_t)(DT_YD)
 	DT_JDN,
+#define DT_JDN		(dt_dtyp_t)(DT_JDN)
 	DT_LDN,
+#define DT_LDN		(dt_dtyp_t)(DT_LDN)
 	DT_NDTYP,
 } dt_dtyp_t;
 

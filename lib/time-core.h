@@ -67,7 +67,9 @@ extern "C" {
 
 typedef enum {
 	DT_TUNK,
+#define DT_TUNK		(dt_ttyp_t)(DT_TUNK)
 	DT_HMS,
+#define DT_HMS		(dt_ttyp_t)(DT_HMS)
 	DT_NTTYP,
 } dt_ttyp_t;
 

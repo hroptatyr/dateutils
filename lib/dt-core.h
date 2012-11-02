@@ -72,11 +72,15 @@ extern "C" {
 typedef enum {
 	/* this one's our own version of UNK */
 	DT_UNK = 0,
+#define DT_UNK		(dt_dttyp_t)(DT_UNK)
 	/* the lower date types come from date-core.h */
 	DT_PACK = DT_NDTYP,
 	DT_YMDHMS = DT_PACK,
+#define DT_YMDHMS	(dt_dttyp_t)(DT_YMDHMS)
 	DT_SEXY,
+#define DT_SEXY		(dt_dttyp_t)(DT_SEXY)
 	DT_SEXYTAI,
+#define DT_SEXYTAI	(dt_dttyp_t)(DT_SEXYTAI)
 	DT_NDTTYP,
 } dt_dttyp_t;
 
