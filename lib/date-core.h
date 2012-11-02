@@ -498,25 +498,7 @@ DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
 static inline __attribute__((pure, const)) struct dt_d_s
 dt_d_initialiser(void)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	struct dt_d_s res = {
-		.typ = DT_DUNK,
-		.dur = 0U,
-		.neg = 0U,
-		.param = 0U,
-		.u = 0U
-	};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
-	struct dt_d_s res;
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-
-#if !defined HAVE_ANON_STRUCTS_INIT
-	res.typ = DT_DUNK;
-	res.dur = 0U;
-	res.neg = 0U;
-	res.param = 0U;
-	res.u = 0U;
-#endif	/* !HAVE_ANON_STRUCTS_INIT */
+	static const struct dt_d_s res;
 	return res;
 }
 

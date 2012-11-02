@@ -94,14 +94,14 @@ struct strpdi_s {
 static inline __attribute__((pure, const)) struct strpd_s
 strpd_initialiser(void)
 {
-	struct strpd_s res = {0};
+	static const struct strpd_s res;
 	return res;
 }
 
 static inline __attribute__((pure, const)) struct strpdi_s
 strpdi_initialiser(void)
 {
-	struct strpdi_s res = {0};
+	static const struct strpdi_s res;
 	return res;
 }
 

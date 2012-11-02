@@ -278,38 +278,7 @@ DECLF void __trans_dtfmt(const char **fmt);
 static inline __attribute__((pure, const)) struct dt_dt_s
 dt_dt_initialiser(void)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	struct dt_dt_s res = {
-		.typ = DT_UNK,
-		.sandwich = 0U,
-		.dur = 0U,
-		.neg = 0U,
-		.tai = 0U,
-		.u = 0U,
-		.t = {
-			.typ = DT_TUNK,
-			.dur = 0U,
-			.neg = 0U,
-			.u = 0U,
-		},
-	};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
-	struct dt_dt_s res;
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-
-#if !defined HAVE_ANON_STRUCTS_INIT
-	res.typ = DT_UNK;
-	res.sandwich = 0U;
-	res.dur = 0U;
-	res.neg = 0U;
-	res.tai = 0U;
-	res.u = 0U;
-
-	res.t.typ = DT_TUNK;
-	res.t.dur = 0U;
-	res.t.neg = 0U;
-	res.t.u = 0U;
-#endif	/* !HAVE_ANON_STRUCTS_INIT */
+	static const struct dt_dt_s res;
 	return res;
 }
 

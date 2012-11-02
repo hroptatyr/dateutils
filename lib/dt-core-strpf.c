@@ -62,7 +62,7 @@ __strpdt_std(const char *str, char **ep)
 {
 /* code dupe, see __strpd_std() */
 	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d = {{0}, {0}};
+	struct strpdt_s d = strpdt_initialiser();
 	const char *sp;
 
 	if ((sp = str) == NULL) {

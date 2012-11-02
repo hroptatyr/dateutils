@@ -179,20 +179,7 @@ DECLF struct dt_t_s dt_time(void);
 static inline __attribute__((pure, const)) struct dt_t_s
 dt_t_initialiser(void)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	struct dt_t_s res = {.typ = DT_TUNK, .dur = 0U, .neg = 0U,
-			     .u = 0U, .carry = 0U};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
-	struct dt_t_s res;
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-
-#if !defined HAVE_ANON_STRUCTS_INIT
-	res.typ = DT_TUNK;
-	res.dur = 0U;
-	res.neg = 0U;
-	res.u = 0U;
-	res.carry = 0U;
-#endif	/* !HAVE_ANON_STRUCTS_INIT */
+	static const struct dt_t_s res;
 	return res;
 }
 

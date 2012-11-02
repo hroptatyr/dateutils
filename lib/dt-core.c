@@ -98,16 +98,6 @@ struct strpdti_s {
 
 
 /* converters and stuff */
-static inline __attribute__((pure, const)) struct strpdt_s
-strpdt_initialiser(void)
-{
-	struct strpdt_s res;
-	res.sd = strpd_initialiser();
-	res.st = strpt_initialiser();
-	res.i = 0;
-	return res;
-}
-
 static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
 {
