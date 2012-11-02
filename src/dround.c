@@ -409,6 +409,7 @@ out:
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wswitch"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 #include "dround-clo.h"
 #include "dround-clo.c"
@@ -418,6 +419,7 @@ out:
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wswitch-enum"
 # pragma GCC diagnostic warning "-Wswitch"
+# pragma GCC diagnostic warning "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 
 int

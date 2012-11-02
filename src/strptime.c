@@ -143,6 +143,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 # pragma warning (disable:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wswitch-enum"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 #include "strptime-clo.h"
 #include "strptime-clo.c"
@@ -151,6 +152,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 # pragma warning (default:181)
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wswitch-enum"
+# pragma GCC diagnostic warning "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
 
 int
