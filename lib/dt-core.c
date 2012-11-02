@@ -244,7 +244,10 @@ __trans_dtfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		switch (__trans_dfmt_special(*fmt)) {
+		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+
+		/* thanks gcc for making me cast this :( */
+		switch ((unsigned int)tmp) {
 		default:
 			break;
 		case DT_YMD:
@@ -961,7 +964,8 @@ DEFUN struct dt_dt_s
 dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 {
 	if (dt_sandwich_p(d) || dt_sandwich_only_d_p(d)) {
-		switch (tgttyp) {
+		/* thanks gcc for making me cast tgttyp */
+		switch ((unsigned int)tgttyp) {
 			short unsigned int sw;
 		case DT_YMD:
 		case DT_YMCW:
