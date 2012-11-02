@@ -341,6 +341,8 @@ dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
 
 		## while we're at it, check for anon initialising too
 		SXE_CHECK_ANON_STRUCTS_INIT
+		## oh and sloppy sloppy init
+		SXE_CHECK_SLOPPY_STRUCTS_INIT
 		;;
 	esac
 
