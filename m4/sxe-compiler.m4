@@ -164,6 +164,7 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 			warnflags="$warnflags -Winline"])
 		;;
 	esac
+
 	SXE_CHECK_COMPILER_FLAGS([-Wbad-function-cast], [
 		warnflags="$warnflags -Wbad-function-cast"])
 	SXE_CHECK_COMPILER_FLAGS([-Wcast-qual], [
@@ -172,12 +173,21 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		warnflags="$warnflags -Wcast-align"])
 
 	## warn about incomplete switches
-	SXE_CHECK_COMPILER_FLAGS([-Wswitch], [
-		warnflags="$warnflags -Wswitch"])
-	SXE_CHECK_COMPILER_FLAGS([-Wswitch-default], [
-		warnflags="$warnflags -Wswitch-default"])
-	SXE_CHECK_COMPILER_FLAGS([-Wswitch-enum], [
-		warnflags="$warnflags -Wswitch-enum"])
+	## only if not gcc (http://gcc.gnu.org/bugzilla/show_bug.cgi?id=50422)
+	case "${CC}" in
+	dnl (
+	*"gcc"*)
+		;;
+	dnl (
+	*)
+		SXE_CHECK_COMPILER_FLAGS([-Wswitch], [
+			warnflags="$warnflags -Wswitch"])
+		SXE_CHECK_COMPILER_FLAGS([-Wswitch-default], [
+			warnflags="$warnflags -Wswitch-default"])
+		SXE_CHECK_COMPILER_FLAGS([-Wswitch-enum], [
+			warnflags="$warnflags -Wswitch-enum"])
+		;;
+	esac
 
 	SXE_CHECK_COMPILER_FLAGS([-Wunused-function], [
 		warnflags="$warnflags -Wunused-function"])
