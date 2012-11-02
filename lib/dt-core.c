@@ -306,7 +306,8 @@ leaps_before(struct dt_dt_s d)
 	case DT_SEXY:
 	case DT_SEXYTAI:
 		res = leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
-		on = res + 1 < nleaps_s && leaps_s[res + 1] == d.sexy;
+		on = (res + 1U < nleaps_s) &&
+			(leaps_s[res + 1] == (int32_t)d.sexy);
 		break;
 	default:
 		res = 0;
