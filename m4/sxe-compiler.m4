@@ -173,21 +173,11 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		warnflags="$warnflags -Wcast-align"])
 
 	## warn about incomplete switches
-	## only if not gcc (http://gcc.gnu.org/bugzilla/show_bug.cgi?id=50422)
-	case "${CC}" in
-	dnl (
-	*"gcc"*)
-		;;
-	dnl (
-	*)
-		SXE_CHECK_COMPILER_FLAGS([-Wswitch], [
-			warnflags="$warnflags -Wswitch"])
-		SXE_CHECK_COMPILER_FLAGS([-Wswitch-default], [
-			warnflags="$warnflags -Wswitch-default"])
-		SXE_CHECK_COMPILER_FLAGS([-Wswitch-enum], [
-			warnflags="$warnflags -Wswitch-enum"])
-		;;
-	esac
+	## for gcc, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=50422
+	## we used to have -Wswitch-default and -Wswitch-enum but that
+	## set gcc off quite badly in the nested switch case
+	SXE_CHECK_COMPILER_FLAGS([-Wswitch], [
+		warnflags="$warnflags -Wswitch"])
 
 	SXE_CHECK_COMPILER_FLAGS([-Wunused-function], [
 		warnflags="$warnflags -Wunused-function"])
