@@ -8,7 +8,7 @@ main(void)
 	dt.neg = 0;
 	dt.dur = 0;
 	dt.typ = DT_SEXY;
-	if (dt.d.typ != DT_SEXY || dt.d.neg || dt.d.dur) {
+	if (dt.d.typ != (dt_dtyp_t)DT_SEXY || dt.d.neg || dt.d.dur) {
 		return 1;
 	}
 
