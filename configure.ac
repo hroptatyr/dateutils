@@ -54,6 +54,7 @@ AM_CONDITIONAL([HAVE_STRPTIME], [test "${have_strptime}" = "yes"])
 ## check for working c1x features
 SXE_CHECK_ANON_STRUCTS_DECL
 SXE_CHECK_ANON_STRUCTS_INIT
+SXE_CHECK_SLOPPY_STRUCTS_INIT
 
 if test "${sxe_cv_have_anon_structs_decl}" != "yes"; then
 	AC_MSG_ERROR([C compiler unusable
