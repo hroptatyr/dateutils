@@ -84,8 +84,6 @@ struct prch_ctx_s {
 	off16_t *soff;
 };
 
-static struct prch_ctx_s __ctx[1] = {{0}};
-
 
 /* error() impl */
 static void
@@ -252,24 +250,26 @@ init_prchunk(int fd)
 #define MAP_MEM		(MAP_ANONYMOUS | MAP_PRIVATE)
 #define PROT_MEM	(PROT_READ | PROT_WRITE)
 #define MAP_LEN		(MAX_NLINES * MAX_LLEN)
-	__ctx->buf = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, -1, 0);
-	if (__ctx->buf == MAP_FAILED) {
+	static struct prch_ctx_s __ctx;
+
+	__ctx.buf = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, -1, 0);
+	if (__ctx.buf == MAP_FAILED) {
 		return NULL;
 	}
 
 	/* bit of space for the rechunker */
-	__ctx->soff = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, -1, 0);
-	if (__ctx->soff == MAP_FAILED) {
+	__ctx.soff = mmap(NULL, MAP_LEN, PROT_MEM, MAP_MEM, -1, 0);
+	if (__ctx.soff == MAP_FAILED) {
 		return NULL;
 	}
 
-	if ((__ctx->fd = fd) > STDIN_FILENO) {
+	if ((__ctx.fd = fd) > STDIN_FILENO) {
 #if defined POSIX_FADV_SEQUENTIAL
 		/* give advice about our read pattern */
 		posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 #endif	/* POSIX_FADV_SEQUENTIAL */
 	}
-	return __ctx;
+	return &__ctx;
 }
 
 FDEFU void
