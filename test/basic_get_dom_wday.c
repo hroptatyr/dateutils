@@ -3,17 +3,17 @@
 static unsigned int
 super(void)
 {
-	unsigned int super = 0;
+	unsigned int res = 0;
 
 	for (int y = 1917; y < 2199; y++) {
 		for (int m = 1; m <= 12; m ++) {
 			for (int d = 1; d <= 28; d++) {
 				dt_dow_t w = __get_dom_wday(y, m, d);
-				super += y * m * w + d;
+				res += y * m * w + d;
 			}
 		}
 	}
-	return super;
+	return res;
 }
 
 int
