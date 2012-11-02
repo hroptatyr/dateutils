@@ -89,13 +89,20 @@ prnt_line(const char *ofmt, struct tm *tm)
 	return;
 }
 
+static inline __attribute__((pure, const)) struct tm
+__tm_initialiser(void)
+{
+	static const struct tm res;
+	return res;
+}
+
 static void
 proc_line(
 	const char *ln, const char *const *fmt, size_t nfmt,
 	const char *ofmt,
 	int quietp)
 {
-	struct tm tm = {0};
+	struct tm tm = __tm_initialiser();
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
 		if (!quietp) {
