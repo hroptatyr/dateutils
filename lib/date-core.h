@@ -498,7 +498,11 @@ DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
 static inline __attribute__((pure, const)) struct dt_d_s
 dt_d_initialiser(void)
 {
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct dt_d_s res = {};
+#else  /* HAVE_SLOPPY_STRUCTS_INIT */
 	static const struct dt_d_s res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

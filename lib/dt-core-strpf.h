@@ -64,7 +64,11 @@ extern "C" {
 static inline __attribute__((pure, const)) struct strpdt_s
 strpdt_initialiser(void)
 {
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct strpdt_s res = {};
+#else
 	static const struct strpdt_s res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

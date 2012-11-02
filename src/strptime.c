@@ -35,6 +35,9 @@
  *
  ***/
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -92,7 +95,11 @@ prnt_line(const char *ofmt, struct tm *tm)
 static inline __attribute__((pure, const)) struct tm
 __tm_initialiser(void)
 {
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+	static const struct tm res = {};
+#else
 	static const struct tm res;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

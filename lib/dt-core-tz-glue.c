@@ -38,6 +38,9 @@
 #if !defined INCLUDED_dt_core_tz_glue_c_
 #define INCLUDED_dt_core_tz_glue_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include "nifty.h"
 #include "dt-core-tz-glue.h"
 

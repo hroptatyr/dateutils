@@ -341,6 +341,8 @@ dnl standards are flavours supported by the compiler chosen with AC_PROG_CC
 
 		## while we're at it, check for anon initialising too
 		SXE_CHECK_ANON_STRUCTS_INIT
+		## oh and sloppy sloppy init
+		SXE_CHECK_SLOPPY_STRUCTS_INIT
 		;;
 	esac
 
@@ -432,6 +434,48 @@ Whether c11 anon structs declaring works])
 	fi
 	AC_LANG_POP()
 ])dnl SXE_CHECK_ANON_STRUCTS_DECL
+
+AC_DEFUN([SXE_CHECK_SLOPPY_STRUCTS_INIT], [
+	AC_LANG_PUSH([C])
+
+	## backup our CFLAGS and unset it
+	save_CFLAGS="${CFLAGS}"
+	CFLAGS="-Werror"
+
+	SXE_CHECK_COMPILER_FLAGS([-Wmissing-field-initializers], [
+		CFLAGS="${CFLAGS} -Wmissing-field-initializers"])
+
+	AC_MSG_CHECKING([dnl
+whether C compiler can initialise structs and unions in a sloppy way])
+
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+struct __test_s {
+	int i;
+	int j;
+};
+	]], [[
+	struct __test_s tmp = {};
+	]])], [
+		sxe_cv_have_sloppy_structs_init="yes"
+	], [
+		sxe_cv_have_sloppy_structs_init="no"
+	])
+	AC_MSG_RESULT([${sxe_cv_have_sloppy_structs_init}])
+
+	## restore CFLAGS
+	CFLAGS="${save_CFLAGS}"
+
+	if test "${sxe_cv_have_sloppy_structs_init}" = "yes"; then
+		AC_DEFINE([HAVE_SLOPPY_STRUCTS_INIT], [1], [dnl
+Whether sloppy struct initialising works])
+		$1
+		:
+	else
+		$2
+		:
+	fi
+	AC_LANG_POP()
+])dnl SXE_CHECK_SLOPPY_STRUCTS_INIT
 
 
 dnl sxe-compiler.m4 ends here
