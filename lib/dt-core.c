@@ -930,6 +930,9 @@ dt_datetime(dt_dttyp_t outtyp)
 			res.d.ymcw.w = tm.tm_wday;
 			break;
 		}
+		default:
+			/* grrrr */
+			;
 		}
 		break;
 	}
@@ -1010,6 +1013,9 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 				sx = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY + ss;
 				d.sexy = sx;
 				break;
+			default:
+				/* grrrr */
+				;
 			}
 			d.sandwich = 0;
 			d.typ = tgttyp;

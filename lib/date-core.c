@@ -1256,6 +1256,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		case DT_JDN:
 			res.jdn = __daisy_to_jdn(tmp);
 			break;
+		default:
+			/* nice one gcc */
+			;
 		}
 		break;
 	}
