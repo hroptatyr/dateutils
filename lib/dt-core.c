@@ -431,7 +431,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	} else if (LIKELY(*fmt == '%')) {
 		/* don't worry about it */
 		;
-	} else if ((tgttyp = __trans_dfmt_special(fmt)) != DT_UNK) {
+	} else if ((tgttyp = __trans_dfmt_special(fmt)) != (dt_dtyp_t)DT_UNK) {
 		that = dt_dtconv((dt_dttyp_t)tgttyp, that);
 		set_fmt = 1;
 	}
@@ -1147,7 +1147,8 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		res.t = dt_tdiff(d1.t, d2.t);
 		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
-	} else if (tgttyp > DT_UNK && tgttyp < DT_NDTYP) {
+	} else if (tgttyp > (dt_dttyp_t)DT_UNK &&
+		   tgttyp < (dt_dttyp_t)DT_NDTYP) {
 		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
 		dt_make_d_only(&res, res.d.typ);
 	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {

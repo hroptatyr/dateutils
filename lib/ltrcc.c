@@ -295,7 +295,7 @@ static int
 pr_line_t(const char *line, size_t llen, va_list vap)
 {
 	struct dt_dt_s d;
-	dt_dtyp_t __attribute__((unused)) typ;
+	dt_dtyp_t typ;
 	int colp;
 	char *ep;
 	uint32_t val;
@@ -316,7 +316,7 @@ const uint32_t %s[] = {\n\
 	UINT32_MAX\n\
 };\n", stdout);
 		return 0;
-	} else if (typ != DT_HMS || !colp) {
+	} else if (typ != (dt_dtyp_t)DT_HMS || !colp) {
 		return 0;
 	} else if (line == NULL) {
 		/* do fuckall */
