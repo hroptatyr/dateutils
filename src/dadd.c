@@ -104,26 +104,15 @@ struct mass_add_clo_s {
 };
 
 static void
-mass_add_dur(const struct mass_add_clo_s *clo)
+proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 {
-/* read lines from stdin
- * interpret as dates
- * add to reference duration
- * output */
-	size_t lno = 0;
 	struct dt_dt_s d;
+	char *sp = NULL;
+	char *ep = NULL;
 
-	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
-		size_t llen;
-		char *sp = NULL;
-		char *ep = NULL;
-
-		llen = prchunk_getline(clo->pctx, &line);
+	do {
 		/* check if line matches, */
 		d = dt_io_find_strpdt2(line, clo->gra, &sp, &ep, clo->fromz);
-
-		/* finish with newline again */
-		line[llen] = '\n';
 
 		if (!dt_unk_p(d)) {
 			/* perform addition now */
@@ -135,19 +124,39 @@ mass_add_dur(const struct mass_add_clo_s *clo)
 			}
 
 			if (clo->sed_mode_p) {
-				dt_io_write_sed(
-					d, clo->ofmt,
-					line, llen + 1,
-					sp, ep, clo->z);
+				__io_write(line, sp - line, stdout);
+				dt_io_write(d, clo->ofmt, clo->z, '\0');
+				llen -= (ep - line);
+				line = ep;
 			} else {
 				dt_io_write(d, clo->ofmt, clo->z, '\n');
+				break;
 			}
 		} else if (clo->sed_mode_p) {
+			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
+			break;
 		} else if (!clo->quietp) {
-			line[llen] = '\0';
 			dt_io_warn_strpdt(line);
+			break;
 		}
+	} while (1);
+	return;
+}
+
+static void
+mass_add_dur(const struct mass_add_clo_s *clo)
+{
+/* read lines from stdin
+ * interpret as dates
+ * add to reference duration
+ * output */
+	size_t lno = 0;
+
+	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
+		size_t llen = prchunk_getline(clo->pctx, &line);
+
+		proc_line(clo, line, llen);
 	}
 	return;
 }
