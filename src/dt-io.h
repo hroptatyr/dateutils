@@ -608,20 +608,14 @@ found:
 /* formatter */
 static inline size_t
 dt_io_strfdt(
-	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
+	char *restrict buf, size_t bsz,
+	const char *fmt, struct dt_dt_s that, int apnd_ch)
 {
-	return dt_strfdt(buf, bsz, fmt, that);
-}
+	size_t res = dt_strfdt(buf, bsz, fmt, that);
 
-static inline size_t
-dt_io_strfdt_autonl(
-	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
-{
-	size_t res = dt_io_strfdt(buf, bsz, fmt, that);
-
-	if (res > 0 && buf[res - 1] != '\n') {
+	if (LIKELY(res > 0) && apnd_ch && buf[res - 1] != apnd_ch) {
 		/* auto-newline */
-		buf[res++] = '\n';
+		buf[res++] = apnd_ch;
 	}
 	return res;
 }
@@ -730,7 +724,21 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
 		d = dtz_enrichz(d, zone);
 	}
-	n = dt_io_strfdt_autonl(buf, sizeof(buf), fmt, d);
+	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, '\n');
+	__io_write(buf, n, stdout);
+	return (n > 0) - 1;
+}
+
+static __attribute__((unused)) int
+dt_io_write_plain(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
+{
+	static char buf[64];
+	size_t n;
+
+	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
+		d = dtz_enrichz(d, zone);
+	}
+	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
 	__io_write(buf, n, stdout);
 	return (n > 0) - 1;
 }
@@ -747,7 +755,7 @@ dt_io_write_sed(
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
 		d = dtz_enrichz(d, zone);
 	}
-	n = dt_io_strfdt(buf, sizeof(buf), fmt, d);
+	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, '\0');
 	if (sp != NULL) {
 		__io_write(line, sp - line, stdout);
 	}
