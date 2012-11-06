@@ -464,6 +464,9 @@ dt_tests += dtadd.37.dt
 dt_tests += dtadd.38.dt
 dt_tests += dtadd.39.dt
 dt_tests += dtadd.40.dt
+## multi-sed
+dt_tests += dtadd.41.dt
+dt_tests += dtadd.42.dt
 
 dt_tests += dtgrep.1.dt
 dt_tests += dtgrep.2.dt

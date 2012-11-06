@@ -92,11 +92,11 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		/* check if line matches */
 		if (!dt_unk_p(d) && ctx.sed_mode_p) {
 			__io_write(line, sp - line, stdout);
-			dt_io_write_plain(d, ctx.ofmt, ctx.outz, '\0');
+			dt_io_write(d, ctx.ofmt, ctx.outz, '\0');
 			llen -= (ep - line);
 			line = ep;
 		} else if (!dt_unk_p(d)) {
-			dt_io_write_plain(d, ctx.ofmt, ctx.outz, '\n');
+			dt_io_write(d, ctx.ofmt, ctx.outz, '\n');
 			break;
 		} else if (ctx.sed_mode_p) {
 			line[llen] = '\n';
@@ -168,7 +168,7 @@ main(int argc, char *argv[])
 			struct dt_dt_s d = dt_io_strpdt(inp, fmt, nfmt, fromz);
 
 			if (!dt_unk_p(d)) {
-				dt_io_write(d, ofmt, z);
+				dt_io_write(d, ofmt, z, '\n');
 			} else if (!argi->quiet_given) {
 				dt_io_warn_strpdt(inp);
 			}
