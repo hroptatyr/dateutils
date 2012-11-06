@@ -716,21 +716,7 @@ __io_eof_p(FILE *fp)
 }
 
 static __attribute__((unused)) int
-dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone)
-{
-	static char buf[64];
-	size_t n;
-
-	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		d = dtz_enrichz(d, zone);
-	}
-	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, '\n');
-	__io_write(buf, n, stdout);
-	return (n > 0) - 1;
-}
-
-static __attribute__((unused)) int
-dt_io_write_plain(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
+dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 {
 	static char buf[64];
 	size_t n;

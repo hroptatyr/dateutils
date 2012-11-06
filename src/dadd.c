@@ -140,7 +140,7 @@ mass_add_dur(const struct mass_add_clo_s *clo)
 					line, llen + 1,
 					sp, ep, clo->z);
 			} else {
-				dt_io_write(d, clo->ofmt, clo->z);
+				dt_io_write(d, clo->ofmt, clo->z, '\n');
 			}
 		} else if (clo->sed_mode_p) {
 			__io_write(line, llen + 1, stdout);
@@ -189,7 +189,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
 			}
 
 			/* no sed mode here */
-			dt_io_write(d, clo->ofmt, clo->z);
+			dt_io_write(d, clo->ofmt, clo->z, '\n');
 		} else if (clo->sed_mode_p) {
 			__io_write(line, llen + 1, stdout);
 		} else if (!clo->quietp) {
@@ -311,7 +311,7 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
 			}
-			dt_io_write(d, ofmt, z);
+			dt_io_write(d, ofmt, z, '\n');
 			res = 0;
 		} else {
 			res = 1;

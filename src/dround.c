@@ -516,7 +516,7 @@ no durations given");
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
 			}
-			dt_io_write(d, ofmt, z);
+			dt_io_write(d, ofmt, z, '\n');
 			res = 0;
 		} else {
 			res = 1;
@@ -576,7 +576,7 @@ no durations given");
 							line, llen + 1,
 							sp, ep, z);
 					} else {
-						dt_io_write(d, ofmt, z);
+						dt_io_write(d, ofmt, z, '\n');
 					}
 				} else if (argi->sed_mode_given) {
 					__io_write(line, llen + 1, stdout);

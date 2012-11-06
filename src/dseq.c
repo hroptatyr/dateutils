@@ -687,7 +687,7 @@ increment must not be naught");
 	}
 
 	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
-		dt_io_write(tmp, ofmt, NULL);
+		dt_io_write(tmp, ofmt, NULL, '\n');
 	}
 
 out:
