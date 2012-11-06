@@ -86,22 +86,27 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	char *sp = NULL;
 	char *ep = NULL;
 
-	/* check if line matches */
-	d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
+	do {
+		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
 
-	/* finish with newline again */
-	line[llen] = '\n';
-
-	if (!dt_unk_p(d) && ctx.sed_mode_p) {
-		dt_io_write_sed(d, ctx.ofmt, line, llen + 1, sp, ep, ctx.outz);
-	} else if (!dt_unk_p(d)) {
-		dt_io_write(d, ctx.ofmt, ctx.outz);
-	} else if (ctx.sed_mode_p) {
-		__io_write(line, llen + 1, stdout);
-	} else if (!ctx.quietp) {
-		line[llen] = '\0';
-		dt_io_warn_strpdt(line);
-	}
+		/* check if line matches */
+		if (!dt_unk_p(d) && ctx.sed_mode_p) {
+			__io_write(line, sp - line, stdout);
+			dt_io_write_plain(d, ctx.ofmt, ctx.outz, '\0');
+			llen -= (ep - line);
+			line = ep;
+		} else if (!dt_unk_p(d)) {
+			dt_io_write_plain(d, ctx.ofmt, ctx.outz, '\n');
+			break;
+		} else if (ctx.sed_mode_p) {
+			line[llen] = '\n';
+			__io_write(line, llen + 1, stdout);
+			break;
+		} else if (!ctx.quietp) {
+			dt_io_warn_strpdt(line);
+			break;
+		}
+	} while (1);
 	return;
 }
 
