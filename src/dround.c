@@ -402,6 +402,60 @@ out:
 	return __add_dur(st, payload);
 }
 
+struct prln_ctx_s {
+	struct grep_atom_soa_s *ndl;
+	const char *ofmt;
+	zif_t fromz;
+	zif_t outz;
+	zif_t hackz;
+	int sed_mode_p;
+	int quietp;
+
+	const struct __strpdtdur_st_s *st;
+	bool nextp;
+};
+
+static void
+proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
+{
+	struct dt_dt_s d;
+	char *sp = NULL;
+	char *ep = NULL;
+
+	do {
+		/* check if line matches, */
+		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
+
+		if (!dt_unk_p(d)) {
+			/* perform addition now */
+			d = dround(d, ctx.st->durs, ctx.st->ndurs, ctx.nextp);
+
+			if (ctx.hackz == NULL && ctx.fromz != NULL) {
+				/* fixup zone */
+				d = dtz_forgetz(d, ctx.fromz);
+			}
+
+			if (ctx.sed_mode_p) {
+				__io_write(line, sp - line, stdout);
+				dt_io_write(d, ctx.ofmt, ctx.outz, '\0');
+				llen -= (ep - line);
+				line = ep;
+			} else {
+				dt_io_write(d, ctx.ofmt, ctx.outz, '\n');
+				break;
+			}
+		} else if (ctx.sed_mode_p) {
+			line[llen] = '\n';
+			__io_write(line, llen + 1, stdout);
+			break;
+		} else if (!ctx.quietp) {
+			dt_io_warn_strpdt(line);
+			break;
+		}
+	} while (1);
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -516,7 +570,7 @@ no durations given");
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
 			}
-			dt_io_write(d, ofmt, z);
+			dt_io_write(d, ofmt, z, '\n');
 			res = 0;
 		} else {
 			res = 1;
@@ -528,6 +582,17 @@ no durations given");
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
 		void *pctx;
+		struct prln_ctx_s prln = {
+			.ndl = &ndlsoa,
+			.ofmt = ofmt,
+			.fromz = fromz,
+			.outz = z,
+			.hackz = hackz,
+			.sed_mode_p = argi->sed_mode_given,
+			.quietp = argi->quiet_given,
+			.st = &st,
+			.nextp = nextp,
+		};
 
 		/* no threads reading this stream */
 		__io_setlocking_bycaller(stdout);
@@ -549,41 +614,9 @@ no durations given");
 		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen;
-				char *sp = NULL;
-				char *ep = NULL;
+				size_t llen = prchunk_getline(pctx, &line);
 
-				llen = prchunk_getline(pctx, &line);
-				/* check if line matches, */
-				d = dt_io_find_strpdt2(
-					line, &ndlsoa, &sp, &ep, fromz);
-
-				/* finish with newline again */
-				line[llen] = '\n';
-
-				if (!dt_unk_p(d)) {
-					/* perform addition now */
-					d = dround(d, st.durs, st.ndurs, nextp);
-
-					if (hackz == NULL && fromz != NULL) {
-						/* fixup zone */
-						d = dtz_forgetz(d, fromz);
-					}
-
-					if (argi->sed_mode_given) {
-						dt_io_write_sed(
-							d, ofmt,
-							line, llen + 1,
-							sp, ep, z);
-					} else {
-						dt_io_write(d, ofmt, z);
-					}
-				} else if (argi->sed_mode_given) {
-					__io_write(line, llen + 1, stdout);
-				} else if (!argi->quiet_given) {
-					line[llen] = '\0';
-					dt_io_warn_strpdt(line);
-				}
+				proc_line(prln, line, llen);
 			}
 		}
 		/* get rid of resources */
