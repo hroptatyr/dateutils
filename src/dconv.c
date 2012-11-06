@@ -70,6 +70,41 @@ error(int eno, const char *fmt, ...)
 	return;
 }
 
+struct prln_ctx_s {
+	struct grep_atom_soa_s *ndl;
+	const char *ofmt;
+	zif_t fromz;
+	zif_t outz;
+	int sed_mode_p;
+	int quietp;
+};
+
+static void
+proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
+{
+	struct dt_dt_s d;
+	char *sp = NULL;
+	char *ep = NULL;
+
+	/* check if line matches */
+	d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
+
+	/* finish with newline again */
+	line[llen] = '\n';
+
+	if (!dt_unk_p(d) && ctx.sed_mode_p) {
+		dt_io_write_sed(d, ctx.ofmt, line, llen + 1, sp, ep, ctx.outz);
+	} else if (!dt_unk_p(d)) {
+		dt_io_write(d, ctx.ofmt, ctx.outz);
+	} else if (ctx.sed_mode_p) {
+		__io_write(line, llen + 1, stdout);
+	} else if (!ctx.quietp) {
+		line[llen] = '\0';
+		dt_io_warn_strpdt(line);
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -140,6 +175,14 @@ main(int argc, char *argv[])
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
 		void *pctx;
+		struct prln_ctx_s prln = {
+			.ndl = &ndlsoa,
+			.ofmt = ofmt,
+			.fromz = fromz,
+			.outz = z,
+			.sed_mode_p = argi->sed_mode_given,
+			.quietp = argi->quiet_given,
+		};
 
 		/* no threads reading this stream */
 		__io_setlocking_bycaller(stdout);
@@ -160,31 +203,9 @@ main(int argc, char *argv[])
 		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen;
-				struct dt_dt_s d;
-				char *sp = NULL;
-				char *ep = NULL;
+				size_t llen = prchunk_getline(pctx, &line);
 
-				llen = prchunk_getline(pctx, &line);
-				/* check if line matches */
-				d = dt_io_find_strpdt2(
-					line, &ndlsoa, &sp, &ep, fromz);
-
-				/* finish with newline again */
-				line[llen] = '\n';
-
-				if (!dt_unk_p(d) && argi->sed_mode_given) {
-					dt_io_write_sed(
-						d, ofmt,
-						line, llen + 1, sp, ep, z);
-				} else if (!dt_unk_p(d)) {
-					dt_io_write(d, ofmt, z);
-				} else if (argi->sed_mode_given) {
-					__io_write(line, llen + 1, stdout);
-				} else if (!argi->quiet_given) {
-					line[llen] = '\0';
-					dt_io_warn_strpdt(line);
-				}
+				proc_line(prln, line, llen);
 			}
 		}
 		/* get rid of resources */
