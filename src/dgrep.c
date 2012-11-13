@@ -74,6 +74,35 @@ error(int eno, const char *fmt, ...)
 /* dexpr subsystem */
 #include "dexpr.c"
 
+struct prln_ctx_s {
+	struct grep_atom_soa_s *ndl;
+	dexpr_t root;
+	int only_matching_p;
+};
+
+static void
+proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
+{
+	struct dt_dt_s d;
+	char *sp = NULL;
+	char *ep = NULL;
+
+	/* check if line matches,
+	 * there's currently no way to specify NEEDLE */
+	d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, NULL);
+
+	if (!dt_unk_p(d) && dexpr_matches_p(ctx.root, d)) {
+		if (!ctx.only_matching_p) {
+			sp = line;
+			ep = line + llen;
+		}
+		/* make sure we finish the line */
+		*ep++ = '\n';
+		__io_write(sp, ep - sp, stdout);
+	}
+	return;
+}
+
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:593)
@@ -158,6 +187,11 @@ with complex expressions");
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
 		void *pctx;
+		struct prln_ctx_s prln = {
+			.ndl = &ndlsoa,
+			.root = root,
+			.only_matching_p = argi->only_matching_given,
+		};
 
 		/* no threads reading this stream */
 		__io_setlocking_bycaller(stdout);
@@ -178,26 +212,9 @@ with complex expressions");
 		}
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen;
-				struct dt_dt_s d;
-				char *sp = NULL;
-				char *ep = NULL;
+				size_t llen = prchunk_getline(pctx, &line);
 
-				llen = prchunk_getline(pctx, &line);
-				/* check if line matches,
-				 * there's currently no way to specify NEEDLE */
-				d = dt_io_find_strpdt2(
-					line, &ndlsoa, &sp, &ep, NULL);
-
-				if (!dt_unk_p(d) && dexpr_matches_p(root, d)) {
-					if (!argi->only_matching_given) {
-						sp = line;
-						ep = line + llen;
-					}
-					/* make sure we finish the line */
-					*ep++ = '\n';
-					__io_write(sp, ep - sp, stdout);
-				}
+				proc_line(prln, line, llen);
 			}
 		}
 		/* get rid of resources */
