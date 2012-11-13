@@ -37,7 +37,8 @@ input format ]DT_FMT[s."
 
 define([SED_MODE], [dnl
 option "sed-mode" S
-	"Copy parts from the input before and after the ]DT_STR[."
+	"Copy parts from the input before and after a matching ]DT_STR[.
+Note that all occurrences of ]DT_STR[s within a line will be processed."
 	optional
 ])dnl SED_MODE
 
