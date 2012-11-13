@@ -19,7 +19,10 @@ EOF
 stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
 cat > "${stdout}" <<EOF
 fileF,September/28/12,October/12/12
+fileF,September/29/12,November/01/12
 fileM,October/01/12,October/31/12
+fileM,October/02/12,November/30/12
+fileX,November/02/12,October/31/12
 EOF
 
 ## dgrep.20.dt ends here
