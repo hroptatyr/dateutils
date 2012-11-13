@@ -89,16 +89,24 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 
 	/* check if line matches,
 	 * there's currently no way to specify NEEDLE */
-	d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, NULL);
+	for (char *lp = line; ; lp = ep) {
+		d = dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, NULL);
 
-	if (!dt_unk_p(d) && dexpr_matches_p(ctx.root, d)) {
-		if (!ctx.only_matching_p) {
-			sp = line;
-			ep = line + llen;
+		if (!dt_unk_p(d) && dexpr_matches_p(ctx.root, d)) {
+			if (!ctx.only_matching_p) {
+				sp = line;
+				ep = line + llen;
+			}
+			/* make sure we finish the line */
+			*ep++ = '\n';
+			__io_write(sp, ep - sp, stdout);
+			break;
+		} else if (dt_unk_p(d)) {
+			/* just plain nothing */
+			break;
 		}
-		/* make sure we finish the line */
-		*ep++ = '\n';
-		__io_write(sp, ep - sp, stdout);
+		/* otherwise it means the line has no match (yet) */
+		;
 	}
 	return;
 }
