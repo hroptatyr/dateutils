@@ -62,12 +62,12 @@ default: UTC."
 ])dnl TO_ZONE
 
 define([SPECIALS], [dnl
-]DT_ARG[ can also be one of the following specials:
-- `now', interpreted as the current (UTC) time stamp
-- `time', the time part of the current (UTC) time stamp
-- `today', the current date (according to UTC)
-- `tomo[rrow]', tomorrow's date (according to UTC)
-- `y[ester]day', yesterday's date (according to UTC)dnl
+]DT_ARG[ can also be one of the following specials
+  - `now'           interpreted as the current (UTC) time stamp
+  - `time'          the time part of the current (UTC) time stamp
+  - `today'         the current date (according to UTC)
+  - `tomo[rrow]'    tomorrow's date (according to UTC)
+  - `y[ester]day'   yesterday's date (according to UTC)
 ])dnl SPECIALS
 
 changequote([{], [}])
