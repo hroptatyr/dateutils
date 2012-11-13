@@ -29,8 +29,9 @@ return 2012-02-01.  And `dround 2012-02-11 -- -Sep' will return \
 Multiple RNDSPECs are evaluated left to right.
 
 Note that rounding isn't commutative, e.g.
-  2012-03-01 Sat Sep -> 2012-09-03
-  2012-03-01 Sep Sat -> 2012-09-01
+\t2012-03-01 Sat Sep -> 2012-09-03
+vs.
+\t2012-03-01 Sep Sat -> 2012-09-01
 
 Note that non-numeric strings prefixed with a `-' conflict with the \
 command line options and a separating `--' has to be used."
