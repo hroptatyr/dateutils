@@ -14,7 +14,11 @@ and suffixed by a value (e.g. `%a=\"Wed\"') which matches lines whose
 
 EXPRESSION may be statements as described above concatenated through \
 `&&' (for conjunction) or `||' (disjunction), both of which may be \
-parenthesised as per usual to change precedence (`&&' goes over `||')."
+parenthesised as per usual to change precedence (`&&' goes over `||').
+
+If multiple DT_STR{}s occur on the same line and any one of them \
+fulfills the criteria then the line is considered a match and will \
+be output."
 
 QUIET
 INPUT_FORMAT
