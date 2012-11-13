@@ -281,6 +281,8 @@ dt_tests += dgrep.15.dt
 dt_tests += dgrep.16.dt
 dt_tests += dgrep.17.dt
 dt_tests += dgrep.18.dt
+dt_tests += dgrep.19.dt
+dt_tests += dgrep.20.dt
 
 dt_tests += dround.1.dt
 dt_tests += dround.2.dt
