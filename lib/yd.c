@@ -246,7 +246,13 @@ __get_jan01_wday(unsigned int year)
  * using the 28y cycle thats valid till the year 2399
  * 1920 = 16 mod 28 */
 #if !defined WITH_FAST_ARITH
-	if (UNLIKELY(year > 2100U)) {
+	if (UNLIKELY(year > 2100U ||
+#if DT_MIN_YEAR == 1917
+		     0
+#elif DT_MIN_YEAR == 1753
+		     year < 1901U
+#endif
+		    )) {
 		year = __get_28y_year_equiv(year);
 	}
 #endif	/* !WITH_FAST_ARITH */
