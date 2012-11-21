@@ -95,7 +95,7 @@ typedef enum {
 # define DT_MIN_YEAR	(1917)
 # define DT_MAX_YEAR	(2099)
 #else
-# define DT_MIN_YEAR	(1601)
+# define DT_MIN_YEAR	(1917)
 # define DT_MAX_YEAR	(4095)
 #endif	/* WITH_FAST_ARITH */
 
