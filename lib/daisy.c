@@ -54,10 +54,15 @@ __jan00_daisy(unsigned int year)
 	return by * 365U + by / 4U;
 #else  /* !WITH_FAST_ARITH */
 	by = by * 365U + by / 4U;
+#if DT_DAISY_BASE_YEAR == 1917
 	if (UNLIKELY(year > 2100U)) {
 		by -= (year - 2001U) / 100U;
 		by += (year - 2001U) / 400U;
 	}
+#elif DT_DAISY_BASE_YEAR == 1753
+	by -= (year - 1601U) / 100U;
+	by += (year - 1601U) / 400U;
+#endif
 	return by;
 #endif	/* WITH_FAST_ARITH */
 }
@@ -164,16 +169,26 @@ __daisy_get_yday(dt_daisy_t d)
 #if defined ASPECT_CONV && !defined DAISY_ASPECT_CONV_
 #define DAISY_ASPECT_CONV_
 
+#if DT_DAISY_BASE_YEAR == 1917
+# define DT_LDN_BASE	(122068U/*lilian's 1917-01-00*/)
+# define DT_JDN_BASE	(2421228.5f/*julian's 1917-01-00*/)
+#elif DT_DAISY_BASE_YEAR == 1753
+# define DT_LDN_BASE	(62170U/*lilian's 1753-01-00*/)
+# define DT_JDN_BASE	(2361330.5f/*julian's 1753-01-00*/)
+#else
+# error cannot convert to ldn, unknown base year
+#endif
+
 static dt_ldn_t
 __daisy_to_ldn(dt_daisy_t d)
 {
-	return d + 122068U/*lilian's 1917-01-00*/;
+	return d + DT_LDN_BASE;
 }
 
 static dt_jdn_t
 __daisy_to_jdn(dt_daisy_t d)
 {
-	return (dt_jdn_t)d + 2421228.5f/*julian's 1917-01-00*/;
+	return (dt_jdn_t)d + DT_JDN_BASE;
 }
 
 static __attribute__((unused)) dt_daisy_t
@@ -181,7 +196,7 @@ __ldn_to_daisy(dt_ldn_t d)
 {
 	dt_sdaisy_t tmp;
 
-	if ((tmp = d - 122068U/*lilian's 1917-01-00*/) > 0) {
+	if ((tmp = d - DT_LDN_BASE) > 0) {
 		return (dt_daisy_t)tmp;
 	}
 	return 0U;
@@ -191,7 +206,7 @@ static __attribute__((unused)) dt_daisy_t
 __jdn_to_daisy(dt_jdn_t d)
 {
 	float tmp;
-	if ((tmp = d - 2421228.5f/*julian's 1917-01-00*/) > 0.0f) {
+	if ((tmp = d - DT_JDN_BASE) > 0.0f) {
 		return (dt_daisy_t)tmp;
 	}
 	return 0U;
