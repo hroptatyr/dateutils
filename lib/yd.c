@@ -251,6 +251,8 @@ __get_jan01_wday(unsigned int year)
 		     0
 #elif DT_MIN_YEAR == 1753
 		     year < 1901U
+#elif DT_MIN_YEAR == 1601
+		     year < 1901U
 #endif
 		    )) {
 		year = __get_28y_year_equiv(year);
