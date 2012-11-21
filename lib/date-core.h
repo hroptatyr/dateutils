@@ -91,8 +91,13 @@ typedef enum {
 	DT_NDTYP,
 } dt_dtyp_t;
 
-#define DT_MIN_YEAR	(1917)
-#define DT_MAX_YEAR	(4095)
+#if defined WITH_FAST_ARITH
+# define DT_MIN_YEAR	(1917)
+# define DT_MAX_YEAR	(2099)
+#else
+# define DT_MIN_YEAR	(1593)
+# define DT_MAX_YEAR	(4095)
+#endif	/* WITH_FAST_ARITH */
 
 /** ymds
  * ymds are just bcd coded concatenations of 8601 dates */
