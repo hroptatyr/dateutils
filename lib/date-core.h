@@ -91,8 +91,13 @@ typedef enum {
 	DT_NDTYP,
 } dt_dtyp_t;
 
-#define DT_MIN_YEAR	(1917)
-#define DT_MAX_YEAR	(4095)
+#if defined WITH_FAST_ARITH
+# define DT_MIN_YEAR	(1917)
+# define DT_MAX_YEAR	(2099)
+#else
+# define DT_MIN_YEAR	(1917)
+# define DT_MAX_YEAR	(4095)
+#endif	/* WITH_FAST_ARITH */
 
 /** ymds
  * ymds are just bcd coded concatenations of 8601 dates */
@@ -183,9 +188,9 @@ typedef union {
 } __attribute__((__packed__)) dt_ywd_param_t;
 
 /** daysi
- * daisys are days since X, 1917-01-01 here */
+ * daisys are days since X, <DT_MIN_YEAR>-01-00 here */
 typedef uint32_t dt_daisy_t;
-#define DT_DAISY_BASE_YEAR	(1917)
+#define DT_DAISY_BASE_YEAR	(DT_MIN_YEAR)
 /* and a signed version for durations */
 typedef int32_t dt_sdaisy_t;
 
