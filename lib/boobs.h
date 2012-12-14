@@ -160,9 +160,9 @@
 
 #if !defined htole32
 # if defined WORDS_BIGENDIAN
-#  define htole32(x)	(x)
-# else	/* get the swaps done then */
 #  define htole32(x)	htooe32(x)
+# else	/* nothing to swap */
+#  define htole32(x)	(x)
 # endif
 #endif	/* !htole32 */
 
