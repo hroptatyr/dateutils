@@ -110,6 +110,17 @@
 # endif
 #endif	/* !htole16 */
 
+/* just to abstract over pure swapping */
+#if defined __bswap_16
+# define htooe16(x)	__bswap_16(x)
+#elif defined __swap16
+# define htooe16(x)	__swap16(x)
+#else
+# warning htooe16() will not convert anything
+# define htooe16(x)
+#endif
+
+
 /* and even now we may be out of luck */
 #if !defined be32toh
 # if defined betoh32
@@ -163,6 +174,17 @@
 # endif
 #endif	/* !htole32 */
 
+/* just to abstract over pure swapping */
+#if defined __bswap_32
+# define htooe32(x)	__bswap_32(x)
+#elif defined __swap32
+# define htooe32(x)	__swap32(x)
+#else
+# warning htooe32() will not convert anything
+# define htooe32(x)
+#endif
+
+
 #if !defined be64toh
 # if defined betoh64
 #  define be64toh	betoh64
@@ -220,6 +242,16 @@
 #  define htole64(x)	(x)
 # endif
 #endif	/* !htole64 */
+
+/* just to abstract over pure swapping */
+#if defined __bswap_64
+# define htooe64(x)	__bswap_64(x)
+#elif defined __swap64
+# define htooe64(x)	__swap64(x)
+#else
+# warning htooe64() will not convert anything
+# define htooe64(x)
+#endif
 
 /* we could technically include byteswap.h and to the swap ourselves
  * in the missing cases.  Instead we'll just leave it as is and wait
