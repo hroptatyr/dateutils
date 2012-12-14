@@ -63,6 +63,8 @@
 #  define be16toh	betoh16
 # elif defined WORDS_BIGENDIAN
 #  define be16toh(x)	(x)
+# elif __GNUC_PREREQ (4, 2)
+#  define be16toh(x)	__builtin_bswap16(x)
 # elif defined __bswap_16
 #  define be16toh(x)	__bswap_16(x)
 # elif defined __swap16
@@ -75,6 +77,8 @@
 #if !defined le16toh
 # if defined letoh16
 #  define le16toh	letoh16
+# elif defined WORDS_BIGENDIAN && __GNUC_PREREQ (4, 2)
+#  define le16toh(x)	__builtin_bswap16(x)
 # elif defined WORDS_BIGENDIAN && defined __bswap_16
 #  define le16toh(x)	__bswap_16(x)
 # elif defined WORDS_BIGENDIAN && defined __swap16
@@ -89,6 +93,8 @@
 #if !defined htobe16
 # if defined WORDS_BIGENDIAN
 #  define htobe16(x)	(x)
+# elif __GNUC_PREREQ (4, 2)
+#  define htobe16(x)	__builtin_bswap16(x)
 # elif defined __bswap_16
 #  define htobe16(x)	__bswap_16(x)
 # elif defined __swap16
@@ -99,7 +105,10 @@
 #endif	/* !htobe16 */
 
 #if !defined htole16
-# if defined WORDS_BIGENDIAN && defined __bswap_16
+# if 0
+# elif defined WORDS_BIGENDIAN && __GNUC_PREREQ (4, 2)
+#  define htole16(x)	__builtin_bswap16(x)
+# elif defined WORDS_BIGENDIAN && defined __bswap_16
 #  define htole16(x)	__bswap_16(x)
 # elif defined WORDS_BIGENDIAN && defined __swap16
 #  define htole16(x)	__swap16(x)
@@ -111,7 +120,10 @@
 #endif	/* !htole16 */
 
 /* just to abstract over pure swapping */
-#if defined __bswap_16
+#if 0
+#elif __GNUC_PREREQ (4, 2)
+# define htooe16(x)	__builtin_bswap16(x)
+#elif defined __bswap_16
 # define htooe16(x)	__bswap_16(x)
 #elif defined __swap16
 # define htooe16(x)	__swap16(x)
@@ -127,6 +139,8 @@
 #  define be32toh	betoh32
 # elif defined WORDS_BIGENDIAN
 #  define be32toh(x)	(x)
+# elif __GNUC_PREREQ (4, 2)
+#  define be32toh(x)	__builtin_bswap32(x)
 # elif defined __bswap_32
 #  define be32toh(x)	__bswap_32(x)
 # elif defined __swap32
@@ -139,6 +153,8 @@
 #if !defined le32toh
 # if defined letoh32
 #  define le32toh	letoh32
+# elif defined WORDS_BIGENDIAN && __GNUC_PREREQ (4, 2)
+#  define le32toh(x)	__builtin_bswap32(x)
 # elif defined WORDS_BIGENDIAN && defined __bswap_32
 #  define le32toh(x)	__bswap_32(x)
 # elif defined WORDS_BIGENDIAN && defined __swap32
@@ -153,6 +169,8 @@
 #if !defined htobe32
 # if defined WORDS_BIGENDIAN
 #  define htobe32(x)	(x)
+# elif __GNUC_PREREQ (4, 2)
+#  define htobe32(x)	__builtin_bswap32(x)
 # elif defined __bswap_32
 #  define htobe32(x)	__bswap_32(x)
 # elif defined __swap32
@@ -163,7 +181,10 @@
 #endif	/* !be32toh */
 
 #if !defined htole32
-# if defined WORDS_BIGENDIAN && defined __bswap_32
+# if 0
+# elif __GNUC_PREREQ (4, 2)
+#  define htole32(x)	__builtin_bswap32(x)
+# elif defined WORDS_BIGENDIAN && defined __bswap_32
 #  define htole32(x)	__bswap_32(x)
 # elif defined WORDS_BIGENDIAN && defined __swap32
 #  define htole32(x)	__swap32(x)
@@ -175,7 +196,10 @@
 #endif	/* !htole32 */
 
 /* just to abstract over pure swapping */
-#if defined __bswap_32
+#if 0
+#elif __GNUC_PREREQ (4, 2)
+# define htooe32(x)	__builtin_bswap32(x)
+#elif defined __bswap_32
 # define htooe32(x)	__bswap_32(x)
 #elif defined __swap32
 # define htooe32(x)	__swap32(x)
@@ -190,6 +214,8 @@
 #  define be64toh	betoh64
 # elif defined WORDS_BIGENDIAN
 #  define be64toh(x)	(x)
+# elif __GNUC_PREREQ (4, 2)
+#  define be64toh(x)	__builtin_bswap64(x)
 # elif defined __bswap_64
 #  define be64toh(x)	__bswap_64(x)
 # elif defined __swap64
@@ -204,6 +230,8 @@
 #if !defined le64toh
 # if defined letoh64
 #  define le64toh	letoh64
+# elif WORDS_BIGENDIAN && __GNUC_PREREQ (4, 2)
+#  define le64toh(x)	__builtin_bswap64(x)
 # elif defined WORDS_BIGENDIAN && defined __bswap_64
 #  define le64toh(x)	__bswap_64(x)
 # elif defined WORDS_BIGENDIAN && defined __swap64
@@ -218,6 +246,8 @@
 #if !defined htobe64
 # if defined WORDS_BIGENDIAN
 #  define htobe64(x)	(x)
+# elif __GNUC_PREREQ (4, 2)
+#  define htobe64(x)	__builtin_bswap64(x)
 # elif defined __bswap_64
 #  define htobe64(x)	__bswap_64(x)
 # elif defined __swap64
@@ -230,7 +260,10 @@
 #endif	/* !htobe64 */
 
 #if !defined htole64
-# if defined WORDS_BIGENDIAN && defined __bswap_64
+# if 0
+# elif WORDS_BIGENDIAN && __GNUC_PREREQ (4, 2)
+#  define htole64(x)	__builtin_bswap64(x)
+# elif defined WORDS_BIGENDIAN && defined __bswap_64
 #  define htole64(x)	__bswap_64(x)
 # elif defined WORDS_BIGENDIAN && defined __swap64
 #  define htole64(x)	__swap64(x)
@@ -244,7 +277,10 @@
 #endif	/* !htole64 */
 
 /* just to abstract over pure swapping */
-#if defined __bswap_64
+#if 0
+#elif __GNUC_PREREQ (4, 2)
+# define htooe64(x)	__builtin_bswap64(x)
+#elif defined __bswap_64
 # define htooe64(x)	__bswap_64(x)
 #elif defined __swap64
 # define htooe64(x)	__swap64(x)
