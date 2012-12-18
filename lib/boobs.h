@@ -193,7 +193,7 @@
 #if !defined le64toh
 # if defined letoh64
 #  define le64toh	letoh64
-# elif WORDS_BIGENDIAN
+# elif defined WORDS_BIGENDIAN
 #  define le64toh(x)	htooe64(x)
 # else	/* nothing to swap */
 #  define le64toh(x)	(x)
