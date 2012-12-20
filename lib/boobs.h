@@ -95,14 +95,8 @@
 #if !defined htobe16
 # if defined WORDS_BIGENDIAN
 #  define htobe16(x)	(x)
-# elif defined __GNUC__ && __GNUC__ == 4 && __GNUC_MINOR__ >= 7
-#  define htobe16(x)	__builtin_bswap16(x)
-# elif defined __bswap_16
-#  define htobe16(x)	__bswap_16(x)
-# elif defined __swap16
-#  define htobe16(x)	__swap16(x)
-# else
-#  error cannot figure out how to convert host uint16_t to big-endian
+# else	/* need swabbing */
+#  define htobe16(x)	__htooe16(x)
 # endif
 #endif	/* !htobe16 */
 
