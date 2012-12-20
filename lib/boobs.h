@@ -96,7 +96,7 @@
 # if defined WORDS_BIGENDIAN
 #  define htobe16(x)	(x)
 # else	/* need swabbing */
-#  define htobe16(x)	__htooe16(x)
+#  define htobe16(x)	htooe16(x)
 # endif
 #endif	/* !htobe16 */
 
