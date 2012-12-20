@@ -69,7 +69,7 @@
 # define htooe16(x)	__swap16(x)
 #else
 # warning htooe16() will not convert anything
-# define htooe16(x)
+# define htooe16(x)	(x)
 #endif	/* htooe16 */
 
 #if !defined be16toh
@@ -120,7 +120,7 @@
 # define htooe32(x)	__swap32(x)
 #else
 # warning htooe32() will not convert anything
-# define htooe32(x)
+# define htooe32(x)	(x)
 #endif
 
 /* and even now we may be out of luck */
@@ -171,7 +171,7 @@
 # define htooe64(x)	__swap64(x)
 #else
 # warning htooe64() will not convert anything
-# define htooe64(x)
+# define htooe64(x)	(x)
 #endif
 
 #if !defined be64toh
