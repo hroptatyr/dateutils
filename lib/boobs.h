@@ -67,6 +67,10 @@
 # define htooe16(x)	__bswap_16(x)
 #elif defined __swap16
 # define htooe16(x)	__swap16(x)
+#elif defined WORDS_BIGENDIAN && defined le16toh
+# define htooe16(x)	le16toh(x)
+#elif !defined WORDS_BIGENDIAN && defined be16toh
+# define htooe16(x)	be16toh(x)
 #else
 # warning htooe16() will not convert anything
 # define htooe16(x)	(x)
@@ -118,6 +122,10 @@
 # define htooe32(x)	__bswap_32(x)
 #elif defined __swap32
 # define htooe32(x)	__swap32(x)
+#elif defined WORDS_BIGENDIAN && defined le32toh
+# define htooe32(x)	le32toh(x)
+#elif !defined WORDS_BIGENDIAN && defined be32toh
+# define htooe32(x)	be32toh(x)
 #else
 # warning htooe32() will not convert anything
 # define htooe32(x)	(x)
@@ -169,6 +177,10 @@
 # define htooe64(x)	__bswap_64(x)
 #elif defined __swap64
 # define htooe64(x)	__swap64(x)
+#elif defined WORDS_BIGENDIAN && defined le64toh
+# define htooe64(x)	le64toh(x)
+#elif !defined WORDS_BIGENDIAN && defined be64toh
+# define htooe64(x)	be64toh(x)
 #else
 # warning htooe64() will not convert anything
 # define htooe64(x)	(x)
