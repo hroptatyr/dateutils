@@ -1,0 +1,20 @@
+args "--unamed-opts --long-help --no-handle-error"
+package "ut-test.sh"
+usage "ut-test.sh [OPTION]... TEST_FILE"
+description "Run .ut regression test file"
+
+option "builddir" -
+	"Specify where the compiled binaries can be found."
+	optional string typestr="DIR"
+
+option "srcdir" -
+	"Specify where the source tree resides."
+	optional string typestr="DIR"
+
+option "hash" -
+	"Use hasher PROG instead of md5sum."
+	optional string typestr="PROG"
+
+option "husk" -
+	"Use husk around tool, e.g. 'valgrind -v'"
+	optional string typestr="PROG"
