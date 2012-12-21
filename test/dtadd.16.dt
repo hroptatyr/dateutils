@@ -4,13 +4,13 @@ TOOL=dadd
 CMDLINE="-1d4h"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 2012-03-12T12:05:00
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2012-03-11T08:05:00
 EOF

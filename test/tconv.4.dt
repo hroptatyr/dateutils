@@ -4,7 +4,7 @@ TOOL=dconv
 CMDLINE=""
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 12:03:01
 12:59:01
@@ -12,7 +12,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 12:03:01
 12:59:01

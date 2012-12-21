@@ -7,7 +7,7 @@ COMMENT="2009 has got 53 weeks, so all's fine"
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2009-W53-07
 EOF

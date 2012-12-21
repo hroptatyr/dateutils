@@ -7,7 +7,7 @@ COMMENT="Test the virtual time zones, TAI, et al."
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2012-02-29T23:59:45
 EOF

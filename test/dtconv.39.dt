@@ -4,13 +4,13 @@ TOOL=dconv
 CMDLINE="-i '%s'"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 1234567890
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2009-02-13T23:31:30
 EOF

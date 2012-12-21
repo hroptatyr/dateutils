@@ -6,7 +6,7 @@ CMDLINE="10:01:00 11:03:10 -f '%H:%M:%S'"
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 1:2:10
 EOF

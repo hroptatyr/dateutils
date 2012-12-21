@@ -4,7 +4,7 @@ TOOL=dconv
 CMDLINE="-i '%s' 1234567890"
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2009-02-13T23:31:30
 EOF

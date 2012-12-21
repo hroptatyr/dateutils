@@ -5,7 +5,7 @@ CMDLINE="'<2012-03-01T10:00:00'"
 COMMENT="Testing input formats."
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 2012-02-28T10:00:00
 2012-02-29T10:00:00
@@ -14,7 +14,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2012-02-28T10:00:00
 2012-02-29T10:00:00
