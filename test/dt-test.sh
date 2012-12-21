@@ -11,22 +11,22 @@ xrealpath()
 	readlink -f "${1}" 2>/dev/null || \
 	realpath "${1}" 2>/dev/null || \
 	(
-		cd $(dirname "${1}") || exit 1
-		tmp_target=$(basename "${1}")
+		cd "`dirname "${1}"`" || exit 1
+		tmp_target="`basename "${1}"`"
 		# Iterate down a (possible) chain of symlinks
 		while test -L "${tmp_target}"; do
-			tmp_target=$(readlink "${tmp_target}")
-			cd $(dirname "${tmp_target}") || exit 1
-			tmp_target=$(basename "${tmp_target}")
+			tmp_target="`readlink "${tmp_target}"`"
+			cd "`dirname "${tmp_target}"`" || exit 1
+			tmp_target="`basename "${tmp_target}"`"
 		done
-		echo "$(pwd -P || pwd)/${tmp_target}"
+		echo "`pwd -P || pwd`/${tmp_target}"
 	) 2>/dev/null
 }
 
 ## setup
 fail=0
-tool_stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
-tool_stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+tool_stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
+tool_stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 ## source the check
 . "${testfile}" || fail=1
@@ -35,12 +35,12 @@ rm_if_not_src()
 {
 	file="${1}"
 	srcd="${2:-${srcdir}}"
-	dirf=$(dirname "${file}")
+	dirf="`dirname "${file}"`"
 
 	if test "${dirf}" -ef "${srcd}"; then
 		## treat as precious source file
 		:
-	elif test "$(pwd -P || pwd)" -ef "${srcd}"; then
+	elif test "`pwd -P || pwd`" -ef "${srcd}"; then
 		## treat as precious source file
 		:
 	else
@@ -56,7 +56,7 @@ myexit()
 	rm -f -- "${tool_stdout}" "${tool_stderr}"
 	## maybe there's profiling info
 	if test -r "gmon.out"; then
-		runnm="gmon-"$(basename ${testfile})".${$}.out"
+		runnm="gmon-`basename "${testfile}"`.${$}.out"
 		mv "gmon.out" "${runnm}"
 	fi
 	exit ${1:-1}
@@ -87,7 +87,7 @@ eval_echo()
 		echo >&3
 	else
 		echo "<<EOF" >&3
-		tmpf=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+		tmpf=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 		tee "${tmpf}" >&3
 		echo "EOF" >&3
 	fi
@@ -106,17 +106,17 @@ fi
 
 ## set finals
 if test -x "${builddir}/${TOOL}"; then
-	TOOL=$(xrealpath "${builddir}/${TOOL}")
+	TOOL="`xrealpath "${builddir}/${TOOL}"`"
 fi
 if test -z "${srcdir}"; then
-	srcdir=$(xrealpath $(dirname "${0}"))
+	srcdir="`xrealpath "\`dirname "${0}"\`"`"
 else
-	srcdir=$(xrealpath "${srcdir}")
+	srcdir="`xrealpath "${srcdir}"`"
 fi
 
-stdin=$(find_file "${stdin}")
-stdout=$(find_file "${stdout}")
-stderr=$(find_file "${stderr}")
+stdin="`find_file "${stdin}"`"
+stdout="`find_file "${stdout}"`"
+stderr="`find_file "${stderr}"`"
 
 eval_echo "${husk}" "${TOOL}" "${CMDLINE}" \
 	< "${stdin:-/dev/null}" \
