@@ -32,9 +32,10 @@ AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
 EXTRA_DIST += $(srcdir)/dt-test.sh
 
 TEST_EXTENSIONS += .convt
-CONVT_LOG_COMPILER = $(srcdir)/dconv-test.sh
-AM_CONVT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
-EXTRA_DIST += $(CONVT_LOG_COMPILER)
+CONVT_LOG_COMPILER = $(builddir)/dt-test
+AM_CONVT_LOG_FLAGS = --shell-bits $(srcdir)/dconv-test.sh \
+	--builddir $(top_builddir)/src --hash sha1sum
+EXTRA_DIST += $(srcdir)/dconv-test.sh
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
