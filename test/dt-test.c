@@ -69,7 +69,8 @@ main(int argc, char *argv[])
 	}
 
 	/* build the command */
-	{
+	if ((shpart = argi->shell_bits_arg) == NULL ||
+	    (shpart[0] != '/' && shpart[0] != '.')) {
 		static const char fn[] = "dt-test.sh";
 		static char buf[4096];
 		size_t idx = 0UL;
@@ -80,13 +81,19 @@ main(int argc, char *argv[])
 				buf[idx++] = '/';
 			}
 		}
-		memcpy(buf + idx, fn, sizeof(fn));
+		if (!argi->shell_bits_given) {
+			memcpy(buf + idx, fn, sizeof(fn));
+		} else {
+			size_t z;
+			memcpy(buf + idx, shpart, z = strlen(shpart));
+			buf[idx + z] = '\0';
+		}
 		shpart = buf;
 	}
 
 	/* exec the test script */
 	{
-		char *const new_argv[] = {"dt-test.sh", shpart, NULL};
+		char *const new_argv[] = {"dt-test", shpart, NULL};
 
 		if (execv("/bin/sh", new_argv)) {
 			perror("shell part not found");

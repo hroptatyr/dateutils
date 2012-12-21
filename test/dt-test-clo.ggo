@@ -18,3 +18,7 @@ option "hash" -
 option "husk" -
 	"Use husk around tool, e.g. 'valgrind -v'"
 	optional string typestr="PROG"
+
+option "shell-bits" -
+	"Use SCRIPT as shell part of the test"
+	optional string typestr="SCRIPT"
