@@ -10,8 +10,8 @@ AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_CPPFLAGS += -DTEST -I$(libdir) -I$(abs_top_builddir)/lib
 
 EXTRA_DIST =
-EXTRA_DIST += $(dt_tests) $(DT_LOG_COMPILER)
-EXTRA_DIST += $(convt_tests) $(CONVT_LOG_COMPILER)
+EXTRA_DIST += $(dt_tests)
+EXTRA_DIST += $(convt_tests)
 EXTRA_DIST += $(batch_tests)
 TESTS = $(bin_tests) $(dt_tests) $(convt_tests) $(batch_tests)
 TESTS_ENVIRONMENT =
@@ -26,10 +26,12 @@ CLEANFILES = $(check_PROGRAMS)
 TEST_EXTENSIONS += .dt
 DT_LOG_COMPILER = $(srcdir)/dt-test.sh
 AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
+EXTRA_DIST += $(DT_LOG_COMPILER)
 
 TEST_EXTENSIONS += .convt
 CONVT_LOG_COMPILER = $(srcdir)/dconv-test.sh
 AM_CONVT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
+EXTRA_DIST += $(CONVT_LOG_COMPILER)
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
