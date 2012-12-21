@@ -5,7 +5,7 @@ CMDLINE="'<today' -i \"%B/%d/%y\""
 COMMENT="Testing input formats"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 fileF,February/28/12
 fileF,February/29/12 leap day
@@ -14,7 +14,7 @@ fileM,March/02/12
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 fileF,February/28/12
 fileF,February/29/12 leap day

@@ -6,7 +6,7 @@ CMDLINE="2012-W36-01 1y"
 ## STDIN
  
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2013-W36-01
 EOF

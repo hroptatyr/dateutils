@@ -5,7 +5,7 @@ CMDLINE="-f ymcw"
 COMMENT="easy to check conversion ywd->ymcw"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 1917-W11-01
 1917-W11-02
@@ -38,7 +38,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 1917-03-02-01
 1917-03-02-02

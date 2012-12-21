@@ -4,7 +4,7 @@ TOOL=dadd
 CMDLINE="1b"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 2000-01-01T10:00:00
 2000-01-02T10:00:00
@@ -18,7 +18,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2000-01-03T10:00:00
 2000-01-03T10:00:00

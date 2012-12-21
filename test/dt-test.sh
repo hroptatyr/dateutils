@@ -1,60 +1,32 @@
 #!/bin/bash
 
-usage()
+## should be called by ut-test
+if test -z "${testfile}"; then
+	exit 1
+fi
+
+## helper funs that might be of use in the test files
+xrealpath()
 {
-	cat <<EOF 
-$(basename ${0}) [OPTION] TEST_FILE
-
---builddir DIR  specify where tools can be found
---srcdir DIR    specify where the source tree resides
---hash PROG     use hasher PROG instead of md5sum
---husk PROG     use husk around tool, e.g. 'valgrind -v'
-
--h, --help      print a short help screen
-EOF
+	readlink -f "${1}" 2>/dev/null || \
+	realpath "${1}" 2>/dev/null || \
+	(
+		cd "`dirname "${1}"`" || exit 1
+		tmp_target="`basename "${1}"`"
+		# Iterate down a (possible) chain of symlinks
+		while test -L "${tmp_target}"; do
+			tmp_target="`readlink "${tmp_target}"`"
+			cd "`dirname "${tmp_target}"`" || exit 1
+			tmp_target="`basename "${tmp_target}"`"
+		done
+		echo "`pwd -P || pwd`/${tmp_target}"
+	) 2>/dev/null
 }
-
-for arg; do
-	case "${arg}" in
-	"-h"|"--help")
-		usage
-		exit 0
-		;;
-	"--builddir")
-		builddir="${2}"
-		shift 2
-		;;
-	"--srcdir")
-		srcdir="${2}"
-		shift 2
-		;;
-	"--hash")
-		hash="${2}"
-		shift 2
-		;;
-	"--husk")
-		HUSK="${2}"
-		shift 2
-		;;
-	--)
-		shift
-		testfile="${1}"
-		break
-		;;
-	"-"*)
-		echo "unknown option ${arg}" >&2
-		shift
-		;;
-	*)
-		testfile="${1}"
-		;;
-	esac
-done
 
 ## setup
 fail=0
-tool_stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
-tool_stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+tool_stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
+tool_stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 ## source the check
 . "${testfile}" || fail=1
@@ -63,12 +35,12 @@ rm_if_not_src()
 {
 	file="${1}"
 	srcd="${2:-${srcdir}}"
-	dirf=$(dirname "${file}")
+	dirf="`dirname "${file}"`"
 
 	if test "${dirf}" -ef "${srcd}"; then
 		## treat as precious source file
 		:
-	elif test "$(pwd -P || pwd)" -ef "${srcd}"; then
+	elif test "`pwd -P || pwd`" -ef "${srcd}"; then
 		## treat as precious source file
 		:
 	else
@@ -84,27 +56,10 @@ myexit()
 	rm -f -- "${tool_stdout}" "${tool_stderr}"
 	## maybe there's profiling info
 	if test -r "gmon.out"; then
-		runnm="gmon-"$(basename ${testfile})".${$}.out"
+		runnm="gmon-`basename "${testfile}"`.${$}.out"
 		mv "gmon.out" "${runnm}"
 	fi
 	exit ${1:-1}
-}
-
-xrealpath()
-{
-	readlink -f "${1}" 2>/dev/null || \
-	realpath "${1}" 2>/dev/null || \
-	(
-		cd $(dirname "${1}") || exit 1
-		tmp_target=$(basename "${1}")
-		# Iterate down a (possible) chain of symlinks
-		while test -L "${tmp_target}"; do
-			tmp_target=$(readlink "${tmp_target}")
-			cd $(dirname "${tmp_target}") || exit 1
-			tmp_target=$(basename "${tmp_target}")
-		done
-		echo "$(pwd -P || pwd)/${tmp_target}"
-	) 2>/dev/null
 }
 
 find_file()
@@ -132,7 +87,7 @@ eval_echo()
 		echo >&3
 	else
 		echo "<<EOF" >&3
-		tmpf=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+		tmpf=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 		tee "${tmpf}" >&3
 		echo "EOF" >&3
 	fi
@@ -151,19 +106,19 @@ fi
 
 ## set finals
 if test -x "${builddir}/${TOOL}"; then
-	TOOL=$(xrealpath "${builddir}/${TOOL}")
+	TOOL="`xrealpath "${builddir}/${TOOL}"`"
 fi
 if test -z "${srcdir}"; then
-	srcdir=$(xrealpath $(dirname "${0}"))
+	srcdir="`xrealpath "\`dirname "${0}"\`"`"
 else
-	srcdir=$(xrealpath "${srcdir}")
+	srcdir="`xrealpath "${srcdir}"`"
 fi
 
-stdin=$(find_file "${stdin}")
-stdout=$(find_file "${stdout}")
-stderr=$(find_file "${stderr}")
+stdin="`find_file "${stdin}"`"
+stdout="`find_file "${stdout}"`"
+stderr="`find_file "${stderr}"`"
 
-eval_echo "${HUSK}" "${TOOL}" "${CMDLINE}" \
+eval_echo "${husk}" "${TOOL}" "${CMDLINE}" \
 	< "${stdin:-/dev/null}" \
 	3>&2 \
 	> "${tool_stdout}" 2> "${tool_stderr}" || fail=${?}

@@ -4,7 +4,7 @@ TOOL=dconv
 CMDLINE="--from-zone America/Chicago -S -f '%T'"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 now	2012-03-12 09:05:00
 different format now:
@@ -12,7 +12,7 @@ different format now:
 EOF
  
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 now	14:05:00
 different format now:

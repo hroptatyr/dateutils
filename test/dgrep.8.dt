@@ -4,7 +4,7 @@ TOOL=dgrep
 CMDLINE="-o \\<2012-03-01"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 Feb	2012-02-28
 Feb	2012-02-29	leap day
@@ -13,7 +13,7 @@ Mar	2012-03-02
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2012-02-28
 2012-02-29

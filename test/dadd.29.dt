@@ -5,7 +5,7 @@ CMDLINE="2001-01-05"
 COMMENT="mass adding of durations, time to date"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 1s
 2h
@@ -14,7 +14,7 @@ test
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2001-01-05
 2001-01-05
@@ -22,7 +22,7 @@ cat > "${stdout}" <<EOF
 EOF
 
 ## STDERR
-stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stderr}" <<EOF
 dadd: cannot make sense of \`test' using the given input formats
 EOF

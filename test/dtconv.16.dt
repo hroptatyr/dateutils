@@ -4,14 +4,14 @@ TOOL=dconv
 CMDLINE="--zone America/Chicago -S -f '%T'"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 now	2012-03-12 09:05:00
 +1m	2012-03-12 09:06:00	later than last line
 EOF
  
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 now	04:05:00
 +1m	04:06:00	later than last line
