@@ -6,7 +6,7 @@ CMDLINE="12:00:04 --lt 11:22:33 || echo \"false\""
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 false
 EOF

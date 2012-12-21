@@ -6,7 +6,7 @@ CMDLINE="1980-01-01T00:00:00 --zone 'Asia/Singapore'"
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 1980-01-01T07:30:00
 EOF

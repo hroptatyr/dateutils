@@ -5,7 +5,7 @@ CMDLINE="12:05:00"
 COMMENT="mass duration adding"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 test 10m
 1d
@@ -13,14 +13,14 @@ test 10m
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 12:05:00
 12:05:00
 EOF
 
 ## STDERR
-stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stderr}" <<EOF
 dadd: cannot make sense of \`test 10m' using the given input formats
 EOF

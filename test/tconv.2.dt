@@ -6,7 +6,7 @@ CMDLINE="-i \"%I:%M:%S %p\" \"11:22:33 PM\""
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 23:22:33
 EOF

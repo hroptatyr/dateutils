@@ -6,7 +6,7 @@ CMDLINE="-f '%qth quarter of %Y' '2010-03-01'"
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 1st quarter of 2010
 EOF

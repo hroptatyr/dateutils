@@ -5,7 +5,7 @@ CMDLINE="-S 12:05:00"
 COMMENT="mass duration adding"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 test 10m
 1d
@@ -13,7 +13,7 @@ test 10m
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 test 10m
 12:05:00
@@ -21,6 +21,6 @@ test 10m
 EOF
 
 ## STDERR
-stderr=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 ## tadd.10.dt ends here

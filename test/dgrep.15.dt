@@ -5,7 +5,7 @@ CMDLINE="--ge 1999-05-03 -i \"%B/%d/%y\""
 COMMENT="Testing grep atoms, here it should look for / and various offsets."
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 fileF,February/28/2012
 fileF,February/29/2012 leap day
@@ -14,7 +14,7 @@ fileM,March/02/2012
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 fileF,February/28/2012
 fileF,February/29/2012 leap day

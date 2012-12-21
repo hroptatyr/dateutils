@@ -7,7 +7,7 @@ COMMENT="adding stops on a leap transition"
 ## STDIN
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 2012-06-30T23:59:60
 EOF

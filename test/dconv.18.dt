@@ -5,7 +5,7 @@ CMDLINE="-i '%dth%m%Y' -f '%b %dth %Y'"
 ## very artificial :\
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 1st102011
 2nd102011
@@ -26,7 +26,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 Oct 1st 2011
 Oct 2nd 2011

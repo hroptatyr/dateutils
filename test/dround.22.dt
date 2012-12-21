@@ -4,7 +4,7 @@ TOOL=dround
 CMDLINE="-S -1"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 pay cable	2012-02-28
 pay gas	2012-02-29
@@ -13,7 +13,7 @@ redeem loan	2012-03-02
 EOF
 
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 pay cable	2012-02-01
 pay gas	2012-02-01

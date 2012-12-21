@@ -4,7 +4,7 @@ TOOL=dconv
 CMDLINE="-i '%dth of %b %Y' -f '%b %dth %Y'"
 
 ## STDIN
-stdin=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdin}" <<EOF
 1st of Oct 2011
 2nd of Oct 2011
@@ -25,7 +25,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=$(mktemp "/tmp/tmp.XXXXXXXXXX")
+stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 cat > "${stdout}" <<EOF
 Oct 1st 2011
 Oct 2nd 2011
