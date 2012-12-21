@@ -47,6 +47,7 @@ Dateutils are hosted primarily on github:
 
 + github page: <https://github.com/hroptatyr/dateutils>
 + project homepage: <http://hroptatyr.github.com/dateutils/>
++ downloads: <https://bitbucket.org/hroptatyr/dateutils/downloads>
 
 Below is a short list of examples that demonstrate what dateutils can
 do, for full specs refer to the info and man pages.  For installation
