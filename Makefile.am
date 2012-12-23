@@ -5,7 +5,9 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = lib src info test
 
-EXTRA_DIST = git-version-gen
+EXTRA_DIST = git-version-gen $(doc_DATA)
+
+doc_DATA = README.md
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA =
