@@ -113,6 +113,16 @@ denote the last day of the month.])
 AS_HELP_STRING([], [Default: disabled])],
 	[enable_fast_arith="${enableval}"], [enable_fast_arith="no"])
 
+AC_ARG_WITH([matlab], [
+AS_HELP_STRING([--with-matlab], [Build matlab contribs, default: no.])],
+        [dnl
+                SXE_CHECK_MATLAB([${withval}])
+                if test -n "${sxe_cv_matlabroot}"; then
+                        with_matlab="yes"
+                fi
+        ], [with_matlab="no"])
+AM_CONDITIONAL([BUILD_MATCLI], [test "${with_matlab}" = "yes"])
+
 ## checks
 if test "${enable_fast_arith}" = "yes"; then
 	AC_DEFINE([WITH_FAST_ARITH], [1],
@@ -132,6 +142,9 @@ AM_CONDITIONAL([BUILD_LTRCC], [test ! -f "${srcdir}/lib/leapseconds.def"])
 dut_apps="dadd dconv ddiff dgrep dround dseq dtest"
 if test "${have_strptime}" = "yes"; then
 	misc_apps="strptime"
+fi
+if test "${with_matlab}" = "yes"; then
+        misc_apps="${misc_apps}${misc_apps:+ }tzconv.m(atlab)"
 fi
 
 dnl must come after all AC_LINK_IFELSE clauses
