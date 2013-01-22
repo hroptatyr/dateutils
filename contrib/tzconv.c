@@ -84,7 +84,7 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	}
 
 #define TO_UNIX(x)	((x) - 719529.0) * 86400.0
-#define TO_MATL(x)	((x) / 86400.0) + 719529.0;
+#define TO_MATL(x)	((x) / 86400.0) + 719529.0
 	{
 		mwSize m = mxGetM(prhs[0]);
 		mwSize n = mxGetN(prhs[0]);
