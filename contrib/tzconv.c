@@ -39,6 +39,7 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 /* matlab stuff */
 #include "mex.h"
 /* our stuff */
