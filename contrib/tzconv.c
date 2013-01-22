@@ -39,6 +39,7 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 /* matlab stuff */
 #include "mex.h"
 /* our stuff */
@@ -83,7 +84,7 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	}
 
 #define TO_UNIX(x)	((x) - 719529.0) * 86400.0
-#define TO_MATL(x)	((x) / 86400.0) + 719529.0;
+#define TO_MATL(x)	((x) / 86400.0) + 719529.0
 	{
 		mwSize m = mxGetM(prhs[0]);
 		mwSize n = mxGetN(prhs[0]);
@@ -95,7 +96,7 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 		for (mwSize i = 0; i < m * n; i++) {
 			double x = TO_UNIX(src[i]);
-			double frac = fmod(x, 1.0);
+			double frac = modf(x, &x);
 			int32_t utc = zif_utc_time(fromz, (int32_t)x);
 			int32_t lcl = zif_local_time(toz, utc);
 
