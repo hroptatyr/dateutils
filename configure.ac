@@ -113,6 +113,16 @@ denote the last day of the month.])
 AS_HELP_STRING([], [Default: disabled])],
 	[enable_fast_arith="${enableval}"], [enable_fast_arith="no"])
 
+AC_ARG_WITH([matlab], [
+AS_HELP_STRING([--with-matlab], [Build matlab contribs, default: no.])],
+        [dnl
+                SXE_CHECK_MATLAB([${withval}])
+                if test -n "${sxe_cv_matlabroot}"; then
+                        with_matlab="yes"
+                fi
+        ], [with_matlab="no"])
+AM_CONDITIONAL([BUILD_MATCLI], [test "${with_matlab}" = "yes"])
+
 ## checks
 if test "${enable_fast_arith}" = "yes"; then
 	AC_DEFINE([WITH_FAST_ARITH], [1],
@@ -133,12 +143,21 @@ dut_apps="dadd dconv ddiff dgrep dround dseq dtest"
 if test "${have_strptime}" = "yes"; then
 	misc_apps="strptime"
 fi
+if test "${with_matlab}" = "yes"; then
+        misc_apps="${misc_apps}${misc_apps:+ }tzconv.m(atlab)"
+fi
+
+dnl must come after all AC_LINK_IFELSE clauses
+## check for the ldflags
+SXE_CHECK_LDFLAGS
+SXE_CHECK_LIBTOOL
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
+AC_CONFIG_FILES([contrib/Makefile])
 AC_CONFIG_FILES([libdut.pc])
 AC_OUTPUT
 

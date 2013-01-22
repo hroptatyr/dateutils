@@ -615,7 +615,7 @@ dt_io_strfdt(
 
 	if (LIKELY(res > 0) && apnd_ch && buf[res - 1] != apnd_ch) {
 		/* auto-newline */
-		buf[res++] = apnd_ch;
+		buf[res++] = (char)apnd_ch;
 	}
 	return res;
 }
