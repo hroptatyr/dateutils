@@ -134,6 +134,11 @@ if test "${have_strptime}" = "yes"; then
 	misc_apps="strptime"
 fi
 
+dnl must come after all AC_LINK_IFELSE clauses
+## check for the ldflags
+SXE_CHECK_LDFLAGS
+SXE_CHECK_LIBTOOL
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([src/Makefile])
