@@ -3,7 +3,7 @@ LC_ALL = C
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = lib src info test
+SUBDIRS = lib src info test contrib
 
 EXTRA_DIST = git-version-gen $(doc_DATA)
 
