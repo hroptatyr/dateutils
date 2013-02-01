@@ -14,7 +14,7 @@ tzconv_la_LDFLAGS += $(XCCLDFLAGS)
 tzconv_la_CPPFLAGS = $(AM_CPPFLAGS) -DMATLAB_MEX_FILE
 tzconv_la_CPPFLAGS += -I$(top_srcdir)/lib
 tzconv_la_CPPFLAGS += -I$(top_builddir)/lib
-tzconv_la_CPPFLAGS += -I$(MATLABROOT)/extern/include
+tzconv_la_CPPFLAGS += $(matlab_CFLAGS)
 tzconv_la_CPPFLAGS += -DDECLF=extern -DDEFUN=
 tzconv_la_SOURCES = tzconv.c
 tzconv_la_SOURCES += $(top_srcdir)/lib/tzraw.c $(top_srcdir)/lib/tzraw.h
