@@ -7,10 +7,12 @@ EXTRA_DIST =
 MEX_LDFLAGS = -module -shared -avoid-version -shrext ".mexa64"
 
 if BUILD_MATCLI
-moddir = $(HOME)/.matlab/$(shell basename "$(MATLABROOT)")/toolbox/dateutils
+mexdir = $(HOME)/.matlab/$(shell basename "$(MATLABROOT)")/toolbox/dateutils
+mex_LTLIBRARIES =
+mex_DATA =
 
-mod_LTLIBRARIES = tzconv.la
-mod_DATA = tzconv.m
+mex_LTLIBRARIES += tzconv.la
+mex_DATA += tzconv.m
 tzconv_la_LDFLAGS = $(AM_LDFLAGS)
 tzconv_la_LDFLAGS += $(MEX_LDFLAGS)
 tzconv_la_LDFLAGS += $(XCCLDFLAGS)
@@ -22,7 +24,7 @@ tzconv_la_CPPFLAGS += -DDECLF=extern -DDEFUN=
 tzconv_la_SOURCES = tzconv.c
 tzconv_la_SOURCES += $(top_srcdir)/lib/tzraw.c $(top_srcdir)/lib/tzraw.h
 tzconv_la_SOURCES += $(top_srcdir)/lib/leaps.c $(top_srcdir)/lib/leaps.h
-EXTRA_DIST += $(mod_DATA)
+EXTRA_DIST += $(mex_DATA)
 endif  BUILD_MATCLI
 
 
