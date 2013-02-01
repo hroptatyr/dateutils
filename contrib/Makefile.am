@@ -24,8 +24,8 @@ tzconv_la_CPPFLAGS += -DDECLF=extern -DDEFUN=
 tzconv_la_SOURCES = tzconv.c
 tzconv_la_SOURCES += $(top_srcdir)/lib/tzraw.c $(top_srcdir)/lib/tzraw.h
 tzconv_la_SOURCES += $(top_srcdir)/lib/leaps.c $(top_srcdir)/lib/leaps.h
-EXTRA_DIST += $(mex_DATA)
 endif  BUILD_MATCLI
+EXTRA_DIST += $(mex_DATA)
 
 
 # 
