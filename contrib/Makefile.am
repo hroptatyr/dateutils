@@ -4,12 +4,15 @@ AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_LDFLAGS =
 EXTRA_DIST =
 
+MEX_LDFLAGS = -module -shared -avoid-version -shrext ".mexa64"
+
 if BUILD_MATCLI
 moddir = $(HOME)/.matlab/$(shell basename "$(MATLABROOT)")/toolbox/dateutils
 
 mod_LTLIBRARIES = tzconv.la
 mod_DATA = tzconv.m
-tzconv_la_LDFLAGS = -module -shrext ".mexa64"
+tzconv_la_LDFLAGS = $(AM_LDFLAGS)
+tzconv_la_LDFLAGS += $(MEX_LDFLAGS)
 tzconv_la_LDFLAGS += $(XCCLDFLAGS)
 tzconv_la_CPPFLAGS = $(AM_CPPFLAGS) -DMATLAB_MEX_FILE
 tzconv_la_CPPFLAGS += -I$(top_srcdir)/lib
