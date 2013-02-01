@@ -33,6 +33,15 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 
 	AC_MSG_RESULT([${sxe_cv_matlabroot}])
 
+	save_CPPFLAGS="${CPPFLAGS}"
+	CPPFLAGS="${CPPFLAGS} -I${MATLABROOT}/extern/include"
+	AC_CHECK_HEADERS([mex.h])
+	if test "${ac_cv_header_mex_h}"; then
+		matlab_CFLAGS="-I${MATLABROOT}/extern/include"
+		AC_SUBST([matlab_CFLAGS])
+	fi
+	CPPFLAGS="${save_CPPFLAGS}"
+
 	rm -f -- "${foo}"
 	popdef([mroot])
 ])dnl SXE_CHECK_MATLAB
