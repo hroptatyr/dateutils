@@ -15,6 +15,6 @@ cat > "${stderr}" <<'EOF'
 dadd: Error: cannot parse duration string `2147483648s': Numerical result out of range
 EOF
 
-EXPECT_EXIT_CODE=1
+TS_EXP_EXIT_CODE=1
 
 ## dtadd.26.dt ends here
