@@ -28,7 +28,7 @@ CLEANFILES = $(check_PROGRAMS)
 TEST_EXTENSIONS += .dt
 check_PROGRAMS += dt-test
 DT_LOG_COMPILER = $(builddir)/dt-test
-AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
+AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src
 EXTRA_DIST += $(srcdir)/dt-test.sh
 
 TEST_EXTENSIONS += .convt
