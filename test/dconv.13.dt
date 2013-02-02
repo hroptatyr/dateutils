@@ -4,14 +4,12 @@ TOOL=dconv
 CMDLINE="-i \"%Y%d%m\""
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 this line was created on 20122303.
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2012-03-23
 EOF
 

@@ -5,8 +5,7 @@ CMDLINE="--ge May/03/99 -i \"%B/%d/%y\""
 COMMENT="Testing input formats"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 fileF,February/28/12
 fileF,February/29/12 leap day
 fileM,March/01/12
@@ -14,8 +13,7 @@ fileM,March/02/12
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 fileF,February/28/12
 fileF,February/29/12 leap day
 fileM,March/01/12

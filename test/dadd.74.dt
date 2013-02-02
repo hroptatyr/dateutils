@@ -7,8 +7,7 @@ COMMENT="Gregorian year is 2010, but ISO8601 year is 2009."
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2009-W53-07
 EOF
 

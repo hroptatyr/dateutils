@@ -4,16 +4,14 @@ TOOL=dconv
 CMDLINE="-i '%T' -f '%H:%M:%S'"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 12:03:01
 12:59:01
 12:59:60
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 12:03:01
 12:59:01
 12:59:60

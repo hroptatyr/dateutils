@@ -4,15 +4,13 @@ TOOL=dadd
 CMDLINE="12m"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 12:02:00
 14:20:20
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 12:14:00
 14:32:20
 EOF

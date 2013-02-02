@@ -5,8 +5,7 @@ CMDLINE="'2012-01-02 02:04:00'"
 COMMENT="mass duration adder"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 -10s
 -1m
 -1h
@@ -15,8 +14,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2012-01-02T02:03:50
 2012-01-02T02:03:00
 2012-01-02T01:04:00

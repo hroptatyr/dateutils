@@ -5,8 +5,7 @@ CMDLINE="-S 2001-01-05"
 COMMENT="mass adding of durations, time to date"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 1s
 2h
 48h
@@ -14,8 +13,7 @@ test
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2001-01-05
 2001-01-05
 2001-01-05
@@ -23,6 +21,5 @@ test
 EOF
 
 ## STDERR
-stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 
 ## dadd.30.dt ends here

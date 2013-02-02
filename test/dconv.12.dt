@@ -4,8 +4,7 @@ TOOL=dconv
 CMDLINE='-S -i "%Y-%m-%d" -i "%d %b %Y" -i "%d-%b-%Y"'
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 1 week (act/360)	2011-10-12	1.186
 1 week (act/365)	2011-10-12	1.202
 2 week (act/360)	2011-10-12	1.245
@@ -39,8 +38,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 1 week (act/360)	2011-10-12	1.186
 1 week (act/365)	2011-10-12	1.202
 2 week (act/360)	2011-10-12	1.245

@@ -6,8 +6,7 @@ CMDLINE="2012-03-03 2012-03-02T10:14:00 -f '%F'"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 -1d
 EOF
 

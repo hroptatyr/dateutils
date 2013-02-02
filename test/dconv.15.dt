@@ -4,15 +4,13 @@ TOOL=dconv
 CMDLINE="-S -i \"%y%b%d\""
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 this line was created on 12May23 and should match
 whereas this line 12Maybe shouldn't
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 this line was created on 2012-05-23 and should match
 whereas this line 12Maybe shouldn't
 EOF

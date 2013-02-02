@@ -5,8 +5,7 @@ CMDLINE="-f '%Y-%C-%w'"
 COMMENT="every Jan's second %w should also be the second %w in the year"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 1917-01-02-00
 1917-01-02-01
 1917-01-02-02
@@ -66,8 +65,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 1917-02-00
 1917-02-01
 1917-02-02

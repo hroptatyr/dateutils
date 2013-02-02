@@ -7,8 +7,7 @@ COMMENT="convert cmd-line to julian"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2421229.500000
 EOF
 

@@ -5,8 +5,7 @@ CMDLINE="-i '%Y-%m-%db'"
 ## tests how optional the b in the input is
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2010-03-01
 2010-03-02
 2010-03-03
@@ -20,8 +19,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2010-03-01b
 2010-03-02b
 2010-03-03b

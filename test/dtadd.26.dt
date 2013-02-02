@@ -7,11 +7,10 @@ COMMENT="not allowed"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
+touch "${TS_EXP_STDOUT}"
 
 ## STDERR
-stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stderr}" <<'EOF'
+cat > "${TS_EXP_STDERR}" <<'EOF'
 dadd: Error: cannot parse duration string `2147483648s': Numerical result out of range
 EOF
 

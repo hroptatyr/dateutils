@@ -6,8 +6,7 @@ CMDLINE="1919-W52-07 1d"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 1920-W01-01
 EOF
 
