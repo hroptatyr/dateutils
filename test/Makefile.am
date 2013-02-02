@@ -617,4 +617,7 @@ EXTRA_DIST += dt-test.sh
 %.c %.h: %.ggo
 	$(AM_V_GEN) gengetopt -F $* -i $<
 
+clean-local:
+	-rm -rf *.tmpd
+
 ## Makefile.am ends here
