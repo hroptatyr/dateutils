@@ -1,9 +1,9 @@
 #!/bin/sh
 
 BEG="1917-01-01"
-if test "${have_gdate_2039}" = "yes"; then
-	END="4095-01-01"
-else
+END="4095-01-01"
+if test "${have_gdate_2039}" != "yes"; then
+	BEG="1971-01-01"
 	END="2038-01-01"
 fi
 
