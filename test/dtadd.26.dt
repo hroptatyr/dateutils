@@ -15,5 +15,6 @@ dadd: Error: cannot parse duration string `2147483648s': Numerical result out of
 EOF
 
 TS_EXP_EXIT_CODE=1
+TS_DIFF_OPTS="-I \"^dadd: Error: cannot parse duration string \\\`2147483648s': ..*\$\""
 
 ## dtadd.26.dt ends here

@@ -10,10 +10,11 @@ COMMENT="not allowed"
 touch "${TS_EXP_STDOUT}"
 
 ## STDERR
-cat > "${TS_EXP_STDERR}" <<EOF
-dadd: Error: cannot parse duration string \`-2147483648s': Numerical result out of range
+cat > "${TS_EXP_STDERR}" <<'EOF'
+dadd: Error: cannot parse duration string `-2147483648s': Numerical result out of range
 EOF
 
 TS_EXP_EXIT_CODE=1
+TS_DIFF_OPTS="-I \"^dadd: Error: cannot parse duration string \\\`-2147483648s': ..*\$\""
 
 ## dtadd.28.dt ends here
