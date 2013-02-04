@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+BEG="1917-01-01"
+END="2399-12-31"
+
+SRC="ywd"
+TGT="ymcw"
+
+TOOL=dconv
+CMDLINE="-f '${TGT}' < "${TS_EXP_STDOUT}"| \"\${TOOL}\" -f '${SRC}'"
+
+"${builddir}/dseq" "${BEG}" "${END}" -f "${SRC}" > "${TS_EXP_STDOUT}"
+
+## convt.ywd-ymcw.dt ends here

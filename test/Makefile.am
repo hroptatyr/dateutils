@@ -11,31 +11,23 @@ AM_CPPFLAGS += -DTEST -I$(libdir) -I$(abs_top_builddir)/lib
 
 EXTRA_DIST =
 EXTRA_DIST += $(dt_tests)
-EXTRA_DIST += $(convt_tests)
 EXTRA_DIST += $(batch_tests)
 EXTRA_DIST += $(BUILT_SOURCES)
-TESTS = $(bin_tests) $(dt_tests) $(convt_tests) $(batch_tests)
+TESTS = $(bin_tests) $(dt_tests) $(batch_tests)
 TESTS_ENVIRONMENT =
 TEST_EXTENSIONS =
 BUILT_SOURCES =
 dt_tests =
 bin_tests =
 batch_tests =
-convt_tests =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
 
 TEST_EXTENSIONS += .dt
 check_PROGRAMS += dt-test
 DT_LOG_COMPILER = $(builddir)/dt-test
-AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src --hash sha1sum
+AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src
 EXTRA_DIST += $(srcdir)/dt-test.sh
-
-TEST_EXTENSIONS += .convt
-CONVT_LOG_COMPILER = $(builddir)/dt-test
-AM_CONVT_LOG_FLAGS = --shell-bits $(srcdir)/dconv-test.sh \
-	--builddir $(top_builddir)/src --hash sha1sum
-EXTRA_DIST += $(srcdir)/dconv-test.sh
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
@@ -425,6 +417,13 @@ dt_tests += dtconv.42.dt
 dt_tests += dtconv.43.dt
 dt_tests += dtconv.44.dt
 
+dt_tests += convt.ymcw-ymd.dt
+dt_tests += convt.ymcw-ywd.dt
+dt_tests += convt.ymd-ymcw.dt
+dt_tests += convt.ymd-ywd.dt
+dt_tests += convt.ywd-ymcw.dt
+dt_tests += convt.ywd-ymd.dt
+
 dt_tests += dtseq.1.dt
 dt_tests += dtseq.2.dt
 
@@ -601,13 +600,6 @@ batch_tests += dconv-batch.1.sh
 batch_tests += dconv-batch.2.sh
 endif  HAVE_GDATE
 
-convt_tests += ymd-ymcw.convt
-convt_tests += ymd-ywd.convt
-convt_tests += ywd-ymd.convt
-convt_tests += ywd-ymcw.convt
-convt_tests += ymcw-ymd.convt
-convt_tests += ymcw-ywd.convt
-
 
 check_PROGRAMS += dt-test
 BUILT_SOURCES += dt-test-clo.c dt-test-clo.h
@@ -616,5 +608,8 @@ EXTRA_DIST += dt-test.sh
 ## ggo rule
 %.c %.h: %.ggo
 	$(AM_V_GEN) gengetopt -F $* -i $<
+
+clean-local:
+	-rm -rf *.tmpd
 
 ## Makefile.am ends here

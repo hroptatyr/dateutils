@@ -5,8 +5,7 @@ CMDLINE="-f ymd"
 COMMENT="easy to check conversion bizda->ymd"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 1917-01-01b
 1917-02-06b
 1917-03-13b
@@ -17,8 +16,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 1917-01-01
 1917-02-08
 1917-03-19

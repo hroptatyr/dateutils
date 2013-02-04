@@ -7,8 +7,7 @@ COMMENT="Issue 4, year off by 1, reported by javajunkie314"
 ## STDIN
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2011-01-25
 EOF
 

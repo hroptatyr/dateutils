@@ -1,9 +1,0 @@
-## -*- shell-script -*-
-
-BEG="1917-01-01"
-END="2399-12-31"
-
-SRC="ywd"
-TGT="ymd"
-
-## ywd-ymd.convt ends here

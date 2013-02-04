@@ -6,14 +6,12 @@ COMMENT="Testing illegal datetimes, 02:05:06 doesn't exist on 11 Mar 2012 in \
 America/Chicago"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2012-03-11T02:05:06
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2012-03-11T07:05:06
 EOF
 

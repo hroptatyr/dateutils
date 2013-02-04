@@ -6,8 +6,7 @@ CMDLINE="2007-W01-01 -i '%Y-W%U-%w' -f ymd"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2007-01-08
 EOF
 

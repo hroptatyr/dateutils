@@ -4,8 +4,7 @@ TOOL=dadd
 CMDLINE="+1d"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2012-03-01
 2012-03-02
 2012-03-04
@@ -14,8 +13,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2012-03-02
 2012-03-03
 2012-03-05

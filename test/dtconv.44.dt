@@ -4,8 +4,7 @@ TOOL=dconv
 CMDLINE="-S -i '%a %b %d %T %Y'"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 pablo tty8 Thu Nov 1 12:51:21 2012 still logged in 
 (unknown tty8 Thu Nov 1 12:50:57 2012 - Thu Nov 1 12:51:21 2012 (00:00) 
 pablo tty2 Thu Nov 1 12:50:39 2012 still logged in 
@@ -14,8 +13,7 @@ pablo tty7 Thu Nov 1 12:49:45 2012 - Thu Nov 1 12:50:56 2012 (00:01)
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 pablo tty8 2012-11-01T12:51:21 still logged in 
 (unknown tty8 2012-11-01T12:50:57 - 2012-11-01T12:51:21 (00:00) 
 pablo tty2 2012-11-01T12:50:39 still logged in 

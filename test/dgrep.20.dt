@@ -5,8 +5,7 @@ CMDLINE="'<2012-11-01' -i \"%B/%d/%y\""
 COMMENT="Testing input formats"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 fileF,September/28/12,October/12/12
 fileF,September/29/12,November/01/12
 fileM,October/01/12,October/31/12
@@ -16,8 +15,7 @@ fileX,November/02/12,October/31/12
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 fileF,September/28/12,October/12/12
 fileF,September/29/12,November/01/12
 fileM,October/01/12,October/31/12

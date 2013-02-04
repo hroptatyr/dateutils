@@ -4,8 +4,7 @@ TOOL=dconv
 CMDLINE="--from-zone America/Chicago"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2012-03-01T01:05:06
 2012-03-01T02:12:34
 2012-03-10T19:05:06
@@ -16,8 +15,7 @@ cat > "${stdin}" <<EOF
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2012-03-01T07:05:06
 2012-03-01T08:12:34
 2012-03-11T01:05:06

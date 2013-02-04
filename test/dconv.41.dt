@@ -4,8 +4,7 @@ TOOL=dconv
 CMDLINE="-i '%Y-%D'"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2011-001
 2011-002
 2011-003
@@ -375,8 +374,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2011-01-01
 2011-01-02
 2011-01-03

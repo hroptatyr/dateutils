@@ -8,15 +8,11 @@ TOOLDIR="$(pwd)/../src"
 DSEQ="${TOOLDIR}/dseq"
 DDIFF="${TOOLDIR}/ddiff"
 
-foo=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`
+cnt_seq="`"${DSEQ}" "${BEG}" "${END}" | wc -l`" || exit 1
+cnt_seq="$(( ${cnt_seq} - 1 ))" || exit 1
+cnt_diff="`"${DDIFF}" "${BEG}" "${END}"`" || exit 1
 
-"${DSEQ}" "${BEG}" "${END}" | head -n-1 | wc -l > "${foo}"
-"${DDIFF}" "${BEG}" "${END}" > "${bar}"
-
-diff "${foo}" "${bar}"
-rc=${?}
-
-rm -f "${foo}" "${bar}"
-
-exit ${rc}
+if test "${cnt_seq}" != "${cnt_diff}"; then
+	echo "'${cnt_seq}' != '${cnt_diff}'"
+	exit 1
+fi
