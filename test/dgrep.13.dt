@@ -4,15 +4,13 @@ TOOL=dgrep
 CMDLINE="-i \"%Y%m%d\" -i \"%F\" 2012-03-03"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 this line was created on 20120303 and should match
 whereas this line is as of 20120304 and shouldn't
 EOF
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 this line was created on 20120303 and should match
 EOF
 

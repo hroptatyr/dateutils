@@ -5,8 +5,7 @@ CMDLINE="'2012-01-02 02:04:00' -f '%F %T'"
 COMMENT="mass duration adder"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 -40h
 -1d2h4m
 -1w2d6h3m
@@ -15,8 +14,7 @@ hello
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2011-12-31 10:04:00
 2012-01-01 00:00:00
 2011-12-23 20:01:00
@@ -24,8 +22,7 @@ cat > "${stdout}" <<EOF
 EOF
 
 ## STDERR
-stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stderr}" <<EOF
+cat > "${TS_EXP_STDERR}" <<EOF
 dadd: cannot make sense of \`hello' using the given input formats
 EOF
 

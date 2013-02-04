@@ -5,23 +5,20 @@ CMDLINE="12:05:00"
 COMMENT="mass duration adding"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 test 10m
 1d
 12
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 12:05:00
 12:05:00
 EOF
 
 ## STDERR
-stderr=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stderr}" <<EOF
+cat > "${TS_EXP_STDERR}" <<EOF
 dadd: cannot make sense of \`test 10m' using the given input formats
 EOF
 

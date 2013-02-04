@@ -7,8 +7,7 @@ COMMENT="2010 hasn't got 53 weeks, so all's fine"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2010-W52-07
 EOF
 

@@ -4,8 +4,7 @@ TOOL=dround
 CMDLINE="-n 5m"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2012-03-04T11:01:01
 2012-03-04T11:01:02
 2012-03-04T11:05:01
@@ -15,8 +14,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2012-03-04T11:05:00
 2012-03-04T11:05:00
 2012-03-04T11:10:00

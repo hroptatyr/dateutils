@@ -6,8 +6,7 @@ CMDLINE="'1930-01-01 00:00:00' -f '%F %T' 259200s"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 1930-01-04 00:00:00
 EOF
 

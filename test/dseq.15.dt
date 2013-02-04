@@ -6,8 +6,7 @@ CMDLINE="2001-02-03 -3 2001-03-03 --skip sat,fri -f \"%F %a\""
 ## STDIN
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 EOF
 
 ## dseq.15.dt ends here

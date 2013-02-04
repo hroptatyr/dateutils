@@ -5,8 +5,7 @@ CMDLINE="2012-05-05 -f '%db'"
 COMMENT="mass-diffing business days"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 2012-05-01
 2012-05-02
 2012-05-03
@@ -26,8 +25,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 -3b
 -2b
 -1b

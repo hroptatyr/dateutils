@@ -5,8 +5,7 @@ CMDLINE="-f daisy"
 COMMENT="easy to check conversion ywd->daisy (printed as ymd)"
 
 ## STDIN
-stdin=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdin}" <<EOF
+cat > "${TS_STDIN}" <<EOF
 1917-W01-01
 1918-W01-01
 1918-W01-02
@@ -16,8 +15,7 @@ cat > "${stdin}" <<EOF
 EOF
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 1917-01-01
 1917-12-31
 1918-01-01

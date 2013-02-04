@@ -6,8 +6,7 @@ CMDLINE="--cmp 2012-03-02 2012-03-02T00:00:00; echo \"\${?}\""
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 0
 EOF
 

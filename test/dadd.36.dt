@@ -6,8 +6,7 @@ CMDLINE="2001-01-03-05 -1mo"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2000-12-03-05
 EOF
 

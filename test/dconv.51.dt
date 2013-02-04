@@ -7,8 +7,7 @@ COMMENT="Testing week-count conventions"
 ## STDIN
 
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 00 Mon
 EOF
 

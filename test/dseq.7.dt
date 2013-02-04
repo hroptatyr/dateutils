@@ -6,8 +6,7 @@ CMDLINE="--compute-from-last 2001-02-05 4 2001-03-04 -f \"%F %a\""
 ## STDIN
  
 ## STDOUT
-stdout=`mktemp "/tmp/tmp.XXXXXXXXXX"`
-cat > "${stdout}" <<EOF
+cat > "${TS_EXP_STDOUT}" <<EOF
 2001-02-08 Thu
 2001-02-12 Mon
 2001-02-16 Fri
