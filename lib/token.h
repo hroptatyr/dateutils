@@ -84,9 +84,14 @@ typedef enum {
 	DT_SPFL_N_TSTD,
 	/* %N nanoseconds, non-standard */
 	DT_SPFL_N_NANO,
+	DT_SPFL_N_TLAST = DT_SPFL_N_NANO,
+
+	/* date/time specs */
 	/* %s epoch spec, non-standard */
 	DT_SPFL_N_EPOCH,
-	DT_SPFL_N_TLAST = DT_SPFL_N_EPOCH,
+	/* %Z zone difference */
+	DT_SPFL_N_ZDIFF,
+	DT_SPFL_N_DTLAST = DT_SPFL_N_ZDIFF,
 
 	DT_SPFL_S_AMPM,
 	DT_SPFL_S_TFIRST = DT_SPFL_S_AMPM,

@@ -147,6 +147,9 @@ next:
 	case 's':
 		res.spfl = DT_SPFL_N_EPOCH;
 		break;
+	case 'Z':
+		res.spfl = DT_SPFL_N_ZDIFF;
+		break;
 
 	case '_':
 		/* abbrev modifier */

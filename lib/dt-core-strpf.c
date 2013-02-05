@@ -93,6 +93,21 @@ nope:
 	return minusp ? -res : res;
 }
 
+static struct dt_dt_s
+__fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
+{
+	/* apply time zone difference */
+	struct dt_dt_s zd = dt_dt_initialiser();
+	//struct dt_dt_s res;
+
+	dt_make_t_only(&zd, DT_HMS);
+	zd.t.dur = 1;
+	zd.t.sdur = -zdiff;
+	return dt_dtadd(dt, zd);
+	//res.znfxd = 1;
+	//return res;
+}
+
 DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
@@ -277,6 +292,10 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->i = strtoi(sp, &sp);
 		break;
 
+	case DT_SPFL_N_ZDIFF:
+		d->zdiff = try_zone(sp, &sp);
+		break;
+
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
 			res = -1;
@@ -340,6 +359,20 @@ __strfdt_card(
 		/* convert to sexy */
 		int64_t sexy = dt_conv_to_sexy(that).sexy;
 		res = snprintf(buf, bsz, "%" PRIi64, sexy);
+		break;
+	}
+
+	case DT_SPFL_N_ZDIFF: {
+		int32_t z = 0U;
+		char sign = '+';
+
+		if (z < 0) {
+			z = -z;
+			sign = '-';
+		}
+		res = snprintf(
+			buf, bsz, "%c%02u:%02u",
+			sign, (uint32_t)z / 3600U, ((uint32_t)z / 60U) % 60U);
 		break;
 	}
 
