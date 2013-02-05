@@ -88,6 +88,9 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
 		return d;
+	} else if (d.znfxd) {
+		/* already forgotten about */
+		return d;
 	}
 
 	/* convert date/time part to unix stamp */
@@ -105,6 +108,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 
 		/* set the other flags too */
 		res.sandwich = d.sandwich;
+		res.znfxd = 1;
 		res.dur = 0;
 		res.neg = 0;
 
@@ -122,6 +126,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	} else if (d.typ == DT_SEXY) {
 		res.typ = DT_SEXY;
 		res.sandwich = 0;
+		res.znfxd = 1;
 		res.dur = 0;
 		res.neg = 0;
 		res.sxepoch = d_unix;

@@ -133,8 +133,10 @@ struct dt_dt_s {
 			dt_dttyp_t typ:4;
 			/* sandwich indicator (use d and t slots below) */
 			uint16_t sandwich:1;
+			/* whether we had zone info already but fixed it */
+			uint16_t znfxd:1;
 			/* unused, pad to next ui8 */
-			uint16_t:3;
+			uint16_t:2;
 			/* duration indicator */
 			uint16_t dur:1;
 			/* negation indicator */
