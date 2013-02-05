@@ -66,25 +66,15 @@ ____to_unix_epoch(struct dt_dt_s dt)
 	return 0;
 }
 
-static inline int
-__pos_mod(int num, int mod)
-{
-	int res = num % mod;
-
-	if (UNLIKELY(res < 0)) {
-		return res + mod;
-	}
-	return res;
-}
-
 
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */
 DEFUN struct dt_dt_s
 dtz_forgetz(struct dt_dt_s d, zif_t zone)
 {
-	struct dt_dt_s res;
 	dt_ssexy_t d_unix;
+	dt_ssexy_t d_locl;
+	struct dt_dt_s zd;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
 		return d;
@@ -94,47 +84,18 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_unix = ____to_unix_epoch(d);
-	d_unix = zif_utc_time(zone, d_unix);
+	d_locl = ____to_unix_epoch(d);
+	d_unix = zif_utc_time(zone, d_locl);
 
-	/* convert the date part back */
-	if (d.typ > (dt_dttyp_t)DT_DUNK && d.typ < (dt_dttyp_t)DT_NDTYP) {
-		int32_t sexy = __pos_mod(d_unix, 86400);
+	/* let dt_dtadd() do the magic */
+	zd = dt_dt_initialiser();
 
-		/* temporarily go daisy */
-		res.d.typ = DT_DAISY;
-		res.d.daisy = d_unix / 86400 + DAISY_UNIX_BASE;
-		res.d = dt_dconv(d.d.typ, res.d);
-
-		/* set the other flags too */
-		res.sandwich = d.sandwich;
-		res.znfxd = 1;
-		res.dur = 0;
-		res.neg = 0;
-
-		/* convert the time part back */
-		res.t.hms.s = sexy % 60;
-		res.t.hms.m = (sexy % 3600) / 60;
-		res.t.hms.h = sexy / 3600;
-		res.t.hms.ns = d.t.hms.ns;
-
-		res.t.typ = DT_HMS;
-		res.t.dur = 0;
-		res.t.neg = 0;
-		res.t.carry = 0;
-
-	} else if (d.typ == DT_SEXY) {
-		res.typ = DT_SEXY;
-		res.sandwich = 0;
-		res.znfxd = 1;
-		res.dur = 0;
-		res.neg = 0;
-		res.sxepoch = d_unix;
-
-	} else {
-		res = dt_dt_initialiser();
-	}
-	return res;
+	dt_make_t_only(&zd, DT_HMS);
+	zd.t.dur = 1;
+	zd.t.sdur = d_unix - d_locl;
+	d = dt_dtadd(d, zd);
+	d.znfxd = 1;
+	return d;
 }
 
 /**
@@ -142,8 +103,9 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 DEFUN struct dt_dt_s
 dtz_enrichz(struct dt_dt_s d, zif_t zone)
 {
-	struct dt_dt_s res;
 	dt_ssexy_t d_unix;
+	dt_ssexy_t d_locl;
+	struct dt_dt_s zd;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
 		return d;
@@ -151,43 +113,15 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 
 	/* convert date/time part to unix stamp */
 	d_unix = ____to_unix_epoch(d);
-	d_unix = zif_local_time(zone, d_unix);
+	d_locl = zif_local_time(zone, d_unix);
 
-	/* convert the date part back */
-	if (d.typ > (dt_dttyp_t)DT_DUNK && d.typ < (dt_dttyp_t)DT_NDTYP) {
-		int32_t sexy = __pos_mod(d_unix, 86400);
+	/* let dt_dtadd() do the magic */
+	zd = dt_dt_initialiser();
 
-		res.d.typ = DT_DAISY;
-		res.d.daisy = d_unix / 86400 + DAISY_UNIX_BASE;
-		res.d = dt_dconv(d.d.typ, res.d);
-
-		/* set the other flags too */
-		res.sandwich = d.sandwich;
-		res.dur = 0;
-		res.neg = 0;
-
-		/* convert the time part back */
-		res.t.hms.s = sexy % 60;
-		res.t.hms.m = (sexy % 3600) / 60;
-		res.t.hms.h = sexy / 3600;
-		res.t.hms.ns = d.t.hms.ns;
-
-		res.t.typ = DT_HMS;
-		res.t.dur = 0;
-		res.t.neg = 0;
-		res.t.carry = 0;
-
-	} else if (d.typ == DT_SEXY) {
-		res.typ = DT_SEXY;
-		res.sandwich = 0;
-		res.dur = 0;
-		res.neg = 0;
-		res.sxepoch = d_unix;
-
-	} else {
-		res = dt_dt_initialiser();
-	}
-	return res;
+	dt_make_t_only(&zd, DT_HMS);
+	zd.t.dur = 1;
+	zd.t.sdur = d_locl - d_unix;
+	return dt_dtadd(d, zd);
 }
 
 #endif	/* INCLUDED_dt_core_tz_glue_c_ */
