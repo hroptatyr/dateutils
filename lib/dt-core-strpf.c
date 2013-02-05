@@ -57,6 +57,42 @@
 # undef WITH_LEAP_SECONDS
 #endif	/* SKIP_LEAP_ARITH */
 
+static int32_t
+try_zone(const char *str, const char **ep)
+{
+	int minusp = 0;
+	const char *sp = str;
+	int32_t tmp;
+	int32_t res;
+
+	switch (*sp) {
+	case '-':
+		minusp = 1;
+	case '+':
+		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
+			goto nope;
+		} else if ((res = 3600 * tmp, *sp != ':')) {
+			goto nope;
+		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+			goto nope;
+		} else if ((res += 60 * tmp, *sp != ':')) {
+			goto nope;
+		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+			goto nope;
+		}
+		res += tmp;
+		break;
+	default:
+		goto nope;
+	}
+nope:
+	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
+	if (ep != NULL) {
+		*ep = sp;
+	}
+	return minusp ? -res : res;
+}
+
 DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
@@ -175,11 +211,13 @@ try_time:
 	} else if ((d.st.s = strtoi_lim(++sp, &sp, 0, 60)) < 0) {
 		d.st.s = 0;
 	} else if (*sp != '.') {
-		goto eval_time;
+		goto try_zone;
 	} else if ((d.st.ns = strtoi_lim(++sp, &sp, 0, 999999999)) < 0) {
 		d.st.ns = 0;
 		goto eval_time;
 	}
+try_zone:
+	d.zdiff = try_zone(sp, &sp);
 eval_time:
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;

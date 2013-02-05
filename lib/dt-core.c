@@ -81,6 +81,7 @@ struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
 	long int i;
+	int32_t zdiff;
 };
 
 /* used for arithmetic */
