@@ -166,30 +166,6 @@ struct dt_dt_s {
 	};
 };
 
-/* spec tokeniser, spec flags plus modifiers and stuff */
-#if 0
-struct dt_spec_s {
-	struct {
-		/* ordinal flag, 01, 02, 03 -> 1st 2nd 3rd */
-		unsigned int ord:1;
-		/* roman numeral flag */
-		unsigned int rom:1;
-		/* controls abbreviation */
-		enum {
-			DT_SPMOD_NORM,
-			DT_SPMOD_ABBR,
-			DT_SPMOD_LONG,
-			DT_SPMOD_ILL,
-		} abbr:2;
-		/* for directions a(fter 0)/b(efore 1) */
-		unsigned int ab:1;
-		/* pad to the next byte */
-		unsigned int pad:3;
-	};
-	dt_spfl_t spfl:8;
-};
-#endif
-
 
 /* decls */
 /**
