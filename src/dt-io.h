@@ -104,7 +104,7 @@ dt_io_strpdt_ep(
 		}
 	}
 	if (LIKELY(!dt_unk_p(res)) && zone != NULL) {
-		return dtz_forgetz(res, zone);
+		(void)dtz_forgetz(&res, zone);
 	}
 	return res;
 }
@@ -600,7 +600,7 @@ dt_io_find_strpdt2(
 found:
 	*sp = (char*)p;
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		return dtz_forgetz(d, zone);
+		(void)dtz_forgetz(&d, zone);
 	}
 	return d;
 }
@@ -609,9 +609,9 @@ found:
 static inline size_t
 dt_io_strfdt(
 	char *restrict buf, size_t bsz,
-	const char *fmt, struct dt_dt_s that, int apnd_ch)
+	const char *fmt, struct dt_dt_s that, int32_t zdiff, int apnd_ch)
 {
-	size_t res = dt_strfdt(buf, bsz, fmt, that);
+	size_t res = dt_strfdt(buf, bsz, fmt, that, zdiff);
 
 	if (LIKELY(res > 0) && apnd_ch && buf[res - 1] != apnd_ch) {
 		/* auto-newline */
@@ -718,13 +718,14 @@ __io_eof_p(FILE *fp)
 static __attribute__((unused)) int
 dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 {
-	static char buf[64];
+	static char buf[256];
 	size_t n;
+	int32_t zd = 0;
 
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		d = dtz_enrichz(d, zone);
+		zd = dtz_enrichz(&d, zone);
 	}
-	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
+	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, zd, apnd_ch);
 	__io_write(buf, n, stdout);
 	return (n > 0) - 1;
 }

@@ -133,8 +133,10 @@ struct dt_dt_s {
 			dt_dttyp_t typ:4;
 			/* sandwich indicator (use d and t slots below) */
 			uint16_t sandwich:1;
+			/* whether we had zone info already but fixed it */
+			uint16_t znfxd:1;
 			/* unused, pad to next ui8 */
-			uint16_t:3;
+			uint16_t:2;
 			/* duration indicator */
 			uint16_t dur:1;
 			/* negation indicator */
@@ -166,30 +168,6 @@ struct dt_dt_s {
 	};
 };
 
-/* spec tokeniser, spec flags plus modifiers and stuff */
-#if 0
-struct dt_spec_s {
-	struct {
-		/* ordinal flag, 01, 02, 03 -> 1st 2nd 3rd */
-		unsigned int ord:1;
-		/* roman numeral flag */
-		unsigned int rom:1;
-		/* controls abbreviation */
-		enum {
-			DT_SPMOD_NORM,
-			DT_SPMOD_ABBR,
-			DT_SPMOD_LONG,
-			DT_SPMOD_ILL,
-		} abbr:2;
-		/* for directions a(fter 0)/b(efore 1) */
-		unsigned int ab:1;
-		/* pad to the next byte */
-		unsigned int pad:3;
-	};
-	dt_spfl_t spfl:8;
-};
-#endif
-
 
 /* decls */
 /**
@@ -211,7 +189,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep);
 /**
  * Like strftime() for our dates */
 DECLF size_t
-dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
+dt_strfdt(char *restrict b, size_t z, const char *fmt, struct dt_dt_s, int32_t);
 
 /**
  * Parse durations as in 1w5d, etc. */

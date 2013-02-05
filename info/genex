@@ -5,15 +5,15 @@ genex()
 	local BINARY="${1}"
 	local BINNAME="${2}"
 	local CMDLINE="${3}"
-	local stdin="${4}"
+	local STDIN="${4}"
 
 	echo -n "% ${BINNAME} ${CMDLINE}"
-	if test -r "${stdin}"; then
+	if test -r "${STDIN}" -a -s "${STDIN}"; then
 		echo " <<EOF"
-		cat "${stdin}"
+		cat "${STDIN}"
 		echo "EOF"
 	else
 		echo
 	fi
-eval "${BINARY}" "${CMDLINE}" < "${stdin:-/dev/null}"
+	eval "${BINARY}" "${CMDLINE}" < "${STDIN:-/dev/null}"
 }

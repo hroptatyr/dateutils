@@ -1,0 +1,14 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="1917-01-01 -f \"a somewhat unlikely but most definitely long format string that, I bet, won't occur in practice but %F ya never know innit?\""
+COMMENT="long output format"
+
+## STDIN
+
+## STDOUT
+cat > "${TS_EXP_STDOUT}" <<EOF
+a somewhat unlikely but most definitely long format string that, I bet, won't occur in practice but 1917-01-01 ya never know innit?
+EOF
+
+## dconv.97.dt ends here

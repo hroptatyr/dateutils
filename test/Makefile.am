@@ -148,6 +148,8 @@ dt_tests += dconv.93.dt
 dt_tests += dconv.94.dt
 dt_tests += dconv.95.dt
 dt_tests += dconv.96.dt
+dt_tests += dconv.97.dt
+dt_tests += dconv.98.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
@@ -416,6 +418,10 @@ dt_tests += dtconv.41.dt
 dt_tests += dtconv.42.dt
 dt_tests += dtconv.43.dt
 dt_tests += dtconv.44.dt
+dt_tests += dtconv.45.dt
+dt_tests += dtconv.46.dt
+dt_tests += dtconv.47.dt
+dt_tests += dtconv.48.dt
 
 dt_tests += convt.ymcw-ymd.dt
 dt_tests += convt.ymcw-ywd.dt
