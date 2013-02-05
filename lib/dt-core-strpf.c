@@ -93,21 +93,6 @@ nope:
 	return minusp ? -res : res;
 }
 
-static struct dt_dt_s
-__fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
-{
-	/* apply time zone difference */
-	struct dt_dt_s zd = dt_dt_initialiser();
-	//struct dt_dt_s res;
-
-	dt_make_t_only(&zd, DT_HMS);
-	zd.t.dur = 1;
-	zd.t.sdur = -zdiff;
-	return dt_dtadd(dt, zd);
-	//res.znfxd = 1;
-	//return res;
-}
-
 DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
