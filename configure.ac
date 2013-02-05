@@ -72,6 +72,9 @@ AM_PROG_LEX
 AC_PROG_YACC
 
 AC_PATH_PROG([GPERF], [gperf])
+if test -z "${GPERF}"; then
+	GPERF="gperf"
+fi
 AC_ARG_VAR([GPERF], [full path to the gperf tool])
 
 
