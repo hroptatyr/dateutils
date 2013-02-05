@@ -62,30 +62,29 @@ try_zone(const char *str, const char **ep)
 {
 	int minusp = 0;
 	const char *sp = str;
-	int32_t tmp;
-	int32_t res;
+	int32_t res = 0;
 
 	switch (*sp) {
+		int32_t tmp;
 	case '-':
 		minusp = 1;
 	case '+':
 		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
-			goto nope;
-		} else if ((res = 3600 * tmp, *sp != ':')) {
-			goto nope;
+			break;
+		} else if ((res += 3600 * tmp, *sp != ':')) {
+			break;
 		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
-			goto nope;
+			break;
 		} else if ((res += 60 * tmp, *sp != ':')) {
-			goto nope;
+			break;
 		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
-			goto nope;
+			break;
 		}
 		res += tmp;
 		break;
 	default:
-		goto nope;
+		break;
 	}
-nope:
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
 	if (ep != NULL) {
 		*ep = sp;
