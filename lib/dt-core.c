@@ -393,6 +393,9 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			res.sandwich = 1;
 		}
 	}
+	if (d.zdiff && dt_sandwich_p(res)) {
+		res = __fixup_zdiff(res, d.zdiff);
+	}
 
 	/* set the end pointer */
 	if (ep != NULL) {

@@ -92,6 +92,21 @@ try_zone(const char *str, const char **ep)
 	return minusp ? -res : res;
 }
 
+static struct dt_dt_s
+__fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
+{
+	/* apply time zone difference */
+	struct dt_dt_s zd = dt_dt_initialiser();
+
+	dt_make_t_only(&zd, DT_HMS);
+	zd.t.dur = 1;
+	zd.t.sdur = -zdiff;
+	/* reuse dt for result */
+	dt = dt_dtadd(dt, zd);
+	dt.znfxd = 1;
+	return dt;
+}
+
 DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
@@ -223,7 +238,7 @@ eval_time:
 		dt_make_sandwich(&res, res.d.typ, DT_HMS);
 		/* check for the zone stuff */
 		if ((d.zdiff = try_zone(sp, &sp))) {
-			;
+			res = __fixup_zdiff(res, d.zdiff);
 		}
 	} else {
 		dt_make_t_only(&res, DT_HMS);
