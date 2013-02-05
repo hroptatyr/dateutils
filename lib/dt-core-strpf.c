@@ -210,19 +210,21 @@ try_time:
 	} else if ((d.st.s = strtoi_lim(++sp, &sp, 0, 60)) < 0) {
 		d.st.s = 0;
 	} else if (*sp != '.') {
-		goto try_zone;
+		goto eval_time;
 	} else if ((d.st.ns = strtoi_lim(++sp, &sp, 0, 999999999)) < 0) {
 		d.st.ns = 0;
 		goto eval_time;
 	}
-try_zone:
-	d.zdiff = try_zone(sp, &sp);
 eval_time:
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
 	if (res.d.typ > DT_DUNK) {
 		dt_make_sandwich(&res, res.d.typ, DT_HMS);
+		/* check for the zone stuff */
+		if ((d.zdiff = try_zone(sp, &sp))) {
+			;
+		}
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
