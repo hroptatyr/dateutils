@@ -720,7 +720,7 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 {
 	static char buf[64];
 	size_t n;
-	int32_t zd;
+	int32_t zd = 0;
 
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
 		zd = dtz_enrichz(&d, zone);
