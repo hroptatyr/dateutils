@@ -1,7 +1,7 @@
 ## -*- shell-script -*-
 
 TOOL=dconv
-CMDLINE="-S --from-zone Europe/Berlin --zone UTC"
+CMDLINE="-S --from-zone Europe/Berlin --zone UTC -f '%FT%T%Z'"
 
 ## STDIN
 cat > "${TS_STDIN}" <<EOF
@@ -10,7 +10,7 @@ EOF
 
 ## STDOUT
 cat > "${TS_EXP_STDOUT}" <<EOF
-x	2012-11-01T11:51:21.000+00:00	2012-11-01T11:51:22.000+00:00
+x	2012-11-01T11:51:21+00:00	2012-11-01T11:51:22+00:00
 EOF
 
 ## dtconv.48.dt ends here
