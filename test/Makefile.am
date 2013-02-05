@@ -416,6 +416,10 @@ dt_tests += dtconv.41.dt
 dt_tests += dtconv.42.dt
 dt_tests += dtconv.43.dt
 dt_tests += dtconv.44.dt
+dt_tests += dtconv.45.dt
+dt_tests += dtconv.46.dt
+dt_tests += dtconv.47.dt
+dt_tests += dtconv.48.dt
 
 dt_tests += convt.ymcw-ymd.dt
 dt_tests += convt.ymcw-ywd.dt
