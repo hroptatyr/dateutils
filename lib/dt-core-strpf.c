@@ -364,7 +364,7 @@ __strfdt_card(
 	}
 
 	case DT_SPFL_N_ZDIFF: {
-		int32_t z = 0U;
+		int32_t z = d->zdiff;
 		char sign = '+';
 
 		if (z < 0) {

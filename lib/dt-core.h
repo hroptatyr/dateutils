@@ -189,7 +189,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep);
 /**
  * Like strftime() for our dates */
 DECLF size_t
-dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
+dt_strfdt(char *restrict b, size_t z, const char *fmt, struct dt_dt_s, int32_t);
 
 /**
  * Parse durations as in 1w5d, etc. */
