@@ -432,7 +432,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 
 			if (ctx.hackz == NULL && ctx.fromz != NULL) {
 				/* fixup zone */
-				d = dtz_forgetz(d, ctx.fromz);
+				(void)dtz_forgetz(&d, ctx.fromz);
 			}
 
 			if (ctx.sed_mode_p) {
@@ -568,7 +568,7 @@ no durations given");
 		if (!dt_unk_p(d = dround(d, st.durs, st.ndurs, nextp))) {
 			if (hackz == NULL && fromz != NULL) {
 				/* fixup zone */
-				d = dtz_forgetz(d, fromz);
+				(void)dtz_forgetz(&d, fromz);
 			}
 			dt_io_write(d, ofmt, z, '\n');
 			res = 0;
