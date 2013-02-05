@@ -718,7 +718,7 @@ __io_eof_p(FILE *fp)
 static __attribute__((unused)) int
 dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 {
-	static char buf[64];
+	static char buf[256];
 	size_t n;
 	int32_t zd = 0;
 
