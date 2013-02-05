@@ -81,6 +81,7 @@ struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
 	long int i;
+	int32_t zdiff;
 };
 
 /* used for arithmetic */
@@ -392,6 +393,9 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			res.sandwich = 1;
 		}
 	}
+	if (d.zdiff && dt_sandwich_p(res)) {
+		res = __fixup_zdiff(res, d.zdiff);
+	}
 
 	/* set the end pointer */
 	if (ep != NULL) {
@@ -406,7 +410,9 @@ fucked:
 }
 
 DEFUN size_t
-dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
+dt_strfdt(
+	char *restrict buf, size_t bsz, const char *fmt,
+	struct dt_dt_s that, int32_t zdiff)
 {
 	struct strpdt_s d = strpdt_initialiser();
 	const char *fp;
@@ -550,6 +556,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.st.m = that.t.hms.m;
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
+		d.zdiff = zdiff;
 	}
 
 	/* assign and go */

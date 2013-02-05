@@ -106,7 +106,7 @@ __pr_val(struct dexkv_s *kv)
 	switch (kv->sp.spfl) {
 	case DT_SPFL_N_STD: {
 		char buf[32];
-		dt_strfdt(buf, sizeof(buf), NULL, kv->d);
+		dt_strfdt(buf, sizeof(buf), NULL, kv->d, 0);
 		fputs(buf, stdout);
 		break;
 	}

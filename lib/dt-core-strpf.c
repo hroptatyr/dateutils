@@ -57,6 +57,56 @@
 # undef WITH_LEAP_SECONDS
 #endif	/* SKIP_LEAP_ARITH */
 
+static int32_t
+try_zone(const char *str, const char **ep)
+{
+	int minusp = 0;
+	const char *sp = str;
+	int32_t res = 0;
+
+	switch (*sp) {
+		int32_t tmp;
+	case '-':
+		minusp = 1;
+	case '+':
+		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
+			break;
+		} else if ((res += 3600 * tmp, *sp != ':')) {
+			break;
+		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+			break;
+		} else if ((res += 60 * tmp, *sp != ':')) {
+			break;
+		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+			break;
+		}
+		res += tmp;
+		break;
+	default:
+		break;
+	}
+	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
+	if (ep != NULL) {
+		*ep = sp;
+	}
+	return minusp ? -res : res;
+}
+
+static struct dt_dt_s
+__fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
+{
+	/* apply time zone difference */
+	struct dt_dt_s zd = dt_dt_initialiser();
+
+	dt_make_t_only(&zd, DT_HMS);
+	zd.t.dur = 1;
+	zd.t.sdur = -zdiff;
+	/* reuse dt for result */
+	dt = dt_dtadd(dt, zd);
+	dt.znfxd = 1;
+	return dt;
+}
+
 DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
@@ -186,6 +236,10 @@ eval_time:
 	res.t.hms.s = d.st.s;
 	if (res.d.typ > DT_DUNK) {
 		dt_make_sandwich(&res, res.d.typ, DT_HMS);
+		/* check for the zone stuff */
+		if ((d.zdiff = try_zone(sp, &sp))) {
+			res = __fixup_zdiff(res, d.zdiff);
+		}
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
@@ -237,6 +291,10 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			sp++;
 		}
 		d->i = strtoi(sp, &sp);
+		break;
+
+	case DT_SPFL_N_ZDIFF:
+		d->zdiff = try_zone(sp, &sp);
 		break;
 
 	case DT_SPFL_LIT_PERCENT:
@@ -302,6 +360,20 @@ __strfdt_card(
 		/* convert to sexy */
 		int64_t sexy = dt_conv_to_sexy(that).sexy;
 		res = snprintf(buf, bsz, "%" PRIi64, sexy);
+		break;
+	}
+
+	case DT_SPFL_N_ZDIFF: {
+		int32_t z = d->zdiff;
+		char sign = '+';
+
+		if (z < 0) {
+			z = -z;
+			sign = '-';
+		}
+		res = snprintf(
+			buf, bsz, "%c%02u:%02u",
+			sign, (uint32_t)z / 3600U, ((uint32_t)z / 60U) % 60U);
 		break;
 	}
 
