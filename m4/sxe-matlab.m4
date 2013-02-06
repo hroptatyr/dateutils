@@ -33,6 +33,9 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 
 	AC_MSG_RESULT([${sxe_cv_matlabroot}])
 
+	## make sure cflags don't come in the way, matlab's mex file
+	## is full of unsupported pragmas and stuff
+	AC_LANG_WERROR([off])
 	save_CPPFLAGS="${CPPFLAGS}"
 	CPPFLAGS="${CPPFLAGS} -I${MATLABROOT}/extern/include"
 	AC_CHECK_HEADERS([mex.h])
@@ -41,6 +44,7 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 		AC_SUBST([matlab_CFLAGS])
 	fi
 	CPPFLAGS="${save_CPPFLAGS}"
+	AC_LANG_WERROR([pop])
 
 	rm -f -- "${foo}"
 	popdef([mroot])
