@@ -69,12 +69,12 @@ extern "C" {
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead.
  * In other words: convert from locally represented DT to UTC. */
-DECLF int32_t dtz_forgetz(struct dt_dt_s *dt, zif_t zone);
+DECLF struct dt_dt_s dtz_forgetz(struct dt_dt_s dt, zif_t zone);
 
 /**
  * Return a dt object from a UTC'd DT that uses ZONE.
  * In other words: convert from UTC represented DT to local ZONE time. */
-DECLF int32_t dtz_enrichz(struct dt_dt_s *dt, zif_t zone);
+DECLF struct dt_dt_s dtz_enrichz(struct dt_dt_s dt, zif_t zone);
 
 
 #if defined INCLUDE_DT_CORE_TZ_GLUE_IMPL

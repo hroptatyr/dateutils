@@ -13,11 +13,22 @@ main(void)
 		uint64_t l;
 		uint64_t h;
 	} uint128_t;
+#define __uint128_t_defined
 #endif	/* !uint128_t */
+#if !defined __uint160_t_defined
+	typedef struct {
+		uint32_t l[5];
+	} uint160_t;
+#define __uint160_t_defined
+#endif	/* !uint160_t */
 
 #define CHECK_SIZE(x, y)						\
 	if (sizeof(x) != sizeof(y)) {					\
-		fprintf(stderr, "sizeof(" #x ") -> %zu\n", sizeof(x));	\
+		fprintf(						\
+			stderr,						\
+			"sizeof(" #x ") -> %zu\t"			\
+			"sizeof(" #y ") -> %zu\n",			\
+			sizeof(x), sizeof(y));				\
 		res = 1;						\
 	}
 
