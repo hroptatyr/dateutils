@@ -212,7 +212,7 @@ __bld_texi_0 = @echo "  GENTEXI " $*;
 %.texi: $(top_srcdir)/src/%-clo.ggo $(dateutils_EXAMPLES) dateutils.texi
 	$(my_bld_texi) ${SHELL} \
 		$(srcdir)/gentexi.sh $(top_builddir)/src/$* \
-		$($*_EXAMPLES) > $@ || rm -f -- $@
+		$($*_EXAMPLES) > $@ || test "$$?" = "2" || rm -f -- $@
 
 %.h2m: %.texi
 	$(my_bld_h2m) ${SHELL} \

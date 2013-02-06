@@ -1,13 +1,20 @@
 #!/bin/sh
 
 ## usage gentexi BINARY
-if test -x "${1}"; then
-	BINARY="${1}"
-	BINNAME=$(basename "${BINARY}")
-	shift
-else
-	echo "${1} not a binary" >&2
-	exit 1
+BINARY="${1}"
+BINNAME=$(basename "${BINARY}")
+shift
+
+if ! test -x "${BINARY}"; then
+	echo "${BINARY} not found, generating dummy" >&2
+	cat <<EOF
+@node ${BINNAME}
+@chapter ${BINNAME}
+@cindex invoking @command{${BINNAME}}
+
+This version of dateutils does not contain the ${BINNAME} tool.
+EOF
+	exit 2
 fi
 
 cat <<EOF
