@@ -156,7 +156,9 @@ built_texis += dgrep.texi
 built_texis += dround.texi
 
 built_mans =
+if HAVE_STRPTIME
 built_mans += strptime.man
+endif  HAVE_STRPTIME
 built_mans += dadd.manu
 built_mans += dconv.man
 built_mans += ddiff.mand
@@ -212,7 +214,7 @@ __bld_texi_0 = @echo "  GENTEXI " $*;
 %.texi: $(top_srcdir)/src/%-clo.ggo $(dateutils_EXAMPLES) dateutils.texi
 	$(my_bld_texi) ${SHELL} \
 		$(srcdir)/gentexi.sh $(top_builddir)/src/$* \
-		$($*_EXAMPLES) > $@ || rm -f -- $@
+		$($*_EXAMPLES) > $@ || test "$$?" = "2" || rm -f -- $@
 
 %.h2m: %.texi
 	$(my_bld_h2m) ${SHELL} \
