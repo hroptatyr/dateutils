@@ -74,7 +74,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 {
 	dt_ssexy_t d_unix;
 	dt_ssexy_t d_locl;
-	struct dt_dt_s zd;
+	int32_t zdiff;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
 		return d;
@@ -86,15 +86,22 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	/* convert date/time part to unix stamp */
 	d_locl = ____to_unix_epoch(d);
 	d_unix = zif_utc_time(zone, d_locl);
+	if (LIKELY((zdiff = d_unix - d_locl))) {
+		/* let dt_dtadd() do the magic */
+		struct dt_dt_s zd = dt_dt_initialiser();
 
-	/* let dt_dtadd() do the magic */
-	zd = dt_dt_initialiser();
-
-	dt_make_t_only(&zd, DT_HMS);
-	zd.t.dur = 1;
-	zd.t.sdur = d_unix - d_locl;
-	d = dt_dtadd(d, zd);
-	d.znfxd = 1;
+		dt_make_t_only(&zd, DT_HMS);
+		zd.t.dur = 1;
+		zd.t.sdur = zdiff;
+		d = dt_dtadd(d, zd);
+		d.znfxd = 1;
+		if (zdiff > 0) {
+			d.zdiff = (uint16_t)(zdiff / ZDIFF_RES);
+		} else if (zdiff < 0) {
+			d.neg = 1;
+			d.zdiff = (uint16_t)(-zdiff / ZDIFF_RES);
+		}
+	}
 	return d;
 }
 
@@ -105,7 +112,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 {
 	dt_ssexy_t d_unix;
 	dt_ssexy_t d_locl;
-	struct dt_dt_s zd;
+	int32_t zdiff;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
 		return d;
@@ -114,14 +121,22 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	/* convert date/time part to unix stamp */
 	d_unix = ____to_unix_epoch(d);
 	d_locl = zif_local_time(zone, d_unix);
+	if (LIKELY((zdiff = d_locl - d_unix))) {
+		/* let dt_dtadd() do the magic */
+		struct dt_dt_s zd = dt_dt_initialiser();
 
-	/* let dt_dtadd() do the magic */
-	zd = dt_dt_initialiser();
-
-	dt_make_t_only(&zd, DT_HMS);
-	zd.t.dur = 1;
-	zd.t.sdur = d_locl - d_unix;
-	return dt_dtadd(d, zd);
+		dt_make_t_only(&zd, DT_HMS);
+		zd.t.dur = 1;
+		zd.t.sdur = zdiff;
+		d = dt_dtadd(d, zd);
+		if (zdiff > 0) {
+			d.zdiff = (uint16_t)(zdiff / ZDIFF_RES);
+		} else if (zdiff < 0) {
+			d.neg = 1;
+			d.zdiff = (uint16_t)(-zdiff / ZDIFF_RES);
+		}
+	}
+	return d;
 }
 
 #endif	/* INCLUDED_dt_core_tz_glue_c_ */
