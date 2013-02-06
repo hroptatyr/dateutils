@@ -120,7 +120,7 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 
 			if (clo->hackz == NULL && clo->fromz != NULL) {
 				/* fixup zone */
-				(void)dtz_forgetz(&d, clo->fromz);
+				d = dtz_forgetz(d, clo->fromz);
 			}
 
 			if (clo->sed_mode_p) {
@@ -194,7 +194,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
 
 			if (clo->hackz == NULL && clo->fromz != NULL) {
 				/* fixup zone */
-				(void)dtz_forgetz(&d, clo->fromz);
+				d = dtz_forgetz(d, clo->fromz);
 			}
 
 			/* no sed mode here */
@@ -318,7 +318,7 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 		if (!dt_unk_p(d = dadd_add(d, st.durs, st.ndurs))) {
 			if (hackz == NULL && fromz != NULL) {
 				/* fixup zone */
-				(void)dtz_forgetz(&d, fromz);
+				d = dtz_forgetz(d, fromz);
 			}
 			dt_io_write(d, ofmt, z, '\n');
 			res = 0;

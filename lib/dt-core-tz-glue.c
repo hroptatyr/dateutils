@@ -69,64 +69,59 @@ ____to_unix_epoch(struct dt_dt_s dt)
 
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */
-DEFUN int32_t
-dtz_forgetz(struct dt_dt_s *d, zif_t zone)
+DEFUN struct dt_dt_s
+dtz_forgetz(struct dt_dt_s d, zif_t zone)
 {
 	dt_ssexy_t d_unix;
 	dt_ssexy_t d_locl;
 	struct dt_dt_s zd;
-	int32_t zdiff;
 
-	if (dt_sandwich_only_d_p(*d) || dt_sandwich_only_t_p(*d)) {
-		return 0;
-	} else if (d->znfxd) {
+	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		return d;
+	} else if (d.znfxd) {
 		/* already forgotten about */
-		return 0;
+		return d;
 	}
 
 	/* convert date/time part to unix stamp */
-	d_locl = ____to_unix_epoch(*d);
+	d_locl = ____to_unix_epoch(d);
 	d_unix = zif_utc_time(zone, d_locl);
-	zdiff = d_unix - d_locl;
 
 	/* let dt_dtadd() do the magic */
 	zd = dt_dt_initialiser();
 
 	dt_make_t_only(&zd, DT_HMS);
 	zd.t.dur = 1;
-	zd.t.sdur = zdiff;
-	*d = dt_dtadd(*d, zd);
-	d->znfxd = 1;
-	return zdiff;
+	zd.t.sdur = d_unix - d_locl;
+	d = dt_dtadd(d, zd);
+	d.znfxd = 1;
+	return d;
 }
 
 /**
  * Return a dt object from a UTC'd DT that uses ZONE. */
-DEFUN int32_t
-dtz_enrichz(struct dt_dt_s *d, zif_t zone)
+DEFUN struct dt_dt_s
+dtz_enrichz(struct dt_dt_s d, zif_t zone)
 {
 	dt_ssexy_t d_unix;
 	dt_ssexy_t d_locl;
 	struct dt_dt_s zd;
-	int32_t zdiff;
 
-	if (dt_sandwich_only_d_p(*d) || dt_sandwich_only_t_p(*d)) {
-		return 0;
+	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		return d;
 	}
 
 	/* convert date/time part to unix stamp */
-	d_unix = ____to_unix_epoch(*d);
+	d_unix = ____to_unix_epoch(d);
 	d_locl = zif_local_time(zone, d_unix);
-	zdiff = d_locl - d_unix;
 
 	/* let dt_dtadd() do the magic */
 	zd = dt_dt_initialiser();
 
 	dt_make_t_only(&zd, DT_HMS);
 	zd.t.dur = 1;
-	zd.t.sdur = zdiff;
-	*d = dt_dtadd(*d, zd);
-	return zdiff;
+	zd.t.sdur = d_locl - d_unix;
+	return dt_dtadd(d, zd);
 }
 
 #endif	/* INCLUDED_dt_core_tz_glue_c_ */

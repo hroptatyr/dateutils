@@ -104,7 +104,7 @@ dt_io_strpdt_ep(
 		}
 	}
 	if (LIKELY(!dt_unk_p(res)) && zone != NULL) {
-		(void)dtz_forgetz(&res, zone);
+		return dtz_forgetz(res, zone);
 	}
 	return res;
 }
@@ -600,7 +600,7 @@ dt_io_find_strpdt2(
 found:
 	*sp = (char*)p;
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		(void)dtz_forgetz(&d, zone);
+		return dtz_forgetz(d, zone);
 	}
 	return d;
 }
@@ -722,7 +722,7 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 	size_t n;
 
 	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		(void)dtz_enrichz(&d, zone);
+		d = dtz_enrichz(d, zone);
 	}
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
 	__io_write(buf, n, stdout);
