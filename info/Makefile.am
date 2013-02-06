@@ -156,7 +156,9 @@ built_texis += dgrep.texi
 built_texis += dround.texi
 
 built_mans =
+if HAVE_STRPTIME
 built_mans += strptime.man
+endif  HAVE_STRPTIME
 built_mans += dadd.manu
 built_mans += dconv.man
 built_mans += ddiff.mand
