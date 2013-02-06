@@ -179,8 +179,8 @@ __daisy_get_yday(dt_daisy_t d)
 # define DT_LDN_BASE	(62170U/*lilian's 1753-01-00*/)
 # define DT_JDN_BASE	(2361330.5f/*julian's 1753-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1601
-# define DT_LDN_BASE	(6653U/*lilian's 1601-01-00*/)
-# define DT_JDN_BASE	(2305813.5f/*julian's 1601-01-00*/)
+# define DT_LDN_BASE	(6652U/*lilian's 1601-01-00*/)
+# define DT_JDN_BASE	(2305812.5f/*julian's 1601-01-00*/)
 #else
 # error cannot convert to ldn, unknown base year
 #endif
