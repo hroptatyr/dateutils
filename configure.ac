@@ -42,6 +42,9 @@ SXE_CHECK_CFLAGS
 AC_CHECK_HEADERS([endian.h sys/endian.h machine/endian.h byteorder.h])
 AC_CHECK_HEADERS([byteswap.h])
 
+## disallow warnings from here
+SXE_LANG_WERROR([off])
+
 ## check for tzfile.h
 AX_ZONEINFO([right])
 
@@ -118,6 +121,8 @@ AS_HELP_STRING([], [Default: disabled])],
 AC_ARG_WITH([matlab], [
 AS_HELP_STRING([--with-matlab], [Build matlab contribs, default: no.])],
         [dnl
+		## disallow warnings from here
+		SXE_LANG_WERROR([off])
                 SXE_CHECK_MATLAB([${withval}])
                 if test -n "${sxe_cv_matlabroot}"; then
                         with_matlab="yes"
