@@ -63,8 +63,8 @@ __jan00_daisy(unsigned int year)
 	by -= (year - 1601U) / 100U;
 	by += (year - 1601U) / 400U;
 #elif DT_DAISY_BASE_YEAR == 1601
-	by -= by / 100U;
-	by += by / 400U;
+	by -= (year - 1601U) / 100U;
+	by += (year - 1601U) / 400U;
 #endif
 	return by;
 #endif	/* WITH_FAST_ARITH */
