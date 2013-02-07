@@ -4,7 +4,10 @@ compiler:
   - gcc
   - clang
 
-before_script:
+before_install:
+  - sudo apt-get -qq update
+
+install:
   - sudo apt-get install -qq gengetopt
   - sudo apt-get install -qq gperf
   - sudo apt-get install -qq help2man
@@ -12,6 +15,8 @@ before_script:
   - sudo apt-get install -qq bison
   - sudo apt-get install -qq flex
   - sudo apt-get install -qq texlive
+
+before_script:
   - autoreconf -vfi
 
 script: ./configure && make clean all check distcheck || (cat test/test-suite.log && /bin/false)

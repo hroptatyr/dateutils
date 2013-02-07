@@ -661,8 +661,10 @@ dt_conv_to_ywd(struct dt_d_s this)
 #include "token.c"
 #include "strops.c"
 #include "date-core-strpf.c"
+#if !defined SKIP_LEAP_ARITH
 /* we assume this file is in the dist, it's gen'd from fmt-special.gperf */
-#include "fmt-special.c"
+# include "fmt-special.c"
+#endif	/* SKIP_LEAP_ARITH */
 
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
@@ -674,12 +676,16 @@ static const char bizda_dflt[] = "%Y-%m-%db";
 static dt_dtyp_t
 __trans_dfmt_special(const char *fmt)
 {
+#if !defined SKIP_LEAP_ARITH
 	size_t len = strlen(fmt);
 	const struct dt_fmt_special_s *res;
 
 	if (UNLIKELY((res = __fmt_special(fmt, len)) != NULL)) {
 		return res->e;
 	}
+#else  /* SKIP_LEAP_ARITH */
+	(void)fmt;
+#endif	/* !SKIP_LEAP_ARITH */
 	return DT_DUNK;
 }
 
