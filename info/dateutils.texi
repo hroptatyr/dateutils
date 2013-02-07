@@ -160,17 +160,19 @@ calendar this was the founding of Rome, in many database systems this
 is the 1st Jan 1, or other convenient dates like the 1st Jan 1970 or
 1st Jan 1900.
 
-The dateutils reference day (at the moment) is the 31st Dec 1916, or
-equivalently the Naught-th of Jan 1917.  This may look like an
+The (internal) dateutils reference day is the 31st Dec 1600, or
+equivalently the Naught-th of Jan 1601.  This may look like an
 arbitrary date but it has some interesting properties:
 - it is a Sunday, so weekday computation is easy as it is a mod 7
   operation only
-- the year is 1 mod 4, so the number of leap years between 1917 and
-  another year Y is simply Y div 4.
+- the year is 1 mod 4, so the number of leap years between the reference
+  year and any other year Y is simply Y div 4.
 
-Actually any date that suffices these properties is fine but 1917 is
-the first after 1900, and dates <= 1900 that have different leap year
-rules so cannot be as easily used as our reference date.
+In earlier versions we used 1917 for the reference year because it's the
+first year after 1900 that meets the conditions above.  But then we
+relaxed leap year rules to support dates beyond 2100 (2100 isn't a leap
+year) so for symmetry reasons we should support years below 1917 in a
+similar fashion.
 
 The daisy calendar has no notion of years or months.
 
@@ -178,6 +180,11 @@ The daisy calendar has no associated input or output format.  This is
 due to its nature that the reference date is arbitrary.  Outlook: As
 soon as Julian dates are supported, daisy will use its in/out format
 specs.
+
+Also noteworthy on a more informative level, dateutils globally assumes
+the Gregorian date switch to have taken place in October 1582.  This is
+unlike some other well-known tools (Unix cal for instance) which assume
+the reformation to have occurred in September 1752.
 
 @section bizda
 

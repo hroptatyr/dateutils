@@ -75,7 +75,7 @@ Modifiers:
   b   Treat date as business date
 @end verbatim
 
-By design dates before 1917-01-01 are not supported.
+By design dates before 1601-01-01 are not supported.
 
 For conformity here is a list of calendar spec names and their meaning:
 @verbatim
