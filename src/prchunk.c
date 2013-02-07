@@ -95,10 +95,10 @@ error(int eno, const char *fmt, ...)
 	fputs("prchunk: ", stderr);
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
-	if (eno || errno) {
+	if (eno) {
 		fputc(':', stderr);
 		fputc(' ', stderr);
-		fputs(strerror(eno ? eno : errno), stderr);
+		fputs(strerror(eno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
@@ -430,7 +430,7 @@ main(int argc, char *argv[])
 	}
 	/* get our prchunk up n running */
 	if ((ctx = init_prchunk(fd)) == NULL) {
-		error(0, "Error: ctx NULL");
+		error(errno, "Error: ctx NULL");
 		return 1;
 	}
 	/* fill the buffer */
