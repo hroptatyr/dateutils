@@ -44,28 +44,6 @@
 #include "nifty.h"
 #include "dt-core-tz-glue.h"
 
-#define DAISY_UNIX_BASE		(19359)
-
-static inline dt_ssexy_t
-____to_unix_epoch(struct dt_dt_s dt)
-{
-/* daisy is competing with the prevalent unix epoch, this is the offset */
-#define DAISY_UNIX_BASE		(19359)
-	if (dt.typ == DT_SEXY) {
-		/* no way to find out, is there */
-		return dt.sexy;
-	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
-		struct dt_d_s d = dt_dconv(DT_DAISY, dt.d);
-		dt_daisy_t dd = d.daisy;
-		dt_ssexy_t res = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY;
-		if (dt_sandwich_p(dt)) {
-			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-		}
-		return res;
-	}
-	return 0;
-}
-
 
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */
@@ -84,7 +62,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_locl = ____to_unix_epoch(d);
+	d_locl = __to_unix_epoch(d);
 	d_unix = zif_utc_time(zone, d_locl);
 	if (LIKELY((zdiff = d_unix - d_locl))) {
 		/* let dt_dtadd() do the magic */
@@ -119,7 +97,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_unix = ____to_unix_epoch(d);
+	d_unix = __to_unix_epoch(d);
 	d_locl = zif_local_time(zone, d_unix);
 	if (LIKELY((zdiff = d_locl - d_unix))) {
 		/* let dt_dtadd() do the magic */
