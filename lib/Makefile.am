@@ -72,7 +72,7 @@ ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
 ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
 EXTRA_ltrcc_SOURCES =
-EXTRA_ltrcc_SOURCES += fmt-special.c
+EXTRA_ltrcc_SOURCES += fmt-special.gperf fmt-special.c
 endif  ## BUILD_LTRCC
 
 
