@@ -17,7 +17,7 @@ fi
 ## backport from dt-test.sh
 tsp_create_env()
 {
-	TS_TMPDIR="`basename "${testfile}"`.tmpd"
+	TS_TMPDIR="`basename "${BINARY}"`.tmpd"
 	rm -rf "${TS_TMPDIR}" || return 1
 	mkdir "${TS_TMPDIR}" || return 1
 
