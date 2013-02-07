@@ -62,10 +62,10 @@ error(int eno, const char *fmt, ...)
 	fputs("strptime: ", stderr);
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
-	if (eno || errno) {
+	if (eno) {
 		fputc(':', stderr);
 		fputc(' ', stderr);
-		fputs(strerror(eno ? eno : errno), stderr);
+		fputs(strerror(eno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
@@ -129,7 +129,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 
 	/* using the prchunk reader now */
 	if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-		error(0, "Error: could not open stdin");
+		error(errno, "Error: could not open stdin");
 		return;
 	}
 	while (prchunk_fill(pctx) >= 0) {
