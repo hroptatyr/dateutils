@@ -60,8 +60,10 @@ __jan00_daisy(unsigned int year)
 		by += (year - 2001U) / 400U;
 	}
 #elif DT_DAISY_BASE_YEAR == 1753
-	by -= (year - 1601U) / 100U;
-	by += (year - 1601U) / 400U;
+	if (LIKELY(year > 1800U)) {
+		by -= (year - 1701U) / 100U;
+		by += (year - 1601U) / 400U;
+	}
 #elif DT_DAISY_BASE_YEAR == 1601
 	by -= (year - 1601U) / 100U;
 	by += (year - 1601U) / 400U;
