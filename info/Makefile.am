@@ -220,4 +220,6 @@ __bld_texi_0 = @echo "  GENTEXI " $*;
 	$(my_bld_h2m) ${SHELL} \
 		$(srcdir)/texi2h2m.sh $< > $@ || rm -f -- $@
 
+.NOTPARALLEL:
+
 ## Makefile.am ends here
