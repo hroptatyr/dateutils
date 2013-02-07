@@ -135,7 +135,14 @@ __to_unix_epoch(struct dt_dt_s dt)
 	return 0;
 }
 
-static inline __attribute__((unused)) dt_ssexy_t
+/* public version */
+dt_ssexy_t
+dt_to_unix_epoch(struct dt_dt_s dt)
+{
+	return __to_unix_epoch(dt);
+}
+
+static inline dt_ssexy_t
 __to_gps_epoch(struct dt_dt_s dt)
 {
 	if (dt.typ == DT_SEXY) {
@@ -150,6 +157,13 @@ __to_gps_epoch(struct dt_dt_s dt)
 		return res;
 	}
 	return 0;
+}
+
+/* public version */
+dt_ssexy_t
+dt_to_gps_epoch(struct dt_dt_s dt)
+{
+	return __to_gps_epoch(dt);
 }
 
 static inline struct dt_dt_s

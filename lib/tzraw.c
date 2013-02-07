@@ -428,7 +428,7 @@ __gps_offs(int32_t t)
 	return __tai_offs(t) - gps_offs_epoch;
 }
 
-static inline int32_t
+static int32_t
 __offs(zif_t z, int32_t t)
 {
 /* return the offset of T in Z and cache the result. */

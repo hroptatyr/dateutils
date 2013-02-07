@@ -258,6 +258,14 @@ dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
  * E.g. ymd -> %FT%T */
 DECLF void __trans_dtfmt(const char **fmt);
 
+/**
+ * Convert a dt_dt_s to an epoch difference, based on the Unix epoch. */
+extern dt_ssexy_t dt_to_unix_epoch(struct dt_dt_s);
+
+/**
+ * Convert a dt_dt_s to an epoch difference, based on the GPS epoch. */
+extern dt_ssexy_t dt_to_gps_epoch(struct dt_dt_s);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_dt_s
