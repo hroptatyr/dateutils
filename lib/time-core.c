@@ -210,7 +210,7 @@ struct divrem_s {
 	unsigned int rem;
 };
 
-static inline struct divrem_s
+static struct divrem_s
 divrem(signed int n, unsigned int mod)
 {
 	register signed int div;
