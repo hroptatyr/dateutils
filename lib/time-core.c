@@ -213,15 +213,15 @@ struct divrem_s {
 static struct divrem_s
 divrem(signed int n, unsigned int mod)
 {
-	register signed int div;
-	register signed int rem;
+	register signed int _div;
+	register signed int _rem;
 
-	div = n / (signed int)mod;
-	if ((rem = n % (signed int)mod) < 0) {
-		div--;
-		rem += mod;
+	_div = n / (signed int)mod;
+	if ((_rem = n % (signed int)mod) < 0) {
+		_div--;
+		_rem += mod;
 	}
-	return (struct divrem_s){div, (unsigned int)rem};
+	return (struct divrem_s){_div, (unsigned int)_rem};
 }
 
 
