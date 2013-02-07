@@ -67,10 +67,8 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	zif_t fromz;
 	zif_t toz;
 
-	if (nrhs != 3) {
+	if (nrhs != 3 || nlhs > 1) {
 		mexErrMsgTxt("invalid usage, see `help tzconv'\n");
-		return;
-	} else if (nlhs == 0) {
 		return;
 	}
 

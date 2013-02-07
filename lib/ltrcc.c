@@ -48,26 +48,6 @@
 #include "dt-core.h"
 #include "nifty.h"
 
-static inline dt_ssexy_t
-__to_unix_epoch(struct dt_dt_s dt)
-{
-/* daisy is competing with the prevalent unix epoch, this is the offset */
-#define DAISY_UNIX_BASE		(19359)
-	if (dt.typ == DT_SEXY) {
-		/* no way to find out, is there */
-		return dt.sexy;
-	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
-		struct dt_d_s d = dt_dconv(DT_DAISY, dt.d);
-		dt_daisy_t dd = d.daisy;
-		dt_ssexy_t res = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY;
-		if (dt_sandwich_p(dt)) {
-			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-		}
-		return res;
-	}
-	return 0;
-}
-
 
 #define PROLOGUE	(-1UL)
 #define EPILOGUE	(0UL)
@@ -267,7 +247,7 @@ const int32_t %s[] = {\n\
 
 	/* fix up and convert to target type */
 	d.t.hms.s--;
-	val = __to_unix_epoch(d);
+	val = dt_to_unix_epoch(d);
 
 	if (!colp) {
 		switch (ep[1]) {

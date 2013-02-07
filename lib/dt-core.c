@@ -99,11 +99,28 @@ struct strpdti_s {
 
 
 /* converters and stuff */
+#if !defined DT_DAISY_BASE_YEAR
+# error daisy base year cannot be obtained
+#elif DT_DAISY_BASE_YEAR == 1917
+# define DAISY_UNIX_BASE	(19359)
+# define DAISY_GPS_BASE		(23016)
+#elif DT_DAISY_BASE_YEAR == 1753
+# define DAISY_UNIX_BASE	(79258)
+# define DAISY_GPS_BASE		(82915)
+#elif DT_DAISY_BASE_YEAR == 1601
+# define DAISY_UNIX_BASE	(134775)
+# define DAISY_GPS_BASE		(138432)
+#else
+# error unknown daisy base year
+#endif	/* DT_DAISY_BASE_YEAR */
+#if DAISY_GPS_BASE - DAISY_UNIX_BASE != 3657
+# error daisy unix and gps bases diverge
+#endif	/* static assert */
+
 static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
 {
 /* daisy is competing with the prevalent unix epoch, this is the offset */
-#define DAISY_UNIX_BASE		(19359)
 	if (dt.typ == DT_SEXY) {
 		/* no way to find out, is there */
 		return dt.sexy;
@@ -118,10 +135,16 @@ __to_unix_epoch(struct dt_dt_s dt)
 	return 0;
 }
 
-static inline __attribute__((unused)) dt_ssexy_t
+/* public version */
+dt_ssexy_t
+dt_to_unix_epoch(struct dt_dt_s dt)
+{
+	return __to_unix_epoch(dt);
+}
+
+static inline dt_ssexy_t
 __to_gps_epoch(struct dt_dt_s dt)
 {
-#define DAISY_GPS_BASE		(23016)
 	if (dt.typ == DT_SEXY) {
 		/* no way to find out, is there */
 		return dt.sexy;
@@ -134,6 +157,13 @@ __to_gps_epoch(struct dt_dt_s dt)
 		return res;
 	}
 	return 0;
+}
+
+/* public version */
+dt_ssexy_t
+dt_to_gps_epoch(struct dt_dt_s dt)
+{
+	return __to_gps_epoch(dt);
 }
 
 static inline struct dt_dt_s
@@ -157,6 +187,7 @@ static inline dt_ymdhms_t
 __epoch_to_ymdhms(dt_ssexy_t sx)
 {
 	dt_ymdhms_t res;
+
 	res.S = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
 	res.M = sx % MINS_PER_HOUR;
@@ -410,9 +441,7 @@ fucked:
 }
 
 DEFUN size_t
-dt_strfdt(
-	char *restrict buf, size_t bsz, const char *fmt,
-	struct dt_dt_s that, int32_t zdiff)
+dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
 	struct strpdt_s d = strpdt_initialiser();
 	const char *fp;
@@ -556,7 +585,7 @@ dt_strfdt(
 		d.st.m = that.t.hms.m;
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
-		d.zdiff = zdiff;
+		d.zdiff = zdiff_sec(that);
 	}
 
 	/* assign and go */
