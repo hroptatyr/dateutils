@@ -60,11 +60,13 @@ __jan00_daisy(unsigned int year)
 		by += (year - 2001U) / 400U;
 	}
 #elif DT_DAISY_BASE_YEAR == 1753
+	if (LIKELY(year > 1800U)) {
+		by -= (year - 1701U) / 100U;
+		by += (year - 1601U) / 400U;
+	}
+#elif DT_DAISY_BASE_YEAR == 1601
 	by -= (year - 1601U) / 100U;
 	by += (year - 1601U) / 400U;
-#elif DT_DAISY_BASE_YEAR == 1601
-	by -= by / 100U;
-	by += by / 400U;
 #endif
 	return by;
 #endif	/* WITH_FAST_ARITH */
@@ -176,11 +178,11 @@ __daisy_get_yday(dt_daisy_t d)
 # define DT_LDN_BASE	(122068U/*lilian's 1917-01-00*/)
 # define DT_JDN_BASE	(2421228.5f/*julian's 1917-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1753
-# define DT_LDN_BASE	(62170U/*lilian's 1753-01-00*/)
-# define DT_JDN_BASE	(2361330.5f/*julian's 1753-01-00*/)
+# define DT_LDN_BASE	(62169U/*lilian's 1753-01-00*/)
+# define DT_JDN_BASE	(2361329.5f/*julian's 1753-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1601
-# define DT_LDN_BASE	(6653U/*lilian's 1601-01-00*/)
-# define DT_JDN_BASE	(2305813.5f/*julian's 1601-01-00*/)
+# define DT_LDN_BASE	(6652U/*lilian's 1601-01-00*/)
+# define DT_JDN_BASE	(2305812.5f/*julian's 1601-01-00*/)
 #else
 # error cannot convert to ldn, unknown base year
 #endif
