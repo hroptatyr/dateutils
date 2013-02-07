@@ -101,6 +101,10 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 	$(AM_V_GEN) $(GPERF) $< --output-file $@
 
 
+## just for parallel builds
+dexpr-parser.h: dexpr-parser.c
+
+
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
 
