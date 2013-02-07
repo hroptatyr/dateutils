@@ -173,6 +173,7 @@ static inline dt_ymdhms_t
 __epoch_to_ymdhms(dt_ssexy_t sx)
 {
 	dt_ymdhms_t res;
+
 	res.S = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
 	res.M = sx % MINS_PER_HOUR;
