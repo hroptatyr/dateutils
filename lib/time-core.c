@@ -205,19 +205,23 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 }
 
 /* arithmetics helpers */
-static inline unsigned int
-__tuimod(signed int x, signed int m)
-{
-	int res = x % m;
-	return res >= 0 ? res : res + m;
-}
+struct divrem_s {
+	signed int div;
+	unsigned int rem;
+};
 
-static inline signed int
-__tuidiv(signed int x, signed int m)
+static inline struct divrem_s
+divrem(signed int n, unsigned int mod)
 {
-/* uidiv expects its counterpart (the mod) to be computed with __uimod */
-	int res = x / m;
-	return x >= 0 ? res : x % m ? res - 1 : res;
+	register signed int div;
+	register signed int rem;
+
+	div = n / (signed int)mod;
+	if ((rem = n % (signed int)mod) < 0) {
+		div--;
+		rem += mod;
+	}
+	return (struct divrem_s){div, (unsigned int)rem};
 }
 
 
@@ -225,37 +229,36 @@ __tuidiv(signed int x, signed int m)
 DEFUN struct dt_t_s
 dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
 {
-	unsigned int res;
-	signed int tmp;
+	signed int sec;
+	struct divrem_s tmp;
 
 	/* get both result in seconds since midnight */
-	res = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
-	res = res + dur.sdur;
+	sec = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+	sec = sec + dur.sdur;
 
 	if (LIKELY(corr == 0)) {
-		tmp = __tuidiv(res, SECS_PER_DAY);
-		res = __tuimod(res, SECS_PER_DAY);
+		tmp = divrem(sec, SECS_PER_DAY);
 
 		/* fill up biggest first */
-		t.hms.h = res / SECS_PER_HOUR;
-		res = res % SECS_PER_HOUR;
-		t.hms.m = res / SECS_PER_MIN;
-		res = res % SECS_PER_MIN;
-		t.hms.s = res;
+		t.hms.h = tmp.rem / SECS_PER_HOUR;
+		tmp.rem %= SECS_PER_HOUR;
+		t.hms.m = tmp.rem / SECS_PER_MIN;
+		tmp.rem %= SECS_PER_MIN;
+		t.hms.s = tmp.rem;
 	} else {
 		/* doesn't work if we span more than 1 day */
-		tmp = __tuidiv(res, SECS_PER_DAY + corr);
-		res = __tuimod(res, SECS_PER_DAY + corr);
+		tmp = divrem(sec, SECS_PER_DAY + corr);
 
 		/* fill up biggest first */
-		if (res < SECS_PER_DAY) {
-			t.hms.h = res / SECS_PER_HOUR;
-			res = res % SECS_PER_HOUR;
-			t.hms.m = res / SECS_PER_MIN;
-			res = res % SECS_PER_MIN;
-			t.hms.s = res;
+		if (LIKELY(tmp.rem < SECS_PER_DAY)) {
+			t.hms.h = tmp.rem / SECS_PER_HOUR;
+			tmp.rem %= SECS_PER_HOUR;
+			t.hms.m = tmp.rem / SECS_PER_MIN;
+			tmp.rem %= SECS_PER_MIN;
+			t.hms.s = tmp.rem;
 		} else {
-			/* corr < 0 will always end up in the above case */
+			/* leap-second day case
+			 * corr < 0 will always end up in the above case */
 			t.hms.h = 23;
 			t.hms.m = 59;
 			t.hms.s = 59 + corr;
@@ -266,7 +269,7 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
 	t.typ = DT_HMS;
 	t.dur = 0;
 	t.neg = 0;
-	t.carry = tmp;
+	t.carry = tmp.div;
 	return t;
 }
 
