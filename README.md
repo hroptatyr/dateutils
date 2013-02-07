@@ -1,6 +1,8 @@
 Dateutils
 =========
 
+[![Build Status](https://secure.travis-ci.org/hroptatyr/dateutils.png?branch=master)](http://travis-ci.org/hroptatyr/dateutils)
+
 Dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
