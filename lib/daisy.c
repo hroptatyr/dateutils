@@ -178,8 +178,8 @@ __daisy_get_yday(dt_daisy_t d)
 # define DT_LDN_BASE	(122068U/*lilian's 1917-01-00*/)
 # define DT_JDN_BASE	(2421228.5f/*julian's 1917-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1753
-# define DT_LDN_BASE	(62170U/*lilian's 1753-01-00*/)
-# define DT_JDN_BASE	(2361330.5f/*julian's 1753-01-00*/)
+# define DT_LDN_BASE	(62169U/*lilian's 1753-01-00*/)
+# define DT_JDN_BASE	(2361329.5f/*julian's 1753-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1601
 # define DT_LDN_BASE	(6652U/*lilian's 1601-01-00*/)
 # define DT_JDN_BASE	(2305812.5f/*julian's 1601-01-00*/)
