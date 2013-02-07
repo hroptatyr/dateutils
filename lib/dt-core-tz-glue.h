@@ -76,9 +76,6 @@ DECLF struct dt_dt_s dtz_forgetz(struct dt_dt_s dt, zif_t zone);
  * In other words: convert from UTC represented DT to local ZONE time. */
 DECLF struct dt_dt_s dtz_enrichz(struct dt_dt_s dt, zif_t zone);
 
-extern inline dt_ssexy_t __to_unix_epoch(struct dt_dt_s);
-extern inline dt_ssexy_t __to_gps_epoch(struct dt_dt_s);
-
 
 #if defined INCLUDE_DT_CORE_TZ_GLUE_IMPL
 # include "dt-core-tz-glue.c"

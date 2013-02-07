@@ -62,7 +62,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_locl = __to_unix_epoch(d);
+	d_locl = dt_to_unix_epoch(d);
 	d_unix = zif_utc_time(zone, d_locl);
 	if (LIKELY((zdiff = d_unix - d_locl))) {
 		/* let dt_dtadd() do the magic */
@@ -97,7 +97,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	}
 
 	/* convert date/time part to unix stamp */
-	d_unix = __to_unix_epoch(d);
+	d_unix = dt_to_unix_epoch(d);
 	d_locl = zif_local_time(zone, d_unix);
 	if (LIKELY((zdiff = d_locl - d_unix))) {
 		/* let dt_dtadd() do the magic */
