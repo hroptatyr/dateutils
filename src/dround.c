@@ -67,10 +67,10 @@ error(int eno, const char *fmt, ...)
 	fputs("dround: ", stderr);
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
-	if (eno || errno) {
+	if (eno) {
 		fputc(':', stderr);
 		fputc(' ', stderr);
-		fputs(strerror(eno ? eno : errno), stderr);
+		fputs(strerror(eno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
@@ -536,7 +536,7 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					error(0, "Error: \
+					error(errno, "Error: \
 cannot parse duration/rounding string `%s'", st.istr);
 				}
 			}
@@ -609,7 +609,7 @@ no durations given");
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(0, "Error: could not open stdin");
+			error(errno, "Error: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {

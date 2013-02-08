@@ -80,10 +80,10 @@ error(int eno, const char *fmt, ...)
 	fputs("dadd: ", stderr);
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
-	if (eno || errno) {
+	if (eno) {
 		fputc(':', stderr);
 		fputc(' ', stderr);
-		fputs(strerror(eno ? eno : errno), stderr);
+		fputs(strerror(eno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
@@ -287,7 +287,7 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					error(0, "Error: \
+					error(errno, "Error: \
 cannot parse duration string `%s'", st.istr);
 					res = 1;
 					goto dur_out;
@@ -348,7 +348,7 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(0, "could not open stdin");
+			error(errno, "could not open stdin");
 			goto ndl_free;
 		}
 
@@ -382,7 +382,7 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(0, "could not open stdin");
+			error(errno, "could not open stdin");
 		}
 
 		/* build the clo and then loop */

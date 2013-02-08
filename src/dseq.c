@@ -79,10 +79,10 @@ error(int eno, const char *fmt, ...)
 	fputs("dseq: ", stderr);
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
-	if (eno || errno) {
+	if (eno) {
 		fputc(':', stderr);
 		fputc(' ', stderr);
-		fputs(strerror(eno ? eno : errno), stderr);
+		fputs(strerror(eno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
@@ -509,7 +509,7 @@ main(int argc, char *argv[])
 		do {
 			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
 				if (!argi->quiet_given) {
-					error(0, "Error: \
+					error(errno, "Error: \
 cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
 				res = 1;
