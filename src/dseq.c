@@ -509,7 +509,7 @@ main(int argc, char *argv[])
 		do {
 			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
 				if (!argi->quiet_given) {
-					error(0, "Error: \
+					error(errno, "Error: \
 cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
 				res = 1;
