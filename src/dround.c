@@ -536,7 +536,7 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					error(0, "Error: \
+					error(errno, "Error: \
 cannot parse duration/rounding string `%s'", st.istr);
 				}
 			}
