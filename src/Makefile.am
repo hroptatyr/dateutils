@@ -98,7 +98,7 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 ## gperf rule
 %.c: %.gperf
-	$(AM_V_GEN) $(GPERF) $< --output-file $@
+	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
 
 
 ## just for parallel builds

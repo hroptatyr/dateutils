@@ -86,7 +86,7 @@ leapseconds.def: leapseconds
 
 ## gperf rule
 %.c: %.gperf
-	$(AM_V_GEN) $(GPERF) $< --output-file $@
+	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
 
 # 
 # Help the developers get nice post-processed source files
