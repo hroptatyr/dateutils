@@ -18,6 +18,14 @@ Dateutils
   </div>
   <div class="sidebar-stack">
     <ul>
+      <li>
+        <a href="http://travis-ci.org/hroptatyr/dateutils"><img src="https://secure.travis-ci.org/hroptatyr/dateutils.png?branch=master" alt="build status"></img></a>
+        <a href="https://drone.io/github.com/hroptatyr/dateutils/latest"><img src="https://drone.io/github.com/hroptatyr/dateutils/status.png" alt="build status"></img></a>
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-stack">
+    <ul>
       <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
       <li><a href="https://bitbucket.org/hroptatyr/dateutils/downloads/dateutils-0.2.4.tar.xz">latest release (dateutils-0.2.4.tar.xz)</a></li>
       <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
