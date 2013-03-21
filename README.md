@@ -2,6 +2,7 @@ Dateutils
 =========
 
 [![Build Status](https://secure.travis-ci.org/hroptatyr/dateutils.png?branch=master)](http://travis-ci.org/hroptatyr/dateutils)
+[![Build Status](https://drone.io/github.com/hroptatyr/dateutils/status.png)](https://drone.io/github.com/hroptatyr/dateutils/latest)
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
@@ -316,7 +317,7 @@ In no particular order and without any claim to completeness:
 + yest <http://yest.sourceforge.net/>
 
 Use the one that best fits your purpose.  And in case you happen to like
-mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils2)
+mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils)
 
 <!--
   Local variables:
