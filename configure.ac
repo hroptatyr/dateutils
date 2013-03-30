@@ -45,6 +45,44 @@ AC_CHECK_HEADERS([byteswap.h])
 ## disallow warnings from here
 SXE_LANG_WERROR([off])
 
+## check for mmap and friends
+AC_CHECK_HEADERS([sys/mman.h])
+AC_MSG_CHECKING([for ANON maps])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#if defined HAVE_SYS_MMAN_H
+# include <sys/mman.h>
+#endif  /* HAVE_SYS_MMAN_H */
+#if defined MAP_ANON
+/* good */
+#elif defined MAP_ANONYMOUS
+/* good too */
+#else
+# error MAP_ANON | MAP_ANONYMOUS needed
+#endif
+]])], [sxe_cv_feat_anon_maps="yes"], [sxe_cv_feat_anon_maps="no"])
+if test "${sxe_cv_feat_anon_maps}" = "no"; then
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#define _DARWIN_SOURCE
+#if defined HAVE_SYS_MMAN_H
+# include <sys/mman.h>
+#endif  /* HAVE_SYS_MMAN_H */
+#if defined MAP_ANON
+/* good */
+#elif defined MAP_ANONYMOUS
+/* good too */
+#else
+# error MAP_ANON | MAP_ANONYMOUS needed
+#endif
+]])], [
+	sxe_cv_feat_anon_maps="yes"
+	AC_DEFINE([MAP_ANON_NEEDS_DARWIN_SOURCE], [1], [how to get MAP_ANON])
+	], [
+	sxe_cv_feat_anon_maps="no"
+	])
+fi
+AC_MSG_RESULT([${sxe_cv_feat_anon_maps}])
+
+
 ## check for tzfile.h
 AX_ZONEINFO([right])
 
