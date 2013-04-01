@@ -77,6 +77,12 @@ fi
 tarball_version_file="${1}"
 tag_sed_script="${2:-s/x/x/}"
 
+## quick replacement of echo -n
+echo_n()
+{
+	echo "${@}" | tr -d '\r\n'
+}
+
 ## Avoid meddling by environment variable of the same name.
 v=
 
@@ -103,7 +109,7 @@ if test -d "${BASEDIR}/.git"; then
 	old_v="${v}"
 else
 	## otherwise, just go on with the thing we've got so far
-	echo -n "${v}"
+	echo_n "${v}"
 	exit 0
 fi
 
@@ -161,12 +167,12 @@ if test -n "${dirty}"; then
 fi
 
 # Omit the trailing newline, so that m4_esyscmd can use the result directly.
-new_v=$(echo "${v}" | tr -d '\r\n')
+new_v=$(echo_n "${v}")
 if test "${new_v}" = "${old_v}"; then
 	## print the old version
-	echo -n "${old_v}"
+	echo_n "${old_v}"
 elif test -z "${tarball_version_file}"; then
-	echo -n "${new_v}"
+	echo_n "${new_v}"
 else
 	echo "${new_v}" | tee -- "${tarball_version_file}" | tr -d '\r\n'
 fi
