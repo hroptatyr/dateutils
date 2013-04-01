@@ -62,7 +62,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 ]])], [sxe_cv_feat_anon_maps="yes"], [sxe_cv_feat_anon_maps="no"])
 if test "${sxe_cv_feat_anon_maps}" = "no"; then
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#define _DARWIN_SOURCE
+#define _DARWIN_C_SOURCE
 #if defined HAVE_SYS_MMAN_H
 # include <sys/mman.h>
 #endif  /* HAVE_SYS_MMAN_H */
