@@ -83,6 +83,14 @@ echo_n()
 	echo "${@}" | tr -d '\r\n'
 }
 
+## or resort to echo -n if that works
+if test -z `echo -n`; then
+	echo_n()
+	{
+		echo -n "${@}"
+	}
+fi
+
 ## Avoid meddling by environment variable of the same name.
 v=
 
