@@ -66,8 +66,8 @@
 #	echo $(VERSION) > $(distdir)/.tarball-version
 
 ## keep track of the basedir and our own name
-BASEDIR=$(dirname "${0}")
-BASESCR=$(basename "${0}")
+BASEDIR=`dirname "${0}"`
+BASESCR=`basename "${0}"`
 
 if test "${#}" -gt 2; then
 	echo "Usage: ${BASESCR} VERSION-FILE [TAG-NORMALIZATION-SED-SCRIPT]" >&2
@@ -77,13 +77,27 @@ fi
 tarball_version_file="${1}"
 tag_sed_script="${2:-s/x/x/}"
 
+## quick replacement of echo -n
+echo_n()
+{
+	echo "${@}" | tr -d '\r\n'
+}
+
+## or resort to echo -n if that works
+if test -z `echo -n`; then
+	echo_n()
+	{
+		echo -n "${@}"
+	}
+fi
+
 ## Avoid meddling by environment variable of the same name.
 v=
 
 ## First see if there is a tarball-only version file.
 ## then try "git describe", then default.
 if test -f "${tarball_version_file}"; then
-	v=$(head -n 1 -- "${tarball_version_file}") || exit 1
+	v=`head -n 1 -- "${tarball_version_file}"` || exit 1
 	case "${v}" in
 	[0-9a-f]*)
 		;;
@@ -103,7 +117,7 @@ if test -d "${BASEDIR}/.git"; then
 	old_v="${v}"
 else
 	## otherwise, just go on with the thing we've got so far
-	echo -n "${v}"
+	echo_n "${v}"
 	exit 0
 fi
 
@@ -114,7 +128,7 @@ describe()
 		git describe --abbrev=8 "${REV}" 2>/dev/null
 }
 
-v=$(describe HEAD | sed "${tag_sed_script}")
+v=`describe HEAD | sed "${tag_sed_script}"`
 if test -n "${v}" && case "${v}" in
 	v[0-9]*)
 		;;
@@ -135,21 +149,21 @@ if test -n "${v}" && case "${v}" in
 		## Recreate the number of commits and rewrite such that the
 		## result is the same as if we were using the newer version
 		## of git describe.
-		vtag=$(echo "${v}" | sed 's/-.*//')
-		numcommits=$(git rev-list "${vtag}"..HEAD | wc -l)
-		v=$(echo "${v}" | sed "s/\(.*\)-\(.*\)/\1-${numcommits}-\2/")
+		vtag=`echo "${v}" | sed 's/-.*//'`
+		numcommits=`git rev-list "${vtag}"..HEAD | wc -l`
+		v=`echo "${v}" | sed "s/\(.*\)-\(.*\)/\1-${numcommits}-\2/"`
 		;;
 	esac
 else
-	v=$(git show-ref --head --hash=8 HEAD 2>/dev/null | head -n 1)
+	v=`git show-ref --head --hash=8 HEAD 2>/dev/null | head -n 1`
 fi
 
-v=$(echo "${v}" | sed 's/^v//')
+v=`echo "${v}" | sed 's/^v//'`
 
 # Don't declare a version "dirty" merely because a time stamp has changed.
 git update-index --refresh > /dev/null 2>&1
 
-dirty=$(git diff-index --name-only HEAD -- 2>/dev/null) || dirty=
+dirty=`git diff-index --name-only HEAD -- 2>/dev/null` || dirty=
 if test -n "${dirty}"; then
 	case "${v}" in
 	*-dirty)
@@ -161,12 +175,12 @@ if test -n "${dirty}"; then
 fi
 
 # Omit the trailing newline, so that m4_esyscmd can use the result directly.
-new_v=$(echo "${v}" | tr -d '\r\n')
+new_v=`echo_n "${v}"`
 if test "${new_v}" = "${old_v}"; then
 	## print the old version
-	echo -n "${old_v}"
+	echo_n "${old_v}"
 elif test -z "${tarball_version_file}"; then
-	echo -n "${new_v}"
+	echo_n "${new_v}"
 else
 	echo "${new_v}" | tee -- "${tarball_version_file}" | tr -d '\r\n'
 fi
