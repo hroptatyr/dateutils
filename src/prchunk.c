@@ -39,7 +39,7 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 #if defined MAP_ANON_NEEDS_DARWIN_SOURCE
-# define _DARWIN_SOURCE
+# define _DARWIN_C_SOURCE
 #endif	/* MAP_ANON_NEEDS_DARWIN_SOURCE */
 #include <stddef.h>
 #include <stdlib.h>
