@@ -115,21 +115,19 @@ __open_zif(const char *file)
 {
 	if (file == NULL || file[0] == '\0') {
 		return -1;
-	}
-
-	if (file[0] != '/') {
+	} else if (file[0] != '/') {
 		/* not an absolute file name */
-		size_t len = strlen(file) + 1;
+		size_t len = strlen(file);
 		size_t tzd_len = sizeof(tzdir) - 1;
-		char *new, *tmp;
+		char new[tzd_len + 1U + len + 1U];
+		char *tmp = new + tzd_len;
 
-		new = alloca(tzd_len + 1 + len);
 		memcpy(new, tzdir, tzd_len);
-		tmp = new + tzd_len;
 		*tmp++ = '/';
-		memcpy(tmp, file, len);
-		file = new;
+		memcpy(tmp, file, len + 1U);
+		return open(new, O_RDONLY, 0644);
 	}
+	/* absolute file name, just try with that one then */
 	return open(file, O_RDONLY, 0644);
 }
 
