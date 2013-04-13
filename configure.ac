@@ -42,6 +42,8 @@ SXE_CHECK_CFLAGS
 AC_CHECK_HEADERS([endian.h sys/endian.h machine/endian.h byteorder.h])
 AC_CHECK_HEADERS([byteswap.h])
 
+AC_CHECK_HEADERS([alloca.h])
+
 ## disallow warnings from here
 SXE_LANG_WERROR([off])
 
