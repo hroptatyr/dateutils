@@ -164,11 +164,12 @@ AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 	AC_PATH_PROG([TZSELECT], [tzselect])
 	if test -n "${ac_cv_path_TZSELECT}"; then
 		dnl snarf the value
-		valtmp=$(mktemp)
+		valtmp="`mktemp`"
 		strings "${ac_cv_path_TZSELECT}" | \
 			grep -F 'TZDIR=' > "${valtmp}"
 		. "${valtmp}"
 		TZDIR_cand="${TZDIR} ${TZDIR_cand}"
+		rm -f -- "${valtmp}"
 	fi
 
 	dnl lastly, append the usual suspects
