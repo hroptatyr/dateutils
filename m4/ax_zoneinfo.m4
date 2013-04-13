@@ -226,7 +226,7 @@ ${TZDIR}/posix \
 	AC_CACHE_CHECK([for leap second file], [ax_cv_zoneinfo_utc_right], [dnl
 		ax_tmp_zoneinfo_nested="yes"
 		if test -n "${ax_cv_zoneinfo_utc}"; then
-			__utc_file="`basename \"${ax_cv_zoneinfo_utc}\"`"
+			__utc_file="`basename "${ax_cv_zoneinfo_utc}"`"
 			for c in ${TZDIR_cand}; do
 				if test -d "${c}"; then
 					c="${c}/${__utc_file}"
