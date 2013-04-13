@@ -56,10 +56,6 @@
 #include <time.h>
 #include <limits.h>
 
-#if defined HAVE_ALLOCA_H
-# include <alloca.h>
-#endif  /* HAVE_ALLOCA_H */
-
 #if defined HAVE_TZFILE_H
 # include <tzfile.h>
 #endif	/* HAVE_TZFILE_H */
