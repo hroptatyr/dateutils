@@ -344,9 +344,9 @@ prchunk_get_ncols(prch_ctx_t ctx)
 }
 
 static inline void
-set_col_off(prch_ctx_t ctx, size_t lno, size_t cno, off16_t off)
+set_col_off(prch_ctx_t ctx, size_t lno, size_t cno, size_t off)
 {
-	ctx->soff[lno * prchunk_get_ncols(ctx) + cno] = off;
+	ctx->soff[lno * prchunk_get_ncols(ctx) + cno] = (off16_t)off;
 	return;
 }
 
