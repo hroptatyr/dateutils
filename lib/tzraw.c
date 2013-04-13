@@ -224,28 +224,20 @@ static zif_t
 __copy_conv(zif_t z)
 {
 /* copy Z and do byte-order conversions */
-	static size_t pgsz = 0;
-	size_t prim;
-	size_t tot_sz;
+	size_t mpsz;
 	zif_t res = NULL;
 
-	/* singleton */
-	if (!pgsz) {
-		pgsz = sysconf(_SC_PAGESIZE);
-	}
 	/* compute a size */
-	prim = z->mpsz + sizeof(*z);
-	/* round up to page size and alignment */
-	tot_sz = ((prim + 16) + (pgsz - 1)) & ~(pgsz - 1);
+	mpsz = z->mpsz + sizeof(*z);
 
 	/* we'll mmap ourselves a slightly larger struct so
 	 * res + 1 points to the header, while res + 0 is the zif_t */
-	res = mmap(NULL, tot_sz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
+	res = mmap(NULL, mpsz, PROT_MEMMAP, MAP_MEMMAP, -1, 0);
 	if (UNLIKELY(res == MAP_FAILED)) {
 		return NULL;
 	}
 	/* great, now to some initial assignments */
-	res->mpsz = tot_sz;
+	res->mpsz = mpsz;
 	res->hdr = (void*)(res + 1);
 	/* make sure we denote that this isnt connected to a file */
 	res->fd = -1;
