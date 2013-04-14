@@ -170,6 +170,15 @@ built_mans += dround.manu
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
 
+EXTRA_DIST += dadd.name
+EXTRA_DIST += dconv.name
+EXTRA_DIST += ddiff.name
+EXTRA_DIST += dgrep.name
+EXTRA_DIST += dround.name
+EXTRA_DIST += dseq.name
+EXTRA_DIST += dtest.name
+EXTRA_DIST += strptime.name
+
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $@;
