@@ -174,30 +174,36 @@ my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $@;
 %.man: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) \
-		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in
+		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in \
+		%.name
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(builddir)/$*.h2m" \
 		-I "$(builddir)/format.h2m" \
 		-I "$(srcdir)/author.h2m" \
+		-I "$(srcdir)/$*.name" \
 		-o $@ $(top_builddir)/src/$*
 
 ## generic rule with format-ddiff instead of format
 %.mand: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) \
-		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in
+		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in \
+		%.name
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(builddir)/$*.h2m" \
 		-I "$(builddir)/format-ddiff.h2m" \
 		-I "$(srcdir)/author.h2m" \
+		-I "$(srcdir)/$*.name" \
 		-o $@ $(top_builddir)/src/$*
 
 ## generic rule for man pages with units section
 %.manu: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) \
-		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in
+		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in \
+		%.name
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(builddir)/$*.h2m" \
 		-I "$(builddir)/format.h2m" \
 		-I "$(builddir)/units.h2m" \
 		-I "$(srcdir)/author.h2m" \
+		-I "$(srcdir)/$*.name" \
 		-o $@ $(top_builddir)/src/$*
 
 my_bld_h2m = $(__bld_h2m_$(V))
