@@ -257,6 +257,7 @@ eval_time:
 		} else if (tp > sp) {
 			res.znfxd = 1U;
 		}
+		sp = tp;
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
@@ -315,6 +316,7 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		if ((d->zdiff = try_zone(sp, &tp)) || tp > sp) {
 			d->zngvn = 1;
 		}
+		sp = tp;
 		break;
 	}
 
