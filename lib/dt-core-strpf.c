@@ -250,10 +250,13 @@ eval_time:
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
 	if (res.d.typ > DT_DUNK) {
+		const char *tp;
 		dt_make_sandwich(&res, res.d.typ, DT_HMS);
 		/* check for the zone stuff */
-		if ((d.zdiff = try_zone(sp, &sp))) {
+		if ((d.zdiff = try_zone(sp, &tp))) {
 			res = __fixup_zdiff(res, d.zdiff);
+		} else if (tp > sp) {
+			res.znfxd = 1U;
 		}
 	} else {
 		dt_make_t_only(&res, DT_HMS);
