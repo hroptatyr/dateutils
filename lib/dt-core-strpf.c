@@ -64,25 +64,40 @@ try_zone(const char *str, const char **ep)
 	const char *sp = str;
 	int32_t res = 0;
 
-	switch (*sp) {
+	switch (*sp++) {
 		int32_t tmp;
 	case '-':
 		minusp = 1;
 	case '+':
-		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
+		/* read hour part */
+		if ((tmp = strtoi_lim(sp, &sp, 0, 14)) < 0) {
 			break;
-		} else if ((res += 3600 * tmp, *sp != ':')) {
+		}
+		res += 3600 * tmp;
+		/* colon separator is optional */
+		if (*sp == ':') {
+			sp++;
+		}
+
+		/* read minute part */
+		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
 			break;
-		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
-			break;
-		} else if ((res += 60 * tmp, *sp != ':')) {
-			break;
-		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+		}
+		res += 60 * tmp;
+		/* again colon separator is optional */
+		if (*sp == ':') {
+			sp++;
+		}
+
+		/* read second part */
+		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
 			break;
 		}
 		res += tmp;
 		break;
 	default:
+		/* clearly a mistake to advance SP */
+		sp--;
 		break;
 	}
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
