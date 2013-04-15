@@ -533,6 +533,12 @@ dt_tests += dtdiff.23.dt
 dt_tests += dtdiff.24.dt
 dt_tests += dtdiff.25.dt
 dt_tests += dtdiff.26.dt
+dt_tests += dtdiff.27.dt
+dt_tests += dtdiff.28.dt
+dt_tests += dtdiff.29.dt
+dt_tests += dtdiff.30.dt
+dt_tests += dtdiff.31.dt
+dt_tests += dtdiff.32.dt
 
 dt_tests += dtround.1.dt
 dt_tests += dtround.2.dt

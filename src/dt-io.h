@@ -103,7 +103,7 @@ dt_io_strpdt_ep(
 			}
 		}
 	}
-	if (LIKELY(!dt_unk_p(res)) && zone != NULL) {
+	if (LIKELY(!dt_unk_p(res)) && zone != NULL && !res.znfxd) {
 		return dtz_forgetz(res, zone);
 	}
 	return res;

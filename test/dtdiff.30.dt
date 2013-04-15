@@ -1,0 +1,19 @@
+## -*- shell-script -*-
+
+TOOL=ddiff
+CMDLINE="--from-zone Australia/Sydney 2013-04-15T08:30:00 -i '%FT%T%Z'"
+COMMENT="diffing with timezone"
+
+## STDIN
+cat > "${TS_STDIN}" <<EOF
+2013-04-14T23:00:00+0000
+EOF
+
+## STDOUT
+cat > "${TS_EXP_STDOUT}" <<EOF
+1800s
+EOF
+
+## STDERR
+
+## ddiff.20.dt ends here
