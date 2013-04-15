@@ -310,9 +310,13 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->i = strtoi(sp, &sp);
 		break;
 
-	case DT_SPFL_N_ZDIFF:
-		d->zdiff = try_zone(sp, &sp);
+	case DT_SPFL_N_ZDIFF: {
+		const char *tp;
+		if ((d->zdiff = try_zone(sp, &tp)) || tp > sp) {
+			d->zngvn = 1;
+		}
 		break;
+	}
 
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {
