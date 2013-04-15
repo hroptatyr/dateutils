@@ -64,13 +64,13 @@ try_zone(const char *str, const char **ep)
 	const char *sp = str;
 	int32_t res = 0;
 
-	switch (*sp++) {
+	switch (*sp) {
 		int32_t tmp;
 	case '-':
 		minusp = 1;
 	case '+':
 		/* read hour part */
-		if ((tmp = strtoi_lim(sp, &sp, 0, 14)) < 0) {
+		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
 			break;
 		}
 		res += 3600 * tmp;
@@ -97,7 +97,6 @@ try_zone(const char *str, const char **ep)
 		break;
 	default:
 		/* clearly a mistake to advance SP */
-		sp--;
 		break;
 	}
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
