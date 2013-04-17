@@ -69,20 +69,34 @@ try_zone(const char *str, const char **ep)
 	case '-':
 		minusp = 1;
 	case '+':
+		/* read hour part */
 		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
 			break;
-		} else if ((res += 3600 * tmp, *sp != ':')) {
+		}
+		res += 3600 * tmp;
+		/* colon separator is optional */
+		if (*sp == ':') {
+			sp++;
+		}
+
+		/* read minute part */
+		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
 			break;
-		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
-			break;
-		} else if ((res += 60 * tmp, *sp != ':')) {
-			break;
-		} else if ((tmp = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+		}
+		res += 60 * tmp;
+		/* again colon separator is optional */
+		if (*sp == ':') {
+			sp++;
+		}
+
+		/* read second part */
+		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
 			break;
 		}
 		res += tmp;
 		break;
 	default:
+		/* clearly a mistake to advance SP */
 		break;
 	}
 	/* res.typ coincides with DT_SANDWICH_D_ONLY() if we jumped here */
@@ -235,11 +249,15 @@ eval_time:
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
 	if (res.d.typ > DT_DUNK) {
+		const char *tp;
 		dt_make_sandwich(&res, res.d.typ, DT_HMS);
 		/* check for the zone stuff */
-		if ((d.zdiff = try_zone(sp, &sp))) {
+		if ((d.zdiff = try_zone(sp, &tp))) {
 			res = __fixup_zdiff(res, d.zdiff);
+		} else if (tp > sp) {
+			res.znfxd = 1U;
 		}
+		sp = tp;
 	} else {
 		dt_make_t_only(&res, DT_HMS);
 	}
@@ -293,9 +311,14 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		d->i = strtoi(sp, &sp);
 		break;
 
-	case DT_SPFL_N_ZDIFF:
-		d->zdiff = try_zone(sp, &sp);
+	case DT_SPFL_N_ZDIFF: {
+		const char *tp;
+		if ((d->zdiff = try_zone(sp, &tp)) || tp > sp) {
+			d->zngvn = 1;
+		}
+		sp = tp;
 		break;
+	}
 
 	case DT_SPFL_LIT_PERCENT:
 		if (*sp++ != '%') {

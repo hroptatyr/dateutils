@@ -750,7 +750,7 @@ main(int argc, char *argv[])
 				struct dt_dt_s dur;
 
 				(void)prchunk_getline(pctx, &line);
-				d2 = dt_io_strpdt(line, fmt, nfmt, NULL);
+				d2 = dt_io_strpdt(line, fmt, nfmt, fromz);
 
 				if (dt_unk_p(d2)) {
 					if (!argi->quiet_given) {

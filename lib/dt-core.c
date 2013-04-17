@@ -81,7 +81,11 @@ struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
 	long int i;
-	int32_t zdiff;
+
+	/* use 31 bits for the difference */
+	int32_t zdiff:31;
+	/* and 1 to indicate if it was specified */
+	int32_t zngvn:1;
 };
 
 /* used for arithmetic */
@@ -426,6 +430,8 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	}
 	if (d.zdiff && dt_sandwich_p(res)) {
 		res = __fixup_zdiff(res, d.zdiff);
+	} else if (d.zngvn && dt_sandwich_p(res)) {
+		res.znfxd = 1;
 	}
 
 	/* set the end pointer */
