@@ -1,4 +1,4 @@
-/*** date-io.h -- helper for formats, parsing, printing, escaping, etc. */
+/*** dt-io.h -- helper for formats, parsing, printing, escaping, etc. */
 #if !defined INCLUDED_dt_io_h_
 #define INCLUDED_dt_io_h_
 
