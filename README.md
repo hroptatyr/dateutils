@@ -11,7 +11,7 @@ arise when dealing with large amounts of financial data.
 Dateutils are hosted primarily on github:
 
 + github page: <https://github.com/hroptatyr/dateutils>
-+ project homepage: <http://hroptatyr.github.com/dateutils/>
++ project homepage: <http://www.fresse.org/dateutils/>
 + downloads: <https://bitbucket.org/hroptatyr/dateutils/downloads>
 
 Below is a short list of examples that demonstrate what dateutils can
