@@ -61,7 +61,7 @@
 #endif	/* HAVE_TZFILE_H */
 
 /* for be/le conversions */
-#include "boobs.h"
+#include "boops.h"
 /* for LIKELY/UNLIKELY/etc. */
 #include "nifty.h"
 /* me own header, innit */

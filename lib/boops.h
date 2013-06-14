@@ -1,4 +1,4 @@
-/*** boobs.h -- byte-order oberations
+/*** boops.h -- byte-order operations
  *
  * Copyright (C) 2012 Sebastian Freundt
  * Copyright (C) 2012 Ruediger Meier
@@ -36,8 +36,8 @@
  *
  ***/
 
-#if !defined INCLUDED_boobs_h_
-#define INCLUDED_boobs_h_
+#if !defined INCLUDED_boops_h_
+#define INCLUDED_boops_h_
 
 #if defined HAVE_CONFIG_H
 # include "config.h"
@@ -226,4 +226,4 @@
  * in the missing cases.  Instead we'll just leave it as is and wait
  * for bug reports. */
 
-#endif	/* INCLUDED_boobs_h_ */
+#endif	/* INCLUDED_boops_h_ */
