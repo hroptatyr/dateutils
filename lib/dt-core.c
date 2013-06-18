@@ -312,6 +312,41 @@ __trans_dtfmt(const char **fmt)
 	return;
 }
 
+static struct timeval
+now_tv(void)
+{
+/* singleton, gives a consistent `now' throughout the whole run */
+	static struct timeval tv;
+
+	if (LIKELY(tv.tv_sec)) {
+		/* perfect */
+		;
+	} else if (gettimeofday(&tv, NULL) < 0) {
+		/* big cinema :( */
+		tv = (struct timeval){0U, 0U};
+	}
+	return tv;
+}
+
+static struct tm
+now_tm(void)
+{
+/* singleton, gives a consistent `now' throughout the whole run */
+	static struct tm tm;
+	struct timeval tv;
+
+	if (LIKELY(tm.tm_year)) {
+		/* sit back and relax */
+		;
+	} else if ((tv = now_tv()).tv_sec == 0U) {
+		/* big cinema :( */
+		tm = (struct tm){0U};
+	} else {
+		ffff_gmtime(&tm, tv.tv_sec);
+	}
+	return tm;
+}
+
 #if defined WITH_LEAP_SECONDS
 static zidx_t
 leaps_before(struct dt_dt_s d)
@@ -928,18 +963,12 @@ DEFUN struct dt_dt_s
 dt_datetime(dt_dttyp_t outtyp)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	struct timeval tv;
 	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
-
-	if (gettimeofday(&tv, NULL) < 0) {
-		return res;
-	}
 
 	switch (outdtyp) {
 	case DT_YMD:
 	case DT_YMCW: {
-		struct tm tm;
-		ffff_gmtime(&tm, tv.tv_sec);
+		struct tm tm = now_tm();
 		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
@@ -973,7 +1002,9 @@ dt_datetime(dt_dttyp_t outtyp)
 	}
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+		with (struct timeval tv = now_tv()) {
+			res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+		}
 		break;
 
 	case DT_MD:
@@ -989,7 +1020,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	}
 
 	/* time assignment */
-	{
+	with (struct timeval tv = now_tv()) {
 		unsigned int tonly = tv.tv_sec % 86400U;
 		res.t.hms.h = tonly / SECS_PER_HOUR;
 		tonly %= SECS_PER_HOUR;
