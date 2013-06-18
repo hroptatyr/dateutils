@@ -689,7 +689,7 @@ __trans_dfmt_special(const char *fmt)
 	return DT_DUNK;
 }
 
-DEFUN void
+static void
 __trans_dfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
