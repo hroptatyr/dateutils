@@ -57,4 +57,8 @@
 # define countof(x)	(sizeof(x) / sizeof(*x))
 #endif	/* !countof */
 
+#if !defined with
+# define with(args...)	for (args, *__ep__ = (void*)1; __ep__; __ep__ = 0)
+#endif	/* !with */
+
 #endif	/* INCLUDED_nifty_h_ */
