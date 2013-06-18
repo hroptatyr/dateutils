@@ -261,6 +261,12 @@ extern dt_ssexy_t dt_to_unix_epoch(struct dt_dt_s);
  * Convert a dt_dt_s to an epoch difference, based on the GPS epoch. */
 extern dt_ssexy_t dt_to_gps_epoch(struct dt_dt_s);
 
+/**
+ * Set specific fallback date/time to use when input is underspecified.
+ * Internally, when no default is set and input is underspecified  the
+ * value of `dt_datetime()' (i.e. now) is used to fill fields up. */
+DECLF void dt_set_default(struct dt_dt_s);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_dt_s
