@@ -347,6 +347,47 @@ now_tm(void)
 	return tm;
 }
 
+static struct strpdt_s
+massage_strpdt(struct strpdt_s d)
+{
+/* the reason we do this separately is that we don't want to bother
+ * the pieces of code that use the guesser for different reasons */
+	if (UNLIKELY(d.sd.y == 0U)) {
+		struct tm now = now_tm();
+
+		d.sd.y = now.tm_year;
+		if (LIKELY(d.sd.m)) {
+			goto out;
+		}
+		d.sd.m = now.tm_mon;
+		if (LIKELY(d.sd.d)) {
+			goto out;
+		}
+		d.sd.d = now.tm_mday;
+
+		/* same for time values, but obtain those through now_tv() */
+		if (UNLIKELY(d.st.h == 0U)) {
+			struct timeval tv = now_tv();
+
+			d.st.h = (tv.tv_sec % 86400U) / 60U / 60U;
+			if (LIKELY(d.st.m)) {
+				goto out;
+			}
+			d.st.m = (tv.tv_sec % 3600U) / 60U;
+			if (LIKELY(d.st.s)) {
+				goto out;
+			}
+			d.st.s = (tv.tv_sec % 60U);
+			if (UNLIKELY(d.st.ns)) {
+				goto out;
+			}
+			d.st.ns = tv.tv_usec * 1000U;
+		}
+	}
+out:
+	return d;
+}
+
 #if defined WITH_LEAP_SECONDS
 static zidx_t
 leaps_before(struct dt_dt_s d)
@@ -450,6 +491,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		res.sexy = d.i;
 	} else {
 		/* assign d and t types using date and time core routines */
+		d = massage_strpdt(d);
 		res.d = __guess_dtyp(d.sd);
 		res.t = __guess_ttyp(d.st);
 
