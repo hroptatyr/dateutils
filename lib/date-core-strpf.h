@@ -78,8 +78,6 @@ struct strpd_s {
 			unsigned int c_wcnt_p:1;
 			unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
 			unsigned int real_y_in_q:1;
-			/* whether values in y, m, d have been massaged in */
-			unsigned int ymd_mssgd:1;
 		};
 	} flags;
 	signed int b;
