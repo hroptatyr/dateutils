@@ -689,7 +689,7 @@ __trans_dfmt_special(const char *fmt)
 	return DT_DUNK;
 }
 
-DEFUN void
+static void
 __trans_dfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -848,9 +848,9 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			}
 		}
 	}
-	/* set the end pointer */
 	res = __guess_dtyp(d);
 out:
+	/* set the end pointer */
 	if (ep != NULL) {
 		*ep = (char*)sp;
 	}

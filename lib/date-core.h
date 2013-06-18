@@ -468,11 +468,6 @@ DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 /* functions that really shouldn't be exposed */
 /**
- * Transform named format strings in FMT to their flag notation.
- * E.g. ymd -> %F */
-DECLF void __trans_dfmt(const char **fmt);
-
-/**
  * Get the week count of D in the year when weeks start at WDAYS_FROM. */
 DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
 

@@ -161,6 +161,10 @@ main(int argc, char *argv[])
 	if (argi->zone_given) {
 		z = zif_open(argi->zone_arg);
 	}
+	if (argi->default_given) {
+		struct dt_dt_s dflt = dt_strpdt(argi->default_arg, NULL, NULL);
+		dt_set_default(dflt);
+	}
 
 	if (argi->inputs_num) {
 		for (size_t i = 0; i < argi->inputs_num; i++) {

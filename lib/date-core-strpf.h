@@ -69,13 +69,16 @@ struct strpd_s {
 	signed int c;
 	signed int w;
 	/* general flags */
-	struct {
-		unsigned int ab:1;
-		unsigned int bizda:1;
-		unsigned int d_dcnt_p:1;
-		unsigned int c_wcnt_p:1;
-		unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
-		unsigned int real_y_in_q:1;
+	union {
+		unsigned int u;
+		struct {
+			unsigned int ab:1;
+			unsigned int bizda:1;
+			unsigned int d_dcnt_p:1;
+			unsigned int c_wcnt_p:1;
+			unsigned int wk_cnt:2;/*%C,%W,%U,%V*/
+			unsigned int real_y_in_q:1;
+		};
 	} flags;
 	signed int b;
 	signed int q;

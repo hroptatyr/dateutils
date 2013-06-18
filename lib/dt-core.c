@@ -270,7 +270,7 @@ static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 
-DEFUN void
+static void
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -310,6 +310,116 @@ __trans_dtfmt(const char **fmt)
 		}
 	}
 	return;
+}
+
+static struct timeval
+now_tv(void)
+{
+/* singleton, gives a consistent `now' throughout the whole run */
+	static struct timeval tv;
+
+	if (LIKELY(tv.tv_sec)) {
+		/* perfect */
+		;
+	} else if (gettimeofday(&tv, NULL) < 0) {
+		/* big cinema :( */
+		tv = (struct timeval){0U, 0U};
+	}
+	return tv;
+}
+
+static struct tm
+now_tm(void)
+{
+/* singleton, gives a consistent `now' throughout the whole run */
+	static struct tm tm;
+	struct timeval tv;
+
+	if (LIKELY(tm.tm_year)) {
+		/* sit back and relax */
+		;
+	} else if ((tv = now_tv()).tv_sec == 0U) {
+		/* big cinema :( */
+		tm = (struct tm){0U};
+	} else {
+		ffff_gmtime(&tm, tv.tv_sec);
+	}
+	return tm;
+}
+
+static struct tm
+dflt_tm(const struct dt_dt_s *set)
+{
+/* getter/setter and singleton for SET == NULL */
+	static struct tm tm;
+
+	if (LIKELY(set == NULL && tm.tm_year != 0U)) {
+		/* show what we've got */
+		;
+	} else if (set == NULL) {
+		/* take over the value of now */
+		struct timeval tv = now_tv();
+		tm = now_tm();
+		tm.tm_hour = (tv.tv_sec % 86400U) / 60U / 60U;
+		tm.tm_min = (tv.tv_sec % 3600U) / 60U;
+		tm.tm_sec = (tv.tv_sec % 60U);
+	} else {
+		switch (set->typ) {
+		case DT_YMD:
+			tm.tm_year = set->d.ymd.y;
+			tm.tm_mon = set->d.ymd.m;
+			tm.tm_mday = set->d.ymd.d;
+			tm.tm_hour = set->t.hms.h;
+			tm.tm_min = set->t.hms.m;
+			tm.tm_sec = set->t.hms.s;
+			break;
+		default:
+			/* good question */
+			return (struct tm){};
+		}
+	}
+	return tm;
+}
+
+static struct strpdt_s
+massage_strpdt(struct strpdt_s d)
+{
+/* the reason we do this separately is that we don't want to bother
+ * the pieces of code that use the guesser for different reasons */
+	if (UNLIKELY(d.sd.y == 0U)) {
+		static const struct strpd_s d0 = {};
+		struct tm now = dflt_tm(NULL);
+
+		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
+			goto msgg_time;
+		}
+
+		d.sd.y = now.tm_year;
+		if (LIKELY(d.sd.m)) {
+			goto out;
+		}
+		d.sd.m = now.tm_mon;
+		if (LIKELY(d.sd.d)) {
+			goto out;
+		}
+		d.sd.d = now.tm_mday;
+
+	msgg_time:
+		/* same for time values, but obtain those through now_tv() */
+		if (UNLIKELY(!d.st.flags.h_set)) {
+			d.st.h = now.tm_hour;
+			if (LIKELY(d.st.flags.m_set)) {
+				goto out;
+			}
+			d.st.m = now.tm_min;
+			if (LIKELY(d.st.flags.s_set)) {
+				goto out;
+			}
+			d.st.s = now.tm_sec;
+		}
+	}
+out:
+	return d;
 }
 
 #if defined WITH_LEAP_SECONDS
@@ -415,6 +525,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		res.sexy = d.i;
 	} else {
 		/* assign d and t types using date and time core routines */
+		d = massage_strpdt(d);
 		res.d = __guess_dtyp(d.sd);
 		res.t = __guess_ttyp(d.st);
 
@@ -928,18 +1039,12 @@ DEFUN struct dt_dt_s
 dt_datetime(dt_dttyp_t outtyp)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
-	struct timeval tv;
 	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
-
-	if (gettimeofday(&tv, NULL) < 0) {
-		return res;
-	}
 
 	switch (outdtyp) {
 	case DT_YMD:
 	case DT_YMCW: {
-		struct tm tm;
-		ffff_gmtime(&tm, tv.tv_sec);
+		struct tm tm = now_tm();
 		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
@@ -973,7 +1078,9 @@ dt_datetime(dt_dttyp_t outtyp)
 	}
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+		with (struct timeval tv = now_tv()) {
+			res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+		}
 		break;
 
 	case DT_MD:
@@ -989,7 +1096,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	}
 
 	/* time assignment */
-	{
+	with (struct timeval tv = now_tv()) {
 		unsigned int tonly = tv.tv_sec % 86400U;
 		res.t.hms.h = tonly / SECS_PER_HOUR;
 		tonly %= SECS_PER_HOUR;
@@ -1312,6 +1419,13 @@ dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
 #elif defined __GNUC__
 # pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
+
+DEFUN void
+dt_set_default(struct dt_dt_s dt)
+{
+	(void)dflt_tm(&dt);
+	return;
+}
 
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */
