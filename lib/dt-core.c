@@ -353,7 +353,12 @@ massage_strpdt(struct strpdt_s d)
 /* the reason we do this separately is that we don't want to bother
  * the pieces of code that use the guesser for different reasons */
 	if (UNLIKELY(d.sd.y == 0U)) {
+		static const struct strpd_s d0 = {};
 		struct tm now = now_tm();
+
+		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
+			goto msgg_time;
+		}
 
 		d.sd.y = now.tm_year;
 		if (LIKELY(d.sd.m)) {
@@ -365,6 +370,7 @@ massage_strpdt(struct strpdt_s d)
 		}
 		d.sd.d = now.tm_mday;
 
+	msgg_time:
 		/* same for time values, but obtain those through now_tv() */
 		if (UNLIKELY(!d.st.flags.h_set)) {
 			struct timeval tv = now_tv();
