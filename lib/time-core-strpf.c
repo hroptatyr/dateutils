@@ -134,11 +134,22 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 	/* check if components got set */
 	switch (s.spfl) {
 	case DT_SPFL_N_TSTD:
+		d->flags.h_set = 1;
+		d->flags.m_set = 1;
+		d->flags.s_set = 1;
+		break;
 	case DT_SPFL_N_HOUR:
+		d->flags.h_set = 1;
+		break;
 	case DT_SPFL_N_MIN:
+		d->flags.m_set = 1;
+		break;
 	case DT_SPFL_N_SEC:
+		d->flags.s_set = 1;
+		break;
 	case DT_SPFL_N_NANO:
-		d->flags.component_set = 1;
+		d->flags.ns_set = 1;
+		break;
 	default:
 		break;
 	}

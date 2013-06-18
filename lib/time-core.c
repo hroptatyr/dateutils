@@ -74,7 +74,8 @@ __guess_ttyp(struct strpt_s t)
 {
 	struct dt_t_s res;
 
-	if (UNLIKELY(!t.flags.component_set)) {
+	if (UNLIKELY(!(t.flags.h_set || t.flags.m_set ||
+		       t.flags.s_set || t.flags.ns_set))) {
 		goto fucked;
 	}
 	if (UNLIKELY(t.h < 0)) {
