@@ -364,6 +364,7 @@ massage_strpdt(struct strpdt_s d)
 			goto out;
 		}
 		d.sd.d = now.tm_mday;
+		d.sd.flags.ymd_mssgd = 1;
 
 		/* same for time values, but obtain those through now_tv() */
 		if (UNLIKELY(!d.st.flags.h_set)) {
