@@ -1420,5 +1420,12 @@ dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
 # pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+DEFUN void
+dt_set_default(struct dt_dt_s dt)
+{
+	(void)dflt_tm(&dt);
+	return;
+}
+
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */
