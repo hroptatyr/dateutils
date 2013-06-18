@@ -378,10 +378,6 @@ massage_strpdt(struct strpdt_s d)
 				goto out;
 			}
 			d.st.s = (tv.tv_sec % 60U);
-			if (UNLIKELY(d.st.flags.ns_set)) {
-				goto out;
-			}
-			d.st.ns = tv.tv_usec * 1000U;
 		}
 	}
 out:
