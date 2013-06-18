@@ -366,19 +366,19 @@ massage_strpdt(struct strpdt_s d)
 		d.sd.d = now.tm_mday;
 
 		/* same for time values, but obtain those through now_tv() */
-		if (UNLIKELY(d.st.h == 0U)) {
+		if (UNLIKELY(!d.st.flags.h_set)) {
 			struct timeval tv = now_tv();
 
 			d.st.h = (tv.tv_sec % 86400U) / 60U / 60U;
-			if (LIKELY(d.st.m)) {
+			if (LIKELY(d.st.flags.m_set)) {
 				goto out;
 			}
 			d.st.m = (tv.tv_sec % 3600U) / 60U;
-			if (LIKELY(d.st.s)) {
+			if (LIKELY(d.st.flags.s_set)) {
 				goto out;
 			}
 			d.st.s = (tv.tv_sec % 60U);
-			if (UNLIKELY(d.st.ns)) {
+			if (UNLIKELY(d.st.flags.ns_set)) {
 				goto out;
 			}
 			d.st.ns = tv.tv_usec * 1000U;
