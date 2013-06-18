@@ -848,9 +848,9 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 			}
 		}
 	}
-	/* set the end pointer */
 	res = __guess_dtyp(d);
 out:
+	/* set the end pointer */
 	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
