@@ -107,7 +107,7 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 			;
 		} else if ((sp[0] | casebit) == 'p' &&
 			   (sp[1] | casebit) == 'm') {
-			d->am_pm_bit = 1;
+			d->flags.am_pm_bit = 1;
 		} else {
 			goto fucked;
 		}
@@ -138,7 +138,7 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_MIN:
 	case DT_SPFL_N_SEC:
 	case DT_SPFL_N_NANO:
-		d->component_set = 1;
+		d->flags.component_set = 1;
 	default:
 		break;
 	}

@@ -74,7 +74,7 @@ __guess_ttyp(struct strpt_s t)
 {
 	struct dt_t_s res;
 
-	if (UNLIKELY(!t.component_set)) {
+	if (UNLIKELY(!t.flags.component_set)) {
 		goto fucked;
 	}
 	if (UNLIKELY(t.h < 0)) {
@@ -97,7 +97,7 @@ __guess_ttyp(struct strpt_s t)
 	res.hms.h = t.h;
 	res.hms.ns = t.ns;
 
-	if (t.am_pm_bit) {
+	if (t.flags.am_pm_bit) {
 		/* pm */
 		res.hms.h += 12;
 		res.hms.h %= HOURS_PER_DAY;

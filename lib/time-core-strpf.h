@@ -65,14 +65,14 @@ struct strpt_s {
 	signed int s;
 	signed int ns;
 	union {
-		unsigned int flags;
+		unsigned int u;
 		struct {
 			/* 0 for am, 1 for pm */
 			unsigned int am_pm_bit:1;
 			/* 0 if no component has been set, 1 otherwise */
 			unsigned int component_set:1;
 		};
-	};
+	} flags;
 };
 
 
