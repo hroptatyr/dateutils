@@ -270,7 +270,7 @@ static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 
-DEFUN void
+static void
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {

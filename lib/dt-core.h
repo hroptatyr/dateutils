@@ -254,11 +254,6 @@ dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /* more specific but still useful functions */
 /**
- * Transform named format strings in FMT to their flag notation.
- * E.g. ymd -> %FT%T */
-DECLF void __trans_dtfmt(const char **fmt);
-
-/**
  * Convert a dt_dt_s to an epoch difference, based on the Unix epoch. */
 extern dt_ssexy_t dt_to_unix_epoch(struct dt_dt_s);
 
