@@ -48,6 +48,8 @@
 #include "dt-core.h"
 #include "nifty.h"
 
+#include "version.c"
+
 
 #define PROLOGUE	(-1UL)
 #define EPILOGUE	(0UL)
@@ -410,7 +412,7 @@ parse_file(const char *file)
 static void
 pr_version(FILE *where)
 {
-	fputs("ltrcc " PACKAGE_VERSION "\n", where);
+	fputs("ltrcc " VERSION "\n", where);
 	return;
 }
 

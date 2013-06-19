@@ -1,4 +1,5 @@
 ### Makefile.am
+include $(top_builddir)/version.mk
 
 AM_CFLAGS = $(EXTRA_CFLAGS)
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
@@ -36,6 +37,7 @@ libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
 libdut_a_CPPFLAGS += -I$(builddir)
 libdut_a_SOURCES =
+libdut_a_SOURCES += version.c version.h version.c.in
 libdut_a_SOURCES += date-core.h
 libdut_a_SOURCES += time-core.h
 libdut_a_SOURCES += dt-core.h dt-core.c
@@ -62,6 +64,7 @@ EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
 EXTRA_libdut_a_SOURCES += fmt-special.gperf fmt-special.c
 EXTRA_libdut_a_SOURCES += leapseconds
+BUILT_SOURCES += version.c
 BUILT_SOURCES += fmt-special.c
 BUILT_SOURCES += leapseconds.def
 
@@ -84,6 +87,9 @@ am__v_LTRCC_0 = @echo "  LTRCC   " $@;
 leapseconds.def: leapseconds
 	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
 	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
+
+version.c: version.c.in $(top_builddir)/version.mk
+	sed -e 's,[@]VERSION[@],$(VERSION),g' <$(srcdir)/$@.in >$@
 
 ## gperf rule
 %.c: %.gperf
