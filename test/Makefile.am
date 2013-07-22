@@ -152,6 +152,8 @@ dt_tests += dconv.95.dt
 dt_tests += dconv.96.dt
 dt_tests += dconv.97.dt
 dt_tests += dconv.98.dt
+dt_tests += dconv.99.dt
+dt_tests += dconv.100.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
