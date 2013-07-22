@@ -519,6 +519,10 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			}
 		}
 	}
+	/* check suffix literal */
+	if (*fp && *fp != *sp) {
+		goto fucked;
+	}
 	/* check if it's a sexy type */
 	if (d.i) {
 		res.typ = DT_SEXY;

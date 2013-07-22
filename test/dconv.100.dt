@@ -1,0 +1,12 @@
+## -*- shell-script -*-
+
+TOOL=dconv
+CMDLINE="-i '%d/%b/%y' -f '%F %T' 20101230"
+COMMENT="Input doesn't match at all, issue 18"
+
+## STDERR
+cat > "${TS_EXP_STDERR}" <<'EOF'
+dconv: cannot make sense of `20101230' using the given input formats
+EOF
+
+## dconv.100.dt ends here
