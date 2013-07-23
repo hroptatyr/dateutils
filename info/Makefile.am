@@ -4,6 +4,8 @@
 LANG=C
 LC_ALL=C
 
+include $(top_builddir)/version.mk
+
 BUILT_SOURCES =
 EXTRA_DIST = $(BUILT_SOURCES)
 
