@@ -27,7 +27,7 @@ Dateutils
   <div class="sidebar-stack">
     <ul>
       <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
-      <li><a href="https://bitbucket.org/hroptatyr/dateutils/downloads/dateutils-0.2.4.tar.xz">latest release (dateutils-0.2.4.tar.xz)</a></li>
+      <li><a href="https://bitbucket.org/hroptatyr/dateutils/downloads/dateutils-0.2.5.tar.xz">latest release (dateutils-0.2.5.tar.xz)</a></li>
       <li><a href="/dateutils/binaries">prebuilt binaries</a></li>
     </ul>
   </div>
