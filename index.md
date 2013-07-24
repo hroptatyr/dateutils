@@ -361,6 +361,17 @@ In no particular order and without any claim to completeness:
 Use the one that best fits your purpose.  And in case you happen to like
 mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils)
 
+
+Social Media
+============
+
+Yes, we're aware of social media:
+
++ [Google+](https://plus.google.com/110311658013076591082)
++ [twitter](https://twitter.com/dateutils)
+
+Not that there will be substantial content though.
+
 <!--
   Local variables:
   mode: auto-fill
