@@ -367,10 +367,10 @@ Social Media
 
 Yes, we're aware of social media:
 
-+ [google+](https://plus.google.com/110311658013076591082)
++ [Google+](https://plus.google.com/110311658013076591082) <a href="https://plus.google.com/110311658013076591082" rel="publisher"></a>
 + [twitter](https://twitter.com/dateutils)
 + [freecode](https://freecode.com/projects/dateutils)
-+ [ohloh](https://www.ohloh.net/p/dateutils)
++ [Ohloh](https://www.ohloh.net/p/dateutils)
 
 Not that there will be substantial content though.
 
