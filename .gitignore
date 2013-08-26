@@ -12,3 +12,4 @@ test
 texinfo.tex
 build
 =build
+_site/
