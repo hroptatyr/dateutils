@@ -154,6 +154,8 @@ dt_tests += dconv.97.dt
 dt_tests += dconv.98.dt
 dt_tests += dconv.99.dt
 dt_tests += dconv.100.dt
+dt_tests += dconv.101.dt
+dt_tests += dconv.102.dt
 
 dt_tests += dadd.1.dt
 dt_tests += dadd.2.dt
@@ -239,6 +241,8 @@ dt_tests += dadd.81.dt
 dt_tests += dadd.82.dt
 dt_tests += dadd.83.dt
 dt_tests += dadd.84.dt
+dt_tests += dadd.85.dt
+dt_tests += dadd.86.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
@@ -310,6 +314,8 @@ dt_tests += dround.19.dt
 dt_tests += dround.20.dt
 dt_tests += dround.21.dt
 dt_tests += dround.22.dt
+dt_tests += dround.23.dt
+dt_tests += dround.24.dt
 
 
 dt_tests += tseq.1.dt

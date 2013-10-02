@@ -448,8 +448,11 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
 			break;
-		} else if (!ctx.quietp) {
-			dt_io_warn_strpdt(line);
+		} else {
+			/* obviously unmatched, warn about it in non -q mode */
+			if (!ctx.quietp) {
+				dt_io_warn_strpdt(line);
+			}
 			break;
 		}
 	} while (1);
