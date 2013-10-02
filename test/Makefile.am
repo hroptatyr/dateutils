@@ -241,6 +241,8 @@ dt_tests += dadd.81.dt
 dt_tests += dadd.82.dt
 dt_tests += dadd.83.dt
 dt_tests += dadd.84.dt
+dt_tests += dadd.85.dt
+dt_tests += dadd.86.dt
 
 dt_tests += dtest.1.dt
 dt_tests += dtest.2.dt
