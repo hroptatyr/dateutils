@@ -136,8 +136,11 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
 			break;
-		} else if (!clo->quietp) {
-			dt_io_warn_strpdt(line);
+		} else {
+			/* obviously unmatched, warn about it in non -q mode */
+			if (!clo->quietp) {
+				dt_io_warn_strpdt(line);
+			}
 			break;
 		}
 	} while (1);
