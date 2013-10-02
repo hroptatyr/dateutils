@@ -624,16 +624,17 @@ endif  HAVE_GDATE
 
 
 check_PROGRAMS += dt-test
-BUILT_SOURCES += dt-test-clo.c dt-test-clo.h
+EXTRA_DIST += dt-test.ggo
+BUILT_SOURCES += dt-test.x dt-test.xh
 EXTRA_DIST += dt-test.sh
 
 ## ggo rule
-%.c %.h: %.ggo
-	$(AM_V_GEN) gengetopt -F $* -i $<
+%.x %.xh: %.ggo
+	$(AM_V_GEN) gengetopt -F $* -c x -H xh -i $<
 	@sed -e 's,config.h,version.h,g' \
 	     -e 's,_PARSER_VERSION VERSION,_PARSER_VERSION "$(VERSION)",g' \
-	     $*.h > $*.h-t \
-	&& mv $*.h-t $*.h
+	     $*.xh > $*.xh-t \
+	&& mv $*.xh-t $*.xh
 
 clean-local:
 	-rm -rf *.tmpd
