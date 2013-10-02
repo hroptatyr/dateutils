@@ -314,6 +314,8 @@ dt_tests += dround.19.dt
 dt_tests += dround.20.dt
 dt_tests += dround.21.dt
 dt_tests += dround.22.dt
+dt_tests += dround.23.dt
+dt_tests += dround.24.dt
 
 
 dt_tests += tseq.1.dt
