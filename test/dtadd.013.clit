@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd 2012-03-24T18:00:00 1d --from-zone 'Europe/Berlin' -z America/Chicago
+2012-03-25T11:00:00
+$
+
+## dtadd.13.clit ends here

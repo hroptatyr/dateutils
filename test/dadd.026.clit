@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd -1d <<EOF
+2001-01-05
+2001-01-01
+EOF
+2001-01-04
+2000-12-31
+$
+
+## dadd.026.clit ends here

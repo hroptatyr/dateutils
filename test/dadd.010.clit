@@ -1,0 +1,8 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## Issue 4, year off by 1, reported by javajunkie314
+$ dadd 2012-01-25 -12m
+2011-01-25
+$
+
+## dadd.010.clit ends here
