@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff '2012-05-30 14:00:00' '2012-05-18 17:00:00' -f 'bizsi'
+-8b
+$
+
+## dtdiff.25.clit ends here
