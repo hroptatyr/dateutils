@@ -31,6 +31,11 @@ DT_LOG_COMPILER = $(builddir)/dt-test
 AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src
 EXTRA_DIST += $(srcdir)/dt-test.sh
 
+TEST_EXTENSIONS += .clit
+TESTS_ENVIRONMENT += root=$(top_srcdir)
+CLIT_LOG_COMPILER = $(builddir)/clitoris
+AM_CLIT_LOG_FLAGS = -v --builddir $(top_builddir)/src --timeout 10
+
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
 TESTS_ENVIRONMENT += have_gdate="$(have_gdate)"
@@ -627,6 +632,14 @@ check_PROGRAMS += dt-test
 EXTRA_DIST += dt-test.ggo
 BUILT_SOURCES += dt-test.x dt-test.xh
 EXTRA_DIST += dt-test.sh
+
+check_PROGRAMS += clitoris
+clitoris_CPPFLAGS = $(AM_CPPFLAGS)
+clitoris_CPPFLAGS += -D_GNU_SOURCE
+clitoris_LDADD = -lutil
+EXTRA_DIST += clitoris.ggo
+BUILT_SOURCES += clitoris.x clitoris.xh
+
 
 ## ggo rule
 %.x %.xh: %.ggo
