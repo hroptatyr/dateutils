@@ -25,12 +25,6 @@ batch_tests =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
 
-TEST_EXTENSIONS += .dt
-check_PROGRAMS += dt-test
-DT_LOG_COMPILER = $(builddir)/dt-test
-AM_DT_LOG_FLAGS = --builddir $(top_builddir)/src
-EXTRA_DIST += $(srcdir)/dt-test.sh
-
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
 CLIT_LOG_COMPILER = $(builddir)/clitoris
@@ -627,11 +621,6 @@ batch_tests += dconv-batch.1.sh
 batch_tests += dconv-batch.2.sh
 endif  HAVE_GDATE
 
-
-check_PROGRAMS += dt-test
-EXTRA_DIST += dt-test.ggo
-BUILT_SOURCES += dt-test.x dt-test.xh
-EXTRA_DIST += dt-test.sh
 
 check_PROGRAMS += clitoris
 clitoris_CPPFLAGS = $(AM_CPPFLAGS)
