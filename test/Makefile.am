@@ -438,12 +438,12 @@ dt_tests += dtconv.046.clit
 dt_tests += dtconv.047.clit
 dt_tests += dtconv.048.clit
 
-dt_tests += convt.ymcw-ymd.dt
-dt_tests += convt.ymcw-ywd.dt
-dt_tests += convt.ymd-ymcw.dt
-dt_tests += convt.ymd-ywd.dt
-dt_tests += convt.ywd-ymcw.dt
-dt_tests += convt.ywd-ymd.dt
+dt_tests += convt.ymcw-ymd.clit
+dt_tests += convt.ymcw-ywd.clit
+dt_tests += convt.ymd-ymcw.clit
+dt_tests += convt.ymd-ywd.clit
+dt_tests += convt.ywd-ymcw.clit
+dt_tests += convt.ywd-ymd.clit
 
 dt_tests += dtseq.01.clit
 dt_tests += dtseq.02.clit
