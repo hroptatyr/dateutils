@@ -570,8 +570,8 @@ dt_tests += dtround.012.clit
 dt_tests += dtround.013.clit
 dt_tests += dtround.014.clit
 
-dt_tests += strptime.1.dt
-dt_tests += strptime.2.dt
+dt_tests += strptime.001.clit
+dt_tests += strptime.002.clit
 
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
