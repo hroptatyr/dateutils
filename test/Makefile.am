@@ -27,7 +27,7 @@ CLEANFILES = $(check_PROGRAMS)
 
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
-CLIT_LOG_COMPILER = $(builddir)/clitoris
+CLIT_LOG_COMPILER = $(builddir)/clittool
 AM_CLIT_LOG_FLAGS = -v --builddir $(top_builddir)/src --timeout 10
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
@@ -622,12 +622,12 @@ batch_tests += dconv-batch.2.sh
 endif  HAVE_GDATE
 
 
-check_PROGRAMS += clitoris
-clitoris_CPPFLAGS = $(AM_CPPFLAGS)
-clitoris_CPPFLAGS += -D_GNU_SOURCE
-clitoris_LDADD = -lutil
-EXTRA_DIST += clitoris.ggo
-BUILT_SOURCES += clitoris.x clitoris.xh
+check_PROGRAMS += clittool
+clittool_CPPFLAGS = $(AM_CPPFLAGS)
+clittool_CPPFLAGS += -D_GNU_SOURCE
+clittool_LDADD = -lutil
+EXTRA_DIST += clittool.ggo
+BUILT_SOURCES += clittool.x clittool.xh
 
 
 ## ggo rule

@@ -1,4 +1,4 @@
-/*** clitoris.c -- command-line-interface tester or is it?
+/*** clittool.c -- command-line-interface tester or is it?
  *
  * Copyright (C) 2013 Sebastian Freundt
  *
@@ -1007,8 +1007,8 @@ out:
 # pragma warning (disable:593)
 # pragma warning (disable:181)
 #endif	/* __INTEL_COMPILER */
-#include "clitoris.xh"
-#include "clitoris.x"
+#include "clittool.xh"
+#include "clittool.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
@@ -1086,4 +1086,4 @@ out:
 	return rc;
 }
 
-/* clitoris.c ends here */
+/* clittool.c ends here */
