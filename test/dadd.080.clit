@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd 1921-W01-01 -1d -f ymd
+1921-01-02
+$
+
+## dadd.080.clit ends here

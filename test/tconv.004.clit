@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv  <<EOF
+12:03:01
+12:59:01
+12:59:60
+EOF
+12:03:01
+12:59:01
+12:59:60
+$
+
+## tconv.4.clit ends here

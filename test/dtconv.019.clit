@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv --from-zone Europe/Berlin -z Europe/Berlin 	-i '%F %T.%N' -f '%T.%N' '2012-01-01 00:00:00.123456789'
+00:00:00.123456789
+$
+
+## dtconv.19.clit ends here

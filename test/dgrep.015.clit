@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dgrep --ge 1999-05-03 -i "%B/%d/%y" <<EOF
+fileF,February/28/2012
+fileF,February/29/2012 leap day
+fileM,March/01/2012
+fileM,March/02/2012
+EOF
+fileF,February/28/2012
+fileF,February/29/2012 leap day
+fileM,March/01/2012
+fileM,March/02/2012
+$
+
+## dgrep.15.clit ends here

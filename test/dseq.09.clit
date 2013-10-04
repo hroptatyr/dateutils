@@ -1,0 +1,14 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq --compute-from-last --alt-inc 1d 2001-02-03 3 2001-03-03 --skip sat,fri -f "%F %a"
+2001-02-04 Sun
+2001-02-07 Wed
+2001-02-11 Sun
+2001-02-14 Wed
+2001-02-18 Sun
+2001-02-21 Wed
+2001-02-25 Sun
+2001-02-28 Wed
+$
+
+## dseq.9.clit ends here
