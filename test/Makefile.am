@@ -40,24 +40,24 @@ TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
 TESTS_ENVIRONMENT += have_gdate="$(have_gdate)"
 
-dt_tests += dseq.1.dt
-dt_tests += dseq.2.dt
-dt_tests += dseq.3.dt
-dt_tests += dseq.4.dt
-dt_tests += dseq.5.dt
-dt_tests += dseq.6.dt
-dt_tests += dseq.7.dt
-dt_tests += dseq.8.dt
-dt_tests += dseq.9.dt
-dt_tests += dseq.10.dt
-dt_tests += dseq.11.dt
-dt_tests += dseq.12.dt
-dt_tests += dseq.13.dt
-dt_tests += dseq.14.dt
-dt_tests += dseq.15.dt
-dt_tests += dseq.16.dt
-dt_tests += dseq.17.dt
-dt_tests += dseq.18.dt
+dt_tests += dseq.01.clit
+dt_tests += dseq.02.clit
+dt_tests += dseq.03.clit
+dt_tests += dseq.04.clit
+dt_tests += dseq.05.clit
+dt_tests += dseq.06.clit
+dt_tests += dseq.07.clit
+dt_tests += dseq.08.clit
+dt_tests += dseq.09.clit
+dt_tests += dseq.10.clit
+dt_tests += dseq.11.clit
+dt_tests += dseq.12.clit
+dt_tests += dseq.13.clit
+dt_tests += dseq.14.clit
+dt_tests += dseq.15.clit
+dt_tests += dseq.16.clit
+dt_tests += dseq.17.clit
+dt_tests += dseq.18.clit
 
 dt_tests += dconv.1.dt
 dt_tests += dconv.2.dt
@@ -323,25 +323,25 @@ dt_tests += dround.023.clit
 dt_tests += dround.024.clit
 
 
-dt_tests += tseq.1.dt
-dt_tests += tseq.2.dt
-dt_tests += tseq.3.dt
-dt_tests += tseq.4.dt
-dt_tests += tseq.5.dt
-dt_tests += tseq.6.dt
-dt_tests += tseq.7.dt
-dt_tests += tseq.8.dt
-dt_tests += tseq.9.dt
-dt_tests += tseq.10.dt
-dt_tests += tseq.11.dt
-dt_tests += tseq.12.dt
-dt_tests += tseq.13.dt
-dt_tests += tseq.14.dt
-dt_tests += tseq.15.dt
-dt_tests += tseq.16.dt
-dt_tests += tseq.17.dt
-dt_tests += tseq.18.dt
-dt_tests += tseq.19.dt
+dt_tests += tseq.01.clit
+dt_tests += tseq.02.clit
+dt_tests += tseq.03.clit
+dt_tests += tseq.04.clit
+dt_tests += tseq.05.clit
+dt_tests += tseq.06.clit
+dt_tests += tseq.07.clit
+dt_tests += tseq.08.clit
+dt_tests += tseq.09.clit
+dt_tests += tseq.10.clit
+dt_tests += tseq.11.clit
+dt_tests += tseq.12.clit
+dt_tests += tseq.13.clit
+dt_tests += tseq.14.clit
+dt_tests += tseq.15.clit
+dt_tests += tseq.16.clit
+dt_tests += tseq.17.clit
+dt_tests += tseq.18.clit
+dt_tests += tseq.19.clit
 
 dt_tests += tdiff.001.clit
 dt_tests += tdiff.002.clit
@@ -445,8 +445,8 @@ dt_tests += convt.ymd-ywd.dt
 dt_tests += convt.ywd-ymcw.dt
 dt_tests += convt.ywd-ymd.dt
 
-dt_tests += dtseq.1.dt
-dt_tests += dtseq.2.dt
+dt_tests += dtseq.01.clit
+dt_tests += dtseq.02.clit
 
 dt_tests += dtadd.001.clit
 dt_tests += dtadd.002.clit
