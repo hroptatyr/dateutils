@@ -576,8 +576,8 @@ dt_tests += strptime.002.clit
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
 ## easily be an outdated zoneinfo file
-dt_tests += dtz.1.dt
-dt_tests += dtz.2.dt
+dt_tests += dtz.001.clit
+dt_tests += dtz.002.clit
 
 check_PROGRAMS += struct-1
 check_PROGRAMS += struct-2
