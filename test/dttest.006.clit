@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dtest --cmp 09:30:00 2012-03-02T07:00:00; echo "${?}"
+3
+$
+
+## dttest.6.clit ends here

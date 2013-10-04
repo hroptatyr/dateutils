@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dround -n 2012-03-01 2
+2012-03-02
+$
+
+## dround.4.clit ends here

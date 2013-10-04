@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -i '%s' 1234567890
+2009-02-13T23:31:30
+$
+
+## dtconv.37.clit ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv '2012-03-01 00:00:00' -z UTC
+2012-03-01T00:00:00
+$
+
+## dtconv.25.clit ends here

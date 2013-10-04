@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd -S 12m <<EOF
+it's	12:02:00 now
+and now	14:20:20
+EOF
+it's	12:14:00 now
+and now	14:32:20
+$
+
+## tadd.5.clit ends here

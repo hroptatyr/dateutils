@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ strptime -i '%a, %b-%d/%Y' <<EOF
+Mon, May-01/2000
+Mon, Mar-2/2000
+EOF
+2000-05-01
+2000-03-02
+$
+
+## strptime.2.clit ends here

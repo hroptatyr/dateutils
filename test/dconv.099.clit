@@ -1,0 +1,6 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -i '%Y%M%d/%b/%y' -f '%F %T' 20101230
+$
+
+## dconv.99.clit ends here

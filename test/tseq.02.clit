@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq --compute-from-last 10:00:00 12m 11:20:00
+10:08:00
+10:20:00
+10:32:00
+10:44:00
+10:56:00
+11:08:00
+11:20:00
+$
+
+## tseq.2.clit ends here

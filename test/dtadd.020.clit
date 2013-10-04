@@ -1,0 +1,17 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd -S '2012-01-02 02:04:00' -f '%F %T' <<EOF
+-40h
+-1d2h4m
+-1w2d6h3m
+1mo 6m
+hello
+EOF
+2011-12-31 10:04:00
+2012-01-01 00:00:00
+2011-12-23 20:01:00
+2012-02-02 02:10:00
+hello
+$
+
+## dtadd.20.clit ends here

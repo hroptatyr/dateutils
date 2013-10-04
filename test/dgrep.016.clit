@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dgrep -i '%Y%m%d-00' 2012-03-03 -o <<EOF
+- <- illegal 20120303-00
+EOF
+20120303-00
+$
+
+## dgrep.16.clit ends here

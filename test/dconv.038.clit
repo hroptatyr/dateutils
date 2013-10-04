@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -i '%Y-%D' 2012-61
+2012-03-01
+$
+
+## dconv.38.clit ends here

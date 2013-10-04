@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -S -i "%y%b%d" <<EOF
+this line was created on 12May23 and should match
+whereas this line 12Maybe shouldn't
+EOF
+this line was created on 2012-05-23 and should match
+whereas this line 12Maybe shouldn't
+$
+
+## dconv.15.clit ends here
