@@ -1,0 +1,17 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -S -i '%a %b %d %T %Y' <<EOF
+pablo tty8 Thu Nov 1 12:51:21 2012 still logged in 
+(unknown tty8 Thu Nov 1 12:50:57 2012 - Thu Nov 1 12:51:21 2012 (00:00) 
+pablo tty2 Thu Nov 1 12:50:39 2012 still logged in 
+pablo tty7 Thu Nov 1 12:49:45 2012 - Thu Nov 1 12:50:56 2012 (00:01) 
+(unknown tty7 Thu Nov 1 12:34:32 2012 - Thu Nov 1 12:49:45 2012 (00:15)
+EOF
+pablo tty8 2012-11-01T12:51:21 still logged in 
+(unknown tty8 2012-11-01T12:50:57 - 2012-11-01T12:51:21 (00:00) 
+pablo tty2 2012-11-01T12:50:39 still logged in 
+pablo tty7 2012-11-01T12:49:45 - 2012-11-01T12:50:56 (00:01) 
+(unknown tty7 2012-11-01T12:34:32 - 2012-11-01T12:49:45 (00:15)
+$
+
+## dtconv.44.clit ends here

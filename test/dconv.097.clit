@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv 1917-01-01 -f "a somewhat unlikely but most definitely long format string that, I bet, won't occur in practice but %F ya never know innit?"
+a somewhat unlikely but most definitely long format string that, I bet, won't occur in practice but 1917-01-01 ya never know innit?
+$
+
+## dconv.97.clit ends here

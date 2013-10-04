@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv --from-zone America/Chicago -S -f '%T' <<EOF
+now	2012-03-12 09:05:00
+different format now:
+2012-03-12T09:06:00
+EOF
+now	14:05:00
+different format now:
+14:06:00
+$
+
+## dtconv.18.clit ends here

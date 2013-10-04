@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -f "%d/%b/%y" -i "%OY %Om %Od" "MCMXCVIII IX XVII"
+17/Sep/98
+$
+
+## dconv.4.clit ends here
