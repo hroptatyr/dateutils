@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dgrep --ge 2012-03-01 <<EOF
+Feb,2012-02-28
+Feb,2012-02-29 leap day
+Mar,2012-03-01
+Mar,2012-03-02
+EOF
+Mar,2012-03-01
+Mar,2012-03-02
+$
+
+## dgrep.11.clit ends here
