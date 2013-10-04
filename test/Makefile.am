@@ -9,7 +9,7 @@ LC_ALL = C
 libdir = $(abs_top_srcdir)/lib
 
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
-AM_CPPFLAGS += -DTEST -I$(libdir) -I$(abs_top_builddir)/lib
+AM_CPPFLAGS += -DTEST -I"$(libdir)" -I"$(abs_top_builddir)/lib"
 
 EXTRA_DIST =
 EXTRA_DIST += $(dt_tests)
@@ -28,7 +28,7 @@ CLEANFILES = $(check_PROGRAMS)
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
 CLIT_LOG_COMPILER = $(builddir)/clittool
-AM_CLIT_LOG_FLAGS = -v --builddir $(top_builddir)/src --timeout 10
+AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 10
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
