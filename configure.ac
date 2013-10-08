@@ -108,6 +108,8 @@ if test "${sxe_cv_feat_anon_maps}" = "no"; then
 fi
 AC_MSG_RESULT([${sxe_cv_feat_anon_maps}])
 
+## check for getopt.h
+AC_CHECK_HEADERS([getopt.h])
 
 ## check for tzfile.h
 AX_ZONEINFO([right])
