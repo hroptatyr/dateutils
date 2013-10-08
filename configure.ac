@@ -66,6 +66,28 @@ if test "${sxe_cv_feat_anon_maps}" = "no"; then
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #define _POSIX_C_SOURCE 200112
 #define _BSD_SOURCE
+#define _ALL_SOURCE
+#if defined HAVE_SYS_MMAN_H
+# include <sys/mman.h>
+#endif  /* HAVE_SYS_MMAN_H */
+#if defined MAP_ANON
+/* good */
+#elif defined MAP_ANONYMOUS
+/* good too */
+#else
+# error MAP_ANON | MAP_ANONYMOUS needed
+#endif
+]])], [
+	sxe_cv_feat_anon_maps="yes"
+	AC_DEFINE([MAP_ANON_NEEDS_ALL_SOURCE], [1], [how to get MAP_ANON])
+	], [
+	sxe_cv_feat_anon_maps="no"
+	])
+fi
+if test "${sxe_cv_feat_anon_maps}" = "no"; then
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#define _POSIX_C_SOURCE 200112
+#define _BSD_SOURCE
 #define _DARWIN_C_SOURCE
 #if defined HAVE_SYS_MMAN_H
 # include <sys/mman.h>
