@@ -102,7 +102,8 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
-	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | gengetopt -l -F $*
+	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | \
+		gengetopt -l -G -F $*
 ## patch the multiple arg thingie dingie
 	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.c > $*.c.sed \
 	&& mv $*.c.sed $*.c
