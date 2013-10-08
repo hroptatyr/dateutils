@@ -49,7 +49,8 @@ SXE_LANG_WERROR([off])
 AC_CHECK_HEADERS([sys/mman.h])
 AC_MSG_CHECKING([for ANON maps])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#define _POSIX_C_SOURCE 200112
+#define _POSIX_C_SOURCE 200112L
+#define _XOPEN_SOURCE 600
 #define _BSD_SOURCE
 #if defined HAVE_SYS_MMAN_H
 # include <sys/mman.h>
@@ -64,8 +65,9 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 ]])], [sxe_cv_feat_anon_maps="yes"], [sxe_cv_feat_anon_maps="no"])
 if test "${sxe_cv_feat_anon_maps}" = "no"; then
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#define _POSIX_C_SOURCE 200112
+#define _POSIX_C_SOURCE 200112L
 #define _BSD_SOURCE
+#define _XOPEN_SOURCE 600
 #define _ALL_SOURCE
 #if defined HAVE_SYS_MMAN_H
 # include <sys/mman.h>
@@ -86,8 +88,9 @@ if test "${sxe_cv_feat_anon_maps}" = "no"; then
 fi
 if test "${sxe_cv_feat_anon_maps}" = "no"; then
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#define _POSIX_C_SOURCE 200112
+#define _POSIX_C_SOURCE 200112L
 #define _BSD_SOURCE
+#define _XOPEN_SOURCE=600
 #define _DARWIN_C_SOURCE
 #if defined HAVE_SYS_MMAN_H
 # include <sys/mman.h>
