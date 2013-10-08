@@ -111,6 +111,9 @@ AC_MSG_RESULT([${sxe_cv_feat_anon_maps}])
 ## check for getopt.h
 AC_CHECK_HEADERS([getopt.h])
 
+## AIX' take on stdint
+AC_CHECK_HEADERS([sys/stdint.h])
+
 ## check for tzfile.h
 AX_ZONEINFO([right])
 
