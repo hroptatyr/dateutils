@@ -113,6 +113,7 @@ AC_MSG_RESULT([${sxe_cv_feat_anon_maps}])
 
 ## check for getopt.h
 AC_CHECK_HEADERS([getopt.h])
+AM_CONDITIONAL([NEED_GETOPT_H], [test "${ac_cv_header_getopt_h}" != "yes"])
 
 ## AIX' take on stdint
 AC_CHECK_HEADERS([sys/stdint.h])
