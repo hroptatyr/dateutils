@@ -47,7 +47,6 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <sys/epoll.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -98,7 +97,6 @@ struct clit_chld_s {
 	int pin;
 	int pou;
 	int per;
-	int pll;
 	pid_t chld;
 
 	unsigned int verbosep:1;
@@ -550,10 +548,8 @@ find_opt(struct clit_chld_s ctx[static 1], const char *bp, size_t bz)
 }
 
 static int
-init_chld(struct clit_chld_s ctx[static 1])
+init_chld(struct clit_chld_s ctx[static 1] __attribute__((unused)))
 {
-	ctx->pll = epoll_create1(EPOLL_CLOEXEC);
-
 	/* set up the set of fatal signals */
 	sigemptyset(fatal_signal_set);
 	sigaddset(fatal_signal_set, SIGHUP);
@@ -568,10 +564,9 @@ init_chld(struct clit_chld_s ctx[static 1])
 }
 
 static int
-fini_chld(struct clit_chld_s ctx[static 1])
+fini_chld(struct clit_chld_s ctx[static 1] __attribute__((unused)))
 {
-	/* end of epoll monitoring */
-	return close(ctx->pll);
+	return 0;
 }
 
 static inline void
@@ -768,13 +763,6 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 			ctx->pou = pou[0];
 		} else {
 			ctx->pou = -1;
-		}
-
-		if (LIKELY(ctx->pll >= 0)) {
-			static struct epoll_event ev = {
-				EPOLLIN | EPOLLONESHOT,
-			};
-			epoll_ctl(ctx->pll, EPOLL_CTL_ADD, ctx->pou, &ev);
 		}
 		break;
 	}

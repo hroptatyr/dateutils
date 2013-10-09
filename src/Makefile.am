@@ -17,6 +17,10 @@ EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
 
 GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
 GGO_HELPERS += common.ggo.in
+GGO_HELPERS += getopt.h.in
+if NEED_GETOPT_H
+BUILT_SOURCES += getopt.h
+endif  NEED_GETOPT_H
 
 DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
 noinst_HEADERS += dt-io.h
@@ -102,7 +106,8 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 ## ggo rule
 %.c %.h: %.ggo $(GGO_HELPERS)
-	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | gengetopt -l -F $*
+	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | \
+		gengetopt -l -G -F $*
 ## patch the multiple arg thingie dingie
 	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.c > $*.c.sed \
 	&& mv $*.c.sed $*.c
@@ -118,6 +123,9 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 ## just for parallel builds
 dexpr-parser.h: dexpr-parser.c
 
+## for AIX that doesn't ship a getopt.h
+getopt.h: $(srcdir)/getopt.h.in
+	$(AM_V_GEN) cp $(srcdir)/getopt.h.in $@
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
