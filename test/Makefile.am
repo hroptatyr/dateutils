@@ -625,7 +625,6 @@ endif  HAVE_GDATE
 check_PROGRAMS += clittool
 clittool_CPPFLAGS = $(AM_CPPFLAGS)
 clittool_CPPFLAGS += -D_GNU_SOURCE
-clittool_LDADD = -lutil
 EXTRA_DIST += clittool.ggo
 BUILT_SOURCES += clittool.x clittool.xh
 
