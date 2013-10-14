@@ -40,6 +40,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#if defined HAVE_SYS_STDINT_H
+# include <sys/stdint.h>
+#endif	/* HAVE_SYS_STDINT_H */
 #include <stdio.h>
 #include <stdarg.h>
 

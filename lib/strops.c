@@ -38,10 +38,17 @@
 #if !defined INCLUDED_strops_c_
 #define INCLUDED_strops_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdbool.h>
 #include <string.h>
 /* for strncasecmp() */
 #include <strings.h>
+#include <stdint.h>
+#if defined HAVE_SYS_STDINT_H
+# include <sys/stdint.h>
+#endif	/* HAVE_SYS_STDINT_H */
 #include "nifty.h"
 #include "strops.h"
 
