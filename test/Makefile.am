@@ -625,14 +625,13 @@ endif  HAVE_GDATE
 check_PROGRAMS += clittool
 clittool_CPPFLAGS = $(AM_CPPFLAGS)
 clittool_CPPFLAGS += -D_GNU_SOURCE
-clittool_LDADD = -lutil
 EXTRA_DIST += clittool.ggo
 BUILT_SOURCES += clittool.x clittool.xh
 
 
 ## ggo rule
 %.x %.xh: %.ggo
-	$(AM_V_GEN) gengetopt -F $* -c x -H xh -i $<
+	$(AM_V_GEN) gengetopt -F $* -G -c x -H xh -i $<
 	@sed -e 's,config.h,version.h,g' \
 	     -e 's,_PARSER_VERSION VERSION,_PARSER_VERSION "$(VERSION)",g' \
 	     $*.xh > $*.xh-t \
