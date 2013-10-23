@@ -38,6 +38,7 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 #define _ALL_SOURCE
+#define _NETBSD_SOURCE
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -45,6 +46,7 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -361,11 +363,12 @@ find_cmd(const char *bp, size_t bz)
 
 eof:
 	/* massage tok so that it starts on a non-space and ends on one */
-	for (; *tok.d == ' ' || *tok.d == '\t'; tok.d++, tok.z--);
+	for (; tok.z && (*tok.d == ' ' || *tok.d == '\t'); tok.d++, tok.z--);
 	for (;
 	     tok.z && (tok.d[tok.z - 1] == ' ' || tok.d[tok.z - 1] == '\t');
 	     tok.z--);
-	if ((*tok.d == '\'' || *tok.d == '"') && tok.d[tok.z - 1] == *tok.d) {
+	if (tok.z &&
+	    (*tok.d == '\'' || *tok.d == '"') && tok.d[tok.z - 1] == *tok.d) {
 		tok.d++;
 		tok.z -= 2U;
 	}
@@ -986,11 +989,14 @@ prepend_path(const char *p)
 	if (UNLIKELY(pp < paths)) {
 		/* awww, not enough space, is there */
 		off_t ppoff = paths + pathz - pp;
+		size_t newsz = ((pathz + pz + 1U) / 256U + 1) * 256U;
 
-		pathz = ((pathz + pz + 1U) / 256U + 1) * 256U;
-		paths = realloc(paths, pathz);
+		paths = realloc(paths, newsz);
+		/* memmove to the back */
+		memmove(paths + (newsz - pathz), paths, pathz);
 		/* recalc paths pointer */
 		pp = paths + ppoff;
+		pathz = newsz;
 	}
 
 	/* actually prepend now */

@@ -406,6 +406,7 @@ dt_tests += dtconv.020.clit
 dt_tests += dtconv.021.clit
 dt_tests += dtconv.022.clit
 dt_tests += dtconv.023.clit
+if ZONEINFO_UTC_RIGHT
 dt_tests += dtconv.024.clit
 dt_tests += dtconv.025.clit
 dt_tests += dtconv.026.clit
@@ -416,6 +417,7 @@ dt_tests += dtconv.030.clit
 dt_tests += dtconv.031.clit
 dt_tests += dtconv.032.clit
 dt_tests += dtconv.033.clit
+endif  ZONEINFO_UTC_RIGHT
 dt_tests += dtconv.034.clit
 dt_tests += dtconv.035.clit
 dt_tests += dtconv.036.clit
