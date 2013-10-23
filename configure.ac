@@ -120,6 +120,7 @@ AC_CHECK_HEADERS([sys/stdint.h])
 
 ## check for tzfile.h
 AX_ZONEINFO([right])
+AM_CONDITIONAL([ZONEINFO_UTC_RIGHT], [test -n "${ax_cv_zoneinfo_utc_right}"])
 
 ## check for strptime
 AC_CHECK_FUNCS([strptime])
