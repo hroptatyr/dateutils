@@ -24,6 +24,7 @@ bin_tests =
 batch_tests =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
+SUFFIXES =
 
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
@@ -632,12 +633,17 @@ BUILT_SOURCES += clittool.x clittool.xh
 
 
 ## ggo rule
-%.x %.xh: %.ggo
+SUFFIXES += .ggo
+SUFFIXES += .x
+.ggo.x:
 	$(AM_V_GEN) gengetopt -F $* -G -c x -H xh -i $<
 	@sed -e 's,config.h,version.h,g' \
 	     -e 's,_PARSER_VERSION VERSION,_PARSER_VERSION "$(VERSION)",g' \
-	     $*.xh > $*.xh-t \
-	&& mv $*.xh-t $*.xh
+	     $@h > $@h-t \
+	&& mv $@h-t $@h
+SUFFIXES += .xh
+.ggo.xh:
+	touch $@
 
 clean-local:
 	-rm -rf *.tmpd
