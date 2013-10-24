@@ -699,7 +699,7 @@ __io_setlocking_bycaller(FILE *fp)
 	return;
 }
 #else  /* !__GLIBC__ */
-__io_setlocking_bycaller(FILE *__attribute__((unused)) fp)
+__io_setlocking_bycaller(__attribute__((unused)) FILE *fp)
 {
 	return;
 }
