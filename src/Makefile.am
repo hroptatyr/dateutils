@@ -29,68 +29,68 @@ EXTRA_DIST += strpdt-special.gperf
 BUILT_SOURCES += strpdt-special.c
 
 bin_PROGRAMS += dseq
-dseq_SOURCES = dseq.c dseq-clo.ggo
+dseq_SOURCES = dseq.c dseq.ggo
 dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dseq_LDFLAGS = $(AM_LDFLAGS)
 dseq_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dseq-clo.c dseq-clo.h
+BUILT_SOURCES += dseq.x dseq.xh
 
 if HAVE_STRPTIME
 bin_PROGRAMS += strptime
-strptime_SOURCES = strptime.c strptime-clo.ggo
+strptime_SOURCES = strptime.c strptime.ggo
 strptime_SOURCES += prchunk.c prchunk.h
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 strptime_LDADD = $(top_builddir)/lib/libdut.a
 endif
-BUILT_SOURCES += strptime-clo.c strptime-clo.h
+BUILT_SOURCES += strptime.x strptime.xh
 
 bin_PROGRAMS += dconv
-dconv_SOURCES = dconv.c dconv-clo.ggo
+dconv_SOURCES = dconv.c dconv.ggo
 dconv_SOURCES += prchunk.c prchunk.h
 dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dconv_LDFLAGS = $(AM_LDFLAGS)
 dconv_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dconv-clo.c dconv-clo.h
+BUILT_SOURCES += dconv.x dconv.xh
 
 bin_PROGRAMS += dtest
-dtest_SOURCES = dtest.c dtest-clo.ggo
+dtest_SOURCES = dtest.c dtest.ggo
 dtest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtest_LDFLAGS = $(AM_LDFLAGS)
 dtest_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dtest-clo.c dtest-clo.h
+BUILT_SOURCES += dtest.x dtest.xh
 
 bin_PROGRAMS += dadd
-dadd_SOURCES = dadd.c dadd-clo.ggo
+dadd_SOURCES = dadd.c dadd.ggo
 dadd_SOURCES += prchunk.c prchunk.h
 dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
 dadd_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dadd-clo.c dadd-clo.h
+BUILT_SOURCES += dadd.x dadd.xh
 
 bin_PROGRAMS += ddiff
-ddiff_SOURCES = ddiff.c ddiff-clo.ggo
+ddiff_SOURCES = ddiff.c ddiff.ggo
 ddiff_SOURCES += prchunk.c prchunk.h
 ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 ddiff_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += ddiff-clo.c ddiff-clo.h
+BUILT_SOURCES += ddiff.x ddiff.xh
 
 bin_PROGRAMS += dgrep
-dgrep_SOURCES = dgrep.c dgrep-clo.ggo
+dgrep_SOURCES = dgrep.c dgrep.ggo
 dgrep_SOURCES += prchunk.c prchunk.h
 dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
 dgrep_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dgrep-clo.c dgrep-clo.h
+BUILT_SOURCES += dgrep.x dgrep.xh
 
 bin_PROGRAMS += dround
-dround_SOURCES = dround.c dround-clo.ggo
+dround_SOURCES = dround.c dround.ggo
 dround_SOURCES += prchunk.c prchunk.h
 dround_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dround_LDFLAGS = $(AM_LDFLAGS)
 dround_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dround-clo.c dround-clo.h
+BUILT_SOURCES += dround.x dround.xh
 
 if BUILD_DEXPR
 noinst_PROGRAMS += dexpr
@@ -105,15 +105,15 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 
 ## ggo rule
-%.c %.h: %.ggo $(GGO_HELPERS)
+%.x %.xh: %.ggo $(GGO_HELPERS)
 	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | \
-		gengetopt -l -G -F $*
+		gengetopt -l -G -c x -H xh -F $*
 ## patch the multiple arg thingie dingie
-	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.c > $*.c.sed \
-	&& mv $*.c.sed $*.c
+	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.x > $*.x.sed \
+	&& mv $*.x.sed $*.x
 	@sed -e 's,config.h,version.h,g' \
-	     -e 's,\(.*\)_PARSER_VERSION VERSION,\1_PARSER_VERSION $(PACKAGE)_version_string,g' $*.h > $*.h-t \
-	&& mv $*.h-t $*.h
+	     -e 's,\(.*\)_PARSER_VERSION VERSION,\1_PARSER_VERSION $(PACKAGE)_version_string,g' $*.xh > $*.xh-t \
+	&& mv $*.xh-t $*.xh
 
 ## gperf rule
 %.c: %.gperf

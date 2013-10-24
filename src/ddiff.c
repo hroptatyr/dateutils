@@ -653,8 +653,8 @@ ddiff_prnt(struct dt_dt_s dur, const char *fmt, durfmt_t f)
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "ddiff-clo.h"
-#include "ddiff-clo.c"
+#include "ddiff.xh"
+#include "ddiff.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)

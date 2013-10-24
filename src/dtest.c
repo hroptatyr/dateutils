@@ -78,8 +78,8 @@ error(int eno, const char *fmt, ...)
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "dtest-clo.h"
-#include "dtest-clo.c"
+#include "dtest.xh"
+#include "dtest.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)

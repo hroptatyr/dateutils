@@ -468,8 +468,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 # pragma GCC diagnostic ignored "-Wswitch"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "dround-clo.h"
-#include "dround-clo.c"
+#include "dround.xh"
+#include "dround.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
