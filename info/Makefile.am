@@ -133,12 +133,9 @@ dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
 EXTRA_DIST += author.h2m
-EXTRA_DIST += format.h2m
-EXTRA_DIST += format-ddiff.h2m
-EXTRA_DIST += $(dateutils_H2M_EX)
-BUILT_SOURCES += format.h2m
-BUILT_SOURCES += format-ddiff.h2m
-BUILT_SOURCES += units.h2m
+BUILT_SOURCES += format.th2m
+BUILT_SOURCES += format-ddiff.th2m
+BUILT_SOURCES += units.th2m
 BUILT_SOURCES += $(built_texis)
 BUILT_SOURCES += $(built_mans)
 BUILT_SOURCES += $(dateutils_H2M_EX)
@@ -183,7 +180,7 @@ EXTRA_DIST += strptime.name
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $@;
-%.man: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) \
+%.man: $(top_srcdir)/src/%.ggo $(dateutils_H2M_EX) \
 		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in \
 		%.name
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
@@ -194,24 +191,24 @@ __bld_man_0 = @echo "  HELP2MAN" $@;
 		-o $@ $(top_builddir)/src/$*
 
 ## generic rule with format-ddiff instead of format
-%.mand: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) \
+%.mand: $(top_srcdir)/src/%.ggo $(dateutils_H2M_EX) \
 		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in \
 		%.name
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(builddir)/$*.h2m" \
-		-I "$(builddir)/format-ddiff.h2m" \
+		-I "$(builddir)/format-ddiff.th2m" \
 		-I "$(srcdir)/author.h2m" \
 		-I "$(srcdir)/$*.name" \
 		-o $@ $(top_builddir)/src/$*
 
 ## generic rule for man pages with units section
-%.manu: $(top_srcdir)/src/%-clo.ggo $(dateutils_H2M_EX) \
+%.manu: $(top_srcdir)/src/%.ggo $(dateutils_H2M_EX) \
 		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in \
 		%.name
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I "$(builddir)/$*.h2m" \
-		-I "$(builddir)/format.h2m" \
-		-I "$(builddir)/units.h2m" \
+		-I "$(builddir)/format.th2m" \
+		-I "$(builddir)/units.th2m" \
 		-I "$(srcdir)/author.h2m" \
 		-I "$(srcdir)/$*.name" \
 		-o $@ $(top_builddir)/src/$*
@@ -219,7 +216,7 @@ __bld_man_0 = @echo "  HELP2MAN" $@;
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
 __bld_h2m_0 = @echo "  GENH2M  " $*;
-%.h2m: $(top_srcdir)/src/%-clo.ggo $(dateutils_EXAMPLES)
+%.h2m: $(top_srcdir)/src/%.ggo $(dateutils_EXAMPLES)
 	$(my_bld_h2m) ${SHELL} \
 		$(srcdir)/genh2m.sh $(top_builddir)/src/$* \
 		$($*_EXAMPLES) > $@ || rm -f -- $@
@@ -227,13 +224,16 @@ __bld_h2m_0 = @echo "  GENH2M  " $*;
 my_bld_texi = $(__bld_texi_$(V))
 __bld_texi_ = $(__bld_texi_$(AM_DEFAULT_VERBOSITY))
 __bld_texi_0 = @echo "  GENTEXI " $*;
-%.texi: $(top_srcdir)/src/%-clo.ggo $(dateutils_EXAMPLES) dateutils.texi
+%.texi: $(top_srcdir)/src/%.ggo $(dateutils_EXAMPLES) dateutils.texi
 	$(my_bld_texi) ${SHELL} \
 		$(srcdir)/gentexi.sh $(top_builddir)/src/$* \
 		$($*_EXAMPLES) > $@ || test "$$?" = "2" || rm -f -- $@
 
-%.h2m: %.texi
-	$(my_bld_h2m) ${SHELL} \
+my_bld_th2m = $(__bld_th2m_$(V))
+__bld_th2m_ = $(__bld_th2m_$(AM_DEFAULT_VERBOSITY))
+__bld_th2m_0 = @echo "  GENTH2M " $*;
+%.th2m: %.texi
+	$(my_bld_th2m) ${SHELL} \
 		$(srcdir)/texi2h2m.sh $< > $@ || rm -f -- $@
 
 ## Makefile.am ends here
