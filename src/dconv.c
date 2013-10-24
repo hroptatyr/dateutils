@@ -121,8 +121,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "dconv-clo.h"
-#include "dconv-clo.c"
+#include "dconv.xh"
+#include "dconv.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)

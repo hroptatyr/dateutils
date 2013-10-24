@@ -10,11 +10,11 @@ else
 	exit 1
 fi
 
+echo "[EXAMPLES]"
 if test "${#}" -eq 0; then
 	exit 0
 fi
 
-echo "[EXAMPLES]"
 for i; do
 	echo
 	sed '/^#!/d; /ends here$/d; /^[ \t]*$/d;

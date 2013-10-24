@@ -454,8 +454,8 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "dseq-clo.h"
-#include "dseq-clo.c"
+#include "dseq.xh"
+#include "dseq.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)

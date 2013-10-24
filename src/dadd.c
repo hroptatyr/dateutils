@@ -224,8 +224,8 @@ mass_add_d(const struct mass_add_clo_s *clo)
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "dadd-clo.h"
-#include "dadd-clo.c"
+#include "dadd.xh"
+#include "dadd.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)

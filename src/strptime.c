@@ -152,8 +152,8 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 # pragma GCC diagnostic ignored "-Wswitch-enum"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif	/* __INTEL_COMPILER */
-#include "strptime-clo.h"
-#include "strptime-clo.c"
+#include "strptime.xh"
+#include "strptime.x"
 #if defined __INTEL_COMPILER
 # pragma warning (default:593)
 # pragma warning (default:181)
