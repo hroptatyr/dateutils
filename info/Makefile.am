@@ -133,9 +133,6 @@ dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
 EXTRA_DIST += author.h2m
-EXTRA_DIST += format.h2m
-EXTRA_DIST += format-ddiff.h2m
-EXTRA_DIST += $(dateutils_H2M_EX)
 BUILT_SOURCES += format.h2m
 BUILT_SOURCES += format-ddiff.h2m
 BUILT_SOURCES += units.h2m
