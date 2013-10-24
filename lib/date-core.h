@@ -554,25 +554,17 @@ dt_make_daisydur(signed int d)
 static inline dt_bizda_param_t
 __get_bizda_param(struct dt_d_s that)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	dt_bizda_param_t p = {.bs = that.param};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_bizda_param_t p;
 	p.bs = that.param;
-#endif	/* HAVE_ANON_STRUCTS_INIT */
 	return p;
 }
 
 static inline dt_bizda_param_t
 __make_bizda_param(unsigned int ab, unsigned int ref)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	dt_bizda_param_t p = {.ab = ab, .ref = ref};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_bizda_param_t p;
 	p.ab = ab;
 	p.ref = ref;
-#endif	/* HAVE_ANON_STRUCTS_INIT */
 	return p;
 }
 
@@ -585,13 +577,9 @@ __get_ywd_param(struct dt_d_s that)
 static inline dt_ywd_param_t
 __make_ywd_param(unsigned int cc)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	return (dt_ywd_param_t){.cc = cc};
-#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_ywd_param_t p;
 	p.cc = cc;
 	return p;
-#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 

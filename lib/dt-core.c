@@ -340,7 +340,11 @@ now_tm(void)
 		;
 	} else if ((tv = now_tv()).tv_sec == 0U) {
 		/* big cinema :( */
-		tm = (struct tm){0U};
+#if defined HAVE_SLOPPY_STRUCTS_INIT
+		return (struct tm){};
+#else  /* !HAVE_SLOPPY_STRUCTS_INIT */
+		memset(&tm, 0, sizeof(tm));
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	} else {
 		ffff_gmtime(&tm, tv.tv_sec);
 	}
@@ -375,7 +379,12 @@ dflt_tm(const struct dt_dt_s *set)
 			break;
 		default:
 			/* good question */
+#if defined HAVE_SLOPPY_STRUCTS_INIT
 			return (struct tm){};
+#else  /* !HAVE_SLOPPY_STRUCTS_INIT */
+			memset(&tm, 0, sizeof(tm));
+			break;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 		}
 	}
 	return tm;
@@ -387,7 +396,11 @@ massage_strpdt(struct strpdt_s d)
 /* the reason we do this separately is that we don't want to bother
  * the pieces of code that use the guesser for different reasons */
 	if (UNLIKELY(d.sd.y == 0U)) {
+#if defined HAVE_SLOPPY_STRUCTS_INIT
 		static const struct strpd_s d0 = {};
+#else  /* !HAVE_SLOPPY_STRUCTS_INIT */
+		static const struct strpd_s d0;
+#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 		struct tm now = dflt_tm(NULL);
 
 		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
