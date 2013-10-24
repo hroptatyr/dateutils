@@ -180,7 +180,7 @@ EXTRA_DIST += strptime.name
 
 SUFFIXES += .ggo
 SUFFIXES += .name
-VPATH += $(top_srcdir)/src
+VPATH += @top_srcdir@/src
 
 my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
