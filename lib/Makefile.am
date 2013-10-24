@@ -63,7 +63,7 @@ EXTRA_libdut_a_SOURCES += ymcw.c
 EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
-EXTRA_libdut_a_SOURCES += fmt-special.gperf fmt-special.c
+EXTRA_libdut_a_SOURCES += fmt-special.gperf
 EXTRA_libdut_a_SOURCES += leapseconds
 BUILT_SOURCES += version.c
 BUILT_SOURCES += fmt-special.c
@@ -77,7 +77,7 @@ ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
 ltrcc_SOURCES = ltrcc.c
 ltrcc_SOURCES += dt-core.c dt-core.h
 EXTRA_ltrcc_SOURCES =
-EXTRA_ltrcc_SOURCES += fmt-special.gperf fmt-special.c
+EXTRA_ltrcc_SOURCES += fmt-special.gperf
 endif  ## BUILD_LTRCC
 
 
