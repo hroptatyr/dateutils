@@ -14,6 +14,7 @@ lib_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
+SUFFIXES =
 
 header_HEADERS =
 header_HEADERS += date-core.h
@@ -92,7 +93,8 @@ version.c: version.c.in $(top_builddir)/version.mk
 	sed -e 's,[@]VERSION[@],$(VERSION),g' <$(srcdir)/$@.in >$@
 
 ## gperf rule
-%.c: %.gperf
+SUFFIXES += .gperf
+.gperf.c:
 	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
 
 # 
