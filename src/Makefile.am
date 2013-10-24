@@ -14,6 +14,7 @@ BUILT_SOURCES =
 CLEANFILES =
 GGO_HELPERS =
 EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
+SUFFIXES =
 
 GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
 GGO_HELPERS += common.ggo.in
@@ -105,18 +106,24 @@ BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 
 ## ggo rule
-%.x %.xh: %.ggo $(GGO_HELPERS)
+SUFFIXES += .ggo
+SUFFIXES += .x
+.ggo.x: $(GGO_HELPERS)
 	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | \
 		gengetopt -l -G -c x -H xh -F $*
 ## patch the multiple arg thingie dingie
-	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $*.x > $*.x.sed \
-	&& mv $*.x.sed $*.x
+	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $@ > $@.sed \
+	&& mv $@.sed $@
 	@sed -e 's,config.h,version.h,g' \
-	     -e 's,\(.*\)_PARSER_VERSION VERSION,\1_PARSER_VERSION $(PACKAGE)_version_string,g' $*.xh > $*.xh-t \
-	&& mv $*.xh-t $*.xh
+	     -e 's,\(.*\)_PARSER_VERSION VERSION,\1_PARSER_VERSION $(PACKAGE)_version_string,g' $@h > $@h-t \
+	&& mv $@h-t $@h
+SUFFIXES += .xh
+.ggo.xh:
+	touch $@
 
 ## gperf rule
-%.c: %.gperf
+SUFFIXES += .gperf
+.gperf.c:
 	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
 
 
