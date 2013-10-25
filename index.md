@@ -28,12 +28,6 @@ Dateutils
     <ul>
       <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
       <li><a href="https://bitbucket.org/hroptatyr/dateutils/downloads/dateutils-0.2.5.tar.xz">latest release (dateutils-0.2.5.tar.xz)</a></li>
-      <li><a href="https://aur.archlinux.org/packages/dateutils/">ArchLinux</a></li>
-      <li><a href="http://packages.debian.org/sid/dateutils">Debian</a></li>
-      <li><a href="https://packages.gentoo.org/package/app-misc/dateutils">Gentoo</a></li>
-      <li><a href="http://pkgsrc.se/time/dateutils">NetBSD</a></li>
-      <li><a href="http://software.opensuse.org/download.html?project=utilities&package=dateutils">OpenSuSE</a></li>
-      <li><a href="https://launchpad.net/ubuntu/trusty/+package/dateutils">Ubuntu</a></li>
     </ul>
   </div>
   <div class="sidebar-stack">
