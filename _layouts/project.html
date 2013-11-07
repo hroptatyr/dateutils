@@ -14,7 +14,7 @@
       <div id="header-wrapper">
         <div id="header" class="basic" >
           <div class="site">
-	    %{ if page.logo %}
+	    {% if page.logo %}
 	    <a class="logo" href="/{{ page.project }}">
 	      <img src="/{{ page.project }}/images/{{ page.logo }}"/>
 	    </a>
@@ -44,7 +44,9 @@
 	  <div class="sidebar-stack">
 	    <ul>
 	      <li><a href="https://github.com/hroptatyr/{{ page.project }}">github page</a></li>
+	      {% if page.latest %}
 	      <li><a href="https://bitbucket.org/hroptatyr/{{ page.project }}/downloads/{{ page.latest }}">latest release ({{ page.latest }})</a></li>
+	      {% endif %}
 	    </ul>
 	  </div>
 	</div><!-- rtop -->

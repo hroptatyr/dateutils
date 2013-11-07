@@ -1,6 +1,6 @@
 ---
 title: dateutils
-layout: default
+layout: project
 logo: dateutils_logo_120.png
 project: dateutils
 latest: dateutils-0.2.6.tar.xz
