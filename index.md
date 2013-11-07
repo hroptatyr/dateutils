@@ -1,35 +1,14 @@
 ---
 title: dateutils
 layout: default
+logo: dateutils_logo_120.png
+project: dateutils
+latest: dateutils-0.2.6.tar.xz
 ---
 
 Dateutils
 =========
 
-<div id="rtop" class="sidebar-widget">
-  <div class="sidebar-stack">
-    <ul>
-      <li>
-        <script type="text/javascript"
-          src="http://www.ohloh.net/p/586399/widgets/project_languages.js">
-        </script>
-      </li>
-    </ul>
-  </div>
-  <div class="sidebar-stack">
-    <ul>
-      <li>
-        <a href="http://travis-ci.org/hroptatyr/dateutils"><img src="https://secure.travis-ci.org/hroptatyr/dateutils.png?branch=master" alt="build status"></img></a>
-        <a href="https://drone.io/github.com/hroptatyr/dateutils/latest"><img src="https://drone.io/github.com/hroptatyr/dateutils/status.png" alt="build status"></img></a>
-      </li>
-    </ul>
-  </div>
-  <div class="sidebar-stack">
-    <ul>
-      <li><a href="https://github.com/hroptatyr/dateutils">github page</a></li>
-      <li><a href="https://bitbucket.org/hroptatyr/dateutils/downloads/dateutils-0.2.6.tar.xz">latest release (dateutils-0.2.6.tar.xz)</a></li>
-    </ul>
-  </div>
   <div class="sidebar-stack">
     <script type="text/javascript">
       var uvOptions = {};
@@ -43,7 +22,6 @@ Dateutils
       })();
     </script>
   </div>
-</div>
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
 and times in the command line with a strong focus on use cases that
