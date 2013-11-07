@@ -3,47 +3,73 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
     <title>{{ page.title }}</title>
     <link href="/assets/custom/css/default.css" media="screen" rel="stylesheet" type="text/css">
   </head>
-  
+
   <body>
-    <a href="https://github.com/hroptatyr/dateutils"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/hroptatyr/{{ page.project }}"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
     <div id="main">
       <div id="header-wrapper">
         <div id="header" class="basic" >
           <div class="site">
-	    <a class="logo" href="/dateutils">
-	      <img src="/dateutils/images/dateutils_logo_120.png"/>
+	    %{ if page.logo %}
+	    <a class="logo" href="/{{ page.project }}">
+	      <img src="/{{ page.project }}/images/{{ page.logo }}"/>
 	    </a>
+	    {% endif %}
             <div class="topsearch">
             </div>
           </div>
         </div>
       </div>
       <div id="wrapper">
-        <div id="content" class="site">
+	<div id="rtop" class="sidebar-widget">
+	  <div class="sidebar-stack">
+	    <ul>
+	      <li>
+		<script type="text/javascript" src="http://www.ohloh.net/p/{{ page.project }}/widgets/project_languages.js"></script>
+	      </li>
+	    </ul>
+	  </div>
+	  <div class="sidebar-stack">
+	    <ul>
+	      <li>
+		<a href="http://travis-ci.org/hroptatyr/{{ page.project }} "><img src="https://secure.travis-ci.org/hroptatyr/{{ page.project }}.png?branch=master" alt="build status"></img></a>
+		<a href="https://drone.io/github.com/hroptatyr/{{ page.project }}/latest"><img src="https://drone.io/github.com/hroptatyr/{{ page.project }}/status.png" alt="build status"></img></a>
+	      </li>
+	    </ul>
+	  </div>
+	  <div class="sidebar-stack">
+	    <ul>
+	      <li><a href="https://github.com/hroptatyr/{{ page.project }}">github page</a></li>
+	      <li><a href="https://bitbucket.org/hroptatyr/{{ page.project }}/downloads/{{ page.latest }}">latest release ({{ page.latest }})</a></li>
+	    </ul>
+	  </div>
+	</div><!-- rtop -->
 
-          {{ content }}
+	<div id="content" class="site">
 
-        </div>
-      </div>
+	  {{ content }}
+
+	</div><!-- content -->
+      </div><!-- wrapper -->
 
       <div class="push"></div>
     </div>
 
-     <div id="footer" >
+    <div id="footer" >
       <div class="upper_footer">
-        <div class="footer_inner clearfix">
+	<div class="footer_inner clearfix">
 
-        </div><!-- /.site -->
+	</div><!-- /.site -->
       </div><!-- /.upper_footer -->
 
       <div class="lower_footer">
-        <div class="footer_inner clearfix">
+	<div class="footer_inner clearfix">
 
-        </div><!-- /.site -->
+	</div><!-- /.site -->
       </div><!-- /.lower_footer -->
     </div><!-- /#footer -->
   </body>
