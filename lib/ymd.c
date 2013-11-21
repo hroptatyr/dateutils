@@ -709,7 +709,7 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 
 	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
 	tgtm = GREG_MONTHS_P_YEAR * (d2.y - d1.y) + (d2.m - d1.m);
-	if ((tgtd = d2.d - d1.d) < 1 && tgtm != 0) {
+	if ((tgtd = d2.d - d1.d) < 0 && tgtm != 0) {
 		/* if tgtm is 0 it remains 0 and tgtd remains negative */
 		/* get the target month's mdays */
 		unsigned int d2m = d2.m;
