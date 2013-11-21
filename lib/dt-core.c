@@ -469,9 +469,17 @@ leaps_before(struct dt_dt_s d)
 
 	if (dt_sandwich_p(d) && on) {
 		/* check the time part too */
-		if (d.t.hms.u24 > leaps_hms[res + 1]) {
+#if defined __clang__
+# define MASK(x24)	((x24) & 0xfffffffU)
+# warning \
+clang needs bitfields being masked because of a bug this will impact performance
+#else  /* !__clang__ */
+# define MASK(x24)	(x24)
+#endif	/* __clang__ */
+		if (MASK(d.t.hms.u24) > leaps_hms[res + 1]) {
 			res++;
 		}
+#undef MASK
 	}
 	return res;
 }
