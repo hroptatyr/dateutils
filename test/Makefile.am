@@ -29,7 +29,7 @@ SUFFIXES =
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
 CLIT_LOG_COMPILER = $(builddir)/clittool
-AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 10
+AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
