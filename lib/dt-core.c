@@ -467,19 +467,27 @@ leaps_before(struct dt_dt_s d)
 		break;
 	}
 
+	/* clang 3.3 will fuck the following up
+	 * see http://llvm.org/bugs/show_bug.cgi?id=18028
+	 * we have to access d.t.hms.u24 once (the failing access),
+	 * then again and magically it'll work, thanks a bunch clang! */
 	if (dt_sandwich_p(d) && on) {
+#if defined __clang__ && __clang_major__ == 3 && __clang_minor__ == 3
+# warning clang bug! \
+see http://llvm.org/bugs/show_bug.cgi?id=18028
+		/* access d.t.hms.u24 once */
+		volatile unsigned int hms = d.t.hms.u24;
+
 		/* check the time part too */
-#if defined __clang__ || defined __llvm__
-# define MASK(x24)	((x24) & 0xfffffffU)
-# warning \
-clang needs bitfields being masked because of a bug this will impact performance
-#else  /* !__clang__ && !__llvm__ */
-# define MASK(x24)	(x24)
-#endif	/* __clang__ || __llvm__ */
-		if (MASK(d.t.hms.u24) > leaps_hms[res + 1]) {
+		if ((hms & 0xffffffU) > leaps_hms[res + 1]) {
 			res++;
 		}
-#undef MASK
+#else  /* !__clang__ 3.3 */
+		/* check the time part too */
+		if (d.t.hms.u24 > leaps_hms[res + 1]) {
+			res++;
+		}
+#endif	/* __clang__ 3.3 */
 	}
 	return res;
 }
