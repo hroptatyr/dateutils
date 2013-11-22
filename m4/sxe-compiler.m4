@@ -48,7 +48,7 @@ dnl SXE_CHECK_COMPILER_FLAG([flag], [action-if-accepted], [action-if-not-accepte
 	AC_CACHE_VAL(AS_TR_SH(sxe_cv_[]_AC_LANG_ABBREV[]_flag_$1), [dnl
 		sxe_save_FLAGS="${[]_AC_LANG_PREFIX[]FLAGS}"
 		_AC_LANG_PREFIX[]FLAGS="$1"
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM($4)],
 			eval AS_TR_SH(sxe_cv_[]_AC_LANG_ABBREV[]_flag_$1)="yes",
 			eval AS_TR_SH(sxe_cv_[]_AC_LANG_ABBREV[]_flag_$1)="no")
 		_AC_LANG_PREFIX[]FLAGS="${sxe_save_FLAGS}"
