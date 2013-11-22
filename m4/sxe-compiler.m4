@@ -224,8 +224,15 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 
 	## too much at the moment, we rarely define protos
 	#warnflags="$warnflags -Wmissing-prototypes -Wstrict-prototypes"
+
+	## somehow clang seems to think -Wpacked is to inform me
+	## about how unnecessary the packed attr is, so conditionalise ...
 	SXE_CHECK_COMPILER_FLAG([-Wpacked], [
-		warnflags="$warnflags -Wpacked"])
+		warnflags="$warnflags -Wpacked"], [:], [[
+#if defined __clang__
+# error
+#endif  /* __clang__ */
+]])
 
 	## glibc is intentionally not `-Wpointer-arith'-clean.
 	## Ulrich Drepper has rejected patches to fix
