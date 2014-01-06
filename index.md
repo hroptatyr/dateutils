@@ -363,7 +363,7 @@ Yes, we're aware of social media:
 + [freecode](https://freecode.com/projects/dateutils)
 + [Ohloh](https://www.ohloh.net/p/dateutils)
 
-Not that there will be substantial content though.
+Not that there will be no substantial content though.
 
 <!--
   Local variables:
