@@ -187,6 +187,21 @@ typedef union {
 	};
 } __attribute__((__packed__)) dt_ywd_param_t;
 
+/** yds
+ * yds are pure helpers and don't exist in the wild. */
+typedef union {
+	uint32_t u;
+	struct {
+#if defined WORDS_BIGENDIAN
+		unsigned int y:16U;
+		signed int d:16U;
+#else  /* !WORDS_BIGENDIAN */
+		signed int d:16U;
+		unsigned int y:16U;
+#endif	/* WORDS_BIGENDIAN */
+	};
+} dt_yd_t;
+
 /** daysi
  * daisys are days since X, <DT_MIN_YEAR>-01-00 here */
 typedef uint32_t dt_daisy_t;
@@ -284,6 +299,8 @@ struct dt_d_s {
 		dt_md_t md;
 		dt_sdaisy_t daisydur;
 		dt_sdaisy_t bizsidur;
+		/* for helper purposes only */
+		dt_yd_t yd;
 	};
 };
 
