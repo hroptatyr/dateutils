@@ -418,6 +418,25 @@ dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 	case DT_YWD:
 		res = __ywd_get_wcnt_year(this.ywd, wkcnt_convention);
 		break;
+	case DT_DAISY:
+		switch (wkcnt_convention) {
+		default:
+		case YWD_ABSWK_CNT:
+			res = __daisy_get_wcnt_abs(this.daisy);
+			break;
+		case YWD_ISOWK_CNT:
+			res = __daisy_get_wcnt_iso(this.daisy);
+			break;
+		case YWD_MONWK_CNT:
+		case YWD_SUNWK_CNT: {
+			/* using monwk_cnt is a minor trick
+			 * from = 1 = Mon or 0 = Sun */
+			int from = wkcnt_convention == YWD_MONWK_CNT;
+			res = __daisy_get_wcnt(this.daisy, from);
+			break;
+		}
+		}
+		break;
 	default:
 		res = 0;
 		break;
