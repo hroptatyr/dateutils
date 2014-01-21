@@ -28,6 +28,10 @@ option "only-matching" o
 	"Show only the part of a line matching DATE."
 	optional
 
+option "invert-match" v
+	"Select non-matching lines."
+	optional
+
 defgroup "op"
 groupdesc="Operations can be specified by options as well.
 In all cases EXPRESSION must be a DT_STR and no concatenation is through
