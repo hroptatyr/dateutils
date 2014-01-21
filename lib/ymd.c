@@ -441,15 +441,6 @@ __ymd_get_wcnt_abs(dt_ymd_t d)
 	return (yd - 1) / 7 + 1;
 }
 
-static inline __attribute__((pure)) int
-__get_isowk_wd(unsigned int yd, dt_dow_t f01)
-{
-/* given the weekday the year starts with, F01, and the year-day YD
- * return the iso week number */
-	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3, 2};
-	return (yd - iso[f01]) / GREG_DAYS_P_WEEK + 1;
-}
-
 DEFUN int
 __ymd_get_wcnt_iso(dt_ymd_t d)
 {
