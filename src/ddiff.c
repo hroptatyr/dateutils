@@ -423,7 +423,7 @@ __strfdtdur(
 	static const char sexy_dflt_dur[] = "%T";
 	static const char ddur_dflt_dur[] = "%d";
 	static const char *const lpads[] = {"%ld", "%02ld"};
-	static const char *const ipads[] = {"%d", "%02d"};
+	static const char *const ipads[] = {"%d", "%02d", "%03d"};
 	const char *fp;
 	char *bp;
 
@@ -499,6 +499,7 @@ __strfdtdur(
 			goto bizda_suffix;
 		}
 		case DT_SPFL_N_DCNT_MON: {
+			const char *thisfmt = ipads[spec.pad0];
 			int d;
 
 			if (f.has_week) {
@@ -510,11 +511,12 @@ __strfdtdur(
 			} else if (!f.has_mon && f.has_year) {
 				/* days and years */
 				d = __strf_yd_days(dur);
+				thisfmt = ipads[2U * spec.pad0];
 			} else {
 				/* just days */
 				d = __strf_tot_days(dur);
 			}
-			bp += snprintf(bp, eo - bp, ipads[spec.pad0], d);
+			bp += snprintf(bp, eo - bp, thisfmt, d);
 		}
 		bizda_suffix:
 			if (spec.bizda) {
