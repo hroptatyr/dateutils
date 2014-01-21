@@ -598,6 +598,39 @@ __yd_get_wcnt(dt_yd_t d, int wdays_from)
 }
 #endif	/* YD_ASPECT_GETTERS_ */
 
+
+#if defined ASPECT_DIFF && !defined YD_ASPECT_DIFF_
+#define YD_ASPECT_DIFF_
+static struct dt_d_s
+__yd_diff(dt_yd_t d1, dt_yd_t d2)
+{
+/* compute d2 - d1 entirely in terms of ymd but express the result as yd */
+	struct dt_d_s res = {.typ = DT_YD, .dur = 1};
+	signed int tgtd;
+	signed int tgty;
+
+	if (d1.u > d2.u) {
+		/* swap d1 and d2 */
+		dt_yd_t tmp = d1;
+		res.neg = 1;
+		d1 = d2;
+		d2 = tmp;
+	}
+
+	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	tgty = (d2.y - d1.y);
+	if ((tgtd = (d2.d - d1.d)) < 0 && tgty != 0) {
+		/* if tgty is 0 it remains 0 and tgtd remains negative */
+		tgtd += LIKELY(!__leapp(d2.y)) ? 365 : 366;
+		tgty--;
+	}
+	/* fill in the results */
+	res.yd.y = tgty;
+	res.yd.d = tgtd;
+	return res;
+}
+#endif	/* ASPECT_DIFF */
+
 #undef ASPECT_YD
 
 /* yd.c ends here */
