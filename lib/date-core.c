@@ -387,6 +387,9 @@ dt_get_wcnt_mon(struct dt_d_s that)
 	}
 }
 
+/* forward decl */
+static dt_yd_t dt_conv_to_yd(struct dt_d_s this);
+
 static int
 dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 {
@@ -396,7 +399,6 @@ dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 	case DT_YMD:
 	case DT_DAISY:
 	case DT_YD: {
-		static dt_yd_t dt_conv_to_yd(struct dt_d_s this);
 		dt_yd_t yd = dt_conv_to_yd(this);
 
 		switch (wkcnt_convention) {
