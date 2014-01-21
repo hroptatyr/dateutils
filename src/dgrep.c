@@ -78,6 +78,7 @@ struct prln_ctx_s {
 	struct grep_atom_soa_s *ndl;
 	dexpr_t root;
 	unsigned int only_matching_p:1U;
+	unsigned int invert_match_p:1U;
 };
 
 static void
@@ -98,7 +99,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			break;
 		}
 		/* otherwise */
-		if (dexpr_matches_p(ctx.root, d)) {
+		if (dexpr_matches_p(ctx.root, d) ^ ctx.invert_match_p) {
 			if (!ctx.only_matching_p) {
 				sp = line;
 				ep = line + llen;
@@ -200,6 +201,7 @@ with complex expressions");
 			.ndl = &ndlsoa,
 			.root = root,
 			.only_matching_p = argi->only_matching_given,
+			.invert_match_p = argi->invert_match_given,
 		};
 
 		/* no threads reading this stream */
