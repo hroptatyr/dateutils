@@ -187,6 +187,21 @@ typedef union {
 	};
 } __attribute__((__packed__)) dt_ywd_param_t;
 
+/** yds
+ * yds are pure helpers and don't exist in the wild. */
+typedef union {
+	uint32_t u;
+	struct {
+#if defined WORDS_BIGENDIAN
+		unsigned int y:16U;
+		signed int d:16U;
+#else  /* !WORDS_BIGENDIAN */
+		signed int d:16U;
+		unsigned int y:16U;
+#endif	/* WORDS_BIGENDIAN */
+	};
+} dt_yd_t;
+
 /** daysi
  * daisys are days since X, <DT_MIN_YEAR>-01-00 here */
 typedef uint32_t dt_daisy_t;
@@ -284,6 +299,8 @@ struct dt_d_s {
 		dt_md_t md;
 		dt_sdaisy_t daisydur;
 		dt_sdaisy_t bizsidur;
+		/* for helper purposes only */
+		dt_yd_t yd;
 	};
 };
 
@@ -466,30 +483,17 @@ DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
  * 1 if D1 is younger than the D2. */
 DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
-/* functions that really shouldn't be exposed */
 /**
  * Get the week count of D in the year when weeks start at WDAYS_FROM. */
-DECLF int __ymd_get_wcnt(dt_ymd_t d, int wdays_from);
+DECLF int __yd_get_wcnt(dt_yd_t d, int wdays_from);
 
 /**
- * Like __ymd_get_wcnt() but for ISO week convention. */
-DECLF int __ymd_get_wcnt_iso(dt_ymd_t d);
+ * Like __yd_get_wcnt() but for ISO week convention. */
+DECLF int __yd_get_wcnt_iso(dt_yd_t d);
 
 /**
- * Like __ymd_get_wcnt() but disregard what day the year started with. */
-DECLF int __ymd_get_wcnt_abs(dt_ymd_t d);
-
-/**
- * Get the week count of D in the year when weeks start at WDAYS_FROM. */
-DECLF int __daisy_get_wcnt(dt_daisy_t d, int wdays_from);
-
-/**
- * Like __daisy_get_wcnt() but for ISO week convention. */
-DECLF int __daisy_get_wcnt_iso(dt_daisy_t d);
-
-/**
- * Like __daisy_get_wcnt() but disregard what day the year started with. */
-DECLF int __daisy_get_wcnt_abs(dt_daisy_t d);
+ * Like __yd_get_wcnt() but disregard what day the year started with. */
+DECLF int __yd_get_wcnt_abs(dt_yd_t d);
 
 /**
  * Return the N-th W-day in the year of THAT.

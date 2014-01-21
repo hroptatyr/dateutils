@@ -415,88 +415,16 @@ __ymd_get_count(dt_ymd_t that)
 	return (that.d - 1U) / GREG_DAYS_P_WEEK + 1U;
 }
 
-DEFUN int
-__ymd_get_wcnt(dt_ymd_t d, int wdays_from)
-{
-	int yd = __ymd_get_yday(d);
-	dt_dow_t y01 = __get_jan01_wday(d.y);
-	int wk;
-
-	/* yd of the FIRST week of the year */
-	if ((wk = 8 - (int)y01 + wdays_from) > 7) {
-		wk -= 7;
-	}
-	/* and now express yd as 7k + n relative to jan01 */
-	return (yd - wk + 7) / 7;
-}
-
-DEFUN int
+static int
 __ymd_get_wcnt_abs(dt_ymd_t d)
 {
 /* absolutely count the n-th occurrence of WD regardless what WD
- * the year started with */
+ * the year started with
+ * generally the path ymd->yd->get_wcnt_abs() is preferred */
 	int yd = __ymd_get_yday(d);
 
 	/* and now express yd as 7k + n relative to jan01 */
 	return (yd - 1) / 7 + 1;
-}
-
-static inline __attribute__((pure)) int
-__get_isowk_wd(unsigned int yd, dt_dow_t f01)
-{
-/* given the weekday the year starts with, F01, and the year-day YD
- * return the iso week number */
-	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3, 2};
-	return (yd - iso[f01]) / GREG_DAYS_P_WEEK + 1;
-}
-
-DEFUN int
-__ymd_get_wcnt_iso(dt_ymd_t d)
-{
-/* like __ymd_get_wcnt() but for iso week conventions
- * the week with the first thursday is the first week,
- * so a year starting on S is the first week,
- * a year starting on M is the first week
- * a year starting on T ... */
-	/* iso weeks always start on Mon */
-	int yd = __ymd_get_yday(d);
-	unsigned int y = d.y;
-	unsigned int y01 = __get_jan01_wday(y);
-	int wk;
-
-	/* express yd as 7k + n relative to jan01 */
-	if (UNLIKELY((wk = __get_isowk_wd(yd, (dt_dow_t)y01)) < 1)) {
-		/* get last years y01
-		 * which is basically y01 - (365|366 % 7) */
-		if (LIKELY(!__leapp(--y))) {
-			/* -= 1 */
-			y01 += 6;
-			yd += 365;
-		} else {
-			/* -= 2 */
-			y01 += 5;
-			yd += 366;
-		}
-		if (y01 >= GREG_DAYS_P_WEEK) {
-			y01 -= GREG_DAYS_P_WEEK;
-		}
-		/* same computation now */
-		wk = __get_isowk_wd(yd, (dt_dow_t)y01);
-	}
-	if (UNLIKELY(wk == 53)) {
-		/* check next year's y01 */
-		if (LIKELY(!__leapp(y))) {
-			y01 += 1;
-		} else {
-			/* -= 2 */
-			y01 += 2;
-		}
-		if (!(y01 == DT_FRIDAY || y01 == DT_SATURDAY)) {
-			/* 53rd week is no more */
-			wk = 1;
-		}
-	}
-	return wk;
 }
 
 static int
@@ -588,6 +516,20 @@ __ymd_to_daisy(dt_ymd_t d)
 	res = __jan00_daisy(sy);
 	res += __md_get_yday(sy, sm, sd);
 	return res;
+}
+
+static dt_yd_t
+__ymd_to_yd(dt_ymd_t d)
+{
+	int yd = __ymd_get_yday(d);
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_yd_t){.y = d.y, .d = yd};
+#else
+	dt_yd_t res;
+	res.y = d.y;
+	res.d = yd;
+	return res;
+#endif
 }
 #endif	/* ASPECT_CONV */
 

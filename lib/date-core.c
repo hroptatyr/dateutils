@@ -387,6 +387,9 @@ dt_get_wcnt_mon(struct dt_d_s that)
 	}
 }
 
+/* forward decl */
+static dt_yd_t dt_conv_to_yd(struct dt_d_s this);
+
 static int
 dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 {
@@ -394,48 +397,34 @@ dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 
 	switch (this.typ) {
 	case DT_YMD:
+	case DT_DAISY:
+	case DT_YD: {
+		dt_yd_t yd = dt_conv_to_yd(this);
+
 		switch (wkcnt_convention) {
 		default:
 		case YWD_ABSWK_CNT:
-			res = __ymd_get_wcnt_abs(this.ymd);
+			res = __yd_get_wcnt_abs(yd);
 			break;
 		case YWD_ISOWK_CNT:
-			res = __ymd_get_wcnt_iso(this.ymd);
+			res = __yd_get_wcnt_iso(yd);
 			break;
 		case YWD_MONWK_CNT:
 		case YWD_SUNWK_CNT: {
 			/* using monwk_cnt is a minor trick
 			 * from = 1 = Mon or 0 = Sun */
 			int from = wkcnt_convention == YWD_MONWK_CNT;
-			res = __ymd_get_wcnt(this.ymd, from);
+			res = __yd_get_wcnt(yd, from);
 			break;
 		}
 		}
 		break;
+	}
 	case DT_YMCW:
 		res = __ymcw_get_yday(this.ymcw);
 		break;
 	case DT_YWD:
 		res = __ywd_get_wcnt_year(this.ywd, wkcnt_convention);
-		break;
-	case DT_DAISY:
-		switch (wkcnt_convention) {
-		default:
-		case YWD_ABSWK_CNT:
-			res = __daisy_get_wcnt_abs(this.daisy);
-			break;
-		case YWD_ISOWK_CNT:
-			res = __daisy_get_wcnt_iso(this.daisy);
-			break;
-		case YWD_MONWK_CNT:
-		case YWD_SUNWK_CNT: {
-			/* using monwk_cnt is a minor trick
-			 * from = 1 = Mon or 0 = Sun */
-			int from = wkcnt_convention == YWD_MONWK_CNT;
-			res = __daisy_get_wcnt(this.daisy, from);
-			break;
-		}
-		}
 		break;
 	default:
 		res = 0;
@@ -653,6 +642,27 @@ dt_conv_to_ywd(struct dt_d_s this)
 		break;
 	}
 	return (dt_ywd_t){.u = 0};
+}
+
+static dt_yd_t
+dt_conv_to_yd(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YD:
+		/* yay, that was quick */
+		return this.yd;
+	case DT_YMD:
+		return __ymd_to_yd(this.ymd);
+	case DT_DAISY:
+		return __daisy_to_yd(this.daisy);
+	case DT_YMCW:
+		return __ymcw_to_yd(this.ymcw);
+	case DT_YWD:
+		return __ywd_to_yd(this.ywd);
+	default:
+		break;
+	}
+	return (dt_yd_t){.u = 0};
 }
 
 

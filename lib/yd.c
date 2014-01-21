@@ -43,6 +43,8 @@
 #define ASPECT_YD_
 #endif	/* !ASPECT_YD_ */
 
+#include "nifty.h"
+
 /* algo choices for jan01 wd determination */
 #if defined GET_JAN01_WDAY_FULL_LOOKUP
 #elif defined GET_JAN01_WDAY_28Y_LOOKUP
@@ -505,6 +507,96 @@ __yday_get_md(unsigned int year, unsigned int yday)
 #endif	/* GET_MD_* */
 
 #endif	/* YD_ASPECT_HELPERS_ */
+
+
+#if defined ASPECT_GETTERS && !defined YD_ASPECT_GETTERS_
+#define YD_ASPECT_GETTERS_
+static inline __attribute__((pure)) int
+__get_isowk_wd(unsigned int yd, dt_dow_t f01)
+{
+/* given the weekday the year starts with, F01, and the year-day YD
+ * return the iso week number */
+	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3, 2};
+	return (yd - iso[f01]) / GREG_DAYS_P_WEEK + 1;
+}
+
+DEFUN int
+__yd_get_wcnt_abs(dt_yd_t d)
+{
+/* absolutely count the n-th occurrence of WD regardless what WD
+ * the year started with */
+	int yd = d.d;
+	/* express yd as 7k + n relative to jan01 */
+	return (yd - 1) / 7 + 1;
+}
+
+DEFUN int
+__yd_get_wcnt_iso(dt_yd_t d)
+{
+/* like __yd_get_wcnt() but for iso week conventions
+ * the week with the first thursday is the first week,
+ * so a year starting on S is the first week,
+ * a year starting on M is the first week
+ * a year starting on T ... */
+	/* iso weeks always start on Mon */
+	unsigned int y = d.y;
+	int yd = d.d;
+	unsigned int y01 = __get_jan01_wday(y);
+	int wk;
+
+	/* express yd as 7k + n relative to jan01 */
+	if (UNLIKELY((wk = __get_isowk_wd(yd, (dt_dow_t)y01)) < 1)) {
+		/* get last years y01
+		 * which is basically y01 - (365|366 % 7) */
+		if (LIKELY(!__leapp(--y))) {
+			/* -= 1 */
+			y01 += 6;
+			yd += 365;
+		} else {
+			/* -= 2 */
+			y01 += 5;
+			yd += 366;
+		}
+		if (y01 >= GREG_DAYS_P_WEEK) {
+			y01 -= GREG_DAYS_P_WEEK;
+		}
+		/* same computation now */
+		wk = __get_isowk_wd(yd, (dt_dow_t)y01);
+	}
+	if (UNLIKELY(wk == 53)) {
+		/* check next year's y01 */
+		if (LIKELY(!__leapp(y))) {
+			y01 += 1;
+		} else {
+			/* -= 2 */
+			y01 += 2;
+		}
+		if (!(y01 == DT_FRIDAY || y01 == DT_SATURDAY)) {
+			/* 53rd week is no more */
+			wk = 1;
+		}
+	}
+	return wk;
+}
+
+DEFUN int
+__yd_get_wcnt(dt_yd_t d, int wdays_from)
+{
+/* absolutely count the n-th occurrence of WD regardless what WD
+ * the year started with */
+	unsigned int y = d.y;
+	int yd = d.d;
+	dt_dow_t y01 = __get_jan01_wday(y);
+	int wk;
+
+	/* yd of the FIRST week of the year */
+	if ((wk = 8 - (int)y01 + wdays_from) > 7) {
+		wk -= 7;
+	}
+	/* and now express yd as 7k + n relative to jan01 */
+	return (yd - wk + 7) / 7;
+}
+#endif	/* YD_ASPECT_GETTERS_ */
 
 #undef ASPECT_YD
 

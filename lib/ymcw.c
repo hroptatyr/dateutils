@@ -315,6 +315,23 @@ __ymcw_to_daisy(dt_ymcw_t d)
 	res += __md_get_yday(sy, sm, sd);
 	return res;
 }
+
+static dt_yd_t
+__ymcw_to_yd(dt_ymcw_t d)
+{
+	unsigned int sd = __ymcw_get_mday(d);
+	unsigned int sm = d.m;
+	unsigned int sy = d.y;
+
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_yd_t){.y = sy, .d = __md_get_yday(sy, sm, sd)};
+#else
+	dt_yd_t res;
+	res.y = sy;
+	res.d = __md_get_yday(sy, sm, sd);
+	return res;
+#endif
+}
 #endif	/* ASPECT_CONV */
 
 

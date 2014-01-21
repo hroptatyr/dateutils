@@ -717,6 +717,19 @@ __ywd_to_daisy(dt_ywd_t d)
 	res += __ywd_get_yday(d);
 	return res;
 }
+
+static dt_yd_t
+__ywd_to_yd(dt_ywd_t d)
+{
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_yd_t){.y = d.y, .d = __ywd_get_yday(d)};
+#else
+	dt_yd_t res;
+	res.y = d.y;
+	res.d = __ywd_get_yday(d);
+	return res;
+#endif
+}
 #endif	/* ASPECT_CONV */
 
 
