@@ -472,7 +472,7 @@ leaps_before(struct dt_dt_s d)
 	 * we have to access d.t.hms.u24 once (the failing access),
 	 * then again and magically it'll work, thanks a bunch clang! */
 	if (dt_sandwich_p(d) && on) {
-#if defined __clang__ && __clang_major__ == 3 && __clang_minor__ == 3
+#if defined __clang__ && __clang_major__ == 3 && __clang_minor__ >= 3
 # warning clang bug! \
 see http://llvm.org/bugs/show_bug.cgi?id=18028
 		/* access d.t.hms.u24 once */
