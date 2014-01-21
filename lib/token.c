@@ -176,11 +176,11 @@ next:
 		goto next;
 	case '0':
 		/* 0 padding modifier */
-		res.pad0 = 1U;
+		res.pad = DT_SPPAD_ZERO;
 		goto next;
 	case ' ':
 		/* SPC padding modifier */
-		res.padspc = 1U;
+		res.pad = DT_SPPAD_SPC;
 		goto next;
 	case 'r':
 		/* real modifier */

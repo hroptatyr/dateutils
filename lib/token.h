@@ -110,10 +110,11 @@ struct dt_spec_s {
 		unsigned int rom:1U;
 		/* want real seconds/minutes/etc. */
 		unsigned int tai:1U;
-		/* want zero padding */
-		unsigned int pad0:1U;
-		/* want space padding */
-		unsigned int padspc:1U;
+
+		/* for directions a(fter 0)/b(efore 1) */
+		unsigned int ab:1U;
+		/* bizda */
+		unsigned int bizda:1U;
 
 		/* pad to next octet */
 		unsigned int:3U;
@@ -125,10 +126,13 @@ struct dt_spec_s {
 			DT_SPMOD_LONG,
 			DT_SPMOD_ILL,
 		} abbr:2U;
-		/* for directions a(fter 0)/b(efore 1) */
-		unsigned int ab:1U;
-		/* bizda */
-		unsigned int bizda:1U;
+
+		/* control padding */
+		enum {
+			DT_SPPAD_NONE,
+			DT_SPPAD_ZERO,
+			DT_SPPAD_SPC,
+		} pad:2U;
 
 		/** time specs */
 		/* long/short 24h v 12h scale */
