@@ -77,22 +77,28 @@ error(int eno, const char *fmt, ...)
 struct prln_ctx_s {
 	struct grep_atom_soa_s *ndl;
 	dexpr_t root;
-	int only_matching_p;
+	unsigned int only_matching_p:1U;
 };
 
 static void
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
-	struct dt_dt_s d;
 	char *sp = NULL;
 	char *ep = NULL;
 
 	/* check if line matches,
 	 * there's currently no way to specify NEEDLE */
 	for (char *lp = line; ; lp = ep) {
-		d = dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, NULL);
+		struct dt_dt_s d =
+			dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, NULL);
+		bool unkp = dt_unk_p(d);
 
-		if (!dt_unk_p(d) && dexpr_matches_p(ctx.root, d)) {
+		if (unkp) {
+			/* just plain nothing */
+			break;
+		}
+		/* otherwise */
+		if (dexpr_matches_p(ctx.root, d)) {
 			if (!ctx.only_matching_p) {
 				sp = line;
 				ep = line + llen;
@@ -101,12 +107,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			*ep++ = '\n';
 			__io_write(sp, ep - sp, stdout);
 			break;
-		} else if (dt_unk_p(d)) {
-			/* just plain nothing */
-			break;
 		}
-		/* otherwise it means the line has no match (yet) */
-		;
 	}
 	return;
 }
