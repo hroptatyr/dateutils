@@ -717,6 +717,12 @@ __ywd_to_daisy(dt_ywd_t d)
 	res += __ywd_get_yday(d);
 	return res;
 }
+
+static dt_yd_t
+__ywd_to_yd(dt_ywd_t d)
+{
+	return (dt_yd_t){.y = d.y, .d = __ywd_get_yday(d)};
+}
 #endif	/* ASPECT_CONV */
 
 

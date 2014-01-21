@@ -380,6 +380,14 @@ __daisy_to_ywd(dt_daisy_t that)
 	res.w = (wd + 1U) % 7U;
 	return res;
 }
+
+static dt_yd_t
+__daisy_to_yd(dt_daisy_t d)
+{
+	int yd = __daisy_get_yday(d);
+	unsigned int y = __daisy_get_year(d);
+	return (dt_yd_t){.y = y, .d = yd};
+}
 #endif	/* ASPECT_CONV */
 
 

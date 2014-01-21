@@ -315,6 +315,16 @@ __ymcw_to_daisy(dt_ymcw_t d)
 	res += __md_get_yday(sy, sm, sd);
 	return res;
 }
+
+static dt_yd_t
+__ymcw_to_yd(dt_ymcw_t d)
+{
+	unsigned int sd = __ymcw_get_mday(d);
+	unsigned int sm = d.m;
+	unsigned int sy = d.y;
+
+	return (dt_yd_t){.y = sy, .d = __md_get_yday(sy, sm, sd)};
+}
 #endif	/* ASPECT_CONV */
 
 

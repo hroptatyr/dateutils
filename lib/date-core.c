@@ -655,6 +655,27 @@ dt_conv_to_ywd(struct dt_d_s this)
 	return (dt_ywd_t){.u = 0};
 }
 
+static dt_yd_t
+dt_conv_to_yd(struct dt_d_s this)
+{
+	switch (this.typ) {
+	case DT_YD:
+		/* yay, that was quick */
+		return this.yd;
+	case DT_YMD:
+		return __ymd_to_yd(this.ymd);
+	case DT_DAISY:
+		return __daisy_to_yd(this.daisy);
+	case DT_YMCW:
+		return __ymcw_to_yd(this.ymcw);
+	case DT_YWD:
+		return __ywd_to_yd(this.ywd);
+	default:
+		break;
+	}
+	return (dt_yd_t){.u = 0};
+}
+
 
 /* arithmetic */
 #define ASPECT_ADD

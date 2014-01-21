@@ -580,6 +580,13 @@ __ymd_to_daisy(dt_ymd_t d)
 	res += __md_get_yday(sy, sm, sd);
 	return res;
 }
+
+static dt_yd_t
+__ymd_to_yd(dt_ymd_t d)
+{
+	int yd = __ymd_get_yday(d);
+	return (dt_yd_t){.y = d.y, .d = yd};
+}
 #endif	/* ASPECT_CONV */
 
 
