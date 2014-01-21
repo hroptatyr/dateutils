@@ -617,13 +617,31 @@ __yd_diff(dt_yd_t d1, dt_yd_t d2)
 		d2 = tmp;
 	}
 
-	/* first compute the difference in months Y2-M2-01 - Y1-M1-01 */
+	/* first compute the difference in years */
 	tgty = (d2.y - d1.y);
-	if ((tgtd = (d2.d - d1.d)) < 0 && tgty != 0) {
-		/* if tgty is 0 it remains 0 and tgtd remains negative */
-		tgtd += LIKELY(!__leapp(d2.y)) ? 365 : 366;
-		tgty--;
+	/* ... and days */
+	tgtd = (d2.d - d1.d);
+	/* add leap corrections, this is actually a matrix
+	 * ({L,N}x{B,A})^2, Leap/Non-leap, Before/After leap day */
+	if (UNLIKELY(__leapp(d1.y) && d1.d > 60)) {
+		/* LA?? */
+		if (!__leapp(d2.y)) {
+			/* LAN? */
+			tgtd++;
+		} else if (d2.d < 60) {
+			/* LALB */
+			tgtd++;
+		}
+	} else if (d1.d > 60 && __leapp(d2.y) && d2.d > 60) {
+		/* NALA */
+		tgtd--;
 	}
+	/* add carry */
+	if (tgtd < 0) {
+		tgty--;
+		tgtd += 365;
+	}
+
 	/* fill in the results */
 	res.yd.y = tgty;
 	res.yd.d = tgtd;
