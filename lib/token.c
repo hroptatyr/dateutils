@@ -178,6 +178,11 @@ next:
 		/* real modifier */
 		res.tai = 1;
 		goto next;
+	case 'G':
+		/* for compatibility with posix */
+		res.tai = 1U;
+		res.spfl = DT_SPFL_N_YEAR;
+		break;
 	}
 	/* check for ordinals */
 	if (res.spfl > DT_SPFL_UNK && res.spfl <= DT_SPFL_N_LAST &&
