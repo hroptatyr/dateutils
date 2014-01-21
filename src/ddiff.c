@@ -422,6 +422,8 @@ __strfdtdur(
 /* like strfdtdur() but do some calculations based on F on the way there */
 	static const char sexy_dflt_dur[] = "%T";
 	static const char ddur_dflt_dur[] = "%d";
+	static const char *const lpads[] = {"%ld", "%02ld"};
+	static const char *const ipads[] = {"%d", "%02d"};
 	const char *fp;
 	char *bp;
 
@@ -512,7 +514,7 @@ __strfdtdur(
 				/* just days */
 				d = __strf_tot_days(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%d", d);
+			bp += snprintf(bp, eo - bp, ipads[spec.pad0], d);
 		}
 		bizda_suffix:
 			if (spec.bizda) {
@@ -541,7 +543,7 @@ __strfdtdur(
 				/* just weeks */
 				w = __strf_tot_weeks(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%d", w);
+			bp += snprintf(bp, eo - bp, ipads[spec.pad0], w);
 			break;
 		}
 		case DT_SPFL_N_MON: {
@@ -554,7 +556,7 @@ __strfdtdur(
 				/* just months */
 				m = __strf_tot_mon(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%d", m);
+			bp += snprintf(bp, eo - bp, ipads[spec.pad0], m);
 			break;
 		}
 		case DT_SPFL_N_YEAR: {
@@ -576,6 +578,7 @@ __strfdtdur(
 			bp += snprintf(bp, eo - bp, "%lds", s);
 			break;
 		}
+
 		case DT_SPFL_N_SEC: {
 			long int s = __strf_tot_secs(dur);
 
@@ -591,7 +594,7 @@ __strfdtdur(
 			if (UNLIKELY(spec.tai)) {
 				s += __strf_tot_corr(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%ld", s);
+			bp += snprintf(bp, eo - bp, lpads[spec.pad0], s);
 			break;
 		}
 		case DT_SPFL_N_MIN: {
@@ -603,7 +606,7 @@ __strfdtdur(
 			} else if (f.has_day) {
 				m %= (long int)(MINS_PER_HOUR * HOURS_PER_DAY);
 			}
-			bp += snprintf(bp, eo - bp, "%ld", m);
+			bp += snprintf(bp, eo - bp, lpads[spec.pad0], m);
 			break;
 		}
 		case DT_SPFL_N_HOUR: {
@@ -613,7 +616,7 @@ __strfdtdur(
 				/* hours and days */
 				h %= (long int)HOURS_PER_DAY;
 			}
-			bp += snprintf(bp, eo - bp, "%ld", h);
+			bp += snprintf(bp, eo - bp, lpads[spec.pad0], h);
 			break;
 		}
 
