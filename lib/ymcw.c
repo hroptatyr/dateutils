@@ -323,7 +323,14 @@ __ymcw_to_yd(dt_ymcw_t d)
 	unsigned int sm = d.m;
 	unsigned int sy = d.y;
 
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_yd_t){.y = sy, .d = __md_get_yday(sy, sm, sd)};
+#else
+	dt_yd_t res;
+	res.y = sy;
+	res.d = __md_get_yday(sy, sm, sd);
+	return res;
+#endif
 }
 #endif	/* ASPECT_CONV */
 

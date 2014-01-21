@@ -522,7 +522,14 @@ static dt_yd_t
 __ymd_to_yd(dt_ymd_t d)
 {
 	int yd = __ymd_get_yday(d);
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_yd_t){.y = d.y, .d = yd};
+#else
+	dt_yd_t res;
+	res.y = d.y;
+	res.d = yd;
+	return res;
+#endif
 }
 #endif	/* ASPECT_CONV */
 

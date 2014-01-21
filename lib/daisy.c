@@ -308,7 +308,15 @@ __daisy_to_yd(dt_daisy_t d)
 {
 	int yd = __daisy_get_yday(d);
 	unsigned int y = __daisy_get_year(d);
+
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_yd_t){.y = y, .d = yd};
+#else
+	dt_yd_t res;
+	res.y = y;
+	res.d = yd;
+	return res;
+#endif
 }
 #endif	/* ASPECT_CONV */
 
