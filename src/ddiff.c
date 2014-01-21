@@ -560,7 +560,6 @@ __strfdtdur(
 			} else {
 				/* just days */
 				d = __strf_tot_days(dur);
-				rng = -1;
 			}
 			bp += ltostr(bp, eo - bp, d, rng, spec.pad);
 		}
@@ -591,7 +590,6 @@ __strfdtdur(
 			} else {
 				/* just weeks */
 				w = __strf_tot_weeks(dur);
-				rng = -1;
 			}
 			bp += ltostr(bp, eo - bp, w, rng, spec.pad);
 			break;
@@ -606,7 +604,6 @@ __strfdtdur(
 			} else {
 				/* just months */
 				m = __strf_tot_mon(dur);
-				rng = -1;
 			}
 			bp += ltostr(bp, eo - bp, m, rng, spec.pad);
 			break;
@@ -644,8 +641,6 @@ __strfdtdur(
 				s %= (long int)SECS_PER_HOUR;
 			} else if (f.has_day) {
 				s %= (long int)SECS_PER_DAY;
-			} else {
-				rng = -1;
 			}
 			if (UNLIKELY(spec.tai)) {
 				s += __strf_tot_corr(dur);
@@ -662,8 +657,6 @@ __strfdtdur(
 				m %= (long int)MINS_PER_HOUR;
 			} else if (f.has_day) {
 				m %= (long int)(MINS_PER_HOUR * HOURS_PER_DAY);
-			} else {
-				rng = -1;
 			}
 			bp += ltostr(bp, eo - bp, m, rng, spec.pad);
 			break;
@@ -675,8 +668,6 @@ __strfdtdur(
 			if (f.has_day) {
 				/* hours and days */
 				h %= (long int)HOURS_PER_DAY;
-			} else {
-				rng = -1;
 			}
 			bp += ltostr(bp, eo - bp, h, rng, spec.pad);
 			break;
