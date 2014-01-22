@@ -623,23 +623,26 @@ __yd_diff(dt_yd_t d1, dt_yd_t d2)
 	tgtd = (d2.d - d1.d);
 	/* add leap corrections, this is actually a matrix
 	 * ({L,N}x{B,A})^2, Leap/Non-leap, Before/After leap day */
-	if (UNLIKELY(__leapp(d1.y) && d1.d > 60)) {
+	if (UNLIKELY(__leapp(d1.y)) && LIKELY(d1.d >= 60)) {
 		/* LA?? */
-		if (!__leapp(d2.y)) {
+		if (UNLIKELY(d1.d == 60)) {
+			/* corner case, treat 29 Feb as 01 Mar */
+			;
+		} else if (!__leapp(d2.y)) {
 			/* LAN? */
 			tgtd++;
 		} else if (d2.d < 60) {
 			/* LALB */
 			tgtd++;
 		}
-	} else if (d1.d > 60 && __leapp(d2.y) && d2.d > 60) {
+	} else if (d1.d >= 60 && UNLIKELY(__leapp(d2.y)) && d2.d >= 60) {
 		/* NALA */
 		tgtd--;
 	}
 	/* add carry */
 	if (tgtd < 0) {
 		tgty--;
-		tgtd += 365;
+		tgtd += 365 + ((__leapp(d2.y)) && d2.d >= 60);
 	}
 
 	/* fill in the results */
