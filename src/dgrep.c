@@ -84,12 +84,12 @@ struct prln_ctx_s {
 static void
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
-	char *sp = NULL;
-	char *ep = NULL;
+	char *osp;
+	char *oep;
 
 	/* check if line matches,
 	 * there's currently no way to specify NEEDLE */
-	for (char *lp = line; ; lp = ep) {
+	for (char *lp = line, *sp, *ep; ; lp = ep, osp = sp, oep = ep) {
 		struct dt_dt_s d =
 			dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, NULL);
 		bool unkp = dt_unk_p(d);
@@ -99,16 +99,29 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			break;
 		}
 		/* otherwise */
-		if (dexpr_matches_p(ctx.root, d) ^ ctx.invert_match_p) {
-			if (!ctx.only_matching_p) {
+		if (dexpr_matches_p(ctx.root, d)) {
+			if (ctx.invert_match_p) {
+				/* nothing must match */
+				return;
+			} else if (!ctx.only_matching_p) {
 				sp = line;
 				ep = line + llen;
 			}
 			/* make sure we finish the line */
 			*ep++ = '\n';
 			__io_write(sp, ep - sp, stdout);
-			break;
+			return;
 		}
+	}
+	if (ctx.invert_match_p) {
+		/* no match but invert_match select, print line */
+		if (!ctx.only_matching_p) {
+			osp = line;
+			oep = line + llen;
+		}
+		/* finish the line and bugger off */
+		*oep++ = '\n';
+		__io_write(osp, oep - osp, stdout);
 	}
 	return;
 }
