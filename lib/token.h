@@ -105,34 +105,46 @@ typedef enum {
 struct dt_spec_s {
 	struct {
 		/* ordinal flag, 01, 02, 03 -> 1st 2nd 3rd */
-		unsigned int ord:1;
+		unsigned int ord:1U;
 		/* roman numeral flag */
-		unsigned int rom:1;
+		unsigned int rom:1U;
+		/* want real seconds/minutes/etc. */
+		unsigned int tai:1U;
+
+		/* for directions a(fter 0)/b(efore 1) */
+		unsigned int ab:1U;
+		/* bizda */
+		unsigned int bizda:1U;
+
+		/* pad to next octet */
+		unsigned int:3U;
+
 		/* controls abbreviation */
 		enum {
 			DT_SPMOD_NORM,
 			DT_SPMOD_ABBR,
 			DT_SPMOD_LONG,
 			DT_SPMOD_ILL,
-		} abbr:2;
-		/* for directions a(fter 0)/b(efore 1) */
-		unsigned int ab:1;
-		/* bizda */
-		unsigned int bizda:1;
+		} abbr:2U;
+
+		/* control padding */
+		enum {
+			DT_SPPAD_NONE,
+			DT_SPPAD_ZERO,
+			DT_SPPAD_SPC,
+		} pad:2U;
 
 		/** time specs */
 		/* long/short 24h v 12h scale */
-		unsigned int sc12:1;
+		unsigned int sc12:1U;
 		/* capitalise am/pm indicator */
-		unsigned int cap:1;
+		unsigned int cap:1U;
 
 		/* week-count conventions */
-		unsigned int wk_cnt:2;
+		unsigned int wk_cnt:2U;
 
-		/* want real seconds/minutes/etc. */
-		unsigned int tai:1;
 		/* pad to the next word */
-		unsigned int:5;
+		unsigned int:0U;
 	};
 	dt_spfl_t spfl:8;
 };

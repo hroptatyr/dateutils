@@ -222,6 +222,52 @@ error(int eno, const char *fmt, ...)
 	return;
 }
 
+static size_t
+ltostr(char *restrict buf, size_t bsz, long int v,
+       int range, unsigned int pad)
+{
+#define C(x)	(char)((x) + '0')
+	char *restrict bp = buf;
+	const char *const ep = buf + bsz;
+	bool negp;
+
+	if (UNLIKELY((negp = v < 0))) {
+		v = -v;
+	} else if (!v) {
+		*bp++ = C(0U);
+		range--;
+	}
+	/* write the mantissa right to left */
+	for (; v && bp < ep; range--) {
+		register unsigned int x = v % 10U;
+
+		v /= 10U;
+		*bp++ = C(x);
+	}
+	/* fill up with padding */
+	if (UNLIKELY(pad)) {
+		static const char pads[] = " 0";
+		const char p = pads[2U - pad];
+
+		while (range-- > 0) {
+			*bp++ = p;
+		}
+	}
+	/* write the sign */
+	if (UNLIKELY(negp)) {
+		*bp++ = '-';
+	}
+
+	/* reverse the string */
+	for (char *ip = buf, *jp = bp - 1; ip < jp; ip++, jp--) {
+		register char tmp = *ip;
+		*ip = *jp;
+		*jp = tmp;
+	}
+#undef C
+	return bp - buf;
+}
+
 static inline void
 dt_io_warn_dur(const char *d1, const char *d2)
 {
@@ -493,11 +539,13 @@ __strfdtdur(
 
 		case DT_SPFL_N_DSTD: {
 			int d = __strf_tot_days(dur);
-			bp += snprintf(bp, eo - bp, "%dd", d);
+			bp += ltostr(bp, eo - bp, d, -1, DT_SPPAD_NONE);
+			*bp++ = 'd';
 			goto bizda_suffix;
 		}
 		case DT_SPFL_N_DCNT_MON: {
 			int d;
+			int rng = 2;
 
 			if (f.has_week) {
 				/* week shadows days in the hierarchy */
@@ -508,11 +556,12 @@ __strfdtdur(
 			} else if (!f.has_mon && f.has_year) {
 				/* days and years */
 				d = __strf_yd_days(dur);
+				rng++;
 			} else {
 				/* just days */
 				d = __strf_tot_days(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%d", d);
+			bp += ltostr(bp, eo - bp, d, rng, spec.pad);
 		}
 		bizda_suffix:
 			if (spec.bizda) {
@@ -530,6 +579,7 @@ __strfdtdur(
 		case DT_SPFL_N_WCNT_MON:
 		case DT_SPFL_N_DCNT_WEEK: {
 			int w;
+			int rng = 2;
 
 			if (f.has_mon) {
 				/* months and weeks */
@@ -541,11 +591,12 @@ __strfdtdur(
 				/* just weeks */
 				w = __strf_tot_weeks(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%d", w);
+			bp += ltostr(bp, eo - bp, w, rng, spec.pad);
 			break;
 		}
 		case DT_SPFL_N_MON: {
 			int m;
+			int rng = 2;
 
 			if (f.has_year) {
 				/* years and months */
@@ -554,7 +605,7 @@ __strfdtdur(
 				/* just months */
 				m = __strf_tot_mon(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%d", m);
+			bp += ltostr(bp, eo - bp, m, rng, spec.pad);
 			break;
 		}
 		case DT_SPFL_N_YEAR: {
@@ -562,7 +613,7 @@ __strfdtdur(
 
 			/* just years */
 			y = __strf_tot_years(dur);
-			bp += snprintf(bp, eo - bp, "%d", y);
+			bp += ltostr(bp, eo - bp, y, -1, DT_SPPAD_NONE);
 			break;
 		}
 
@@ -573,11 +624,14 @@ __strfdtdur(
 			if (UNLIKELY(spec.tai)) {
 				s += __strf_tot_corr(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%lds", s);
+			bp += ltostr(bp, eo - bp, s, -1, DT_SPPAD_NONE);
+			*bp++ = 's';
 			break;
 		}
+
 		case DT_SPFL_N_SEC: {
 			long int s = __strf_tot_secs(dur);
+			int rng = 2;
 
 			if (f.has_min) {
 				/* minutes and seconds */
@@ -591,11 +645,12 @@ __strfdtdur(
 			if (UNLIKELY(spec.tai)) {
 				s += __strf_tot_corr(dur);
 			}
-			bp += snprintf(bp, eo - bp, "%ld", s);
+			bp += ltostr(bp, eo - bp, s, rng, spec.pad);
 			break;
 		}
 		case DT_SPFL_N_MIN: {
 			long int m = __strf_tot_mins(dur);
+			int rng = 2;
 
 			if (f.has_hour) {
 				/* hours and minutes */
@@ -603,17 +658,18 @@ __strfdtdur(
 			} else if (f.has_day) {
 				m %= (long int)(MINS_PER_HOUR * HOURS_PER_DAY);
 			}
-			bp += snprintf(bp, eo - bp, "%ld", m);
+			bp += ltostr(bp, eo - bp, m, rng, spec.pad);
 			break;
 		}
 		case DT_SPFL_N_HOUR: {
 			long int h = __strf_tot_hours(dur);
+			int rng = 2;
 
 			if (f.has_day) {
 				/* hours and days */
 				h %= (long int)HOURS_PER_DAY;
 			}
-			bp += snprintf(bp, eo - bp, "%ld", h);
+			bp += ltostr(bp, eo - bp, h, rng, spec.pad);
 			break;
 		}
 

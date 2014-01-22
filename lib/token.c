@@ -174,6 +174,14 @@ next:
 		/* roman numerals modifier */
 		res.rom = 1;
 		goto next;
+	case '0':
+		/* 0 padding modifier */
+		res.pad = DT_SPPAD_ZERO;
+		goto next;
+	case ' ':
+		/* SPC padding modifier */
+		res.pad = DT_SPPAD_SPC;
+		goto next;
 	case 'r':
 		/* real modifier */
 		res.tai = 1;

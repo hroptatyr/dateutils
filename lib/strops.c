@@ -139,6 +139,7 @@ ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
 		res = 0;
 		break;
 	}
+#undef C
 	return res;
 }
 
