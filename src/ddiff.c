@@ -182,8 +182,10 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		    fmt_only_d_p(f))) {
 		if (f.has_week && (f.has_mon || f.has_year)) {
 			return (dt_dttyp_t)DT_YMCW;
-		} else if (f.has_mon || f.has_year) {
+		} else if (f.has_mon) {
 			return (dt_dttyp_t)DT_YMD;
+		} else if (f.has_year && f.has_day) {
+			return (dt_dttyp_t)DT_YD;
 		} else if (f.has_day && f.has_biz) {
 			return (dt_dttyp_t)DT_BIZSI;
 		} else if (f.has_day || f.has_week || f.flags == 0) {
@@ -368,6 +370,9 @@ __strf_yd_days(struct dt_dt_s dur)
 	case DT_YMD:
 		d = dur.d.ymd.d;
 		break;
+	case DT_YD:
+		d = dur.d.yd.d;
+		break;
 	case DT_YMCW:
 		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;
 		break;
@@ -395,6 +400,9 @@ __strf_w_days(struct dt_dt_s dur)
 		break;
 	case DT_YMD:
 		d = dur.d.ymd.d % (int)GREG_DAYS_P_WEEK;
+		break;
+	case DT_YD:
+		d = dur.d.yd.d % (int)GREG_DAYS_P_WEEK;
 		break;
 	case DT_YMCW:
 		d = dur.d.ymcw.w;
@@ -441,6 +449,9 @@ __strf_tot_mon(struct dt_dt_s dur)
 		break;
 	case DT_YMCW:
 		m = dur.d.ymcw.m + dur.d.ymcw.y * (int)GREG_MONTHS_P_YEAR;
+		break;
+	case DT_YD:
+		m = dur.d.yd.y * (int)GREG_MONTHS_P_YEAR;
 		break;
 	default:
 		break;
