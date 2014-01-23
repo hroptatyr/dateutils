@@ -416,19 +416,19 @@ __strf_w_days(struct dt_dt_s dur)
 
 	switch (dur.d.typ) {
 	case DT_DAISY:
-		d = dur.d.daisydur % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.daisydur;
 		break;
 	case DT_BIZSI:
-		d = dur.d.bizsidur % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.bizsidur;
 		break;
 	case DT_BIZDA:
-		d = dur.d.bizda.bd % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.bizda.bd;
 		break;
 	case DT_YMD:
-		d = dur.d.ymd.d % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.ymd.d;
 		break;
 	case DT_YD:
-		d = dur.d.yd.d % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.yd.d;
 		break;
 	case DT_YMCW:
 		d = dur.d.ymcw.w;
@@ -439,6 +439,7 @@ __strf_w_days(struct dt_dt_s dur)
 	default:
 		break;
 	}
+	d %= (int)GREG_DAYS_P_WEEK;
 	return d + __strf_tot_secs(dur) / (long int)SECS_PER_DAY;
 }
 
