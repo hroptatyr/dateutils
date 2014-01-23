@@ -859,7 +859,7 @@ __ywd_diff(dt_ywd_t d1, dt_ywd_t d2)
 	/* first compute the difference in years */
 	tgty = (d2.y - d1.y);
 	/* ... and weeks */
-	tgtw = (d2.c - d2.c);
+	tgtw = (d2.c - d1.c);
 	/* ... oh, and days, too */
 	tgtd = (d2.w - d1.w);
 
