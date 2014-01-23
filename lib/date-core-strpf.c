@@ -488,7 +488,9 @@ __strfd_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that)
 {
-	size_t res = 0;
+	static const char pads[] = "00 ";
+	const char pad = pads[s.pad];
+	size_t res = 0U;
 
 	switch (s.spfl) {
 	default:
@@ -501,11 +503,11 @@ __strfd_card(
 			__strfd_get_d(d, that);
 		}
 		if (LIKELY(bsz >= 10)) {
-			ui32tostr(buf + 0, bsz, d->y, 4);
+			ui32topstr(buf + 0, bsz, d->y, 4, pad);
 			buf[4] = '-';
-			res = ui32tostr(buf + 5, bsz, d->m, 2);
+			res = ui32topstr(buf + 5, bsz, d->m, 2, pad);
 			buf[7] = '-';
-			ui32tostr(buf + 8, bsz, d->d, 2);
+			ui32topstr(buf + 8, bsz, d->d, 2, pad);
 			res = 10;
 		}
 		break;
@@ -517,9 +519,10 @@ __strfd_card(
 			y = d->q;
 		}
 		if (UNLIKELY(s.abbr == DT_SPMOD_ABBR)) {
+			y %= 100U;
 			prec = 2;
 		}
-		res = ui32tostr(buf, bsz, y, prec);
+		res = ui32topstr(buf, bsz, y, prec, pad);
 		break;
 	}
 	case DT_SPFL_N_MON:
@@ -528,7 +531,7 @@ __strfd_card(
 		} else if (UNLIKELY(!d->m)) {
 			__strfd_get_m(d, that);
 		}
-		res = ui32tostr(buf, bsz, d->m, 2);
+		res = ui32topstr(buf, bsz, d->m, 2, pad);
 		break;
 	case DT_SPFL_N_DCNT_MON: {
 		/* ymd mode check? */
@@ -547,7 +550,7 @@ __strfd_card(
 			pd = dt_get_bday_q(
 				that, __make_bizda_param(s.ab, BIZDA_ULTIMO));
 		}
-		res = ui32tostr(buf, bsz, pd, 2);
+		res = ui32topstr(buf, bsz, pd, 2, pad);
 		break;
 	}
 	case DT_SPFL_N_DCNT_WEEK:
@@ -561,7 +564,7 @@ __strfd_card(
 				d->w = 7;
 			}
 		}
-		res = ui32tostr(buf, bsz, d->w, 2);
+		res = ui32topstr(buf, bsz, d->w, 2, pad);
 		break;
 	case DT_SPFL_N_WCNT_MON: {
 		unsigned int c = d->c;
@@ -571,7 +574,7 @@ __strfd_card(
 			/* don't store it */
 			c = (unsigned int)dt_get_wcnt_mon(that);
 		}
-		res = ui32tostr(buf, bsz, c, 2);
+		res = ui32topstr(buf, bsz, c, 2, pad);
 		break;
 	}
 	case DT_SPFL_S_WDAY:
@@ -657,11 +660,11 @@ __strfd_card(
 					that.bizda, __get_bizda_param(that));
 			}
 			if (yd >= 0) {
-				res = ui32tostr(buf, bsz, yd, 3);
+				res = ui32topstr(buf, bsz, yd, 3, pad);
 			} else {
-				buf[res++] = '0';
-				buf[res++] = '0';
-				buf[res++] = '0';
+				buf[res++] = pad;
+				buf[res++] = pad;
+				buf[res++] = pad;
 			}
 			break;
 		}
@@ -677,7 +680,7 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_WCNT_YEAR: {
 		int yw = dt_get_wcnt_year(that, s.wk_cnt);
-		res = ui32tostr(buf, bsz, yw, 2);
+		res = ui32topstr(buf, bsz, yw, 2, pad);
 		break;
 	}
 	}
