@@ -271,6 +271,15 @@ static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 
+static const char ymdhmsdur_dflt[] = "%0Y-%0m-%0dT%0T";
+static const char ymcwhmsdur_dflt[] = "%Y-%0m-%0w-%0dT%0T";
+static const char ywdhmsdur_dflt[] = "%rY-W%0w-%0dT%0T";
+static const char ydhmsdur_dflt[] = "%Y-%0d";
+static const char daisyhmsdur_dflt[] = "%dT%0T";
+static const char sexydur_dflt[] = "%s";
+static const char bizsihmsdur_dflt[] = "%dbT%0T";
+static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0T";
+
 static void
 __trans_dtfmt(const char **fmt)
 {
@@ -310,6 +319,51 @@ __trans_dtfmt(const char **fmt)
 			break;
 		case DT_YD:
 			*fmt = ydhms_dflt;
+			break;
+		}
+	}
+	return;
+}
+
+static void
+__trans_dtdurfmt(const char **fmt)
+{
+	if (UNLIKELY(*fmt == NULL)) {
+		/* um, great */
+		;
+	} else if (LIKELY(**fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else {
+		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+
+		/* thanks gcc for making me cast this :( */
+		switch ((unsigned int)tmp) {
+		default:
+			break;
+		case DT_YMD:
+			*fmt = ymdhmsdur_dflt;
+			break;
+		case DT_YMCW:
+			*fmt = ymcwhmsdur_dflt;
+			break;
+		case DT_BIZDA:
+			*fmt = bizdahmsdur_dflt;
+			break;
+		case DT_DAISY:
+			*fmt = daisyhmsdur_dflt;
+			break;
+		case DT_SEXY:
+			*fmt = sexydur_dflt;
+			break;
+		case DT_BIZSI:
+			*fmt = bizsihmsdur_dflt;
+			break;
+		case DT_YWD:
+			*fmt = ywdhmsdur_dflt;
+			break;
+		case DT_YD:
+			*fmt = ydhmsdur_dflt;
 			break;
 		}
 	}

@@ -703,6 +703,14 @@ static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
 
+static const char ymddur_dflt[] = "%Y-%0m-%0d";
+static const char ymcwdur_dflt[] = "%Y-%0m-%0w-%0d";
+static const char ywddur_dflt[] = "%rY-W%0w-%0d";
+static const char yddur_dflt[] = "%Y-%0d";
+static const char daisydur_dflt[] = "%d";
+static const char bizsidur_dflt[] = "%db";
+static const char bizdadur_dflt[] = "%Y-%0m-%0db";
+
 static dt_dtyp_t
 __trans_dfmt_special(const char *fmt)
 {
@@ -752,6 +760,45 @@ __trans_dfmt(const char **fmt)
 			break;
 		case DT_BIZSI:
 			*fmt = bizsi_dflt;
+			break;
+		}
+	}
+	return;
+}
+
+static void
+__trans_ddurfmt(const char **fmt)
+{
+	if (UNLIKELY(*fmt == NULL)) {
+		/* great, standing ovations to the user */
+		;
+	} else if (LIKELY(**fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else {
+		switch (__trans_dfmt_special(*fmt)) {
+		default:
+			break;
+		case DT_YMD:
+			*fmt = ymddur_dflt;
+			break;
+		case DT_YMCW:
+			*fmt = ymcwdur_dflt;
+			break;
+		case DT_YWD:
+			*fmt = ywddur_dflt;
+			break;
+		case DT_YD:
+			*fmt = yddur_dflt;
+			break;
+		case DT_BIZDA:
+			*fmt = bizdadur_dflt;
+			break;
+		case DT_DAISY:
+			*fmt = daisydur_dflt;
+			break;
+		case DT_BIZSI:
+			*fmt = bizsidur_dflt;
 			break;
 		}
 	}
