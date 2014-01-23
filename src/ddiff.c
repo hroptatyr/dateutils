@@ -76,29 +76,50 @@ static durfmt_t
 determine_durfmt(const char *fmt)
 {
 	durfmt_t res = {0};
+	dt_dtyp_t special;
 
 	if (fmt == NULL) {
 		/* decide later on */
 		;
-	} else if (strcasecmp(fmt, "ymd") == 0) {
-		res.has_year = 1;
-		res.has_mon = 1;
-		res.has_day = 1;
-	} else if (strcasecmp(fmt, "ymcw") == 0) {
-		res.has_year = 1;
-		res.has_mon = 1;
-		res.has_week = 1;
-		res.has_day = 1;
-	} else if (strcasecmp(fmt, "daisy") == 0) {
-		res.has_day = 1;
-	} else if (strcasecmp(fmt, "bizda") == 0) {
-		res.has_year = 1;
-		res.has_mon = 1;
-		res.has_day = 1;
-		res.has_biz = 1;
-	} else if (strcasecmp(fmt, "bizsi") == 0) {
-		res.has_day = 1;
-		res.has_biz = 1;
+	} else if (UNLIKELY((special = __trans_dfmt_special(fmt)) != DT_DUNK)) {
+		switch (special) {
+		default:
+		case DT_DUNK:
+			break;
+		case DT_YMD:
+			res.has_year = 1;
+			res.has_mon = 1;
+			res.has_day = 1;
+			break;
+		case DT_YMCW:
+			res.has_year = 1;
+			res.has_mon = 1;
+			res.has_week = 1;
+			res.has_day = 1;
+			break;
+		case DT_DAISY:
+			res.has_day = 1;
+			break;
+		case DT_BIZDA:
+			res.has_year = 1;
+			res.has_mon = 1;
+			res.has_day = 1;
+			res.has_biz = 1;
+			break;
+		case DT_BIZSI:
+			res.has_day = 1;
+			res.has_biz = 1;
+			break;
+		case DT_YWD:
+			res.has_year = 1;
+			res.has_week = 1;
+			res.has_day = 1;
+			break;
+		case DT_YD:
+			res.has_year = 1;
+			res.has_day = 1;
+			break;
+		}
 	} else {
 		/* go through the fmt specs */
 		for (const char *fp = fmt; *fp;) {
