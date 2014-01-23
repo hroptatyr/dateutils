@@ -1,10 +1,14 @@
 @section Format specs for durations
 
-Durations are somewhat ambiguous when it comes to representing them
-through format specifiers.  Unlike point-in-time representations
-durations specifiers can have an intra-line relationship.  So for
-instance a duration of 128 seconds might be presented through @samp{%S}
-as @samp{128} but similarly through @samp{%M:%S} as @samp{02:08}.
+Unlike time or absolute instants, durations are reference-free, i.e. the
+reference instant is not part of the duration.  As a result durations
+cannot be named, i.e. there is no naming scheme that applies to all
+durations and all references unambiguously.
+
+Consequently, none of the format specifiers for date/times makes sense
+for durations in the literal sense.  However, to aid intuitive usage we
+reused format specifiers when they represent integral values and a valid
+unit for duration, as follows:
 
 Date specs:
 @verbatim
@@ -39,3 +43,39 @@ General specs:
   %%  A literal % character
 @end verbatim
 
+Modifiers:
+@verbatim
+  %r    Modifier to turn units into real units
+  %0    Modifier to pad refined values with zeroes
+  %SPC  Modifier to pad refined values with spaces
+  b     Suffix, treat days as business days
+@end verbatim
+
+
+@section The refinement rule
+
+Durations are somewhat ambiguous when it comes to representing them
+through format specifiers.  Unlike format specifiers in point-in-time
+representations duration specifiers can have an intra-line relationship.
+
+So for instance a duration of 128 seconds might be presented through
+@samp{%S} as @samp{128} but similarly through @samp{%M:%S} as
+@samp{02:08} (read two minutes and 8 seconds).
+
+There are several approaches to deal with this ambiguity.  The ddiff
+tool will follow, what we call, the refinement rule.  That is,
+regardless of the position of a format specifier, if it is a valid
+@emph{refinement} of another specifier in the format string, then it
+will only show the fractional value, i.e. the value in its natural range
+with respect to the @emph{refined} specifier.
+
+Using the refinement rule keeps the format string dead simple, there's
+no need for operators or a full-blown language to distinguish the range
+ambiguity, which then would have to be escaped because they could also
+in theory be part of the literal characters of the format string,
+resulting more often than not in command lines that are hard to craft
+and even harder to understand later on (e.g. if used in shell scripts).
+
+The refinement rule ingeniously covers the 99% case but, unlike other
+approaches, there's @emph{no} way to display two unrefined values in the
+same format string, e.g. @samp{'%w weeks (which is %d days)'}.
