@@ -698,6 +698,7 @@ dt_conv_to_yd(struct dt_d_s this)
 static const char ymd_dflt[] = "%F";
 static const char ymcw_dflt[] = "%Y-%m-%c-%w";
 static const char ywd_dflt[] = "%rY-W%V-%u";
+static const char yd_dflt[] = "%Y-%d";
 static const char daisy_dflt[] = "%d";
 static const char bizsi_dflt[] = "%db";
 static const char bizda_dflt[] = "%Y-%m-%db";
@@ -739,6 +740,9 @@ __trans_dfmt(const char **fmt)
 			break;
 		case DT_YWD:
 			*fmt = ywd_dflt;
+			break;
+		case DT_YD:
+			*fmt = yd_dflt;
 			break;
 		case DT_BIZDA:
 			*fmt = bizda_dflt;

@@ -265,6 +265,7 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 static const char ymdhms_dflt[] = "%FT%T";
 static const char ymcwhms_dflt[] = "%Y-%m-%c-%wT%T";
 static const char ywdhms_dflt[] = "%rY-W%V-%uT%T";
+static const char ydhms_dflt[] = "%Y-%d";
 static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
@@ -306,6 +307,9 @@ __trans_dtfmt(const char **fmt)
 			break;
 		case DT_YWD:
 			*fmt = ywdhms_dflt;
+			break;
+		case DT_YD:
+			*fmt = ydhms_dflt;
 			break;
 		}
 	}
