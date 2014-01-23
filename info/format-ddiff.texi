@@ -80,7 +80,10 @@ with respect to the @emph{refined} specifier.
 
 The refinement alternatives are listed in order of precedence and they
 are mutually exclusive.  I.e. it is not possible to express a duration
-in months and hours without having a @samp{%d} specifier as well.
+in months and hours without having a @samp{%d} specifier as well.  On
+the other hand in a chain of refinements inner elements are optional,
+i.e. you can express a duration in weeks and hours because every day has
+24 hours and hence there are 168 hours in a week.
 
 Using the refinement rule keeps the format string dead simple, there's
 no need for operators or a full-blown language to distinguish the range
