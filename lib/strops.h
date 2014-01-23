@@ -77,6 +77,11 @@ DECLF size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad);
 
 /**
+ * Convert D (padded with at most WIDTH PAD chars) into B, return the size. */
+DECLF size_t
+ui32topstr(char *restrict b, size_t z, uint32_t d, int width, char pad);
+
+/**
  * Convert roman numeral (string) to i32 and point to its end in EP. */
 DECLF int32_t
 romstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
