@@ -69,6 +69,19 @@ regardless of the position of a format specifier, if it is a valid
 will only show the fractional value, i.e. the value in its natural range
 with respect to the @emph{refined} specifier.
 
+@verbatim
+  %Y  possible refinements: %m, %d
+  %m  possible refinements: %w, %d
+  %w  possible refinements: %d
+  %d  possible refinements: %H, %M, %S
+  %H  possible refinements: %M, %S
+  %M  possible refinements: %S
+@end verbatim
+
+The refinement alternatives are listed in order of precedence and they
+are mutually exclusive.  I.e. it is not possible to express a duration
+in months and hours without having a @samp{%d} specifier as well.
+
 Using the refinement rule keeps the format string dead simple, there's
 no need for operators or a full-blown language to distinguish the range
 ambiguity, which then would have to be escaped because they could also
