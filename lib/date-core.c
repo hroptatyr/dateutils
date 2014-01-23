@@ -1584,7 +1584,12 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 		res = __yd_diff(tmp1, tmp2);
 		break;
 	}
-	case DT_YWD:
+	case DT_YWD: {
+		dt_ywd_t tmp1 = dt_conv_to_ywd(d1);
+		dt_ywd_t tmp2 = dt_conv_to_ywd(d2);
+		res = __ywd_diff(tmp1, tmp2);
+		break;
+	}
 	case DT_BIZDA:
 	case DT_DUNK:
 	default:
