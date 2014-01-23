@@ -103,44 +103,81 @@ strtoi(const char *str, const char **ep)
 }
 
 DEFUN size_t
-ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad)
+ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int width)
 {
 /* all strings should be little */
 #define C(x, d)	(char)((x) / (d) % 10 + '0')
 	size_t res;
 
-	if (UNLIKELY(d > 1000000000)) {
-		return 0;
+	if (UNLIKELY(d > 1000000000U)) {
+		return 0U;
 	}
-	switch ((res = (size_t)pad) < bsz ? res : bsz) {
+	switch ((res = (size_t)width) < bsz ? res : bsz) {
 	case 9:
 		/* for nanoseconds */
-		buf[pad - 9] = C(d, 100000000);
-		buf[pad - 8] = C(d, 10000000);
-		buf[pad - 7] = C(d, 1000000);
+		buf[width - 9] = C(d, 100000000);
+		buf[width - 8] = C(d, 10000000);
+		buf[width - 7] = C(d, 1000000);
 	case 6:
 		/* for microseconds */
-		buf[pad - 6] = C(d, 100000);
-		buf[pad - 5] = C(d, 10000);
+		buf[width - 6] = C(d, 100000);
+		buf[width - 5] = C(d, 10000);
 	case 4:
 		/* for western year numbers */
-		buf[pad - 4] = C(d, 1000);
+		buf[width - 4] = C(d, 1000);
 	case 3:
 		/* for milliseconds or doy et al. numbers */
-		buf[pad - 3] = C(d, 100);
+		buf[width - 3] = C(d, 100);
 	case 2:
 		/* hours, mins, secs, doms, moys, etc. */
-		buf[pad - 2] = C(d, 10);
+		buf[width - 2] = C(d, 10);
 	case 1:
-		buf[pad - 1] = C(d, 1);
+		buf[width - 1] = C(d, 1);
 		break;
 	default:
 	case 0:
-		res = 0;
+		res = 0U;
 		break;
 	}
 #undef C
 	return res;
+}
+
+DEFUN size_t
+ui32topstr(char *restrict b, size_t z, uint32_t d, int width, char pad)
+{
+/* all strings should be little */
+#define C(x)	(char)((x) + '0')
+	char *restrict bp = b;
+	const char *const ep = b + z;
+
+	if (UNLIKELY(d > 1000000000U)) {
+		return 0U;
+	} else if (!d) {
+		*bp++ = C(0U);
+		width--;
+	}
+	/* write the mantissa right to left */
+	for (; d && bp < ep; width--) {
+		register unsigned int x = d % 10U;
+
+		d /= 10U;
+		*bp++ = C(x);
+	}
+	/* fill up with padding */
+	if (LIKELY(pad)) {
+		while (width-- > 0) {
+			*bp++ = pad;
+		}
+	}
+	/* reverse the string */
+	for (char *ip = b, *jp = bp - 1; ip < jp; ip++, jp--) {
+		register char tmp = *ip;
+		*ip = *jp;
+		*jp = tmp;
+	}
+#undef C
+	return bp - b;
 }
 
 
