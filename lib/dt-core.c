@@ -977,9 +977,9 @@ dt_strfdtdur(
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ymdhms_dflt;
+			fmt = ymdhmsdur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymd_dflt;
+			fmt = ymddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -988,11 +988,34 @@ dt_strfdtdur(
 		d.sd.y = that.d.ymcw.y;
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
-		d.sd.w = that.d.ymcw.w;
+		d.sd.d = that.d.ymcw.w;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ymcwhms_dflt;
+			fmt = ymcwhmsdur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymcw_dflt;
+			fmt = ymcwdur_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
+		}
+		break;
+	case DT_YWD:
+		d.sd.y = that.d.ywd.y;
+		d.sd.c = that.d.ywd.c;
+		d.sd.d = that.d.ywd.w;
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ywdhmsdur_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ywddur_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
+		}
+		break;
+	case DT_YD:
+		d.sd.y = that.d.yd.y;
+		d.sd.d = that.d.yd.d;
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ydhmsdur_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = yddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -1000,9 +1023,9 @@ dt_strfdtdur(
 	case DT_DAISY:
 		d.sd.d = that.d.daisy;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = daisy_dflt;
+			fmt = daisydur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = daisy_dflt;
+			fmt = daisydur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -1011,9 +1034,9 @@ dt_strfdtdur(
 		d.sd.d = that.d.bizsi;
 		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
-			fmt = bizsi_dflt;
+			fmt = bizsidur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = bizsi_dflt;
+			fmt = bizsidur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -1030,9 +1053,9 @@ dt_strfdtdur(
 		}
 		d.sd.flags.bizda = 1;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = bizdahms_dflt;
+			fmt = bizdahmsdur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = bizda_dflt;
+			fmt = bizdadur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -1044,9 +1067,9 @@ dt_strfdtdur(
 	}
 	/* translate high-level format names */
 	if (dt_sandwich_p(that)) {
-		__trans_dtfmt(&fmt);
+		__trans_dtdurfmt(&fmt);
 	} else if (dt_sandwich_only_d_p(that)) {
-		__trans_dfmt(&fmt);
+		__trans_ddurfmt(&fmt);
 	} else if (dt_sandwich_only_t_p(that)) {
 	try_time:
 		fmt = "%S";
