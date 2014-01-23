@@ -1153,16 +1153,31 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.m = that.ymd.m;
 		d.d = that.ymd.d;
 		if (fmt == NULL) {
-			fmt = ymd_dflt;
+			fmt = ymddur_dflt;
 		}
 		break;
 	case DT_YMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
 		d.c = that.ymcw.c;
-		d.w = that.ymcw.w;
+		d.d = that.ymcw.w;
 		if (fmt == NULL) {
-			fmt = ymcw_dflt;
+			fmt = ymcwdur_dflt;
+		}
+		break;
+	case DT_YWD:
+		d.y = that.ywd.y;
+		d.c = that.ywd.c;
+		d.d = that.ywd.w;
+		if (fmt == NULL) {
+			fmt = ywddur_dflt;
+		}
+		break;
+	case DT_YD:
+		d.y = that.yd.y;
+		d.d = that.yd.d;
+		if (fmt == NULL) {
+			fmt = yddur_dflt;
 		}
 		break;
 	case DT_DAISY:
@@ -1175,7 +1190,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		if (fmt == NULL) {
 			/* subject to change */
-			fmt = daisy_dflt;
+			fmt = daisydur_dflt;
 		}
 		break;
 	case DT_BIZSI:
@@ -1188,7 +1203,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		if (fmt == NULL) {
 			/* subject to change */
-			fmt = bizsi_dflt;
+			fmt = bizsidur_dflt;
 		}
 		break;
 	case DT_BIZDA: {
@@ -1203,7 +1218,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		d.flags.bizda = 1;
 		if (fmt == NULL) {
-			fmt = bizda_dflt;
+			fmt = bizdadur_dflt;
 		}
 		break;
 	}
@@ -1219,7 +1234,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		goto out;
 	}
 	/* translate high-level format names */
-	__trans_dfmt(&fmt);
+	__trans_ddurfmt(&fmt);
 
 	/* assign and go */
 	bp = buf;
