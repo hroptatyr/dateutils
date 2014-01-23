@@ -171,9 +171,7 @@ __strft_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpt_s *d, struct dt_t_s UNUSED(that))
 {
-	static const char pads[] = "00 ";
-	const char pad = pads[s.pad];
-	size_t res = 0U;
+	size_t res = 0;
 
 	switch (s.spfl) {
 	default:
@@ -181,27 +179,27 @@ __strft_card(
 		break;
 	case DT_SPFL_N_TSTD:
 		if (LIKELY(bsz >= 8)) {
-			ui32topstr(buf + 0, bsz, d->h, 2, pad);
+			ui32tostr(buf + 0, bsz, d->h, 2);
 			buf[2] = ':';
-			ui32topstr(buf + 3, bsz, d->m, 2, pad);
+			ui32tostr(buf + 3, bsz, d->m, 2);
 			buf[5] = ':';
-			ui32topstr(buf + 6, bsz, d->s, 2, pad);
+			ui32tostr(buf + 6, bsz, d->s, 2);
 			res = 8;
 		}
 		break;
 	case DT_SPFL_N_HOUR:
 		if (!s.sc12 || (d->h >= 1 && d->h <= 12)) {
-			res = ui32topstr(buf, bsz, d->h, 2, pad);
+			res = ui32tostr(buf, bsz, d->h, 2);
 		} else {
 			unsigned int h = d->h ? d->h - 12 : 12;
-			res = ui32topstr(buf, bsz, h, 2, pad);
+			res = ui32tostr(buf, bsz, h, 2);
 		}
 		break;
 	case DT_SPFL_N_MIN:
-		res = ui32topstr(buf, bsz, d->m, 2, pad);
+		res = ui32tostr(buf, bsz, d->m, 2);
 		break;
 	case DT_SPFL_N_SEC:
-		res = ui32topstr(buf, bsz, d->s, 2, pad);
+		res = ui32tostr(buf, bsz, d->s, 2);
 		break;
 	case DT_SPFL_S_AMPM: {
 		unsigned int casebit = 0;
@@ -219,7 +217,7 @@ __strft_card(
 		break;
 	}
 	case DT_SPFL_N_NANO:
-		res = ui32topstr(buf, bsz, d->ns, 9, pad);
+		res = ui32tostr(buf, bsz, d->ns, 9);
 		break;
 
 	case DT_SPFL_LIT_PERCENT:
