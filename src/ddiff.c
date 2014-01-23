@@ -509,7 +509,7 @@ __strfdtdur(
 	struct dt_dt_s dur, durfmt_t f)
 {
 /* like strfdtdur() but do some calculations based on F on the way there */
-	static const char sexy_dflt_dur[] = "%T";
+	static const char sexy_dflt_dur[] = "%0T";
 	static const char ddur_dflt_dur[] = "%d";
 	const char *fp;
 	char *bp;
@@ -532,13 +532,13 @@ __strfdtdur(
 		if (fmt == NULL) {
 			fmt = sexy_dflt_dur;
 		} else {
-			__trans_dtfmt(&fmt);
+			__trans_dtdurfmt(&fmt);
 		}
 	} else if (dt_sandwich_only_d_p(dur)) {
 		if (fmt == NULL) {
 			fmt = ddur_dflt_dur;
 		} else {
-			__trans_dfmt(&fmt);
+			__trans_ddurfmt(&fmt);
 		}
 	} else if (dt_sandwich_only_t_p(dur)) {
 		if (fmt == NULL) {
