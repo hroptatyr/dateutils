@@ -870,7 +870,7 @@ __ywd_diff(dt_ywd_t d1, dt_ywd_t d2)
 	}
 	if (tgtw < 0) {
 		tgty--;
-		tgtw += __get_isowk(tgty);
+		tgtw += __get_isowk(d1.y + tgty);
 	}
 
 	/* fill in the results */
