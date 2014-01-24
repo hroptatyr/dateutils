@@ -271,14 +271,14 @@ static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
 
-static const char ymdhmsdur_dflt[] = "%0Y-%0m-%0dT%0T";
-static const char ymcwhmsdur_dflt[] = "%Y-%0m-%0w-%0dT%0T";
-static const char ywdhmsdur_dflt[] = "%rY-W%0w-%0dT%0T";
-static const char ydhmsdur_dflt[] = "%Y-%0d";
-static const char daisyhmsdur_dflt[] = "%dT%0T";
+static const char ymdhmsdur_dflt[] = "%0Y-%0m-%0dT%0H:%0M:%0S";
+static const char ymcwhmsdur_dflt[] = "%Y-%0m-%0w-%0dT%0H:%0M:%0S";
+static const char ywdhmsdur_dflt[] = "%rY-W%0w-%0dT%0H:%0M:%0S";
+static const char ydhmsdur_dflt[] = "%Y-%0dT%0H:%0M:%0S";
+static const char daisyhmsdur_dflt[] = "%dT%0H:%0M:%0S";
 static const char sexydur_dflt[] = "%s";
-static const char bizsihmsdur_dflt[] = "%dbT%0T";
-static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0T";
+static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
+static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
 static void
 __trans_dtfmt(const char **fmt)
