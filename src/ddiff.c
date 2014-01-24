@@ -372,6 +372,9 @@ __strf_md_days(struct dt_dt_s dur)
 	case DT_YMCW:
 		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;
 		break;
+	case DT_MD:
+		d = dur.d.md.d;
+		break;
 	default:
 		break;
 	}
@@ -393,6 +396,9 @@ __strf_yd_days(struct dt_dt_s dur)
 		break;
 	case DT_YD:
 		d = dur.d.yd.d;
+		break;
+	case DT_MD:
+		d = dur.d.md.d;
 		break;
 	case DT_YWD:
 		d = dur.d.ywd.w + dur.d.ywd.c * (int)GREG_DAYS_P_WEEK;
