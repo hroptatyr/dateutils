@@ -97,9 +97,6 @@ determine_durfmt(const char *fmt)
 			res.has_week = 1;
 			res.has_day = 1;
 			break;
-		case DT_DAISY:
-			res.has_day = 1;
-			break;
 		case DT_BIZDA:
 			res.has_year = 1;
 			res.has_mon = 1;
@@ -120,6 +117,11 @@ determine_durfmt(const char *fmt)
 			res.has_day = 1;
 			break;
 		}
+
+		/* all special types have %0H:%0M:%0S */
+		res.has_hour = 1;
+		res.has_min = 1;
+		res.has_sec = 1;
 	} else {
 		/* go through the fmt specs */
 		for (const char *fp = fmt; *fp;) {
