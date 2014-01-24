@@ -195,36 +195,32 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 	 *
 	 * where d means a ddur type, t a tdur type and s is DT_SEXY */
 
-	if (UNLIKELY((dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) &&
-		     (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)))) {
+	if (UNLIKELY(dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2))) {
+		/* time only duration */
 		;
-	} else if ((dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) ||
-		   (dt_sandwich_p(d1) && dt_sandwich_p(d2) &&
-		    fmt_only_d_p(f))) {
-		if (f.has_week && f.has_mon) {
-			return (dt_dttyp_t)DT_YMCW;
-		} else if (f.has_week && f.has_year) {
-			return (dt_dttyp_t)DT_YWD;
-		} else if (f.has_mon) {
-			return (dt_dttyp_t)DT_YMD;
-		} else if (f.has_year && f.has_day) {
-			return (dt_dttyp_t)DT_YD;
-		} else if (f.has_day && f.has_biz) {
-			return (dt_dttyp_t)DT_BIZSI;
-		} else if (f.has_day || f.has_week || f.flags == 0) {
-			return (dt_dttyp_t)DT_DAISY;
-		} else {
-			return (dt_dttyp_t)DT_MD;
-		}
-	} else if ((dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) ||
-		   (dt_sandwich_p(d1) && dt_sandwich_p(d2))) {
-		/* see if we has needs tais */
-		if (UNLIKELY(f.has_tai)) {
-			return (dt_dttyp_t)DT_SEXYTAI;
-		}
-		return (dt_dttyp_t)DT_SEXY;
+	} else if (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)) {
+		/* isn't defined */
+		return (dt_dttyp_t)DT_UNK;
+	} else if (f.has_week && f.has_mon) {
+		return (dt_dttyp_t)DT_YMCW;
+	} else if (f.has_week && f.has_year) {
+		return (dt_dttyp_t)DT_YWD;
+	} else if (f.has_mon) {
+		return (dt_dttyp_t)DT_YMD;
+	} else if (f.has_year && f.has_day) {
+		return (dt_dttyp_t)DT_YD;
+	} else if (f.has_day && f.has_biz) {
+		return (dt_dttyp_t)DT_BIZSI;
+	} else if (f.has_year) {
+		return (dt_dttyp_t)DT_MD;
+	} else if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
+		/* default date-only type */
+		return (dt_dttyp_t)DT_DAISY;
+	} else if (UNLIKELY(f.has_tai)) {
+		/* we has tais */
+		return (dt_dttyp_t)DT_SEXYTAI;
 	}
-	return DT_UNK;
+	return (dt_dttyp_t)DT_SEXY;
 }
 
 
