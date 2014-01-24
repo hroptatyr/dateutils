@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff 2008-W52-07 2009-W01-07 -f ywd
+0-W01-00
+$
+
+## ddiff.061.clit ends here

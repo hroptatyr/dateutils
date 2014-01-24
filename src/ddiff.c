@@ -76,29 +76,52 @@ static durfmt_t
 determine_durfmt(const char *fmt)
 {
 	durfmt_t res = {0};
+	dt_dtyp_t special;
 
 	if (fmt == NULL) {
 		/* decide later on */
 		;
-	} else if (strcasecmp(fmt, "ymd") == 0) {
-		res.has_year = 1;
-		res.has_mon = 1;
-		res.has_day = 1;
-	} else if (strcasecmp(fmt, "ymcw") == 0) {
-		res.has_year = 1;
-		res.has_mon = 1;
-		res.has_week = 1;
-		res.has_day = 1;
-	} else if (strcasecmp(fmt, "daisy") == 0) {
-		res.has_day = 1;
-	} else if (strcasecmp(fmt, "bizda") == 0) {
-		res.has_year = 1;
-		res.has_mon = 1;
-		res.has_day = 1;
-		res.has_biz = 1;
-	} else if (strcasecmp(fmt, "bizsi") == 0) {
-		res.has_day = 1;
-		res.has_biz = 1;
+	} else if (UNLIKELY((special = __trans_dfmt_special(fmt)) != DT_DUNK)) {
+		switch (special) {
+		default:
+		case DT_DUNK:
+			break;
+		case DT_YMD:
+			res.has_year = 1;
+			res.has_mon = 1;
+			res.has_day = 1;
+			break;
+		case DT_YMCW:
+			res.has_year = 1;
+			res.has_mon = 1;
+			res.has_week = 1;
+			res.has_day = 1;
+			break;
+		case DT_BIZDA:
+			res.has_year = 1;
+			res.has_mon = 1;
+			res.has_day = 1;
+			res.has_biz = 1;
+			break;
+		case DT_BIZSI:
+			res.has_day = 1;
+			res.has_biz = 1;
+			break;
+		case DT_YWD:
+			res.has_year = 1;
+			res.has_week = 1;
+			res.has_day = 1;
+			break;
+		case DT_YD:
+			res.has_year = 1;
+			res.has_day = 1;
+			break;
+		}
+
+		/* all special types have %0H:%0M:%0S */
+		res.has_hour = 1;
+		res.has_min = 1;
+		res.has_sec = 1;
 	} else {
 		/* go through the fmt specs */
 		for (const char *fp = fmt; *fp;) {
@@ -174,36 +197,32 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 	 *
 	 * where d means a ddur type, t a tdur type and s is DT_SEXY */
 
-	if (UNLIKELY((dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) &&
-		     (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)))) {
+	if (UNLIKELY(dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2))) {
+		/* time only duration */
 		;
-	} else if ((dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) ||
-		   (dt_sandwich_p(d1) && dt_sandwich_p(d2) &&
-		    fmt_only_d_p(f))) {
-		if (f.has_week && f.has_mon) {
-			return (dt_dttyp_t)DT_YMCW;
-		} else if (f.has_week && f.has_year) {
-			return (dt_dttyp_t)DT_YWD;
-		} else if (f.has_mon) {
-			return (dt_dttyp_t)DT_YMD;
-		} else if (f.has_year && f.has_day) {
-			return (dt_dttyp_t)DT_YD;
-		} else if (f.has_day && f.has_biz) {
-			return (dt_dttyp_t)DT_BIZSI;
-		} else if (f.has_day || f.has_week || f.flags == 0) {
-			return (dt_dttyp_t)DT_DAISY;
-		} else {
-			return (dt_dttyp_t)DT_MD;
-		}
-	} else if ((dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) ||
-		   (dt_sandwich_p(d1) && dt_sandwich_p(d2))) {
-		/* see if we has needs tais */
-		if (UNLIKELY(f.has_tai)) {
-			return (dt_dttyp_t)DT_SEXYTAI;
-		}
-		return (dt_dttyp_t)DT_SEXY;
+	} else if (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)) {
+		/* isn't defined */
+		return (dt_dttyp_t)DT_UNK;
+	} else if (f.has_week && f.has_mon) {
+		return (dt_dttyp_t)DT_YMCW;
+	} else if (f.has_week && f.has_year) {
+		return (dt_dttyp_t)DT_YWD;
+	} else if (f.has_mon) {
+		return (dt_dttyp_t)DT_YMD;
+	} else if (f.has_year && f.has_day) {
+		return (dt_dttyp_t)DT_YD;
+	} else if (f.has_day && f.has_biz) {
+		return (dt_dttyp_t)DT_BIZSI;
+	} else if (f.has_year) {
+		return (dt_dttyp_t)DT_MD;
+	} else if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
+		/* default date-only type */
+		return (dt_dttyp_t)DT_DAISY;
+	} else if (UNLIKELY(f.has_tai)) {
+		/* we has tais */
+		return (dt_dttyp_t)DT_SEXYTAI;
 	}
-	return DT_UNK;
+	return (dt_dttyp_t)DT_SEXY;
 }
 
 
@@ -353,6 +372,9 @@ __strf_md_days(struct dt_dt_s dur)
 	case DT_YMCW:
 		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;
 		break;
+	case DT_MD:
+		d = dur.d.md.d;
+		break;
 	default:
 		break;
 	}
@@ -375,6 +397,9 @@ __strf_yd_days(struct dt_dt_s dur)
 	case DT_YD:
 		d = dur.d.yd.d;
 		break;
+	case DT_MD:
+		d = dur.d.md.d;
+		break;
 	case DT_YWD:
 		d = dur.d.ywd.w + dur.d.ywd.c * (int)GREG_DAYS_P_WEEK;
 		break;
@@ -395,19 +420,19 @@ __strf_w_days(struct dt_dt_s dur)
 
 	switch (dur.d.typ) {
 	case DT_DAISY:
-		d = dur.d.daisydur % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.daisydur;
 		break;
 	case DT_BIZSI:
-		d = dur.d.bizsidur % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.bizsidur;
 		break;
 	case DT_BIZDA:
-		d = dur.d.bizda.bd % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.bizda.bd;
 		break;
 	case DT_YMD:
-		d = dur.d.ymd.d % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.ymd.d;
 		break;
 	case DT_YD:
-		d = dur.d.yd.d % (int)GREG_DAYS_P_WEEK;
+		d = dur.d.yd.d;
 		break;
 	case DT_YMCW:
 		d = dur.d.ymcw.w;
@@ -418,6 +443,7 @@ __strf_w_days(struct dt_dt_s dur)
 	default:
 		break;
 	}
+	d %= (int)GREG_DAYS_P_WEEK;
 	return d + __strf_tot_secs(dur) / (long int)SECS_PER_DAY;
 }
 
@@ -488,7 +514,7 @@ __strfdtdur(
 	struct dt_dt_s dur, durfmt_t f)
 {
 /* like strfdtdur() but do some calculations based on F on the way there */
-	static const char sexy_dflt_dur[] = "%T";
+	static const char sexy_dflt_dur[] = "%0T";
 	static const char ddur_dflt_dur[] = "%d";
 	const char *fp;
 	char *bp;
@@ -511,13 +537,13 @@ __strfdtdur(
 		if (fmt == NULL) {
 			fmt = sexy_dflt_dur;
 		} else {
-			__trans_dtfmt(&fmt);
+			__trans_dtdurfmt(&fmt);
 		}
 	} else if (dt_sandwich_only_d_p(dur)) {
 		if (fmt == NULL) {
 			fmt = ddur_dflt_dur;
 		} else {
-			__trans_dfmt(&fmt);
+			__trans_ddurfmt(&fmt);
 		}
 	} else if (dt_sandwich_only_t_p(dur)) {
 		if (fmt == NULL) {
@@ -655,14 +681,24 @@ __strfdtdur(
 			long int s = __strf_tot_secs(dur);
 			int rng = 2;
 
+			/* aggregate weeks + days -> seconds */
+			if (f.has_mon) {
+				s += __strf_md_days(dur) * (long)SECS_PER_DAY;
+			} else if (f.has_year) {
+				/* aggregate weeks + days -> minutes */
+				s += __strf_yd_days(dur) * (long)SECS_PER_DAY;
+			}
+
 			if (f.has_min) {
 				/* minutes and seconds */
-				s %= (long int)SECS_PER_MIN;
+				s %= (long)SECS_PER_MIN;
 			} else if (f.has_hour) {
 				/* hours and seconds */
-				s %= (long int)SECS_PER_HOUR;
+				s %= (long)SECS_PER_HOUR;
 			} else if (f.has_day) {
-				s %= (long int)SECS_PER_DAY;
+				s %= (long)SECS_PER_DAY;
+			} else if (f.has_week) {
+				s %= (long)(SECS_PER_DAY * GREG_DAYS_P_WEEK);
 			}
 			if (UNLIKELY(spec.tai)) {
 				s += __strf_tot_corr(dur);
@@ -674,12 +710,25 @@ __strfdtdur(
 			long int m = __strf_tot_mins(dur);
 			int rng = 2;
 
+#define MINS_PER_DAY	(MINS_PER_HOUR * HOURS_PER_DAY)
+			/* aggregate weeks + days -> minutes */
+			if (f.has_mon) {
+				m += __strf_md_days(dur) * (long)MINS_PER_DAY;
+			} else if (f.has_year) {
+				/* aggregate weeks + days -> minutes */
+				m += __strf_yd_days(dur) * (long)MINS_PER_DAY;
+			}
+
+			/* chop minutes down to largest range possible */
 			if (f.has_hour) {
 				/* hours and minutes */
-				m %= (long int)MINS_PER_HOUR;
+				m %= (long)MINS_PER_HOUR;
 			} else if (f.has_day) {
-				m %= (long int)(MINS_PER_HOUR * HOURS_PER_DAY);
+				m %= (long)MINS_PER_DAY;
+			} else if (f.has_week) {
+				m %= (long)(MINS_PER_DAY * GREG_DAYS_P_WEEK);
 			}
+#undef MINS_PER_DAY
 			bp += ltostr(bp, eo - bp, m, rng, spec.pad);
 			break;
 		}
@@ -687,9 +736,20 @@ __strfdtdur(
 			long int h = __strf_tot_hours(dur);
 			int rng = 2;
 
+			if (f.has_mon) {
+				/* aggregate weeks + days -> hours */
+				h += __strf_md_days(dur) * (long)HOURS_PER_DAY;
+			} else if (f.has_year) {
+				/* aggregate weeks + days -> hours */
+				h += __strf_yd_days(dur) * (long)HOURS_PER_DAY;
+			}
+
 			if (f.has_day) {
 				/* hours and days */
 				h %= (long int)HOURS_PER_DAY;
+			} else if (f.has_week) {
+				/* hours and days */
+				h %= (long)(HOURS_PER_DAY * GREG_DAYS_P_WEEK);
 			}
 			bp += ltostr(bp, eo - bp, h, rng, spec.pad);
 			break;

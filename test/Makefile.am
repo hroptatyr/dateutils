@@ -320,6 +320,8 @@ dt_tests += ddiff.057.clit
 dt_tests += ddiff.058.clit
 dt_tests += ddiff.059.clit
 dt_tests += ddiff.060.clit
+dt_tests += ddiff.061.clit
+dt_tests += ddiff.062.clit
 
 dt_tests += dgrep.001.clit
 dt_tests += dgrep.002.clit
@@ -629,6 +631,10 @@ dt_tests += dtdiff.033.clit
 dt_tests += dtdiff.034.clit
 dt_tests += dtdiff.035.clit
 dt_tests += dtdiff.036.clit
+dt_tests += dtdiff.037.clit
+dt_tests += dtdiff.038.clit
+dt_tests += dtdiff.039.clit
+dt_tests += dtdiff.040.clit
 
 dt_tests += dtround.001.clit
 dt_tests += dtround.002.clit

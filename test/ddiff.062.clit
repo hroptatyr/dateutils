@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff 2008-W52-07 2009-W01-07 -f daisy
+7
+$
+
+## ddiff.062.clit ends here

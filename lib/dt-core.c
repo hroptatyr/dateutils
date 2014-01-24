@@ -265,10 +265,20 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 static const char ymdhms_dflt[] = "%FT%T";
 static const char ymcwhms_dflt[] = "%Y-%m-%c-%wT%T";
 static const char ywdhms_dflt[] = "%rY-W%V-%uT%T";
+static const char ydhms_dflt[] = "%Y-%d";
 static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
 static const char bizdahms_dflt[] = "%Y-%m-%dbT%T";
+
+static const char ymdhmsdur_dflt[] = "%0Y-%0m-%0dT%0H:%0M:%0S";
+static const char ymcwhmsdur_dflt[] = "%Y-%0m-%0w-%0dT%0H:%0M:%0S";
+static const char ywdhmsdur_dflt[] = "%rY-W%0w-%0dT%0H:%0M:%0S";
+static const char ydhmsdur_dflt[] = "%Y-%0dT%0H:%0M:%0S";
+static const char daisyhmsdur_dflt[] = "%dT%0H:%0M:%0S";
+static const char sexydur_dflt[] = "%s";
+static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
+static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
 static void
 __trans_dtfmt(const char **fmt)
@@ -306,6 +316,54 @@ __trans_dtfmt(const char **fmt)
 			break;
 		case DT_YWD:
 			*fmt = ywdhms_dflt;
+			break;
+		case DT_YD:
+			*fmt = ydhms_dflt;
+			break;
+		}
+	}
+	return;
+}
+
+static void
+__trans_dtdurfmt(const char **fmt)
+{
+	if (UNLIKELY(*fmt == NULL)) {
+		/* um, great */
+		;
+	} else if (LIKELY(**fmt == '%')) {
+		/* don't worry about it */
+		;
+	} else {
+		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+
+		/* thanks gcc for making me cast this :( */
+		switch ((unsigned int)tmp) {
+		default:
+			break;
+		case DT_YMD:
+			*fmt = ymdhmsdur_dflt;
+			break;
+		case DT_YMCW:
+			*fmt = ymcwhmsdur_dflt;
+			break;
+		case DT_BIZDA:
+			*fmt = bizdahmsdur_dflt;
+			break;
+		case DT_DAISY:
+			*fmt = daisyhmsdur_dflt;
+			break;
+		case DT_SEXY:
+			*fmt = sexydur_dflt;
+			break;
+		case DT_BIZSI:
+			*fmt = bizsihmsdur_dflt;
+			break;
+		case DT_YWD:
+			*fmt = ywdhmsdur_dflt;
+			break;
+		case DT_YD:
+			*fmt = ydhmsdur_dflt;
 			break;
 		}
 	}
@@ -919,9 +977,9 @@ dt_strfdtdur(
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ymdhms_dflt;
+			fmt = ymdhmsdur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymd_dflt;
+			fmt = ymddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -930,11 +988,34 @@ dt_strfdtdur(
 		d.sd.y = that.d.ymcw.y;
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
-		d.sd.w = that.d.ymcw.w;
+		d.sd.d = that.d.ymcw.w;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = ymcwhms_dflt;
+			fmt = ymcwhmsdur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = ymcw_dflt;
+			fmt = ymcwdur_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
+		}
+		break;
+	case DT_YWD:
+		d.sd.y = that.d.ywd.y;
+		d.sd.c = that.d.ywd.c;
+		d.sd.d = that.d.ywd.w;
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ywdhmsdur_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = ywddur_dflt;
+		} else if (fmt == NULL) {
+			goto try_time;
+		}
+		break;
+	case DT_YD:
+		d.sd.y = that.d.yd.y;
+		d.sd.d = that.d.yd.d;
+		if (fmt == NULL && dt_sandwich_p(that)) {
+			fmt = ydhmsdur_dflt;
+		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+			fmt = yddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -942,9 +1023,9 @@ dt_strfdtdur(
 	case DT_DAISY:
 		d.sd.d = that.d.daisy;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = daisy_dflt;
+			fmt = daisydur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = daisy_dflt;
+			fmt = daisydur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -953,9 +1034,9 @@ dt_strfdtdur(
 		d.sd.d = that.d.bizsi;
 		if (fmt == NULL && dt_sandwich_p(that)) {
 			/* subject to change */
-			fmt = bizsi_dflt;
+			fmt = bizsidur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = bizsi_dflt;
+			fmt = bizsidur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -972,9 +1053,9 @@ dt_strfdtdur(
 		}
 		d.sd.flags.bizda = 1;
 		if (fmt == NULL && dt_sandwich_p(that)) {
-			fmt = bizdahms_dflt;
+			fmt = bizdahmsdur_dflt;
 		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
-			fmt = bizda_dflt;
+			fmt = bizdadur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
@@ -986,9 +1067,9 @@ dt_strfdtdur(
 	}
 	/* translate high-level format names */
 	if (dt_sandwich_p(that)) {
-		__trans_dtfmt(&fmt);
+		__trans_dtdurfmt(&fmt);
 	} else if (dt_sandwich_only_d_p(that)) {
-		__trans_dfmt(&fmt);
+		__trans_ddurfmt(&fmt);
 	} else if (dt_sandwich_only_t_p(that)) {
 	try_time:
 		fmt = "%S";
@@ -1327,18 +1408,30 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 
-	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
+	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
+		/* do the time portion difference right away */
 		res.t = dt_tdiff(d1.t, d2.t);
+	}
+	/* now assess what else is to be done */
+	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
 	} else if (tgttyp > (dt_dttyp_t)DT_UNK &&
 		   tgttyp < (dt_dttyp_t)DT_NDTYP) {
+		/* check for negative carry */
+		if (UNLIKELY(res.t.sdur < 0)) {
+			d2.d = dt_dadd(d2.d, dt_make_daisydur(-1));
+			res.t.sdur += SECS_PER_DAY;
+		}
 		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
-		dt_make_d_only(&res, res.d.typ);
+		if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
+			dt_make_d_only(&res, (dt_dtyp_t)tgttyp);
+		} else {
+			dt_make_sandwich(&res, (dt_dtyp_t)tgttyp, DT_HMS);
+		}
 	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {
 		int64_t sxdur;
 
 		/* go for tdiff and ddiff independently */
-		res.t = dt_tdiff(d1.t, d2.t);
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
