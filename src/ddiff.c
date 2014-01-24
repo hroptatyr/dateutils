@@ -681,14 +681,24 @@ __strfdtdur(
 			long int s = __strf_tot_secs(dur);
 			int rng = 2;
 
+			/* aggregate weeks + days -> seconds */
+			if (f.has_mon) {
+				s += __strf_md_days(dur) * (long)SECS_PER_DAY;
+			} else if (f.has_year) {
+				/* aggregate weeks + days -> minutes */
+				s += __strf_yd_days(dur) * (long)SECS_PER_DAY;
+			}
+
 			if (f.has_min) {
 				/* minutes and seconds */
-				s %= (long int)SECS_PER_MIN;
+				s %= (long)SECS_PER_MIN;
 			} else if (f.has_hour) {
 				/* hours and seconds */
-				s %= (long int)SECS_PER_HOUR;
+				s %= (long)SECS_PER_HOUR;
 			} else if (f.has_day) {
-				s %= (long int)SECS_PER_DAY;
+				s %= (long)SECS_PER_DAY;
+			} else if (f.has_week) {
+				s %= (long)(SECS_PER_DAY * GREG_DAYS_P_WEEK);
 			}
 			if (UNLIKELY(spec.tai)) {
 				s += __strf_tot_corr(dur);
@@ -700,12 +710,25 @@ __strfdtdur(
 			long int m = __strf_tot_mins(dur);
 			int rng = 2;
 
+#define MINS_PER_DAY	(MINS_PER_HOUR * HOURS_PER_DAY)
+			/* aggregate weeks + days -> minutes */
+			if (f.has_mon) {
+				m += __strf_md_days(dur) * (long)MINS_PER_DAY;
+			} else if (f.has_year) {
+				/* aggregate weeks + days -> minutes */
+				m += __strf_yd_days(dur) * (long)MINS_PER_DAY;
+			}
+
+			/* chop minutes down to largest range possible */
 			if (f.has_hour) {
 				/* hours and minutes */
-				m %= (long int)MINS_PER_HOUR;
+				m %= (long)MINS_PER_HOUR;
 			} else if (f.has_day) {
-				m %= (long int)(MINS_PER_HOUR * HOURS_PER_DAY);
+				m %= (long)MINS_PER_DAY;
+			} else if (f.has_week) {
+				m %= (long)(MINS_PER_DAY * GREG_DAYS_P_WEEK);
 			}
+#undef MINS_PER_DAY
 			bp += ltostr(bp, eo - bp, m, rng, spec.pad);
 			break;
 		}
@@ -713,9 +736,20 @@ __strfdtdur(
 			long int h = __strf_tot_hours(dur);
 			int rng = 2;
 
+			if (f.has_mon) {
+				/* aggregate weeks + days -> hours */
+				h += __strf_md_days(dur) * (long)HOURS_PER_DAY;
+			} else if (f.has_year) {
+				/* aggregate weeks + days -> hours */
+				h += __strf_yd_days(dur) * (long)HOURS_PER_DAY;
+			}
+
 			if (f.has_day) {
 				/* hours and days */
 				h %= (long int)HOURS_PER_DAY;
+			} else if (f.has_week) {
+				/* hours and days */
+				h %= (long)(HOURS_PER_DAY * GREG_DAYS_P_WEEK);
 			}
 			bp += ltostr(bp, eo - bp, h, rng, spec.pad);
 			break;
