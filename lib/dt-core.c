@@ -1408,18 +1408,30 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 
-	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
+	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
+		/* do the time portion difference right away */
 		res.t = dt_tdiff(d1.t, d2.t);
+	}
+	/* now assess what else is to be done */
+	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
 	} else if (tgttyp > (dt_dttyp_t)DT_UNK &&
 		   tgttyp < (dt_dttyp_t)DT_NDTYP) {
+		/* check for negative carry */
+		if (UNLIKELY(res.t.sdur < 0)) {
+			d2.d = dt_dadd(d2.d, dt_make_daisydur(-1));
+			res.t.sdur += SECS_PER_DAY;
+		}
 		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
-		dt_make_d_only(&res, res.d.typ);
+		if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
+			dt_make_d_only(&res, (dt_dtyp_t)tgttyp);
+		} else {
+			dt_make_sandwich(&res, (dt_dtyp_t)tgttyp, DT_HMS);
+		}
 	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {
 		int64_t sxdur;
 
 		/* go for tdiff and ddiff independently */
-		res.t = dt_tdiff(d1.t, d2.t);
 		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 		/* since target type is SEXY do the conversion here */
 		sxdur = (int64_t)res.t.sdur +
