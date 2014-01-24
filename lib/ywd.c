@@ -861,7 +861,7 @@ __ywd_diff(dt_ywd_t d1, dt_ywd_t d2)
 	/* ... and weeks */
 	tgtw = (d2.c - d1.c);
 	/* ... oh, and days, too */
-	tgtd = (d2.w - d1.w);
+	tgtd = (d2.w ?: 7) - (d1.w ?: 7);
 
 	/* add carry */
 	if (tgtd < 0) {
