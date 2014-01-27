@@ -10,7 +10,9 @@ SPECIALS
 Note: The output format of DUR_STR{}s (specified via -f) takes all \
 format specifiers into account, i.e. specifying %M and %S for example \
 prints the DUR_STR in minutes and seconds, whereas specifying %S only \
-prints the DUR_STR in seconds."
+prints the DUR_STR in seconds.
+
+See section `The refinement rule' in ddiff(1)."
 
 QUIET
 FORMAT
