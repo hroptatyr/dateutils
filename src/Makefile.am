@@ -47,12 +47,12 @@ endif
 BUILT_SOURCES += strptime.x strptime.xh
 
 bin_PROGRAMS += dconv
-dconv_SOURCES = dconv.c dconv.ggo
+dconv_SOURCES = dconv.c dconv.yuck
 dconv_SOURCES += prchunk.c prchunk.h
 dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dconv_LDFLAGS = $(AM_LDFLAGS)
 dconv_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dconv.x dconv.xh
+BUILT_SOURCES += dconv.yucc
 
 bin_PROGRAMS += dtest
 dtest_SOURCES = dtest.c dtest.ggo

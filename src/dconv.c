@@ -114,27 +114,12 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "dconv.xh"
-#include "dconv.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "dconv.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
@@ -142,15 +127,15 @@ main(int argc, char *argv[])
 	zif_t fromz = NULL;
 	zif_t z = NULL;
 
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
 		goto out;
 	}
 	/* init and unescape sequences, maybe */
 	ofmt = argi->format_arg;
-	fmt = argi->input_format_arg;
-	nfmt = argi->input_format_given;
-	if (argi->backslash_escapes_given) {
+	fmt = argi->input_format_args;
+	nfmt = argi->input_format_nargs;
+	if (argi->backslash_escapes_flag) {
 		dt_io_unescape(argi->format_arg);
 		for (size_t i = 0; i < nfmt; i++) {
 			dt_io_unescape(fmt[i]);
@@ -158,25 +143,25 @@ main(int argc, char *argv[])
 	}
 
 	/* try and read the from and to time zones */
-	if (argi->from_zone_given) {
+	if (argi->from_zone_arg) {
 		fromz = zif_open(argi->from_zone_arg);
 	}
-	if (argi->zone_given) {
+	if (argi->zone_arg) {
 		z = zif_open(argi->zone_arg);
 	}
-	if (argi->default_given) {
+	if (argi->default_arg) {
 		struct dt_dt_s dflt = dt_strpdt(argi->default_arg, NULL, NULL);
 		dt_set_default(dflt);
 	}
 
-	if (argi->inputs_num) {
-		for (size_t i = 0; i < argi->inputs_num; i++) {
-			const char *inp = argi->inputs[i];
+	if (argi->nargs) {
+		for (size_t i = 0; i < argi->nargs; i++) {
+			const char *inp = argi->args[i];
 			struct dt_dt_s d = dt_io_strpdt(inp, fmt, nfmt, fromz);
 
 			if (!dt_unk_p(d)) {
 				dt_io_write(d, ofmt, z, '\n');
-			} else if (!argi->quiet_given) {
+			} else if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(inp);
 			}
 		}
@@ -192,8 +177,8 @@ main(int argc, char *argv[])
 			.ofmt = ofmt,
 			.fromz = fromz,
 			.outz = z,
-			.sed_mode_p = argi->sed_mode_given,
-			.quietp = argi->quiet_given,
+			.sed_mode_p = argi->sed_mode_flag,
+			.quietp = argi->quiet_flag,
 		};
 
 		/* no threads reading this stream */
@@ -228,15 +213,15 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (argi->from_zone_given) {
+	if (argi->from_zone_arg) {
 		zif_close(fromz);
 	}
-	if (argi->zone_given) {
+	if (argi->zone_arg) {
 		zif_close(z);
 	}
 
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 
