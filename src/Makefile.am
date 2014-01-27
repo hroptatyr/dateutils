@@ -70,12 +70,12 @@ dadd_LDADD = $(top_builddir)/lib/libdut.a
 BUILT_SOURCES += dadd.x dadd.xh
 
 bin_PROGRAMS += ddiff
-ddiff_SOURCES = ddiff.c ddiff.ggo
+ddiff_SOURCES = ddiff.c ddiff.yuck
 ddiff_SOURCES += prchunk.c prchunk.h
 ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 ddiff_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += ddiff.x ddiff.xh
+BUILT_SOURCES += ddiff.yucc
 
 bin_PROGRAMS += dgrep
 dgrep_SOURCES = dgrep.c dgrep.ggo
@@ -120,6 +120,13 @@ SUFFIXES += .x
 SUFFIXES += .xh
 .ggo.xh:
 	touch $@
+
+## yuck rule
+SUFFIXES += .yuck
+SUFFIXES += .yucc
+.yuck.yucc:
+	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
+		yuck$(EXEEXT) gen -o $@ $<
 
 ## gperf rule
 SUFFIXES += .gperf
