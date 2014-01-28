@@ -16,13 +16,6 @@ GGO_HELPERS =
 EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
 SUFFIXES =
 
-GGO_HELPERS += __gengetopt-mularg.h __gengetopt-mularg.sed
-GGO_HELPERS += common.ggo.in
-GGO_HELPERS += getopt.h.in
-if NEED_GETOPT_H
-BUILT_SOURCES += getopt.h
-endif  NEED_GETOPT_H
-
 DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
 noinst_HEADERS += dt-io.h
 noinst_HEADERS += dexpr.h
@@ -105,22 +98,6 @@ endif  ## BUILD_DEXPR
 BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
 
-## ggo rule
-SUFFIXES += .ggo
-SUFFIXES += .x
-.ggo.x: $(GGO_HELPERS)
-	$(AM_V_GEN)$(M4) -I $(srcdir) common.ggo.in $< | \
-		gengetopt -l -G -c x -H xh -F $*
-## patch the multiple arg thingie dingie
-	@sed -f $(srcdir)/__gengetopt-mularg.sed -- $@ > $@.sed \
-	&& mv $@.sed $@
-	@sed -e 's,config.h,version.h,g' \
-	     -e 's,\(.*\)_PARSER_VERSION VERSION,\1_PARSER_VERSION $(PACKAGE)_version_string,g' $@h > $@h-t \
-	&& mv $@h-t $@h
-SUFFIXES += .xh
-.ggo.xh:
-	touch $@
-
 ## yuck rule
 SUFFIXES += .yuck
 SUFFIXES += .yucc
@@ -136,10 +113,6 @@ SUFFIXES += .gperf
 
 ## just for parallel builds
 dexpr-parser.h: dexpr-parser.c
-
-## for AIX that doesn't ship a getopt.h
-getopt.h: $(srcdir)/getopt.h.in
-	$(AM_V_GEN) cp $(srcdir)/getopt.h.in $@
 
 ## for dist or dist check we need binaries, so help2man can work
 dist-hook: $(bin_PROGRAMS)
