@@ -78,12 +78,12 @@ ddiff_LDADD = $(top_builddir)/lib/libdut.a
 BUILT_SOURCES += ddiff.yucc
 
 bin_PROGRAMS += dgrep
-dgrep_SOURCES = dgrep.c dgrep.ggo
+dgrep_SOURCES = dgrep.c dgrep.yuck
 dgrep_SOURCES += prchunk.c prchunk.h
 dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
 dgrep_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dgrep.x dgrep.xh
+BUILT_SOURCES += dgrep.yucc
 
 bin_PROGRAMS += dround
 dround_SOURCES = dround.c dround.ggo
