@@ -86,12 +86,12 @@ dgrep_LDADD = $(top_builddir)/lib/libdut.a
 BUILT_SOURCES += dgrep.yucc
 
 bin_PROGRAMS += dround
-dround_SOURCES = dround.c dround.ggo
+dround_SOURCES = dround.c dround.yuck
 dround_SOURCES += prchunk.c prchunk.h
 dround_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dround_LDFLAGS = $(AM_LDFLAGS)
 dround_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dround.x dround.xh
+BUILT_SOURCES += dround.yucc
 
 if BUILD_DEXPR
 noinst_PROGRAMS += dexpr
