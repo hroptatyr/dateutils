@@ -38,13 +38,13 @@ BUILT_SOURCES += dseq.yucc
 
 if HAVE_STRPTIME
 bin_PROGRAMS += strptime
-strptime_SOURCES = strptime.c strptime.ggo
+strptime_SOURCES = strptime.c strptime.yuck
 strptime_SOURCES += prchunk.c prchunk.h
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 strptime_LDADD = $(top_builddir)/lib/libdut.a
 endif
-BUILT_SOURCES += strptime.x strptime.xh
+BUILT_SOURCES += strptime.yucc
 
 bin_PROGRAMS += dconv
 dconv_SOURCES = dconv.c dconv.yuck
