@@ -1,0 +1,54 @@
+Usage: dseq [OPTION]... FIRST [[INCREMENT] LAST]
+
+Generate a sequence of date/times from FIRST to LAST, optionally in steps of
+INCREMENT (which defaults to `1d').
+
+If LAST is omitted it defaults to `now' if FIRST is a date/time, or `today' if
+FIRST is a date, or `time' if FIRST is a time.
+
+The values of FIRST and LAST are always inclusive and no date/times before
+FIRST and no date/times after LAST will be printed.
+
+Negative INCREMENTs must be given, i.e. if FIRST is newer than LAST.
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -f, --format=STRING        Output format.  This can either be a specifier
+                               string (similar to strftime()'s FMT) or the name
+                               of a calendar.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+  -s, --skip=STRING...          Skip weekdays specified by STRING.
+                               STRING can be a single weekday (Mon, Tue, etc.),
+                               and to skip several days the --skip option can
+                               be used multiple times.
+                               STRING can also be a comma-separated list of
+                               weekday names, or `ss' to skip weekends
+                               (sat+sun) altogether.
+                               STRING can also contain date ranges like `mo-we'
+                               for monday to wednesday.
+      --alt-inc=STRING       Alternative increment to use when a date is hit
+                               that is skipped as per --skip.
+                               This increment will be applied until a
+                               non-skipped date is reached.
+                               The special case `0' (default) deactivates
+                               alternative incrementing.  A useful value could
+                               be `1d' for increasing sequences and `-1d' for
+                               decreasing sequences, so if a skipped date is
+                               encountered the next non-skipped date
+                               after/before will be used.
+      --compute-from-last    Compute a start value from LAST using INCREMENT.
+                               This option has an effect only when INCREMENT is
+                               not a divisor of the duration between FIRST and
+                               LAST.  In such case, an alternative FIRST will
+                               be computed by consecutively subtracting
+                               INCREMENT from LAST until FIRST is hit or
+                               crossed.

@@ -30,11 +30,11 @@ EXTRA_DIST += strpdt-special.gperf
 BUILT_SOURCES += strpdt-special.c
 
 bin_PROGRAMS += dseq
-dseq_SOURCES = dseq.c dseq.ggo
+dseq_SOURCES = dseq.c dseq.yuck
 dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dseq_LDFLAGS = $(AM_LDFLAGS)
 dseq_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dseq.x dseq.xh
+BUILT_SOURCES += dseq.yucc
 
 if HAVE_STRPTIME
 bin_PROGRAMS += strptime
