@@ -217,27 +217,12 @@ mass_add_d(const struct mass_add_clo_s *clo)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "dadd.xh"
-#include "dadd.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "dadd.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	struct dt_dt_s d;
 	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 	char *inp;
@@ -250,22 +235,20 @@ main(int argc, char *argv[])
 	zif_t z = NULL;
 	zif_t hackz = NULL;
 
-	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv, "Pp+");
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
 		goto out;
-	} else if (argi->inputs_num == 0) {
+	} else if (argi->nargs == 0) {
 		error(0, "Error: DATE or DURATION must be specified\n");
-		cmdline_parser_print_help();
+		yuck_auto_help(argi);
 		res = 1;
 		goto out;
 	}
 	/* init and unescape sequences, maybe */
 	ofmt = argi->format_arg;
-	fmt = argi->input_format_arg;
-	nfmt = argi->input_format_given;
-	if (argi->backslash_escapes_given) {
+	fmt = argi->input_format_args;
+	nfmt = argi->input_format_nargs;
+	if (argi->backslash_escapes_flag) {
 		dt_io_unescape(argi->format_arg);
 		for (size_t i = 0; i < nfmt; i++) {
 			dt_io_unescape(fmt[i]);
@@ -273,17 +256,17 @@ main(int argc, char *argv[])
 	}
 
 	/* try and read the from and to time zones */
-	if (argi->from_zone_given) {
+	if (argi->from_zone_arg) {
 		fromz = zif_open(argi->from_zone_arg);
 	}
-	if (argi->zone_given) {
+	if (argi->zone_arg) {
 		z = zif_open(argi->zone_arg);
 	}
 
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
-	for (size_t i = 0; i < argi->inputs_num; i++) {
-		inp = unfixup_arg(argi->inputs[i]);
+	for (size_t i = 0; i < argi->nargs; i++) {
+		inp = argi->args[i];
 		do {
 			if (dt_io_strpdtdur(&st, inp) < 0) {
 				if (UNLIKELY(i == 0)) {
@@ -307,10 +290,10 @@ cannot parse duration string `%s'", st.istr);
 	if (dt_given_p) {
 		/* date parsing needed postponing as we need to find out
 		 * about the durations */
-		inp = argi->inputs[0];
+		inp = argi->args[0U];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
-			error(0, "Error: \
-cannot interpret date/time string `%s'", argi->inputs[0]);
+			error(0, "\
+Error: cannot interpret date/time string `%s'", inp);
 			res = 1;
 			goto dur_out;
 		}
@@ -363,8 +346,8 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 		clo->hackz = hackz;
 		clo->z = z;
 		clo->ofmt = ofmt;
-		clo->sed_mode_p = argi->sed_mode_given;
-		clo->quietp = argi->quiet_given;
+		clo->sed_mode_p = argi->sed_mode_flag;
+		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			mass_add_dur(clo);
 		}
@@ -395,8 +378,8 @@ cannot interpret date/time string `%s'", argi->inputs[0]);
 		clo->hackz = hackz;
 		clo->z = z;
 		clo->ofmt = ofmt;
-		clo->sed_mode_p = argi->sed_mode_given;
-		clo->quietp = argi->quiet_given;
+		clo->sed_mode_p = argi->sed_mode_flag;
+		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			mass_add_d(clo);
 		}
@@ -407,15 +390,15 @@ dur_out:
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
 
-	if (argi->from_zone_given) {
+	if (argi->from_zone_arg) {
 		zif_close(fromz);
 	}
-	if (argi->zone_given) {
+	if (argi->zone_arg) {
 		zif_close(z);
 	}
 
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 

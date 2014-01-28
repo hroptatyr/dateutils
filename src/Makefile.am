@@ -62,12 +62,12 @@ dtest_LDADD = $(top_builddir)/lib/libdut.a
 BUILT_SOURCES += dtest.x dtest.xh
 
 bin_PROGRAMS += dadd
-dadd_SOURCES = dadd.c dadd.ggo
+dadd_SOURCES = dadd.c dadd.yuck
 dadd_SOURCES += prchunk.c prchunk.h
 dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
 dadd_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dadd.x dadd.xh
+BUILT_SOURCES += dadd.yucc
 
 bin_PROGRAMS += ddiff
 ddiff_SOURCES = ddiff.c ddiff.yuck
