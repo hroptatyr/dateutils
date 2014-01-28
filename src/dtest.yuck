@@ -1,0 +1,28 @@
+Usage: dtest [OPTION]... DATE/TIME1 OP DATE/TIME2
+
+Like test(1) but for dates.
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+
+      --eq                   DATE/TIME1 is the same as DATE/TIME2
+      --ne                   DATE/TIME1 is not the same as DATE/TIME2
+      --gt                   DATE/TIME1 is newer than DATE/TIME2
+      --lt                   DATE/TIME1 is older than DATE/TIME2
+      --ge                   DATE/TIME1 is newer than or equals DATE/TIME2
+      --le                   DATE/TIME1 is older than or equals DATE/TIME2
+      --nt                   DATE/TIME1 is newer than DATE/TIME2
+      --ot                   DATE/TIME1 is older than DATE/TIME2
+      --cmp                  compare DATE/TIME1 to DATE/TIME2, return with 0 if
+                               equal, 1 if left argument was newer and 2 if
+                               right argument was newer

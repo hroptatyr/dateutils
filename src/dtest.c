@@ -71,56 +71,41 @@ error(int eno, const char *fmt, ...)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "dtest.xh"
-#include "dtest.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "dtest.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	char **ifmt;
 	size_t nifmt;
 	struct dt_dt_s d1, d2;
 	int res = 0;
 
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 2;
 		goto out;
 	}
 
-	if (argi->inputs_num != 2) {
-		cmdline_parser_print_help();
+	if (argi->nargs != 2U) {
+		yuck_auto_help(argi);
 		res = 2;
 		goto out;
 	}
 
-	ifmt = argi->input_format_arg;
-	nifmt = argi->input_format_given;
+	ifmt = argi->input_format_args;
+	nifmt = argi->input_format_nargs;
 
-	if (dt_unk_p(d1 = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL))) {
-		if (!argi->quiet_given) {
-			dt_io_warn_strpdt(argi->inputs[0]);
+	if (dt_unk_p(d1 = dt_io_strpdt(argi->args[0U], ifmt, nifmt, NULL))) {
+		if (!argi->quiet_flag) {
+			dt_io_warn_strpdt(argi->args[0U]);
 		}
 		res = 2;
 		goto out;
 	}
-	if (dt_unk_p(d2 = dt_io_strpdt(argi->inputs[1], ifmt, nifmt, NULL))) {
-		if (!argi->quiet_given) {
-			dt_io_warn_strpdt(argi->inputs[1]);
+	if (dt_unk_p(d2 = dt_io_strpdt(argi->args[1U], ifmt, nifmt, NULL))) {
+		if (!argi->quiet_flag) {
+			dt_io_warn_strpdt(argi->args[1U]);
 		}
 		res = 2;
 		goto out;
@@ -130,7 +115,7 @@ main(int argc, char *argv[])
 	if ((res = dt_dtcmp(d1, d2)) == -2) {
 		/* uncomparable */
 		res = 3;
-	} else if (argi->cmp_given) {
+	} else if (argi->cmp_flag) {
 		switch (res) {
 		case 0:
 			res = 0;
@@ -146,21 +131,21 @@ main(int argc, char *argv[])
 			res = 3;
 			break;
 		}
-	} else if (argi->eq_given) {
+	} else if (argi->eq_flag) {
 		res = res == 0 ? 0 : 1;
-	} else if (argi->ne_given) {
+	} else if (argi->ne_flag) {
 		res = res != 0 ? 0 : 1;
-	} else if (argi->lt_given || argi->ot_given) {
+	} else if (argi->lt_flag || argi->ot_flag) {
 		res = res == -1 ? 0 : 1;
-	} else if (argi->le_given) {
+	} else if (argi->le_flag) {
 		res = res == -1 || res == 0 ? 0 : 1;
-	} else if (argi->gt_given || argi->nt_given) {
+	} else if (argi->gt_flag || argi->nt_flag) {
 		res = res == 1 ? 0 : 1;
-	} else if (argi->ge_given) {
+	} else if (argi->ge_flag) {
 		res = res == 1 || res == 0 ? 0 : 1;
 	}
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 

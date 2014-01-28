@@ -55,11 +55,11 @@ dconv_LDADD = $(top_builddir)/lib/libdut.a
 BUILT_SOURCES += dconv.yucc
 
 bin_PROGRAMS += dtest
-dtest_SOURCES = dtest.c dtest.ggo
+dtest_SOURCES = dtest.c dtest.yuck
 dtest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtest_LDFLAGS = $(AM_LDFLAGS)
 dtest_LDADD = $(top_builddir)/lib/libdut.a
-BUILT_SOURCES += dtest.x dtest.xh
+BUILT_SOURCES += dtest.yucc
 
 bin_PROGRAMS += dadd
 dadd_SOURCES = dadd.c dadd.yuck
