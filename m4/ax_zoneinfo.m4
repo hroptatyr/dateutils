@@ -177,6 +177,7 @@ AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 /usr/share/zoneinfo \
 /usr/lib/zoneinfo \
 /usr/local/etc/zoneinfo \
+/usr/share/lib/zoneinfo \
 "
 
 	dnl go through our candidates
