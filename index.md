@@ -3,7 +3,7 @@ title: dateutils
 layout: project
 logo: dateutils_logo_120.png
 project: dateutils
-latest: dateutils-0.2.6.tar.xz
+latest: dateutils-0.2.7.tar.xz
 ---
 
 Dateutils
