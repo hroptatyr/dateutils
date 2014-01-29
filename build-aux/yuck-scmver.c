@@ -141,7 +141,7 @@ hextou(const char *sp, char **ep)
 	size_t i;
 
 	if (UNLIKELY(sp == NULL)) {
-		return 0U;
+		goto out;
 	} else if (*sp == '\0') {
 		goto out;
 	}
@@ -662,7 +662,7 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 	/* initialise result structure */
 	memset(v, 0, sizeof(*v));
 
-	if (getcwd(cwd, sizeof(cwd)) < 0) {
+	if (getcwd(cwd, sizeof(cwd)) == NULL) {
 		return -1;
 	}
 
@@ -687,6 +687,7 @@ yuck_version(struct yuck_version_s *restrict v, const char *path)
 			rc = hg_version(v);
 			break;
 		default:
+			rc = -1;
 			break;
 		}
 		chdir(cwd);
