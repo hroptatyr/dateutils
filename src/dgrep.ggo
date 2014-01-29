@@ -34,7 +34,7 @@ option "invert-match" v
 
 defgroup "op"
 groupdesc="Operations can be specified by options as well.
-In all cases EXPRESSION must be a DT_STR and no concatenation is through
+EXPRESSION must then be a DT_STR and no concatenation through
 conjunction (`&&') or disjunction (`||') operators is possible.
 
 This serves solely as a means of convenience, e.g. the dtest tool \
