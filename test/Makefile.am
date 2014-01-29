@@ -712,22 +712,16 @@ endif  HAVE_GDATE
 check_PROGRAMS += clittool
 clittool_CPPFLAGS = $(AM_CPPFLAGS)
 clittool_CPPFLAGS += -D_GNU_SOURCE
-EXTRA_DIST += clittool.ggo
-BUILT_SOURCES += clittool.x clittool.xh
+EXTRA_DIST += clittool.yuck
+BUILT_SOURCES += clittool.yucc
 
 
 ## ggo rule
-SUFFIXES += .ggo
-SUFFIXES += .x
-.ggo.x:
-	$(AM_V_GEN) gengetopt -F $* -G -c x -H xh -i $<
-	@sed -e 's,config.h,version.h,g' \
-	     -e 's,_PARSER_VERSION VERSION,_PARSER_VERSION "$(VERSION)",g' \
-	     $@h > $@h-t \
-	&& mv $@h-t $@h
-SUFFIXES += .xh
-.ggo.xh:
-	touch $@
+SUFFIXES += .yuck
+SUFFIXES += .yucc
+.yuck.yucc:
+	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
+		yuck$(EXEEXT) gen -o $@ $<
 
 clean-local:
 	-rm -rf *.tmpd

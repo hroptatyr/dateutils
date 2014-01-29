@@ -127,63 +127,48 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "dgrep.xh"
-#include "dgrep.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "dgrep.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	char **fmt;
 	size_t nfmt;
 	dexpr_t root;
 	oper_t o = OP_UNK;
 	int res = 0;
 
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
 		goto out;
 	}
 
 	/* init and unescape sequences, maybe */
-	ckv_fmt = fmt = argi->input_format_arg;
-	ckv_nfmt = nfmt = argi->input_format_given;
-	if (argi->backslash_escapes_given) {
+	ckv_fmt = fmt = argi->input_format_args;
+	ckv_nfmt = nfmt = argi->input_format_nargs;
+	if (argi->backslash_escapes_flag) {
 		for (size_t i = 0; i < nfmt; i++) {
 			dt_io_unescape(fmt[i]);
 		}
 	}
 
-	if (argi->eq_given) {
+	if (argi->eq_flag) {
 		o = OP_EQ;
-	} else if (argi->ne_given) {
+	} else if (argi->ne_flag) {
 		o = OP_NE;
-	} else if (argi->lt_given || argi->ot_given) {
+	} else if (argi->lt_flag || argi->ot_flag) {
 		o = OP_LT;
-	} else if (argi->le_given) {
+	} else if (argi->le_flag) {
 		o = OP_LE;
-	} else if (argi->gt_given || argi->nt_given) {
+	} else if (argi->gt_flag || argi->nt_flag) {
 		o = OP_GT;
-	} else if (argi->ge_given) {
+	} else if (argi->ge_flag) {
 		o = OP_GE;
 	}
 	/* parse the expression */
-	if (argi->inputs_num == 0 || 
-	    dexpr_parse(&root, argi->inputs[0], strlen(argi->inputs[0])) < 0) {
+	if (argi->nargs == 0U || 
+	    dexpr_parse(&root, argi->args[0U], strlen(argi->args[0U])) < 0) {
 		res = 1;
 		error(0, "Error: need an expression to grep");
 		goto out;
@@ -213,8 +198,8 @@ with complex expressions");
 		struct prln_ctx_s prln = {
 			.ndl = &ndlsoa,
 			.root = root,
-			.only_matching_p = argi->only_matching_given,
-			.invert_match_p = argi->invert_match_given,
+			.only_matching_p = argi->only_matching_flag,
+			.invert_match_p = argi->invert_match_flag,
 		};
 
 		/* no threads reading this stream */
@@ -251,7 +236,7 @@ with complex expressions");
 	/* resource freeing */
 	free_dexpr(root);
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 

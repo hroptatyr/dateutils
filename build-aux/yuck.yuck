@@ -1,0 +1,64 @@
+Usage: yuck COMMAND [ARG]...
+
+Generate command line option parsers for umbrella commands.
+
+  -k, --keep         Keep intermediary files.
+  -o, --output=FILE  Output goes into FILE instead of stdout.
+
+## Usages of the single commands
+Usage: yuck [OPTION]... gen [FILE]...
+
+Generate a parser from definitions in FILE, or stdin if omitted.
+
+  -H, --header=FILE  Also generate a header file.
+  --no-auto-flags    Do not add auto flags (--help, --version).
+  --no-auto-actions  Do not automatically handle auto flags.
+  --version=VERSION  Hardwire version number.
+
+## GENMAN
+Usage: yuck [OPTION]... genman [FILE]...
+
+Generate a man page from definitions in FILE, or stdin if omitted.
+
+  --version-string=STRING  Hardwire version number as STRING.
+  --version-file=FILE  Hardwire version number from FILE.
+
+## GENDSL
+Usage: yuck gendsl [FILE]...
+
+Generate the intermediary description of definitions from FILE, or stdin
+if omitted.
+
+  --no-auto-flags    Do not add auto flags (--help, --version).
+  --no-auto-actions  Do not automatically handle auto flags.
+  --version=VERSION  Hardwire version number.
+
+## VER
+Usage: yuck scmver [PATH]
+
+Guess version number for SCM controlled PATH.
+If PATH is a file run a transformation.
+If PATH is a directory just output the version number.
+
+Transformations are done through the m4 processor:
+YUCK_SCMVER_VTAG     will expand to the tag name.
+YUCK_SCMVER_SCM      will expand to the name of the SCM used.
+YUCK_SCMVER_DIST     will expand to the distance, that is the number of
+                     commits since the last tag.
+YUCK_SCMVER_RVSN     will expand to the current commit number.
+YUCK_SCMVER_FLAG_DIRTY  is set for changes in the source tree that have
+                     not yet been committed.
+
+Definitions in the template yuck-scmver.m4 are prepended, and by
+default this defines the YUCK_SCMVER_VERSION macro that expands to the
+full version number.
+
+
+  -v, --verbose         Print additional information on stderr.
+      --reference=FILE  Store version reference in FILE and don't touch
+                        the output file if nothing has changed.
+  -f, --force           Force operation even if the current scm version
+                        coincides with the reference version.
+  -n, --use-reference   Use version number provided in the reference
+                        file instead of determining it.
+      --ignore-noscm    Don't treat no scm as error.

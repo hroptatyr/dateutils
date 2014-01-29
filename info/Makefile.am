@@ -178,7 +178,7 @@ EXTRA_DIST += dseq.name
 EXTRA_DIST += dtest.name
 EXTRA_DIST += strptime.name
 
-SUFFIXES += .ggo
+SUFFIXES += .yuck
 SUFFIXES += .name
 VPATH += @top_srcdir@/src
 
@@ -186,8 +186,7 @@ my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $@;
 SUFFIXES += .man
-.h2m.man: $(dateutils_H2M_EX) \
-		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in
+.h2m.man: $(dateutils_H2M_EX) $(top_srcdir)/configure
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I $< \
 		-I "$(builddir)/format.h2m" \
@@ -197,8 +196,7 @@ SUFFIXES += .man
 
 ## generic rule with format-ddiff instead of format
 SUFFIXES += .mand
-.h2m.mand: $(dateutils_H2M_EX) \
-		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in
+.h2m.mand: $(dateutils_H2M_EX) $(top_srcdir)/configure
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I $< \
 		-I "$(builddir)/format-ddiff.th2m" \
@@ -208,8 +206,7 @@ SUFFIXES += .mand
 
 ## generic rule for man pages with units section
 SUFFIXES += .manu
-.h2m.manu: $(dateutils_H2M_EX) \
-		$(top_srcdir)/configure $(top_srcdir)/src/common.ggo.in
+.h2m.manu: $(dateutils_H2M_EX) $(top_srcdir)/configure
 	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
 		-I $< \
 		-I "$(builddir)/format.th2m" \
@@ -222,7 +219,7 @@ my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
 __bld_h2m_0 = @echo "  GENH2M  " $*;
 SUFFIXES += .h2m
-.ggo.h2m: $(dateutils_EXAMPLES)
+.yuck.h2m: $(dateutils_EXAMPLES)
 	$(my_bld_h2m) ${SHELL} \
 		$(srcdir)/genh2m.sh $(top_builddir)/src/$* \
 		$($*_EXAMPLES) > $@ || rm -f -- $@
@@ -231,7 +228,7 @@ my_bld_texi = $(__bld_texi_$(V))
 __bld_texi_ = $(__bld_texi_$(AM_DEFAULT_VERBOSITY))
 __bld_texi_0 = @echo "  GENTEXI " $*;
 SUFFIXES += .texi
-.ggo.texi: $(dateutils_EXAMPLES) dateutils.texi
+.yuck.texi: $(dateutils_EXAMPLES) dateutils.texi
 	$(my_bld_texi) ${SHELL} \
 		$(srcdir)/gentexi.sh $(top_builddir)/src/$* \
 		$($*_EXAMPLES) > $@ || test "$$?" = "2" || rm -f -- $@

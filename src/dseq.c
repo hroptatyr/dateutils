@@ -447,28 +447,13 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "dseq.xh"
-#include "dseq.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "dseq.yucc"
 
 int
 main(int argc, char *argv[])
 {
 	static struct dt_dt_s ite_p1;
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	struct dt_dt_s tmp;
 	char **ifmt;
 	size_t nifmt;
@@ -484,31 +469,28 @@ main(int argc, char *argv[])
 		.flags = 0,
 	};
 
-	/* fixup negative numbers, A -1 B for dates A and B */
-	fixup_argv(argc, argv, NULL);
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
 		goto out;
 	}
 	/* assign ofmt/ifmt */
 	ofmt = argi->format_arg;
-	if (argi->backslash_escapes_given) {
+	if (argi->backslash_escapes_flag) {
 		dt_io_unescape(ofmt);
 	}
-	nifmt = argi->input_format_given;
-	ifmt = argi->input_format_arg;
+	nifmt = argi->input_format_nargs;
+	ifmt = argi->input_format_args;
 
-	for (size_t i = 0; i < argi->skip_given; i++) {
-		clo.ss = set_skip(clo.ss, argi->skip_arg[i]);
+	for (size_t i = 0; i < argi->skip_nargs; i++) {
+		clo.ss = set_skip(clo.ss, argi->skip_args[i]);
 	}
 
-	if (argi->alt_inc_given) {
+	if (argi->alt_inc_arg) {
 		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
-		unfixup_arg(argi->alt_inc_arg);
 		do {
 			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
-				if (!argi->quiet_given) {
+				if (!argi->quiet_flag) {
 					error(errno, "Error: \
 cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
@@ -521,28 +503,28 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		clo.naltite = st.ndurs;
 	}
 
-	switch (argi->inputs_num) {
+	switch (argi->nargs) {
 		struct dt_dt_s fst, lst;
 	default:
-		cmdline_parser_print_help();
+		yuck_auto_help(argi);
 		res = 1;
 		goto out;
 
 	case 2:
-		lst = dt_io_strpdt(argi->inputs[1], ifmt, nifmt, NULL);
+		lst = dt_io_strpdt(argi->args[1U], ifmt, nifmt, NULL);
 		if (dt_unk_p(lst)) {
-			if (!argi->quiet_given) {
-				dt_io_warn_strpdt(argi->inputs[1]);
+			if (!argi->quiet_flag) {
+				dt_io_warn_strpdt(argi->args[1U]);
 			}
 			res = 1;
 			goto out;
 		}
 		/* fallthrough */
 	case 1:
-		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);
+		fst = dt_io_strpdt(argi->args[0U], ifmt, nifmt, NULL);
 		if (dt_unk_p(fst)) {
-			if (!argi->quiet_given) {
-				dt_io_warn_strpdt(argi->inputs[0]);
+			if (!argi->quiet_flag) {
+				dt_io_warn_strpdt(argi->args[0U]);
 			}
 			res = 1;
 			goto out;
@@ -554,7 +536,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		 * if one of them is a dt, promote the other */
 		if (dt_sandwich_only_d_p(fst)) {
 			/* emulates old dseq(1) */
-			if (argi->inputs_num == 1) {
+			if (argi->nargs == 1U) {
 				lst.d = dt_date(DT_YMD);
 				dt_make_d_only(&lst, DT_YMD);
 			}
@@ -563,14 +545,14 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			clo.ite->d.daisy = 1;
 		} else if (dt_sandwich_only_t_p(fst)) {
 			/* emulates old tseq(1) */
-			if (argi->inputs_num == 1) {
+			if (argi->nargs == 1U) {
 				lst.t = dt_time();
 				dt_make_t_only(&lst, DT_HMS);
 			}
 			/* let the guesser do the work */
 			clo.ite->t.sdur = 0;
 		} else if (dt_sandwich_p(fst)) {
-			if (argi->inputs_num == 1) {
+			if (argi->nargs == 1U) {
 				lst = dt_datetime((dt_dttyp_t)DT_YMD);
 				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
 			}
@@ -592,21 +574,20 @@ don't know how to handle single argument case");
 		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
 		/* get lower bound */
-		fst = dt_io_strpdt(argi->inputs[0], ifmt, nifmt, NULL);
+		fst = dt_io_strpdt(argi->args[0U], ifmt, nifmt, NULL);
 		if (dt_unk_p(fst)) {
-			if (!argi->quiet_given) {
-				dt_io_warn_strpdt(argi->inputs[0]);
+			if (!argi->quiet_flag) {
+				dt_io_warn_strpdt(argi->args[0U]);
 			}
 			res = 1;
 			goto out;
 		}
 
 		/* get increment */
-		unfixup_arg(argi->inputs[1]);
 		do {
-			if (dt_io_strpdtdur(&st, argi->inputs[1]) < 0) {
+			if (dt_io_strpdtdur(&st, argi->args[1U]) < 0) {
 				error(0, "Error: \
-cannot parse duration string `%s'", argi->inputs[1]);
+cannot parse duration string `%s'", argi->args[1U]);
 				res = 1;
 				goto out;
 			}
@@ -617,10 +598,10 @@ cannot parse duration string `%s'", argi->inputs[1]);
 		clo.flags |= CLO_FL_FREE_ITE;
 
 		/* get upper bound */
-		lst = dt_io_strpdt(argi->inputs[2], ifmt, nifmt, NULL);
+		lst = dt_io_strpdt(argi->args[2U], ifmt, nifmt, NULL);
 		if (dt_unk_p(lst)) {
-			if (!argi->quiet_given) {
-				dt_io_warn_strpdt(argi->inputs[2]);
+			if (!argi->quiet_flag) {
+				dt_io_warn_strpdt(argi->args[2U]);
 			}
 			res = 1;
 			goto out;
@@ -662,7 +643,7 @@ cannot mix dates and times as arguments");
 	    __daisy_feasible_p(clo.ite, clo.nite) &&
 	    ((clo.fst = dt_dtconv(x_DAISY, clo.fst)).d.typ != DT_DAISY ||
 	     (clo.lst = dt_dtconv(x_DAISY, clo.lst)).d.typ != DT_DAISY)) {
-		if (!argi->quiet_given) {
+		if (!argi->quiet_flag) {
 			error(0, "\
 cannot convert calendric system internally");
 		}
@@ -674,13 +655,13 @@ cannot convert calendric system internally");
 
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
 	    (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
-		if (!argi->quiet_given) {
+		if (!argi->quiet_flag) {
 			error(0, "\
 increment must not be naught");
 		}
 		res = 1;
 		goto out;
-	} else if (argi->compute_from_last_given) {
+	} else if (argi->compute_from_last_flag) {
 		tmp = __fixup_fst(&clo);
 	} else {
 		tmp = __seq_this(clo.fst, &clo);
@@ -698,7 +679,7 @@ out:
 	if (clo.altite != NULL) {
 		free(clo.altite);
 	}
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 

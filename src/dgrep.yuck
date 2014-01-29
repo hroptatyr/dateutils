@@ -1,0 +1,56 @@
+Usage: dgrep [OPTION]... EXPRESSION
+
+Grep standard input for lines that match EXPRESSION.
+
+EXPRESSION may be date/times prefixed with an operator `<', `<=', '=', '>=',
+'>', `!=', `<>' (if omitted defaults to `='),
+which will match lines with date/times which are older, older-equal, equal,
+newer-equal, newer, or not equal respectively.
+
+EXPRESSION may also be format specifiers infixed by above operators
+and suffixed by a value (e.g. `%a="Wed"') which matches lines whose
+%a representation (weekday name abbreviated) is "Wed".
+
+EXPRESSION may be statements as described above concatenated through `&&' (for
+conjunction) or `||' (disjunction), both of which may be parenthesised as per
+usual to change precedence (`&&' goes over `||').
+
+If multiple date/times occur on the same line and any one of them fulfills the
+criteria then the line is considered a match and will be output.
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+  -o, --only-matching        Show only the part of a line matching DATE.
+  -v, --invert-match         Select non-matching lines.
+
+Note:
+  Operations can be specified by options (--eq, --gt, ...) as well.
+  This serves solely as a means of convenience, e.g. the dtest tool has a
+  similar syntax.
+
+      --eq                   Lines match when date/times are equal to
+                               EXPRESSION.
+      --ne                   Lines match when date/times are not the same as
+                               EXPRESSION.
+      --gt                   Lines match when date/times are newer than
+                               EXPRESSION.
+      --lt                   Lines match when date/times are older than
+                               EXPRESSION.
+      --ge                   Lines match when date/times are newer than or
+                               equal EXPRESSION.
+      --le                   Lines match when date/times are older than or
+                               equal EXPRESSION.
+      --nt                   Lines match when date/times are newer than or
+                               equal EXPRESSION.
+      --ot                   Lines match when date/times are older than or
+                               equal EXPRESSION.

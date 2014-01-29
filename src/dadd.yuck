@@ -1,0 +1,41 @@
+Usage: dadd [OPTION]... [DATE/TIME] [DURATION]
+
+Add DURATION to DATE/TIME and print the result.
+If DATE/TIME is omitted but DURATION is given, read a list of DATE/TIMEs from
+stdin.
+If DURATION is omitted but DATE/TIME is given, read a list of DURATIONs from
+stdin.
+
+Durations are specified as nY, nMO, nW, or nD for years, months, weeks, or days
+respectively, or nH, nM, nS for hours, minutes, and seconds, where N is a
+(possibly negative) number.  The unit symbols can be written lower-case as well
+(y, mo, w, d, h, m, s) and the unit symbol `d' can be omitted.
+
+Note that duration addition is not commutative!
+  2000-03-30 +1mo +1d -> 2000-05-01
+  2000-03-30 +1d +1mo -> 2000-04-30
+
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -f, --format=STRING        Output format.  This can either be a specifier
+                               string (similar to strftime()'s FMT) or the name
+                               of a calendar.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+  -S, --sed-mode             Copy parts from the input before and after a
+                               matching date/time.
+                               Note that all occurrences of date/times within a
+                               line will be processed.
+      --from-zone=ZONE       Interpret dates on stdin or the command line as
+                               coming from the time zone ZONE.
+  -z, --zone=ZONE            Convert dates printed on stdout to time zone ZONE,
+                               default: UTC.
