@@ -82,6 +82,11 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 	AM_CONDITIONAL([HAVE_YUCK], [test "${have_yuck}" = "yes"])
 
 	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
+	if test "${have_yuck}" = "yes"; then
+		## see what m4 they used back then
+		_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
+		M4="${pkg_cv_yuck_m4:-m4}"
+	fi
 ])dnl AX_CHECK_YUCK
 
 dnl yuck.m4 ends here

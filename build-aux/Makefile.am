@@ -27,12 +27,13 @@ endif  !HAVE_YUCK
 
 CLEANFILES = yuck.m4i yuck.yucc
 
+M4 ?= m4
 
 ## yuck rules
 yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap$(EXEEXT)
 	$(builddir)/yuck-bootstrap$(EXEEXT) $< > $@ || { rm -f -- $@; false; }
 
 yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	m4 $+ > $@ || { rm -f -- $@; false; }
+	$(M4) $+ > $@ || { rm -f -- $@; false; }
 
 ## Makefile.am ends here
