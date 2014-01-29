@@ -33,6 +33,41 @@ dnl IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 dnl This file is part of yuck.
 
+AC_DEFUN([AX_CHECK_M4_BUFFERS], [dnl
+	AC_MSG_CHECKING([for m4 with sufficient capabilities])
+
+	AC_SUBST([M4])
+	probe_M4="${M4:-m4}"
+	if ${probe_M4} >/dev/null 2>&1 \
+		-Dx='y y y y y y y y y y y y y y y y' \
+		-Dy='z z z z z z z z z z z z z z z z' \
+                -Dz='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0' <<'EOF'
+[define(`foo', x)]
+EOF
+	then
+		## ah well done
+		AC_MSG_RESULT([${probe_M4}])
+		M4="${probe_M4}"
+	else
+		## check if a little buffer massage solves the problem
+		probe_M4="${M4:-m4} -B16384"
+		if ${probe_M4} >/dev/null 2>&1 \
+			-Dx='y y y y y y y y y y y y y y y y' \
+			-Dy='z z z z z z z z z z z z z z z z' \
+			-Dz='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0' <<'EOF'
+[define(`foo', x)]
+EOF
+		then
+			## very well then, let's use -B
+			AC_MSG_RESULT([${probe_M4}])
+			M4="${probe_M4}"
+		else
+			AC_MSG_WARN([m4 on this machine might suffer from big buffers.])
+			M4="${M4:-m4}"
+		fi
+	fi
+])dnl AX_CHECK_M4_BUFFERS
+
 AC_DEFUN([AX_CHECK_YUCK], [dnl
 	AC_ARG_WITH([included-yuck], [dnl
 AS_HELP_STRING([--with-included-yuck], [
@@ -45,6 +80,8 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 		AC_MSG_RESULT([${have_yuck}])
 	fi
 	AM_CONDITIONAL([HAVE_YUCK], [test "${have_yuck}" = "yes"])
+
+	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
 ])dnl AX_CHECK_YUCK
 
 dnl yuck.m4 ends here
