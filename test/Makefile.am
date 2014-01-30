@@ -651,6 +651,11 @@ dt_tests += dtround.012.clit
 dt_tests += dtround.013.clit
 dt_tests += dtround.014.clit
 
+dt_tests += dzone.001.clit
+dt_tests += dzone.002.clit
+dt_tests += dzone.003.clit
+dt_tests += dzone.004.clit
+
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
 

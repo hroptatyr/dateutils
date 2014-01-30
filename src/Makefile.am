@@ -86,6 +86,13 @@ dround_LDFLAGS = $(AM_LDFLAGS)
 dround_LDADD = $(top_builddir)/lib/libdut.a
 BUILT_SOURCES += dround.yucc
 
+bin_PROGRAMS += dzone
+dzone_SOURCES = dzone.c dzone.yuck
+dzone_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+dzone_LDFLAGS = $(AM_LDFLAGS)
+dzone_LDADD = $(top_builddir)/lib/libdut.a
+BUILT_SOURCES += dzone.yucc
+
 if BUILD_DEXPR
 noinst_PROGRAMS += dexpr
 dexpr_SOURCES = dexpr.c

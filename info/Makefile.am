@@ -133,6 +133,14 @@ dround_EXAMPLES += $(top_srcdir)/test/tround.002.clit
 dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
+dzone_EXAMPLES =
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.001.clit
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.002.clit
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.003.clit
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.004.clit
+dateutils_EXAMPLES += $(dzone_EXAMPLES)
+dateutils_H2M_EX += dzone.h2m
+
 EXTRA_DIST += author.h2m
 BUILT_SOURCES += format.th2m
 BUILT_SOURCES += format-ddiff.th2m
@@ -153,6 +161,7 @@ built_texis += dseq.texi
 built_texis += dtest.texi
 built_texis += dgrep.texi
 built_texis += dround.texi
+built_texis += dzone.texi
 
 built_mans =
 if HAVE_STRPTIME
@@ -165,6 +174,7 @@ built_mans += dgrep.man
 built_mans += dseq.manu
 built_mans += dtest.man
 built_mans += dround.manu
+built_mans += dzone.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
@@ -176,6 +186,7 @@ EXTRA_DIST += dgrep.name
 EXTRA_DIST += dround.name
 EXTRA_DIST += dseq.name
 EXTRA_DIST += dtest.name
+EXTRA_DIST += dzone.name
 EXTRA_DIST += strptime.name
 
 SUFFIXES += .yuck
