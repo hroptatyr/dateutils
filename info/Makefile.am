@@ -133,6 +133,8 @@ dround_EXAMPLES += $(top_srcdir)/test/tround.002.clit
 dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
+dateutils_H2M_EX += dzone.h2m
+
 EXTRA_DIST += author.h2m
 BUILT_SOURCES += format.th2m
 BUILT_SOURCES += format-ddiff.th2m
@@ -165,6 +167,7 @@ built_mans += dgrep.man
 built_mans += dseq.manu
 built_mans += dtest.man
 built_mans += dround.manu
+built_mans += dzone.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
@@ -176,6 +179,7 @@ EXTRA_DIST += dgrep.name
 EXTRA_DIST += dround.name
 EXTRA_DIST += dseq.name
 EXTRA_DIST += dtest.name
+EXTRA_DIST += dzone.name
 EXTRA_DIST += strptime.name
 
 SUFFIXES += .yuck
