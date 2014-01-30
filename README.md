@@ -246,7 +246,6 @@ dgrep
 
 dround
 ------
-  New in dateutils 0.2.1.
   A tool to "round" dates or time stamps to a recurring point in time,
   like the next/previous January or the next/previous Thursday.
 
