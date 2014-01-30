@@ -49,6 +49,7 @@ unix commands for reasons of intuition.  The only exception being
 + `dround`              Round dates or times to "fuller" values
 + `dseq`                Generate sequences of dates or times
 + `dtest`               Compare dates or times
++ `dzone`               Convert date/times to timezones in bulk
 
 
 Distributions
@@ -316,6 +317,22 @@ dround
       2012-03-06 14:30:00	eventA
       2012-03-06 14:30:00	eventB
       2012-03-06 15:00:00	eventB
+
+
+dzone
+-----
+  New in dateutils 0.3.0.
+  A tool to quickly inspect date/time values in different timezones.
+  The result will be a matrix that shows every date-time value in every
+  timezone:
+
+    $ dzone Europe/Berlin Australia/Sydney now 2014-06-30T05:00:00
+    =>
+      2014-01-30T17:37:13+01:00	Europe/Berlin
+      2014-01-31T03:37:13+11:00	Australia/Sydney
+      2014-06-30T07:00:00+02:00	Europe/Berlin
+      2014-06-30T15:00:00+10:00	Australia/Sydney
+
 
 strptime
 --------
