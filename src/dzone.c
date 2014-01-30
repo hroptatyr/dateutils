@@ -69,41 +69,39 @@ error(int eno, const char *fmt, ...)
 	return;
 }
 
-#if 0
-static void
-proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
+static size_t
+xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
-	struct dt_dt_s d;
-	char *sp = NULL;
-	char *ep = NULL;
-
-	do {
-		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
-
-		/* check if line matches */
-		if (!dt_unk_p(d) && ctx.sed_mode_p) {
-			__io_write(line, sp - line, stdout);
-			dt_io_write(d, ctx.ofmt, ctx.outz, '\0');
-			llen -= (ep - line);
-			line = ep;
-		} else if (!dt_unk_p(d)) {
-			dt_io_write(d, ctx.ofmt, ctx.outz, '\n');
-			break;
-		} else if (ctx.sed_mode_p) {
-			line[llen] = '\n';
-			__io_write(line, llen + 1, stdout);
-			break;
-		} else {
-			/* obviously unmatched, warn about it in non -q mode */
-			if (!ctx.quietp) {
-				dt_io_warn_strpdt(line);
-			}
-			break;
-		}
-	} while (1);
-	return;
+	size_t ssz = strlen(src);
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
 }
-#endif
+
+static int
+dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
+{
+	static const char fmt[] = "%FT%T%Z";
+	static char buf[256U];
+	char *restrict bp = buf;
+	const char *const ep = buf + sizeof(buf);
+
+	if (LIKELY(zone != NULL)) {
+		d = dtz_enrichz(d, zone);
+	}
+	bp += dt_strfdt(bp, ep - bp, fmt, d);
+	/* append name */
+	if (LIKELY(name != NULL)) {
+		*bp++ = '\t';
+		bp += xstrlcpy(bp, name, ep - bp);
+	}
+	*bp++ = '\n';
+	__io_write(buf, bp - buf, stdout);
+	return (bp > buf) - 1;
+}
 
 
 #include "dzone.yucc"
@@ -117,7 +115,10 @@ main(int argc, char *argv[])
 	char **fmt;
 	size_t nfmt;
 	/* all them zones to consider */
-	zif_t *z;
+	struct {
+		zif_t zone;
+		const char *name;
+	} *z;
 	size_t nz;
 	/* all them datetimes to consider */
 	struct dt_dt_s *d;
@@ -155,13 +156,30 @@ main(int argc, char *argv[])
 		/* try dt_strp'ing the input or assume it's a zone  */
 		if (!dt_unk_p(d[nd] = dt_io_strpdt(inp, fmt, nfmt, fromz))) {
 			nd++;
-		} else if ((z[nz] = zif_open(inp)) != NULL) {
+		} else if ((z[nz].zone = zif_open(inp)) != NULL) {
+			z[nz].name = inp;
 			nz++;
 		} else if (!argi->quiet_flag) {
 			/* just bollocks */
 			error(0, "\
 Cannot use `%s', it does not appear to be a zonename\n\
 nor a date/time corresponding to the given input formats", inp);
+		}
+	}
+	/* operate with default zone UTC and default time now */
+	if (nz == 0U) {
+		z[nz].zone = NULL;
+		z[nz].name = NULL;
+		nz++;
+	}
+	if (nd == 0U) {
+		d[nd++] = dt_datetime((dt_dttyp_t)DT_YMD);
+	}
+
+	/* just go through them all now */
+	for (size_t i = 0U; i < nd; i++) {
+		for (size_t j = 0U; j < nz; j++) {
+			dz_io_write(d[i], z[j].zone, z[j].name);
 		}
 	}
 
