@@ -1,0 +1,24 @@
+Usage: dzone [OPTION]... [ZONENAME]... [DATE/TIME]...
+
+Convert DATE/TIMEs between timezones.
+If DATE/TIME is omitted, it defaults to `now'.
+
+DATE/TIME can also be one of the following specials
+  - `now'           interpreted as the current (UTC) time stamp
+  - `time'          the time part of the current (UTC) time stamp
+  - `today'         the current date (according to UTC)
+  - `tomo[rrow]'    tomorrow's date (according to UTC)
+  - `y[ester]day'   yesterday's date (according to UTC)
+
+  -q, --quiet                Suppress message about date/time or zonename
+                               parser errors.
+
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+
+     --from-zone=ZONE       Interpret dates on stdin or the command line as
+                               coming from the time zone ZONE.
