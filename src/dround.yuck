@@ -1,0 +1,65 @@
+Usage: dround [OPTION]... [DATE/TIME] RNDSPEC...
+
+Round DATE/TIME to the next occurrence of RNDSPEC.
+
+If DATE/TIME is omitted a stream of date/times is read from stdin.
+
+DATE/TIME can also be one of the following specials
+  - `now'           interpreted as the current (UTC) time stamp
+  - `time'          the time part of the current (UTC) time stamp
+  - `today'         the current date (according to UTC)
+  - `tomo[rrow]'    tomorrow's date (according to UTC)
+  - `y[ester]day'   yesterday's date (according to UTC)
+
+
+RNDSPECs can be month names (Jan, Feb, ...), weekday names (Sun, Mon, ...), or
+days.
+If a month name the next date/time relative to DATE/TIME is returned whose
+month part matches the value given, so e.`g. dround 2012-01-01 Feb' will return
+2012-02-01.
+If a weekday name is given, the next date/time after DATE/TIME whose weekday
+part matches the values given is returned.
+If a day, the next date/time after DATE/TIME whose day part matches is
+returned, so `dround 2012-01-15 1' will return 2012-02-01.
+
+RNDSPECs can also be multiples of the day dividing units, e.g 1h rounds to the
+nearest full hour, 30m to the nearest half hour, and 10s to the next 10s mark.
+
+To round to the previous occurrence of a RNDSPEC any argument can be prefixed
+with a `-' to denote that.  E.g. `dround 2012-02-14 -1' will return 2012-02-01.
+And `dround 2012-02-11 -- -Sep' will return 2011-09-11.
+
+Multiple RNDSPECs are evaluated left to right.
+
+Note that rounding isn't commutative, e.g.
+	2012-03-01 Sat Sep -> 2012-09-03
+vs.
+	2012-03-01 Sep Sat -> 2012-09-01
+
+Note that non-numeric strings prefixed with a `-' conflict with the command
+line options and a separating `--' has to be used.
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -f, --format=STRING        Output format.  This can either be a specifier
+                               string (similar to strftime()'s FMT) or the name
+                               of a calendar.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+  -S, --sed-mode             Copy parts from the input before and after a
+                               matching date/time.
+                               Note that all occurrences of date/times within a
+                               line will be processed.
+      --from-zone=ZONE       Interpret dates on stdin or the command line as
+                               coming from the time zone ZONE.
+  -z, --zone=ZONE            Convert dates printed on stdout to time zone ZONE,
+                               default: UTC.
+  -n, --next                 Always round to a different date or time.

@@ -655,27 +655,12 @@ ddiff_prnt(struct dt_dt_s dur, const char *fmt, durfmt_t f)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "ddiff.xh"
-#include "ddiff.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "ddiff.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	struct dt_dt_s d;
 	const char *ofmt;
 	const char *refinp;
@@ -686,30 +671,30 @@ main(int argc, char *argv[])
 	dt_dttyp_t dtyp;
 	zif_t fromz = NULL;
 
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
 		goto out;
 	}
 	/* unescape sequences, maybe */
-	if (argi->backslash_escapes_given) {
+	if (argi->backslash_escapes_flag) {
 		dt_io_unescape(argi->format_arg);
 	}
 
 	/* try and read the from and to time zones */
-	if (argi->from_zone_given) {
+	if (argi->from_zone_arg) {
 		fromz = zif_open(argi->from_zone_arg);
 	}
 
 	ofmt = argi->format_arg;
-	fmt = argi->input_format_arg;
-	nfmt = argi->input_format_given;
+	fmt = argi->input_format_args;
+	nfmt = argi->input_format_nargs;
 
-	if (argi->inputs_num == 0 ||
-	    (refinp = argi->inputs[0],
+	if (argi->nargs == 0 ||
+	    (refinp = argi->args[0U],
 	     dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, fromz)) &&
 	     dt_unk_p(d = dt_io_strpdt(refinp, NULL, 0U, fromz)))) {
 		error(0, "Error: reference DATE must be specified\n");
-		cmdline_parser_print_help();
+		yuck_auto_help(argi);
 		res = 1;
 		goto out;
 	}
@@ -717,22 +702,22 @@ main(int argc, char *argv[])
 	/* try and guess the diff tgttype most suitable for user's FMT */
 	dfmt = determine_durfmt(ofmt);
 
-	if (argi->inputs_num > 1) {
-		for (size_t i = 1; i < argi->inputs_num; i++) {
+	if (argi->nargs > 1) {
+		for (size_t i = 1; i < argi->nargs; i++) {
 			struct dt_dt_s d2;
 			struct dt_dt_s dur;
-			const char *inp = argi->inputs[i];
+			const char *inp = argi->args[i];
 
 			d2 = dt_io_strpdt(inp, fmt, nfmt, fromz);
 			if (dt_unk_p(d2)) {
-				if (!argi->quiet_given) {
+				if (!argi->quiet_flag) {
 					dt_io_warn_strpdt(inp);
 				}
 				continue;
 			}
 			/* guess the diff type */
 			if ((dtyp = determine_durtype(d, d2, dfmt)) == DT_UNK) {
-				if (!argi->quiet_given) {
+				if (!argi->quiet_flag) {
 				        dt_io_warn_dur(refinp, inp);
 				}
 				continue;
@@ -763,7 +748,7 @@ main(int argc, char *argv[])
 				d2 = dt_io_strpdt(line, fmt, nfmt, fromz);
 
 				if (dt_unk_p(d2)) {
-					if (!argi->quiet_given) {
+					if (!argi->quiet_flag) {
 						dt_io_warn_strpdt(line);
 					}
 					continue;
@@ -771,7 +756,7 @@ main(int argc, char *argv[])
 				/* guess the diff type */
 				dtyp = determine_durtype(d, d2, dfmt);
 				if (dtyp == DT_UNK) {
-					if (!argi->quiet_given) {
+					if (!argi->quiet_flag) {
 						dt_io_warn_dur(refinp, line);
 					}
 					continue;
@@ -785,12 +770,12 @@ main(int argc, char *argv[])
 		free_prchunk(pctx);
 	}
 
-	if (argi->from_zone_given) {
+	if (argi->from_zone_arg) {
 		zif_close(fromz);
 	}
 
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 

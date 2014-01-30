@@ -1,0 +1,38 @@
+Usage: ddiff [OPTION]... DATE/TIME [DATE/TIME]...
+
+Compute duration from DATE/TIME (the reference date/time) to the other
+DATE/TIMEs given and print the result as duration.
+If the other DATE/TIMEs are omitted read them from stdin.
+
+DATE/TIME can also be one of the following specials
+  - `now'           interpreted as the current (UTC) time stamp
+  - `time'          the time part of the current (UTC) time stamp
+  - `today'         the current date (according to UTC)
+  - `tomo[rrow]'    tomorrow's date (according to UTC)
+  - `y[ester]day'   yesterday's date (according to UTC)
+
+Note: The output format of durations (specified via -f) takes all format
+specifiers into account, i.e. specifying %M and %S for example prints the
+duration in minutes and seconds, whereas specifying %S only prints the duration
+in seconds.
+
+See section `The refinement rule' in ddiff(1).
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -f, --format=STRING        Output format.  This can either be a specifier
+                               string (similar to strftime()'s FMT) or the name
+                               of a calendar.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+      --from-zone=ZONE       Interpret dates on stdin or the command line as
+                               coming from the time zone ZONE.
+

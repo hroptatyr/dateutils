@@ -145,28 +145,13 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 }
 
 
-#if defined __INTEL_COMPILER
-# pragma warning (disable:593)
-# pragma warning (disable:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic ignored "-Wswitch-enum"
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
-#include "strptime.xh"
-#include "strptime.x"
-#if defined __INTEL_COMPILER
-# pragma warning (default:593)
-# pragma warning (default:181)
-#elif defined __GNUC__
-# pragma GCC diagnostic warning "-Wswitch-enum"
-# pragma GCC diagnostic warning "-Wunused-function"
-#endif	/* __INTEL_COMPILER */
+#include "strptime.yucc"
 
 int
 main(int argc, char *argv[])
 {
 	static char dflt_fmt[] = "%Y-%m-%d\n\0H:%M:%S %Z\n";
-	struct gengetopt_args_info argi[1];
+	yuck_t argi[1U];
 	char *outfmt = dflt_fmt;
 	char **infmt;
 	size_t ninfmt;
@@ -175,35 +160,35 @@ main(int argc, char *argv[])
 	int quietp;
 	int res = 0;
 
-	if (cmdline_parser(argc, argv, argi)) {
+	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
 		goto out;
 	}
 
-	if (argi->format_given) {
+	if (argi->format_arg) {
 		outfmt = argi->format_arg;
 		/* unescape sequences, maybe */
-		if (argi->backslash_escapes_given) {
+		if (argi->backslash_escapes_flag) {
 			dt_io_unescape(outfmt);
 		}
-	} else if (argi->time_given) {
+	} else if (argi->time_flag) {
 		outfmt[8] = ' ';
 		outfmt[9] = '%';
 	}
 
-	if (!argi->input_format_given) {
-		infmt = argi->inputs;
-		ninfmt = argi->inputs_num;
+	if (!argi->input_format_nargs) {
+		infmt = argi->args;
+		ninfmt = argi->nargs;
 		input = NULL;
 		ninput = 0;
 	} else {
-		infmt = argi->input_format_arg;
-		ninfmt = argi->input_format_given;
-		input = argi->inputs;
-		ninput = argi->inputs_num;
+		infmt = argi->input_format_args;
+		ninfmt = argi->input_format_nargs;
+		input = argi->args;
+		ninput = argi->nargs;
 	}
 	/* get quiet predicate */
-	quietp = argi->quiet_given;
+	quietp = argi->quiet_flag;
 
 	/* get lines one by one, apply format string and print date/time */
 	if (ninput == 0) {
@@ -217,7 +202,7 @@ main(int argc, char *argv[])
 	}
 
 out:
-	cmdline_parser_free(argi);
+	yuck_free(argi);
 	return res;
 }
 

@@ -1,0 +1,18 @@
+Usage: clitoris [OPTION]... TEST_FILE
+
+Run .clit regression test files.
+
+  --builddir=DIR  Specify where the compiled binaries can be found.
+  --srcdir=DIR  Specify where the source tree resides.
+  --hash=PROG  Use hasher PROG instead of md5sum.
+  --husk=PROG  Use husk around tool, e.g. 'valgrind -v'
+  --shell-bits=SCRIPT  Use SCRIPT as shell part of the test
+
+  -v, --verbose  Repeat execution steps on stderr.
+  -t, --pseudo-tty  Allocate a pseudo-tty for the tests to run in.
+
+  --timeout=SECS  Time out after SECS seconds.
+
+  -k, --keep-going  Don't break on the first failure or differing output
+
+  --diff=CMD  Use specified diff command instead of the one in PATH.

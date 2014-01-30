@@ -1,0 +1,26 @@
+Usage: strptime [OPTION]... [INPUT]...
+
+Parse input from stdin according to one of the given formats FORMATs.
+The format string specifiers are the same as for strptime(3).
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -t, --time                 also display time in the output, default is to
+                               display the date
+  -q, --quiet                Suppress message about date/time and duration
+                               parser errors.
+  -f, --format=STRING        Output format.  This can either be a specifier
+                               string (similar to strftime()'s FMT) or the name
+                               of a calendar.
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               output and input format specifier strings.
+  -S, --sed-mode             Copy parts from the input before and after a
+                               matching date/time.
+                               Note that all occurrences of date/times within a
+                               line will be processed.
