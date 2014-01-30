@@ -24,15 +24,19 @@ yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DYUCK_TEMPLATE_PATH='"$(abs_srcdir)"'
 BUILT_SOURCES += yuck.yucc
 endif  !HAVE_YUCK
+EXTRA_DIST = yuck.yucc yuck.m4i
 
-CLEANFILES = yuck.m4i yuck.yucc
-
+DISTCLEANFILES = yuck.m4i yuck.yucc
 
 ## yuck rules
-yuck.m4i: yuck.yuck $(builddir)/yuck-bootstrap$(EXEEXT)
-	$(builddir)/yuck-bootstrap$(EXEEXT) $< > $@ || { rm -f -- $@; false; }
+yuck.m4i: yuck.yuck
+	$(MAKE) $(AM_MAKEFLAGS) yuck-bootstrap
+	$(AM_V_GEN) $(builddir)/yuck-bootstrap$(EXEEXT) $(srcdir)/yuck.yuck > $@ \
+		|| { rm -f -- $@; false; }
 
-yuck.yucc: yuck.m4 yuck.m4i yuck-coru.m4h yuck-coru.m4c
-	m4 $+ > $@ || { rm -f -- $@; false; }
+yuck.yucc: yuck.m4i yuck.m4 yuck-coru.m4h yuck-coru.m4c
+	$(AM_V_GEN) $(M4) $(srcdir)/yuck.m4 yuck.m4i \
+		$(srcdir)/yuck-coru.m4h $(srcdir)/yuck-coru.m4c > $@ \
+		|| { rm -f -- $@; false; }
 
 ## Makefile.am ends here

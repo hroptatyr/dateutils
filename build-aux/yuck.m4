@@ -346,7 +346,7 @@ define([yuck_esc_quote], [yuck_esc([$1], ["], [\"])])dnl "
 define([yuck_esc_backslash], [yuck_esc([$1], [\], [\\])])dnl
 
 define([yuck_C_literal], [dnl
-yuck_esc_newline(backquote([yuck_esc_quote(backquote([yuck_esc_backslash([$1])]))]))[]dnl
+yuck_esc_newline(yuck_esc_quote(yuck_esc_backslash([$1])))[]dnl
 ])dnl
 
 
