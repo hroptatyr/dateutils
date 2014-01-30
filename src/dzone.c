@@ -183,6 +183,10 @@ nor a date/time corresponding to the given input formats", inp);
 		}
 	}
 
+	/* release the zones */
+	for (size_t i = 0U; i < nz; i++) {
+		zif_close(z[i].zone);
+	}
 	/* release those arrays */
 	free(z);
 	free(d);
