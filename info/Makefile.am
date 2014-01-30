@@ -155,6 +155,7 @@ built_texis += dseq.texi
 built_texis += dtest.texi
 built_texis += dgrep.texi
 built_texis += dround.texi
+built_texis += dzone.texi
 
 built_mans =
 if HAVE_STRPTIME

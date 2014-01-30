@@ -22,6 +22,8 @@
 * dseq: (dateutils)dseq.                        Generate sequences of dates or
                                                   times.
 * dtest: (dateutils)dtest.                      Compare dates or times.
+* dzone: (dateutils)dzone.                      Convert date/times to
+                                                  different timezones in bulk.
 * strptime: (dateutils)strptime.                Command line version
                                                   of the C function.
 @end direntry
@@ -82,6 +84,7 @@ arise when dealing with large amounts of financial data.
 * dround::              Round dates or times to designated values
 * dseq::                Generate sequences of dates or times
 * dtest::               Compare dates or times
+* dzone::               Convert date/times to timezones in bulk
 * strptime::            Command line version of the C function
 @end menu
 
@@ -333,6 +336,7 @@ else
 @include dround.texi
 @include dseq.texi
 @include dtest.texi
+@include dzone.texi
 @include strptime.texi
 
 @summarycontents
