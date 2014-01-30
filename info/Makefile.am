@@ -133,6 +133,12 @@ dround_EXAMPLES += $(top_srcdir)/test/tround.002.clit
 dateutils_EXAMPLES += $(dround_EXAMPLES)
 dateutils_H2M_EX += dround.h2m
 
+dzone_EXAMPLES =
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.001.clit
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.002.clit
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.003.clit
+dzone_EXAMPLES += $(top_srcdir)/test/dzone.004.clit
+dateutils_EXAMPLES += $(dzone_EXAMPLES)
 dateutils_H2M_EX += dzone.h2m
 
 EXTRA_DIST += author.h2m
