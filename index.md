@@ -78,13 +78,13 @@ dseq
   A tool mimicking seq(1) but whose inputs are from the domain of dates
   rather than integers.  Typically scripts use something like
 
-    for i in $(seq 0 9); do
+    $ for i in $(seq 0 9); do
         date -d "2010-01-01 +${i} days" "+%F"
-    done
+      done
 
   which now can be shortened to
 
-    dseq 2010-01-01 2010-01-10
+    $ dseq 2010-01-01 2010-01-10
 
   with the additional benefit that the end date can be given directly
   instead of being computed from the start date and an interval in
@@ -92,7 +92,7 @@ dseq
   to implement using the above seq(1)/date(1) approach, like skipping
   certain weekdays:
 
-    dseq 2010-01-01 2010-01-10 --skip sat,sun
+    $ dseq 2010-01-01 2010-01-10 --skip sat,sun
     =>  
       2010-01-01
       2010-01-04
@@ -103,7 +103,7 @@ dseq
 
   dseq also works on times:
 
-    dseq 12:00:00 5m 12:17:00
+    $ dseq 12:00:00 5m 12:17:00
     =>
       12:00:00
       12:05:00
@@ -112,7 +112,7 @@ dseq
 
   and also date-times:
 
-    dseq --compute-from-last 2012-01-02T12:00:00 5m 2012-01-02T12:17:00
+    $ dseq --compute-from-last 2012-01-02T12:00:00 5m 2012-01-02T12:17:00
     =>
       2012-01-02T12:02:00
       2012-01-02T12:07:00
@@ -128,13 +128,13 @@ dconv
 
   To convert a (Gregorian) date into the so called ymcw representation:
 
-    dconv 2012-03-04 -f "%Y-%m-%c-%w"
+    $ dconv 2012-03-04 -f "%Y-%m-%c-%w"
     =>
       2012-03-01-00
 
   and vice versa:
 
-    dconv 2012-03-01-Sun -i "%Y-%m-%c-%a" -f '%F'
+    $ dconv 2012-03-01-Sun -i "%Y-%m-%c-%a" -f '%F'
     =>
       2012-03-04
 
@@ -145,7 +145,7 @@ dconv
   dconv can also be used to convert occurrences of dates, times or
   date-times in an input stream on the fly
 
-    dconv -S -i '%b/%d %Y at %I:%M %P' <<EOF
+    $ dconv -S -i '%b/%d %Y at %I:%M %P' <<EOF
     Remember we meet on Mar/03 2012 at 02:30 pm
     EOF
     =>
@@ -153,11 +153,11 @@ dconv
 
   and most prominently to convert between time zones:
 
-    dconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
+    $ dconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
     =>
       2012-01-05T00:33:00
 
-    dconv --zone "America/Chicago" now -f "%d %b %Y %T"
+    $ dconv --zone "America/Chicago" now -f "%d %b %Y %T"
     =>
       05 Apr 2012 11:11:57
 
@@ -166,9 +166,9 @@ dtest
   A tool to perform date comparison in the shell, it's modelled after
   test(1) but with proper command line options.
 
-    if dtest today --gt 2010-01-01; then
-      echo "yes"
-    fi
+    $ if dtest today --gt 2010-01-01; then
+        echo "yes"
+      fi
     =>
       yes
 
@@ -178,15 +178,15 @@ dadd
   a date and a list of durations this will compute new dates.  Given a
   duration and a list of dates this will compute new dates.
 
-    dadd 2010-02-02 +4d
+    $ dadd 2010-02-02 +4d
     =>
       2010-02-06
 
-    dadd 2010-02-02 +1w
+    $ dadd 2010-02-02 +1w
     =>
       2010-02-09
 
-    dadd -1d <<EOF
+    $ dadd -1d <<EOF
     2001-01-05
     2001-01-01
     EOF
@@ -196,26 +196,26 @@ dadd
 
   Adding durations to times:
 
-    dadd 12:05:00 +10m
+    $ dadd 12:05:00 +10m
     =>
       12:15:00
 
   and even date-times:
 
-    dadd 2012-03-12T12:05:00 -1d4h
+    $ dadd 2012-03-12T12:05:00 -1d4h
     =>
       2012-03-11T08:05:00
 
   As of version v0.2.2 leap-second adjusted calculations are built-in.
   Use the unit `rs` to denote "real" seconds:
 
-    dadd '2012-06-30 23:59:30' +30rs
+    $ dadd '2012-06-30 23:59:30' +30rs
     =>
       2012-06-30T23:59:60
 
   as opposed to:
 
-    dadd '2012-06-30 23:59:30' +30s
+    $ dadd '2012-06-30 23:59:30' +30s
     =>
       2012-07-01T00:00:00
 
@@ -227,31 +227,31 @@ ddiff
 
   Get the number of days between two dates:
 
-    ddiff 2001-02-08 2001-03-02
+    $ ddiff 2001-02-08 2001-03-02
     =>
       22
 
   The duration format can be controlled through the `-f` switch:
 
-    ddiff 2001-02-08 2001-03-09 -f "%m month and %d day"
+    $ ddiff 2001-02-08 2001-03-09 -f "%m month and %d day"
     =>
       1 month and 1 day
 
   ddiff also accepts time stamps as input:
 
-    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00
+    $ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00
     =>
       92580s
 
   The `-f` switch does the right thing:
 
-    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Ss'
+    $ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Ss'
     =>
       1d 6180s
 
   compare to:
 
-    ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Hh %Ss'
+    $ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Hh %Ss'
     =>
       1d 1h 2580s
 
@@ -268,7 +268,7 @@ dgrep
   A tool to extract lines from an input stream that match certain
   criteria, showing either the line or the match:
 
-    dgrep '<2012-03-01' <<EOF
+    $ dgrep '<2012-03-01' <<EOF
     Feb	2012-02-28
     Feb	2012-02-29	leap day
     Mar	2012-03-01
@@ -285,13 +285,13 @@ dround
 
   Round (backwards) to the first of the current month:
 
-    dround '2011-08-22' -1
+    $ dround '2011-08-22' -1
     =>
       2011-08-01
 
   Round a stream of dates strictly to the next month's first:
 
-    dround -S -n 1 <<EOF
+    $ dround -S -n 1 <<EOF
     pay cable	2012-02-28
     pay gas	2012-02-29
     pay rent	2012-03-01
@@ -305,7 +305,7 @@ dround
 
   Round a timeseries to the next full or half hour (and convert to ISO):
 
-    dround -S 30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
+    $ dround -S 30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
     06/03/2012 14:27:12	eventA
     06/03/2012 14:29:59	eventA
     06/03/2012 14:30:00	eventB
