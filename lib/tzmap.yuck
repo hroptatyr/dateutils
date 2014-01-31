@@ -6,6 +6,8 @@ Usage: tzmap cc [FILE]...
 
 Generate a map to zoneinfo names suitable for dateutils.
 
+  -o, --output=FILE     Output compiled map into FILE.
+
 Usage: tzmap show TZMFILE
 
 Dump contents of TZMFILE.

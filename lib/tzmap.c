@@ -233,7 +233,9 @@ parse_file(const char *file)
 static int
 cmd_cc(struct yuck_cmd_cc_s argi[static 1U])
 {
+	const char *outf;
 	int rc = 0;
+	int ofd;
 
 	/* reserver some space */
 	init_tzm();
@@ -242,21 +244,20 @@ cmd_cc(struct yuck_cmd_cc_s argi[static 1U])
 		error("cannot read file `%s'", *argi->args ?: "stdin");
 		rc = 1;
 		goto out;
+	} else if ((outf = argi->output_arg ?: "tzcc.tzm", false)) {
+		/* we used to make -o|--output mandatory */
+		;
+	} else if ((ofd = open(outf, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
+		error("cannot open output file `%s'", outf);
+		rc = 1;
+		goto out;
 	}
 
 	/* generate a disk version now */
-	with (int ofd = open("schnabel", O_RDWR | O_CREAT | O_TRUNC, 0666)) {
-		znoff_t off = zni;
-
-		if (ofd < 0) {
-			break;
-		}
-
+	with (znoff_t off = zni, off_be = htobe32(off)) {
 		write(ofd, TZM_MAGIC, sizeof(TZM_MAGIC) - 1U);
 		off = (off + sizeof(off) - 1U) / sizeof(off) * sizeof(off);
-		with (znoff_t off_be = htobe32(off)) {
-			write(ofd, &off_be, sizeof(off_be));
-		}
+		write(ofd, &off_be, sizeof(off_be));
 		write(ofd, zns, off);
 		write(ofd, mns, mni * sizeof(*mns));
 		close(ofd);
