@@ -1,3 +1,11 @@
-Usage: tzmap [FILE]
+Usage: tzmap COMMAND [ARG]...
+
+Generate or inspect zoneinfo name map files.
+
+Usage: tzmap cc [FILE]...
 
 Generate a map to zoneinfo names suitable for dateutils.
+
+Usage: tzmap show TZMFILE
+
+Dump contents of TZMFILE.

@@ -230,16 +230,10 @@ parse_file(const char *file)
 
 #include "tzmap.yucc"
 
-int
-main(int argc, char *argv[])
+static int
+cmd_cc(struct yuck_cmd_cc_s argi[static 1U])
 {
-	yuck_t argi[1U];
 	int rc = 0;
-
-	if (yuck_parse(argi, argc, argv) < 0) {
-		rc = 1;
-		goto out;
-	}
 
 	/* reserver some space */
 	init_tzm();
@@ -247,7 +241,7 @@ main(int argc, char *argv[])
 	if (parse_file(argi->args[0U]) < 0) {
 		error("cannot read file `%s'", *argi->args ?: "stdin");
 		rc = 1;
-		goto frout;
+		goto out;
 	}
 
 	/* generate a disk version now */
@@ -268,8 +262,30 @@ main(int argc, char *argv[])
 		close(ofd);
 	}
 
-frout:
+out:
 	free_tzm();
+	return rc;
+}
+
+int
+main(int argc, char *argv[])
+{
+	yuck_t argi[1U];
+	int rc = 0;
+
+	if (yuck_parse(argi, argc, argv) < 0) {
+		rc = 1;
+		goto out;
+	}
+
+	switch (argi->cmd) {
+	case TZMAP_CMD_CC:
+		rc = cmd_cc((void*)argi);
+		break;
+	default:
+		rc = 1;
+		break;
+	}
 
 out:
 	yuck_free(argi);
