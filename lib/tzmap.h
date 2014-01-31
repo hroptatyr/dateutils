@@ -65,10 +65,15 @@ typedef const struct tzmap_s *tzmap_t;
 
 typedef uint32_t znoff_t;
 
+/** disk representation of tzm files */
 struct tzmap_s {
-	/* file layout */
+	/* magic cookie, should be TZM_MAGIC */
 	const char magic[4U];
+	/* offset of mapped names, relative to data */
 	znoff_t off;
+	/* just to round to 16 bytes boundary */
+	znoff_t flags[2U];
+	/* \nul term'd list of zonenames followed by mapped names */
 	const char data[];
 };
 

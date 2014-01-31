@@ -117,7 +117,7 @@ tzm_open(const char *fn)
 #define TZMP	(PROT_READ | PROT_WRITE)
 	struct stat st[1U];
 	size_t fz;
-	tzmap_t m = NULL;
+	struct tzmap_s *m;
 	int fd;
 
 	if ((fd = open(fn, O_RDONLY)) < 0) {
@@ -129,22 +129,21 @@ tzm_open(const char *fn)
 	} else if ((m = mmap(0, fz, TZMP, MAP_PRIVATE, fd, 0)) == FAIL) {
 		goto clo;
 	} else if (memcmp(m->magic, TZM_MAGIC, sizeof(m->magic))) {
-		munmap(deconst(m), st->st_size);
-		goto clo;
+		goto mun;
 	}
-	/* leave a note about our size in m */
-	with (znoff_t *x = deconst(m), off_fd = be32toh(m->off)) {
-		/* massage file descriptor into off */
-		off_fd |= fd << 16U;
-		/* store total file size in MAGIC slot */
-		x[0U] = (znoff_t)st->st_size;
-		/* store fd and native-endian offset in OFF slot */
-		x[1U] = off_fd;
-	}
+	/* turn offset into native endianness */
+	m->off = be32toh(m->off);
+	/* also put fd and map size into m */
+	m->flags[0U] = (znoff_t)fd;
+	m->flags[1U] = (znoff_t)st->st_size;
+	/* and here we go */
+	return m;
 
 #undef FAIL
 #undef TZMP
-	return m;
+	/* failure cases, clean up and return NULL */
+mun:
+	munmap(m, st->st_size);
 clo:
 	close(fd);
 	return NULL;
@@ -153,12 +152,11 @@ clo:
 DEFUN void
 tzm_close(tzmap_t m)
 {
-	znoff_t *x = deconst(m);
-	size_t fz = *x;
-	int fd = x[1U] >> 16U;
+	size_t fz = m->flags[1U];
+	int fd = m->flags[0U];
 
 	/* hopefully privately mapped */
-	munmap(x, fz);
+	munmap(deconst(m), fz);
 	close(fd);
 	return;
 }
