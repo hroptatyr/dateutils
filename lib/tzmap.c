@@ -49,6 +49,8 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
 #include "tzmap.h"
 #include "boops.h"
 
@@ -96,6 +98,12 @@ error(const char *fmt, ...)
         }
         fputc('\n', stderr);
         return;
+}
+
+static void*
+deconst(const void *ptr)
+{
+	return (char*)1 + ((const char*)ptr - (char*)1U);
 }
 
 
@@ -270,6 +278,68 @@ out:
 	return rc;
 }
 
+static int
+cmd_show(const struct yuck_cmd_show_s argi[static 1U])
+{
+#define FAIL	(tzmap_t)MAP_FAILED
+	struct stat st[1U];
+	const char *fn;
+	size_t fz;
+	tzmap_t m;
+	int rc = 0;
+	int fd;
+
+	if (argi->nargs == 0U || (fn = argi->args[0U]) == NULL) {
+		error("need at least one input file");
+		yuck_auto_help((const void*)argi);
+		return 1;
+	} else if ((fd = open(fn, O_RDONLY)) < 0) {
+		error("cannot open input file `%s'", fn);
+		return 1;
+	} else if (fstat(fd, st) < 0) {
+		error("cannot stat input file `%s'", fn);
+		rc = 1;
+		goto clo;
+	} else if ((fz = st->st_size) < sizeof(*m)) {
+		errno = 0;
+		error("unsupported file `%s'", fn);
+		rc = 1;
+		goto clo;
+	} else if ((m = mmap(0, fz, PROT_READ, MAP_SHARED, fd, 0)) == FAIL) {
+		error("cannot read file `%s'", fn);
+		rc = 1;
+		goto clo;
+	} else if (memcmp(m->magic, TZM_MAGIC, sizeof(m->magic))) {
+		errno = 0;
+		error("unsupported file `%s'", fn);
+		goto mun;
+	}
+
+	/* yay, we're ready to go */
+	for (const znoff_t *p = (const void*)(m->data + be32toh(m->off)),
+		     *const ep = (const void*)(m->data + fz - sizeof(*m));
+	     p < ep;) {
+		const char *mn = (const void*)p;
+		size_t mz = strlen(mn);
+		znoff_t off;
+
+		p += (mz - 1U) / sizeof(*p) + 1U;
+		off = be32toh(*p++) >> 8U;
+
+		/* actually print the strings */
+		fputs(mn, stdout);
+		fputc('\t', stdout);
+		fputs(m->data + off, stdout);
+		fputc('\n', stdout);
+	}
+mun:
+	munmap(deconst(m), st->st_size);
+clo:
+	close(fd);
+#undef FAIL
+	return rc;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -284,6 +354,9 @@ main(int argc, char *argv[])
 	switch (argi->cmd) {
 	case TZMAP_CMD_CC:
 		rc = cmd_cc((void*)argi);
+		break;
+	case TZMAP_CMD_SHOW:
+		rc = cmd_show((void*)argi);
 		break;
 	default:
 		rc = 1;
