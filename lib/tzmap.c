@@ -104,7 +104,7 @@ static char *zns;
 static size_t znz;
 static ptrdiff_t zni;
 /* array for all mappee strings */
-static uint32_t *mns;
+static znoff_t *mns;
 static size_t mnz;
 static ptrdiff_t mni;
 
@@ -124,7 +124,7 @@ free_tzm(void)
 	return;
 }
 
-static uint32_t
+static znoff_t
 tzm_find_zn(const char *zn, size_t zz)
 {
 	char *restrict p = zns;
@@ -150,9 +150,9 @@ tzm_find_zn(const char *zn, size_t zz)
 }
 
 static void
-tzm_add_mn(const char *mn, size_t mz, uint32_t off)
+tzm_add_mn(const char *mn, size_t mz, znoff_t off)
 {
-	uint32_t *restrict p = mns + mni;
+	znoff_t *restrict p = mns + mni;
 
 	/* first check if there's room */
 	if (p + 1U + (mz + 4U/*alignment*/) / sizeof(off) >= mns + mnz) {
@@ -174,7 +174,7 @@ parse_line(char *ln, size_t lz)
 {
 	/* find the separator */
 	char *lp;
-	uint32_t znp;
+	znoff_t znp;
 
 	if (UNLIKELY(ln == NULL || lz == 0U)) {
 		/* finalise */
@@ -248,15 +248,15 @@ main(int argc, char *argv[])
 
 	/* generate a disk version now */
 	with (int ofd = open("schnabel", O_RDWR | O_CREAT | O_TRUNC, 0666)) {
-		uint32_t off = zni;
+		znoff_t off = zni;
 
 		if (ofd < 0) {
 			break;
 		}
 
 		write(ofd, TZM_MAGIC, sizeof(TZM_MAGIC) - 1U);
-		off = (off + 3U) / 4U * 4U;
-		with (uint32_t off_be = htobe32(off)) {
+		off = (off + sizeof(off) - 1U) / sizeof(off) * sizeof(off);
+		with (znoff_t off_be = htobe32(off)) {
 			write(ofd, &off_be, sizeof(off_be));
 		}
 		write(ofd, zns, off);

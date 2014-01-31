@@ -46,11 +46,13 @@
 
 typedef const struct tzmap_s *tzmap_t;
 
+typedef uint32_t znoff_t;
+
 struct tzmap_s {
 	/* file layout */
 	struct {
 		const char magic[4U];
-		uint32_t off;
+		znoff_t off;
 	} hdr;
 	const char data[];
 };
