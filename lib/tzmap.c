@@ -110,6 +110,43 @@ deconst(const void *ptr)
 
 
 /* public API */
+static inline size_t
+tzm_file_size(tzmap_t m)
+{
+	return m->flags[1U];
+}
+
+static inline int
+tzm_fd(tzmap_t m)
+{
+	return m->flags[0U];
+}
+
+static inline const char*
+tzm_znames(tzmap_t m)
+{
+	return m->data;
+}
+
+static inline size_t
+tzm_zname_size(tzmap_t m)
+{
+	return m->off;
+}
+
+static inline const char*
+tzm_mnames(tzmap_t m)
+{
+	return m->data + tzm_zname_size(m);
+}
+
+static inline size_t
+tzm_mname_size(tzmap_t m)
+{
+	size_t fz = tzm_file_size(m);
+	return fz - tzm_zname_size(m) - sizeof(*m);
+}
+
 DEFUN tzmap_t
 tzm_open(const char *fn)
 {
@@ -152,8 +189,8 @@ clo:
 DEFUN void
 tzm_close(tzmap_t m)
 {
-	size_t fz = m->flags[1U];
-	int fd = m->flags[0U];
+	size_t fz = tzm_file_size(m);
+	int fd = tzm_fd(m);
 
 	/* hopefully privately mapped */
 	munmap(deconst(m), fz);
@@ -339,43 +376,22 @@ out:
 static int
 cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 {
-#define FAIL	(tzmap_t)MAP_FAILED
-	struct stat st[1U];
 	const char *fn;
-	size_t fz;
 	tzmap_t m;
 	int rc = 0;
-	int fd;
 
 	if (argi->nargs == 0U || (fn = argi->args[0U]) == NULL) {
 		error("need at least one input file");
 		yuck_auto_help((const void*)argi);
 		return 1;
-	} else if ((fd = open(fn, O_RDONLY)) < 0) {
+	} else if ((m = tzm_open(fn)) == NULL) {
 		error("cannot open input file `%s'", fn);
 		return 1;
-	} else if (fstat(fd, st) < 0) {
-		error("cannot stat input file `%s'", fn);
-		rc = 1;
-		goto clo;
-	} else if ((fz = st->st_size) < sizeof(*m)) {
-		errno = 0;
-		error("unsupported file `%s'", fn);
-		rc = 1;
-		goto clo;
-	} else if ((m = mmap(0, fz, PROT_READ, MAP_SHARED, fd, 0)) == FAIL) {
-		error("cannot read file `%s'", fn);
-		rc = 1;
-		goto clo;
-	} else if (memcmp(m->magic, TZM_MAGIC, sizeof(m->magic))) {
-		errno = 0;
-		error("unsupported file `%s'", fn);
-		goto mun;
 	}
 
 	/* yay, we're ready to go */
-	for (const znoff_t *p = (const void*)(m->data + be32toh(m->off)),
-		     *const ep = (const void*)(m->data + fz - sizeof(*m));
+	for (const znoff_t *p = (const void*)tzm_mnames(m),
+		     *const ep = (const void*)p + tzm_mname_size(m);
 	     p < ep;) {
 		const char *mn = (const void*)p;
 		size_t mz = strlen(mn);
@@ -390,11 +406,9 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 		fputs(m->data + off, stdout);
 		fputc('\n', stdout);
 	}
-mun:
-	munmap(deconst(m), st->st_size);
-clo:
-	close(fd);
-#undef FAIL
+
+	/* and off we go */
+	tzm_close(m);
 	return rc;
 }
 
