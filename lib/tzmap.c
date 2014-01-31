@@ -154,6 +154,10 @@ tzm_add_mn(const char *mn, size_t mz, znoff_t off)
 {
 	znoff_t *restrict p = mns + mni;
 
+	if (UNLIKELY(mz == 0U)) {
+		/* useless */
+		return;
+	}
 	/* first check if there's room */
 	if (p + 1U + (mz + 4U/*alignment*/) / sizeof(off) >= mns + mnz) {
 		/* resize, double the size */
@@ -162,8 +166,8 @@ tzm_add_mn(const char *mn, size_t mz, znoff_t off)
 	}
 	/* really append now */
 	memcpy(p, mn, mz);
-	p += mz / sizeof(off) + 1U;
-	*p++ = htobe32(off);
+	p += (mz - 1U) / sizeof(off) + 1U;
+	*p++ = htobe32((off & 0xffffU)<< 8U);
 	mni = p - mns;
 	return;
 }
