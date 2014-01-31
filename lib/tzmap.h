@@ -39,6 +39,23 @@
 
 #include <stdint.h>
 
+#if !defined DECLF
+# define DECLF	static __attribute__((unused))
+# define DEFUN	static
+# define INCLUDE_TZRAW_IMPL
+#elif !defined DEFUN
+# define DEFUN
+#endif	/* !DECLF */
+#if !defined DECLV
+# define DECLV		DECLF
+#endif	/* !DECLV */
+#if !defined DEFVAR
+# define DEFVAR		DEFUN
+#endif	/* !DEFVAR */
+#if !defined restrict
+# define restrict	__restrict
+#endif	/* !restrict */
+
 /*
 ** Each file begins with. . .
 */
@@ -54,6 +71,12 @@ struct tzmap_s {
 	znoff_t off;
 	const char data[];
 };
+
+
+/* public API */
+DECLF tzmap_t tzm_open(const char *file);
+
+DECLF void tzm_close(tzmap_t);
 
 
 #if defined INCLUDE_TZMAP_IMPL

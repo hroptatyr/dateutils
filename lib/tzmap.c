@@ -100,16 +100,68 @@ error(const char *fmt, ...)
         fputc('\n', stderr);
         return;
 }
+#endif	/* STANDALONE */
 
 static void*
 deconst(const void *ptr)
 {
 	return (char*)1 + ((const char*)ptr - (char*)1U);
 }
-#endif	/* STANDALONE */
 
 
 /* public API */
+DEFUN tzmap_t
+tzm_open(const char *fn)
+{
+#define FAIL	(tzmap_t)MAP_FAILED
+#define TZMP	(PROT_READ | PROT_WRITE)
+	struct stat st[1U];
+	size_t fz;
+	tzmap_t m = NULL;
+	int fd;
+
+	if ((fd = open(fn, O_RDONLY)) < 0) {
+		return NULL;
+	} else if (fstat(fd, st) < 0) {
+		goto clo;
+	} else if ((fz = st->st_size) < sizeof(*m)) {
+		goto clo;
+	} else if ((m = mmap(0, fz, TZMP, MAP_PRIVATE, fd, 0)) == FAIL) {
+		goto clo;
+	} else if (memcmp(m->magic, TZM_MAGIC, sizeof(m->magic))) {
+		munmap(deconst(m), st->st_size);
+		goto clo;
+	}
+	/* leave a note about our size in m */
+	with (znoff_t *x = deconst(m), off_fd = be32toh(m->off)) {
+		/* massage file descriptor into off */
+		off_fd |= fd << 16U;
+		/* store total file size in MAGIC slot */
+		x[0U] = (znoff_t)st->st_size;
+		/* store fd and native-endian offset in OFF slot */
+		x[1U] = off_fd;
+	}
+
+#undef FAIL
+#undef TZMP
+	return m;
+clo:
+	close(fd);
+	return NULL;
+}
+
+DEFUN void
+tzm_close(tzmap_t m)
+{
+	znoff_t *x = deconst(m);
+	size_t fz = *x;
+	int fd = x[1U] >> 16U;
+
+	/* hopefully privately mapped */
+	munmap(x, fz);
+	close(fd);
+	return;
+}
 
 
 #if defined STANDALONE
