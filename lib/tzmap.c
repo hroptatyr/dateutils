@@ -161,7 +161,7 @@ tzm_add_mn(const char *mn, size_t mz, uint32_t off)
 	}
 	/* really append now */
 	memcpy(p, mn, mz);
-	memset((char*)p + mz, 0, (size_t)(-mz) % 4U);
+	memset((char*)p + mz, 0, sizeof(off) - (mz % sizeof(off)));
 	p += mz / sizeof(off) + 1U;
 	*p++ = htobe32(off);
 	mni = p - mns;
