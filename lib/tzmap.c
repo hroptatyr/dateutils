@@ -231,7 +231,7 @@ parse_file(const char *file)
 #include "tzmap.yucc"
 
 static int
-cmd_cc(struct yuck_cmd_cc_s argi[static 1U])
+cmd_cc(const struct yuck_cmd_cc_s argi[static 1U])
 {
 	const char *outf;
 	int rc = 0;
@@ -254,10 +254,12 @@ cmd_cc(struct yuck_cmd_cc_s argi[static 1U])
 	}
 
 	/* generate a disk version now */
-	with (znoff_t off = zni, off_be = htobe32(off)) {
-		write(ofd, TZM_MAGIC, sizeof(TZM_MAGIC) - 1U);
+	with (znoff_t off = zni) {
+		static struct tzmap_s r = {TZM_MAGIC};
+
 		off = (off + sizeof(off) - 1U) / sizeof(off) * sizeof(off);
-		write(ofd, &off_be, sizeof(off_be));
+		r.off = htobe32(off);
+		write(ofd, &r, sizeof(r));
 		write(ofd, zns, off);
 		write(ofd, mns, mni * sizeof(*mns));
 		close(ofd);
