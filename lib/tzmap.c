@@ -198,6 +198,39 @@ tzm_close(tzmap_t m)
 	return;
 }
 
+DEFUN const char*
+tzm_find(tzmap_t m, const char *mname)
+{
+/* lookup zname for MNAME */
+	const znoff_t *sp = (const void*)tzm_mnames(m);
+	const znoff_t *ep = sp + tzm_mname_size(m) / sizeof(*sp);
+	const znoff_t *p;
+	const char *zns = tzm_znames(m);
+
+	/* do a bisection now */
+	do {
+		p = sp + (ep - sp) / 2U;
+		if (!*(const char*)p) {
+			p++;
+		}
+		switch (strcmp(mname, (const char*)p)) {
+		case 0:
+			/* bingo */
+			p += (strlen((const char*)p) - 1U) / sizeof(*p);
+			return zns + be32toh(*p);
+		case -1:
+			/* use lower half */
+			ep = p;
+			break;
+		case 1:
+			/* use upper half */
+			sp = p + 2U;
+			break;
+		}
+	} while (sp < ep);
+	return NULL;
+}
+
 
 #if defined STANDALONE
 /* array of all zone names */

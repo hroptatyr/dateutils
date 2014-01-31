@@ -83,6 +83,8 @@ DECLF tzmap_t tzm_open(const char *file);
 
 DECLF void tzm_close(tzmap_t);
 
+DECLF const char *tzm_find(tzmap_t m, const char *mname);
+
 
 #if defined INCLUDE_TZMAP_IMPL
 # include "tzmap.c"
