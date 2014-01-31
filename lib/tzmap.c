@@ -413,15 +413,16 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 	tzmap_t m;
 	int rc = 0;
 
-	if (argi->nargs == 0U || (fn = argi->args[0U]) == NULL) {
-		error("need at least one input file");
-		yuck_auto_help((const void*)argi);
-		return 1;
+	if ((fn = argi->tzmap_arg ?: "tzcc.tzm", false)) {
+		/* we used to make -f|--tzmap mandatory */
+		;
 	} else if ((m = tzm_open(fn)) == NULL) {
 		error("cannot open input file `%s'", fn);
 		return 1;
 	}
 
+#if 0
+/* dump mode */
 	/* yay, we're ready to go */
 	for (const znoff_t *p = (const void*)tzm_mnames(m),
 		     *const ep = (const void*)p + tzm_mname_size(m);
@@ -438,6 +439,14 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 		fputc('\t', stdout);
 		fputs(m->data + off, stdout);
 		fputc('\n', stdout);
+	}
+#endif
+	for (size_t i = 0U; i < argi->nargs; i++) {
+		const char *zn;
+
+		if ((zn = tzm_find(m, argi->args[i])) != NULL) {
+			puts(zn);
+		}
 	}
 
 	/* and off we go */
