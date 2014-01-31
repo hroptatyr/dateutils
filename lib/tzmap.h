@@ -50,10 +50,8 @@ typedef uint32_t znoff_t;
 
 struct tzmap_s {
 	/* file layout */
-	struct {
-		const char magic[4U];
-		znoff_t off;
-	} hdr;
+	const char magic[4U];
+	znoff_t off;
 	const char data[];
 };
 
