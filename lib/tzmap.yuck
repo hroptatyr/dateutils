@@ -1,0 +1,3 @@
+Usage: tzmap [FILE]
+
+Generate a map to zoneinfo names suitable for dateutils.
