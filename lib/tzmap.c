@@ -84,6 +84,7 @@
 #endif  /* !HAVE_GETLINE && !HAVE_FGETLN */
 
 
+#if defined STANDALONE
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
 {
@@ -105,8 +106,13 @@ deconst(const void *ptr)
 {
 	return (char*)1 + ((const char*)ptr - (char*)1U);
 }
+#endif	/* STANDALONE */
 
 
+/* public API */
+
+
+#if defined STANDALONE
 /* array of all zone names */
 static char *zns;
 static size_t znz;
@@ -234,8 +240,10 @@ parse_file(const char *file)
 #endif	/* GETLINE/FGETLN */
 	return 0;
 }
+#endif	/* STANDALONE */
 
 
+#if defined STANDALONE
 #include "tzmap.yucc"
 
 static int
@@ -367,5 +375,6 @@ out:
 	yuck_free(argi);
 	return rc;
 }
+#endif	/* STANDALONE */
 
 /* tzmap.c ends here */

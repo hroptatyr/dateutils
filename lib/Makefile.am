@@ -45,6 +45,7 @@ libdut_a_SOURCES += dt-core.h dt-core.c
 libdut_a_SOURCES += strops.h strops.c
 libdut_a_SOURCES += token.h token.c
 libdut_a_SOURCES += tzraw.h tzraw.c
+libdut_a_SOURCES += tzmap.h tzmap.c
 libdut_a_SOURCES += leaps.h leaps.c
 libdut_a_SOURCES += boops.h
 libdut_a_SOURCES += generics.h
@@ -81,8 +82,9 @@ EXTRA_ltrcc_SOURCES += fmt-special.gperf
 endif  ## BUILD_LTRCC
 
 noinst_PROGRAMS += tzmap
-tzmap_SOURCES = tzmap.c tzmap.yuck
+tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck
 tzmap_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+tzmap_CPPFLAGS = -DSTANDALONE
 BUILT_SOURCES += tzmap.yucc
 
 
