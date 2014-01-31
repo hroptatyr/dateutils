@@ -141,10 +141,10 @@ tzm_find_zn(const char *zn, size_t zz)
 		ptrdiff_t d = p - zns;
 		/* resize, double the size */
 		p = (zns = realloc(zns, znz *= 2U)) + d;
+		memset(p, 0, (znz - (p - zns)) * sizeof(*zns));
 	}
 	/* really append now */
 	memcpy(p, zn, zz);
-	memset(p + zz, 0, 4U);
 	zni = (p - zns) + zz + 1U;
 	return p - zns;
 }
@@ -158,10 +158,10 @@ tzm_add_mn(const char *mn, size_t mz, znoff_t off)
 	if (p + 1U + (mz + 4U/*alignment*/) / sizeof(off) >= mns + mnz) {
 		/* resize, double the size */
 		p = (mns = realloc(mns, (mnz *= 2U) * sizeof(*mns))) + mni;
+		memset((char*)p, 0, (mnz - (p - mns)) * sizeof(*mns));
 	}
 	/* really append now */
 	memcpy(p, mn, mz);
-	memset((char*)p + mz, 0, sizeof(off) - (mz % sizeof(off)));
 	p += mz / sizeof(off) + 1U;
 	*p++ = htobe32(off);
 	mni = p - mns;
