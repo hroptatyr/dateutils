@@ -29,6 +29,7 @@ DISTCLEANFILES = yuck.m4i yuck.yucc
 
 ## airport -> zoneinfo goodness
 noinst_SCRIPTS = snarf-iata.sh
+EXTRA_DIST += snarf-iata.sh
 
 ## yuck rules
 yuck.m4i: yuck.yuck
