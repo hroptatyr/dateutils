@@ -204,32 +204,40 @@ tzm_find(tzmap_t m, const char *mname)
 /* lookup zname for MNAME */
 	const znoff_t *sp = (const void*)tzm_mnames(m);
 	const znoff_t *ep = sp + tzm_mname_size(m) / sizeof(*sp) - 1U;
-	const znoff_t *p;
 	const char *zns = tzm_znames(m);
 
 	/* do a bisection now */
 	do {
-		p = sp + (ep - sp) / 2U;
-		if (!*(const char*)p) {
+		const char *mp = mname;
+		const char *tp;
+		const znoff_t *p;
+
+		tp = (const char*)(sp + (ep - sp) / 2U);
+		if (!*tp) {
 			/* fast forward to the next entry */
-			p++;
-		} else if (((const char*)p)[-1] != '\0') {
-			/* rewind to beginning */
-			;
+			tp += sizeof(*sp);
+		} else {
+			while (tp[-1] != '\0') {
+				/* rewind to beginning */
+				tp--;
+			}
 		}
-		switch (strcmp(mname, (const char*)p)) {
-		case 0:
-			/* bingo */
-			p += (strlen((const char*)p) - 1U) / sizeof(*p) + 1U;
-			return zns + (be32toh(*p) >> 8U);
-		case -1:
+		/* store tp in znoff_t speak */
+		p = (const znoff_t*)tp;
+		/* now unroll a strcmp */
+		for (; *mp && *mp == *tp; mp++, tp++);
+		if (*mp - *tp < 0) {
 			/* use lower half */
 			ep = p - 1U;
-			break;
-		case 1:
-			/* use upper half */
-			sp += (strlen((const char*)p) - 1U) / sizeof(*p) + 1U;
-			break;
+		} else {
+			/* forward to the next znoff_t alignment */
+			p += ((const znoff_t*)tp - p) + 1U;
+			if (*mp - *tp > 0) {
+				/* use upper half */
+				sp = p + 1U;
+			} else {
+				return zns + (be32toh(*p) >> 8U);
+			}
 		}
 	} while (sp < ep);
 	return NULL;
