@@ -1,0 +1,15 @@
+Usage: tzmap COMMAND [ARG]...
+
+Generate or inspect zoneinfo name map files.
+
+Usage: tzmap cc [FILE]...
+
+Generate a map to zoneinfo names suitable for dateutils.
+
+  -o, --output=FILE     Output compiled map into FILE.
+
+Usage: tzmap show [MNAME]
+
+Show mapped zonename for MNAME.
+
+  -f, --tzmap=FILE      Use FILE.

@@ -45,6 +45,7 @@ libdut_a_SOURCES += dt-core.h dt-core.c
 libdut_a_SOURCES += strops.h strops.c
 libdut_a_SOURCES += token.h token.c
 libdut_a_SOURCES += tzraw.h tzraw.c
+libdut_a_SOURCES += tzmap.h tzmap.c
 libdut_a_SOURCES += leaps.h leaps.c
 libdut_a_SOURCES += boops.h
 libdut_a_SOURCES += generics.h
@@ -80,6 +81,12 @@ EXTRA_ltrcc_SOURCES =
 EXTRA_ltrcc_SOURCES += fmt-special.gperf
 endif  ## BUILD_LTRCC
 
+noinst_PROGRAMS += tzmap
+tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck
+tzmap_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+tzmap_CPPFLAGS = -DSTANDALONE
+BUILT_SOURCES += tzmap.yucc
+
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
@@ -91,6 +98,13 @@ leapseconds.def: leapseconds
 
 version.c: version.c.in $(top_builddir)/version.mk
 	sed -e 's,[@]VERSION[@],$(VERSION),g' <$(srcdir)/$@.in >$@
+
+## yuck rule
+SUFFIXES += .yuck
+SUFFIXES += .yucc
+.yuck.yucc:
+	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
+		yuck$(EXEEXT) gen -o $@ $<
 
 ## gperf rule
 SUFFIXES += .gperf
