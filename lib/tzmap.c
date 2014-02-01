@@ -203,7 +203,7 @@ tzm_find(tzmap_t m, const char *mname)
 {
 /* lookup zname for MNAME */
 	const znoff_t *sp = (const void*)tzm_mnames(m);
-	const znoff_t *ep = sp + tzm_mname_size(m) / sizeof(*sp);
+	const znoff_t *ep = sp + tzm_mname_size(m) / sizeof(*sp) - 1U;
 	const znoff_t *p;
 	const char *zns = tzm_znames(m);
 
@@ -211,20 +211,24 @@ tzm_find(tzmap_t m, const char *mname)
 	do {
 		p = sp + (ep - sp) / 2U;
 		if (!*(const char*)p) {
+			/* fast forward to the next entry */
 			p++;
+		} else if (((const char*)p)[-1] != '\0') {
+			/* rewind to beginning */
+			;
 		}
 		switch (strcmp(mname, (const char*)p)) {
 		case 0:
 			/* bingo */
-			p += (strlen((const char*)p) - 1U) / sizeof(*p);
-			return zns + be32toh(*p);
+			p += (strlen((const char*)p) - 1U) / sizeof(*p) + 1U;
+			return zns + (be32toh(*p) >> 8U);
 		case -1:
 			/* use lower half */
-			ep = p;
+			ep = p - 1U;
 			break;
 		case 1:
 			/* use upper half */
-			sp = p + 2U;
+			sp += (strlen((const char*)p) - 1U) / sizeof(*p) + 1U;
 			break;
 		}
 	} while (sp < ep);
