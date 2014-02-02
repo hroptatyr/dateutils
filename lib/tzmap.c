@@ -433,26 +433,28 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 		return 1;
 	}
 
-#if 0
-/* dump mode */
-	/* yay, we're ready to go */
-	for (const znoff_t *p = (const void*)tzm_mnames(m),
-		     *const ep = (const void*)p + tzm_mname_size(m);
-	     p < ep;) {
-		const char *mn = (const void*)p;
-		size_t mz = strlen(mn);
-		znoff_t off;
+	if (!argi->nargs) {
+		/* dump mode */
+		const znoff_t *p = (const void*)tzm_mnames(m);
+		const znoff_t *const ep =
+			(const void*)((const char*)p + tzm_mname_size(m));
 
-		p += (mz - 1U) / sizeof(*p) + 1U;
-		off = be32toh(*p++) >> 8U;
+		while (p < ep) {
+			const char *mn = (const void*)p;
+			size_t mz = strlen(mn);
+			znoff_t off;
 
-		/* actually print the strings */
-		fputs(mn, stdout);
-		fputc('\t', stdout);
-		fputs(m->data + off, stdout);
-		fputc('\n', stdout);
+			p += (mz - 1U) / sizeof(*p) + 1U;
+			off = be32toh(*p++) >> 8U;
+
+			/* actually print the strings */
+			fputs(mn, stdout);
+			fputc('\t', stdout);
+			fputs(m->data + off, stdout);
+			fputc('\n', stdout);
+		}
 	}
-#endif
+	/* otherwise */
 	for (size_t i = 0U; i < argi->nargs; i++) {
 		const char *zn;
 
