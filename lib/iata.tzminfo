@@ -1,0 +1,6 @@
+- Domain: IATA 3-letter airport codes
+- Source: [The GeoNames geographical database][1]
+- Licence: [Creative Commons Attribution 3.0 License][2]
+
+  [1]: http://download.geonames.org/export/dump/
+  [2]: http://creativecommons.org/licenses/by/3.0/
