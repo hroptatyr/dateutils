@@ -10,9 +10,11 @@ headerdir = $(includedir)/dateutils
 noinst_PROGRAMS =
 noinst_HEADERS =
 noinst_LIBRARIES =
+pkgdata_DATA =
 lib_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
+DISTCLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 SUFFIXES =
 
@@ -88,10 +90,23 @@ tzmap_CPPFLAGS += -DSTANDALONE
 BUILT_SOURCES += tzmap.yucc
 
 ## some tzmaps we'd like to support
-EXTRA_DIST += iata.tzminfo
-EXTRA_DIST += icao.tzminfo
-BUILT_SOURCES += iata.tzmap
-BUILT_SOURCES += icao.tzmap
+tzminfo_FILES =
+tzminfo_FILES += iata.tzminfo
+tzminfo_FILES += icao.tzminfo
+EXTRA_DIST += $(tzminfo_FILES)
+
+tzmap_FILES =
+tzmap_FILES += iata.tzmap
+tzmap_FILES += icao.tzmap
+BUILT_SOURCES += $(tzmap_FILES)
+DISTCLEANFILES += $(tzmap_FILES)
+
+tzmcc_FILES =
+tzmcc_FILES += iata.tzmcc
+tzmcc_FILES += icao.tzmcc
+pkgdata_DATA += $(tzmcc_FILES)
+CLEANFILES += $(tzmcc_FILES)
+DISTCLEANFILES += $(tzmcc_FILES)
 
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
@@ -120,9 +135,13 @@ SUFFIXES += .gperf
 ## tzmap rules
 SUFFIXES += .tzminfo
 SUFFIXES += .tzmap
+SUFFIXES += .tzmcc
 
 .tzminfo.tzmap:
 	curl -qgskO "https://raw.github.com/hroptatyr/dateutils/tzmaps/$@"
+
+.tzmap.tzmcc:
+	$(AM_V_GEN) $(builddir)/tzmap cc -o $@ $<
 
 # 
 # Help the developers get nice post-processed source files
