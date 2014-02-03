@@ -10,6 +10,7 @@ M4 = m4
 bin_PROGRAMS =
 noinst_PROGRAMS =
 noinst_HEADERS =
+noinst_LIBRARIES =
 BUILT_SOURCES =
 CLEANFILES =
 GGO_HELPERS =
@@ -17,8 +18,11 @@ EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
 SUFFIXES =
 
 DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
-noinst_HEADERS += dt-io.h
-noinst_HEADERS += dexpr.h
+
+noinst_LIBRARIES += libdutio.a
+libdutio_a_SOURCES =
+libdutio_a_SOURCES += dut-io.c dut-io.h
+libdutio_a_SOURCES += dexpr.h
 EXTRA_DIST += strpdt-special.gperf
 BUILT_SOURCES += strpdt-special.c
 
