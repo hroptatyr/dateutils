@@ -57,16 +57,17 @@ ICAO airport codes.
 Development
 -----------
 
-The above .tzmap files are (currently) managed in the `gh-pages` branch
-of the [dateutils repository][7].  Patches are welcome.
+The above .tzmap files are managed in the [`tzmaps` branch][8] of the
+[dateutils repository][7].  Patches are welcome.
 
   [1]: http://www.fresse.org/dateutils/
   [2]: http://www.iana.org/time-zones
   [3]: http://download.geonames.org/export/dump/
   [4]: http://creativecommons.org/licenses/by/3.0/
-  [5]: http://www.fresse.org/dateutils/iata.tzmap
-  [6]: http://www.fresse.org/dateutils/icao.tzmap
+  [5]: https://raw.github.com/hroptatyr/dateutils/tzmaps/iata.tzmap
+  [6]: https://raw.github.com/hroptatyr/dateutils/tzmaps/icao.tzmap
   [7]: https://github.com/hroptatyr/dateutils
+  [8]: https://github.com/hroptatyr/dateutils/tree/tzmaps
 
 <!--
   Local variables:
