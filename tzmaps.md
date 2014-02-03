@@ -38,15 +38,15 @@ tzmap files are simply tab-separated lists of the format:
 sorted by `SPECIFIER`.  On this site we provide mappings from IATA and
 ICAO airport codes.
 
-iata.tzmap
-----------
+[iata.tzmap][5]
+---------------
 
 - Domain: IATA 3-letter airport codes
 - Source: [The GeoNames geographical database][3]
 - Licence: [Creative Commons Attribution 3.0 License][4]
 
-icao.tzmap
-----------
+[icao.tzmap][6]
+---------------
 
 - Domain: ICAO 4-letter airport codes
 - Source: [The GeoNames geographical database][3]
@@ -57,6 +57,8 @@ icao.tzmap
   [2]: http://www.iana.org/time-zones
   [3]: http://download.geonames.org/export/dump/
   [4]: http://creativecommons.org/licenses/by/3.0/
+  [5]: http://www.fresse.org/dateutils/iata.tzmap
+  [6]: http://www.fresse.org/dateutils/icao.tzmap
 
 <!--
   Local variables:
