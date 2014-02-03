@@ -92,6 +92,11 @@ fi
 AC_ARG_VAR([GPERF], [full path to the gperf tool])
 
 
+AC_PATH_PROG([CURL], [curl])
+AC_ARG_VAR([CURL], [full path to the curl tool])
+AM_CONDITIONAL([HAVE_CURL], [test -n "${CURL}"])
+
+
 AC_PATH_PROG([GDATE], [date])
 AC_ARG_VAR([GDATE], [full path to the date tool])
 if test -n "${GDATE}"; then
