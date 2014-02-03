@@ -87,6 +87,12 @@ tzmap_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 tzmap_CPPFLAGS += -DSTANDALONE
 BUILT_SOURCES += tzmap.yucc
 
+## some tzmaps we'd like to support
+EXTRA_DIST += iata.tzminfo
+EXTRA_DIST += icao.tzminfo
+BUILT_SOURCES += iata.tzmap
+BUILT_SOURCES += icao.tzmap
+
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
@@ -110,6 +116,13 @@ SUFFIXES += .yucc
 SUFFIXES += .gperf
 .gperf.c:
 	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
+
+## tzmap rules
+SUFFIXES += .tzminfo
+SUFFIXES += .tzmap
+
+.tzminfo.tzmap:
+	curl -qgskO "https://raw.github.com/hroptatyr/dateutils/tzmaps/$@"
 
 # 
 # Help the developers get nice post-processed source files
