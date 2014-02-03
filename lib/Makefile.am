@@ -84,7 +84,7 @@ endif  ## BUILD_LTRCC
 noinst_PROGRAMS += tzmap
 tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck
 tzmap_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
-tzmap_CPPFLAGS = -DSTANDALONE
+tzmap_CPPFLAGS += -DSTANDALONE
 BUILT_SOURCES += tzmap.yucc
 
 
