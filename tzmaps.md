@@ -1,6 +1,8 @@
 ---
 title: dateutils tzmaps
-layout: default
+layout: subpage
+project: dateutils
+logo: dateutils_logo_120.png
 ---
 
 Timezone map files
