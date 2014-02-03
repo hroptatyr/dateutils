@@ -1,0 +1,31 @@
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - sudo apt-get -qq update
+
+install:
+  - sudo apt-get install -qq gperf
+  - sudo apt-get install -qq help2man
+  - sudo apt-get install -qq texinfo
+  - sudo apt-get install -qq bison
+  - sudo apt-get install -qq flex
+  - sudo apt-get install -qq texlive
+
+before_script:
+  - autoreconf -vfi
+
+script: ./configure && make clean all check distcheck || (cat test/test-suite.log && /bin/false)
+
+## whitelist
+branches:
+  only:
+    - master
+    - next
+
+notifications:
+  email:
+    - devel@fresse.org
