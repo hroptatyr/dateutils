@@ -95,6 +95,7 @@ tzminfo_FILES += iata.tzminfo
 tzminfo_FILES += icao.tzminfo
 EXTRA_DIST += $(tzminfo_FILES)
 
+if HAVE_CURL
 tzmap_FILES =
 tzmap_FILES += iata.tzmap
 tzmap_FILES += icao.tzmap
@@ -107,6 +108,7 @@ tzmcc_FILES += icao.tzmcc
 pkgdata_DATA += $(tzmcc_FILES)
 CLEANFILES += $(tzmcc_FILES)
 DISTCLEANFILES += $(tzmcc_FILES)
+endif  HAVE_CURL
 
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
