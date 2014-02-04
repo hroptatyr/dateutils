@@ -498,21 +498,21 @@ leaps_before(struct dt_dt_s d)
 
 	switch (d.typ) {
 	case DT_YMD:
-		res = leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
-		on = res + 1 < nleaps_ymd && leaps_ymd[res + 1] == d.d.ymd.u;
+		res = leaps_before_ui32(leaps_ymd, nleaps, d.d.ymd.u);
+		on = res + 1 < nleaps && leaps_ymd[res + 1] == d.d.ymd.u;
 		break;
 	case DT_YMCW:
-		res = leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
-		on = res + 1 < nleaps_ymcw && leaps_ymcw[res + 1] == d.d.ymcw.u;
+		res = leaps_before_ui32(leaps_ymcw, nleaps, d.d.ymcw.u);
+		on = res + 1 < nleaps && leaps_ymcw[res + 1] == d.d.ymcw.u;
 		break;
 	case DT_DAISY:
-		res = leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
-		on = res + 1 < nleaps_d && leaps_d[res + 1] == d.d.daisy;
+		res = leaps_before_ui32(leaps_d, nleaps, d.d.daisy);
+		on = res + 1 < nleaps && leaps_d[res + 1] == d.d.daisy;
 		break;
 	case DT_SEXY:
 	case DT_SEXYTAI:
-		res = leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
-		on = (res + 1U < nleaps_s) &&
+		res = leaps_before_si32(leaps_s, nleaps, (int32_t)d.sexy);
+		on = (res + 1U < nleaps) &&
 			(leaps_s[res + 1] == (int32_t)d.sexy);
 		break;
 	default:
@@ -1255,7 +1255,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 				zidx_t zi;
 
 				sx = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY + ss;
-				zi = leaps_before_si32(leaps_s, nleaps_s, sx);
+				zi = leaps_before_si32(leaps_s, nleaps, sx);
 				d.sexy = sx + leaps_corr[zi];
 				break;
 			}
