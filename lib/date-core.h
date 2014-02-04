@@ -525,6 +525,10 @@ extern unsigned int __get_bdays(unsigned int y, unsigned int m);
  * Compare two ymcw objects, return <0, 0, >0 when D1 < D2, D1 == D2, D1 > D2 */
 extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
 
+/**
+ * Get N where N is the N-th occurrence of wday in the month of that year */
+extern unsigned int __ymd_get_count(dt_ymd_t that);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_d_s
