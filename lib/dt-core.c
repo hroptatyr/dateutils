@@ -374,6 +374,9 @@ __trans_dtdurfmt(const char **fmt)
 	return;
 }
 
+#define FFFF_GMTIME_SUBDAY
+#include "gmtime.h"
+
 static struct timeval
 now_tv(void)
 {
@@ -424,11 +427,7 @@ dflt_tm(const struct dt_dt_s *set)
 		;
 	} else if (set == NULL) {
 		/* take over the value of now */
-		struct timeval tv = now_tv();
 		tm = now_tm();
-		tm.tm_hour = (tv.tv_sec % 86400U) / 60U / 60U;
-		tm.tm_min = (tv.tv_sec % 3600U) / 60U;
-		tm.tm_sec = (tv.tv_sec % 60U);
 	} else {
 		switch (set->typ) {
 		case DT_YMD:
