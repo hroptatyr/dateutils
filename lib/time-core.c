@@ -72,7 +72,7 @@
 
 DEFVAR const char hms_dflt[] = "%H:%M:%S";
 
-static struct dt_t_s
+DEFUN struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
 	struct dt_t_s res;

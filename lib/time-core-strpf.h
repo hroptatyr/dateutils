@@ -42,23 +42,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_TIME_CORE_STRPF_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-
 struct strpt_s {
 	signed int h;
 	signed int m;
@@ -78,6 +61,8 @@ struct strpt_s {
 	} flags;
 };
 
+extern struct dt_t_s __guess_ttyp(struct strpt_s t);
+
 
 /* helpers */
 static inline __attribute__((pure, const)) struct strpt_s
@@ -92,10 +77,10 @@ strpt_initialiser(void)
 }
 
 /* self-explanatory funs */
-DECLF int
+extern int
 __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep);
 
-DECLF size_t
+extern size_t
 __strft_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpt_s *d, struct dt_t_s that);
