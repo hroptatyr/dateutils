@@ -541,7 +541,7 @@ dt_get_quarter(struct dt_d_s that)
 
 
 /* converters */
-static dt_daisy_t
+DEFUN dt_daisy_t
 dt_conv_to_daisy(struct dt_d_s that)
 {
 	switch (that.typ) {

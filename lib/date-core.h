@@ -406,6 +406,10 @@ extern int dt_get_quarter(struct dt_d_s d);
  * For calendars without the notion of a year this will return 0. */
 extern unsigned int dt_get_yday(struct dt_d_s d);
 
+/* converters */
+extern dt_daisy_t dt_conv_to_daisy(struct dt_d_s);
+
+/* adders */
 /**
  * Add duration DUR to date D. */
 extern struct dt_d_s
