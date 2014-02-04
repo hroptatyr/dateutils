@@ -44,6 +44,10 @@
 #include "nifty.h"
 #include "dt-core-tz-glue.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead. */

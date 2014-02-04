@@ -45,37 +45,17 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if defined INCLUDE_DATETIME_CORE_IMPL && defined INCLUDE_TZRAW_IMPL
-# define INCLUDE_DT_CORE_TZ_GLUE_IMPL
-#endif	/* INCLUDE_DATETIME_CORE_IMPL && INCLUDE_TZRAW_IMPL */
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-#eldif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-
 
 /* decls */
 /**
  * Return a dt object that forgot about DT's zone and uses ZONE instead.
  * In other words: convert from locally represented DT to UTC. */
-DECLF struct dt_dt_s dtz_forgetz(struct dt_dt_s dt, zif_t zone);
+extern struct dt_dt_s dtz_forgetz(struct dt_dt_s dt, zif_t zone);
 
 /**
  * Return a dt object from a UTC'd DT that uses ZONE.
  * In other words: convert from UTC represented DT to local ZONE time. */
-DECLF struct dt_dt_s dtz_enrichz(struct dt_dt_s dt, zif_t zone);
-
+extern struct dt_dt_s dtz_enrichz(struct dt_dt_s dt, zif_t zone);
 
 #if defined __cplusplus
 }
