@@ -91,11 +91,6 @@ DECLF zidx_t leaps_before_ui64(const uint64_t fld[], size_t nfld, uint64_t key);
  * Return last leap transition before KEY in a int64_t field FLD. */
 DECLF zidx_t leaps_before_si64(const int64_t fld[], size_t nfld, int64_t key);
 
-
-#if defined INCLUDE_LEAPS_IMPL
-# include "leaps.c"
-#endif	/* INCLUDE_LEAPS_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
