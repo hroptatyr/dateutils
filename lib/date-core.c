@@ -718,7 +718,7 @@ DEFVAR const char daisydur_dflt[] = "%d";
 DEFVAR const char bizsidur_dflt[] = "%db";
 DEFVAR const char bizdadur_dflt[] = "%Y-%0m-%0db";
 
-static dt_dtyp_t
+DEFUN dt_dtyp_t
 __trans_dfmt_special(const char *fmt)
 {
 #if !defined SKIP_LEAP_ARITH
@@ -734,7 +734,7 @@ __trans_dfmt_special(const char *fmt)
 	return DT_DUNK;
 }
 
-static void
+DEFUN void
 __trans_dfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -773,7 +773,7 @@ __trans_dfmt(const char **fmt)
 	return;
 }
 
-static void
+DEFUN void
 __trans_ddurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {

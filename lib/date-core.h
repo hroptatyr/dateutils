@@ -343,6 +343,10 @@ extern const char daisydur_dflt[];
 extern const char bizsidur_dflt[];
 extern const char bizdadur_dflt[];
 
+extern dt_dtyp_t __trans_dfmt_special(const char*);
+extern void __trans_dfmt(const char **fmt);
+extern void __trans_ddurfmt(const char**fmt);
+
 
 /* decls */
 /**
