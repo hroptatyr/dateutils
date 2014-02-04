@@ -691,8 +691,8 @@ dt_conv_to_yd(struct dt_d_s this)
 
 
 /* guessing parsers */
-#include "token.c"
-#include "strops.c"
+#include "strops.h"
+#include "token.h"
 #include "date-core-strpf.c"
 #if !defined SKIP_LEAP_ARITH
 /* we assume this file is in the dist, it's gen'd from fmt-special.gperf */
