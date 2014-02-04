@@ -157,6 +157,11 @@ struct dt_dt_s {
 };
 
 
+/* formatting defaults */
+extern void __trans_dtfmt(const char **fmt);
+extern void __trans_dtdurfmt(const char**fmt);
+
+
 /* decls */
 /**
  * Like strptime() for our dates.

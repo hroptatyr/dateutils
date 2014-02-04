@@ -277,7 +277,7 @@ static const char sexydur_dflt[] = "%s";
 static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
 static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
-static void
+DEFUN void
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -322,7 +322,7 @@ __trans_dtfmt(const char **fmt)
 	return;
 }
 
-static void
+DEFUN void
 __trans_dtdurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
