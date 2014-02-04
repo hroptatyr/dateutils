@@ -120,6 +120,10 @@ struct dt_t_s {
 #endif	/* !SECS_PER_DAY */
 
 
+/* formatting defaults */
+extern const char hms_dflt[];
+
+
 /* decls */
 /**
  * Like strptime() for our times.

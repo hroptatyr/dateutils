@@ -53,6 +53,9 @@
 #if !defined DEFUN
 # define DEFUN
 #endif	/* !DEFUN */
+#if !defined DEFVAR
+# define DEFVAR
+#endif	/* !DEFVAR */
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -67,7 +70,7 @@
 #include "token.h"
 #include "time-core-strpf.c"
 
-static const char hms_dflt[] = "%H:%M:%S";
+DEFVAR const char hms_dflt[] = "%H:%M:%S";
 
 static struct dt_t_s
 __guess_ttyp(struct strpt_s t)
