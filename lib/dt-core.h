@@ -344,13 +344,6 @@ zdiff_sec(struct dt_dt_s d)
 	return zdiff;
 }
 
-
-#if defined INCLUDE_DATETIME_CORE_IMPL
-# include "date-core.c"
-# include "time-core.c"
-# include "dt-core.c"
-#endif	/* INCLUDE_DATETIME_CORE_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
