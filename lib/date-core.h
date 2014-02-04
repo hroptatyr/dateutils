@@ -429,6 +429,10 @@ extern int dt_get_quarter(struct dt_d_s d);
  * For calendars without the notion of a year this will return 0. */
 extern unsigned int dt_get_yday(struct dt_d_s d);
 
+/**
+ * Return N where N is the week within the year that THIS is in. */
+extern int dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention);
+
 /* converters */
 extern dt_daisy_t dt_conv_to_daisy(struct dt_d_s);
 

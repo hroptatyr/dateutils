@@ -272,7 +272,7 @@ dt_get_wcnt_mon(struct dt_d_s that)
 /* forward decl */
 static dt_yd_t dt_conv_to_yd(struct dt_d_s this);
 
-static int
+DEFUN int
 dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 {
 	int res;
