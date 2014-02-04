@@ -27,6 +27,7 @@ libdut_a_SOURCES += date-core-strpf.h
 libdut_a_SOURCES += time-core.c time-core.h
 libdut_a_SOURCES += time-core-strpf.h
 libdut_a_SOURCES += dt-core.h dt-core.c
+libdut_a_SOURCES += dt-core-strpf.h
 libdut_a_SOURCES += strops.h strops.c
 libdut_a_SOURCES += token.h token.c
 libdut_a_SOURCES += tzraw.h tzraw.c
