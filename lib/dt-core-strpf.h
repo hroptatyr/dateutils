@@ -76,11 +76,6 @@ __strfdt_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpdt_s *d, struct dt_dt_s that);
 
-
-#if defined INCLUDE_DT_CORE_STRPF_IMPL
-# include "dt-core-strpf.c"
-#endif	/* INCLUDE_DT_CORE_STRPF_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
