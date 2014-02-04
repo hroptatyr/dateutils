@@ -382,6 +382,7 @@ parse_file(const char *file)
 #include <stdint.h>\n\
 #include <limits.h>\n\
 #include \"leaps.h\"\n\
+#include \"leapseconds.h\"\n\
 \n\
 #if !defined INCLUDED_ltrcc_generated_def_\n\
 #define INCLUDED_ltrcc_generated_def_\n\
