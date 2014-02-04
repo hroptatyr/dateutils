@@ -409,7 +409,7 @@ parse_file(const char *file)
 
 	fputs("\
 /* exported number of leap transitions */\n\
-const size_t nleaps = countof(nleaps_corr);\n\
+const size_t nleaps = countof(leaps_corr);\n\
 \n\
 #endif  /* INCLUDED_ltrcc_generated_def_ */\n", stdout);
 	return 0;
