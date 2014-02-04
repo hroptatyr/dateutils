@@ -77,6 +77,10 @@
 # undef WITH_LEAP_SECONDS
 #endif	/* SKIP_LEAP_ARITH */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
