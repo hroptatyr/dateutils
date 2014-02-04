@@ -21,8 +21,10 @@ DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
 
 noinst_LIBRARIES += libdutio.a
 libdutio_a_SOURCES =
-libdutio_a_SOURCES += dut-io.c dut-io.h
+libdutio_a_SOURCES += dt-io.c dt-io.h
 libdutio_a_SOURCES += dexpr.h
+libdutio_a_CPPFLAGS = $(AM_CPPFLAGS)
+libdutio_a_CPPFLAGS += $(DT_INCLUDES)
 EXTRA_DIST += strpdt-special.gperf
 BUILT_SOURCES += strpdt-special.c
 
