@@ -173,6 +173,12 @@ __strfd_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that);
 
+/* specific formatters and parsers */
+extern void __prep_strfd_ywd(struct strpd_s *tgt, dt_ywd_t d);
+extern void __prep_strfd_daisy(struct strpd_s *tgt, dt_daisy_t d);
+extern void
+__prep_strfd_bizda(struct strpd_s *tgt, dt_bizda_t d, dt_bizda_param_t bp);
+
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */

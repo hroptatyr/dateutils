@@ -39,6 +39,10 @@
 
 #include "nifty.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 /* table of 53-week years (years % 400)
 
   {4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105,
@@ -884,7 +888,7 @@ __ywd_diff(dt_ywd_t d1, dt_ywd_t d2)
 
 #if defined ASPECT_STRF && !defined YWD_ASPECT_STRF_
 #define YWD_ASPECT_STRF_
-static void
+DEFUN void
 __prep_strfd_ywd(struct strpd_s *tgt, dt_ywd_t d)
 {
 /* place ywd data of THIS into D for printing with FMT. */

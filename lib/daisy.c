@@ -376,7 +376,7 @@ __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 #if defined ASPECT_STRF && !defined DAISY_ASPECT_STRF_
 #define DAISY_ASPECT_STRF_
 
-static void
+DEFUN void
 __prep_strfd_daisy(struct strpd_s *tgt, dt_daisy_t d)
 {
 	dt_ymd_t tmp = __daisy_to_ymd(d);
