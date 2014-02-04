@@ -123,6 +123,8 @@ struct dt_t_s {
 /* formatting defaults */
 extern const char hms_dflt[];
 
+extern void __trans_tfmt(const char **fmt);
+
 
 /* decls */
 /**

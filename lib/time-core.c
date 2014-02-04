@@ -111,7 +111,7 @@ fucked:
 	return dt_t_initialiser();
 }
 
-static void
+DEFUN void
 __trans_tfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
