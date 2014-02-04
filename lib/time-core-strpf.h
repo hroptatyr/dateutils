@@ -100,11 +100,6 @@ __strft_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpt_s *d, struct dt_t_s that);
 
-
-#if defined INCLUDE_TIME_CORE_STRPF_IMPL
-# include "time-core-strpf.c"
-#endif	/* INCLUDE_TIME_CORE_STRPF_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
