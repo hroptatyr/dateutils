@@ -106,16 +106,6 @@ static uint16_t __mon_yday[] = {
 /* bizda definitions, reference dates */
 static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 
-static inline bool
-__leapp(unsigned int y)
-{
-#if defined WITH_FAST_ARITH
-	return y % 4 == 0;
-#else  /* !WITH_FAST_ARITH */
-	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
-#endif	/* WITH_FAST_ARITH */
-}
-
 /* UTC has a constant day length */
 #define UTC_SECS_PER_DAY	(86400)
 

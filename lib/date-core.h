@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "token.h"
 
@@ -607,6 +608,16 @@ __make_ywd_param(unsigned int cc)
 	dt_ywd_param_t p;
 	p.cc = cc;
 	return p;
+}
+
+static inline bool
+__leapp(unsigned int y)
+{
+#if defined WITH_FAST_ARITH
+	return y % 4 == 0;
+#else  /* !WITH_FAST_ARITH */
+	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+#endif	/* WITH_FAST_ARITH */
 }
 
 #if defined __cplusplus
