@@ -83,6 +83,10 @@
 # define HAVE_GETLINE   1
 #endif  /* !HAVE_GETLINE && !HAVE_FGETLN */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 #if defined STANDALONE
 static __attribute__((format(printf, 1, 2))) void
