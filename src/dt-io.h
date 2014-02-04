@@ -13,7 +13,8 @@
 /* for strcasecmp() */
 #include <strings.h>
 #include "dt-core.h"
-#include "dt-core-tz-glue.h"
+#include "tzraw.h"
+#include "nifty.h"
 
 typedef enum {
 	STRPDT_UNK,
@@ -26,7 +27,7 @@ typedef enum {
 
 /* needles for the grep mode */
 typedef struct grep_atom_s *grep_atom_t;
-typedef const struct grep_atom_s *const_grep_atom_t;
+typedef const struct gep_atom_s *const_grep_atom_t;
 
 struct grpatm_payload_s {
 	uint8_t flags;
@@ -93,6 +94,9 @@ dt_io_find_strpdt2(
 	const struct grep_atom_soa_s *needles,
 	char **sp, char **ep,
 	zif_t zone);
+
+extern int
+dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch);
 
 /* grep atoms */
 extern struct grep_atom_s calc_grep_atom(const char *fmt);
@@ -211,20 +215,6 @@ __io_eof_p(FILE *fp)
 #else  /* !__GLIBC__ */
 	return feof(fp);
 #endif	/* __GLIBC__ */
-}
-
-static inline int
-dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
-{
-	static char buf[256];
-	size_t n;
-
-	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		d = dtz_enrichz(d, zone);
-	}
-	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
-	__io_write(buf, n, stdout);
-	return (n > 0) - 1;
 }
 
 static inline void

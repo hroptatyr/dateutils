@@ -260,6 +260,20 @@ found:
 	return d;
 }
 
+int
+dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
+{
+	static char buf[256];
+	size_t n;
+
+	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
+		d = dtz_enrichz(d, zone);
+	}
+	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
+	__io_write(buf, n, stdout);
+	return (n > 0) - 1;
+}
+
 
 /* needles for the grep mode */
 struct grep_atom_s
