@@ -69,6 +69,8 @@
 #include "nifty.h"
 /* me own header, innit */
 #include "tzraw.h"
+/* for leap corrections */
+#include "leapseconds.h"
 
 #if !defined DEFUN
 # define DEFUN
@@ -412,7 +414,7 @@ __tai_offs(int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
 	const int32_t tai_offs_epoch = 10;
-	zidx_t zi = leaps_before_si32(leaps_s, nleaps_s, t);
+	zidx_t zi = leaps_before_si32(leaps_s, nleaps_corr, t);
 
 	return tai_offs_epoch + leaps_corr[zi];
 }
