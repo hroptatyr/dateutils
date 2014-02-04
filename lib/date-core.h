@@ -598,11 +598,6 @@ __make_ywd_param(unsigned int cc)
 	return p;
 }
 
-
-#if defined INCLUDE_DATE_CORE_IMPL
-# include "date-core.c"
-#endif	/* INCLUDE_DATE_CORE_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
