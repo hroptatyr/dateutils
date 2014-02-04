@@ -408,6 +408,9 @@ parse_file(const char *file)
 	pr_file(fp, "leaps_hms", pr_line_t, DT_HMS, col);
 
 	fputs("\
+/* exported number of leap transitions */\n\
+const size_t nleaps = countof(nleaps_corr);\n\
+\n\
 #endif  /* INCLUDED_ltrcc_generated_def_ */\n", stdout);
 	return 0;
 }

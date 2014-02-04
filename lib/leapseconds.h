@@ -6,7 +6,7 @@
 
 /**
  * Number of known leap corrections. */
-extern const size_t nleaps_corr;
+extern const size_t nleaps;
 
 /**
  * Absolute difference in seconds, TAI - UTC, at transition points */
