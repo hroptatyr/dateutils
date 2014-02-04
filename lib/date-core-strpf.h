@@ -42,23 +42,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_DATE_CORE_STRPF_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-
 struct strpd_s {
 	signed int y;
 	signed int m;
@@ -156,36 +139,36 @@ DECLV const ssize_t dut_nabab_mon;
 #if defined INCLUDED_date_core_h_
 /**
  * Populate TGT with duration information from DUR. */
-DECLF inline void __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur);
+extern inline void __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur);
 
 /**
  * Parse STR with the standard parser, put the end of the parsed string in EP.*/
-DECLF struct dt_d_s __strpd_std(const char *str, char **ep);
+extern struct dt_d_s __strpd_std(const char *str, char **ep);
 
 /**
  * Given a strpd object D, try to construct a dt_d object.
  * Defined in date-core.c */
-DECLF struct dt_d_s __guess_dtyp(struct strpd_s d);
+extern struct dt_d_s __guess_dtyp(struct strpd_s d);
 #endif	/* INCLUDED_date_core_h_ */
 
 /* self-explanatory funs, innit? */
-DECLF int
+extern int
 __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep);
 
-DECLF int
+extern int
 __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep);
 
-DECLF size_t
+extern size_t
 __strfd_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that);
 
-DECLF size_t
+extern size_t
 __strfd_rom(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that);
 
-DECLF size_t
+extern size_t
 __strfd_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpd_s *d, struct dt_d_s that);

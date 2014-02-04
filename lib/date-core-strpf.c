@@ -53,6 +53,13 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+#if !defined DEFVAR
+# define DEFVAR
+#endif	/* !DEFVAR */
+
 static const char *__long_wday[] = {
 	"Sunday",
 	"Monday",
