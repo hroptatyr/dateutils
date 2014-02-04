@@ -70,6 +70,10 @@
 /* me own header, innit */
 #include "tzraw.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 #if !defined MAP_ANONYMOUS && defined MAP_ANON
 # define MAP_ANONYMOUS	(MAP_ANON)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
