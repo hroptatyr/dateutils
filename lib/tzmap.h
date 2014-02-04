@@ -68,9 +68,4 @@ extern void tzm_close(tzmap_t);
 
 extern const char *tzm_find(tzmap_t m, const char *mname);
 
-
-#if defined INCLUDE_TZMAP_IMPL
-# include "tzmap.c"
-#endif	/* INCLUDE_TZMAP_IMPL */
-
 #endif	/* INCLUDED_tzmap_h_ */
