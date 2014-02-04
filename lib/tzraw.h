@@ -350,11 +350,6 @@ zif_spec(zif_t z, int n)
 	return res;
 }
 
-
-#if defined INCLUDE_TZRAW_IMPL
-# include "tzraw.c"
-#endif	/* INCLUDE_TZRAW_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
