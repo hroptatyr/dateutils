@@ -47,7 +47,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
-#include "tzraw.h"
+#include "dt-core-tz-glue.h"
 #include "prchunk.h"
 
 
@@ -71,7 +71,7 @@ dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 	return d;
 }
 
-static void
+void
 __attribute__((format(printf, 2, 3)))
 error(int eno, const char *fmt, ...)
 {

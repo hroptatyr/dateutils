@@ -70,8 +70,7 @@ struct dseq_clo_s {
 
 
 /* impl of error() */
-static void
-__attribute__((format(printf, 2, 3)))
+void
 error(int eno, const char *fmt, ...)
 {
 	va_list vap;

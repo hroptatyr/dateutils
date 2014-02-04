@@ -47,11 +47,11 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
-#include "tzraw.h"
+#include "dt-core-tz-glue.h"
 
 
 /* error() impl */
-static void
+void
 __attribute__((format(printf, 2, 3)))
 error(int eno, const char *fmt, ...)
 {
