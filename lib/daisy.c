@@ -38,6 +38,10 @@
 
 #include "nifty.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 #if !defined DAISY_ASPECT_HELPERS_
 #define DAISY_ASPECT_HELPERS_
@@ -220,7 +224,7 @@ __jdn_to_daisy(dt_jdn_t d)
 	return 0U;
 }
 
-static dt_ymd_t
+DEFUN dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
 	dt_daisy_t j00;

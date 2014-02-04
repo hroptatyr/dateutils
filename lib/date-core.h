@@ -409,6 +409,8 @@ extern unsigned int dt_get_yday(struct dt_d_s d);
 /* converters */
 extern dt_daisy_t dt_conv_to_daisy(struct dt_d_s);
 
+extern dt_ymd_t __daisy_to_ymd(dt_daisy_t);
+
 /* adders */
 /**
  * Add duration DUR to date D. */
