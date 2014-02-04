@@ -521,6 +521,10 @@ extern unsigned int __get_mdays(unsigned int y, unsigned int m);
  * Get the number of business days in month M of year Y. */
 extern unsigned int __get_bdays(unsigned int y, unsigned int m);
 
+/**
+ * Compare two ymcw objects, return <0, 0, >0 when D1 < D2, D1 == D2, D1 > D2 */
+extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_d_s

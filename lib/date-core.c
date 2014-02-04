@@ -146,47 +146,6 @@ __uidiv(signed int x, signed int m)
 #include "daisy.c"
 #undef ASPECT_CONV
 
-static int
-__ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
-{
-	if (d1.y < d2.y) {
-		return -1;
-	} else if (d1.y > d2.y) {
-		return 1;
-	} else if (d1.m < d2.m) {
-		return -1;
-	} else if (d1.m > d2.m) {
-		return 1;
-	}
-
-	/* we're down to counts, however, the last W of a month is always
-	 * count 5, even though counting forward it would be 4 */
-	if (d1.c < d2.c) {
-		return -1;
-	} else if (d1.c > d2.c) {
-		return 1;
-	}
-	/* now it's up to the first of the month */
-	{
-		dt_dow_t wd01;
-		unsigned int off1;
-		unsigned int off2;
-
-		wd01 = __get_m01_wday(d1.y, d1.m);
-		/* represent cw as C-th WD01 + OFF */
-		off1 = __uimod(d1.w - wd01, GREG_DAYS_P_WEEK);
-		off2 = __uimod(d2.w - wd01, GREG_DAYS_P_WEEK);
-
-		if (off1 < off2) {
-			return -1;
-		} else if (off1 > off2) {
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-}
-
 
 /* converting accessors */
 DEFUN int
@@ -607,6 +566,15 @@ dt_conv_to_yd(struct dt_d_s this)
 #include "bizda.c"
 #include "daisy.c"
 #undef ASPECT_DIFF
+
+#define ASPECT_CMP
+#include "yd.c"
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "bizda.c"
+#include "daisy.c"
+#undef ASPECT_CMP
 
 
 /* guessing parsers */
