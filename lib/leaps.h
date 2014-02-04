@@ -44,23 +44,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_LEAPS_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-
 typedef const struct zleap_s *zleap_t;
 typedef const int32_t *zltr_t;
 typedef size_t zidx_t;
@@ -77,19 +60,19 @@ struct zleap_s {
 /* col-based funs */
 /**
  * Return last leap transition before KEY in a uint32_t field FLD. */
-DECLF zidx_t leaps_before_ui32(const uint32_t fld[], size_t nfld, uint32_t key);
+extern zidx_t leaps_before_ui32(const uint32_t fld[], size_t nfld, uint32_t key);
 
 /**
  * Return last leap transition before KEY in a int32_t field FLD. */
-DECLF zidx_t leaps_before_si32(const int32_t fld[], size_t nfld, int32_t key);
+extern zidx_t leaps_before_si32(const int32_t fld[], size_t nfld, int32_t key);
 
 /**
  * Return last leap transition before KEY in a uint64_t field FLD. */
-DECLF zidx_t leaps_before_ui64(const uint64_t fld[], size_t nfld, uint64_t key);
+extern zidx_t leaps_before_ui64(const uint64_t fld[], size_t nfld, uint64_t key);
 
 /**
  * Return last leap transition before KEY in a int64_t field FLD. */
-DECLF zidx_t leaps_before_si64(const int64_t fld[], size_t nfld, int64_t key);
+extern zidx_t leaps_before_si64(const int64_t fld[], size_t nfld, int64_t key);
 
 #if defined __cplusplus
 }
