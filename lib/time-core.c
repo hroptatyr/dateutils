@@ -48,7 +48,6 @@
 #include <time.h>
 
 #include "time-core.h"
-#include "strops.h"
 #include "nifty.h"
 
 #if !defined DEFUN
@@ -70,8 +69,8 @@ __secs_since_midnight(struct dt_t_s t)
 
 
 /* guessing parsers */
-#include "token.c"
-#include "strops.c"
+#include "strops.h"
+#include "token.h"
 #include "time-core-strpf.c"
 
 static const char hms_dflt[] = "%H:%M:%S";
