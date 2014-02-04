@@ -1,7 +1,12 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
-#include "dt-core.h"
+#include "strops.h"
+#include "strops.c"
+#include "token.h"
+#include "token.c"
+#include "date-core.h"
+#include "date-core.c"
 
 static unsigned int
 super(unsigned int res)
