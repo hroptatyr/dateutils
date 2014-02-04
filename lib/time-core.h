@@ -170,6 +170,12 @@ dt_t_initialiser(void)
 	return res;
 }
 
+static inline unsigned int
+__secs_since_midnight(struct dt_t_s t)
+{
+	return (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+}
+
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
