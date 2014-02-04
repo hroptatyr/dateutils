@@ -366,6 +366,13 @@ __get_jan01_wday(unsigned int year)
 static inline __attribute__((pure)) unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
+	static uint16_t __mon_yday[] = {
+		/* this is \sum ml,
+		 * first element is a bit set of leap days to add */
+		0xfff8, 0,
+		31, 59, 90, 120, 151, 181,
+		212, 243, 273, 304, 334, 365
+	};
 	return __mon_yday[mon] + dom + UNLIKELY(__leapp(year) && mon >= 3);
 }
 
