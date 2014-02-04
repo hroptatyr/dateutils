@@ -63,6 +63,9 @@
 #if !defined DEFUN
 # define DEFUN
 #endif	/* !DEFUN */
+#if !defined DEFVAR
+# define DEFVAR
+#endif	/* !DEFVAR */
 
 #if !defined assert
 # define assert(x)
@@ -699,21 +702,21 @@ dt_conv_to_yd(struct dt_d_s this)
 # include "fmt-special.c"
 #endif	/* SKIP_LEAP_ARITH */
 
-static const char ymd_dflt[] = "%F";
-static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char ywd_dflt[] = "%rY-W%V-%u";
-static const char yd_dflt[] = "%Y-%d";
-static const char daisy_dflt[] = "%d";
-static const char bizsi_dflt[] = "%db";
-static const char bizda_dflt[] = "%Y-%m-%db";
+DEFVAR const char ymd_dflt[] = "%F";
+DEFVAR const char ymcw_dflt[] = "%Y-%m-%c-%w";
+DEFVAR const char ywd_dflt[] = "%rY-W%V-%u";
+DEFVAR const char yd_dflt[] = "%Y-%d";
+DEFVAR const char daisy_dflt[] = "%d";
+DEFVAR const char bizsi_dflt[] = "%db";
+DEFVAR const char bizda_dflt[] = "%Y-%m-%db";
 
-static const char ymddur_dflt[] = "%Y-%0m-%0d";
-static const char ymcwdur_dflt[] = "%Y-%0m-%0w-%0d";
-static const char ywddur_dflt[] = "%rY-W%0w-%0d";
-static const char yddur_dflt[] = "%Y-%0d";
-static const char daisydur_dflt[] = "%d";
-static const char bizsidur_dflt[] = "%db";
-static const char bizdadur_dflt[] = "%Y-%0m-%0db";
+DEFVAR const char ymddur_dflt[] = "%Y-%0m-%0d";
+DEFVAR const char ymcwdur_dflt[] = "%Y-%0m-%0w-%0d";
+DEFVAR const char ywddur_dflt[] = "%rY-W%0w-%0d";
+DEFVAR const char yddur_dflt[] = "%Y-%0d";
+DEFVAR const char daisydur_dflt[] = "%d";
+DEFVAR const char bizsidur_dflt[] = "%db";
+DEFVAR const char bizdadur_dflt[] = "%Y-%0m-%0db";
 
 static dt_dtyp_t
 __trans_dfmt_special(const char *fmt)
