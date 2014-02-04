@@ -103,38 +103,38 @@ strpdi_initialiser(void)
 /**
  * Long weekday names, english only.
  * Monday, Tuesday, ... */
-DECLV const char **dut_long_wday;
-DECLV const ssize_t dut_nlong_wday;
+extern const char **dut_long_wday;
+extern const ssize_t dut_nlong_wday;
 
 /**
  * Abbrev'd weekday names, english only.
  * Mon, Tue, ... */
-DECLV const char **dut_abbr_wday;
-DECLV const ssize_t dut_nabbr_wday;
+extern const char **dut_abbr_wday;
+extern const ssize_t dut_nabbr_wday;
 
 /**
  * Even-more-abbrev'd weekday names, english only.
  * M, T, W, ... */
-DECLV const char *dut_abab_wday;
-DECLV const ssize_t dut_nabab_wday;
+extern const char *dut_abab_wday;
+extern const ssize_t dut_nabab_wday;
 
 /**
  * Long month names, english only.
  * January, February, ... */
-DECLV const char **dut_long_mon;
-DECLV const ssize_t dut_nlong_mon;
+extern const char **dut_long_mon;
+extern const ssize_t dut_nlong_mon;
 
 /**
  * Abbrev'd month names, english only.
  * Jan, Feb, ... */
-DECLV const char **dut_abbr_mon;
-DECLV const ssize_t dut_nabbr_mon;
+extern const char **dut_abbr_mon;
+extern const ssize_t dut_nabbr_mon;
 
 /**
  * Even-more-abbrev'd month names.
  * F, G, H, ... */
-DECLV const char *dut_abab_mon;
-DECLV const ssize_t dut_nabab_mon;
+extern const char *dut_abab_mon;
+extern const ssize_t dut_nabab_mon;
 
 #if defined INCLUDED_date_core_h_
 /**
