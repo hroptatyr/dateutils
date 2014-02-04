@@ -187,11 +187,6 @@ dt_t_initialiser(void)
 	return res;
 }
 
-
-#if defined INCLUDE_TIME_CORE_IMPL
-# include "time-core.c"
-#endif	/* INCLUDE_TIME_CORE_IMPL */
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
