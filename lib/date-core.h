@@ -48,23 +48,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_DATE_CORE_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-
 typedef enum {
 	DT_DUNK,
 #define DT_DUNK		(dt_dtyp_t)(DT_DUNK)
@@ -357,61 +340,61 @@ enum {
  *
  * If optional EP is non-NULL it will point to the end of the parsed
  * date string. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep);
 
 /**
  * Like strftime() for our dates */
-DECLF size_t
+extern size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_strpddur(const char *str, char **ep);
 
 /**
  * Print a duration. */
-DECLF size_t
+extern size_t
 dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Like time() but return the current date in the desired format. */
-DECLF struct dt_d_s dt_date(dt_dtyp_t outtyp);
+extern struct dt_d_s dt_date(dt_dtyp_t outtyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
-DECLF struct dt_d_s dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s);
+extern struct dt_d_s dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s);
 
 /**
  * Get the year count (gregorian) of a date,
  * calendars without the notion of a year will return 0. */
-DECLF int dt_get_year(struct dt_d_s);
+extern int dt_get_year(struct dt_d_s);
 
 /**
  * Get the month within the year of a date,
  * calendars without the notion of a month will return 0. */
-DECLF int dt_get_mon(struct dt_d_s);
+extern int dt_get_mon(struct dt_d_s);
 
 /**
  * Get the weekday of a date. */
-DECLF dt_dow_t dt_get_wday(struct dt_d_s);
+extern dt_dow_t dt_get_wday(struct dt_d_s);
 
 /**
  * Get the day of the month of a date. */
-DECLF int dt_get_mday(struct dt_d_s d);
+extern int dt_get_mday(struct dt_d_s d);
 
 /**
  * Get the business day count of a date in a month. */
-DECLF int dt_get_bday(struct dt_d_s d);
+extern int dt_get_bday(struct dt_d_s d);
 
 /**
  * Get the business day count of a date in a month Before/After REF. */
-DECLF int dt_get_bday_q(struct dt_d_s d, dt_bizda_param_t bp);
+extern int dt_get_bday_q(struct dt_d_s d, dt_bizda_param_t bp);
 
 /**
  * Get the quarter number of a date. */
-DECLF int dt_get_quarter(struct dt_d_s d);
+extern int dt_get_quarter(struct dt_d_s d);
 
 /**
  * Get the day of the year of a date.
@@ -421,47 +404,47 @@ DECLF int dt_get_quarter(struct dt_d_s d);
  * preceding M and the current day of the month in M.
  * For YMCW dates this will yield the n-th W-day in Y.
  * For calendars without the notion of a year this will return 0. */
-DECLF unsigned int dt_get_yday(struct dt_d_s d);
+extern unsigned int dt_get_yday(struct dt_d_s d);
 
 /**
  * Add duration DUR to date D. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_d_s dur);
 
 /**
  * Add N (gregorian) days to date D. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_dadd_d(struct dt_d_s d, int n);
 
 /**
  * Add N business days to date D. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_dadd_b(struct dt_d_s d, int n);
 
 /**
  * Add N weeks to date D. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_dadd_w(struct dt_d_s d, int n);
 
 /**
  * Add N months to date D.
  * For calendars without the notion of months the result is D. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_dadd_m(struct dt_d_s d, int n);
 
 /**
  * Add N years to date D.
  * For calendars without the notion of years the result is D. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_dadd_y(struct dt_d_s d, int n);
 
 /**
  * Negate the duration. */
-DECLF struct dt_d_s dt_neg_dur(struct dt_d_s);
+extern struct dt_d_s dt_neg_dur(struct dt_d_s);
 
 /**
  * Is duration DUR negative? */
-DECLF int dt_dur_neg_p(struct dt_d_s dur);
+extern int dt_dur_neg_p(struct dt_d_s dur);
 
 /**
  * Get duration between D1 and D2.
@@ -470,44 +453,44 @@ DECLF int dt_dur_neg_p(struct dt_d_s dur);
  * etc. conventions count.
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
-DECLF struct dt_d_s
+extern struct dt_d_s
 dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
  * 1 if D1 is younger than the D2. */
-DECLF int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
+extern int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
 
 /**
  * Check if D is in the interval spanned by D1 and D2,
  * 1 if D1 is younger than the D2. */
-DECLF int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
+extern int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 /**
  * Get the week count of D in the year when weeks start at WDAYS_FROM. */
-DECLF int __yd_get_wcnt(dt_yd_t d, int wdays_from);
+extern int __yd_get_wcnt(dt_yd_t d, int wdays_from);
 
 /**
  * Like __yd_get_wcnt() but for ISO week convention. */
-DECLF int __yd_get_wcnt_iso(dt_yd_t d);
+extern int __yd_get_wcnt_iso(dt_yd_t d);
 
 /**
  * Like __yd_get_wcnt() but disregard what day the year started with. */
-DECLF int __yd_get_wcnt_abs(dt_yd_t d);
+extern int __yd_get_wcnt_abs(dt_yd_t d);
 
 /**
  * Return the N-th W-day in the year of THAT.
  * This is equivalent with 8601's Y-W-D calendar where W is the week
  * of the year and D the day in the week */
-DECLF unsigned int __ymcw_get_yday(dt_ymcw_t that);
+extern unsigned int __ymcw_get_yday(dt_ymcw_t that);
 
 /**
  * Get the number of days in month M of year Y. */
-DECLF unsigned int __get_mdays(unsigned int y, unsigned int m);
+extern unsigned int __get_mdays(unsigned int y, unsigned int m);
 
 /**
  * Get the number of business days in month M of year Y. */
-DECLF unsigned int __get_bdays(unsigned int y, unsigned int m);
+extern unsigned int __get_bdays(unsigned int y, unsigned int m);
 
 
 /* some useful gimmicks, sort of */

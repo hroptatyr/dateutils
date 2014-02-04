@@ -60,6 +60,10 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 #if !defined assert
 # define assert(x)
 #endif	/* !assert */
