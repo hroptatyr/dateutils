@@ -45,6 +45,10 @@
 
 #include "nifty.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 /* algo choices for jan01 wd determination */
 #if defined GET_JAN01_WDAY_FULL_LOOKUP
 #elif defined GET_JAN01_WDAY_28Y_LOOKUP
@@ -366,6 +370,13 @@ __get_jan01_wday(unsigned int year)
 static inline __attribute__((pure)) unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
+	static uint16_t __mon_yday[] = {
+		/* this is \sum ml,
+		 * first element is a bit set of leap days to add */
+		0xfff8, 0,
+		31, 59, 90, 120, 151, 181,
+		212, 243, 273, 304, 334, 365
+	};
 	return __mon_yday[mon] + dom + UNLIKELY(__leapp(year) && mon >= 3);
 }
 

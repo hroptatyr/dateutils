@@ -38,102 +38,86 @@
 #define INCLUDED_strops_h_
 
 #include <stdint.h>
+#include <stddef.h>
 
 #if defined __cplusplus
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_DATE_CORE_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-
 /* stolen from Klaus Klein/David Laight's strptime() */
 /**
  * Convert STR to i32 and point to the end of the string in EP. */
-DECLF int32_t
+extern int32_t
 strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
 
 /**
  * Convert STR to i32 and point to the end of the string in EP. */
-DECLF int32_t
+extern int32_t
 strtoi(const char *str, const char **ep);
 
 /**
  * Convert D (padded with at most PAD zeroes) into BUF and return the size. */
-DECLF size_t
+extern size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int pad);
 
 /**
  * Convert D (padded with at most WIDTH PAD chars) into B, return the size. */
-DECLF size_t
+extern size_t
 ui32topstr(char *restrict b, size_t z, uint32_t d, int width, char pad);
 
 /**
  * Convert roman numeral (string) to i32 and point to its end in EP. */
-DECLF int32_t
+extern int32_t
 romstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
 
 /**
  * Convert D to a roman numeral string and put it into BUF, return the size. */
-DECLF size_t
+extern size_t
 ui32tostrrom(char *restrict buf, size_t bsz, uint32_t d);
 
 /**
  * Find and skip ordinal suffixes in SUF, point to the end of the suffix. */
-DECLF int __ordinalp(const char *num, size_t off_suf, char **ep);
+extern int __ordinalp(const char *num, size_t off_suf, char **ep);
 
 /**
  * Append ordinal suffix to the most recently printed number in BUF,
  * eating away a leading 0. */
-DECLF size_t __ordtostr(char *buf, size_t bsz);
+extern size_t __ordtostr(char *buf, size_t bsz);
 
 /**
  * Take a string S, (case-insensitively) compare it to an array of strings ARR
  * of size NARR and return its index if found or -1 if not.
  * If S could be found in the array, point to the end of the string S in EP. */
-DECLF int32_t
+extern int32_t
 strtoarri(const char *s, const char **ep, const char *const *arr, size_t narr);
 
 /**
  * Take a string array ARR (of size NARR) and an index I into the array, print
  * the string ARR[I] into BUF and return the number of bytes copied. */
-DECLF size_t
+extern size_t
 arritostr(
 	char *restrict buf, size_t bsz, size_t i,
 	const char *const *arr, size_t narr);
 
 /**
  * Faster strspn(). */
-DECLF size_t
+extern size_t
 xstrspn(const char *src, const char *set);
 
 /**
  * Faster strcspn(). */
-DECLF size_t
+extern size_t
 xstrcspn(const char *src, const char *set);
 
 /**
  * Faster strpbrk(). */
-DECLF char*
+extern char*
 xstrpbrk(const char *src, const char *set);
 
 /**
  * Like xstrpbrk() but also return the offset to the character in set
  * that caused the match. */
-DECLF char*
+extern char*
 xstrpbrkp(const char *src, const char *set, size_t *set_offs);
 
 

@@ -48,23 +48,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_TIME_CORE_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-
 typedef enum {
 	DT_TUNK,
 #define DT_TUNK		(dt_ttyp_t)(DT_TUNK)
@@ -137,6 +120,12 @@ struct dt_t_s {
 #endif	/* !SECS_PER_DAY */
 
 
+/* formatting defaults */
+extern const char hms_dflt[];
+
+extern void __trans_tfmt(const char **fmt);
+
+
 /* decls */
 /**
  * Like strptime() for our times.
@@ -146,33 +135,33 @@ struct dt_t_s {
  *
  * If optional EP is non-NULL it will point to the end of the parsed
  * date string. */
-DECLF struct dt_t_s
+extern struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep);
 
 /**
  * Like strftime() for our times. */
-DECLF size_t
+extern size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s);
 
 /**
  * Add DUR to T and return its result.
  * Optional argument CORR is the number of leap-seconds to insert at
  * the end of the day (or remove if negative). */
-DECLF struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr);
+extern struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr);
 
 /**
  * Compute the duration between T1 and T2 (as in T2 - T1) and return the
  * result in the .sdur slot. */
-DECLF struct dt_t_s dt_tdiff(struct dt_t_s t1, struct dt_t_s t2);
+extern struct dt_t_s dt_tdiff(struct dt_t_s t1, struct dt_t_s t2);
 
 /**
  * Compare two time values, yielding 0 if they are equal, -1 if T1 is older,
  * 1 if T1 is younger than the T2. */
-DECLF int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
+extern int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
 
 /**
  * Like time() but always return the current UTC time. */
-DECLF struct dt_t_s dt_time(void);
+extern struct dt_t_s dt_time(void);
 
 
 /* some useful gimmicks, sort of */
@@ -187,10 +176,11 @@ dt_t_initialiser(void)
 	return res;
 }
 
-
-#if defined INCLUDE_TIME_CORE_IMPL
-# include "time-core.c"
-#endif	/* INCLUDE_TIME_CORE_IMPL */
+static inline unsigned int
+__secs_since_midnight(struct dt_t_s t)
+{
+	return (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+}
 
 #if defined __cplusplus
 }

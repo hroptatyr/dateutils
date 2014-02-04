@@ -26,6 +26,8 @@ check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
 SUFFIXES =
 
+DT_LIBS = $(top_builddir)/lib/libdut.a
+
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
 CLIT_LOG_COMPILER = $(builddir)/clittool
@@ -702,6 +704,11 @@ bin_tests += basic_ymd_get_wday
 bin_tests += basic_get_jan01_wday
 bin_tests += basic_get_dom_wday
 bin_tests += basic_md_get_yday
+
+dtcore_strp_LDADD = $(DT_LIBS)
+dtcore_conv_LDADD = $(DT_LIBS)
+dtcore_add_LDADD = $(DT_LIBS)
+time_core_add_LDADD = $(DT_LIBS)
 
 ## batch checks
 batch_tests += dseq-cnt.1.sh

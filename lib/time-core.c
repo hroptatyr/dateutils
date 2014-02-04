@@ -38,6 +38,9 @@
 #if !defined INCLUDED_time_core_c_
 #define INCLUDED_time_core_c_
 
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -45,8 +48,14 @@
 #include <time.h>
 
 #include "time-core.h"
-#include "strops.h"
 #include "nifty.h"
+
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+#if !defined DEFVAR
+# define DEFVAR
+#endif	/* !DEFVAR */
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -55,21 +64,15 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
-static inline unsigned int
-__secs_since_midnight(struct dt_t_s t)
-{
-	return (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
-}
-
 
 /* guessing parsers */
-#include "token.c"
-#include "strops.c"
+#include "strops.h"
+#include "token.h"
 #include "time-core-strpf.c"
 
-static const char hms_dflt[] = "%H:%M:%S";
+DEFVAR const char hms_dflt[] = "%H:%M:%S";
 
-static struct dt_t_s
+DEFUN struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
 	struct dt_t_s res;
@@ -108,7 +111,7 @@ fucked:
 	return dt_t_initialiser();
 }
 
-static void
+DEFUN void
 __trans_tfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {

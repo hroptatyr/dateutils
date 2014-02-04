@@ -54,6 +54,10 @@
 # define YMD_GET_WDAY_LOOKUP
 #endif
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_
@@ -402,7 +406,7 @@ __ymd_get_wday(dt_ymd_t that)
 	return __get_dom_wday(that.y, that.m, that.d);
 }
 
-static unsigned int
+DEFUN unsigned int
 __ymd_get_count(dt_ymd_t that)
 {
 /* get N where N is the N-th occurrence of wday in the month of that year */

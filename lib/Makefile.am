@@ -5,8 +5,6 @@ AM_CFLAGS = $(EXTRA_CFLAGS)
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_LDFLAGS =
 
-headerdir = $(includedir)/dateutils
-
 noinst_PROGRAMS =
 noinst_HEADERS =
 noinst_LIBRARIES =
@@ -18,47 +16,33 @@ DISTCLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 SUFFIXES =
 
-header_HEADERS =
-header_HEADERS += date-core.h
-header_HEADERS += date-core-strpf.h
-header_HEADERS += time-core.h
-header_HEADERS += time-core-strpf.h
-header_HEADERS += dt-core.h
-header_HEADERS += dt-core-strpf.h
-header_HEADERS += strops.h
-header_HEADERS += token.h
-header_HEADERS += tzraw.h
-header_HEADERS += leaps.h
-header_HEADERS += boops.h
-header_HEADERS += nifty.h
-header_HEADERS += generics.h
-header_HEADERS += dt-core-tz-glue.h
-header_HEADERS += leapseconds.def
-
 lib_LIBRARIES += libdut.a
 libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
 libdut_a_CPPFLAGS += -I$(builddir)
 libdut_a_SOURCES =
 libdut_a_SOURCES += version.c version.h version.c.in
-libdut_a_SOURCES += date-core.h
-libdut_a_SOURCES += time-core.h
+libdut_a_SOURCES += date-core.c date-core.h
+libdut_a_SOURCES += date-core-strpf.h
+libdut_a_SOURCES += time-core.c time-core.h
+libdut_a_SOURCES += time-core-strpf.h
 libdut_a_SOURCES += dt-core.h dt-core.c
+libdut_a_SOURCES += dt-core-strpf.h
 libdut_a_SOURCES += strops.h strops.c
 libdut_a_SOURCES += token.h token.c
 libdut_a_SOURCES += tzraw.h tzraw.c
 libdut_a_SOURCES += tzmap.h tzmap.c
 libdut_a_SOURCES += leaps.h leaps.c
 libdut_a_SOURCES += boops.h
+libdut_a_SOURCES += nifty.h
+libdut_a_SOURCES += gmtime.h
 libdut_a_SOURCES += generics.h
 libdut_a_SOURCES += dt-core-tz-glue.h dt-core-tz-glue.c
-libdut_a_SOURCES += leapseconds.def
+libdut_a_SOURCES += leapseconds.def leapseconds.h
 EXTRA_libdut_a_SOURCES =
 EXTRA_libdut_a_SOURCES += dt-core-strpf.c
 EXTRA_libdut_a_SOURCES += dt-core-tz-glue.c
-EXTRA_libdut_a_SOURCES += date-core.c
 EXTRA_libdut_a_SOURCES += date-core-strpf.c
-EXTRA_libdut_a_SOURCES += time-core.c
 EXTRA_libdut_a_SOURCES += time-core-strpf.c
 EXTRA_libdut_a_SOURCES += yd.c
 EXTRA_libdut_a_SOURCES += ymd.c
@@ -78,6 +62,10 @@ ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 ltrcc_CPPFLAGS += -DDECLF=extern
 ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
 ltrcc_SOURCES = ltrcc.c
+ltrcc_SOURCES += token.c token.h
+ltrcc_SOURCES += strops.c strops.h
+ltrcc_SOURCES += date-core.c date-core.h
+ltrcc_SOURCES += time-core.c time-core.h
 ltrcc_SOURCES += dt-core.c dt-core.h
 EXTRA_ltrcc_SOURCES =
 EXTRA_ltrcc_SOURCES += fmt-special.gperf

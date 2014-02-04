@@ -46,23 +46,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_TZRAW_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-
 /*
 ** Each file begins with. . .
 */
@@ -223,31 +206,31 @@ struct zif_s {
  * Open the zoneinfo file FILE.
  * FILE can be absolute or relative to the configured TZDIR path.
  * FILE can also name virtual zones such as GPS or TAI. */
-DECLF zif_t zif_open(const char *file);
+extern zif_t zif_open(const char *file);
 
 /**
  * Close the zoneinfo file reader and free associated resources. */
-DECLF void zif_close(zif_t);
+extern void zif_close(zif_t);
 
 /**
  * Copy the zoneinfo structure. */
-DECLF zif_t zif_copy(zif_t);
+extern zif_t zif_copy(zif_t);
 
 /**
  * Find the most recent transition in Z before T. */
-DECLF int zif_find_trans(zif_t z, int32_t t);
+extern int zif_find_trans(zif_t z, int32_t t);
 
 /**
  * Find a range of transitions in Z that T belongs to. */
-DECLF struct zrng_s zif_find_zrng(zif_t z, int32_t t);
+extern struct zrng_s zif_find_zrng(zif_t z, int32_t t);
 
 /**
  * Given T in local time specified by Z, return a T in UTC. */
-DECLF int32_t zif_utc_time(zif_t z, int32_t t);
+extern int32_t zif_utc_time(zif_t z, int32_t t);
 
 /**
  * Given T in UTC, return a T in local time specified by Z. */
-DECLF int32_t zif_local_time(zif_t z, int32_t t);
+extern int32_t zif_local_time(zif_t z, int32_t t);
 
 
 /**
@@ -349,11 +332,6 @@ zif_spec(zif_t z, int n)
 	res.name = z->zn + jdx;
 	return res;
 }
-
-
-#if defined INCLUDE_TZRAW_IMPL
-# include "tzraw.c"
-#endif	/* INCLUDE_TZRAW_IMPL */
 
 #if defined __cplusplus
 }

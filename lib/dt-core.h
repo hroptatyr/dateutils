@@ -47,25 +47,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_DATETIME_CORE_IMPL
-# define INCLUDE_TZRAW_IMPL
-# define INCLUDE_LEAPS_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-
 #include "date-core.h"
 #include "time-core.h"
 
@@ -176,6 +157,11 @@ struct dt_dt_s {
 };
 
 
+/* formatting defaults */
+extern void __trans_dtfmt(const char **fmt);
+extern void __trans_dtdurfmt(const char**fmt);
+
+
 /* decls */
 /**
  * Like strptime() for our dates.
@@ -190,45 +176,45 @@ struct dt_dt_s {
  *
  * If optional EP is non-NULL it will point to the end of the parsed
  * date string. */
-DECLF struct dt_dt_s
+extern struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep);
 
 /**
  * Like strftime() for our dates */
-DECLF size_t
+extern size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-DECLF struct dt_dt_s
+extern struct dt_dt_s
 dt_strpdtdur(const char *str, char **ep);
 
 /**
  * Print a duration. */
-DECLF size_t
+extern size_t
 dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
 
 /**
  * Negate the duration. */
-DECLF struct dt_dt_s dt_neg_dtdur(struct dt_dt_s);
+extern struct dt_dt_s dt_neg_dtdur(struct dt_dt_s);
 
 /**
  * Is duration DUR negative? */
-DECLF int dt_dtdur_neg_p(struct dt_dt_s dur);
+extern int dt_dtdur_neg_p(struct dt_dt_s dur);
 
 /**
  * Like time() but return the current date in the desired format. */
-DECLF struct dt_dt_s dt_datetime(dt_dttyp_t dttyp);
+extern struct dt_dt_s dt_datetime(dt_dttyp_t dttyp);
 
 /**
  * Convert D to another calendric system, specified by TGTTYP. */
-DECLF struct dt_dt_s dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s);
+extern struct dt_dt_s dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s);
 
 /**
  * Add duration DUR to date/time D.
  * The result will be in the calendar as specified by TGTTYP, or if
  * DT_UNK is given, the calendar of D will be used. */
-DECLF struct dt_dt_s
+extern struct dt_dt_s
 dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
 
 /**
@@ -238,18 +224,18 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
  * etc. conventions count.
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
-DECLF struct dt_dt_s
+extern struct dt_dt_s
 dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
  * 1 if D1 is younger than the D2. */
-DECLF int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
+extern int dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2);
 
 /**
  * Check if D is in the interval spanned by D1 and D2,
  * 1 if D1 is younger than the D2. */
-DECLF int
+extern int
 dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /* more specific but still useful functions */
@@ -265,7 +251,7 @@ extern dt_ssexy_t dt_to_gps_epoch(struct dt_dt_s);
  * Set specific fallback date/time to use when input is underspecified.
  * Internally, when no default is set and input is underspecified  the
  * value of `dt_datetime()' (i.e. now) is used to fill fields up. */
-DECLF void dt_set_default(struct dt_dt_s);
+extern void dt_set_default(struct dt_dt_s);
 
 
 /* some useful gimmicks, sort of */
@@ -343,13 +329,6 @@ zdiff_sec(struct dt_dt_s d)
 	}
 	return zdiff;
 }
-
-
-#if defined INCLUDE_DATETIME_CORE_IMPL
-# include "date-core.c"
-# include "time-core.c"
-# include "dt-core.c"
-#endif	/* INCLUDE_DATETIME_CORE_IMPL */
 
 #if defined __cplusplus
 }

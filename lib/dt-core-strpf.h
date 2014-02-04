@@ -42,23 +42,6 @@
 extern "C" {
 #endif	/* __cplusplus */
 
-#if !defined DECLF
-# define DECLF	static __attribute__((unused))
-# define DEFUN	static
-# define INCLUDE_DT_CORE_STRPF_IMPL
-#elif !defined DEFUN
-# define DEFUN
-#endif	/* !DECLF */
-#if !defined restrict
-# define restrict	__restrict
-#endif	/* !restrict */
-#if !defined DECLV
-# define DECLV		DECLF
-#endif	/* !DECLV */
-#if !defined DEFVAR
-# define DEFVAR		DEFUN
-#endif	/* !DEFVAR */
-
 
 /* helpers */
 static inline __attribute__((pure, const)) struct strpdt_s
@@ -76,27 +59,22 @@ strpdt_initialiser(void)
 #if defined INCLUDED_dt_core_h_
 /**
  * Parse STR with the standard parser, put the end of the parsed string in EP.*/
-DECLF struct dt_dt_s __strpdt_std(const char *str, char **ep);
+extern struct dt_dt_s __strpdt_std(const char *str, char **ep);
 #endif	/* INCLUDED_dt_core_h_ */
 
 /* self-explanatory funs, innit? */
-DECLF int
+extern int
 __strpdt_card(struct strpdt_s*, const char *sp, struct dt_spec_s s, char **ep);
 
-DECLF size_t
+extern size_t
 __strfdt_card(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpdt_s *d, struct dt_dt_s that);
 
-DECLF size_t
+extern size_t
 __strfdt_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
 	struct strpdt_s *d, struct dt_dt_s that);
-
-
-#if defined INCLUDE_DT_CORE_STRPF_IMPL
-# include "dt-core-strpf.c"
-#endif	/* INCLUDE_DT_CORE_STRPF_IMPL */
 
 #if defined __cplusplus
 }

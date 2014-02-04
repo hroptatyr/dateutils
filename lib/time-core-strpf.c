@@ -46,6 +46,10 @@
 #include "time-core.h"
 #include "time-core-strpf.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
 # pragma warning (disable:2203)

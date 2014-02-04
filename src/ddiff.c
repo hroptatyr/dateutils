@@ -219,7 +219,7 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 
 
 /* printers */
-static void
+void
 __attribute__((format(printf, 2, 3)))
 error(int eno, const char *fmt, ...)
 {

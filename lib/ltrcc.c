@@ -382,6 +382,7 @@ parse_file(const char *file)
 #include <stdint.h>\n\
 #include <limits.h>\n\
 #include \"leaps.h\"\n\
+#include \"leapseconds.h\"\n\
 \n\
 #if !defined INCLUDED_ltrcc_generated_def_\n\
 #define INCLUDED_ltrcc_generated_def_\n\
@@ -407,6 +408,9 @@ parse_file(const char *file)
 	pr_file(fp, "leaps_hms", pr_line_t, DT_HMS, col);
 
 	fputs("\
+/* exported number of leap transitions */\n\
+const size_t nleaps = countof(leaps_corr);\n\
+\n\
 #endif  /* INCLUDED_ltrcc_generated_def_ */\n", stdout);
 	return 0;
 }

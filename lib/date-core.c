@@ -60,6 +60,13 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+#if !defined DEFVAR
+# define DEFVAR
+#endif	/* !DEFVAR */
+
 #if !defined assert
 # define assert(x)
 #endif	/* !assert */
@@ -89,94 +96,10 @@ struct __md_s {
 
 
 /* helpers */
-#if 1
-static uint16_t __mon_yday[] = {
-/* this is \sum ml, first element is a bit set of leap days to add */
-	0xfff8, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365
-};
-#endif
+#include "gmtime.h"
 
 /* bizda definitions, reference dates */
 static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
-
-static inline bool
-__leapp(unsigned int y)
-{
-#if defined WITH_FAST_ARITH
-	return y % 4 == 0;
-#else  /* !WITH_FAST_ARITH */
-	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
-#endif	/* WITH_FAST_ARITH */
-}
-
-/* UTC has a constant day length */
-#define UTC_SECS_PER_DAY	(86400)
-
-static void
-ffff_gmtime(struct tm *tm, const time_t t)
-{
-	register int days;
-	register unsigned int yy;
-	const uint16_t *ip;
-
-	/* just go to day computation */
-	days = (int)(t / UTC_SECS_PER_DAY);
-	/* week day computation, that one's easy, 1 jan '70 was Thu */
-	tm->tm_wday = (days + 4) % GREG_DAYS_P_WEEK;
-
-	/* gotta do the date now */
-	yy = 1970;
-	/* stolen from libc */
-#define DIV(a, b)		((a) / (b))
-/* we only care about 1901 to 2099 and there are no bullshit leap years */
-#define LEAPS_TILL(y)		(DIV(y, 4))
-	while (days < 0 || days >= (!__leapp(yy) ? 365 : 366)) {
-		/* Guess a corrected year, assuming 365 days per year. */
-		register unsigned int yg = yy + days / 365 - (days % 365 < 0);
-
-		/* Adjust DAYS and Y to match the guessed year.  */
-		days -= (yg - yy) * 365 +
-			LEAPS_TILL(yg - 1) - LEAPS_TILL(yy - 1);
-		yy = yg;
-	}
-	/* set the year */
-	tm->tm_year = (int)yy;
-
-	ip = __mon_yday;
-	/* unrolled */
-	yy = 13;
-	if (days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy] &&
-	    days < ip[--yy]) {
-		yy = 1;
-	}
-	/* set the rest of the tm structure */
-	tm->tm_mday = days - ip[yy] + 1;
-	tm->tm_yday = days;
-	tm->tm_mon = (int)yy;
-	/* fix up leap years */
-	if (UNLIKELY(__leapp(tm->tm_year))) {
-		if ((ip[0] >> (yy)) & 1) {
-			if (UNLIKELY(tm->tm_yday == 59)) {
-				tm->tm_mon = 2;
-				tm->tm_mday = 29;
-			} else if (UNLIKELY(tm->tm_yday == ip[yy])) {
-				tm->tm_mday = tm->tm_yday - ip[--tm->tm_mon];
-			} else {
-				tm->tm_mday--;
-			}
-		}
-	}
-	return;
-}
 
 /* arithmetics helpers */
 static inline unsigned int
@@ -222,47 +145,6 @@ __uidiv(signed int x, signed int m)
 #include "bizda.c"
 #include "daisy.c"
 #undef ASPECT_CONV
-
-static int
-__ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2)
-{
-	if (d1.y < d2.y) {
-		return -1;
-	} else if (d1.y > d2.y) {
-		return 1;
-	} else if (d1.m < d2.m) {
-		return -1;
-	} else if (d1.m > d2.m) {
-		return 1;
-	}
-
-	/* we're down to counts, however, the last W of a month is always
-	 * count 5, even though counting forward it would be 4 */
-	if (d1.c < d2.c) {
-		return -1;
-	} else if (d1.c > d2.c) {
-		return 1;
-	}
-	/* now it's up to the first of the month */
-	{
-		dt_dow_t wd01;
-		unsigned int off1;
-		unsigned int off2;
-
-		wd01 = __get_m01_wday(d1.y, d1.m);
-		/* represent cw as C-th WD01 + OFF */
-		off1 = __uimod(d1.w - wd01, GREG_DAYS_P_WEEK);
-		off2 = __uimod(d2.w - wd01, GREG_DAYS_P_WEEK);
-
-		if (off1 < off2) {
-			return -1;
-		} else if (off1 > off2) {
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-}
 
 
 /* converting accessors */
@@ -390,7 +272,7 @@ dt_get_wcnt_mon(struct dt_d_s that)
 /* forward decl */
 static dt_yd_t dt_conv_to_yd(struct dt_d_s this);
 
-static int
+DEFUN int
 dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 {
 	int res;
@@ -537,7 +419,7 @@ dt_get_quarter(struct dt_d_s that)
 
 
 /* converters */
-static dt_daisy_t
+DEFUN dt_daisy_t
 dt_conv_to_daisy(struct dt_d_s that)
 {
 	switch (that.typ) {
@@ -685,33 +567,42 @@ dt_conv_to_yd(struct dt_d_s this)
 #include "daisy.c"
 #undef ASPECT_DIFF
 
+#define ASPECT_CMP
+#include "yd.c"
+#include "ymd.c"
+#include "ymcw.c"
+#include "ywd.c"
+#include "bizda.c"
+#include "daisy.c"
+#undef ASPECT_CMP
+
 
 /* guessing parsers */
-#include "token.c"
-#include "strops.c"
+#include "strops.h"
+#include "token.h"
 #include "date-core-strpf.c"
 #if !defined SKIP_LEAP_ARITH
 /* we assume this file is in the dist, it's gen'd from fmt-special.gperf */
 # include "fmt-special.c"
 #endif	/* SKIP_LEAP_ARITH */
 
-static const char ymd_dflt[] = "%F";
-static const char ymcw_dflt[] = "%Y-%m-%c-%w";
-static const char ywd_dflt[] = "%rY-W%V-%u";
-static const char yd_dflt[] = "%Y-%d";
-static const char daisy_dflt[] = "%d";
-static const char bizsi_dflt[] = "%db";
-static const char bizda_dflt[] = "%Y-%m-%db";
+DEFVAR const char ymd_dflt[] = "%F";
+DEFVAR const char ymcw_dflt[] = "%Y-%m-%c-%w";
+DEFVAR const char ywd_dflt[] = "%rY-W%V-%u";
+DEFVAR const char yd_dflt[] = "%Y-%d";
+DEFVAR const char daisy_dflt[] = "%d";
+DEFVAR const char bizsi_dflt[] = "%db";
+DEFVAR const char bizda_dflt[] = "%Y-%m-%db";
 
-static const char ymddur_dflt[] = "%Y-%0m-%0d";
-static const char ymcwdur_dflt[] = "%Y-%0m-%0w-%0d";
-static const char ywddur_dflt[] = "%rY-W%0w-%0d";
-static const char yddur_dflt[] = "%Y-%0d";
-static const char daisydur_dflt[] = "%d";
-static const char bizsidur_dflt[] = "%db";
-static const char bizdadur_dflt[] = "%Y-%0m-%0db";
+DEFVAR const char ymddur_dflt[] = "%Y-%0m-%0d";
+DEFVAR const char ymcwdur_dflt[] = "%Y-%0m-%0w-%0d";
+DEFVAR const char ywddur_dflt[] = "%rY-W%0w-%0d";
+DEFVAR const char yddur_dflt[] = "%Y-%0d";
+DEFVAR const char daisydur_dflt[] = "%d";
+DEFVAR const char bizsidur_dflt[] = "%db";
+DEFVAR const char bizdadur_dflt[] = "%Y-%0m-%0db";
 
-static dt_dtyp_t
+DEFUN dt_dtyp_t
 __trans_dfmt_special(const char *fmt)
 {
 #if !defined SKIP_LEAP_ARITH
@@ -727,7 +618,7 @@ __trans_dfmt_special(const char *fmt)
 	return DT_DUNK;
 }
 
-static void
+DEFUN void
 __trans_dfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -766,7 +657,7 @@ __trans_dfmt(const char **fmt)
 	return;
 }
 
-static void
+DEFUN void
 __trans_ddurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {

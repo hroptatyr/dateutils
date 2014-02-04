@@ -55,16 +55,17 @@
 #include "leaps.h"
 #include "nifty.h"
 #include "dt-core.h"
+#include "date-core.h"
+#include "time-core.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
-
-#if !defined INCLUDED_date_core_c_
-# include "date-core.c"
-#endif	/* !INCLUDED_date_core_c_ */
-
-#if !defined INCLUDED_time_core_c_
-# include "time-core.c"
-#endif	/* INCLUDED_time_core_c_ */
+#include "time-core-strpf.h"
+#if defined SKIP_LEAP_ARITH
+# undef WITH_LEAP_SECONDS
+#endif	/* SKIP_LEAP_ARITH */
+#if defined WITH_LEAP_SECONDS
+# include "leapseconds.h"
+#endif	/* WITH_LEAP_SECONDS */
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -73,9 +74,9 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
-#if defined SKIP_LEAP_ARITH
-# undef WITH_LEAP_SECONDS
-#endif	/* SKIP_LEAP_ARITH */
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
 
 struct strpdt_s {
 	struct strpd_s sd;
@@ -96,10 +97,6 @@ struct strpdti_s {
 	signed int b;
 	signed int S;
 };
-
-#if defined WITH_LEAP_SECONDS
-# include "leapseconds.def"
-#endif	/* WITH_LEAP_SECONDS */
 
 
 /* converters and stuff */
@@ -255,8 +252,8 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 
 
 /* guessing parsers */
-#include "token.c"
-#include "strops.c"
+#include "token.h"
+#include "strops.h"
 #if defined WITH_LEAP_SECONDS && defined SKIP_LEAP_ARITH
 #error "bugger"
 #endif
@@ -280,7 +277,7 @@ static const char sexydur_dflt[] = "%s";
 static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
 static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
-static void
+DEFUN void
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -325,7 +322,7 @@ __trans_dtfmt(const char **fmt)
 	return;
 }
 
-static void
+DEFUN void
 __trans_dtdurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -369,6 +366,9 @@ __trans_dtdurfmt(const char **fmt)
 	}
 	return;
 }
+
+#define FFFF_GMTIME_SUBDAY
+#include "gmtime.h"
 
 static struct timeval
 now_tv(void)
@@ -420,11 +420,7 @@ dflt_tm(const struct dt_dt_s *set)
 		;
 	} else if (set == NULL) {
 		/* take over the value of now */
-		struct timeval tv = now_tv();
 		tm = now_tm();
-		tm.tm_hour = (tv.tv_sec % 86400U) / 60U / 60U;
-		tm.tm_min = (tv.tv_sec % 3600U) / 60U;
-		tm.tm_sec = (tv.tv_sec % 60U);
 	} else {
 		switch (set->typ) {
 		case DT_YMD:
@@ -502,21 +498,21 @@ leaps_before(struct dt_dt_s d)
 
 	switch (d.typ) {
 	case DT_YMD:
-		res = leaps_before_ui32(leaps_ymd, nleaps_ymd, d.d.ymd.u);
-		on = res + 1 < nleaps_ymd && leaps_ymd[res + 1] == d.d.ymd.u;
+		res = leaps_before_ui32(leaps_ymd, nleaps, d.d.ymd.u);
+		on = res + 1 < nleaps && leaps_ymd[res + 1] == d.d.ymd.u;
 		break;
 	case DT_YMCW:
-		res = leaps_before_ui32(leaps_ymcw, nleaps_ymcw, d.d.ymcw.u);
-		on = res + 1 < nleaps_ymcw && leaps_ymcw[res + 1] == d.d.ymcw.u;
+		res = leaps_before_ui32(leaps_ymcw, nleaps, d.d.ymcw.u);
+		on = res + 1 < nleaps && leaps_ymcw[res + 1] == d.d.ymcw.u;
 		break;
 	case DT_DAISY:
-		res = leaps_before_ui32(leaps_d, nleaps_d, d.d.daisy);
-		on = res + 1 < nleaps_d && leaps_d[res + 1] == d.d.daisy;
+		res = leaps_before_ui32(leaps_d, nleaps, d.d.daisy);
+		on = res + 1 < nleaps && leaps_d[res + 1] == d.d.daisy;
 		break;
 	case DT_SEXY:
 	case DT_SEXYTAI:
-		res = leaps_before_si32(leaps_s, nleaps_s, (int32_t)d.sexy);
-		on = (res + 1U < nleaps_s) &&
+		res = leaps_before_si32(leaps_s, nleaps, (int32_t)d.sexy);
+		on = (res + 1U < nleaps) &&
 			(leaps_s[res + 1] == (int32_t)d.sexy);
 		break;
 	default:
@@ -1259,7 +1255,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 				zidx_t zi;
 
 				sx = (dd - DAISY_UNIX_BASE) * SECS_PER_DAY + ss;
-				zi = leaps_before_si32(leaps_s, nleaps_s, sx);
+				zi = leaps_before_si32(leaps_s, nleaps, sx);
 				d.sexy = sx + leaps_corr[zi];
 				break;
 			}

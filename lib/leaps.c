@@ -48,6 +48,10 @@
 
 typedef ssize_t sidx_t;
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 /* this can be called roughly 100m/sec */
 #define DEF_FIND_BEFORE(N, X)					\

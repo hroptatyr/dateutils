@@ -53,6 +53,10 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 #if defined SKIP_LEAP_ARITH
 # undef WITH_LEAP_SECONDS
 #endif	/* SKIP_LEAP_ARITH */

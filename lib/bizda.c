@@ -41,6 +41,10 @@
 #define ASPECT_BIZDA_
 #endif	/* !ASPECT_BIZDA_ */
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 #if !defined BIZDA_ASPECT_HELPERS_
 #define BIZDA_ASPECT_HELPERS_
@@ -704,7 +708,7 @@ __bizda_add_y(dt_bizda_t d, int n)
 #if defined ASPECT_STRF && !defined BIZDA_ASPECT_STRF_
 #define BIZDA_ASPECT_STRF_
 
-static void
+DEFUN void
 __prep_strfd_bizda(struct strpd_s *tgt, dt_bizda_t d, dt_bizda_param_t bp)
 {
 	tgt->y = d.y;

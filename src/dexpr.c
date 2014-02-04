@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "strops.h"
 #include "dexpr.h"
 #include "dexpr-parser.h"
 
@@ -116,7 +117,7 @@ __pr_val(struct dexkv_s *kv)
 	case DT_SPFL_N_MON:
 	case DT_SPFL_S_MON:
 		if (kv->s >= 0 && kv->s <= 12) {
-			fputs(__abbr_mon[kv->s], stdout);
+			fputs(dut_abbr_mon[kv->s], stdout);
 		}
 		break;
 	case DT_SPFL_N_YEAR:
@@ -125,7 +126,7 @@ __pr_val(struct dexkv_s *kv)
 	case DT_SPFL_N_DCNT_WEEK:
 	case DT_SPFL_S_WDAY:
 		if (kv->s >= 0 && kv->s <= 7) {
-			fputs(__abbr_wday[kv->s], stdout);
+			fputs(dut_abbr_wday[kv->s], stdout);
 		}
 		break;
 	case DT_SPFL_N_WCNT_MON:

@@ -52,7 +52,7 @@
 
 
 /* error() impl */
-static void
+void
 __attribute__((format(printf, 2, 3)))
 error(int eno, const char *fmt, ...)
 {
