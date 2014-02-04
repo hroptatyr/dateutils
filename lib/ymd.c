@@ -54,6 +54,10 @@
 # define YMD_GET_WDAY_LOOKUP
 #endif
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 #if !defined YMD_ASPECT_HELPERS_
 #define YMD_ASPECT_HELPERS_

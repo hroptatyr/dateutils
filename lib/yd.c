@@ -45,6 +45,10 @@
 
 #include "nifty.h"
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 /* algo choices for jan01 wd determination */
 #if defined GET_JAN01_WDAY_FULL_LOOKUP
 #elif defined GET_JAN01_WDAY_28Y_LOOKUP

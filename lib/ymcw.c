@@ -36,6 +36,10 @@
  **/
 #define ASPECT_YMCW
 
+#if !defined DEFUN
+# define DEFUN
+#endif	/* !DEFUN */
+
 
 #if !defined YMCW_ASPECT_HELPERS_
 #define YMCW_ASPECT_HELPERS_
