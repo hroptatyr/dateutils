@@ -55,16 +55,17 @@
 #include "leaps.h"
 #include "nifty.h"
 #include "dt-core.h"
+#include "date-core.h"
+#include "time-core.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
-
-#if !defined INCLUDED_date_core_c_
-# include "date-core.c"
-#endif	/* !INCLUDED_date_core_c_ */
-
-#if !defined INCLUDED_time_core_c_
-# include "time-core.c"
-#endif	/* INCLUDED_time_core_c_ */
+#include "time-core-strpf.h"
+#if defined SKIP_LEAP_ARITH
+# undef WITH_LEAP_SECONDS
+#endif	/* SKIP_LEAP_ARITH */
+#if defined WITH_LEAP_SECONDS
+# include "leapseconds.h"
+#endif	/* WITH_LEAP_SECONDS */
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -72,10 +73,6 @@
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
-
-#if defined SKIP_LEAP_ARITH
-# undef WITH_LEAP_SECONDS
-#endif	/* SKIP_LEAP_ARITH */
 
 #if !defined DEFUN
 # define DEFUN
@@ -100,10 +97,6 @@ struct strpdti_s {
 	signed int b;
 	signed int S;
 };
-
-#if defined WITH_LEAP_SECONDS
-# include "leapseconds.def"
-#endif	/* WITH_LEAP_SECONDS */
 
 
 /* converters and stuff */
@@ -259,8 +252,8 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 
 
 /* guessing parsers */
-#include "token.c"
-#include "strops.c"
+#include "token.h"
+#include "strops.h"
 #if defined WITH_LEAP_SECONDS && defined SKIP_LEAP_ARITH
 #error "bugger"
 #endif
