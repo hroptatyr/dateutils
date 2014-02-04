@@ -34,6 +34,7 @@ libdut_a_SOURCES += tzmap.h tzmap.c
 libdut_a_SOURCES += leaps.h leaps.c
 libdut_a_SOURCES += boops.h
 libdut_a_SOURCES += nifty.h
+libdut_a_SOURCES += gmtime.h
 libdut_a_SOURCES += generics.h
 libdut_a_SOURCES += dt-core-tz-glue.h dt-core-tz-glue.c
 libdut_a_SOURCES += leapseconds.def leapseconds.h
