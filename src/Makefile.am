@@ -18,6 +18,7 @@ EXTRA_DIST = $(BUILT_SOURCES) $(GGO_HELPERS)
 SUFFIXES =
 
 DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
+DT_LIBS = $(top_builddir)/lib/libdut.a
 
 noinst_LIBRARIES += libdutio.a
 libdutio_a_SOURCES =
@@ -32,7 +33,8 @@ bin_PROGRAMS += dseq
 dseq_SOURCES = dseq.c dseq.yuck
 dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dseq_LDFLAGS = $(AM_LDFLAGS)
-dseq_LDADD = $(top_builddir)/lib/libdut.a
+dseq_LDADD = libdutio.a
+dseq_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dseq.yucc
 
 if HAVE_STRPTIME
@@ -41,7 +43,8 @@ strptime_SOURCES = strptime.c strptime.yuck
 strptime_SOURCES += prchunk.c prchunk.h
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
-strptime_LDADD = $(top_builddir)/lib/libdut.a
+strptime_LDADD = libdutio.a
+strptime_LDADD += $(DT_LIBS)
 endif
 BUILT_SOURCES += strptime.yucc
 
@@ -50,14 +53,16 @@ dconv_SOURCES = dconv.c dconv.yuck
 dconv_SOURCES += prchunk.c prchunk.h
 dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dconv_LDFLAGS = $(AM_LDFLAGS)
-dconv_LDADD = $(top_builddir)/lib/libdut.a
+dconv_LDADD = libdutio.a
+dconv_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dconv.yucc
 
 bin_PROGRAMS += dtest
 dtest_SOURCES = dtest.c dtest.yuck
 dtest_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dtest_LDFLAGS = $(AM_LDFLAGS)
-dtest_LDADD = $(top_builddir)/lib/libdut.a
+dtest_LDADD = libdutio.a
+dtest_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dtest.yucc
 
 bin_PROGRAMS += dadd
@@ -65,7 +70,8 @@ dadd_SOURCES = dadd.c dadd.yuck
 dadd_SOURCES += prchunk.c prchunk.h
 dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
-dadd_LDADD = $(top_builddir)/lib/libdut.a
+dadd_LDADD = libdutio.a
+dadd_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dadd.yucc
 
 bin_PROGRAMS += ddiff
@@ -73,7 +79,8 @@ ddiff_SOURCES = ddiff.c ddiff.yuck
 ddiff_SOURCES += prchunk.c prchunk.h
 ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
-ddiff_LDADD = $(top_builddir)/lib/libdut.a
+ddiff_LDADD = libdutio.a
+ddiff_LDADD += $(DT_LIBS)
 BUILT_SOURCES += ddiff.yucc
 
 bin_PROGRAMS += dgrep
@@ -81,7 +88,8 @@ dgrep_SOURCES = dgrep.c dgrep.yuck
 dgrep_SOURCES += prchunk.c prchunk.h
 dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
-dgrep_LDADD = $(top_builddir)/lib/libdut.a
+dgrep_LDADD = libdutio.a
+dgrep_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dgrep.yucc
 
 bin_PROGRAMS += dround
@@ -89,14 +97,16 @@ dround_SOURCES = dround.c dround.yuck
 dround_SOURCES += prchunk.c prchunk.h
 dround_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dround_LDFLAGS = $(AM_LDFLAGS)
-dround_LDADD = $(top_builddir)/lib/libdut.a
+dround_LDADD = libdutio.a
+dround_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dround.yucc
 
 bin_PROGRAMS += dzone
 dzone_SOURCES = dzone.c dzone.yuck
 dzone_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dzone_LDFLAGS = $(AM_LDFLAGS)
-dzone_LDADD = $(top_builddir)/lib/libdut.a
+dzone_LDADD = libdutio.a
+dzone_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dzone.yucc
 
 if BUILD_DEXPR
@@ -106,7 +116,8 @@ dexpr_SOURCES += dexpr-scanner.l
 dexpr_SOURCES += dexpr-parser.y
 dexpr_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES) -DSTANDALONE
 dexpr_LDFLAGS = $(AM_LDFLAGS)
-dexpr_LDADD = $(top_builddir)/lib/libdut.a
+dexpr_LDADD = libdutio.a
+dexpr_LDADD += $(DT_LIBS)
 endif  ## BUILD_DEXPR
 BUILT_SOURCES += dexpr-scanner.c dexpr-parser.c dexpr-parser.h
 
