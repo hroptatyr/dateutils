@@ -114,6 +114,9 @@ error(int eno, const char *fmt, ...);
 extern int __add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur);
 extern int dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str);
 
+/* zone handling, tzmaps et al. */
+extern zif_t dt_io_zone(const char *spec);
+
 
 /* inlines */
 static inline struct dt_dt_s

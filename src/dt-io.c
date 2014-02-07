@@ -13,6 +13,8 @@
 #include <strings.h>
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
+#include "tzraw.h"
+#include "tzmap.h"
 #include "strops.h"
 #include "token.h"
 #include "nifty.h"
@@ -25,6 +27,20 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+
+/* gimmicks */
+static size_t
+xstrlncpy(char *restrict dst, ssize_t dsz, const char *src, ssize_t ssz)
+{
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+
 #include "strpdt-special.c"
 
 dt_strpdt_special_t
@@ -272,6 +288,41 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
 	__io_write(buf, n, stdout);
 	return (n > 0) - 1;
+}
+
+
+/* extended zone handling, tzmaps and stuff */
+#if !defined PATH_MAX
+# define PATH_MAX	256U
+#endif	/* !PATH_MAX */
+
+zif_t
+dt_io_zone(const char *spec)
+{
+	static const char tzmap_suffix[] = ".tzmcc";
+	char *p;
+
+	if ((p = strchr(spec, ':')) != NULL) {
+		char tzmfn[PATH_MAX];
+		const char *tzmzn;
+		tzmap_t tzm;
+
+		xstrlncpy(tzmfn, sizeof(tzmfn), spec, p - spec);
+		xstrlncpy(
+			tzmfn + (p - spec), sizeof(tzmfn) - (p - spec),
+			tzmap_suffix, sizeof(tzmap_suffix) - 1U);
+
+		/* try and open the thing, then try and look up SPEC */
+		if ((tzm = tzm_open(tzmfn)) == NULL) {
+			;
+		} else if ((tzmzn = tzm_find(tzm, ++p)) == NULL) {
+			;
+		} else {
+			/* look for that zone name instead */
+			spec = tzmzn;
+		}
+	}
+	return zif_open(spec);
 }
 
 
