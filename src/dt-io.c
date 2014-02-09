@@ -19,6 +19,7 @@
 #include "token.h"
 #include "nifty.h"
 #include "dt-io.h"
+#include "trie.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -296,11 +297,34 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 # define PATH_MAX	256U
 #endif	/* !PATH_MAX */
 
+static Trie *zones;
+static Trie *tzmaps;
+
+static void
+init_tries(void)
+{
+	zones = trie_new();
+	tzmaps = trie_new();
+	return;
+}
+
+static void
+free_tries(void)
+{
+	trie_free(zones);
+	trie_free(tzmaps);return;
+}
+
 zif_t
 dt_io_zone(const char *spec)
 {
 	static const char tzmap_suffix[] = ".tzmcc";
+	zif_t res;
 	char *p;
+
+	if (UNLIKELY(zones == NULL)) {
+		init_tries();
+	}
 
 	if ((p = strchr(spec, ':')) != NULL) {
 		char tzmfn[PATH_MAX];
@@ -308,21 +332,40 @@ dt_io_zone(const char *spec)
 		tzmap_t tzm;
 
 		xstrlncpy(tzmfn, sizeof(tzmfn), spec, p - spec);
-		xstrlncpy(
-			tzmfn + (p - spec), sizeof(tzmfn) - (p - spec),
-			tzmap_suffix, sizeof(tzmap_suffix) - 1U);
 
-		/* try and open the thing, then try and look up SPEC */
-		if ((tzm = tzm_open(tzmfn)) == NULL) {
-			;
-		} else if ((tzmzn = tzm_find(tzm, ++p)) == NULL) {
-			;
-		} else {
+		/* check tzmaps first */
+		if ((tzm = trie_lookup(tzmaps, tzmfn)) == TRIE_NULL) {
+			char *suf = tzmfn + (p - spec);
+
+			/* try and find it the hard way */
+			xstrlncpy(
+				suf, sizeof(tzmfn) - (p - spec),
+				tzmap_suffix, sizeof(tzmap_suffix) - 1U);
+
+			/* try and open the thing, then try and look up SPEC */
+			if ((tzm = tzm_open(tzmfn)) == NULL) {
+				fprintf(stderr, "\
+cannot find `%s' in the zone search path\n", tzmfn);
+				goto nul;
+			}
+			/* otherwise cache him */
+			*suf = '\0';
+			trie_insert(tzmaps, tzmfn, tzm);
+		}
+		fprintf(stderr, "trying for %s\n", p + 1U);
+		if ((tzmzn = tzm_find(tzm, ++p)) != NULL) {
 			/* look for that zone name instead */
 			spec = tzmzn;
 		}
 	}
-	return zif_open(spec);
+nul:
+	if ((res = trie_lookup(zones, spec)) == TRIE_NULL) {
+		/* cache him */
+		if ((res = zif_open(spec)) != NULL) {
+			trie_insert(zones, spec, res);
+		}
+	}
+	return res;
 }
 
 
