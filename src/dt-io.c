@@ -19,7 +19,7 @@
 #include "token.h"
 #include "nifty.h"
 #include "dt-io.h"
-#include "trie.h"
+#include "alist.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -297,44 +297,40 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 # define PATH_MAX	256U
 #endif	/* !PATH_MAX */
 
-static Trie *zones;
-static Trie *tzmaps;
+static struct alist_s zones[1U];
+static struct alist_s tzmaps[1U];
 
-static void
-init_tries(void)
+static zif_t
+__io_zone(const char *spec)
 {
-	zones = trie_new();
-	tzmaps = trie_new();
-	return;
-}
+	zif_t res;
 
-static void
-free_tries(void)
-{
-	trie_free(zones);
-	trie_free(tzmaps);return;
+	/* try looking up SPEC first */
+	if ((res = alist_assoc(zones, spec)) == NULL) {
+		/* open 'im */
+		if ((res = zif_open(spec)) != NULL) {
+			/* cache 'im */
+			alist_put(zones, spec, res);
+		}
+	}
+	return res;
 }
 
 zif_t
 dt_io_zone(const char *spec)
 {
 	static const char tzmap_suffix[] = ".tzmcc";
-	zif_t res;
 	char *p;
 
-	if (UNLIKELY(zones == NULL)) {
-		init_tries();
-	}
-
+	/* see if SPEC is a MAP:KEY */
 	if ((p = strchr(spec, ':')) != NULL) {
 		char tzmfn[PATH_MAX];
-		const char *tzmzn;
 		tzmap_t tzm;
 
 		xstrlncpy(tzmfn, sizeof(tzmfn), spec, p - spec);
 
-		/* check tzmaps first */
-		if ((tzm = trie_lookup(tzmaps, tzmfn)) == TRIE_NULL) {
+		/* check tzmaps alist first */
+		if ((tzm = alist_assoc(tzmaps, tzmfn)) == NULL) {
 			char *suf = tzmfn + (p - spec);
 
 			/* try and find it the hard way */
@@ -344,28 +340,20 @@ dt_io_zone(const char *spec)
 
 			/* try and open the thing, then try and look up SPEC */
 			if ((tzm = tzm_open(tzmfn)) == NULL) {
-				fprintf(stderr, "\
-cannot find `%s' in the zone search path\n", tzmfn);
-				goto nul;
+				error(0, "\
+Cannot find `%s' in the tzmaps search path\n", tzmfn);
+				return NULL;
 			}
 			/* otherwise cache him */
 			*suf = '\0';
-			trie_insert(tzmaps, tzmfn, tzm);
+			alist_put(tzmaps, tzmfn, tzm);
 		}
-		fprintf(stderr, "trying for %s\n", p + 1U);
-		if ((tzmzn = tzm_find(tzm, ++p)) != NULL) {
-			/* look for that zone name instead */
-			spec = tzmzn;
-		}
-	}
-nul:
-	if ((res = trie_lookup(zones, spec)) == TRIE_NULL) {
-		/* cache him */
-		if ((res = zif_open(spec)) != NULL) {
-			trie_insert(zones, spec, res);
+		/* look up key bit in tzmap and use that if found */
+		if ((spec = tzm_find(tzm, ++p)) == NULL) {
+			return NULL;
 		}
 	}
-	return res;
+	return __io_zone(spec);
 }
 
 
