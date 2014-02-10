@@ -23,8 +23,6 @@ DT_LIBS = $(top_builddir)/lib/libdut.a
 noinst_LIBRARIES += libdutio.a
 libdutio_a_SOURCES =
 libdutio_a_SOURCES += dt-io.c dt-io.h
-## foreign sources
-libdutio_a_SOURCES += trie.c trie.h
 libdutio_a_SOURCES += dexpr.h
 libdutio_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdutio_a_CPPFLAGS += $(DT_INCLUDES)
