@@ -47,7 +47,6 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
-#include "tzraw.h"
 #include "prchunk.h"
 
 
@@ -144,10 +143,10 @@ main(int argc, char *argv[])
 
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
-		fromz = zif_open(argi->from_zone_arg);
+		fromz = dt_io_zone(argi->from_zone_arg);
 	}
 	if (argi->zone_arg) {
-		z = zif_open(argi->zone_arg);
+		z = dt_io_zone(argi->zone_arg);
 	}
 	if (argi->default_arg) {
 		struct dt_dt_s dflt = dt_strpdt(argi->default_arg, NULL, NULL);
@@ -213,12 +212,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (argi->from_zone_arg) {
-		zif_close(fromz);
-	}
-	if (argi->zone_arg) {
-		zif_close(z);
-	}
+	dt_io_clear_zones();
 
 out:
 	yuck_free(argi);
