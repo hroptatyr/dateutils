@@ -157,10 +157,10 @@ alist_next(alist_t al)
 		res = (acons_t){NULL, NULL};
 	} else {
 		size_t klen = strlen(res.key = al->iter ?: al->data);
-		with (const void **d = (const void**)al->data) {
+		with (const void **d = (const void**)res.key) {
 			d += klen / sizeof(d) + 1U;
-			res.val = *d;
-			al->iter = d + 1U;
+			res.val = *d++;
+			al->iter = d;
 		}
 	}
 	return res;
