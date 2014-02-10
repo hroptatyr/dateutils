@@ -682,7 +682,7 @@ main(int argc, char *argv[])
 
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
-		fromz = zif_open(argi->from_zone_arg);
+		fromz = dt_io_zone(argi->from_zone_arg);
 	}
 
 	ofmt = argi->format_arg;
@@ -770,9 +770,7 @@ main(int argc, char *argv[])
 		free_prchunk(pctx);
 	}
 
-	if (argi->from_zone_arg) {
-		zif_close(fromz);
-	}
+	dt_io_clear_zones();
 
 out:
 	yuck_free(argi);

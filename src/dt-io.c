@@ -13,10 +13,13 @@
 #include <strings.h>
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
+#include "tzraw.h"
+#include "tzmap.h"
 #include "strops.h"
 #include "token.h"
 #include "nifty.h"
 #include "dt-io.h"
+#include "alist.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -25,6 +28,7 @@
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+
 #include "strpdt-special.c"
 
 dt_strpdt_special_t

@@ -257,10 +257,10 @@ main(int argc, char *argv[])
 
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
-		fromz = zif_open(argi->from_zone_arg);
+		fromz = dt_io_zone(argi->from_zone_arg);
 	}
 	if (argi->zone_arg) {
-		z = zif_open(argi->zone_arg);
+		z = dt_io_zone(argi->zone_arg);
 	}
 
 	/* check first arg, if it's a date the rest of the arguments are
@@ -390,12 +390,7 @@ dur_out:
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
 
-	if (argi->from_zone_arg) {
-		zif_close(fromz);
-	}
-	if (argi->zone_arg) {
-		zif_close(z);
-	}
+	dt_io_clear_zones();
 
 out:
 	yuck_free(argi);

@@ -23,9 +23,12 @@ DT_LIBS = $(top_builddir)/lib/libdut.a
 noinst_LIBRARIES += libdutio.a
 libdutio_a_SOURCES =
 libdutio_a_SOURCES += dt-io.c dt-io.h
+libdutio_a_SOURCES += dt-io-zone.c dt-io-zone.h
+libdutio_a_SOURCES += alist.c alist.h
 libdutio_a_SOURCES += dexpr.h
 libdutio_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdutio_a_CPPFLAGS += $(DT_INCLUDES)
+libdutio_a_CPPFLAGS += -DTZMAP_DIR='"$(pkgdatadir)"'
 EXTRA_DIST += strpdt-special.gperf
 BUILT_SOURCES += strpdt-special.c
 

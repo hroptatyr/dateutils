@@ -80,6 +80,89 @@
 # define MAP_ANONYMOUS	(MAP_ANON)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
 
+typedef struct zih_s *zih_t;
+typedef int32_t *ztr_t;
+typedef uint8_t *zty_t;
+typedef struct ztrdtl_s *ztrdtl_t;
+typedef char *znam_t;
+
+/* this is tzhead but better */
+struct zih_s {
+	/* magic */
+	char tzh_magic[4];
+	/* must be '2' now, as of 2005 */
+	char tzh_version[1];
+	/* reserved--must be zero */
+	char tzh_reserved[15];
+	/* number of transition time flags in gmt */
+	uint32_t tzh_ttisgmtcnt;
+	/* number of transition time flags in local time */
+	uint32_t tzh_ttisstdcnt;
+	/* number of recorded leap seconds */
+	uint32_t tzh_leapcnt;
+	/* number of recorded transition times */
+	uint32_t tzh_timecnt;
+	/* number of local time type */
+	uint32_t tzh_typecnt;
+	/* number of abbreviation chars */
+	uint32_t tzh_charcnt;
+};
+
+/* this one must be packed to account for the packed file layout */
+struct ztrdtl_s {
+	int32_t offs;
+	uint8_t dstp;
+	uint8_t abbr;
+} __attribute__((packed));
+
+/* convenience struct where we copy all the good things into one */
+struct zspec_s {
+	int32_t since;
+	unsigned int offs:31;
+	unsigned int dstp:1;
+	znam_t name;
+} __attribute__((packed, aligned(16)));
+
+/* for internal use only, fuck off */
+struct zrng_s {
+	int32_t prev, next;
+	signed int offs:24;
+	unsigned int trno:8;
+} __attribute__((packed));
+
+/* for leap second transitions */
+struct zleap_tr_s {
+	/* cut-off stamp */
+	int32_t t;
+	/* cumulative correction since T */
+	int32_t corr;
+};
+
+/* leap second support missing */
+struct zif_s {
+	size_t mpsz;
+	zih_t hdr;
+
+	/* transitions */
+	ztr_t trs;
+	/* types */
+	zty_t tys;
+	/* type array, deser'd, transition details array */
+	ztrdtl_t tda;
+	/* zonename array */
+	znam_t zn;
+
+	/* file descriptor, if >0 this also means all data is in BE */
+	int fd;
+
+	/* for special zones */
+	coord_zone_t cz;
+
+	/* zone caching, between PREV and NEXT the offset is OFFS */
+	struct zrng_s cache;
+};
+
+
 #if defined TZDIR
 static const char tzdir[] = TZDIR;
 #else  /* !TZDIR */
@@ -96,6 +179,8 @@ static const char coord_fn[] = "/usr/share/zoneinfo/right/UTC";
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
 #define MAP_MEMMAP	MAP_PRIVATE | MAP_ANONYMOUS
 
+#define AS_MUT_ZIF(x)	((struct zif_s*)deconst(x))
+
 /* special zone names */
 static const char coord_zones[][4] = {
 	"",
@@ -104,6 +189,114 @@ static const char coord_zones[][4] = {
 	"GPS",
 };
 
+static void*
+deconst(const void *ptr)
+{
+	return (char*)1 + ((const char*)ptr - (char*)1U);
+}
+
+/**
+ * Return the total number of transitions in zoneinfo file Z. */
+static inline size_t
+zif_ntrans(const struct zif_s z[static 1U])
+{
+	return z->hdr->tzh_timecnt;
+}
+
+/**
+ * Return the total number of transition types in zoneinfo file Z. */
+static inline size_t
+zif_ntypes(const struct zif_s z[static 1U])
+{
+	return z->hdr->tzh_typecnt;
+}
+
+/**
+ * Return the total number of transitions in zoneinfo file Z. */
+static inline size_t
+zif_nchars(const struct zif_s z[static 1U])
+{
+	return z->hdr->tzh_charcnt;
+}
+
+
+/**
+ * Return the total number of leap second transitions. */
+static __attribute__((unused)) inline size_t
+zif_nleaps(const struct zif_s z[static 1U])
+{
+	return z->hdr->tzh_leapcnt;
+}
+
+/**
+ * Return the transition time stamp of the N-th transition in Z. */
+static inline int32_t
+zif_trans(const struct zif_s z[static 1U], int n)
+{
+/* no bound check! */
+	return zif_ntrans(z) > 0UL ? z->trs[n] : INT_MIN;
+}
+
+/**
+ * Return the transition type index of the N-th transition in Z. */
+static inline uint8_t
+zif_type(const struct zif_s z[static 1U], int n)
+{
+/* no bound check! */
+	return (uint8_t)(zif_ntrans(z) > 0UL ? z->tys[n] : 0U);
+}
+
+/**
+ * Return the transition details after the N-th transition in Z. */
+static __attribute__((unused)) inline struct ztrdtl_s
+zif_trdtl(const struct zif_s z[static 1U], int n)
+{
+/* no bound check! */
+	struct ztrdtl_s res;
+	uint8_t idx = zif_type(z, n);
+	res = z->tda[idx];
+	res.offs = z->tda[idx].offs;
+	return res;
+}
+
+/**
+ * Return the gmt offset the N-th transition in Z. */
+static inline int32_t
+zif_troffs(const struct zif_s z[static 1U], int n)
+{
+/* no bound check! */
+	uint8_t idx = zif_type(z, n);
+	return z->tda[idx].offs;
+}
+
+/**
+ * Return the zonename after the N-th transition in Z. */
+static __attribute__((unused)) inline znam_t
+zif_trname(const struct zif_s z[static 1U], int n)
+{
+/* no bound check! */
+	uint8_t idx = zif_type(z, n);
+	uint8_t jdx = z->tda[idx].abbr;
+	return z->zn + jdx;
+}
+
+/**
+ * Return a succinct summary of the situation after transition N in Z. */
+static __attribute__((unused)) inline struct zspec_s
+zif_spec(const struct zif_s z[static 1U], int n)
+{
+	struct zspec_s res;
+	uint8_t idx = zif_type(z, n);
+	uint8_t jdx = z->tda[idx].abbr;
+
+	res.since = zif_trans(z, n);
+	res.offs = z->tda[idx].offs;
+	res.dstp = z->tda[idx].dstp;
+	res.name = z->zn + jdx;
+	return res;
+}
+
+
 static coord_zone_t
 coord_zone(const char *zone)
 {
@@ -137,7 +330,7 @@ __open_zif(const char *file)
 }
 
 static void
-__init_zif(zif_t z)
+__init_zif(struct zif_s z[static 1U])
 {
 	size_t ntr;
 	size_t nty;
@@ -159,7 +352,7 @@ __init_zif(zif_t z)
 }
 
 static int
-__read_zif(struct zif_s *tgt, int fd)
+__read_zif(struct zif_s tgt[static 1U], int fd)
 {
 	struct stat st;
 
@@ -180,7 +373,7 @@ __read_zif(struct zif_s *tgt, int fd)
 }
 
 static void
-__conv_hdr(zih_t tgt, zih_t src)
+__conv_hdr(struct zih_s tgt[static 1U], const struct zih_s src[static 1U])
 {
 /* copy SRC to TGT doing byte-order conversions on the way */
 	memcpy(tgt, src, offsetof(struct zih_s, tzh_ttisgmtcnt));
@@ -194,7 +387,7 @@ __conv_hdr(zih_t tgt, zih_t src)
 }
 
 static void
-__conv_zif(zif_t tgt, zif_t src)
+__conv_zif(struct zif_s tgt[static 1U], const struct zif_s src[static 1U])
 {
 	size_t ntr;
 	size_t nty;
@@ -211,7 +404,7 @@ __conv_zif(zif_t tgt, zif_t src)
 
 	/* transition vector */
 	for (size_t i = 0; i < ntr; i++) {
-		tgt->trs[i].tr = be32toh(src->trs[i].tr);
+		tgt->trs[i] = be32toh(src->trs[i]);
 	}
 
 	/* type vector, nothing to byte-swap here */
@@ -229,12 +422,12 @@ __conv_zif(zif_t tgt, zif_t src)
 	return;
 }
 
-static zif_t
-__copy_conv(zif_t z)
+static struct zif_s*
+__copy_conv(const struct zif_s z[static 1U])
 {
 /* copy Z and do byte-order conversions */
 	size_t mpsz;
-	zif_t res = NULL;
+	struct zif_s *res = NULL;
 
 	/* compute a size */
 	mpsz = z->mpsz + sizeof(*z);
@@ -260,17 +453,14 @@ __copy_conv(zif_t z)
 	return res;
 }
 
-DEFUN zif_t
-zif_copy(zif_t z)
+static struct zif_s*
+__copy(const struct zif_s z[static 1U])
 {
 /* copy Z into a newly allocated zif_t object
  * if applicable also perform byte-order conversions */
-	zif_t res;
+	struct zif_s *res;
 
-	if (UNLIKELY(z == NULL)) {
-		/* no need to bother */
-		return NULL;
-	} else if (z->fd > STDIN_FILENO) {
+	if (z->fd > STDIN_FILENO) {
 		return __copy_conv(z);
 	}
 	/* otherwise it's a plain copy */
@@ -283,13 +473,21 @@ zif_copy(zif_t z)
 	return res;
 }
 
-DEFUN void
-zif_close(zif_t z)
+DEFUN zif_t
+zif_copy(zif_t z)
 {
+/* copy Z into a newly allocated zif_t object
+ * if applicable also perform byte-order conversions */
 	if (UNLIKELY(z == NULL)) {
-		/* nothing to do */
-		return;
+		/* no need to bother */
+		return NULL;
 	}
+	return __copy(z);
+}
+
+static void
+__close(const struct zif_s z[static 1U])
+{
 	if (z->fd > STDIN_FILENO) {
 		close(z->fd);
 	}
@@ -301,8 +499,19 @@ zif_close(zif_t z)
 		/* z->hdr is mmapped, z is not */
 		munmap((void*)z->hdr, z->mpsz);
 	} else {
-		munmap(z, z->mpsz);
+		munmap(deconst(z), z->mpsz);
 	}
+	return;
+}
+
+DEFUN void
+zif_close(zif_t z)
+{
+	if (UNLIKELY(z == NULL)) {
+		/* nothing to do */
+		return;
+	}
+	__close((const void*)z);
 	return;
 }
 
@@ -312,7 +521,7 @@ zif_open(const char *file)
 	coord_zone_t cz;
 	int fd;
 	struct zif_s tmp[1];
-	zif_t res;
+	struct zif_s *res;
 
 	/* check for special time zones */
 	if ((cz = coord_zone(file)) > TZCZ_UNK) {
@@ -327,8 +536,8 @@ zif_open(const char *file)
 	/* otherwise all's fine, it's still BE
 	 * assign the coord zone type if any and convert to host byte-order */
 	tmp->cz = cz;
-	res = zif_copy(tmp);
-	zif_close(tmp);
+	res = __copy(tmp);
+	__close(tmp);
 	return res;
 }
 
@@ -337,7 +546,9 @@ zif_open(const char *file)
 #include "leapseconds.def"
 
 static inline int
-__find_trno(zif_t z, int32_t t, int this, int min, int max)
+__find_trno(
+	const struct zif_s z[static 1U],
+	int32_t t, int this, int min, int max)
 {
 	do {
 		int32_t tl, tu;
@@ -379,7 +590,9 @@ zif_find_trans(zif_t z, int32_t t)
 }
 
 static struct zrng_s
-__find_zrng(zif_t z, int32_t t, int this, int min, int max)
+__find_zrng(
+	const struct zif_s z[static 1U],
+	int32_t t, int this, int min, int max)
 {
 	struct zrng_s res;
 	size_t ntr = zif_ntrans(z);
@@ -431,7 +644,7 @@ __gps_offs(int32_t t)
 }
 
 static int32_t
-__offs(zif_t z, int32_t t)
+__offs(struct zif_s z[static 1U], int32_t t)
 {
 /* return the offset of T in Z and cache the result. */
 	int this;
@@ -494,7 +707,7 @@ zif_utc_time(zif_t z, int32_t t)
 		return t;
 	}
 
-	while ((xj = __offs(z, t - xi)) != xi && xi != old) {
+	while ((xj = __offs(AS_MUT_ZIF(z), t - xi)) != xi && xi != old) {
 		old = xi = xj;
 	}
 	return t - xj;
@@ -508,7 +721,7 @@ zif_local_time(zif_t z, int32_t t)
 	if (UNLIKELY(z == NULL)) {
 		return t;
 	}
-	return t + __offs(z, t);
+	return t + __offs(AS_MUT_ZIF(z), t);
 }
 
 #endif	/* INCLUDED_tzraw_c_ */

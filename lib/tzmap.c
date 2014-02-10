@@ -235,7 +235,7 @@ tzm_find(tzmap_t m, const char *mname)
 			ep = p - 1U;
 		} else {
 			/* forward to the next znoff_t alignment */
-			p += ((const znoff_t*)tp - p) + 1U;
+			p += ((const znoff_t*)(tp - 1U) - p) + 1U;
 			if (*mp - *tp > 0) {
 				/* use upper half */
 				sp = p + 1U;

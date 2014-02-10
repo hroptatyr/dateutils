@@ -135,7 +135,7 @@ main(int argc, char *argv[])
 
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
-		fromz = zif_open(argi->from_zone_arg);
+		fromz = dt_io_zone(argi->from_zone_arg);
 	}
 
 	/* very well then */
@@ -156,7 +156,7 @@ main(int argc, char *argv[])
 		/* try dt_strp'ing the input or assume it's a zone  */
 		if (!dt_unk_p(d[nd] = dt_io_strpdt(inp, fmt, nfmt, fromz))) {
 			nd++;
-		} else if ((z[nz].zone = zif_open(inp)) != NULL) {
+		} else if ((z[nz].zone = dt_io_zone(inp)) != NULL) {
 			z[nz].name = inp;
 			nz++;
 		} else if (!argi->quiet_flag) {
@@ -184,9 +184,7 @@ nor a date/time corresponding to the given input formats", inp);
 	}
 
 	/* release the zones */
-	for (size_t i = 0U; i < nz; i++) {
-		zif_close(z[i].zone);
-	}
+	dt_io_clear_zones();
 	/* release those arrays */
 	free(z);
 	free(d);
