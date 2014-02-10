@@ -119,4 +119,22 @@ Cannot find `%s' in the tzmaps search path\n", tzmfn);
 	return __io_zone(spec);
 }
 
+void
+dt_io_clear_zones(void)
+{
+	if (tzmaps != NULL) {
+		for (acons_t c; (c = alist_next(tzmaps)).val;) {
+			tzm_close(c.val);
+		}
+		free_alist(tzmaps);
+	}
+	if (zones != NULL) {
+		for (acons_t c; (c = alist_next(zones)).val;) {
+			zif_close(c.val);
+		}
+		free_alist(zones);
+	}
+	return;
+}
+
 /* dt-io-zone.c ends here */

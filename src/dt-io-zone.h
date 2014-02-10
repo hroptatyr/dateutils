@@ -41,4 +41,6 @@
 
 extern zif_t dt_io_zone(const char *spec);
 
+extern void dt_io_clear_zones(void);
+
 #endif	/* INCLUDED_dt_io_zone_h_ */
