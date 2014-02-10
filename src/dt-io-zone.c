@@ -145,7 +145,7 @@ dt_io_zone(const char *spec)
 			/* cache the instance */
 			alist_put(tzmaps, tzmfn, tzm);
 		} else {
-			error(0, "\
+			error("\
 Cannot find `%s" TZMAP_SUF "' in the tzmaps search path\n\
 Set TZMAP_DIR environment variable to where " TZMAP_SUF " files reside", tzmfn);
 			return NULL;

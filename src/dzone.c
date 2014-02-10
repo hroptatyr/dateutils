@@ -42,33 +42,14 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include <errno.h>
-#include <stdarg.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
 
-
-/* error() impl */
-void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dzone: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "dzone";
 
+
 static size_t
 xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
@@ -128,7 +109,7 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	} else if (argi->nargs == 0U) {
-		error(0, "Need at least a ZONENAME or a DATE/TIME");
+		error("Need at least a ZONENAME or a DATE/TIME");
 		res = 1;
 		goto out;
 	}
@@ -161,7 +142,7 @@ main(int argc, char *argv[])
 			nz++;
 		} else if (!argi->quiet_flag) {
 			/* just bollocks */
-			error(0, "\
+			error("\
 Cannot use `%s', it does not appear to be a zonename\n\
 nor a date/time corresponding to the given input formats", inp);
 		}

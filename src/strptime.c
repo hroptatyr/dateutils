@@ -45,30 +45,11 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
-#include <stdarg.h>
-#include <errno.h>
 
 #include "dt-io.h"
 #include "prchunk.h"
 
-
-/* error() impl */
-void
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("strptime: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "strptime";
 
 
 static int
@@ -128,7 +109,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 
 	/* using the prchunk reader now */
 	if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-		error(errno, "Error: could not open stdin");
+		serror("Error: could not open stdin");
 		return;
 	}
 	while (prchunk_fill(pctx) >= 0) {

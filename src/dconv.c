@@ -42,32 +42,13 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include <errno.h>
-#include <stdarg.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
 #include "prchunk.h"
 
 
-/* error() impl */
-void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dconv: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "dconv";
 
 struct prln_ctx_s {
 	struct grep_atom_soa_s *ndl;
@@ -194,7 +175,7 @@ main(int argc, char *argv[])
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(errno, "Error: could not open stdin");
+			serror("Error: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {

@@ -42,8 +42,6 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include <errno.h>
-#include <stdarg.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
@@ -56,25 +54,7 @@
 # define assert(x)
 #endif	/* !assert */
 
-
-/* error() impl */
-void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dround: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "dround";
 
 
 static bool
@@ -483,7 +463,7 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	} else if (argi->nargs == 0U) {
-		error(0, "Error: DATE or DURATION must be specified\n");
+		error("Error: DATE or DURATION must be specified\n");
 		yuck_auto_help(argi);
 		res = 1;
 		goto out;
@@ -520,7 +500,7 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					error(errno, "Error: \
+					serror("Error: \
 cannot parse duration/rounding string `%s'", st.istr);
 				}
 			}
@@ -535,13 +515,13 @@ cannot parse duration/rounding string `%s'", st.istr);
 		 * about the durations */
 		inp = argi->args[0U];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
-			error(0, "Error: \
+			error("Error: \
 cannot interpret date/time string `%s'", argi->args[0U]);
 			res = 1;
 			goto out;
 		}
 	} else if (st.ndurs == 0) {
-		error(0, "Error: \
+		error("Error: \
 no durations given");
 		res = 1;
 		goto out;
@@ -593,7 +573,7 @@ no durations given");
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(errno, "Error: could not open stdin");
+			serror("Error: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {

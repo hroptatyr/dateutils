@@ -44,8 +44,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
-#include <stdarg.h>
-#include <errno.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
@@ -68,24 +66,7 @@ struct dseq_clo_s {
 #define CLO_FL_FREE_ITE		(1)
 };
 
-
-/* impl of error() */
-void
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dseq: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "dseq";
 
 
 /* skip system */
@@ -490,7 +471,7 @@ main(int argc, char *argv[])
 		do {
 			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
 				if (!argi->quiet_flag) {
-					error(errno, "Error: \
+					error("Error: \
 cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
 				res = 1;
@@ -559,7 +540,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			dt_make_sandwich(clo.ite, DT_DAISY, DT_TUNK);
 			clo.ite->d.daisy = 1;
 		} else {
-			error(0, "\
+			error("\
 don't know how to handle single argument case");
 			res = 1;
 			goto out;
@@ -585,7 +566,7 @@ don't know how to handle single argument case");
 		/* get increment */
 		do {
 			if (dt_io_strpdtdur(&st, argi->args[1U]) < 0) {
-				error(0, "Error: \
+				error("Error: \
 cannot parse duration string `%s'", argi->args[1U]);
 				res = 1;
 				goto out;
@@ -614,7 +595,7 @@ cannot parse duration string `%s'", argi->args[1U]);
 	/* promote the args maybe */
 	if ((dt_sandwich_only_d_p(clo.fst) && dt_sandwich_only_t_p(clo.lst)) ||
 	    (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_only_d_p(clo.lst))) {
-		error(0, "\
+		error("\
 cannot mix dates and times as arguments");
 		res = 1;
 		goto out;
@@ -643,7 +624,7 @@ cannot mix dates and times as arguments");
 	    ((clo.fst = dt_dtconv(x_DAISY, clo.fst)).d.typ != DT_DAISY ||
 	     (clo.lst = dt_dtconv(x_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_flag) {
-			error(0, "\
+			error("\
 cannot convert calendric system internally");
 		}
 		res = 1;
@@ -655,7 +636,7 @@ cannot convert calendric system internally");
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
 	    (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
 		if (!argi->quiet_flag) {
-			error(0, "\
+			error("\
 increment must not be naught");
 		}
 		res = 1;

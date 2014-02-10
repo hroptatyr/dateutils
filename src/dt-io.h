@@ -107,8 +107,13 @@ build_needle(grep_atom_t atoms, size_t natoms, char *const *fmt, size_t nfmt);
 extern void dt_io_unescape(char *s);
 
 /* error messages, warnings, etc. */
-extern __attribute__((format(printf, 2, 3))) void
-error(int eno, const char *fmt, ...);
+extern __attribute__((format(printf, 1, 2))) void error(const char *fmt, ...);
+
+/* error messages, warnings, etc. */
+extern __attribute__((format(printf, 1, 2))) void serror(const char *fmt, ...);
+
+/* for error() above, use PROG as name for the tool. */
+extern const char *prog;
 
 /* duration parser */
 extern int __add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur);
@@ -223,8 +228,7 @@ __io_eof_p(FILE *fp)
 static inline void
 dt_io_warn_strpdt(const char *inp)
 {
-	error(0, "\
-cannot make sense of `%s' using the given input formats", inp);
+	error("cannot make sense of `%s' using the given input formats", inp);
 	return;
 }
 

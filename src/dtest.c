@@ -44,31 +44,11 @@
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
-#include <stdarg.h>
-#include <errno.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
 
-
-/* error() impl */
-void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dtest: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "dtest";
 
 
 #include "dtest.yucc"

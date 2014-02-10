@@ -11,6 +11,8 @@
 #include <string.h>
 /* for strcasecmp() */
 #include <strings.h>
+#include <stdarg.h>
+#include <errno.h>
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
 #include "tzraw.h"
@@ -27,6 +29,41 @@
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
+
+
+/* our own perror() implementation */
+void
+__attribute__((format(printf, 1, 2)))
+error(const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs(prog, stderr);
+	fputs(": ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	fputc('\n', stderr);
+	return;
+}
+
+void
+__attribute__((format(printf, 1, 2)))
+serror(const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	fputs(prog, stderr);
+	fputs(": ", stderr);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(errno), stderr);
+	}
+	fputc('\n', stderr);
+	return;
+}
 
 
 #include "strpdt-special.c"
