@@ -43,9 +43,27 @@
 #include "dt-io-zone.h"
 #include "alist.h"
 
+#if defined TZMAP_DIR
+static const char tmdir[] = TZMAP_DIR;
+#else  /* !TZMAP_DIR */
+static const char tmdir[] = ".";
+#endif	/* TZMAP_DIR */
+
 static size_t
-xstrlncpy(char *restrict dst, ssize_t dsz, const char *src, ssize_t ssz)
+xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
 {
+	if (ssz > dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
+
+static size_t
+xstrlcpy(char *restrict dst, const char *src, size_t dsz)
+{
+	size_t ssz = strlen(src);
 	if (ssz > dsz) {
 		ssz = dsz - 1U;
 	}
@@ -62,6 +80,34 @@ xstrlncpy(char *restrict dst, ssize_t dsz, const char *src, ssize_t ssz)
 
 static struct alist_s zones[1U];
 static struct alist_s tzmaps[1U];
+
+static tzmap_t
+find_tzmap(const char *mnm, size_t mnz)
+{
+	static const char tzmap_suffix[] = ".tzmcc";
+	char tzmfn[PATH_MAX];
+	char *tp = tzmfn;
+	size_t tz = sizeof(tzmfn);
+	const char *p;
+	size_t z;
+
+	/* prefer TZMAP_DIR */
+	if ((p = getenv("TZMAP_DIR")) != NULL) {
+		z = xstrlcpy(tp, p, tz);
+	} else {
+		z = xstrlncpy(tp, tz, tmdir, sizeof(tmdir) - 1U);
+	}
+	tp += z, tz -= z;
+	*tp++ = '/', tz--;
+
+	/* try and find it the hard way */
+	xstrlncpy(tp, tz, mnm, mnz);
+	tp += mnz, tz -= mnz;
+	xstrlncpy(tp, tz, tzmap_suffix, sizeof(tzmap_suffix) - 1U);
+
+	/* try and open the thing, then try and look up SPEC */
+	return tzm_open(tzmfn);
+}
 
 static zif_t
 __io_zone(const char *spec)
@@ -82,7 +128,6 @@ __io_zone(const char *spec)
 zif_t
 dt_io_zone(const char *spec)
 {
-	static const char tzmap_suffix[] = ".tzmcc";
 	char *p;
 
 	/* see if SPEC is a MAP:KEY */
@@ -93,23 +138,15 @@ dt_io_zone(const char *spec)
 		xstrlncpy(tzmfn, sizeof(tzmfn), spec, p - spec);
 
 		/* check tzmaps alist first */
-		if ((tzm = alist_assoc(tzmaps, tzmfn)) == NULL) {
-			char *suf = tzmfn + (p - spec);
-
-			/* try and find it the hard way */
-			xstrlncpy(
-				suf, sizeof(tzmfn) - (p - spec),
-				tzmap_suffix, sizeof(tzmap_suffix) - 1U);
-
-			/* try and open the thing, then try and look up SPEC */
-			if ((tzm = tzm_open(tzmfn)) == NULL) {
-				error(0, "\
-Cannot find `%s' in the tzmaps search path\n", tzmfn);
-				return NULL;
-			}
-			/* otherwise cache him */
-			*suf = '\0';
+		if ((tzm = alist_assoc(tzmaps, tzmfn)) != NULL) {
+			;
+		} else if ((tzm = find_tzmap(tzmfn, p - spec)) != NULL) {
+			/* cache the instance */
 			alist_put(tzmaps, tzmfn, tzm);
+		} else {
+			error(0, "\
+Cannot find `%s' in the tzmaps search path", tzmfn);
+			return NULL;
 		}
 		/* look up key bit in tzmap and use that if found */
 		if ((spec = tzm_find(tzm, ++p)) == NULL) {
