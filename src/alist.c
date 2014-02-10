@@ -148,7 +148,7 @@ alist_set(alist_t al, const char *key, const void *val)
 }
 
 acons_t
-alist_trav(alist_t al)
+alist_next(alist_t al)
 {
 	acons_t res;
 

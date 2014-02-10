@@ -72,6 +72,6 @@ extern void alist_set(alist_t, const char *key, const void *val);
 
 /**
  * Return next alist cons cell. */
-extern acons_t alist_trav(alist_t);
+extern acons_t alist_next(alist_t);
 
 #endif	/* INCLUDED_alist_h_ */
