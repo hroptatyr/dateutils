@@ -29,19 +29,6 @@
 #endif	/* __INTEL_COMPILER */
 
 
-/* gimmicks */
-static size_t
-xstrlncpy(char *restrict dst, ssize_t dsz, const char *src, ssize_t ssz)
-{
-	if (ssz > dsz) {
-		ssz = dsz - 1U;
-	}
-	memcpy(dst, src, ssz);
-	dst[ssz] = '\0';
-	return ssz;
-}
-
-
 #include "strpdt-special.c"
 
 dt_strpdt_special_t
@@ -289,71 +276,6 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
 	__io_write(buf, n, stdout);
 	return (n > 0) - 1;
-}
-
-
-/* extended zone handling, tzmaps and stuff */
-#if !defined PATH_MAX
-# define PATH_MAX	256U
-#endif	/* !PATH_MAX */
-
-static struct alist_s zones[1U];
-static struct alist_s tzmaps[1U];
-
-static zif_t
-__io_zone(const char *spec)
-{
-	zif_t res;
-
-	/* try looking up SPEC first */
-	if ((res = alist_assoc(zones, spec)) == NULL) {
-		/* open 'im */
-		if ((res = zif_open(spec)) != NULL) {
-			/* cache 'im */
-			alist_put(zones, spec, res);
-		}
-	}
-	return res;
-}
-
-zif_t
-dt_io_zone(const char *spec)
-{
-	static const char tzmap_suffix[] = ".tzmcc";
-	char *p;
-
-	/* see if SPEC is a MAP:KEY */
-	if ((p = strchr(spec, ':')) != NULL) {
-		char tzmfn[PATH_MAX];
-		tzmap_t tzm;
-
-		xstrlncpy(tzmfn, sizeof(tzmfn), spec, p - spec);
-
-		/* check tzmaps alist first */
-		if ((tzm = alist_assoc(tzmaps, tzmfn)) == NULL) {
-			char *suf = tzmfn + (p - spec);
-
-			/* try and find it the hard way */
-			xstrlncpy(
-				suf, sizeof(tzmfn) - (p - spec),
-				tzmap_suffix, sizeof(tzmap_suffix) - 1U);
-
-			/* try and open the thing, then try and look up SPEC */
-			if ((tzm = tzm_open(tzmfn)) == NULL) {
-				error(0, "\
-Cannot find `%s' in the tzmaps search path\n", tzmfn);
-				return NULL;
-			}
-			/* otherwise cache him */
-			*suf = '\0';
-			alist_put(tzmaps, tzmfn, tzm);
-		}
-		/* look up key bit in tzmap and use that if found */
-		if ((spec = tzm_find(tzm, ++p)) == NULL) {
-			return NULL;
-		}
-	}
-	return __io_zone(spec);
 }
 
 
