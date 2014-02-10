@@ -102,12 +102,7 @@ struct tzhead {
 
 
 /* now our view on things */
-typedef struct zif_s *zif_t;
-typedef struct zih_s *zih_t;
-typedef struct ztr_s *ztr_t;
-typedef struct zty_s *zty_t;
-typedef struct ztrdtl_s *ztrdtl_t;
-typedef char *znam_t;
+typedef const struct zif_s *zif_t;
 
 typedef enum {
 	TZCZ_UNK,
@@ -116,90 +111,6 @@ typedef enum {
 	TZCZ_GPS,
 	TZCZ_NZONE,
 } coord_zone_t;
-
-/* convenience struct where we copy all the good things into one */
-struct zspec_s {
-	int32_t since;
-	unsigned int offs:31;
-	unsigned int dstp:1;
-	znam_t name;
-} __attribute__((packed, aligned(16)));
-
-/* that's tzhead but better */
-struct zih_s {
-	/* magic */
-	char tzh_magic[4];
-	/* must be '2' now, as of 2005 */
-	char tzh_version[1];
-	/* reserved--must be zero */
-	char tzh_reserved[15];
-	/* number of transition time flags in gmt */
-	uint32_t tzh_ttisgmtcnt;
-	/* number of transition time flags in local time */
-	uint32_t tzh_ttisstdcnt;
-	/* number of recorded leap seconds */
-	uint32_t tzh_leapcnt;
-	/* number of recorded transition times */
-	uint32_t tzh_timecnt;
-	/* number of local time type */
-	uint32_t tzh_typecnt;
-	/* number of abbreviation chars */
-	uint32_t tzh_charcnt;
-};
-
-/* this one must be packed to account for the packed file layout */
-struct ztrdtl_s {
-	int32_t offs;
-	uint8_t dstp;
-	uint8_t abbr;
-} __attribute__((packed));
-
-/* for internal use only, fuck off */
-struct zrng_s {
-	int32_t prev, next;
-	signed int offs:24;
-	unsigned int trno:8;
-} __attribute__((packed));
-
-/* for leap second transitions */
-struct zleap_tr_s {
-	/* cut-off stamp */
-	int32_t t;
-	/* cumulative correction since T */
-	int32_t corr;
-};
-
-struct ztr_s {
-	int32_t tr;
-};
-
-struct zty_s {
-	uint8_t ty;
-};
-
-/* leap second support missing */
-struct zif_s {
-	size_t mpsz;
-	zih_t hdr;
-
-	/* transitions */
-	ztr_t trs;
-	/* types */
-	zty_t tys;
-	/* type array, deser'd, transition details array */
-	ztrdtl_t tda;
-	/* zonename array */
-	znam_t zn;
-
-	/* file descriptor, if >0 this also means all data is in BE */
-	int fd;
-
-	/* for special zones */
-	coord_zone_t cz;
-
-	/* zone caching, between PREV and NEXT the offset is OFFS */
-	struct zrng_s cache;
-};
 
 
 /**
@@ -231,107 +142,6 @@ extern int32_t zif_utc_time(zif_t z, int32_t t);
 /**
  * Given T in UTC, return a T in local time specified by Z. */
 extern int32_t zif_local_time(zif_t z, int32_t t);
-
-
-/**
- * Return the total number of transitions in zoneinfo file Z. */
-static inline size_t
-zif_ntrans(zif_t z)
-{
-	return z->hdr->tzh_timecnt;
-}
-
-/**
- * Return the transition time stamp of the N-th transition in Z. */
-static inline int32_t
-zif_trans(zif_t z, int n)
-{
-/* no bound check! */
-	return zif_ntrans(z) > 0UL ? z->trs[n].tr : INT_MIN;
-}
-
-/**
- * Return the total number of transition types in zoneinfo file Z. */
-static inline size_t
-zif_ntypes(zif_t z)
-{
-	return z->hdr->tzh_typecnt;
-}
-
-/**
- * Return the transition type index of the N-th transition in Z. */
-static inline uint8_t
-zif_type(zif_t z, int n)
-{
-/* no bound check! */
-	return (uint8_t)(zif_ntrans(z) > 0UL ? z->tys[n].ty : 0U);
-}
-
-/**
- * Return the total number of transitions in zoneinfo file Z. */
-static inline size_t
-zif_nchars(zif_t z)
-{
-	return z->hdr->tzh_charcnt;
-}
-
-/**
- * Return the transition details after the N-th transition in Z. */
-static inline struct ztrdtl_s
-zif_trdtl(zif_t z, int n)
-{
-/* no bound check! */
-	struct ztrdtl_s res;
-	uint8_t idx = zif_type(z, n);
-	res = z->tda[idx];
-	res.offs = z->tda[idx].offs;
-	return res;
-}
-
-/**
- * Return the gmt offset the N-th transition in Z. */
-static inline int32_t
-zif_troffs(zif_t z, int n)
-{
-/* no bound check! */
-	uint8_t idx = zif_type(z, n);
-	return z->tda[idx].offs;
-}
-
-/**
- * Return the total number of leap second transitions. */
-static inline size_t
-zif_nleaps(zif_t z)
-{
-	return z->hdr->tzh_leapcnt;
-}
-
-/**
- * Return the zonename after the N-th transition in Z. */
-static inline znam_t
-zif_trname(zif_t z, int n)
-{
-/* no bound check! */
-	uint8_t idx = zif_type(z, n);
-	uint8_t jdx = z->tda[idx].abbr;
-	return z->zn + jdx;
-}
-
-/**
- * Return a succinct summary of the situation after transition N in Z. */
-static inline struct zspec_s
-zif_spec(zif_t z, int n)
-{
-	struct zspec_s res;
-	uint8_t idx = zif_type(z, n);
-	uint8_t jdx = z->tda[idx].abbr;
-
-	res.since = zif_trans(z, n);
-	res.offs = z->tda[idx].offs;
-	res.dstp = z->tda[idx].dstp;
-	res.name = z->zn + jdx;
-	return res;
-}
 
 #if defined __cplusplus
 }
