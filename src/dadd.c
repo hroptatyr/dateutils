@@ -42,13 +42,13 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include <errno.h>
-#include <stdarg.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
 #include "prchunk.h"
+
+const char *prog = "dadd";
 
 
 static bool
@@ -69,24 +69,6 @@ dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
 		d = dt_dtadd(d, dur[i]);
 	}
 	return d;
-}
-
-void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dadd: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
 }
 
 
@@ -239,7 +221,7 @@ main(int argc, char *argv[])
 		res = 1;
 		goto out;
 	} else if (argi->nargs == 0) {
-		error(0, "Error: DATE or DURATION must be specified\n");
+		error("Error: DATE or DURATION must be specified\n");
 		yuck_auto_help(argi);
 		res = 1;
 		goto out;
@@ -273,7 +255,7 @@ main(int argc, char *argv[])
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
-					error(errno, "Error: \
+					serror("Error: \
 cannot parse duration string `%s'", st.istr);
 					res = 1;
 					goto dur_out;
@@ -292,7 +274,7 @@ cannot parse duration string `%s'", st.istr);
 		 * about the durations */
 		inp = argi->args[0U];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
-			error(0, "\
+			error("\
 Error: cannot interpret date/time string `%s'", inp);
 			res = 1;
 			goto dur_out;
@@ -334,7 +316,7 @@ Error: cannot interpret date/time string `%s'", inp);
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(errno, "could not open stdin");
+			serror("could not open stdin");
 			goto ndl_free;
 		}
 
@@ -368,7 +350,7 @@ Error: cannot interpret date/time string `%s'", inp);
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(errno, "could not open stdin");
+			serror("could not open stdin");
 		}
 
 		/* build the clo and then loop */

@@ -42,8 +42,6 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <time.h>
-#include <errno.h>
-#include <stdarg.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
@@ -51,26 +49,9 @@
 #include "dexpr.h"
 #include "prchunk.h"
 
-
-/* error impl */
-void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("dgrep: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
+const char *prog = "dgrep";
 
+
 /* dexpr subsystem */
 #include "dexpr.c"
 
@@ -170,13 +151,13 @@ main(int argc, char *argv[])
 	if (argi->nargs == 0U || 
 	    dexpr_parse(&root, argi->args[0U], strlen(argi->args[0U])) < 0) {
 		res = 1;
-		error(0, "Error: need an expression to grep");
+		error("Error: need an expression to grep");
 		goto out;
 	}
 	/* fixup o, default is OP_EQ */
 	if (o != OP_UNK && root->type != DEX_VAL) {
 		res = 1;
-		error(0, "\
+		error("\
 long opt operators (--lt, --gt, ...) cannot be used in conjunction \n\
 with complex expressions");
 		goto out;
@@ -216,7 +197,7 @@ with complex expressions");
 
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			error(errno, "Error: could not open stdin");
+			serror("Error: could not open stdin");
 			goto ndl_free;
 		}
 		while (prchunk_fill(pctx) >= 0) {
