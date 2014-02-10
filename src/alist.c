@@ -156,9 +156,12 @@ alist_next(alist_t al)
 		al->iter = NULL;
 		res = (acons_t){NULL, NULL};
 	} else {
-		size_t klen = strlen(res.key = al->iter ?: al->data);
-		with (const void **d = (const void**)res.key) {
+		const char *p = al->iter ?: al->data;
+		size_t klen = strlen(p);
+
+		with (const void *const *d = (const void*)p) {
 			d += klen / sizeof(d) + 1U;
+			res.key = p;
 			res.val = *d++;
 			al->iter = d;
 		}
