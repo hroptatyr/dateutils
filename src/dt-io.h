@@ -13,7 +13,7 @@
 /* for strcasecmp() */
 #include <strings.h>
 #include "dt-core.h"
-#include "tzraw.h"
+#include "dt-io-zone.h"
 #include "nifty.h"
 
 typedef enum {
