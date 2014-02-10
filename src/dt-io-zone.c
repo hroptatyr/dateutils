@@ -146,7 +146,8 @@ dt_io_zone(const char *spec)
 			alist_put(tzmaps, tzmfn, tzm);
 		} else {
 			error(0, "\
-Cannot find `%s' in the tzmaps search path", tzmfn);
+Cannot find `%s" TZMAP_SUF "' in the tzmaps search path\n\
+Set TZMAP_DIR environment variable to where " TZMAP_SUF " files reside", tzmfn);
 			return NULL;
 		}
 		/* look up key bit in tzmap and use that if found */
