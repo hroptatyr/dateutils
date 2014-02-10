@@ -48,6 +48,7 @@ static const char tmdir[] = TZMAP_DIR;
 #else  /* !TZMAP_DIR */
 static const char tmdir[] = ".";
 #endif	/* TZMAP_DIR */
+#define TZMAP_SUF	".tzmcc"
 
 static size_t
 xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
@@ -84,7 +85,7 @@ static struct alist_s tzmaps[1U];
 static tzmap_t
 find_tzmap(const char *mnm, size_t mnz)
 {
-	static const char tzmap_suffix[] = ".tzmcc";
+	static const char tzmap_suffix[] = TZMAP_SUF;
 	char tzmfn[PATH_MAX];
 	char *tp = tzmfn;
 	size_t tz = sizeof(tzmfn);
