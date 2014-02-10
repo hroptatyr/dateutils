@@ -127,7 +127,7 @@ alist_put(alist_t al, const char *key, const void *val)
 	memcpy(al->data + al->dend, key, klen);
 	/* round up to void** boundary */
 	with (const void **data = (const void**)al->data) {
-		data += al->dend + klen / sizeof(data) + 1U;
+		data += (al->dend + klen) / sizeof(data) + 1U;
 		*data++ = val;
 		al->dend = (const char*)data - al->data;
 	}
