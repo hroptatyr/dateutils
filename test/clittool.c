@@ -1,6 +1,6 @@
 /*** clittool.c -- command-line-interface tester or is it?
  *
- * Copyright (C) 2013 Sebastian Freundt
+ * Copyright (C) 2013-2014 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -42,6 +42,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <limits.h>
@@ -78,6 +79,9 @@
 # define with(args...)	for (args, *__ep__ = (void*)1; __ep__; __ep__ = 0)
 #endif	/* !with */
 
+#if !defined PATH_MAX
+# define PATH_MAX	256U
+#endif	/* !PATH_MAX */
 
 typedef struct clitf_s clitf_t;
 typedef struct clit_buf_s clit_buf_t;
@@ -979,7 +983,7 @@ prepend_path(const char *p)
 		size_t envz = strlen(envp);
 
 		/* get us a nice big cushion */
-		pathz = ((envz + pz + 1U) / 256U + 1) * 256U;
+		pathz = ((envz + pz + 1U) / 256U + 2U) * 256U;
 		paths = malloc(pathz);
 		/* glue the current path at the end of the array */
 		pp = (paths + pathz) - (envz + 1U);
@@ -991,14 +995,14 @@ prepend_path(const char *p)
 
 	if (UNLIKELY(pp < paths)) {
 		/* awww, not enough space, is there */
-		off_t ppoff = paths + pathz - pp;
-		size_t newsz = ((pathz + pz + 1U) / 256U + 1) * 256U;
+		ptrdiff_t ppoff = pp - paths;
+		size_t newsz = ((pathz + pz + 1U) / 256U + 1U) * 256U;
 
 		paths = realloc(paths, newsz);
 		/* memmove to the back */
 		memmove(paths + (newsz - pathz), paths, pathz);
 		/* recalc paths pointer */
-		pp = paths + ppoff;
+		pp = paths + (newsz - pathz) + ppoff;
 		pathz = newsz;
 	}
 
