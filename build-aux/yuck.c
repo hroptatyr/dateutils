@@ -239,6 +239,14 @@ massage_desc(char *str)
 			/* map to ETX (end of text) */
 			*sp = '\003';
 			break;
+		case '(':
+			/* map to SO (shift out) */
+			*sp = '\016';
+			break;
+		case ')':
+			/* map to SI (shift in) */
+			*sp = '\017';
+			break;
 		}
 	}
 	if (sp > str && sp[-1] == '\n') {
@@ -263,6 +271,14 @@ unmassage_buf(char *restrict buf, size_t bsz)
 		case '\003':
 			/* unmap ETX (end of text) */
 			*sp = ']';
+			break;
+		case '\016':
+			/* unmap SO (shift out) */
+			*sp = '(';
+			break;
+		case '\017':
+			/* unmap SI (shift in) */
+			*sp = ')';
 			break;
 		}
 	}
