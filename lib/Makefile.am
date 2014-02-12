@@ -16,7 +16,7 @@ DISTCLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 SUFFIXES =
 
-lib_LIBRARIES += libdut.a
+noinst_LIBRARIES += libdut.a
 libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
 libdut_a_CPPFLAGS += -I$(builddir)
