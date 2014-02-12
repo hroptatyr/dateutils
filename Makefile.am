@@ -14,10 +14,6 @@ DISTCLEANFILES = version.mk
 doc_DATA = README.md
 EXTRA_DIST += $(doc_DATA)
 
-pkgconfigdir = @libdir@/pkgconfig
-pkgconfig_DATA =
-pkgconfig_DATA += libdut.pc
-
 dist-hook:
 	echo $(VERSION) > $(distdir)/version \
 	&& touch -r $(top_builddir)/version.mk $(distdir)/version

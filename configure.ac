@@ -184,7 +184,6 @@ AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([info/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([contrib/Makefile])
-AC_CONFIG_FILES([libdut.pc])
 AC_OUTPUT
 
 cat <<EOF
