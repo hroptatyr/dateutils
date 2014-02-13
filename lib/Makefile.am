@@ -132,17 +132,16 @@ SUFFIXES += .tzmap
 SUFFIXES += .tzmcc
 
 .tzminfo.tzmap:
-	$(AM_V_DL) curl -qgskfO "https://raw.github.com/hroptatyr/dateutils/tzmaps/$@" \
+	-$(AM_V_DL) curl -qgskfO "https://raw.github.com/hroptatyr/dateutils/tzmaps/$@" \
 		|| { echo -e "\
 Cannot download the latest tzmaps.\n\
 You can download them from  https://github.com/hroptatyr/dateutils/tree/tzmaps\n\
 or if you happen to use the git repository copy them rom the tzmaps branch\n\
 and put them into $(abs_builddir).\n\
-\n\
-I proceed nervously with a 0 byte dummy file.\n" >&2; rm -f -- $@; touch $@; }
+\n" >&2; }
 
 .tzmap.tzmcc:
-	$(AM_V_GEN) $(builddir)/tzmap cc -o $@ $<
+	-$(AM_V_GEN) $(builddir)/tzmap cc -o $@ $<
 
 # 
 # Help the developers get nice post-processed source files
