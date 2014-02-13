@@ -143,6 +143,9 @@ and put them into $(abs_builddir).\n\
 .tzmap.tzmcc:
 	-$(AM_V_GEN) $(builddir)/tzmap cc -o $@ $<
 
+## make sure installing the tzmaps isn't fatal either
+.IGNORE: install-pkgdataDATA
+
 # 
 # Help the developers get nice post-processed source files
 
