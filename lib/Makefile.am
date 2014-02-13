@@ -103,6 +103,10 @@ AM_V_LTRCC = $(am__v_LTRCC_$(V))
 am__v_LTRCC_ = $(am__v_LTRCC_$(AM_DEFAULT_VERBOSITY))
 am__v_LTRCC_0 = @echo "  LTRCC   " $@;
 
+AM_V_DL = $(am__v_DL_$(V))
+am__v_DL_ = $(am__v_DL_$(AM_DEFAULT_VERBOSITY))
+am__v_DL_0 = @echo "  D/L'ING " $@;
+
 leapseconds.def: leapseconds
 	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
 	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
@@ -128,7 +132,14 @@ SUFFIXES += .tzmap
 SUFFIXES += .tzmcc
 
 .tzminfo.tzmap:
-	curl -qgskO "https://raw.github.com/hroptatyr/dateutils/tzmaps/$@"
+	$(AM_V_DL) curl -qgskfO "https://raw.github.com/hroptatyr/dateutils/tzmaps/$@" \
+		|| { echo -e "\
+Cannot download the latest tzmaps.\n\
+You can download them from  https://github.com/hroptatyr/dateutils/tree/tzmaps\n\
+or if you happen to use the git repository copy them rom the tzmaps branch\n\
+and put them into $(abs_builddir).\n\
+\n\
+I proceed nervously with a 0 byte dummy file.\n" >&2; rm -f -- $@; touch $@; }
 
 .tzmap.tzmcc:
 	$(AM_V_GEN) $(builddir)/tzmap cc -o $@ $<
