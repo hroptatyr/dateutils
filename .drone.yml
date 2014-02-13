@@ -1,0 +1,18 @@
+image: gcc4.8
+
+script:
+  - sudo apt-get install gperf
+  - sudo apt-get install help2man
+  - sudo apt-get install flex
+  - sudo apt-get install bison
+  - sudo apt-get install texinfo
+  - sudo apt-get install texlive
+  - autoreconf -vfi
+  - ./configure
+  - make clean all check distcheck
+
+notify:
+  email:
+    recipients:
+      - devel@fresse.org
+
