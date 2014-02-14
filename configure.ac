@@ -106,7 +106,8 @@ AS_HELP_STRING([--enable-tzmap-fetch], [Fetch tzmaps from github, default: no.])
                 fi
         ], [enable_tzmap_fetch="no"])
 AM_CONDITIONAL([FETCH_TZMAPS], [test "${enable_tzmap_fetch}" = "yes"])
-AM_CONDITIONAL([HAVE_TZMAPS], [test -n `find "${srcdir}/lib" -name '*.tzmap'`])
+AM_CONDITIONAL([HAVE_TZMAPS],
+	[test `find "${srcdir}/lib" -name '*.tzmap' -print | wc -l` -gt 0])
 
 
 AC_PATH_PROG([GDATE], [date])
