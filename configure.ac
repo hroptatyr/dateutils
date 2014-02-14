@@ -25,7 +25,7 @@ AC_COPYRIGHT([dnl
 ###     autoreconf
 ])
 
-AM_INIT_AUTOMAKE([foreign dist-xz color-tests parallel-tests])
+AM_INIT_AUTOMAKE([foreign dist-xz color-tests parallel-tests subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 GIT_VERSION_MAGIC
