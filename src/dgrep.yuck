@@ -32,6 +32,10 @@ criteria then the line is considered a match and will be output.
                                output and input format specifier strings.
   -o, --only-matching        Show only the part of a line matching DATE.
   -v, --invert-match         Select non-matching lines.
+      --from-zone=ZONE  Consider date/times on stdin as coming from the
+                        zone ZONE, default: UTC.
+  -z, --zone=ZONE       Consider date/times in EXPRESSION as coming from
+                        the zone ZONE, default: UTC.
 
 Note:
   Operations can be specified by options (--eq, --gt, ...) as well.

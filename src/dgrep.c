@@ -44,8 +44,8 @@
 #include <time.h>
 
 #include "dt-core.h"
+#include "dt-core-tz-glue.h"
 #include "dt-io.h"
-#include "tzraw.h"
 #include "dexpr.h"
 #include "prchunk.h"
 
@@ -58,6 +58,8 @@ const char *prog = "dgrep";
 struct prln_ctx_s {
 	struct grep_atom_soa_s *ndl;
 	dexpr_t root;
+	zif_t fromz;
+	zif_t z;
 	unsigned int only_matching_p:1U;
 	unsigned int invert_match_p:1U;
 };
@@ -72,12 +74,15 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	 * there's currently no way to specify NEEDLE */
 	for (char *lp = line, *sp, *ep; ; lp = ep, osp = sp, oep = ep) {
 		struct dt_dt_s d =
-			dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, NULL);
+			dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, ctx.fromz);
 		bool unkp = dt_unk_p(d);
 
 		if (unkp) {
 			/* just plain nothing */
 			break;
+		} else if (ctx.z != NULL) {
+			/* promote to zone ctx.z */
+			d = dtz_enrichz(d, ctx.z);
 		}
 		/* otherwise */
 		if (dexpr_matches_p(ctx.root, d)) {
@@ -179,6 +184,8 @@ with complex expressions");
 		struct prln_ctx_s prln = {
 			.ndl = &ndlsoa,
 			.root = root,
+			.fromz = dt_io_zone(argi->from_zone_arg),
+			.z = dt_io_zone(argi->zone_arg),
 			.only_matching_p = argi->only_matching_flag,
 			.invert_match_p = argi->invert_match_flag,
 		};
@@ -216,6 +223,7 @@ with complex expressions");
 	}
 	/* resource freeing */
 	free_dexpr(root);
+	dt_io_clear_zones();
 out:
 	yuck_free(argi);
 	return res;

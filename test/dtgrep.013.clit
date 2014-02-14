@@ -1,0 +1,18 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## consider input date/times as Europe/Berlin
+$ dgrep --from-zone Europe/Berlin '<=11:00:00' <<EOF
+2014-02-14T11:00:00  (is 10:00:00 UTC)
+2014-02-14T12:00:00  (is 11:00:00 UTC)
+2014-02-14T13:00:00  (is 12:00:00 UTC)
+2014-04-14T12:00:00  (is 10:00:00 UTC)
+2014-04-14T13:00:00  (is 11:00:00 UTC)
+2014-04-14T14:00:00  (is 12:00:00 UTC)
+EOF
+2014-02-14T11:00:00  (is 10:00:00 UTC)
+2014-02-14T12:00:00  (is 11:00:00 UTC)
+2014-04-14T12:00:00  (is 10:00:00 UTC)
+2014-04-14T13:00:00  (is 11:00:00 UTC)
+$
+
+## dtgrep.013.clit ends here

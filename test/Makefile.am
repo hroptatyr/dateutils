@@ -583,6 +583,8 @@ dt_tests += dtgrep.009.clit
 dt_tests += dtgrep.010.clit
 dt_tests += dtgrep.011.clit
 dt_tests += dtgrep.012.clit
+dt_tests += dtgrep.013.clit
+dt_tests += dtgrep.014.clit
 
 dt_tests += dttest.001.clit
 dt_tests += dttest.002.clit

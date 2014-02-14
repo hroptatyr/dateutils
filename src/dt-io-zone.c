@@ -131,6 +131,10 @@ dt_io_zone(const char *spec)
 {
 	char *p;
 
+	if (spec == NULL) {
+		/* safety net */
+		return NULL;
+	}
 	/* see if SPEC is a MAP:KEY */
 	if ((p = strchr(spec, ':')) != NULL) {
 		char tzmfn[PATH_MAX];
