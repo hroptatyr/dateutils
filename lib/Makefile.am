@@ -83,20 +83,30 @@ tzminfo_FILES += iata.tzminfo
 tzminfo_FILES += icao.tzminfo
 EXTRA_DIST += $(tzminfo_FILES)
 
-if FETCH_TZMAPS
 tzmap_FILES =
+tzmcc_FILES =
+
+if FETCH_TZMAPS
 tzmap_FILES += iata.tzmap
 tzmap_FILES += icao.tzmap
 BUILT_SOURCES += $(tzmap_FILES)
 DISTCLEANFILES += $(tzmap_FILES)
 
-tzmcc_FILES =
 tzmcc_FILES += iata.tzmcc
 tzmcc_FILES += icao.tzmcc
 pkgdata_DATA += $(tzmcc_FILES)
 CLEANFILES += $(tzmcc_FILES)
 DISTCLEANFILES += $(tzmcc_FILES)
 endif  FETCH_TZMAPS
+
+if HAVE_TZMAPS
+## same thing as with the fetching
+tzmcc_FILES += iata.tzmcc
+tzmcc_FILES += icao.tzmcc
+pkgdata_DATA += $(tzmcc_FILES)
+CLEANFILES += $(tzmcc_FILES)
+DISTCLEANFILES += $(tzmcc_FILES)
+endif  HAVE_TZMAPS
 
 
 AM_V_LTRCC = $(am__v_LTRCC_$(V))
