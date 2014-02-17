@@ -47,6 +47,17 @@ ICAO airport codes.
 - Source: [The GeoNames geographical database][3]
 - Licence: [Creative Commons Attribution 3.0 License][4]
 
+[mic.tzmap][9]
+--------------
+
+- Domain: ISO-10383 4-letter Market Identifier Codes
+- Source: [Codes for exchanges and market identification][10]
+- Licence: [Creative Commons Attribution 3.0 License][4]
+
+This list maps market codes to their IANA timezones based on a market's
+official trading hours and report times.  I.e. the mapping does not
+necessarily reflect where the market is headquartered.
+
 Development
 -----------
 
@@ -61,6 +72,8 @@ The above .tzmap files are managed in the [`tzmaps` branch][8] of the
   [6]: https://raw.github.com/hroptatyr/dateutils/tzmaps/icao.tzmap
   [7]: https://github.com/hroptatyr/dateutils
   [8]: https://github.com/hroptatyr/dateutils/tree/tzmaps
+  [9]: https://raw.github.com/hroptatyr/dateutils/tzmaps/mic.tzmap
+  [10]: http://www.iso15022.org/MIC/homepageMIC.htm
 
 <!--
   Local variables:
