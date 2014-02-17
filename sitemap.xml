@@ -1,0 +1,30 @@
+---
+# Remember to set production_url in your _config.yml file!
+layout: nil
+title : Sitemap
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+	xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
+	xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+	<url>
+		<loc>http://www.fresse.org/dateutils/</loc>
+		<priority>1.00</priority>
+		<changefreq>daily</changefreq>
+	</url>
+	<url>
+		<loc>http://www.fresse.org/dateutils/#examples</loc>
+		<priority>0.90</priority>
+		<changefreq>daily</changefreq>
+	</url>
+	<url>
+		<loc>http://www.fresse.org/dateutils/#distributions</loc>
+		<priority>0.80</priority>
+		<changefreq>daily</changefreq>
+	</url>
+	<url>
+		<loc>http://www.fresse.org/dateutils/#timezone_map_files</loc>
+		<priority>0.80</priority>
+		<changefreq>daily</changefreq>
+	</url>
+</urlset>
