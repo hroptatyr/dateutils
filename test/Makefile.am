@@ -663,6 +663,15 @@ dt_tests += dzone.004.clit
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
 
+## testing tzmaps, regardless if the official ones are here or not
+EXTRA_DIST += dummy.tzmap
+BUILT_SOURCES += dummy.tzmcc
+TESTS_ENVIRONMENT += TZMAP_DIR=$(builddir)
+dt_tests += tzmap.001.clit
+dt_tests += tzmap.002.clit
+dt_tests += tzmap.003.clit
+dt_tests += tzmap.004.clit
+
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
 ## easily be an outdated zoneinfo file
@@ -736,6 +745,12 @@ SUFFIXES += .yucc
 .yuck.yucc:
 	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
 		yuck$(EXEEXT) gen -o $@ $<
+
+## tzmcc rule
+SUFFIXES += .tzmap
+SUFFIXES += .tzmcc
+.tzmap.tzmcc:
+	-$(AM_V_GEN) $(top_builddir)/lib/tzmap cc -o $@ $<
 
 clean-local:
 	-rm -rf *.tmpd

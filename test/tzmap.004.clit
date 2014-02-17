@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd --zone dummy:XETR --from-zone Europe/London 2012-03-04T12:04:11 +1h
+2012-03-04T14:04:11
+$
+
+## tzmap.004.clit ends here

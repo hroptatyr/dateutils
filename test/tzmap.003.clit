@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dzone dummy:XETR --from-zone dummy:XLON 2012-03-04T12:04:11
+2012-03-04T13:04:11+01:00	dummy:XETR
+$
+
+## tzmap.003.clit ends here
