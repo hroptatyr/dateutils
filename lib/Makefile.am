@@ -81,6 +81,7 @@ BUILT_SOURCES += tzmap.yucc
 tzminfo_FILES =
 tzminfo_FILES += iata.tzminfo
 tzminfo_FILES += icao.tzminfo
+tzminfo_FILES += mic.tzminfo
 EXTRA_DIST += $(tzminfo_FILES)
 
 tzmap_FILES =
