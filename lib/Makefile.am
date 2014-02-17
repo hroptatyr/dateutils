@@ -81,6 +81,7 @@ BUILT_SOURCES += tzmap.yucc
 tzminfo_FILES =
 tzminfo_FILES += iata.tzminfo
 tzminfo_FILES += icao.tzminfo
+tzminfo_FILES += mic.tzminfo
 EXTRA_DIST += $(tzminfo_FILES)
 
 tzmap_FILES =
@@ -89,11 +90,13 @@ tzmcc_FILES =
 if FETCH_TZMAPS
 tzmap_FILES += iata.tzmap
 tzmap_FILES += icao.tzmap
+tzmap_FILES += mic.tzmap
 BUILT_SOURCES += $(tzmap_FILES)
 DISTCLEANFILES += $(tzmap_FILES)
 
 tzmcc_FILES += iata.tzmcc
 tzmcc_FILES += icao.tzmcc
+tzmcc_FILES += mic.tzmcc
 pkgdata_DATA += $(tzmcc_FILES)
 CLEANFILES += $(tzmcc_FILES)
 DISTCLEANFILES += $(tzmcc_FILES)
@@ -103,6 +106,7 @@ if HAVE_TZMAPS
 ## same thing as with the fetching
 tzmcc_FILES += iata.tzmcc
 tzmcc_FILES += icao.tzmcc
+tzmcc_FILES += mic.tzmcc
 pkgdata_DATA += $(tzmcc_FILES)
 CLEANFILES += $(tzmcc_FILES)
 DISTCLEANFILES += $(tzmcc_FILES)
