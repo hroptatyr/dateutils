@@ -374,6 +374,7 @@ parse_file(const char *file)
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+	fclose(fp);
 	return 0;
 }
 #endif	/* STANDALONE */
