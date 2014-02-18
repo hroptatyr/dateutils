@@ -348,8 +348,13 @@ parse_line(char *ln, size_t lz)
 	if ((lp = strchr(ln, '\t')) == NULL) {
 		/* buggered line */
 		return;
+	} else if (lp == ln) {
+		return;
 	} else if (*lp++ = '\0', *lp == '\0') {
 		/* huh? no zone name, cunt off */
+		return;
+	} else if (lp - ln > 256U) {
+		/* too long */
 		return;
 	} else if ((znp = tzm_find_zn(lp, ln + lz - lp)) == -1U) {
 		/* brilliant, can't add anything */
