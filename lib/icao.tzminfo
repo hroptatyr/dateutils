@@ -2,5 +2,9 @@
 - Source: [The GeoNames geographical database][1]
 - Licence: [Creative Commons Attribution 3.0 License][2]
 
+This list maps airports by their ICAO 4-letter airport code to the local
+IANA timezone.  It is generally assumed that the airport in question
+indeed operates in local time.
+
   [1]: http://download.geonames.org/export/dump/
   [2]: http://creativecommons.org/licenses/by/3.0/
