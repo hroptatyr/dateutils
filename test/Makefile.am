@@ -26,6 +26,7 @@ bin_tests =
 batch_tests =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
+DISTCLEANFILES = $(built_nodist_sources)
 SUFFIXES =
 
 DT_LIBS = $(top_builddir)/lib/libdut.a
