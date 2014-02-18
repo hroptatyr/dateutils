@@ -40,12 +40,20 @@ ICAO airport codes.
 - Source: [The GeoNames geographical database][3]
 - Licence: [Creative Commons Attribution 3.0 License][4]
 
+This list maps airports by their IATA 3-letter airport code to the local
+IANA timezone.  It is generally assumed that the airport in question
+indeed operates in local time.
+
 [icao.tzmap][6]
 ---------------
 
 - Domain: ICAO 4-letter airport codes
 - Source: [The GeoNames geographical database][3]
 - Licence: [Creative Commons Attribution 3.0 License][4]
+
+This list maps airports by their ICAO 4-letter airport code to the local
+IANA timezone.  It is generally assumed that the airport in question
+indeed operates in local time.
 
 [mic.tzmap][9]
 --------------
