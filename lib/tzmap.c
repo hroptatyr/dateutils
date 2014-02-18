@@ -115,6 +115,17 @@ serror(const char *fmt, ...)
         fputc('\n', stderr);
         return;
 }
+
+static size_t
+xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
+{
+	if (ssz >= dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
+}
 #endif	/* STANDALONE */
 
 static void*
@@ -364,6 +375,54 @@ parse_line(char *ln, size_t lz)
 	return;
 }
 
+static const char *check_fn;
+static int
+check_line(char *ln, size_t lz)
+{
+	static char last[256U];
+	static unsigned int lno;
+	size_t cz;
+	char *lp;
+	int rc = 0;
+
+	if (UNLIKELY(ln == NULL || lz == 0U)) {
+		/* finalise */
+		lno = 0U;
+		*last = '\0';
+		return 0;
+	}
+	/* advance line number */
+	lno++;
+
+#define CHECK_ERROR(fmt, args...)		\
+	error("Error in %s:%u: " fmt, check_fn, lno, ## args)
+
+	/* the actual checks here */
+	if ((lp = strchr(ln, '\t')) == NULL) {
+		/* buggered line */
+		CHECK_ERROR("no separator");
+		return -1;
+	} else if (lp == ln) {
+		CHECK_ERROR("no code");
+		return -1;
+	} else if (*lp++ = '\0', *lp == '\0') {
+		/* huh? no zone name, cunt off */
+		CHECK_ERROR("no zone name");
+		rc = -1;
+	}
+	if ((cz = lp - ln - 1U) >= sizeof(last)) {
+		CHECK_ERROR("code too long (%zu chars, max is 255)", cz);
+		rc = -1;
+	} else if (strcmp(last, ln) >= 0) {
+		CHECK_ERROR("non-ascending order `%s' (after `%s')", ln, last);
+		rc = -1;
+	}
+#undef CHECK_ERROR
+	/* make sure to memorise ln for the next run */
+	xstrlncpy(last, sizeof(last), ln, cz);
+	return rc;
+}
+
 static int
 parse_file(const char *file)
 {
@@ -392,6 +451,38 @@ parse_file(const char *file)
 #endif	/* GETLINE/FGETLN */
 	fclose(fp);
 	return 0;
+}
+
+static int
+check_file(const char *file)
+{
+	char *line = NULL;
+	size_t llen = 0U;
+	FILE *fp;
+	int rc = 0;
+
+	if (file == NULL) {
+		fp = stdin;
+		check_fn = "-";
+	} else if ((fp = fopen(check_fn = file, "r")) == NULL) {
+		return -1;
+	}
+
+#if defined HAVE_GETLINE
+	for (ssize_t nrd; (nrd = getline(&line, &llen, fp)) > 0;) {
+		line[--nrd] = '\0';
+		rc |= check_line(line, nrd);
+	}
+#elif defined HAVE_FGETLN
+	while ((line = fgetln(f, &llen)) != NULL) {
+		line[--llen] = '\0';
+		rc |= check_line(line, llen);
+	}
+#else
+# error neither getline() nor fgetln() available, cannot read file line by line
+#endif	/* GETLINE/FGETLN */
+	fclose(fp);
+	return rc;
 }
 #endif	/* STANDALONE */
 
@@ -489,6 +580,17 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 	return rc;
 }
 
+static int
+cmd_check(const struct yuck_cmd_check_s argi[static 1U])
+{
+	int rc = 0;
+
+	for (size_t i = 0U; i < argi->nargs || i == 0U; i++) {
+		rc |= check_file(argi->args[i]);
+	}
+	return -rc;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -506,6 +608,9 @@ main(int argc, char *argv[])
 		break;
 	case TZMAP_CMD_SHOW:
 		rc = cmd_show((void*)argi);
+		break;
+	case TZMAP_CMD_CHECK:
+		rc = cmd_check((void*)argi);
 		break;
 	default:
 		rc = 1;
