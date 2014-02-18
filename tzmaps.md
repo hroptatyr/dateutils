@@ -79,6 +79,10 @@ Development
 The above .tzmap files are managed in the [`tzmaps` branch][8] of the
 [dateutils repository][7].  Patches are welcome.
 
+Seeing as the maps are largely independent, there will be no releases.
+The latest version of the maps can always be downloaded through the
+provided links.
+
   [1]: http://www.fresse.org/dateutils/
   [2]: http://www.iana.org/time-zones
   [3]: http://download.geonames.org/export/dump/
