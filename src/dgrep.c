@@ -68,7 +68,7 @@ static void
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
 	char *osp;
-	char *oep;
+	char *oep = NULL;
 
 	/* check if line matches,
 	 * there's currently no way to specify NEEDLE */
@@ -104,6 +104,10 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		if (!ctx.only_matching_p) {
 			osp = line;
 			oep = line + llen;
+		} else if (oep == NULL) {
+			/* no date in line and only-matching is active
+			 * bugger off */
+			return;
 		}
 		/* finish the line and bugger off */
 		*oep++ = '\n';
