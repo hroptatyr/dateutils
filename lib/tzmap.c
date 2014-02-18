@@ -500,6 +500,7 @@ check_file(const char *file)
 		fp = stdin;
 		check_fn = "-";
 	} else if ((fp = fopen(check_fn = file, "r")) == NULL) {
+		serror("Cannot open file `%s'", file);
 		return -1;
 	}
 
