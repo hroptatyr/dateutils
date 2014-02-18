@@ -735,7 +735,6 @@ DTTB	Africa/Tunis
 DTTD	Africa/Tunis
 DTTF	Africa/Tunis
 DTTG	Africa/Tunis
-DTTG	Africa/Tunis
 DTTI	Africa/Tunis
 DTTJ	Africa/Tunis
 DTTK	Africa/Tunis
@@ -779,7 +778,6 @@ EDAK	Europe/Berlin
 EDAL	Europe/Berlin
 EDAM	Europe/Berlin
 EDAN	Europe/Berlin
-EDAN	Europe/Berlin
 EDAO	Europe/Berlin
 EDAP	Europe/Berlin
 EDAT	Europe/Berlin
@@ -803,7 +801,6 @@ EDCQ	Europe/Berlin
 EDCT	Europe/Berlin
 EDCU	Europe/Berlin
 EDCV	Europe/Berlin
-EDDB	Europe/Berlin
 EDDB	Europe/Berlin
 EDDC	Europe/Berlin
 EDDE	Europe/Berlin
@@ -1370,7 +1367,6 @@ ENEN	Europe/Oslo
 ENEV	Europe/Oslo
 ENFB	Europe/Oslo
 ENFD	Europe/Oslo
-ENFD	Europe/Oslo
 ENFG	Europe/Oslo
 ENFL	Europe/Oslo
 ENFR	Europe/Oslo
@@ -1692,7 +1688,6 @@ FALF	Africa/Johannesburg
 FALI	Africa/Johannesburg
 FALK	Africa/Johannesburg
 FALL	Africa/Johannesburg
-FALM	Africa/Johannesburg
 FALM	Africa/Johannesburg
 FALW	Africa/Johannesburg
 FALY	Africa/Johannesburg
@@ -2368,7 +2363,6 @@ HAGR	Africa/Addis_Ababa
 HAHM	Africa/Addis_Ababa
 HAHU	Africa/Addis_Ababa
 HAJJ	Africa/Addis_Ababa
-HAJJ	Africa/Addis_Ababa
 HAJM	Africa/Addis_Ababa
 HAKD	Africa/Addis_Ababa
 HAKL	Africa/Addis_Ababa
@@ -2547,7 +2541,6 @@ HSYA	Africa/Juba
 HSYE	Africa/Juba
 HSYL	Pacific/Kwajalein
 HSZA	Africa/Khartoum
-HSZA	Africa/Khartoum
 HTAR	Africa/Dar_es_Salaam
 HTBU	Africa/Dar_es_Salaam
 HTDA	Africa/Dar_es_Salaam
@@ -2698,7 +2691,6 @@ KAAA	America/Chicago
 KAAF	America/New_York
 KAAO	America/Chicago
 KAAP	America/Chicago
-KAAP	America/Chicago
 KAAS	America/New_York
 KAAT	America/Los_Angeles
 KABE	America/New_York
@@ -2722,7 +2714,6 @@ KADM	America/Chicago
 KADS	America/Chicago
 KADT	America/Chicago
 KADU	America/Chicago
-KADW	America/New_York
 KADW	America/New_York
 KAEG	America/Denver
 KAEL	America/Chicago
@@ -2950,7 +2941,6 @@ KBPI	America/Denver
 KBPK	America/Chicago
 KBPP	America/Denver
 KBPT	America/Chicago
-KBQK	America/New_York
 KBQK	America/New_York
 KBQR	America/New_York
 KBRD	America/Chicago
@@ -6047,7 +6037,6 @@ MMSP	America/Mexico_City
 MMSZ	America/Mexico_City
 MMTC	America/Monterrey
 MMTG	America/Mexico_City
-MMTG	America/Mexico_City
 MMTJ	America/Tijuana
 MMTM	America/Mexico_City
 MMTN	America/Mexico_City
@@ -6202,7 +6191,6 @@ MYMM	America/Nassau
 MYNN	America/Nassau
 MYPI	America/Nassau
 MYRD	America/Nassau
-MYRP	America/Nassau
 MYRP	America/Nassau
 MYSM	America/Nassau
 MZBZ	America/Belize
@@ -7170,7 +7158,6 @@ RPUX	Asia/Manila
 RPUY	Asia/Manila
 RPUZ	Asia/Manila
 RPVA	Asia/Manila
-RPVB	Asia/Manila
 RPVB	Asia/Manila
 RPVC	Asia/Manila
 RPVD	Asia/Manila
@@ -8308,7 +8295,6 @@ ULKK	Europe/Moscow
 ULLI	Europe/Moscow
 ULLP	Europe/Moscow
 ULMK	Europe/Moscow
-ULMK	Europe/Moscow
 ULMM	Europe/Moscow
 ULNN	Europe/Moscow
 ULNR	Europe/Moscow
@@ -8941,7 +8927,6 @@ WASK	Asia/Jayapura
 WASM	Asia/Jayapura
 WASO	Asia/Jayapura
 WASR	Asia/Jayapura
-WASS	Asia/Jayapura
 WASS	Asia/Jayapura
 WAST	Asia/Jayapura
 WASW	Asia/Jayapura
@@ -9640,7 +9625,6 @@ ZBSJ	Asia/Shanghai
 ZBTJ	Asia/Shanghai
 ZBTL	Asia/Shanghai
 ZBTS	Asia/Shanghai
-ZBTS	Asia/Shanghai
 ZBUL	Asia/Shanghai
 ZBXH	Asia/Shanghai
 ZBXT	Asia/Shanghai
@@ -9660,7 +9644,6 @@ ZGKL	Asia/Chongqing
 ZGLG	Asia/Shanghai
 ZGMX	Asia/Shanghai
 ZGNN	Asia/Chongqing
-ZGOW	Asia/Shanghai
 ZGOW	Asia/Shanghai
 ZGSD	Asia/Shanghai
 ZGSZ	Asia/Chongqing
@@ -9753,9 +9736,7 @@ ZSLQ	Asia/Shanghai
 ZSLY	Asia/Shanghai
 ZSNB	Asia/Shanghai
 ZSNJ	Asia/Shanghai
-ZSNJ	Asia/Shanghai
 ZSNT	Asia/Shanghai
-ZSOF	Asia/Shanghai
 ZSOF	Asia/Shanghai
 ZSPD	Asia/Shanghai
 ZSQD	Asia/Shanghai
