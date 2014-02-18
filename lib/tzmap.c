@@ -87,6 +87,14 @@
 # define DEFUN
 #endif	/* !DEFUN */
 
+#if defined STANDALONE
+# if defined TZDIR
+static const char tzdir[] = TZDIR;
+# else  /* !TZDIR */
+static const char tzdir[] = "/usr/share/zoneinfo";
+# endif	/* TZDIR */
+#endif	/* STANDALONE */
+
 
 #if defined STANDALONE
 static __attribute__((format(printf, 1, 2))) void
@@ -417,9 +425,36 @@ check_line(char *ln, size_t lz)
 		CHECK_ERROR("non-ascending order `%s' (after `%s')", ln, last);
 		rc = -1;
 	}
-#undef CHECK_ERROR
 	/* make sure to memorise ln for the next run */
 	xstrlncpy(last, sizeof(last), ln, cz);
+
+	/* it's none of our business really, but go through the zonenames
+	 * and check for their existence now */
+	with (struct stat st[1U]) {
+		char zn[256U] = {0};
+
+		if (*lp == '/') {
+			/* absolute zonename? */
+			;
+		} else if (*lp) {
+			/* relative zonename */
+			char *zp = zn;
+			const char *const ep = zn + sizeof(zn);
+
+			zp += xstrlncpy(zp, ep - zp, tzdir, sizeof(tzdir) - 1U);
+			*zp++ = '/';
+			zp += xstrlncpy(zp, ep - zp, lp, lz - (lp - ln));
+			*zp = '\0';
+		}
+		if (!*lp) {
+			/* already warned about this */
+			;
+		} else if (stat(zn, st) < 0) {
+			CHECK_ERROR("cannot find zone `%s' in TZDIR", lp);
+			rc = -1;
+		}
+	}
+#undef CHECK_ERROR
 	return rc;
 }
 
