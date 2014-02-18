@@ -14,3 +14,7 @@ Show mapped zonename for MNAMEs, if omitted show all entries from the
 specified tzmap file.
 
   -f, --tzmap=FILE      Use FILE.
+
+Usage: tzmap check [FILE]...
+
+Check IANA zonenames in FILEs.

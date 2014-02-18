@@ -87,10 +87,29 @@
 # define DEFUN
 #endif	/* !DEFUN */
 
+#if defined STANDALONE
+# if defined TZDIR
+static const char tzdir[] = TZDIR;
+# else  /* !TZDIR */
+static const char tzdir[] = "/usr/share/zoneinfo";
+# endif	/* TZDIR */
+#endif	/* STANDALONE */
+
 
 #if defined STANDALONE
 static __attribute__((format(printf, 1, 2))) void
 error(const char *fmt, ...)
+{
+        va_list vap;
+        va_start(vap, fmt);
+        vfprintf(stderr, fmt, vap);
+        va_end(vap);
+        fputc('\n', stderr);
+        return;
+}
+
+static __attribute__((format(printf, 1, 2))) void
+serror(const char *fmt, ...)
 {
         va_list vap;
         va_start(vap, fmt);
@@ -103,6 +122,17 @@ error(const char *fmt, ...)
         }
         fputc('\n', stderr);
         return;
+}
+
+static size_t
+xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
+{
+	if (ssz >= dsz) {
+		ssz = dsz - 1U;
+	}
+	memcpy(dst, src, ssz);
+	dst[ssz] = '\0';
+	return ssz;
 }
 #endif	/* STANDALONE */
 
@@ -337,8 +367,13 @@ parse_line(char *ln, size_t lz)
 	if ((lp = strchr(ln, '\t')) == NULL) {
 		/* buggered line */
 		return;
+	} else if (lp == ln) {
+		return;
 	} else if (*lp++ = '\0', *lp == '\0') {
 		/* huh? no zone name, cunt off */
+		return;
+	} else if (lp - ln > 256U) {
+		/* too long */
 		return;
 	} else if ((znp = tzm_find_zn(lp, ln + lz - lp)) == -1U) {
 		/* brilliant, can't add anything */
@@ -346,6 +381,81 @@ parse_line(char *ln, size_t lz)
 	}
 	tzm_add_mn(ln, lp - ln - 1U, znp);
 	return;
+}
+
+static const char *check_fn;
+static int
+check_line(char *ln, size_t lz)
+{
+	static char last[256U];
+	static unsigned int lno;
+	size_t cz;
+	char *lp;
+	int rc = 0;
+
+	if (UNLIKELY(ln == NULL || lz == 0U)) {
+		/* finalise */
+		lno = 0U;
+		*last = '\0';
+		return 0;
+	}
+	/* advance line number */
+	lno++;
+
+#define CHECK_ERROR(fmt, args...)		\
+	error("Error in %s:%u: " fmt, check_fn, lno, ## args)
+
+	/* the actual checks here */
+	if ((lp = strchr(ln, '\t')) == NULL) {
+		/* buggered line */
+		CHECK_ERROR("no separator");
+		return -1;
+	} else if (lp == ln) {
+		CHECK_ERROR("no code");
+		return -1;
+	} else if (*lp++ = '\0', *lp == '\0') {
+		/* huh? no zone name, cunt off */
+		CHECK_ERROR("no zone name");
+		rc = -1;
+	}
+	if ((cz = lp - ln - 1U) >= sizeof(last)) {
+		CHECK_ERROR("code too long (%zu chars, max is 255)", cz);
+		rc = -1;
+	} else if (strcmp(last, ln) >= 0) {
+		CHECK_ERROR("non-ascending order `%s' (after `%s')", ln, last);
+		rc = -1;
+	}
+	/* make sure to memorise ln for the next run */
+	xstrlncpy(last, sizeof(last), ln, cz);
+
+	/* it's none of our business really, but go through the zonenames
+	 * and check for their existence now */
+	with (struct stat st[1U]) {
+		char zn[256U] = {0};
+
+		if (*lp == '/') {
+			/* absolute zonename? */
+			;
+		} else if (*lp) {
+			/* relative zonename */
+			char *zp = zn;
+			const char *const ep = zn + sizeof(zn);
+
+			zp += xstrlncpy(zp, ep - zp, tzdir, sizeof(tzdir) - 1U);
+			*zp++ = '/';
+			zp += xstrlncpy(zp, ep - zp, lp, lz - (lp - ln));
+			*zp = '\0';
+		}
+		if (!*lp) {
+			/* already warned about this */
+			;
+		} else if (stat(zn, st) < 0) {
+			CHECK_ERROR("cannot find zone `%s' in TZDIR", lp);
+			rc = -1;
+		}
+	}
+#undef CHECK_ERROR
+	return rc;
 }
 
 static int
@@ -374,7 +484,40 @@ parse_file(const char *file)
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+	fclose(fp);
 	return 0;
+}
+
+static int
+check_file(const char *file)
+{
+	char *line = NULL;
+	size_t llen = 0U;
+	FILE *fp;
+	int rc = 0;
+
+	if (file == NULL) {
+		fp = stdin;
+		check_fn = "-";
+	} else if ((fp = fopen(check_fn = file, "r")) == NULL) {
+		return -1;
+	}
+
+#if defined HAVE_GETLINE
+	for (ssize_t nrd; (nrd = getline(&line, &llen, fp)) > 0;) {
+		line[--nrd] = '\0';
+		rc |= check_line(line, nrd);
+	}
+#elif defined HAVE_FGETLN
+	while ((line = fgetln(f, &llen)) != NULL) {
+		line[--llen] = '\0';
+		rc |= check_line(line, llen);
+	}
+#else
+# error neither getline() nor fgetln() available, cannot read file line by line
+#endif	/* GETLINE/FGETLN */
+	fclose(fp);
+	return rc;
 }
 #endif	/* STANDALONE */
 
@@ -400,7 +543,7 @@ cmd_cc(const struct yuck_cmd_cc_s argi[static 1U])
 		/* we used to make -o|--output mandatory */
 		;
 	} else if ((ofd = open(outf, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
-		error("cannot open output file `%s'", outf);
+		serror("cannot open output file `%s'", outf);
 		rc = 1;
 		goto out;
 	}
@@ -433,7 +576,7 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 		/* we used to make -f|--tzmap mandatory */
 		;
 	} else if ((m = tzm_open(fn)) == NULL) {
-		error("cannot open input file `%s'", fn);
+		serror("cannot open input file `%s'", fn);
 		return 1;
 	}
 
@@ -472,6 +615,17 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 	return rc;
 }
 
+static int
+cmd_check(const struct yuck_cmd_check_s argi[static 1U])
+{
+	int rc = 0;
+
+	for (size_t i = 0U; i < argi->nargs || i == 0U; i++) {
+		rc |= check_file(argi->args[i]);
+	}
+	return -rc;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -489,6 +643,9 @@ main(int argc, char *argv[])
 		break;
 	case TZMAP_CMD_SHOW:
 		rc = cmd_show((void*)argi);
+		break;
+	case TZMAP_CMD_CHECK:
+		rc = cmd_check((void*)argi);
 		break;
 	default:
 		rc = 1;
