@@ -500,6 +500,7 @@ check_file(const char *file)
 		fp = stdin;
 		check_fn = "-";
 	} else if ((fp = fopen(check_fn = file, "r")) == NULL) {
+		serror("Cannot open file `%s'", file);
 		return -1;
 	}
 
@@ -516,6 +517,10 @@ check_file(const char *file)
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+
+	/* reset line checker */
+	check_line(NULL, 0U);
+	/* and clear resources */
 	fclose(fp);
 	return rc;
 }

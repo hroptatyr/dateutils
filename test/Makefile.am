@@ -675,6 +675,11 @@ dt_tests += tzmap.002.clit
 dt_tests += tzmap.003.clit
 dt_tests += tzmap.004.clit
 
+## make sure our the maps we ship are clean
+dt_tests += tzmap_check.clit
+TESTS_ENVIRONMENT += TZMAP=$(top_builddir)/lib/tzmap
+
+
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
 ## easily be an outdated zoneinfo file

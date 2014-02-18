@@ -1,0 +1,6 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ find "${root}/lib" "${TZMAP_DIR}/../lib" -name '*.tzmap' | xargs "${TZMAP}" check
+$
+
+## tzmap_check.clit ends here
