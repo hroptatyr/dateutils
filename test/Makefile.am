@@ -14,13 +14,13 @@ AM_CPPFLAGS += -DTEST -I"$(libdir)" -I"$(abs_top_builddir)/lib"
 EXTRA_DIST =
 EXTRA_DIST += $(dt_tests)
 EXTRA_DIST += $(batch_tests)
-EXTRA_DIST += $(BUILT_DIST_SOURCES)
+EXTRA_DIST += $(built_dist_sources)
 TESTS = $(bin_tests) $(dt_tests) $(batch_tests)
 TESTS_ENVIRONMENT =
 TEST_EXTENSIONS =
-BUILT_SOURCES = $(BUILT_DIST_SOURCES) $(BUILT_NODIST_SOURCES)
-BUILT_DIST_SOURCES =
-BUILT_NODIST_SOURCES =
+BUILT_SOURCES = $(built_dist_sources) $(built_nodist_sources)
+built_dist_sources =
+built_nodist_sources =
 dt_tests =
 bin_tests =
 batch_tests =
@@ -667,7 +667,7 @@ dt_tests += strptime.002.clit
 
 ## testing tzmaps, regardless if the official ones are here or not
 EXTRA_DIST += dummy.tzmap
-BUILT_NODIST_SOURCES += dummy.tzmcc
+built_nodist_sources += dummy.tzmcc
 TESTS_ENVIRONMENT += TZMAP_DIR=$(builddir)
 dt_tests += tzmap.001.clit
 dt_tests += tzmap.002.clit
@@ -738,7 +738,7 @@ check_PROGRAMS += clittool
 clittool_CPPFLAGS = $(AM_CPPFLAGS)
 clittool_CPPFLAGS += -D_GNU_SOURCE
 EXTRA_DIST += clittool.yuck
-BUILT_DIST_SOURCES += clittool.yucc
+built_dist_sources += clittool.yucc
 
 
 ## ggo rule
