@@ -96,6 +96,17 @@ error(const char *fmt, ...)
         va_start(vap, fmt);
         vfprintf(stderr, fmt, vap);
         va_end(vap);
+        fputc('\n', stderr);
+        return;
+}
+
+static __attribute__((format(printf, 1, 2))) void
+serror(const char *fmt, ...)
+{
+        va_list vap;
+        va_start(vap, fmt);
+        vfprintf(stderr, fmt, vap);
+        va_end(vap);
         if (errno) {
                 fputc(':', stderr);
                 fputc(' ', stderr);
@@ -401,7 +412,7 @@ cmd_cc(const struct yuck_cmd_cc_s argi[static 1U])
 		/* we used to make -o|--output mandatory */
 		;
 	} else if ((ofd = open(outf, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
-		error("cannot open output file `%s'", outf);
+		serror("cannot open output file `%s'", outf);
 		rc = 1;
 		goto out;
 	}
@@ -434,7 +445,7 @@ cmd_show(const struct yuck_cmd_show_s argi[static 1U])
 		/* we used to make -f|--tzmap mandatory */
 		;
 	} else if ((m = tzm_open(fn)) == NULL) {
-		error("cannot open input file `%s'", fn);
+		serror("cannot open input file `%s'", fn);
 		return 1;
 	}
 
