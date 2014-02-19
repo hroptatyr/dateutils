@@ -152,7 +152,7 @@ alist_next(alist_t al)
 {
 	acons_t res;
 
-	if (UNLIKELY(al->iter >= al->data + al->dend)) {
+	if (UNLIKELY((const char*)al->iter >= al->data + al->dend)) {
 		al->iter = NULL;
 		res = (acons_t){NULL, NULL};
 	} else {
