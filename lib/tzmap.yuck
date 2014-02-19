@@ -10,8 +10,8 @@ Generate a map to zoneinfo names suitable for dateutils.
 
 Usage: tzmap show [MNAME]...
 
-Show mapped zonename for MNAMEs, if omitted show all entries from the
-specified tzmap file.
+Show mapped zonename for MNAMEs, if omitted show all entries
+from the specified tzmap file.
 
   -f, --tzmap=FILE      Use FILE.
 
