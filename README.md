@@ -37,6 +37,7 @@ ICAO airport codes.
 ---------------
 
 - Domain: IATA 3-letter airport codes
+- Author: [Sebastian Freundt][11]
 - Source: [The GeoNames geographical database][3]
 - Licence: [Creative Commons Attribution 3.0 License][4]
 
@@ -48,6 +49,7 @@ indeed operates in local time.
 ---------------
 
 - Domain: ICAO 4-letter airport codes
+- Author: [Sebastian Freundt][11]
 - Source: [The GeoNames geographical database][3]
 - Licence: [Creative Commons Attribution 3.0 License][4]
 
@@ -59,6 +61,7 @@ indeed operates in local time.
 --------------
 
 - Domain: ISO-10383 4-letter Market Identifier Codes
+- Author: [Sebastian Freundt][11]
 - Source: [Codes for exchanges and market identification][10]
 - Licence: [Creative Commons Attribution 3.0 License][4]
 
@@ -82,6 +85,7 @@ The above .tzmap files are managed in the [`tzmaps` branch][8] of the
   [8]: https://github.com/hroptatyr/dateutils/tree/tzmaps
   [9]: https://raw.github.com/hroptatyr/dateutils/tzmaps/mic.tzmap
   [10]: http://www.iso15022.org/MIC/homepageMIC.htm
+  [11]: http://www.fresse.org/
 
 <!--
   Local variables:
