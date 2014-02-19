@@ -1,10 +1,12 @@
 - Domain: ICAO 4-letter airport codes
-- Source: [The GeoNames geographical database][1]
-- Licence: [Creative Commons Attribution 3.0 License][2]
+- Author: [Sebastian Freundt][1]
+- Source: [The GeoNames geographical database][2]
+- Licence: [Creative Commons Attribution 3.0 License][3]
 
 This list maps airports by their ICAO 4-letter airport code to the local
 IANA timezone.  It is generally assumed that the airport in question
 indeed operates in local time.
 
-  [1]: http://download.geonames.org/export/dump/
-  [2]: http://creativecommons.org/licenses/by/3.0/
+  [1]: http://www.fresse.org/
+  [2]: http://download.geonames.org/export/dump/
+  [3]: http://creativecommons.org/licenses/by/3.0/
