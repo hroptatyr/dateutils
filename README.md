@@ -5,7 +5,7 @@ Dateutils
 [![Build Status](https://drone.io/github.com/hroptatyr/dateutils/status.png)](https://drone.io/github.com/hroptatyr/dateutils/latest)
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
-and times in the command line with a strong focus on use cases that
+and times on the command line with a strong focus on use cases that
 arise when dealing with large amounts of financial data.
 
 Dateutils are hosted primarily on github:
