@@ -128,8 +128,8 @@ leapseconds.def: leapseconds
 ## version rules
 version.c: version.c.in $(top_builddir)/.version
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
-		yuck$(EXEEXT) scmver --ignore-noscm -o $@ \
-			--force --reference $(top_builddir)/.version $<
+		yuck$(EXEEXT) scmver --ignore-noscm --force -o $@ \
+			--use-reference --reference $(top_builddir)/.version $<
 
 ## yuck rule
 SUFFIXES += .yuck
