@@ -125,14 +125,17 @@ leapseconds.def: leapseconds
 	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
 	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
 
-version.c: version.c.in $(top_builddir)/version.mk
-	sed -e 's,[@]VERSION[@],$(VERSION),g' <$(srcdir)/$@.in >$@
+## version rules
+version.c: version.c.in $(top_builddir)/.version
+	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
+		yuck$(EXEEXT) scmver --ignore-noscm -o $@ \
+			--reference $(top_builddir)/.version $<
 
 ## yuck rule
 SUFFIXES += .yuck
 SUFFIXES += .yucc
 .yuck.yucc:
-	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
+	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
 		yuck$(EXEEXT) gen -o $@ $<
 
 ## gperf rule
