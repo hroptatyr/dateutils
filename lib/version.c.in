@@ -1,5 +1,4 @@
+/* -*- c -*- */
 #include "version.h"
 
-#define VERSION "@VERSION@"
-
-const char dateutils_version_string[] = VERSION;
+const char dateutils_version_string[] = "YUCK_SCMVER_VERSION";

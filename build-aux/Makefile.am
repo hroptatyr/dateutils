@@ -17,11 +17,13 @@ yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
 
 noinst_PROGRAMS += yuck
 yuck_SOURCES = yuck.c yuck.yuck
+yuck_SOURCES += yuck-scmver.c yuck-scmver.h
 yuck_SOURCES += yuck.m4
 yuck_SOURCES += yuck-coru.m4c yuck-coru.m4h
 yuck_SOURCES += yuck.m4man
 yuck_CPPFLAGS = $(AM_CPPFLAGS)
 yuck_CPPFLAGS += -DYUCK_TEMPLATE_PATH='"$(abs_srcdir)"'
+yuck_CPPFLAGS += -DWITH_SCMVER
 BUILT_SOURCES += yuck.yucc
 endif  !HAVE_YUCK
 EXTRA_DIST = yuck.yucc yuck.m4i

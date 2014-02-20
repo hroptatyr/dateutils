@@ -3,8 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-## t.i.n.a.v = this is not a version, never use it!
-AC_INIT([dateutils], [t.i.n.a.v], [https://github.com/hroptatyr/dateutils])
+AC_INIT([dateutils], [0.3.0.GIT], [https://github.com/hroptatyr/dateutils])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -15,7 +14,7 @@ dnl Local copyright notices.
 dnl -------------------------------------------------------------------------
 
 AC_COPYRIGHT([dnl
-#### Configuration script for uschi and friends.
+#### Configuration script for dateutils and friends.
 #### Copyright (C) 2011-2014 Sebastian Freundt
 
 ### Don't edit this script!
@@ -28,7 +27,7 @@ AC_COPYRIGHT([dnl
 AM_INIT_AUTOMAKE([foreign dist-xz color-tests parallel-tests subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-GIT_VERSION_MAGIC
+AX_YUCK_SCMVER
 AC_CONFIG_LINKS([GNUmakefile:GNUmakefile])
 
 ## the build chain
