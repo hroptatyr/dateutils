@@ -18,7 +18,10 @@ install:
 before_script:
   - autoreconf -vfi
 
-script: ./configure && make clean all check distcheck || (cat test/test-suite.log && /bin/false)
+script:
+ - ./configure
+ - make clean all check || { cat test/test-suite.log; false; }
+ - make distcheck
 
 ## whitelist
 branches:

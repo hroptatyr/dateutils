@@ -9,7 +9,8 @@ script:
   - sudo apt-get install texlive
   - autoreconf -vfi
   - ./configure
-  - make clean all check distcheck
+  - make clean all check
+  - make distcheck
 
 notify:
   email:
