@@ -15,7 +15,7 @@ dnl Local copyright notices.
 dnl -------------------------------------------------------------------------
 
 AC_COPYRIGHT([dnl
-#### Configuration script for uschi and friends.
+#### Configuration script for dateutils and friends.
 #### Copyright (C) 2011-2014 Sebastian Freundt
 
 ### Don't edit this script!
