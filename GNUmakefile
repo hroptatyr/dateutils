@@ -11,8 +11,11 @@ include Makefile
 
 # update the included makefile snippet which sets VERSION variables
 version.mk: .version version.mk.in FORCE
-	-$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
-		yuck scmver --ignore-noscm -o $@ --reference $^
+	$(AM_V_GEN) \
+	if test -w $<; then \
+		PATH="$(top_builddir)/build-aux:$${PATH}" \
+			yuck scmver --ignore-noscm -o $@ --reference $^; \
+	fi
 
 else
 
