@@ -27,4 +27,8 @@ BUILT_SOURCES += .version
 .version:
 	$(AM_V_GEN) echo "v$(VERSION)" > $@
 
+## make sure .version is read-only in the dist
+dist-hook:
+	chmod ugo-w $(distdir)/.version
+
 ## Makefile.am ends here
