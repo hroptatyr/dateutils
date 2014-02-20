@@ -17,6 +17,7 @@ SUBDIRS += test
 SUBDIRS += contrib
 
 DISTCLEANFILES = version.mk
+EXTRA_DIST += version.mk
 EXTRA_DIST += version.mk.in
 
 doc_DATA = README.md
