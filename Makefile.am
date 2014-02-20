@@ -5,18 +5,20 @@ LC_ALL = C
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = build-aux
+SUBDIRS =
+EXTRA_DIST =
+
+SUBDIRS += build-aux
 SUBDIRS += lib
 SUBDIRS += src
 SUBDIRS += info
 SUBDIRS += test
 SUBDIRS += contrib
 
-EXTRA_DIST = build-aux/git-version-gen
 DISTCLEANFILES = version.mk
 
 doc_DATA = README.md
-EXTRA_DIST += $(doc_DATA)
+EXTRA_DIST = $(doc_DATA)
 
 
 .version:
