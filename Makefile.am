@@ -18,6 +18,9 @@ DISTCLEANFILES = version.mk
 doc_DATA = README.md
 EXTRA_DIST += $(doc_DATA)
 
-dist-hook:
-	echo $(VERSION) > $(distdir)/version \
-	&& touch -r $(top_builddir)/version.mk $(distdir)/version
+
+.version:
+	$(AM_V_GEN) echo "v$(VERSION)" > $@
+
+dist-hook: .version
+	cp $< $(distdir)/.version
