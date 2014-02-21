@@ -1187,12 +1187,20 @@ dt_datetime(dt_dttyp_t outtyp)
 		break;
 	}
 	case DT_DAISY:
+	case DT_SEXY: {
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		with (struct timeval tv = now_tv()) {
+		struct timeval tv = now_tv();
+
+		switch (outtyp) {
+		case DT_SEXY:
+			res.sexy = tv.tv_sec;
+			break;
+		case DT_DAISY:
 			res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+			break;
 		}
 		break;
-
+	}
 	case DT_MD:
 		/* this one doesn't make sense at all */
 
