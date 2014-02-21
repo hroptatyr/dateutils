@@ -13,6 +13,9 @@ include Makefile
 version.mk: .version version.mk.in FORCE
 	-$(AM_V_GEN) \
 	if test -w $<; then \
+		if test -n "$(_dist-target_p)"; then \
+			$(MAKE) -C "$(top_builddir)/build-aux"; \
+		fi; \
 		PATH="$(top_builddir)/build-aux:$${PATH}" \
 			yuck scmver --ignore-noscm -o $@ --reference $^; \
 	fi
