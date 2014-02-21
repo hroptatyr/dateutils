@@ -75,16 +75,19 @@ Use included copy of the yuck command line parser generator
 instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 
 	if test "${with_included_yuck}" != "yes"; then
-		PKG_CHECK_EXISTS([yuck >= 0.0], [have_yuck="yes"], [have_yuck="no"])
+		AC_PATH_PROG([YUCK], [yuck])
+		AC_ARG_VAR([YUCK], [full path to the yuck tool])
 		AC_MSG_CHECKING([for yuck])
-		AC_MSG_RESULT([${have_yuck}])
+		AC_MSG_RESULT([${YUCK}])
 	fi
-	AM_CONDITIONAL([HAVE_YUCK], [test "${have_yuck}" = "yes"])
+	AM_CONDITIONAL([HAVE_YUCK], [test -n "${YUCK}"])
 
 	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
-	if test "${have_yuck}" = "yes"; then
+	if test -n "${YUCK}"; then
 		## see what m4 they used back then
-		_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
+		PKG_CHECK_EXISTS([yuck >= 0.1], [dnl
+			_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
+		])
 		M4="${pkg_cv_yuck_m4:-m4}"
 	fi
 ])dnl AX_CHECK_YUCK
@@ -92,6 +95,8 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 AC_DEFUN([AX_YUCK_SCMVER], [dnl
 ## initially generate version.mk and yuck.version here
 ## because only GNU make can do this at make time
+	pushdef([vfile], [$1])
+
 	AC_MSG_CHECKING([for stipulated version files])
 	if test -f "${srcdir}/.version"; then
 		## transform reference version
@@ -114,13 +119,17 @@ if (PRE == "v" || PRE == "V") {
 		AC_MSG_RESULT([none])
 	fi
 	## also massage version.mk file
-	if test -f "${srcdir}/version.mk"; then
+	if test -f "${srcdir}/[]vfile[]"; then
 		## make sure it's in the builddir as well
-		cp "${srcdir}/version.mk" "version.mk"
-	else
+		cp "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
+	elif test -f "${srcdir}/[]vfile[].in"; then
 		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
-			"${srcdir}/version.mk.in" > version.mk
+			"${srcdir}/[]vfile[].in" > "[]vfile[]"
+	else
+		echo "VERSION = ${VERSION}" > "[]vfile[]"
 	fi
+
+	popdef([vfile])
 ])dnl AX_YUCK_SCMVER
 
 dnl yuck.m4 ends here

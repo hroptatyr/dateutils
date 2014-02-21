@@ -163,6 +163,9 @@ and put them into $(abs_builddir).\n\
 ## make sure installing the tzmaps isn't fatal either
 .IGNORE: install-pkgdataDATA
 
+## for dist or distcheck we need libdut.a
+dist-hook: $(noinst_LIBRARIES)
+
 # 
 # Help the developers get nice post-processed source files
 
