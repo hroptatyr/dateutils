@@ -112,6 +112,13 @@ typedef enum {
 	TZCZ_NZONE,
 } coord_zone_t;
 
+/* for the one tool that needs raw transitions */
+struct zrng_s {
+	int32_t prev, next;
+	signed int offs:24;
+	unsigned int trno:8;
+} __attribute__((packed));
+
 
 /**
  * Open the zoneinfo file FILE.

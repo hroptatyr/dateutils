@@ -123,13 +123,6 @@ struct zspec_s {
 	znam_t name;
 } __attribute__((packed, aligned(16)));
 
-/* for internal use only, fuck off */
-struct zrng_s {
-	int32_t prev, next;
-	signed int offs:24;
-	unsigned int trno:8;
-} __attribute__((packed));
-
 /* for leap second transitions */
 struct zleap_tr_s {
 	/* cut-off stamp */
