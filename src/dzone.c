@@ -46,6 +46,7 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
+#include "tzraw.h"
 
 const char *prog = "dzone";
 
@@ -104,6 +105,7 @@ main(int argc, char *argv[])
 	/* all them datetimes to consider */
 	struct dt_dt_s *d;
 	size_t nd;
+	bool trnsp = false;
 
 	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
@@ -117,6 +119,9 @@ main(int argc, char *argv[])
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
+	}
+	if (argi->next_flag || argi->prev_flag) {
+		trnsp = true;
 	}
 
 	/* very well then */
@@ -153,14 +158,40 @@ nor a date/time corresponding to the given input formats", inp);
 		z[nz].name = NULL;
 		nz++;
 	}
-	if (nd == 0U) {
+	if (nd == 0U && !trnsp) {
 		d[nd++] = dt_datetime((dt_dttyp_t)DT_YMD);
+	} else if (nd == 0U) {
+		d[nd++] = dt_datetime((dt_dttyp_t)DT_SEXY);
 	}
 
 	/* just go through them all now */
-	for (size_t i = 0U; i < nd; i++) {
-		for (size_t j = 0U; j < nz; j++) {
-			dz_io_write(d[i], z[j].zone, z[j].name);
+	if (LIKELY(!trnsp)) {
+		for (size_t i = 0U; !trnsp && i < nd; i++) {
+			for (size_t j = 0U; j < nz; j++) {
+				dz_io_write(d[i], z[j].zone, z[j].name);
+			}
+		}
+	} else {
+		for (size_t i = 0U; i < nd; i++) {
+			struct dt_dt_s di = dt_dtconv(DT_SEXY, d[i]);
+
+			for (size_t j = 0U; j < nz; j++) {
+				const zif_t zj = z[j].zone;
+				const char *zn = z[j].name;
+				struct zrng_s r = zif_find_zrng(zj, di.sexy);
+
+				if (argi->next_flag && r.next == INT_MIN ||
+				    argi->prev_flag && r.prev == INT_MIN) {
+					printf("never\t%s\n", zn);
+					continue;
+				}
+				if (argi->next_flag) {
+					printf("%i\t%s\n", r.next, zn);
+				}
+				if (argi->prev_flag) {
+					printf("%i\t%s\n", r.prev, zn);
+				}
+			}
 		}
 	}
 

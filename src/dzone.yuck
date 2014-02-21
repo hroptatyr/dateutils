@@ -22,3 +22,5 @@ DATE/TIME can also be one of the following specials
 
      --from-zone=ZONE       Interpret dates on stdin or the command line as
                                coming from the time zone ZONE.
+  --next                    Show next transition from/to DST.
+  --prev                    Show previous transition from/to DST.
