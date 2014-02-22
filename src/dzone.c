@@ -157,13 +157,6 @@ dz_write_prtr(struct zrng_s r, zif_t UNUSED(z), const char *zn)
 	char *restrict bp = gbuf;
 	const char *const ep = gbuf + sizeof(gbuf);
 
-	if (r.prev == INT_MIN) {
-		bp += xstrlcpy(bp, never, bp - ep);
-	} else {
-		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, r.offs});
-	}
-	/* append prev indicator */
-	bp += xstrlcpy(bp, pindi, bp - ep);
 	if (r.trno >= 1) {
 		/* there's one before that */
 		struct ztrdtl_s zd = zif_trdtl(z, r.trno - 1);
@@ -171,6 +164,13 @@ dz_write_prtr(struct zrng_s r, zif_t UNUSED(z), const char *zn)
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, zd.offs});
 	} else {
 		bp += xstrlcpy(bp, never, bp - ep);
+	}
+	/* append prev indicator */
+	bp += xstrlcpy(bp, pindi, bp - ep);
+	if (r.prev == INT_MIN) {
+		bp += xstrlcpy(bp, never, bp - ep);
+	} else {
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, r.offs});
 	}
 
 	/* append name */
