@@ -48,7 +48,13 @@
 #include "dt-core-tz-glue.h"
 #include "tzraw.h"
 
+struct ztr_s {
+	int32_t trns;
+	int32_t offs;
+};
+
 const char *prog = "dzone";
+static char buf[256U];
 
 
 static size_t
@@ -67,12 +73,38 @@ static int
 dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 {
 	static const char fmt[] = "%FT%T%Z";
-	static char buf[256U];
 	char *restrict bp = buf;
 	const char *const ep = buf + sizeof(buf);
 
 	if (LIKELY(zone != NULL)) {
 		d = dtz_enrichz(d, zone);
+	}
+	bp += dt_strfdt(bp, ep - bp, fmt, d);
+	/* append name */
+	if (LIKELY(name != NULL)) {
+		*bp++ = '\t';
+		bp += xstrlcpy(bp, name, ep - bp);
+	}
+	*bp++ = '\n';
+	__io_write(buf, bp - buf, stdout);
+	return (bp > buf) - 1;
+}
+
+static int
+dz_tr_write(struct ztr_s t, const char *name)
+{
+	static const char fmt[] = "%FT%T%Z";
+	char *restrict bp = buf;
+	const char *const ep = buf + sizeof(buf);
+	struct dt_dt_s d = dt_dt_initialiser();
+
+	d.typ = DT_SEXY;
+	d.sexy = t.trns + t.offs;
+	if (t.offs > 0) {
+		d.zdiff = (uint16_t)(t.offs / ZDIFF_RES);
+	} else if (t.offs < 0) {
+		d.neg = 1;
+		d.zdiff = (uint16_t)(-t.offs / ZDIFF_RES);
 	}
 	bp += dt_strfdt(bp, ep - bp, fmt, d);
 	/* append name */
@@ -171,30 +203,31 @@ nor a date/time corresponding to the given input formats", inp);
 				dz_io_write(d[i], z[j].zone, z[j].name);
 			}
 		}
-	} else {
-		for (size_t i = 0U; i < nd; i++) {
-			struct dt_dt_s di = dt_dtconv(DT_SEXY, d[i]);
+		goto clear;
+	}
+	/* otherwise traverse the zones and determine transitions */
+	for (size_t i = 0U; i < nd; i++) {
+		struct dt_dt_s di = dt_dtconv(DT_SEXY, d[i]);
 
-			for (size_t j = 0U; j < nz; j++) {
-				const zif_t zj = z[j].zone;
-				const char *zn = z[j].name;
-				struct zrng_s r = zif_find_zrng(zj, di.sexy);
+		for (size_t j = 0U; j < nz; j++) {
+			const zif_t zj = z[j].zone;
+			const char *zn = z[j].name;
+			struct zrng_s r = zif_find_zrng(zj, di.sexy);
 
-				if (argi->next_flag && r.next == INT_MIN ||
-				    argi->prev_flag && r.prev == INT_MIN) {
-					printf("never\t%s\n", zn);
-					continue;
-				}
-				if (argi->next_flag) {
-					printf("%i\t%s\n", r.next, zn);
-				}
-				if (argi->prev_flag) {
-					printf("%i\t%s\n", r.prev, zn);
-				}
+			if (argi->next_flag && r.next == INT_MIN) {
+				printf("never->never\t%s\n", zn);
+			} else if (argi->next_flag) {
+				dz_tr_write((struct ztr_s){r.next, r.offs}, zn);
+			}
+			if (argi->prev_flag && r.prev == INT_MIN) {
+				printf("never<-never\t%s\n", zn);
+			} else if (argi->prev_flag) {
+				dz_tr_write((struct ztr_s){r.prev, r.offs}, zn);
 			}
 		}
 	}
 
+clear:
 	/* release the zones */
 	dt_io_clear_zones();
 	/* release those arrays */
