@@ -664,6 +664,8 @@ dt_tests += dzone.003.clit
 dt_tests += dzone.004.clit
 dt_tests += dzone.005.clit
 dt_tests += dzone.006.clit
+dt_tests += dzone.007.clit
+dt_tests += dzone.008.clit
 
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
