@@ -125,7 +125,7 @@ dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 	const char *const ep = gbuf + sizeof(gbuf);
 	size_t ntr = zif_ntrans(z);
 
-	if (r.next == INT_MIN) {
+	if (r.next == INT_MAX) {
 		bp += xstrlcpy(bp, never, bp - ep);
 	} else {
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, r.offs});
