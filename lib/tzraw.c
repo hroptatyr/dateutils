@@ -226,8 +226,16 @@ zif_nleaps(const struct zif_s z[static 1U])
 static inline int32_t
 zif_trans(const struct zif_s z[static 1U], int n)
 {
-/* no bound check! */
-	return zif_ntrans(z) > 0UL ? z->trs[n] : INT_MIN;
+	size_t ntr = zif_ntrans(z);
+
+	if (LIKELY(ntr && n < (ssize_t)ntr)) {
+		return z->trs[n];
+	} else if (!ntr || n < 0) {
+		/* second most likely */
+		return INT_MIN;
+	}
+	/* otherwise return last known stamp */
+	return z->trs[ntr - 1U];
 }
 
 /**
@@ -235,8 +243,16 @@ zif_trans(const struct zif_s z[static 1U], int n)
 static inline uint8_t
 zif_type(const struct zif_s z[static 1U], int n)
 {
-/* no bound check! */
-	return (uint8_t)(zif_ntrans(z) > 0UL ? z->tys[n] : 0U);
+	size_t ntr = zif_ntrans(z);
+
+	if (LIKELY(ntr && n < (ssize_t)ntr)) {
+		return z->tys[n];
+	} else if (!ntr || n < 0) {
+		/* second most likely */
+		return 0;
+	}
+	/* otherwise return last known type */
+	return z->tys[ntr - 1U];
 }
 
 /**
