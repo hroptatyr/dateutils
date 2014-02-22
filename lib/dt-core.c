@@ -789,8 +789,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.st.m = that.t.hms.m;
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
-		d.zdiff = zdiff_sec(that);
 	}
+	/* make sure we always snarf the zdiff info */
+	d.zdiff = zdiff_sec(that);
 
 	/* assign and go */
 	bp = buf;
@@ -1150,11 +1151,12 @@ dt_datetime(dt_dttyp_t outtyp)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
+	struct tm tm = now_tm();
+	struct timeval tv = now_tv();
 
 	switch (outdtyp) {
 	case DT_YMD:
-	case DT_YMCW: {
-		struct tm tm = now_tm();
+	case DT_YMCW:
 		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
@@ -1185,12 +1187,10 @@ dt_datetime(dt_dttyp_t outtyp)
 			;
 		}
 		break;
-	}
+
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		with (struct timeval tv = now_tv()) {
-			res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
-		}
+		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
 		break;
 
 	case DT_MD:
@@ -1206,16 +1206,20 @@ dt_datetime(dt_dttyp_t outtyp)
 	}
 
 	/* time assignment */
-	with (struct timeval tv = now_tv()) {
+	if (outdtyp <= DT_NDTYP) {
 		unsigned int tonly = tv.tv_sec % 86400U;
+
 		res.t.hms.h = tonly / SECS_PER_HOUR;
 		tonly %= SECS_PER_HOUR;
 		res.t.hms.m = tonly / SECS_PER_MIN;
 		tonly %= SECS_PER_MIN;
 		res.t.hms.s = tonly;
 		res.t.hms.ns = tv.tv_usec * 1000;
+		dt_make_sandwich(&res, (dt_dtyp_t)outtyp, DT_HMS);
+	} else {
+		/* must be one of the sexies then, aye? */
+		res.sexy = tv.tv_sec;
 	}
-	dt_make_sandwich(&res, (dt_dtyp_t)outtyp, DT_HMS);
 	return res;
 }
 

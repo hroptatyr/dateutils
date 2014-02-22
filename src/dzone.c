@@ -46,8 +46,26 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
+#include "tzraw.h"
+
+struct ztr_s {
+	int32_t trns;
+	int32_t offs;
+};
+
+/* fwd decld in tzraw.h */
+struct ztrdtl_s {
+	int32_t offs;
+	uint8_t dstp;
+	uint8_t abbr;
+} __attribute__((packed));
 
 const char *prog = "dzone";
+static char gbuf[256U];
+
+static const char never[] = "never";
+static const char nindi[] = " -> ";
+static const char pindi[] = " <- ";
 
 
 static size_t
@@ -66,9 +84,8 @@ static int
 dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 {
 	static const char fmt[] = "%FT%T%Z";
-	static char buf[256U];
-	char *restrict bp = buf;
-	const char *const ep = buf + sizeof(buf);
+	char *restrict bp = gbuf;
+	const char *const ep = gbuf + sizeof(gbuf);
 
 	if (LIKELY(zone != NULL)) {
 		d = dtz_enrichz(d, zone);
@@ -80,8 +97,90 @@ dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 		bp += xstrlcpy(bp, name, ep - bp);
 	}
 	*bp++ = '\n';
-	__io_write(buf, bp - buf, stdout);
-	return (bp > buf) - 1;
+	__io_write(gbuf, bp - gbuf, stdout);
+	return (bp > gbuf) - 1;
+}
+
+static size_t
+dz_strftr(char *restrict buf, size_t bsz, struct ztr_s t)
+{
+	static const char fmt[] = "%FT%T%Z";
+	struct dt_dt_s d = dt_dt_initialiser();
+
+	d.typ = DT_SEXY;
+	d.sexy = t.trns + t.offs;
+	if (t.offs > 0) {
+		d.zdiff = (uint16_t)(t.offs / ZDIFF_RES);
+	} else if (t.offs < 0) {
+		d.neg = 1;
+		d.zdiff = (uint16_t)(-t.offs / ZDIFF_RES);
+	}
+	return dt_strfdt(buf, bsz, fmt, d);
+}
+
+static int
+dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
+{
+	char *restrict bp = gbuf;
+	const char *const ep = gbuf + sizeof(gbuf);
+	size_t ntr = zif_ntrans(z);
+
+	if (r.next == INT_MIN) {
+		bp += xstrlcpy(bp, never, bp - ep);
+	} else {
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, r.offs});
+	}
+	/* append next indicator */
+	bp += xstrlcpy(bp, nindi, bp - ep);
+	if (r.trno + 1U < ntr) {
+		/* thank god there's another one */
+		struct ztrdtl_s zd = zif_trdtl(z, r.trno + 1);
+
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, zd.offs});
+	} else {
+		bp += xstrlcpy(bp, never, bp - ep);
+	}
+
+	/* append name */
+	if (LIKELY(zn != NULL)) {
+		*bp++ = '\t';
+		bp += xstrlcpy(bp, zn, ep - bp);
+	}
+	*bp++ = '\n';
+	__io_write(gbuf, bp - gbuf, stdout);
+	return (bp > gbuf) - 1;
+}
+
+static int
+dz_write_prtr(struct zrng_s r, zif_t UNUSED(z), const char *zn)
+{
+	char *restrict bp = gbuf;
+	const char *const ep = gbuf + sizeof(gbuf);
+
+	if (r.prev == INT_MIN) {
+		bp += xstrlcpy(bp, never, bp - ep);
+	} else {
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, r.offs});
+	}
+	/* append prev indicator */
+	bp += xstrlcpy(bp, pindi, bp - ep);
+	if (r.trno >= 1) {
+		/* there's one before that */
+		struct ztrdtl_s zd = zif_trdtl(z, r.trno - 1);
+
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, zd.offs});
+	} else {
+		bp += xstrlcpy(bp, never, bp - ep);
+	}
+
+	/* append name */
+	if (LIKELY(zn != NULL)) {
+		*bp++ = '\t';
+		bp += xstrlcpy(bp, zn, ep - bp);
+	}
+	*bp++ = '\n';
+	__io_write(gbuf, bp - gbuf, stdout);
+	return (bp > gbuf) - 1;
 }
 
 
@@ -104,6 +203,7 @@ main(int argc, char *argv[])
 	/* all them datetimes to consider */
 	struct dt_dt_s *d;
 	size_t nd;
+	bool trnsp = false;
 
 	if (yuck_parse(argi, argc, argv)) {
 		res = 1;
@@ -117,6 +217,9 @@ main(int argc, char *argv[])
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
+	}
+	if (argi->next_flag || argi->prev_flag) {
+		trnsp = true;
 	}
 
 	/* very well then */
@@ -153,14 +256,37 @@ nor a date/time corresponding to the given input formats", inp);
 		z[nz].name = NULL;
 		nz++;
 	}
-	if (nd == 0U) {
+	if (nd == 0U && !trnsp) {
 		d[nd++] = dt_datetime((dt_dttyp_t)DT_YMD);
+	} else if (nd == 0U) {
+		d[nd++] = dt_datetime((dt_dttyp_t)DT_SEXY);
 	}
 
 	/* just go through them all now */
-	for (size_t i = 0U; i < nd; i++) {
-		for (size_t j = 0U; j < nz; j++) {
-			dz_io_write(d[i], z[j].zone, z[j].name);
+	if (LIKELY(!trnsp)) {
+		for (size_t i = 0U; !trnsp && i < nd; i++) {
+			for (size_t j = 0U; j < nz; j++) {
+				dz_io_write(d[i], z[j].zone, z[j].name);
+			}
+		}
+	} else {
+		/* otherwise traverse the zones and determine transitions */
+		for (size_t i = 0U; i < nd; i++) {
+			struct dt_dt_s di = dt_dtconv(DT_SEXY, d[i]);
+
+			for (size_t j = 0U; j < nz; j++) {
+				const zif_t zj = z[j].zone;
+				const char *zn = z[j].name;
+				struct zrng_s r = zif_find_zrng(zj, di.sexy);
+
+				if (argi->next_flag) {
+					dz_write_nxtr(r, zj, zn);
+				}
+
+				if (argi->prev_flag) {
+					dz_write_prtr(r, zj, zn);
+				}
+			}
 		}
 	}
 

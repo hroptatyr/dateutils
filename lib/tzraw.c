@@ -123,13 +123,6 @@ struct zspec_s {
 	znam_t name;
 } __attribute__((packed, aligned(16)));
 
-/* for internal use only, fuck off */
-struct zrng_s {
-	int32_t prev, next;
-	signed int offs:24;
-	unsigned int trno:8;
-} __attribute__((packed));
-
 /* for leap second transitions */
 struct zleap_tr_s {
 	/* cut-off stamp */
@@ -197,7 +190,7 @@ deconst(const void *ptr)
 
 /**
  * Return the total number of transitions in zoneinfo file Z. */
-static inline size_t
+DEFUN inline size_t
 zif_ntrans(const struct zif_s z[static 1U])
 {
 	return z->hdr->tzh_timecnt;
@@ -248,14 +241,13 @@ zif_type(const struct zif_s z[static 1U], int n)
 
 /**
  * Return the transition details after the N-th transition in Z. */
-static __attribute__((unused)) inline struct ztrdtl_s
+inline struct ztrdtl_s
 zif_trdtl(const struct zif_s z[static 1U], int n)
 {
 /* no bound check! */
 	struct ztrdtl_s res;
 	uint8_t idx = zif_type(z, n);
 	res = z->tda[idx];
-	res.offs = z->tda[idx].offs;
 	return res;
 }
 
