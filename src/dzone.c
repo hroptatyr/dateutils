@@ -54,7 +54,7 @@ struct ztr_s {
 };
 
 const char *prog = "dzone";
-static char buf[256U];
+static char gbuf[256U];
 
 
 static size_t
@@ -73,8 +73,8 @@ static int
 dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 {
 	static const char fmt[] = "%FT%T%Z";
-	char *restrict bp = buf;
-	const char *const ep = buf + sizeof(buf);
+	char *restrict bp = gbuf;
+	const char *const ep = gbuf + sizeof(gbuf);
 
 	if (LIKELY(zone != NULL)) {
 		d = dtz_enrichz(d, zone);
@@ -86,16 +86,14 @@ dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 		bp += xstrlcpy(bp, name, ep - bp);
 	}
 	*bp++ = '\n';
-	__io_write(buf, bp - buf, stdout);
-	return (bp > buf) - 1;
+	__io_write(gbuf, bp - gbuf, stdout);
+	return (bp > gbuf) - 1;
 }
 
-static int
-dz_tr_write(struct ztr_s t, const char *name)
+static size_t
+dz_strftr(char *restrict buf, size_t bsz, struct ztr_s t)
 {
 	static const char fmt[] = "%FT%T%Z";
-	char *restrict bp = buf;
-	const char *const ep = buf + sizeof(buf);
 	struct dt_dt_s d = dt_dt_initialiser();
 
 	d.typ = DT_SEXY;
@@ -106,15 +104,51 @@ dz_tr_write(struct ztr_s t, const char *name)
 		d.neg = 1;
 		d.zdiff = (uint16_t)(-t.offs / ZDIFF_RES);
 	}
-	bp += dt_strfdt(bp, ep - bp, fmt, d);
+	return dt_strfdt(buf, bsz, fmt, d);
+}
+
+static int
+dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
+{
+	static const char never[] = "never";
+	char *restrict bp = gbuf;
+	const char *const ep = gbuf + sizeof(gbuf);
+
+	if (r.next == INT_MIN) {
+		bp += xstrlcpy(bp, never, bp - ep);
+	} else {
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, r.offs});
+	}
 	/* append name */
-	if (LIKELY(name != NULL)) {
+	if (LIKELY(zn != NULL)) {
 		*bp++ = '\t';
-		bp += xstrlcpy(bp, name, ep - bp);
+		bp += xstrlcpy(bp, zn, ep - bp);
 	}
 	*bp++ = '\n';
-	__io_write(buf, bp - buf, stdout);
-	return (bp > buf) - 1;
+	__io_write(gbuf, bp - gbuf, stdout);
+	return (bp > gbuf) - 1;
+}
+
+static int
+dz_write_prtr(struct zrng_s r, zif_t z, const char *zn)
+{
+	static const char never[] = "never";
+	char *restrict bp = gbuf;
+	const char *const ep = gbuf + sizeof(gbuf);
+
+	if (r.prev == INT_MIN) {
+		bp += xstrlcpy(bp, never, bp - ep);
+	} else {
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, r.offs});
+	}
+	/* append name */
+	if (LIKELY(zn != NULL)) {
+		*bp++ = '\t';
+		bp += xstrlcpy(bp, zn, ep - bp);
+	}
+	*bp++ = '\n';
+	__io_write(gbuf, bp - gbuf, stdout);
+	return (bp > gbuf) - 1;
 }
 
 
@@ -203,31 +237,27 @@ nor a date/time corresponding to the given input formats", inp);
 				dz_io_write(d[i], z[j].zone, z[j].name);
 			}
 		}
-		goto clear;
-	}
-	/* otherwise traverse the zones and determine transitions */
-	for (size_t i = 0U; i < nd; i++) {
-		struct dt_dt_s di = dt_dtconv(DT_SEXY, d[i]);
+	} else {
+		/* otherwise traverse the zones and determine transitions */
+		for (size_t i = 0U; i < nd; i++) {
+			struct dt_dt_s di = dt_dtconv(DT_SEXY, d[i]);
 
-		for (size_t j = 0U; j < nz; j++) {
-			const zif_t zj = z[j].zone;
-			const char *zn = z[j].name;
-			struct zrng_s r = zif_find_zrng(zj, di.sexy);
+			for (size_t j = 0U; j < nz; j++) {
+				const zif_t zj = z[j].zone;
+				const char *zn = z[j].name;
+				struct zrng_s r = zif_find_zrng(zj, di.sexy);
 
-			if (argi->next_flag && r.next == INT_MIN) {
-				printf("never->never\t%s\n", zn);
-			} else if (argi->next_flag) {
-				dz_tr_write((struct ztr_s){r.next, r.offs}, zn);
-			}
-			if (argi->prev_flag && r.prev == INT_MIN) {
-				printf("never<-never\t%s\n", zn);
-			} else if (argi->prev_flag) {
-				dz_tr_write((struct ztr_s){r.prev, r.offs}, zn);
+				if (argi->next_flag) {
+					dz_write_nxtr(r, zj, zn);
+				}
+
+				if (argi->prev_flag) {
+					dz_write_prtr(r, zj, zn);
+				}
 			}
 		}
 	}
 
-clear:
 	/* release the zones */
 	dt_io_clear_zones();
 	/* release those arrays */
