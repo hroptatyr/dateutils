@@ -248,7 +248,6 @@ zif_trdtl(const struct zif_s z[static 1U], int n)
 	struct ztrdtl_s res;
 	uint8_t idx = zif_type(z, n);
 	res = z->tda[idx];
-	res.offs = z->tda[idx].offs;
 	return res;
 }
 
