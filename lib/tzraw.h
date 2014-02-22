@@ -150,6 +150,12 @@ extern int32_t zif_utc_time(zif_t z, int32_t t);
  * Given T in UTC, return a T in local time specified by Z. */
 extern int32_t zif_local_time(zif_t z, int32_t t);
 
+
+/* exposure for specific zif-inspecting tools (dzone(1) for one) */
+extern inline size_t zif_ntrans(zif_t z);
+
+extern inline struct ztrdtl_s zif_trdtl(zif_t z, int n);
+
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */

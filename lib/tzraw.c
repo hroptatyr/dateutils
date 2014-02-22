@@ -190,7 +190,7 @@ deconst(const void *ptr)
 
 /**
  * Return the total number of transitions in zoneinfo file Z. */
-static inline size_t
+DEFUN inline size_t
 zif_ntrans(const struct zif_s z[static 1U])
 {
 	return z->hdr->tzh_timecnt;
@@ -241,7 +241,7 @@ zif_type(const struct zif_s z[static 1U], int n)
 
 /**
  * Return the transition details after the N-th transition in Z. */
-static __attribute__((unused)) inline struct ztrdtl_s
+inline struct ztrdtl_s
 zif_trdtl(const struct zif_s z[static 1U], int n)
 {
 /* no bound check! */
