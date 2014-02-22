@@ -789,8 +789,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.st.m = that.t.hms.m;
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
-		d.zdiff = zdiff_sec(that);
 	}
+	/* make sure we always snarf the zdiff info */
+	d.zdiff = zdiff_sec(that);
 
 	/* assign and go */
 	bp = buf;
