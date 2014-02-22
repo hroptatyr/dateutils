@@ -53,8 +53,19 @@ struct ztr_s {
 	int32_t offs;
 };
 
+/* fwd decld in tzraw.h */
+struct ztrdtl_s {
+	int32_t offs;
+	uint8_t dstp;
+	uint8_t abbr;
+} __attribute__((packed));
+
 const char *prog = "dzone";
 static char gbuf[256U];
+
+static const char never[] = "never";
+static const char nindi[] = " -> ";
+static const char pindi[] = " <- ";
 
 
 static size_t
@@ -110,15 +121,26 @@ dz_strftr(char *restrict buf, size_t bsz, struct ztr_s t)
 static int
 dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 {
-	static const char never[] = "never";
 	char *restrict bp = gbuf;
 	const char *const ep = gbuf + sizeof(gbuf);
+	size_t ntr = zif_ntrans(z);
 
 	if (r.next == INT_MIN) {
 		bp += xstrlcpy(bp, never, bp - ep);
 	} else {
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, r.offs});
 	}
+	/* append next indicator */
+	bp += xstrlcpy(bp, nindi, bp - ep);
+	if (r.trno + 1U < ntr) {
+		/* thank god there's another one */
+		struct ztrdtl_s zd = zif_trdtl(z, r.trno + 1);
+
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, zd.offs});
+	} else {
+		bp += xstrlcpy(bp, never, bp - ep);
+	}
+
 	/* append name */
 	if (LIKELY(zn != NULL)) {
 		*bp++ = '\t';
@@ -130,9 +152,8 @@ dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 }
 
 static int
-dz_write_prtr(struct zrng_s r, zif_t z, const char *zn)
+dz_write_prtr(struct zrng_s r, zif_t UNUSED(z), const char *zn)
 {
-	static const char never[] = "never";
 	char *restrict bp = gbuf;
 	const char *const ep = gbuf + sizeof(gbuf);
 
@@ -141,6 +162,17 @@ dz_write_prtr(struct zrng_s r, zif_t z, const char *zn)
 	} else {
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, r.offs});
 	}
+	/* append prev indicator */
+	bp += xstrlcpy(bp, pindi, bp - ep);
+	if (r.trno >= 1) {
+		/* there's one before that */
+		struct ztrdtl_s zd = zif_trdtl(z, r.trno - 1);
+
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, zd.offs});
+	} else {
+		bp += xstrlcpy(bp, never, bp - ep);
+	}
+
 	/* append name */
 	if (LIKELY(zn != NULL)) {
 		*bp++ = '\t';
