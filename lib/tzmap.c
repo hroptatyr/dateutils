@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #if defined HAVE_SYS_STDINT_H
 # include <sys/stdint.h>
 #endif	/* HAVE_SYS_STDINT_H */
@@ -384,6 +385,7 @@ parse_line(char *ln, size_t lz)
 }
 
 static const char *check_fn;
+static bool tzdir_zone_p(const char *zn, size_t zz);
 static int
 check_line(char *ln, size_t lz)
 {
@@ -430,32 +432,41 @@ check_line(char *ln, size_t lz)
 
 	/* it's none of our business really, but go through the zonenames
 	 * and check for their existence now */
-	with (struct stat st[1U]) {
-		char zn[256U] = {0};
-
-		if (*lp == '/') {
-			/* absolute zonename? */
-			;
-		} else if (*lp) {
-			/* relative zonename */
-			char *zp = zn;
-			const char *const ep = zn + sizeof(zn);
-
-			zp += xstrlncpy(zp, ep - zp, tzdir, sizeof(tzdir) - 1U);
-			*zp++ = '/';
-			zp += xstrlncpy(zp, ep - zp, lp, lz - (lp - ln));
-			*zp = '\0';
-		}
-		if (!*lp) {
-			/* already warned about this */
-			;
-		} else if (stat(zn, st) < 0) {
-			CHECK_ERROR("cannot find zone `%s' in TZDIR", lp);
-			rc = -1;
-		}
+	if (!*lp) {
+		/* already warned about this */
+		;
+	} else if (!tzdir_zone_p(lp, lz - (lp - ln))) {
+		CHECK_ERROR("cannot find zone `%s' in TZDIR", lp);
+		rc = -1;
 	}
 #undef CHECK_ERROR
 	return rc;
+}
+
+static bool
+tzdir_zone_p(const char *zn, size_t zz)
+{
+	struct stat st[1U];
+	char fullzn[256U] = {0};
+
+	if (*zn == '/') {
+		/* absolute zonename? */
+		;
+	} else if (*zn) {
+		/* relative zonename */
+		char *zp = fullzn;
+		const char *const ep = fullzn + sizeof(fullzn);
+
+		zp += xstrlncpy(zp, ep - zp, tzdir, sizeof(tzdir) - 1U);
+		*zp++ = '/';
+		zp += xstrlncpy(zp, ep - zp, zn, zz);
+		*zp = '\0';
+	}
+	/* finally the actual check */
+	if (stat(fullzn, st) < 0) {
+		return false;
+	}
+	return true;
 }
 
 static int
@@ -488,6 +499,60 @@ parse_file(const char *file)
 	return 0;
 }
 
+static bool
+tzmccp(FILE *fp)
+{
+	static char buf[4U];
+	fread(buf, sizeof(buf), sizeof(*buf), fp);
+
+	if (!memcmp(buf, TZM_MAGIC, sizeof(buf))) {
+		return true;
+	}
+	/* otherwise, good try, seek back to the beginning */
+	fseek(fp, 0, SEEK_SET);
+	return false;
+}
+
+static int
+tzm_check(const char *fn)
+{
+	tzmap_t m;
+	int rc = 0;
+
+	if ((m = tzm_open(fn)) == NULL) {
+		serror("cannot open input file `%s'", fn);
+		return -1;
+	}
+
+	{
+		/* traverse them all */
+		const znoff_t *p = (const void*)tzm_mnames(m);
+		const znoff_t *const ep =
+			(const void*)((const char*)p + tzm_mname_size(m));
+
+		while (p < ep) {
+			const char *mn = (const void*)p;
+			size_t mz = strlen(mn);
+			znoff_t off;
+			const char *zn;
+			size_t zz;
+
+			p += (mz - 1U) / sizeof(*p) + 1U;
+			off = be32toh(*p++) >> 8U;
+
+			zn = m->data + off;
+			zz = strlen(zn);
+			if (!tzdir_zone_p(zn, zz)) {
+				error("cannot find zone `%s' in TZDIR", zn);
+				rc = -1;
+			}
+		}
+	}
+
+	tzm_close(m);
+	return rc;
+}
+
 static int
 check_file(const char *file)
 {
@@ -502,6 +567,10 @@ check_file(const char *file)
 	} else if ((fp = fopen(check_fn = file, "r")) == NULL) {
 		serror("Cannot open file `%s'", file);
 		return -1;
+	} else if (tzmccp(fp)) {
+		/* oh yikes, can't use the line reader can we */
+		fclose(fp);
+		return tzm_check(file);
 	}
 
 #if defined HAVE_GETLINE
