@@ -3,4 +3,4 @@
 $ find "${root}/lib" "${TZMAP_DIR}/../lib" -name '*.tzmap' | xargs "${TZMAP}" check
 $
 
-## tzmap_check.clit ends here
+## tzmap_check_01.clit ends here

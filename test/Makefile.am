@@ -680,7 +680,8 @@ dt_tests += tzmap.003.clit
 dt_tests += tzmap.004.clit
 
 ## make sure our the maps we ship are clean
-dt_tests += tzmap_check.clit
+dt_tests += tzmap_check_01.clit
+dt_tests += tzmap_check_02.clit
 TESTS_ENVIRONMENT += TZMAP=$(top_builddir)/lib/tzmap
 
 
