@@ -226,8 +226,16 @@ zif_nleaps(const struct zif_s z[static 1U])
 static inline int32_t
 zif_trans(const struct zif_s z[static 1U], int n)
 {
-/* no bound check! */
-	return zif_ntrans(z) > 0UL ? z->trs[n] : INT_MIN;
+	size_t ntr = zif_ntrans(z);
+
+	if (LIKELY(ntr && n < (ssize_t)ntr)) {
+		return z->trs[n];
+	} else if (!ntr || n < 0) {
+		/* second most likely */
+		return INT_MIN;
+	}
+	/* otherwise return last known stamp */
+	return z->trs[ntr - 1U];
 }
 
 /**
@@ -235,8 +243,16 @@ zif_trans(const struct zif_s z[static 1U], int n)
 static inline uint8_t
 zif_type(const struct zif_s z[static 1U], int n)
 {
-/* no bound check! */
-	return (uint8_t)(zif_ntrans(z) > 0UL ? z->tys[n] : 0U);
+	size_t ntr = zif_ntrans(z);
+
+	if (LIKELY(ntr && n < (ssize_t)ntr)) {
+		return z->tys[n];
+	} else if (!ntr || n < 0) {
+		/* second most likely */
+		return 0;
+	}
+	/* otherwise return last known type */
+	return z->tys[ntr - 1U];
 }
 
 /**
@@ -538,17 +554,22 @@ zif_open(const char *file)
 #include "leapseconds.def"
 
 static inline int
-__find_trno(
-	const struct zif_s z[static 1U],
-	int32_t t, int this, int min, int max)
+__find_trno(const struct zif_s z[static 1U], int32_t t, int min, int max)
 {
+/* find the last transition before T, T is expected to be UTC
+ * if T is before any known transition return -1 */
+	if (UNLIKELY(max == 0)) {
+		/* special case */
+		return -1;
+	} else if (UNLIKELY(t < zif_trans(z, min))) {
+		return -1;
+	} else if (UNLIKELY(t > zif_trans(z, max))) {
+		return max - 1;
+	}
+
 	do {
 		int32_t tl, tu;
-
-		if (UNLIKELY(max == 0)) {
-			/* special case */
-			return 0;
-		}
+		int this = (min + max) / 2;
 
 		tl = zif_trans(z, this);
 		tu = zif_trans(z, this + 1);
@@ -556,15 +577,10 @@ __find_trno(
 		if (t >= tl && t < tu) {
 			/* found him */
 			return this;
-		} else if (max - 1 <= min) {
-			/* nearly found him */
-			return this + 1;
 		} else if (t >= tu) {
-			min = this + 1;
-			this = (this + max) / 2;
+			min = this;
 		} else if (t < tl) {
-			max = this - 1;
-			this = (this + min) / 2;
+			max = this;
 		}
 	} while (true);
 	/* not reached */
@@ -573,31 +589,34 @@ __find_trno(
 DEFUN inline int
 zif_find_trans(zif_t z, int32_t t)
 {
-/* find the last transition before time, time is expected to be UTC */
+/* find the last transition before T, T is expected to be UTC
+ * if T is before any known transition return -1 */
 	int max = zif_ntrans(z);
 	int min = 0;
-	int this = max / 2;
 
-	return __find_trno(z, t, this, min, max);
+	return __find_trno(z, t, min, max);
 }
 
 static struct zrng_s
-__find_zrng(
-	const struct zif_s z[static 1U],
-	int32_t t, int this, int min, int max)
+__find_zrng(const struct zif_s z[static 1U], int32_t t, int min, int max)
 {
 	struct zrng_s res;
-	size_t ntr = zif_ntrans(z);
-	unsigned int trno = __find_trno(z, t, this, min, max);
+	int trno;
 
-	res.trno = (uint8_t)trno;
+	trno = __find_trno(z, t, min, max);
 	res.prev = zif_trans(z, trno);
-	if (LIKELY(trno < ntr - 1)) {
-		res.next = zif_trans(z, trno + 1);
+	if (UNLIKELY(trno <= 0 && t < res.prev)) {
+		res.trno = 0U;
+		res.prev = INT_MIN;
+		/* assume the first offset has always been there */
+		res.next = res.prev;
 	} else {
-		res.next = INT_MAX;
-		/* use the last transition */
-		trno = ntr - 1;
+		res.trno = (uint8_t)trno;
+		if (LIKELY(trno + 1U < zif_ntrans(z))) {
+			res.next = zif_trans(z, trno + 1U);
+		} else {
+			res.next = INT_MAX;
+		}
 	}
 	res.offs = zif_troffs(z, trno);
 	return res;
@@ -609,9 +628,8 @@ zif_find_zrng(zif_t z, int32_t t)
 /* find the last transition before time, time is expected to be UTC */
 	int max = zif_ntrans(z);
 	int min = 0;
-	int this = max / 2;
 
-	return __find_zrng(z, t, this, min, max);
+	return __find_zrng(z, t, min, max);
 }
 
 static int32_t
@@ -639,7 +657,6 @@ static int32_t
 __offs(struct zif_s z[static 1U], int32_t t)
 {
 /* return the offset of T in Z and cache the result. */
-	int this;
 	int min;
 	size_t max;
 
@@ -660,20 +677,17 @@ __offs(struct zif_s z[static 1U], int32_t t)
 		/* use the cached offset */
 		return z->cache.offs;
 	} else if (t >= z->cache.next) {
-		this = z->cache.trno + 1;
-		min = this;
+		min = z->cache.trno + 1;
 		max = zif_ntrans(z);
 	} else if (t < z->cache.prev) {
 		max = z->cache.trno;
-		this = max - 1;
 		min = 0;
 	} else {
 		/* we shouldn't end up here at all */
-		this = 0;
 		min = 0;
 		max = 0;
 	}
-	return (z->cache = __find_zrng(z, t, this, min, max)).offs;
+	return (z->cache = __find_zrng(z, t, min, max)).offs;
 }
 
 DEFUN int32_t
