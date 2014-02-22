@@ -277,7 +277,14 @@ nor a date/time corresponding to the given input formats", inp);
 			for (size_t j = 0U; j < nz; j++) {
 				const zif_t zj = z[j].zone;
 				const char *zn = z[j].name;
-				struct zrng_s r = zif_find_zrng(zj, di.sexy);
+				struct zrng_s r;
+
+				if (UNLIKELY(zj == NULL)) {
+					/* don't bother */
+					continue;
+				}
+				/* otherwise find the range */
+				r = zif_find_zrng(zj, di.sexy);
 
 				if (argi->next_flag) {
 					dz_write_nxtr(r, zj, zn);
