@@ -244,7 +244,7 @@ business days can be denoted by suffixing them with `b` both in the
 input and the specs, the `b` modifer like the `th` modifier are
 suffixes and serve formatting and notation purposes.
 
-Also, many gnu-isms are removed to facilitate *BSD builds.
+Also, many gnu-isms are removed to facilitate \*BSD builds.
 
 See info page examples and/or README.
 
