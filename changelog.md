@@ -9,7 +9,6 @@ logo: dateutils_logo_120.png
 v0.2.7
 =======
 Summary: v0.2.7 of dateutils
-Keywords: v0.2.7
 
 This is dateutils v0.2.7.
 
@@ -29,358 +28,339 @@ Bug fixes:
 - builds with clang >= 3.3 work again, [clang bug 18028][3]
 
 See info page examples and/or README.
-    
-  [1]: https://github.com/hroptatyr/dateutils/issues/21
-  [2]: https://github.com/hroptatyr/dateutils/issues/22
-  [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
+
+    [1]: https://github.com/hroptatyr/dateutils/issues/21
+    [2]: https://github.com/hroptatyr/dateutils/issues/22
+    [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
 
 v0.2.6
 =======
-    Summary: v0.2.6 of dateutils
-    Keywords: v0.2.6
-    
-    This is dateutils v0.2.6.
-    
-    This is a bug fix release.
-    
-    Bug fixes:
-    - issue 19, -q|--quiet no longer sends some commands into an inf-loop
-    - netbsd test failures are fixed (due to missing leap seconds)
-    - AIX builds are supported (getopt_long() is part of the code now)
-    - internally the test harness is migrated to the cli-testing tool
-      this fixes an issue when tests are run in directories with odd names
-      (spaces, dollar signs, etc. in the path name)
-    
-    See info page examples and/or README.
+Summary: v0.2.6 of dateutils
+
+This is dateutils v0.2.6.
+
+This is a bug fix release.
+
+Bug fixes:
+- issue 19, -q|--quiet no longer sends some commands into an inf-loop
+- netbsd test failures are fixed (due to missing leap seconds)
+- AIX builds are supported (getopt_long() is part of the code now)
+- internally the test harness is migrated to the cli-testing tool
+    this fixes an issue when tests are run in directories with odd names
+    (spaces, dollar signs, etc. in the path name)
+
+See info page examples and/or README.
 
 v0.2.5
 =======
-    Summary: v0.2.5 of dateutils
-    Keywords: v0.2.5
-    
-    This is dateutils v0.2.5.
-    
-    This is a bug fix release.
-    
-    Bug fixes:
-    - issue 18, long inputs to a short specifier string will yield an error
-    - consume zone specs (a la +1200) in the input via %Z specifier
-    - ddiff's stdin stamps will undergo conversion according to --from-zone
-    - clean up dist for inclusion in debian
-    
-    See info page examples and/or README.
+Summary: v0.2.5 of dateutils
+
+This is dateutils v0.2.5.
+
+This is a bug fix release.
+
+Bug fixes:
+- issue 18, long inputs to a short specifier string will yield an error
+- consume zone specs (a la +1200) in the input via %Z specifier
+- ddiff's stdin stamps will undergo conversion according to --from-zone
+- clean up dist for inclusion in debian
+
+See info page examples and/or README.
 
 v0.2.4
 =======
-    Summary: v0.2.4 of dateutils
-    Keywords: v0.2.4
-    
-    This is dateutils v0.2.4.
-    
-    This is a bug fix release.
-    
-    Features:
-    - added special output format `jdn' and `ldn' for julian/lilian day number
-    - multiple occurrences of date/times within one line are now all processed
-      rather than only the first occurrence
-    - zone difference specifier (%Z) is supported for parsing and printing
-    - matlab zone converter tzconv has been added
-    
-    Bug fixes:
-    - building with icc 13 works now
-    - many gcc warnings are fixed
-    
-    See info page examples and/or README.
+Summary: v0.2.4 of dateutils
+
+This is dateutils v0.2.4.
+
+This is a bug fix release.
+
+Features:
+- added special output format `jdn' and `ldn' for julian/lilian day number
+- multiple occurrences of date/times within one line are now all processed
+    rather than only the first occurrence
+- zone difference specifier (%Z) is supported for parsing and printing
+- matlab zone converter tzconv has been added
+
+Bug fixes:
+- building with icc 13 works now
+- many gcc warnings are fixed
+
+See info page examples and/or README.
 
 v0.2.3
 =======
-    Summary: v0.2.3 of dateutils
-    Keywords: v0.2.3
-    
-    This is dateutils v0.2.3.
-    
-    This is a bug fix and feature release.
-    
-    Features:
-    - ISO 8601 week dates are now first class objects (of type DT_YWD)
-    - introduce %rY specifier to denote years in calendars that deviate from
-      the Gregorian year
-    - dgrep accepts short-hand inputs (today, now, etc.) and also inputs as
-      specified by -i
-    
-    Bug fixes:
-    - dadd'ing months and years to YMCW dates works now
-    - zoneinfo files with only transitions in the past are handled properly
-      (bug #10)
-    - dseq with just 1 argument is working properly (story #36051287)
-    
-    See info page examples and/or README.
+Summary: v0.2.3 of dateutils
+
+This is dateutils v0.2.3.
+
+This is a bug fix and feature release.
+
+Features:
+- ISO 8601 week dates are now first class objects (of type DT_YWD)
+- introduce %rY specifier to denote years in calendars that deviate from
+    the Gregorian year
+- dgrep accepts short-hand inputs (today, now, etc.) and also inputs as
+    specified by -i
+
+Bug fixes:
+- dadd'ing months and years to YMCW dates works now
+- zoneinfo files with only transitions in the past are handled properly
+    (bug #10)
+- dseq with just 1 argument is working properly (story #36051287)
+
+See info page examples and/or README.
 
 v0.2.2
 =======
-    Summary: v0.2.2 of dateutils
-    Keywords: v0.2.2
-    
-    This is dateutils v0.2.2.
-    
-    This is a bug fix and feature release.
-    
-    Features:
-    - Olson's zoneinfo database files are checked for at configure time
-    - leap-aware calculations use shipped leapseconds file
-    - ddiff and dadd can take leap-second transitions into account
-    
-    Bug fixes:
-    - issue 7: ddiff without arguments does not segfault
-    - issue 8: dadd copes with huge summands
-    - issue 9: dadd stumbles on ymcw dates
-    - bug 33104651: bday negative difference A > B ddiff A B -f %db is wrong
-    
-    See info page examples and/or README.
+Summary: v0.2.2 of dateutils
+
+This is dateutils v0.2.2.
+
+This is a bug fix and feature release.
+
+Features:
+- Olson's zoneinfo database files are checked for at configure time
+- leap-aware calculations use shipped leapseconds file
+- ddiff and dadd can take leap-second transitions into account
+
+Bug fixes:
+- issue 7: ddiff without arguments does not segfault
+- issue 8: dadd copes with huge summands
+- issue 9: dadd stumbles on ymcw dates
+- bug 33104651: bday negative difference A > B ddiff A B -f %db is wrong
+
+See info page examples and/or README.
 
 v0.2.1
 =======
-    Summary: v0.2.1 of dateutils
-    Keywords: v0.2.1
-    
-    This is dateutils v0.2.1.
-    
-    This is a bug fix and feature release.
-    
-    The dadd tool now supports mass-adding durations (from stdin).
-    The ddiff tool is now time zone aware.
-    A new tool dround is added to round dates or times or date-times to the
-    next occurrence of what's given as round-spec.
-    
-    Bug fixes:
-    - issue 7: ddiff without arguments does not segfault
-    - issue 8: dadd copes with huge summands
-    
-    See info page examples and/or README.
+Summary: v0.2.1 of dateutils
+
+This is dateutils v0.2.1.
+
+This is a bug fix and feature release.
+
+The dadd tool now supports mass-adding durations (from stdin).
+The ddiff tool is now time zone aware.
+A new tool dround is added to round dates or times or date-times to the
+next occurrence of what's given as round-spec.
+
+Bug fixes:
+- issue 7: ddiff without arguments does not segfault
+- issue 8: dadd copes with huge summands
+
+See info page examples and/or README.
 
 v0.2.0
 =======
-    Summary: v0.2.0 of dateutils
-    Keywords: v0.2.0
-    
-    This is dateutils v0.2.0.
-    
-    This is a feature release.
-    
-    The distinction between binaries for date, time and date-time processing
-    is cleared up by a unified set of tools, prefixed with `d'.
-    
-    Thus:
-    dadd + tadd -> dadd
-    dconv + tconv + dtconv -> dconv
-    ddiff + tdiff -> ddiff
-    dgrep + tgrep -> dgrep
-    dseq + tseq -> dseq
-    dtest + ttest -> dtest
-    
-    Furthermore, all tools now fully cope with dates, times and date-times.
-    Virtual timezones have been added (use `GPS' or `TAI').
-    
-    See info page examples and/or README.
+Summary: v0.2.0 of dateutils
+
+This is dateutils v0.2.0.
+
+This is a feature release.
+
+The distinction between binaries for date, time and date-time processing
+is cleared up by a unified set of tools, prefixed with `d'.
+
+Thus:
+dadd + tadd -> dadd
+dconv + tconv + dtconv -> dconv
+ddiff + tdiff -> ddiff
+dgrep + tgrep -> dgrep
+dseq + tseq -> dseq
+dtest + ttest -> dtest
+
+Furthermore, all tools now fully cope with dates, times and date-times.
+Virtual timezones have been added (use `GPS' or `TAI').
+
+See info page examples and/or README.
 
 v0.1.9
 =======
-    Summary: v0.1.9 of dateutils
-    Keywords: v0.1.9
-    
-    This is dateutils v0.1.9.
-    
-    This is a bug fix release.
-    
-    The code for date addition is refactored, with it a new duration type is
-    introduced, DT_MD, to capture larger month and day summands.
-    
-    See info page examples and/or README.
+Summary: v0.1.9 of dateutils
+
+This is dateutils v0.1.9.
+
+This is a bug fix release.
+
+The code for date addition is refactored, with it a new duration type is
+introduced, DT_MD, to capture larger month and day summands.
+
+See info page examples and/or README.
 
 v0.1.8
 =======
-    Summary: v0.1.8 of dateutils
-    Keywords: v0.1.8
-    
-    This is dateutils v0.1.8.
-    
-    This is a bug fix release.
-    
-    A bit fiddling bug gave erroneous results in `dconv now'.
-    
-    Furtherly, date expressions (for dgrep et al.) can now be arbitrarily
-    joined with conjunctions (&&) and disjunctions (||) as well as negations
-    (!).
-    
-    See info page examples and/or README.
+Summary: v0.1.8 of dateutils
+
+This is dateutils v0.1.8.
+
+This is a bug fix release.
+
+A bit fiddling bug gave erroneous results in `dconv now'.
+
+Furtherly, date expressions (for dgrep et al.) can now be arbitrarily
+joined with conjunctions (&&) and disjunctions (||) as well as negations
+(!).
+
+See info page examples and/or README.
 
 v0.1.7
 =======
-    Summary: v0.1.7 of dateutils
-    Keywords: v0.1.7
-    
-    This is dateutils v0.1.7.
-    
-    This is a bug fix release.
-    
-    Most notably, sloppy date arithmetics have been replaced by correct
-    ones, e.g. 2100 is not longer a leap year and the 31st of Feb is
-    instantly corrected to 28/29 Feb.
-    
-    Furtherly, the unmaintainable idea of dedicated duration types has been
-    replaced with overloaded dt_d_s types with the side-effect that
-    adding days or business days to dates now works and ymcw dates can be
-    properly compared.
-    
-    See info page examples and/or README.
+Summary: v0.1.7 of dateutils
+
+This is dateutils v0.1.7.
+
+This is a bug fix release.
+
+Most notably, sloppy date arithmetics have been replaced by correct
+ones, e.g. 2100 is not longer a leap year and the 31st of Feb is
+instantly corrected to 28/29 Feb.
+
+Furtherly, the unmaintainable idea of dedicated duration types has been
+replaced with overloaded dt_d_s types with the side-effect that
+adding days or business days to dates now works and ymcw dates can be
+properly compared.
+
+See info page examples and/or README.
 
 v0.1.6
 =======
-    Summary: v0.1.6 of dateutils
-    Keywords: v0.1.6
-    
-    This is dateutils v0.1.6.
-    
-    This is a feature release.
-    
-    The dcal and tcal binaries are renamed to dconv and tconv respectively,
-    there has been a naming conflict with the tcal binary from the gcal
-    package.  Thanks to ulm (https://github.com/ulm) for pointing this out.
-    
-    Changes in behaviour:
-    Furthermore, many numerical specifiers now cope with the `th' flag to
-    denote ordinals: `%dth %b %Y' applied to 2011-10-03 will yield
-    `3rd Oct 2011'.
-    
-    business days can be denoted by suffixing them with `b' both in the
-    input and the specs, the `b' modifer like the `th' modifier are
-    suffixes and serve formatting and notation purposes.
-    
-    Also, many gnu-isms are removed to facilitate *BSD builds.
-    
-    See info page examples and/or README.
+Summary: v0.1.6 of dateutils
+
+This is dateutils v0.1.6.
+
+This is a feature release.
+
+The dcal and tcal binaries are renamed to dconv and tconv respectively,
+there has been a naming conflict with the tcal binary from the gcal
+package.  Thanks to ulm (https://github.com/ulm) for pointing this out.
+
+Changes in behaviour:
+Furthermore, many numerical specifiers now cope with the `th' flag to
+denote ordinals: `%dth %b %Y' applied to 2011-10-03 will yield
+`3rd Oct 2011'.
+
+business days can be denoted by suffixing them with `b' both in the
+input and the specs, the `b' modifer like the `th' modifier are
+suffixes and serve formatting and notation purposes.
+
+Also, many gnu-isms are removed to facilitate *BSD builds.
+
+See info page examples and/or README.
 
 v0.1.5
 =======
-    Summary: v0.1.5 of dateutils
-    Keywords: v0.1.5
-    
-    This is dateutils v0.1.5.
-    
-    This is a feature release.
-    Grep-like utilities have been added.
-    
-    + dgrep  like grep for date values
-    + tgrep  like grep for time values
-    + ttest  like test for time values
-    + tcal   like dcal for time values
-    
-    Changed behaviour:
-    Utilities in sed-mode will repeat the whole line if nothing on the line
-    matches instead of writing a warning.
-    
-    See info page examples and/or README.
+Summary: v0.1.5 of dateutils
+
+This is dateutils v0.1.5.
+
+This is a feature release.
+Grep-like utilities have been added.
+
++ dgrep  like grep for date values
++ tgrep  like grep for time values
++ ttest  like test for time values
++ tcal   like dcal for time values
+
+Changed behaviour:
+Utilities in sed-mode will repeat the whole line if nothing on the line
+matches instead of writing a warning.
+
+See info page examples and/or README.
 
 v0.1.4
 =======
-    Summary: v0.1.4 of dateutils
-    Keywords: v0.1.4
-    
-    This is dateutils v0.1.4.
-    
-    This is a feature release.
-    Utilities to deal with times have been added.
-    
-    + tseq  like dseq for time values
-    + tadd  like dadd for time values
-    + tdiff like ddiff for time values
-    
-    See info page examples and/or README.
-    
-    Man pages have an author now and most of the format specs are
-    documented, at least the specs we do not plan to change.
+Summary: v0.1.4 of dateutils
+
+This is dateutils v0.1.4.
+
+This is a feature release.
+Utilities to deal with times have been added.
+
++ tseq  like dseq for time values
++ tadd  like dadd for time values
++ tdiff like ddiff for time values
+
+See info page examples and/or README.
+
+Man pages have an author now and most of the format specs are
+documented, at least the specs we do not plan to change.
 
 v0.1.3
 =======
-    Summary: release v0.1.3 of dateutils
-    Keywords: release v0.1.3
-    
-    This is dateutils v0.1.3.
-    
-    This is a feature and convenience release.
-    Most importantly, the project is now called `dateutils'.
-    All tools are documented now (to some degree) and have their own tests.
+Summary: release v0.1.3 of dateutils
+
+This is dateutils v0.1.3.
+
+This is a feature and convenience release.
+Most importantly, the project is now called `dateutils'.
+All tools are documented now (to some degree) and have their own tests.
 
 v0.1.2
 =======
-    Summary: release v0.1.2 of datetools
-    Keywords: release v0.1.2
-    
-    This is datetools v0.1.2.
-    
-    This is a feature release.  The dseq tool is now entirely in the hand of
-    our internal date library.  Furthermore, dseq now accepts negative
-    increments and dates where FIRST > LAST.  Hereby the increment argument
-    has an overloaded meaning:
-    If INCREMENT is negative but FIRST < LAST then compute the beginning
-    instead of the end.
-    
-      dseq 2000-01-01 -34 2000-03-31
-      =>
-        2000-01-23
-        2000-02-26
-        2000-03-31
-    
-    as opposed to
-    
-      dseq 2000-01-01 34 2000-03-31
-      =>
-        2000-01-01
-        2000-02-04
-        2000-03-09
-    
-    Likewise, FIRST can be newer than LAST and with a negative increment,
-    the end is variable whereas a positive increment leaves the beginning
-    variable.
+Summary: release v0.1.2 of datetools
+
+This is datetools v0.1.2.
+
+This is a feature release.  The dseq tool is now entirely in the hand of
+our internal date library.  Furthermore, dseq now accepts negative
+increments and dates where FIRST > LAST.  Hereby the increment argument
+has an overloaded meaning:
+If INCREMENT is negative but FIRST < LAST then compute the beginning
+instead of the end.
+
+    dseq 2000-01-01 -34 2000-03-31
+    =>
+      2000-01-23
+      2000-02-26
+      2000-03-31
+
+as opposed to
+
+    dseq 2000-01-01 34 2000-03-31
+    =>
+      2000-01-01
+      2000-02-04
+      2000-03-09
+
+Likewise, FIRST can be newer than LAST and with a negative increment,
+the end is variable whereas a positive increment leaves the beginning
+variable.
 
 v0.1.10
 =======
-    Summary: v0.1.10 of dateutils
-    Keywords: v0.1.10
-    
-    This is dateutils v0.1.10.
-    
-    This is a bug fix release.
-    
-    - account for big-endian machines
-    - GNUisms (mempcpy() and getline()) are removed
-    - inf-loop in tseq is fixed (bug #6)
-    - nanoseconds are preserved upon time zone conversion
-    
-    See info page examples and/or README.
+Summary: v0.1.10 of dateutils
+
+This is dateutils v0.1.10.
+
+This is a bug fix release.
+
+- account for big-endian machines
+- GNUisms (mempcpy() and getline()) are removed
+- inf-loop in tseq is fixed (bug #6)
+- nanoseconds are preserved upon time zone conversion
+
+See info page examples and/or README.
 
 v0.1.1
 =======
-    Summary: release v0.1.1 of datetools
-    Keywords: release v0.1.1
-    
-    This is datetools v0.1.1.
-    
-    This is a clean up release with the long-term aim to outsource all
-    functionality into a library.  Two new command line tools have undergone
-    this transition, dcal and dtest.
-    
-    The overall goal is to have all tools using a common set of command line
-    options, -i or --input-format to specify one or more input formats to be
-    tried and -f or --format to specify an output format if applicable.
+Summary: release v0.1.1 of datetools
+
+This is datetools v0.1.1.
+
+This is a clean up release with the long-term aim to outsource all
+functionality into a library.  Two new command line tools have undergone
+this transition, dcal and dtest.
+
+The overall goal is to have all tools using a common set of command line
+options, -i or --input-format to specify one or more input formats to be
+tried and -f or --format to specify an output format if applicable.
 
 v0.1.0
 =======
-    Summary: release v0.1.0 of datetools
-    Keywords: release v0.1.0
-    
-    This is datetools v0.1.0.
-    
-    This is the first working version of datetools comprising two command
-    line tools, dseq and strptime.
+Summary: release v0.1.0 of datetools
 
+This is datetools v0.1.0.
+
+This is the first working version of datetools comprising two command
+line tools, dseq and strptime.
