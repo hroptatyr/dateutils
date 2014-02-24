@@ -29,9 +29,9 @@ Bug fixes:
 
 See info page examples and/or README.
 
-    [1]: https://github.com/hroptatyr/dateutils/issues/21
-    [2]: https://github.com/hroptatyr/dateutils/issues/22
-    [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
+  [1]: https://github.com/hroptatyr/dateutils/issues/21
+  [2]: https://github.com/hroptatyr/dateutils/issues/22
+  [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
 
 v0.2.6
 =======
