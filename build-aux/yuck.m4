@@ -74,8 +74,8 @@ define([yuck_set_version], [dnl
 
 ## yuck_set_umbrella([ident], [umbrella], [[posarg]])
 define([yuck_set_umbrella], [dnl
-	define([YUCK_CURRENT_UMB], [$1])
-	define([YUCK_UMB], [$2])
+	define([YUCK_UMB], [$1])
+	define([YUCK_STR_UMB], [$2])
 	define([YUCK_UMB_POSARG], [$3])
 ])
 
@@ -87,10 +87,16 @@ define([yuck_set_umbrella_desc], [dnl
 	define([YUCK_INTER_CMD], [YUCK_UMB_$1_desc])
 ])
 
+## yuck_set_umbrella_max_posargs([ident], [N])
+define([yuck_set_umbrella_max_posargs], [dnl
+	define([YUCK_UMB_$1_max_posargs], [$2])
+	define([YUCK_MAX_POSARGS], [$2])
+])
+
 ## yuck_add_command([ident], [command], [[posarg]])
 define([yuck_add_command], [dnl
-	define([YUCK_CURRENT_CMD], [$1])
-	append_nene([YUCK_CMD], [$1], [,])
+	define([YUCK_CMD], [$1])
+	append_nene([YUCK_ALL_CMDS], [$1], [,])
 	define([YUCK_STR_$1], [$2])
 	define([YUCK_POSARG_$1], [$3])
 ])
@@ -101,6 +107,11 @@ define([yuck_set_command_desc], [dnl
 
 	## define yuck_add_inter here, corresponding to IDENT
 	define([YUCK_INTER_CMD], [YUCK_CMD_$1_desc])
+])
+
+## yuck_set_umbrella_max_posargs([ident], [N])
+define([yuck_set_command_max_posargs], [dnl
+	define([YUCK_CMD_$1_max_posargs], [$2])
 ])
 
 ## yuck_add_inter([desc])
@@ -117,7 +128,7 @@ define([yuck_add_option], [dnl
 	## before any possible expansion is in scope
 	pushdef([type], equote([$4]))
 	pushdef([ident], [$1])
-	pushdef([cmd], defn([YUCK_CURRENT_CMD]))
+	pushdef([cmd], defn([YUCK_CMD]))
 
 	ifelse([$2], [], [],
 		index([0123456789], [$2]), [-1], [],
@@ -145,7 +156,7 @@ define([yuck_add_option], [dnl
 
 ## yuck_set_option_desc([ident], [desc])
 define([yuck_set_option_desc], [dnl
-	define([YUCK_]defn([YUCK_CURRENT_CMD])[_$1_desc], [$2])
+	define([YUCK_]defn([YUCK_CMD])[_$1_desc], [$2])
 ])
 
 
@@ -213,13 +224,13 @@ popdef([res])dnl
 ])
 
 ## yuck_umbcmds(), umbrella + commands
-define([yuck_umbcmds], [ifdef([YUCK_CMD], [[,]defn([YUCK_CMD])], dquote([[]]))])
+define([yuck_umbcmds], [ifdef([YUCK_ALL_CMDS], [[,]defn([YUCK_ALL_CMDS])], dquote([[]]))])
 
 ## yuck_cmds(), just the commands
-define([yuck_cmds], [defn([YUCK_CMD])])
+define([yuck_cmds], [defn([YUCK_ALL_CMDS])])
 
 ## yuck_cmd([command])
-define([yuck_cmd], [upcase(defn([YUCK_CURRENT_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
+define([yuck_cmd], [upcase(defn([YUCK_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
 
 ## yuck_cmd_string
 define([yuck_cmd_string], [defn([YUCK_STR_]$1)])
@@ -329,6 +340,31 @@ lhs[
 ]backquote([indesc])[]dnl
 ])
 popdef([lenlhs])dnl
+popdef([indesc])dnl
+popdef([desc])dnl
+popdef([lhs])dnl
+])
+
+## yuck_option_help_line([cmd])
+define([yuck_cmd_line], [dnl
+pushdef([lhs], [backquote([yuck_cmd_string([$1])])])dnl
+pushdef([desc], [yuck_cmd_desc([$1])])dnl
+pushdef([lnlen], [index(backquote([desc]), [
+])])dnl
+pushdef([indesc], [            ifelse(lnlen, -1, [backquote([desc])],
+	[backquote([xleft(backquote([desc]), lnlen)])])])dnl
+pushdef([lenlhs], len(lhs))dnl
+ifelse(indesc, [], [lhs],
+eval(lenlhs >= 11), [0], [dnl
+  lhs[]backquote([xright(indesc, lenlhs)])[]dnl
+], eval(lenlhs >= 12), [0], [dnl
+  lhs[]backquote([xright(indesc, decr(lenlhs))])[]dnl
+], [dnl
+  lhs
+  backquote([indesc])[]dnl
+])dnl
+popdef([lenlhs])dnl
+popdef([lnlen])dnl
 popdef([indesc])dnl
 popdef([desc])dnl
 popdef([lhs])dnl

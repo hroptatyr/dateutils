@@ -7,12 +7,12 @@ define([YUCK_VERSION], [YUCK_SCMVER_VERSION])[]dnl
 define([YUCK_VERSION], [unknown])dnl
 ])dnl
 ])dnl
-.TH YUCK_UMB "1" "YUCK_MAN_DATE" "YUCK_UMB YUCK_VERSION" "User Commands"
+.TH YUCK_STR_UMB "1" "YUCK_MAN_DATE" "YUCK_STR_UMB YUCK_VERSION" "User Commands"
 .SH SYNOPSIS
-.B YUCK_UMB
+.B YUCK_STR_UMB
 [[\fIOPTION\fR]]...
 ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR])
-patsubst(dquote(defn([YUCK_UMB.POSARG])), [\w+], [\\fI\&\\fR])
+patsubst(dquote(defn([YUCK_UMB_POSARG])), [\w+], [\\fI\&\\fR])
 .SH DESCRIPTION
 yuck_umb_desc()
 ifelse(yuck_cmds(), [], [], [dnl
@@ -40,7 +40,7 @@ ifelse(yuck_cmds(), [], [], [dnl
 ])dnl
 foreachq([C], yuck_cmds(), [
 .P
-.B YUCK_UMB yuck_cmd_string(C)
+.B YUCK_STR_UMB yuck_cmd_string(C)
 [[\fIOPTION\fR]]...
 patsubst(dquote(yuck_cmd_posarg(C)), [\w+], [\\fI\&\\fR])
 .br
