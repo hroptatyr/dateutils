@@ -8,31 +8,31 @@ logo: dateutils_logo_120.png
 
 v0.2.7
 =======
-    Summary: v0.2.7 of dateutils
-    Keywords: v0.2.7
+Summary: v0.2.7 of dateutils
+Keywords: v0.2.7
+
+This is dateutils v0.2.7.
+
+This is a feature release.
+
+Features:
+- dgrep supports -v|--invert-match like grep
+- output specifier %G is supported for compatibility with POSIX
+- ddiff calculates year-day differences
+- ddiff calculates ISO-week date differences
+- ddiff output can be zero and space padded through 0 and SPC modifier
+- zoneinfo database on AIX >= 6.1 is taken into account
+
+Bug fixes:
+- ddiff can calculate full year differences, [issue 21][1] fixed
+- dseq now accepts %W, %V output formats, [issue 22][2] fixed
+- builds with clang >= 3.3 work again, [clang bug 18028][3]
+
+See info page examples and/or README.
     
-    This is dateutils v0.2.7.
-    
-    This is a feature release.
-    
-    Features:
-    - dgrep supports -v|--invert-match like grep
-    - output specifier %G is supported for compatibility with POSIX
-    - ddiff calculates year-day differences
-    - ddiff calculates ISO-week date differences
-    - ddiff output can be zero and space padded through 0 and SPC modifier
-    - zoneinfo database on AIX >= 6.1 is taken into account
-    
-    Bug fixes:
-    - ddiff can calculate full year differences, [issue 21][1] fixed
-    - dseq now accepts %W, %V output formats, [issue 22][2] fixed
-    - builds with clang >= 3.3 work again, [clang bug 18028][3]
-    
-    See info page examples and/or README.
-    
-      [1]: https://github.com/hroptatyr/dateutils/issues/21
-      [2]: https://github.com/hroptatyr/dateutils/issues/22
-      [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
+  [1]: https://github.com/hroptatyr/dateutils/issues/21
+  [2]: https://github.com/hroptatyr/dateutils/issues/22
+  [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
 
 v0.2.6
 =======
@@ -383,3 +383,4 @@ v0.1.0
     
     This is the first working version of datetools comprising two command
     line tools, dseq and strptime.
+
