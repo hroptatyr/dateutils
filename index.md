@@ -69,6 +69,14 @@ Following Linux distros and BSD flavours provide native packages
 + Ubuntu <https://launchpad.net/ubuntu/trusty/+package/dateutils>
 
 
+[Changelog][1]
+==============
+
+See dedicated [changelog page][1].
+
+  [1]: /dateutils/changelog.html
+
+
 Examples
 ========
 
@@ -358,12 +366,14 @@ strptime
   just like you would have done in C.
 
 
-[Timezone map files][1]
+[Timezone map files][2]
 =======================
 
 Starting with version 0.3.0 dateutils has built-in support for
-[tzmaps][1].  We've dedicated a branch (orphan `tzmaps`) for their
-development and a [website][1] for further information.
+[tzmaps][2].  We've dedicated a branch (orphan `tzmaps`) for their
+development and a [website][2] for further information.
+
+  [2]: /dateutils/tzmaps.html
 
 
 Similar projects
@@ -390,8 +400,6 @@ Yes, we're aware of social media:
 + [Ohloh](https://www.ohloh.net/p/dateutils)
 
 Not that there will be no substantial content though.
-
-  [1]: /dateutils/tzmaps.html
 
 <!--
   Local variables:
