@@ -76,7 +76,7 @@ This is dateutils v0.2.4.
 This is a bug fix release.
 
 Features:
-- added special output format `jdn' and `ldn' for julian/lilian day number
+- added special output format `jdn` and `ldn` for julian/lilian day number
 - multiple occurrences of date/times within one line are now all processed
     rather than only the first occurrence
 - zone difference specifier (%Z) is supported for parsing and printing
@@ -160,7 +160,7 @@ This is dateutils v0.2.0.
 This is a feature release.
 
 The distinction between binaries for date, time and date-time processing
-is cleared up by a unified set of tools, prefixed with `d'.
+is cleared up by a unified set of tools, prefixed with `d`.
 
 Thus:
 dadd + tadd -> dadd
@@ -171,7 +171,7 @@ dseq + tseq -> dseq
 dtest + ttest -> dtest
 
 Furthermore, all tools now fully cope with dates, times and date-times.
-Virtual timezones have been added (use `GPS' or `TAI').
+Virtual timezones have been added (use `GPS` or `TAI`).
 
 See info page examples and/or README.
 
@@ -196,7 +196,7 @@ This is dateutils v0.1.8.
 
 This is a bug fix release.
 
-A bit fiddling bug gave erroneous results in `dconv now'.
+A bit fiddling bug gave erroneous results in `dconv now`.
 
 Furtherly, date expressions (for dgrep et al.) can now be arbitrarily
 joined with conjunctions (&&) and disjunctions (||) as well as negations
@@ -236,12 +236,12 @@ there has been a naming conflict with the tcal binary from the gcal
 package.  Thanks to ulm (https://github.com/ulm) for pointing this out.
 
 Changes in behaviour:
-Furthermore, many numerical specifiers now cope with the `th' flag to
-denote ordinals: `%dth %b %Y' applied to 2011-10-03 will yield
-`3rd Oct 2011'.
+Furthermore, many numerical specifiers now cope with the `th` flag to
+denote ordinals: `%dth %b %Y` applied to 2011-10-03 will yield
+`3rd Oct 2011`.
 
-business days can be denoted by suffixing them with `b' both in the
-input and the specs, the `b' modifer like the `th' modifier are
+business days can be denoted by suffixing them with `b` both in the
+input and the specs, the `b` modifer like the `th` modifier are
 suffixes and serve formatting and notation purposes.
 
 Also, many gnu-isms are removed to facilitate *BSD builds.
@@ -293,7 +293,7 @@ Summary: release v0.1.3 of dateutils
 This is dateutils v0.1.3.
 
 This is a feature and convenience release.
-Most importantly, the project is now called `dateutils'.
+Most importantly, the project is now called `dateutils`.
 All tools are documented now (to some degree) and have their own tests.
 
 v0.1.2
