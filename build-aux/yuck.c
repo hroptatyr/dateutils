@@ -1351,6 +1351,13 @@ wr_man_pkg(const char *pkg)
 }
 
 static int
+wr_man_nfo(const char *nfo)
+{
+	fprintf(outf, "define([YUCK_NFO_STR], [%s])dnl\n", nfo);
+	return 0;
+}
+
+static int
 wr_man_incln(FILE *fp, char *restrict ln, size_t lz)
 {
 	static int verbp;
@@ -1664,6 +1671,14 @@ scmver support not built in, --version-file cannot be used");
 	if (argi->package_arg) {
 		/* package != umbrella */
 		rc += wr_man_pkg(argi->package_arg);
+	}
+	if (argi->info_page_arg) {
+		const char *nfo;
+
+		if ((nfo = argi->info_page_arg) == YUCK_OPTARG_NONE) {
+			nfo = "YUCK_PKG_STR";
+		}
+		rc += wr_man_nfo(nfo);
 	}
 	/* go through includes */
 	wr_man_includes(argi->include_args, argi->include_nargs);

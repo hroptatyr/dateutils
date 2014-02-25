@@ -101,5 +101,19 @@ yuck_option_desc(defn([__IDN__]), defn([__CMD__]))
 foreachq([__INC__], defn([YUCK_INCLUDES]), [dnl
 include(__INC__)
 ])
+ifdef([YUCK_NFO_STR], [
+.SH "SEE ALSO"
+The full documentation for
+.B YUCK_UMB_STR
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B YUCK_UMB_STR
+programs are properly installed at your site, the command
+.IP
+.B info ifelse(YUCK_NFO_STR, YUCK_UMB_STR, [YUCK_NFO_STR], [(YUCK_NFO_STR)YUCK_UMB_STR])
+.PP
+should give you access to the complete manual.
+])dnl
 ./* yuck.m4man ends here
 changequote`'dnl

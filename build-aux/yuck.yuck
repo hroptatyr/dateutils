@@ -24,6 +24,7 @@ Generate a man page from definitions in FILE, or stdin if omitted.
   --version-file=FILE  Hardwire version number from FILE.
   --package=STRING     Use package STRING instead of umbrella.
   -i, --include=FILE...  Include sections from FILE
+  --info-page[=NAME]     Include reference to Texinfo manual.
 
 ## GENDSL
 Usage: yuck gendsl [FILE]...
