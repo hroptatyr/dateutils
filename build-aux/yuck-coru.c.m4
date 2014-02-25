@@ -55,7 +55,7 @@ static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 		return yuck_cmd(defn([__CMD]));
 	}]) else {
 		/* error here? */
-		fprintf(stderr, "YUCK_STR_UMB: invalid command `%s'\n\
+		fprintf(stderr, "YUCK_UMB_STR: invalid command `%s'\n\
 Try `--help' for a list of commands.\n", cmd);
 	}
 	return (enum yuck_cmds_e)-1;
@@ -177,7 +177,7 @@ divert[]dnl
 ]) else {
 				ifelse(defn([__CMD]), [],
 				       [/* grml */
-				fprintf(stderr, "YUCK_STR_UMB: unrecognized option `--%s'\n", op);
+				fprintf(stderr, "YUCK_UMB_STR: unrecognized option `--%s'\n", op);
 				resume_at(failure);],
 				       [resume_at(yuck_cmd()[_longopt]);])
 			}
@@ -233,7 +233,7 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 			switch (*op) {
 			default:
 				divert(1);
-				fprintf(stderr, "YUCK_STR_UMB: invalid option -%c\n", *op);
+				fprintf(stderr, "YUCK_UMB_STR: invalid option -%c\n", *op);
 				resume_at(failure);
 
 ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
@@ -346,7 +346,7 @@ DEFUN void yuck_auto_usage(const yuck_t src[[static 1U]])
 	switch (src->cmd) {
 	default:
 	YUCK_NOCMD:
-		puts("Usage: YUCK_STR_UMB [[OPTION]]...dnl
+		puts("Usage: YUCK_UMB_STR [[OPTION]]...dnl
 ifelse(yuck_cmds(), [], [], [ COMMAND])[]dnl
 ifelse(defn([YUCK_UMB_POSARG]), [], [], [ defn([YUCK_UMB_POSARG])])\n\
 ifelse(yuck_umb_desc(), [], [], [dnl
@@ -357,7 +357,7 @@ yuck_C_literal(yuck_umb_desc())\n\
 		break;
 foreachq([__CMD], yuck_cmds(), [
 	case yuck_cmd(defn([__CMD])):
-		puts("Usage: YUCK_STR_UMB dnl
+		puts("Usage: YUCK_UMB_STR dnl
 yuck_cmd_string(defn([__CMD]))[]dnl
 ifelse(yuck_idents(defn([__CMD])), [], [], [ [[OPTION]]...])[]dnl
 ifelse(yuck_cmd_posarg(defn([__CMD])), [], [], [ yuck_cmd_posarg(defn([__CMD]))])\n\
@@ -433,22 +433,22 @@ DEFUN void yuck_auto_version(const yuck_t src[[static 1U]])
 	switch (src->cmd) {
 	default:
 ifdef([YUCK_VERSION], [dnl
-		puts("YUCK_STR_UMB YUCK_VERSION");
+		puts("YUCK_UMB_STR YUCK_VERSION");
 ], [dnl
 #if 0
 
 #elif defined package_string
 		puts(package_string);
 #elif defined package_version
-		printf("YUCK_STR_UMB %s\n", package_version);
+		printf("YUCK_UMB_STR %s\n", package_version);
 #elif defined PACKAGE_STRING
 		puts(PACKAGE_STRING);
 #elif defined PACKAGE_VERSION
-		puts("YUCK_STR_UMB " PACKAGE_VERSION);
+		puts("YUCK_UMB_STR " PACKAGE_VERSION);
 #elif defined VERSION
-		puts("YUCK_STR_UMB " VERSION);
+		puts("YUCK_UMB_STR " VERSION);
 #else  /* !PACKAGE_VERSION, !VERSION */
-		puts("YUCK_STR_UMB unknown version");
+		puts("YUCK_UMB_STR unknown version");
 #endif	/* PACKAGE_VERSION */
 ])dnl
 		break;

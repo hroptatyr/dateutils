@@ -75,7 +75,7 @@ define([yuck_set_version], [dnl
 ## yuck_set_umbrella([ident], [umbrella], [[posarg]])
 define([yuck_set_umbrella], [dnl
 	define([YUCK_UMB], [$1])
-	define([YUCK_STR_UMB], [$2])
+	define([YUCK_UMB_STR], [$2])
 	define([YUCK_UMB_POSARG], [$3])
 ])
 
@@ -97,7 +97,7 @@ define([yuck_set_umbrella_max_posargs], [dnl
 define([yuck_add_command], [dnl
 	define([YUCK_CMD], [$1])
 	append_nene([YUCK_ALL_CMDS], [$1], [,])
-	define([YUCK_STR_$1], [$2])
+	define([YUCK_$1_STR], [$2])
 	define([YUCK_POSARG_$1], [$3])
 ])
 
@@ -233,7 +233,7 @@ define([yuck_cmds], [defn([YUCK_ALL_CMDS])])
 define([yuck_cmd], [upcase(defn([YUCK_UMB]))[_CMD_]ifelse([$1], [], [NONE], [upcase([$1])])])
 
 ## yuck_cmd_string
-define([yuck_cmd_string], [defn([YUCK_STR_]$1)])
+define([yuck_cmd_string], [defn([YUCK_]$1[_STR])])
 
 ## yuck_cmd_posarg
 define([yuck_cmd_posarg], [defn([YUCK_POSARG_]$1)])
@@ -315,7 +315,7 @@ define([_yuck_esc], [dnl
 pushdef([__next_sep], index([$1], [$2]))[]dnl
 ifelse([$1], [], [], defn([__next_sep]), [-1], [$4[$1]], [dnl
 [$4]xleft([$1], defn([__next_sep]))[$3]dnl
-$0(backquote([xright([$1], incr(defn([__next_sep])))]), [$2], [$3], [$4])[]dnl
+$0(backquote([xright([$1], eval(defn([__next_sep]) + len([$2])))]), [$2], [$3], [$4])[]dnl
 ])[]dnl
 popdef([__next_sep])dnl
 ])dnl
@@ -345,14 +345,19 @@ popdef([desc])dnl
 popdef([lhs])dnl
 ])
 
-## yuck_option_help_line([cmd])
+## yuck_first_line([string])
+define([yuck_first_line], [dnl
+pushdef([lnlen], [index([$1], [
+])])dnl
+backquote([ifelse(lnlen, -1, [$1], [xleft([$1], lnlen)])])[]dnl
+popdef([lnlen])dnl
+])
+
+## yuck_cmd_line([cmd])
 define([yuck_cmd_line], [dnl
 pushdef([lhs], [backquote([yuck_cmd_string([$1])])])dnl
-pushdef([desc], [yuck_cmd_desc([$1])])dnl
-pushdef([lnlen], [index(backquote([desc]), [
-])])dnl
-pushdef([indesc], [            ifelse(lnlen, -1, [backquote([desc])],
-	[backquote([xleft(backquote([desc]), lnlen)])])])dnl
+pushdef([indesc], [dnl
+            yuck_first_line(backquote([yuck_cmd_desc([$1])]))])dnl
 pushdef([lenlhs], len(lhs))dnl
 ifelse(indesc, [], [lhs],
 eval(lenlhs >= 11), [0], [dnl
@@ -364,9 +369,7 @@ eval(lenlhs >= 11), [0], [dnl
   backquote([indesc])[]dnl
 ])dnl
 popdef([lenlhs])dnl
-popdef([lnlen])dnl
 popdef([indesc])dnl
-popdef([desc])dnl
 popdef([lhs])dnl
 ])
 
