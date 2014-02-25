@@ -79,8 +79,6 @@ Good day.
 fi
 
 
-AM_MISSING_PROG([HELP2MAN], [help2man], ["${missing_dir}"])
-
 AM_PROG_LEX
 AC_PROG_YACC
 
