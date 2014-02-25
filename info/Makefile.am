@@ -197,34 +197,37 @@ my_bld_man = $(__bld_man_$(V))
 __bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
 __bld_man_0 = @echo "  HELP2MAN" $@;
 SUFFIXES += .man
-.h2m.man: $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
-		-I $< \
-		-I "$(builddir)/format.h2m" \
-		-I "$(srcdir)/author.h2m" \
-		-I "$(srcdir)/$*.name" \
-		-o $@ $(top_builddir)/src/$*
+.yuck.man:
+	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
+		yuck$(EXEEXT) genman \
+			--package "$(PACKAGE_NAME)" \
+			-i "$(builddir)/format.th2m" \
+			-i "$(builddir)/$*.h2m" \
+			-i "$(srcdir)/author.h2m" \
+			-o $@ --version-file "$(top_builddir)/.version" $<
 
 ## generic rule with format-ddiff instead of format
 SUFFIXES += .mand
-.h2m.mand: $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
-		-I $< \
-		-I "$(builddir)/format-ddiff.th2m" \
-		-I "$(srcdir)/author.h2m" \
-		-I "$(srcdir)/$*.name" \
-		-o $@ $(top_builddir)/src/$*
+.yuck.mand:
+	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
+		yuck$(EXEEXT) genman \
+			--package "$(PACKAGE_NAME)" \
+			-i "$(builddir)/format-ddiff.th2m" \
+			-i "$(builddir)/$*.h2m" \
+			-i "$(srcdir)/author.h2m" \
+			-o $@ --version-file "$(top_builddir)/.version" $<
 
 ## generic rule for man pages with units section
 SUFFIXES += .manu
-.h2m.manu: $(dateutils_H2M_EX) $(top_srcdir)/configure
-	$(my_bld_man) $(HELP2MAN) -S "$(PACKAGE_STRING)" -p "($(PACKAGE))$*" \
-		-I $< \
-		-I "$(builddir)/format.th2m" \
-		-I "$(builddir)/units.th2m" \
-		-I "$(srcdir)/author.h2m" \
-		-I "$(srcdir)/$*.name" \
-		-o $@ $(top_builddir)/src/$*
+.yuck.manu:
+	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
+		yuck$(EXEEXT) genman \
+			--package "$(PACKAGE_NAME)" \
+			-i "$(builddir)/format.th2m" \
+			-i "$(builddir)/units.th2m" \
+			-i "$(builddir)/$*.h2m" \
+			-i "$(srcdir)/author.h2m" \
+			-o $@ --version-file "$(top_builddir)/.version" $<
 
 my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
