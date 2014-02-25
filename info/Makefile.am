@@ -193,9 +193,6 @@ SUFFIXES += .yuck
 SUFFIXES += .name
 VPATH += @top_srcdir@/src
 
-my_bld_man = $(__bld_man_$(V))
-__bld_man_ = $(__bld_man_$(AM_DEFAULT_VERBOSITY))
-__bld_man_0 = @echo "  HELP2MAN" $@;
 SUFFIXES += .man
 .yuck.man:
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
