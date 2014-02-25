@@ -198,6 +198,7 @@ SUFFIXES += .man
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
 		yuck$(EXEEXT) genman \
 			--package "$(PACKAGE_NAME)" \
+			--info-page \
 			-i "$(builddir)/format.th2m" \
 			-i "$(builddir)/$*.h2m" \
 			-i "$(srcdir)/author.h2m" \
@@ -209,6 +210,7 @@ SUFFIXES += .mand
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
 		yuck$(EXEEXT) genman \
 			--package "$(PACKAGE_NAME)" \
+			--info-page \
 			-i "$(builddir)/format-ddiff.th2m" \
 			-i "$(builddir)/$*.h2m" \
 			-i "$(srcdir)/author.h2m" \
@@ -220,6 +222,7 @@ SUFFIXES += .manu
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
 		yuck$(EXEEXT) genman \
 			--package "$(PACKAGE_NAME)" \
+			--info-page \
 			-i "$(builddir)/format.th2m" \
 			-i "$(builddir)/units.th2m" \
 			-i "$(builddir)/$*.h2m" \
