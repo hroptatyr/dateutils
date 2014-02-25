@@ -47,6 +47,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -285,8 +286,8 @@ unmassage_buf(char *restrict buf, size_t bsz)
 	return;
 }
 
-static FILE*
-mkftempp(char *restrict tmpl[static 1U], int prefixlen)
+static int
+mktempp(char *restrict tmpl[static 1U], int prefixlen)
 {
 	char *bp = *tmpl + prefixlen;
 	char *const ep = *tmpl + strlen(*tmpl);
@@ -298,7 +299,7 @@ mkftempp(char *restrict tmpl[static 1U], int prefixlen)
 		    (bp -= prefixlen,
 		     fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0) {
 			/* fuck that then */
-			return NULL;
+			return -1;
 		}
 	} else if (UNLIKELY((fd = mkstemp(bp)) < 0) &&
 		   UNLIKELY((bp -= prefixlen,
@@ -306,10 +307,21 @@ mkftempp(char *restrict tmpl[static 1U], int prefixlen)
 			     memset(ep - 6, 'X', 6U),
 			     fd = mkstemp(bp)) < 0)) {
 		/* at least we tried */
-		return NULL;
+		return -1;
 	}
 	/* store result */
 	*tmpl = bp;
+	return fd;
+}
+
+static FILE*
+mkftempp(char *restrict tmpl[static 1U], int prefixlen)
+{
+	int fd;
+
+	if (UNLIKELY((fd = mktempp(tmpl, prefixlen)) < 0)) {
+		return NULL;
+	}
 	return fdopen(fd, "w");
 }
 
@@ -428,9 +440,6 @@ overread:
 	for (; sp < ep && isspace(*sp); sp++);
 	/* we might be strafed with option decls here */
 	switch (*sp) {
-	case '-':
-		for (sp++; sp < ep && isdashdash(*sp); sp++);
-		goto overread;
 	case '[':
 		if (sp[1U] == '-') {
 			/* might be option spec [-x], read on */
@@ -677,6 +686,48 @@ __identify(char *restrict idn)
 	return;
 }
 
+static size_t
+count_pargs(const char *parg)
+{
+/* return max posargs as helper for auto-dashdash commands */
+	const char *pp;
+	size_t res;
+
+	for (res = 0U, pp = parg; *pp;) {
+		/* allow [--] or -- as auto-dashdash declarators */
+		if (*pp == '[') {
+			pp++;
+		}
+		if (*pp++ == '-') {
+			if (*pp++ == '-') {
+				if (*pp == ']' || isspace(*pp)) {
+					/* found him! */
+					return res;
+				}
+			}
+			/* otherwise not the declarator we were looking for
+			 * fast forward to the end */
+			for (; *pp && !isspace(*pp); pp++);
+		} else {
+			/* we know it's a bog-standard posarg for sure */
+			res++;
+			/* check for ellipsis */
+			for (; *pp && *pp != '.' && !isspace(*pp); pp++);
+			if (!*pp) {
+				/* end of parg string anyway */
+				break;
+			}
+			if (*pp++ == '.' && *pp++ == '.' && *pp++ == '.') {
+				/* ellipsis, set res to infinity and bog off */
+				break;
+			}
+		}
+		/* fast forward over all the whitespace */
+		for (; *pp && isspace(*pp); pp++);
+	}
+	return 0U;
+}
+
 static char*
 make_opt_ident(const struct opt_s *arg)
 {
@@ -733,6 +784,7 @@ static void
 yield_usg(const struct usg_s *arg)
 {
 	const char *parg = arg->parg ?: nul_str;
+	size_t nparg = count_pargs(parg);
 
 	if (arg->desc != NULL) {
 		/* kick last newline */
@@ -743,6 +795,11 @@ yield_usg(const struct usg_s *arg)
 
 		fprintf(outf, "\nyuck_add_command([%s], [%s], [%s])\n",
 			idn, arg->cmd, parg);
+		if (nparg) {
+			fprintf(outf,
+				"yuck_set_command_max_posargs([%s], [%zu])\n",
+				idn, nparg);
+		}
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_command_desc([%s], [%s])\n",
 				idn, arg->desc);
@@ -752,6 +809,11 @@ yield_usg(const struct usg_s *arg)
 
 		fprintf(outf, "\nyuck_set_umbrella([%s], [%s], [%s])\n",
 			idn, arg->umb, parg);
+		if (nparg) {
+			fprintf(outf,
+				"yuck_set_umbrella_max_posargs([%s], [%zu])\n",
+				idn, nparg);
+		}
 		if (arg->desc != NULL) {
 			fprintf(outf, "yuck_set_umbrella_desc([%s], [%s])\n",
 				idn, arg->desc);
@@ -1276,11 +1338,136 @@ wr_man_date(void)
 	} else if (!strftime(buf, sizeof(buf), "%B %Y", tp)) {
 		rc = -1;
 	} else {
-		wr_pre();
 		fprintf(outf, "define([YUCK_MAN_DATE], [%s])dnl\n", buf);
-		wr_suf();
 	}
 	return rc;
+}
+
+static int
+wr_man_pkg(const char *pkg)
+{
+	fprintf(outf, "define([YUCK_PKG_STR], [%s])dnl\n", pkg);
+	return 0;
+}
+
+static int
+wr_man_nfo(const char *nfo)
+{
+	fprintf(outf, "define([YUCK_NFO_STR], [%s])dnl\n", nfo);
+	return 0;
+}
+
+static int
+wr_man_incln(FILE *fp, char *restrict ln, size_t lz)
+{
+	static int verbp;
+	static int parap;
+
+	if (UNLIKELY(ln == NULL)) {
+		/* drain mode */
+		if (verbp) {
+			fputs(".fi\n", fp);
+		}
+	} else if (lz <= 1U/*has at least a newline?*/) {
+		if (verbp) {
+			/* close verbatim mode */
+			fputs(".fi\n", fp);
+			verbp = 0;
+		}
+		if (!parap) {
+			fputs(".PP\n", fp);
+			parap = 1;
+		}
+	} else if (*ln == '[' && ln[lz - 2U] == ']') {
+		/* section */
+		char *restrict lp = ln + 1U;
+
+		for (const char *const eol = ln + lz - 2U; lp < eol; lp++) {
+			*lp = (char)toupper(*lp);
+		}
+		*lp = '\0';
+		fputs(".SH ", fp);
+		fputs(ln + 1U, fp);
+		fputs("\n", fp);
+		/* reset state */
+		parap = 0;
+		verbp = 0;
+	} else if (ln[0U] == ' ' && ln[1U] == ' ' && !verbp) {
+		fputs(".nf\n", fp);
+		verbp = 1;
+		goto cp;
+	} else {
+	cp:
+		/* otherwise copy  */
+		fwrite(ln, lz, sizeof(*ln), fp);
+		parap = 0;
+	}
+	return 0;
+}
+
+static int
+wr_man_include(char **const inc)
+{
+	char _ofn[] = P_tmpdir "/" "yuck_XXXXXX";
+	char *ofn = _ofn;
+	FILE *ofp;
+	char *line = NULL;
+	size_t llen = 0U;
+	FILE *fp;
+
+	if (UNLIKELY((fp = fopen(*inc, "r")) == NULL)) {
+		error("Cannot open include file `%s', ignoring", *inc);
+		*inc = NULL;
+		return -1;
+	} else if (UNLIKELY((ofp = mkftempp(&ofn, sizeof(P_tmpdir))) == NULL)) {
+		error("Cannot open output file `%s', ignoring", ofn);
+		*inc = NULL;
+		return -1;
+	}
+
+	/* make sure we pass on ofn */
+	*inc = strdup(ofn);
+
+#if defined HAVE_GETLINE
+	for (ssize_t nrd; (nrd = getline(&line, &llen, fp)) > 0;) {
+		wr_man_incln(ofp, line, nrd);
+	}
+#elif defined HAVE_FGETLN
+	while ((line = fgetln(f, &llen)) != NULL) {
+		wr_man_incln(ofp, line, nrd);
+	}
+#else
+# error neither getline() nor fgetln() available, cannot read file line by line
+#endif	/* GETLINE/FGETLN */
+	/* drain */
+	wr_man_incln(ofp, NULL, 0U);
+
+#if defined HAVE_GETLINE
+	free(line);
+#endif	/* HAVE_GETLINE */
+
+	/* close files properly */
+	fclose(fp);
+	fclose(ofp);
+	return 0;
+}
+
+static int
+wr_man_includes(char *incs[], size_t nincs)
+{
+	for (size_t i = 0U; i < nincs; i++) {
+		/* massage file */
+		if (wr_man_include(incs + i) < 0) {
+			continue;
+		} else if (incs[i] == NULL) {
+			/* something else is wrong */
+			continue;
+		}
+		/* otherwise make a note to include this file */
+		fprintf(outf, "\
+append([YUCK_INCLUDES], [%s], [,])dnl\n", incs[i]);
+	}
+	return 0;
 }
 
 static int
@@ -1345,6 +1532,30 @@ rm_intermediary(const char *fn, int keepp)
 	}
 	return 0;
 }
+
+static int
+rm_includes(char *const incs[], size_t nincs, int keepp)
+{
+	int rc = 0;
+
+	errno = 0;
+	for (size_t i = 0U; i < nincs; i++) {
+		char *restrict fn;
+
+		if ((fn = incs[i]) != NULL) {
+			if (!keepp && unlink(fn) < 0) {
+				error("cannot remove intermediary `%s'", fn);
+				rc = -1;
+			} else if (keepp) {
+				/* otherwise print a nice message so users know
+				 * the file we created */
+				error("intermediary `%s' kept", fn);
+			}
+			free(fn);
+		}
+	}
+	return rc;
+}
 #endif	/* !BOOTSTRAP */
 
 
@@ -1393,8 +1604,8 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		error("cannot find yuck dsl file");
 		rc = 2;
 		goto out;
-	} else if (find_aux(gencfn, sizeof(gencfn), "yuck-coru.m4c") < 0 ||
-		   find_aux(genhfn, sizeof(genhfn), "yuck-coru.m4h") < 0) {
+	} else if (find_aux(gencfn, sizeof(gencfn), "yuck-coru.c.m4") < 0 ||
+		   find_aux(genhfn, sizeof(genhfn), "yuck-coru.h.m4") < 0) {
 		error("cannot find yuck template files");
 		rc = 2;
 		goto out;
@@ -1414,6 +1625,7 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
 	}
 out:
+	/* unlink include files */
 	rm_intermediary(deffn, argi->keep_flag);
 	return rc;
 }
@@ -1452,8 +1664,26 @@ cmd_genman(const struct yuck_cmd_genman_s argi[static 1U])
 scmver support not built in, --version-file cannot be used");
 #endif	/* WITH_SCMVER */
 	}
+	/* reset to sane values */
+	wr_pre();
 	/* at least give the man page template an idea for YUCK_MAN_DATE */
 	rc += wr_man_date();
+	if (argi->package_arg) {
+		/* package != umbrella */
+		rc += wr_man_pkg(argi->package_arg);
+	}
+	if (argi->info_page_arg) {
+		const char *nfo;
+
+		if ((nfo = argi->info_page_arg) == YUCK_OPTARG_NONE) {
+			nfo = "YUCK_PKG_STR";
+		}
+		rc += wr_man_nfo(nfo);
+	}
+	/* go through includes */
+	wr_man_includes(argi->include_args, argi->include_nargs);
+	/* reset to sane values */
+	wr_suf();
 	/* and we're finished with the intermediary */
 	fclose(outf);
 
@@ -1465,7 +1695,7 @@ scmver support not built in, --version-file cannot be used");
 		error("cannot find yuck dsl and template files");
 		rc = 2;
 		goto out;
-	} else if (find_aux(genmfn, sizeof(genmfn), "yuck.m4man") < 0) {
+	} else if (find_aux(genmfn, sizeof(genmfn), "yuck.man.m4") < 0) {
 		error("cannot find yuck template for man pages");
 		rc = 2;
 		goto out;
@@ -1476,6 +1706,7 @@ scmver support not built in, --version-file cannot be used");
 		rc = run_m4(outfn, dslfn, deffn, genmfn, NULL);
 	}
 out:
+	rm_includes(argi->include_args, argi->include_nargs, argi->keep_flag);
 	rm_intermediary(deffn, argi->keep_flag);
 	return rc;
 }

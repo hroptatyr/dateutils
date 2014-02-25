@@ -11,6 +11,7 @@ changecom([#])dnl
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 ifdef([YUCK_HEADER], [#include "YUCK_HEADER"
 ])dnl
 
@@ -50,11 +51,11 @@ static enum yuck_cmds_e yuck_parse_cmd(const char *cmd)
 {
 	if (0) {
 		;
-	}foreachq([C], yuck_cmds(), [ else if (yuck_streqp(cmd, "yuck_cmd_string(defn([C]))")) {
-		return yuck_cmd(defn([C]));
+	}foreachq([__CMD], yuck_cmds(), [ else if (yuck_streqp(cmd, "yuck_cmd_string(defn([__CMD]))")) {
+		return yuck_cmd(defn([__CMD]));
 	}]) else {
 		/* error here? */
-		fprintf(stderr, "YUCK_UMB: invalid command `%s'\n\
+		fprintf(stderr, "YUCK_UMB_STR: invalid command `%s'\n\
 Try `--help' for a list of commands.\n", cmd);
 	}
 	return (enum yuck_cmds_e)-1;
@@ -71,31 +72,54 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 	memset(tgt, 0, sizeof(*tgt));
 	tgt->args = args = calloc(argc, sizeof(*tgt->args));
 	tgt->nargs = 0U;
-	for (i = 1; i < argc; i++) {
+ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
+	for (i = 1; i < argc && tgt->nargs < YUCK_MAX_POSARGS; i++) {
 		op = argv[[i]];
 
 		switch (*op) {
 		case '-':
 			/* could be an option */
 			switch (*++op) {
-			case '-':
-				if (*++op == '\0') {
-					yield(dashdash);
-					break;
-				}
-				yield(longopt, op);
-				break;
 			default:
 				/* could be glued into one */
 				for (; *op; op++) {
 					yield(shortopt, *op);
 				}
 				break;
+			case '-':
+				if (*++op == '\0') {
+					i++;
+					yield(dashdash);
+					break;
+				}
+				yield(longopt, op);
+				break;
+			case '\0':
+				goto plain_dash;
 			}
 			break;
 		default:
+		plain_dash:
 			yield(arg, op);
 			break;
+		}
+	}
+	if (i < argc) {
+		op = argv[[i]];
+
+		if (*op++ == '-' && *op++ == '-' && !*op) {
+			/* another dashdash, filter out */
+			i++;
+		}
+	}
+	/* has to be here as the max_pargs condition might drive us here */
+	coroutine(dashdash)
+	{
+		/* dashdash loop, pile everything on tgt->args
+		 * don't check for subcommands either, this is in accordance to
+		 * the git tool which won't accept commands after -- */
+		for (; i < argc; i++) {
+			args[[tgt->nargs++]] = argv[[i]];
 		}
 	}
 	return 0;
@@ -114,8 +138,8 @@ DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 		default:
 			yield(yuck_cmd()[_longopt]);
 			break;
-		foreachq([C], yuck_cmds(), [case yuck_cmd(defn([C])):
-			yield(yuck_cmd(defn([C]))[_longopt]);
+		foreachq([__CMD], yuck_cmds(), [case yuck_cmd(defn([__CMD])):
+			yield(yuck_cmd(defn([__CMD]))[_longopt]);
 			break;
 		])}
 		resume;
@@ -136,24 +160,24 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
 
-		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(defn([C]))[_longopt])
+		foreachq([__CMD], yuck_umbcmds(), [coroutine(yuck_cmd(defn([__CMD]))[_longopt])
 		{
 			if (0) {
 				;
 			}dnl
-foreachq([I], yuck_idents(defn([C])), [ dnl
-pushdef([long], yuck_long(defn([I]), defn([C])))[]dnl
+foreachq([__IDN], yuck_idents(defn([__CMD])), [ dnl
+pushdef([long], yuck_long(defn([__IDN]), defn([__CMD])))[]dnl
 ifelse(defn([long]), [], [divert(-1)])dnl
 else if (yuck_streqp(op, "defn([long])")) {
 popdef([long])[]dnl
 dnl now simply expand yuck_foo_action:
-				yuck_option_action(defn([I]), defn([C]));
+				yuck_option_action(defn([__IDN]), defn([__CMD]));
 			}dnl
 divert[]dnl
 ]) else {
-				ifelse(defn([C]), [],
+				ifelse(defn([__CMD]), [],
 				       [/* grml */
-				fprintf(stderr, "YUCK_UMB: unrecognized option `--%s'\n", op);
+				fprintf(stderr, "YUCK_UMB_STR: unrecognized option `--%s'\n", op);
 				resume_at(failure);],
 				       [resume_at(yuck_cmd()[_longopt]);])
 			}
@@ -176,8 +200,8 @@ popdef([yuck_auto_action])dnl
 		default:
 			yield(yuck_cmd()[_shortopt]);
 			break;
-		foreachq([C], yuck_cmds(), [case yuck_cmd(defn([C])):
-			yield(yuck_cmd(defn([C]))[_shortopt]);
+		foreachq([__CMD], yuck_cmds(), [case yuck_cmd(defn([__CMD])):
+			yield(yuck_cmd(defn([__CMD]))[_shortopt]);
 			break;
 		])}
 		resume;
@@ -204,12 +228,12 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
 
-		foreachq([C], yuck_umbcmds(), [coroutine(yuck_cmd(defn([C]))[_shortopt])
+		foreachq([__CMD], yuck_umbcmds(), [coroutine(yuck_cmd(defn([__CMD]))[_shortopt])
 		{
 			switch (*op) {
 			default:
 				divert(1);
-				fprintf(stderr, "YUCK_UMB: invalid option -%c\n", *op);
+				fprintf(stderr, "YUCK_UMB_STR: invalid option -%c\n", *op);
 				resume_at(failure);
 
 ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
@@ -224,17 +248,17 @@ ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
 				resume_at(yuck_cmd()[_shortopt]);
 
 				divert(0);
-				ifelse(defn([C]), [], [select_divert(1)], [select_divert(2)])dnl
+				ifelse(defn([__CMD]), [], [select_divert(1)], [select_divert(2)])dnl
 divert[]dnl
 
-foreachq([I], yuck_idents(defn([C])), [dnl
-pushdef([short], yuck_short(defn([I]), defn([C])))dnl
+foreachq([__IDN], yuck_idents(defn([__CMD])), [dnl
+pushdef([short], yuck_short(defn([__IDN]), defn([__CMD])))dnl
 ifelse(defn([short]), [], [divert(-1)])dnl
 			case 'defn([short])':
 popdef([short])dnl
 dnl
 dnl now simply expand yuck_foo_action:
-				yuck_option_action(defn([I]), defn([C]));
+				yuck_option_action(defn([__IDN]), defn([__CMD]));
 				break;
 divert[]dnl
 ])dnl
@@ -261,17 +285,6 @@ popdef([yuck_auto_action])dnl
 			}
 		}
 		resume;
-	}
-
-	coroutine(dashdash)
-	{
-		/* dashdash loop, pile everything on tgt->args
-		 * don't check for subcommands either, this is in accordance to
-		 * the git tool which won't accept commands after -- */
-		for (i++; i < argc; i++) {
-			args[[tgt->nargs++]] = argv[[i]];
-		}
-		return 0;
 	}
 
 	coroutine(failure)
@@ -309,10 +322,10 @@ pushdef([yuck_arg_opt_action], [])dnl
 pushdef([yuck_arg_mul_action], defn([action]))dnl
 pushdef([yuck_arg_mul_opt_action], defn([action]))dnl
 pushdef([yuck_auto_action], [])dnl
-foreachq([C], yuck_umbcmds(), [dnl
-	case yuck_cmd(defn([C])):
-foreachq([I], yuck_idents(defn([C])), [dnl
-yuck_option_action(defn([I]), defn([C]));
+foreachq([__CMD], yuck_umbcmds(), [dnl
+	case yuck_cmd(defn([__CMD])):
+foreachq([__IDN], yuck_idents(defn([__CMD])), [dnl
+yuck_option_action(defn([__IDN]), defn([__CMD]));
 		break;
 ])[]dnl
 ])[]dnl
@@ -333,7 +346,7 @@ DEFUN void yuck_auto_usage(const yuck_t src[[static 1U]])
 	switch (src->cmd) {
 	default:
 	YUCK_NOCMD:
-		puts("Usage: YUCK_UMB [[OPTION]]...dnl
+		puts("Usage: YUCK_UMB_STR [[OPTION]]...dnl
 ifelse(yuck_cmds(), [], [], [ COMMAND])[]dnl
 ifelse(defn([YUCK_UMB_POSARG]), [], [], [ defn([YUCK_UMB_POSARG])])\n\
 ifelse(yuck_umb_desc(), [], [], [dnl
@@ -342,15 +355,15 @@ yuck_C_literal(yuck_umb_desc())\n\
 ])dnl
 ");
 		break;
-foreachq([C], yuck_cmds(), [
-	case yuck_cmd(defn([C])):
-		puts("Usage: YUCK_UMB dnl
-yuck_cmd_string(defn([C]))[]dnl
-ifelse(yuck_idents(defn([C])), [], [], [ [[OPTION]]...])[]dnl
-ifelse(yuck_cmd_posarg(defn([C])), [], [], [ yuck_cmd_posarg(defn([C]))])\n\
-ifelse(yuck_cmd_desc(defn([C])), [], [], [dnl
+foreachq([__CMD], yuck_cmds(), [
+	case yuck_cmd(defn([__CMD])):
+		puts("Usage: YUCK_UMB_STR dnl
+yuck_cmd_string(defn([__CMD]))[]dnl
+ifelse(yuck_idents(defn([__CMD])), [], [], [ [[OPTION]]...])[]dnl
+ifelse(yuck_cmd_posarg(defn([__CMD])), [], [], [ yuck_cmd_posarg(defn([__CMD]))])\n\
+ifelse(yuck_cmd_desc(defn([__CMD])), [], [], [dnl
 \n\
-yuck_C_literal(yuck_cmd_desc(defn([C])))\n\
+yuck_C_literal(yuck_cmd_desc(defn([__CMD])))\n\
 ])dnl
 ");
 		break;
@@ -367,7 +380,7 @@ ifelse(yuck_cmds(), [], [], [dnl
 	if (src->cmd == YUCK_NOCMD) {
 		/* also output a list of commands */
 		puts("COMMAND may be one of:\n\
-foreachq([C], yuck_cmds(), [  yuck_cmd_string(defn([C]))\n\
+foreachq([__CMD], yuck_cmds(), [yuck_C_literal(yuck_cmd_line(defn([__CMD])))\n\
 ])");
 	}
 ])dnl
@@ -384,24 +397,24 @@ ifelse(yuck_cmds(), [], [], [dnl
 	} else {
 		puts("\
 Common options:\n\
-foreachq([I], yuck_idents([]), [dnl
-yuck_C_literal(backquote([yuck_option_help_line(defn([I]), [])]))[]dnl
+foreachq([__IDN], yuck_idents([]), [dnl
+yuck_C_literal(backquote([yuck_option_help_line(defn([__IDN]), [])]))[]dnl
 ])dnl
 ");
 ])dnl
 	}
 
 	switch (src->cmd) {
-	default:foreachq([C], yuck_umbcmds(), [
-	case yuck_cmd(defn([C])):
+	default:foreachq([__CMD], yuck_umbcmds(), [
+	case yuck_cmd(defn([__CMD])):
 		puts("\
-ifelse(defn([C]), [], [], [dnl
-ifelse(yuck_idents(defn([C])), [], [], [dnl
+ifelse(defn([__CMD]), [], [], [dnl
+ifelse(yuck_idents(defn([__CMD])), [], [], [dnl
 Command-specific options:\n\
 ])dnl
 ])dnl
-foreachq([I], yuck_idents(defn([C])), [dnl
-yuck_C_literal(backquote([yuck_option_help_line(defn([I]), defn([C]))]))[]dnl
+foreachq([__IDN], yuck_idents(defn([__CMD])), [dnl
+yuck_C_literal(backquote([yuck_option_help_line(defn([__IDN]), defn([__CMD]))]))[]dnl
 ])dnl
 ");
 		break;
@@ -420,22 +433,22 @@ DEFUN void yuck_auto_version(const yuck_t src[[static 1U]])
 	switch (src->cmd) {
 	default:
 ifdef([YUCK_VERSION], [dnl
-		puts("YUCK_UMB YUCK_VERSION");
+		puts("YUCK_UMB_STR YUCK_VERSION");
 ], [dnl
 #if 0
 
 #elif defined package_string
 		puts(package_string);
 #elif defined package_version
-		printf("YUCK_UMB %s\n", package_version);
+		printf("YUCK_UMB_STR %s\n", package_version);
 #elif defined PACKAGE_STRING
 		puts(PACKAGE_STRING);
 #elif defined PACKAGE_VERSION
-		puts("YUCK_UMB " PACKAGE_VERSION);
+		puts("YUCK_UMB_STR " PACKAGE_VERSION);
 #elif defined VERSION
-		puts("YUCK_UMB " VERSION);
+		puts("YUCK_UMB_STR " VERSION);
 #else  /* !PACKAGE_VERSION, !VERSION */
-		puts("YUCK_UMB unknown version");
+		puts("YUCK_UMB_STR unknown version");
 #endif	/* PACKAGE_VERSION */
 ])dnl
 		break;
