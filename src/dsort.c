@@ -78,7 +78,16 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		/* check if line matches */
 		if (!dt_unk_p(d)) {
 			/* match! */
-			bp += dt_strfdt(bp, ep - bp, NULL, d);
+			if (!dt_sandwich_only_t_p(d)) {
+				bp += dt_strfdt(bp, ep - bp, "%F", d);
+			}
+			*bp++ = '\001';
+			if (!dt_sandwich_only_d_p(d)) {
+				bp += dt_strfdt(bp, ep - bp, "%T", d);
+			}
+		} else {
+			/* just two empty fields then, innit? */
+			*bp++ = '\001';
 		}
 		/* finalise the line and print */
 		*bp++ = '\n';
