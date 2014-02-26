@@ -5760,6 +5760,7 @@ LSGG	Europe/Zurich
 LSGL	Europe/Zurich
 LSGP	Europe/Zurich
 LSGS	Europe/Zurich
+LSME	Europe/Zurich
 LSMI	Europe/Zurich
 LSMP	Europe/Zurich
 LSPM	Europe/Zurich
@@ -6033,12 +6034,13 @@ MMSC	America/Mexico_City
 MMSD	America/Mazatlan
 MMSF	America/Tijuana
 MMSL	America/Mazatlan
+MMSM	America/Mexico_City
 MMSP	America/Mexico_City
 MMSZ	America/Mexico_City
 MMTC	America/Monterrey
 MMTG	America/Mexico_City
 MMTJ	America/Tijuana
-MMTM	America/Mexico_City
+MMTM	America/Monterrey
 MMTN	America/Mexico_City
 MMTO	America/Mexico_City
 MMTP	America/Merida
@@ -8520,6 +8522,7 @@ VCCG	Asia/Colombo
 VCCH	Asia/Colombo
 VCCJ	Asia/Colombo
 VCCK	Asia/Colombo
+VCCN	Asia/Colombo
 VCCS	Asia/Colombo
 VCCT	Asia/Colombo
 VCCW	Asia/Colombo
