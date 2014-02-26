@@ -113,6 +113,15 @@ dzone_LDADD = libdutio.a
 dzone_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dzone.yucc
 
+bin_PROGRAMS += dsort
+dsort_SOURCES = dsort.c dsort.yuck
+dsort_SOURCES += prchunk.c prchunk.h
+dsort_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
+dsort_LDFLAGS = $(AM_LDFLAGS)
+dsort_LDADD = libdutio.a
+dsort_LDADD += $(DT_LIBS)
+BUILT_SOURCES += dsort.yucc
+
 if BUILD_DEXPR
 noinst_PROGRAMS += dexpr
 dexpr_SOURCES = dexpr.c

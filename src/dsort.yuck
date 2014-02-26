@@ -1,0 +1,21 @@
+Usage: dsort [OPTION]... [FILE]...
+
+Sort contents of FILE chronologically.
+If FILE is omitted read from stdin.
+
+  -h, --help                 Print help and exit
+  -V, --version              Print version and exit
+  -i, --input-format=STRING...  Input format, can be used multiple times.
+                               Each date/time will be passed to the input
+                               format parsers in the order they are given, if a
+                               date/time can be read successfully with a given
+                               input format specifier string, that value will
+                               be used.
+      --default=DT           For underspecified input use DT as a fallback to
+                               fill in missing fields.  Must be a date/time in
+                               ISO8601 format.  If omitted the default value is
+                               the current date/time.
+  -e, --backslash-escapes    Enable interpretation of backslash escapes in the
+                               input format specifier strings.
+      --from-zone=ZONE       Interpret dates on stdin or the command line as
+                               coming from the time zone ZONE.
