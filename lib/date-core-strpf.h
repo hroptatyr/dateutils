@@ -1,6 +1,6 @@
 /*** date-core-strpf.h -- parser and formatter funs for date-core
  *
- * Copyright (C) 2011-2012 Sebastian Freundt
+ * Copyright (C) 2011-2014 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

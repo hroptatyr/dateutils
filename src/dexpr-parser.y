@@ -1,6 +1,6 @@
 /*** dexpr-parser.y -- parsing date expressions -*- c -*-
  *
- * Copyright (C) 2002-2012 Sebastian Freundt
+ * Copyright (C) 2002-2014 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@fresse.org>
  *
