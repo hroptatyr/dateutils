@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <time.h>
 
 #include "dt-core.h"
@@ -53,6 +54,7 @@ const char *prog = "dzone";
 struct prln_ctx_s {
 	struct grep_atom_soa_s *ndl;
 	zif_t fromz;
+	int outfd;
 };
 
 static void
@@ -69,7 +71,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		/* find first occurrence then */
 		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &tp, ctx.fromz);
 		/* print line, first thing */
-		__io_write(line, llen, stdout);
+		write(ctx.outfd, line, llen);
 
 		/* extend by separator */
 		*bp++ = '\001';
@@ -80,9 +82,87 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		}
 		/* finalise the line and print */
 		*bp++ = '\n';
-		__io_write(buf, bp - buf, stdout);
+		write(ctx.outfd, buf, bp - buf);
 	} while (0);
 	return;
+}
+
+static pid_t
+spawn_sort(int *restrict infd, const int outfd)
+{
+	static char *const cmdline[] = {"sort", "-t", "-k2", NULL};
+	pid_t sortp;
+	/* to snarf off traffic from the child */
+	int intfd[2];
+
+	if (pipe(intfd) < 0) {
+		serror("pipe setup to/from sort failed");
+		return -1;
+	}
+
+	switch ((sortp = vfork())) {
+	case -1:
+		/* i am an error */
+		serror("vfork for sort failed");
+		return -1;
+
+	default:;
+		/* i am the parent */
+		close(intfd[0]);
+		*infd = intfd[1];
+		/* close outfd here already */
+		close(outfd);
+		return sortp;
+
+	case 0:;
+		/* i am the child */
+
+		/* stdout -> outfd */
+		dup2(outfd, STDOUT_FILENO);
+		/* *infd -> stdin */
+		dup2(intfd[0], STDIN_FILENO);
+		close(intfd[1]);
+
+		execvp("sort", cmdline);
+		serror("execvp(sort) failed");
+		_exit(EXIT_FAILURE);
+	}
+}
+
+static pid_t
+spawn_cut(int *restrict infd)
+{
+	static char *const cmdline[] = {"cut", "-d", "-f1", NULL};
+	pid_t cutp;
+	/* to snarf off traffic from the child */
+	int intfd[2];
+
+	if (pipe(intfd) < 0) {
+		serror("pipe setup to/from cut failed");
+		return -1;
+	}
+
+	switch ((cutp = vfork())) {
+	case -1:
+		/* i am an error */
+		serror("vfork for cut failed");
+		return -1;
+
+	default:;
+		/* i am the parent */
+		close(intfd[0]);
+		*infd = intfd[1];
+		return cutp;
+
+	case 0:;
+		/* i am the child */
+		dup2(intfd[0], STDIN_FILENO);
+		close(intfd[1]);
+
+		execvp("cut", cmdline);
+		serror("execvp(cut) failed");
+		_exit(EXIT_FAILURE);
+	}
 }
 
 
@@ -94,11 +174,11 @@ main(int argc, char *argv[])
 	yuck_t argi[1U];
 	char **fmt;
 	size_t nfmt;
-	int res = 0;
 	zif_t fromz = NULL;
+	int rc = 0;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* init and unescape sequences, maybe */
@@ -132,6 +212,7 @@ main(int argc, char *argv[])
 			.ndl = &ndlsoa,
 			.fromz = fromz,
 		};
+		pid_t cutp, sortp;
 
 		/* no threads reading this stream */
 		__io_setlocking_bycaller(stdout);
@@ -150,6 +231,18 @@ main(int argc, char *argv[])
 			serror("Error: could not open stdin");
 			goto ndl_free;
 		}
+
+		/* spawn children */
+		with (int fd) {
+			if ((cutp = spawn_cut(&fd)) < 0) {
+				goto ndl_free;
+			}
+			if ((sortp = spawn_sort(&fd, fd)) < 0) {
+				goto ndl_free;
+			}
+			prln.outfd = fd;
+		}
+
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen = prchunk_getline(pctx, &line);
@@ -159,6 +252,25 @@ main(int argc, char *argv[])
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
+
+		/* close outfd */
+		close(prln.outfd);
+
+		/* wait for sort first */
+		with (int st) {
+			while (waitpid(sortp, &st, 0) != sortp);
+			if (WIFEXITED(st) && WEXITSTATUS(st)) {
+				rc = WEXITSTATUS(st);
+			}
+		}
+		/* wait for cut then */
+		with (int st) {
+			while (waitpid(cutp, &st, 0) != cutp);
+			if (WIFEXITED(st) && WEXITSTATUS(st)) {
+				rc = WEXITSTATUS(st);
+			}
+		}
+
 	ndl_free:
 		if (needle != __nstk) {
 			free(needle);
@@ -169,7 +281,7 @@ main(int argc, char *argv[])
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dsort.c ends here */
