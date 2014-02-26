@@ -4975,6 +4975,7 @@ MZT	America/Mazatlan
 MZU	Asia/Kolkata
 MZV	Asia/Kuching
 MZW	Africa/Algiers
+MZY	Africa/Johannesburg
 MZZ	America/Indiana/Indianapolis
 NAA	Australia/Sydney
 NAB	America/New_York
@@ -5049,6 +5050,7 @@ NEF	Asia/Yekaterinburg
 NEG	America/Jamaica
 NEJ	Africa/Addis_Ababa
 NEK	Africa/Addis_Ababa
+NEL	America/New_York
 NER	Asia/Yakutsk
 NET	America/Nassau
 NEU	Asia/Vientiane
@@ -5542,6 +5544,7 @@ OUI	Asia/Vientiane
 OUK	Europe/London
 OUL	Europe/Helsinki
 OUM	Africa/Ndjamena
+OUN	America/Chicago
 OUR	Africa/Douala
 OUS	America/Sao_Paulo
 OUT	Africa/Ndjamena
@@ -6001,6 +6004,7 @@ PVG	Asia/Shanghai
 PVH	America/Porto_Velho
 PVI	America/Sao_Paulo
 PVK	Europe/Athens
+PVL	America/New_York
 PVN	Europe/Sofia
 PVO	America/Guayaquil
 PVR	America/Mexico_City
@@ -6280,6 +6284,7 @@ RID	America/Indiana/Indianapolis
 RIE	America/Chicago
 RIF	America/Denver
 RIG	America/Sao_Paulo
+RIH	America/Panama
 RIJ	America/Lima
 RIK	America/Costa_Rica
 RIL	America/Denver
@@ -6288,6 +6293,7 @@ RIN	Pacific/Guadalcanal
 RIR	America/Los_Angeles
 RIS	Asia/Tokyo
 RIT	America/Panama
+RIV	America/Los_Angeles
 RIW	America/Denver
 RIX	Europe/Riga
 RIY	Asia/Aden
@@ -6373,6 +6379,7 @@ ROU	Europe/Sofia
 ROV	Europe/Moscow
 ROW	America/Denver
 ROY	America/Argentina/Catamarca
+ROZ	Europe/Madrid
 RPA	Asia/Kathmandu
 RPB	Australia/Darwin
 RPM	Australia/Darwin
@@ -6530,6 +6537,7 @@ SCN	Europe/Berlin
 SCO	Asia/Aqtau
 SCP	Europe/Paris
 SCQ	Europe/Madrid
+SCR	America/New_York
 SCS	Europe/London
 SCT	Asia/Aden
 SCU	America/Havana
@@ -7080,7 +7088,7 @@ TAI	Asia/Aden
 TAJ	Pacific/Port_Moresby
 TAK	Asia/Tokyo
 TAL	America/Anchorage
-TAM	America/Mexico_City
+TAM	America/Monterrey
 TAO	Asia/Shanghai
 TAP	America/Merida
 TAQ	Australia/Adelaide
@@ -7290,6 +7298,7 @@ TLB	Asia/Karachi
 TLC	America/Mexico_City
 TLD	Africa/Gaborone
 TLE	Indian/Antananarivo
+TLG	Pacific/Guadalcanal
 TLH	America/New_York
 TLI	Asia/Makassar
 TLJ	America/Anchorage
@@ -7778,6 +7787,7 @@ VCP	America/Sao_Paulo
 VCR	America/Caracas
 VCS	Asia/Ho_Chi_Minh
 VCT	America/Chicago
+VCV	America/Los_Angeles
 VDA	Asia/Jerusalem
 VDB	Europe/Oslo
 VDC	America/Bahia
@@ -8470,7 +8480,6 @@ YNG	America/New_York
 YNH	America/Dawson_Creek
 YNI	America/Montreal
 YNJ	Asia/Harbin
-YNK	America/Vancouver
 YNL	America/Regina
 YNM	America/Montreal
 YNN	Australia/Perth
@@ -8576,7 +8585,6 @@ YST	America/Winnipeg
 YSU	America/Halifax
 YSV	America/Goose_Bay
 YSY	America/Yellowknife
-YSZ	America/Vancouver
 YTA	America/Toronto
 YTC	America/Vancouver
 YTD	America/Winnipeg
@@ -8637,7 +8645,6 @@ YWY	America/Yellowknife
 YXC	America/Edmonton
 YXD	America/Edmonton
 YXE	America/Regina
-YXF	America/Whitehorse
 YXH	America/Edmonton
 YXI	America/Toronto
 YXJ	America/Dawson_Creek
@@ -8653,7 +8660,6 @@ YXU	America/Toronto
 YXX	America/Vancouver
 YXY	America/Whitehorse
 YXZ	America/Toronto
-YYA	America/Vancouver
 YYB	America/Toronto
 YYC	America/Edmonton
 YYD	America/Vancouver
