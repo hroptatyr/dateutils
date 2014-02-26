@@ -342,6 +342,21 @@ dzone
       2014-06-30T07:00:00+02:00	Europe/Berlin
       2014-06-30T15:00:00+10:00	Australia/Sydney
 
+  The `dzone` tool can also be used to obtain the next or previous DST
+  transition relative to a given date/time:
+
+    $ dzone --next Europe/Berlin Australia/Sydney 2013-02-19
+    =>
+      2013-03-31T02:00:00+01:00 -> 2013-03-31T03:00:00+02:00	Europe/Berlin
+      2013-04-07T03:00:00+11:00 -> 2013-04-07T02:00:00+10:00	Australia/Sydney
+
+  where the left time stamp denotes the current zone offset and the
+  right side is the zone offset after the transition.  The date/time
+  indicates the exact moment when the transition is about to take
+  place.
+
+  In essence `dzone` is a better `zdump(1)`.
+
 
 strptime
 --------
