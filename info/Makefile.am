@@ -179,18 +179,7 @@ built_mans += dzone.man
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
 
-EXTRA_DIST += dadd.name
-EXTRA_DIST += dconv.name
-EXTRA_DIST += ddiff.name
-EXTRA_DIST += dgrep.name
-EXTRA_DIST += dround.name
-EXTRA_DIST += dseq.name
-EXTRA_DIST += dtest.name
-EXTRA_DIST += dzone.name
-EXTRA_DIST += strptime.name
-
 SUFFIXES += .yuck
-SUFFIXES += .name
 VPATH += @top_srcdir@/src
 
 SUFFIXES += .man
