@@ -3,6 +3,12 @@ Usage: dsort [OPTION]... [FILE]...
 Sort contents of FILE chronologically.
 If FILE is omitted read from stdin.
 
+The first date/time value per line is the sort key.  Dates without times
+account for a smaller value than any date/time on the same day.  Times
+without dates account for a smaller value than any date or date/time.
+If a line contains no dates or times or date/times it is sorted towards
+the front.
+
   -h, --help                 Print help and exit
   -V, --version              Print version and exit
   -i, --input-format=STRING...  Input format, can be used multiple times.
@@ -19,3 +25,6 @@ If FILE is omitted read from stdin.
                                input format specifier strings.
       --from-zone=ZONE       Interpret dates on stdin or the command line as
                                coming from the time zone ZONE.
+
+  -r, --reverse              Reverse the sort order.
+  -u, --unique               Print at most one line per date/time value.

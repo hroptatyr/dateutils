@@ -37,18 +37,19 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <time.h>
 
 #include "dt-core.h"
 #include "dt-io.h"
 #include "prchunk.h"
 
-
 const char *prog = "dzone";
 
 struct prln_ctx_s {
@@ -57,6 +58,12 @@ struct prln_ctx_s {
 	int outfd;
 };
 
+struct sort_ctx_s {
+	unsigned int revp:1U;
+	unsigned int unqp:1U;
+};
+
+
 static void
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
@@ -96,10 +103,46 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	return;
 }
 
-static pid_t
-spawn_sort(int *restrict infd, const int outfd)
+static int
+proc_file(struct prln_ctx_s prln, const char *fn)
 {
-	static char *const cmdline[] = {"sort", "-t", "-k2", NULL};
+	size_t lno = 0;
+	void *pctx;
+	int fd;
+
+	if (fn == NULL) {
+		/* stdin then innit */
+		fd = STDIN_FILENO;
+	} else if ((fd = open(fn, O_RDONLY)) < 0) {
+		serror("Error: cannot open file `%s'", fn);
+		return -1;
+	}
+
+	/* using the prchunk reader now */
+	if ((pctx = init_prchunk(fd)) == NULL) {
+		serror("Error: cannot read from `%s'", fn ?: "<stdin>");
+		return -1;
+	}
+
+	while (prchunk_fill(pctx) >= 0) {
+		for (char *line; prchunk_haslinep(pctx); lno++) {
+			size_t llen = prchunk_getline(pctx, &line);
+
+			proc_line(prln, line, llen);
+		}
+	}
+	/* get rid of resources */
+	free_prchunk(pctx);
+	close(fd);
+	return 0;
+}
+
+
+/* helper children, sort(1) and cut(1) */
+static pid_t
+spawn_sort(int *restrict infd, const int outfd, struct sort_ctx_s sopt)
+{
+	static char *cmdline[16U] = {"sort", "-t", "-k2"};
 	pid_t sortp;
 	/* to snarf off traffic from the child */
 	int intfd[2];
@@ -115,7 +158,7 @@ spawn_sort(int *restrict infd, const int outfd)
 		serror("vfork for sort failed");
 		return -1;
 
-	default:;
+	default:
 		/* i am the parent */
 		close(intfd[0]);
 		*infd = intfd[1];
@@ -124,7 +167,16 @@ spawn_sort(int *restrict infd, const int outfd)
 		return sortp;
 
 	case 0:;
+		char **cp = cmdline + 3U;
+
 		/* i am the child */
+		if (sopt.revp) {
+			*cp++ = "-r";
+		}
+		if (sopt.unqp) {
+			*cp++ = "-u";
+		}
+		*cp++ = NULL;
 
 		/* stdout -> outfd */
 		dup2(outfd, STDOUT_FILENO);
@@ -185,6 +237,7 @@ main(int argc, char *argv[])
 	size_t nfmt;
 	zif_t fromz = NULL;
 	int rc = 0;
+	struct sort_ctx_s sopt = {0U};
 
 	if (yuck_parse(argi, argc, argv)) {
 		rc = 1;
@@ -208,23 +261,24 @@ main(int argc, char *argv[])
 		dt_set_default(dflt);
 	}
 
-	if (argi->nargs) {
-		;
-	} else {
-		/* read from stdin */
-		size_t lno = 0;
+	/* prepare a mini-argi for the sort invocation */
+	if (argi->reverse_flag) {
+		sopt.revp = 1U;
+	}
+	if (argi->unique_flag) {
+		sopt.unqp = 1U;
+	}
+
+	{
+		/* process all files */
 		struct grep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
-		void *pctx;
 		struct prln_ctx_s prln = {
 			.ndl = &ndlsoa,
 			.fromz = fromz,
 		};
 		pid_t cutp, sortp;
-
-		/* no threads reading this stream */
-		__io_setlocking_bycaller(stdout);
 
 		/* lest we overflow the stack */
 		if (nfmt >= nneedle) {
@@ -235,48 +289,38 @@ main(int argc, char *argv[])
 		/* and now build the needles */
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
-		/* using the prchunk reader now */
-		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			serror("Error: could not open stdin");
-			goto ndl_free;
-		}
-
 		/* spawn children */
 		with (int fd) {
 			if ((cutp = spawn_cut(&fd)) < 0) {
 				goto ndl_free;
 			}
-			if ((sortp = spawn_sort(&fd, fd)) < 0) {
+			if ((sortp = spawn_sort(&fd, fd, sopt)) < 0) {
 				goto ndl_free;
 			}
 			prln.outfd = fd;
 		}
 
-		while (prchunk_fill(pctx) >= 0) {
-			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen = prchunk_getline(pctx, &line);
-
-				proc_line(prln, line, llen);
+		for (size_t i = 0U; i < argi->nargs || i == 0U; i++) {
+			if (proc_file(prln, argi->args[i]) < 0) {
+				rc = 1;
 			}
 		}
-		/* get rid of resources */
-		free_prchunk(pctx);
 
-		/* close outfd */
+		/* indicate we're no longer writing to the sort helper */
 		close(prln.outfd);
 
 		/* wait for sort first */
 		with (int st) {
 			while (waitpid(sortp, &st, 0) != sortp);
 			if (WIFEXITED(st) && WEXITSTATUS(st)) {
-				rc = WEXITSTATUS(st);
+				rc = rc ?: WEXITSTATUS(st);
 			}
 		}
 		/* wait for cut then */
 		with (int st) {
 			while (waitpid(cutp, &st, 0) != cutp);
 			if (WIFEXITED(st) && WEXITSTATUS(st)) {
-				rc = WEXITSTATUS(st);
+				rc = rc ?: WEXITSTATUS(st);
 			}
 		}
 
