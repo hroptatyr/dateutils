@@ -285,6 +285,30 @@ dround
       2012-03-06 15:00:00	eventB
 
 
+dsort
+-----
+  New in dateutils 0.3.0.
+  A tool to bring the lines of a file into chronological order.
+
+    $ dsort <<EOF
+    2009-06-03 caev="DVCA" secu="VOD" exch="XLON" xdte="2009-06-03" nett/GBX="5.2"
+    2011-11-16 caev="DVCA" secu="VOD" exch="XLON" xdte="2011-11-16" nett/GBX="3.05"
+    2013-11-20 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-11-20" nett/GBX="3.53"
+    2012-06-06 caev="DVCA" secu="VOD" exch="XLON" xdte="2012-06-06" nett/GBX="6.47"
+    2013-06-12 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-06-12" nett/GBX="6.92"
+    2010-11-17 caev="DVCA" secu="VOD" exch="XLON" xdte="2010-11-17" nett/GBX="2.85"
+    EOF
+    =>
+      2009-06-03 caev="DVCA" secu="VOD" exch="XLON" xdte="2009-06-03" nett/GBX="5.2"
+      2010-11-17 caev="DVCA" secu="VOD" exch="XLON" xdte="2010-11-17" nett/GBX="2.85"
+      2011-11-16 caev="DVCA" secu="VOD" exch="XLON" xdte="2011-11-16" nett/GBX="3.05"
+      2012-06-06 caev="DVCA" secu="VOD" exch="XLON" xdte="2012-06-06" nett/GBX="6.47"
+      2013-06-12 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-06-12" nett/GBX="6.92"
+      2013-11-20 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-11-20" nett/GBX="3.53"
+
+  At the moment the `dsort` tool is built upon `sort(1)` and `cut(1)`.
+
+
 dzone
 -----
   New in dateutils 0.3.0.
@@ -298,6 +322,21 @@ dzone
       2014-01-31T03:37:13+11:00	Australia/Sydney
       2014-06-30T07:00:00+02:00	Europe/Berlin
       2014-06-30T15:00:00+10:00	Australia/Sydney
+
+  The `dzone` tool can also be used to obtain the next or previous DST
+  transition relative to a given date/time:
+
+    $ dzone --next Europe/Berlin Australia/Sydney 2013-02-19
+    =>
+      2013-03-31T02:00:00+01:00 -> 2013-03-31T03:00:00+02:00	Europe/Berlin
+      2013-04-07T03:00:00+11:00 -> 2013-04-07T02:00:00+10:00	Australia/Sydney
+
+  where the left time stamp denotes the current zone offset and the
+  right side is the zone offset after the transition.  The date/time
+  indicates the exact moment when the transition is about to take
+  place.
+
+  In essence `dzone` is a better `zdump(1)`.
 
 
 strptime
