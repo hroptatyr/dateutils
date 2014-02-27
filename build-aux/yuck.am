@@ -1,0 +1,37 @@
+## automake rules for yuck
+## set the following variables in the including Makefile.am beforehand
+##   noinst_PROGRAMS
+##   BUILT_SOURCES
+##   EXTRA_DIST
+##   DISTCLEANFILES
+
+M4 ?= m4
+yuck_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+yuck_CPPFLAGS += -D_ALL_SOURCE
+yuck_CPPFLAGS += -D_DARWIN_C_SOURCE
+yuck_CPPFLAGS += -D_NETBSD_SOURCE
+
+noinst_PROGRAMS += yuck-bootstrap
+yuck_bootstrap_SOURCES = yuck.c
+yuck_bootstrap_CPPFLAGS = $(yuck_CPPFLAGS)
+yuck_bootstrap_CPPFLAGS += -DBOOTSTRAP
+yuck_bootstrap_CPPFLAGS += -DWITH_SCMVER
+
+noinst_PROGRAMS += yuck
+yuck_SOURCES = yuck.c yuck.yuck
+yuck_SOURCES += yuck-scmver.c yuck-scmver.h
+yuck_SOURCES += yuck.m4
+yuck_SOURCES += yuck-coru.c.m4 yuck-coru.h.m4
+yuck_SOURCES += yuck.man.m4
+yuck_CPPFLAGS += -DYUCK_TEMPLATE_PATH='"$(abs_srcdir)"'
+yuck_CPPFLAGS += -DWITH_SCMVER
+BUILT_SOURCES += yuck.yucc
+
+## aix make wants all prereq's to exist
+EXTRA_DIST += yuck.m4i
+EXTRA_DIST += yuck.yucc
+
+DISTCLEANFILES += yuck.m4i yuck.yucc
+
+## also include custom Makefile recipes
+include $(srcdir)/yuck.mk
