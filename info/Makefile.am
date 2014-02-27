@@ -157,10 +157,11 @@ built_texis += strptime.texi
 built_texis += dadd.texi
 built_texis += dconv.texi
 built_texis += ddiff.texi
-built_texis += dseq.texi
-built_texis += dtest.texi
 built_texis += dgrep.texi
 built_texis += dround.texi
+built_texis += dseq.texi
+built_texis += dsort.texi
+built_texis += dtest.texi
 built_texis += dzone.texi
 
 built_mans =
@@ -171,9 +172,10 @@ built_mans += dadd.manu
 built_mans += dconv.man
 built_mans += ddiff.mand
 built_mans += dgrep.man
-built_mans += dseq.manu
-built_mans += dtest.man
 built_mans += dround.manu
+built_mans += dseq.manu
+built_mans += dsort.man
+built_mans += dtest.man
 built_mans += dzone.man
 
 EXTRA_DIST += $(man1_MANS)

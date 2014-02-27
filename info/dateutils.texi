@@ -19,8 +19,8 @@
                                                   input stream.
 * dround: (dateutils)dround.                    Round dates or times to
                                                   designated values.
-* dseq: (dateutils)dseq.                        Generate sequences of dates or
-                                                  times.
+* dseq: (dateutils)dseq.                        Sequences of dates or times.
+* dsort: (dateutils)dsort.                      Sort chronologically.
 * dtest: (dateutils)dtest.                      Compare dates or times.
 * dzone: (dateutils)dzone.                      Convert date/times to
                                                   different timezones in bulk.
@@ -83,6 +83,7 @@ arise when dealing with large amounts of financial data.
 * dgrep::               Find date or time matches in input stream
 * dround::              Round dates or times to designated values
 * dseq::                Generate sequences of dates or times
+* dsort::               Sort the contents of files chronologically
 * dtest::               Compare dates or times
 * dzone::               Convert date/times to timezones in bulk
 * strptime::            Command line version of the C function
@@ -335,6 +336,7 @@ else
 @include dgrep.texi
 @include dround.texi
 @include dseq.texi
+@include dsort.texi
 @include dtest.texi
 @include dzone.texi
 @include strptime.texi
