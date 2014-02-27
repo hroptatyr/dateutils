@@ -1431,11 +1431,21 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {
 		int64_t sxdur;
 
-		/* go for tdiff and ddiff independently */
-		res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
-		/* since target type is SEXY do the conversion here */
-		sxdur = (int64_t)res.t.sdur +
-			(int64_t)res.d.daisydur * SECS_PER_DAY;
+		if (d1.typ < DT_NDTYP && d2.typ < DT_NDTYP) {
+			/* go for tdiff and ddiff independently */
+			res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
+			/* since target type is SEXY do the conversion here */
+			sxdur = (int64_t)res.t.sdur +
+				(int64_t)res.d.daisydur * SECS_PER_DAY;
+		} else {
+			/* oh we're in the sexy domain already,
+			 * note, we can't diff ymdhms packs */
+			d1 = dt_dtconv(tgttyp, d1);
+			d2 = dt_dtconv(tgttyp, d2);
+
+			/* now it's fuck-easy */
+			sxdur = d2.sexy - d1.sexy;
+		}
 
 		/* set up the output here */
 		res.typ = tgttyp;
