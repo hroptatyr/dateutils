@@ -48,7 +48,6 @@
 #include "dt-io.h"
 #include "prchunk.h"
 
-
 const char *prog = "dzone";
 
 struct prln_ctx_s {
@@ -57,6 +56,12 @@ struct prln_ctx_s {
 	int outfd;
 };
 
+struct sort_ctx_s {
+	unsigned int revp:1U;
+	unsigned int unqp:1U;
+};
+
+
 static void
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
@@ -97,9 +102,9 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 }
 
 static pid_t
-spawn_sort(int *restrict infd, const int outfd)
+spawn_sort(int *restrict infd, const int outfd, struct sort_ctx_s sopt)
 {
-	static char *const cmdline[] = {"sort", "-t", "-k2", NULL};
+	static char *cmdline[16U] = {"sort", "-t", "-k2"};
 	pid_t sortp;
 	/* to snarf off traffic from the child */
 	int intfd[2];
@@ -115,7 +120,7 @@ spawn_sort(int *restrict infd, const int outfd)
 		serror("vfork for sort failed");
 		return -1;
 
-	default:;
+	default:
 		/* i am the parent */
 		close(intfd[0]);
 		*infd = intfd[1];
@@ -124,7 +129,16 @@ spawn_sort(int *restrict infd, const int outfd)
 		return sortp;
 
 	case 0:;
+		char **cp = cmdline + 3U;
+
 		/* i am the child */
+		if (sopt.revp) {
+			*cp++ = "-r";
+		}
+		if (sopt.unqp) {
+			*cp++ = "-u";
+		}
+		*cp++ = NULL;
 
 		/* stdout -> outfd */
 		dup2(outfd, STDOUT_FILENO);
@@ -185,6 +199,7 @@ main(int argc, char *argv[])
 	size_t nfmt;
 	zif_t fromz = NULL;
 	int rc = 0;
+	struct sort_ctx_s sopt = {0U};
 
 	if (yuck_parse(argi, argc, argv)) {
 		rc = 1;
@@ -206,6 +221,14 @@ main(int argc, char *argv[])
 	if (argi->default_arg) {
 		struct dt_dt_s dflt = dt_strpdt(argi->default_arg, NULL, NULL);
 		dt_set_default(dflt);
+	}
+
+	/* prepare a mini-argi for the sort invocation */
+	if (argi->reverse_flag) {
+		sopt.revp = 1U;
+	}
+	if (argi->unique_flag) {
+		sopt.unqp = 1U;
 	}
 
 	if (argi->nargs) {
@@ -246,7 +269,7 @@ main(int argc, char *argv[])
 			if ((cutp = spawn_cut(&fd)) < 0) {
 				goto ndl_free;
 			}
-			if ((sortp = spawn_sort(&fd, fd)) < 0) {
+			if ((sortp = spawn_sort(&fd, fd, sopt)) < 0) {
 				goto ndl_free;
 			}
 			prln.outfd = fd;

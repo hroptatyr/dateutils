@@ -25,3 +25,6 @@ the front.
                                input format specifier strings.
       --from-zone=ZONE       Interpret dates on stdin or the command line as
                                coming from the time zone ZONE.
+
+  -r, --reverse              Reverse the sort order.
+  -u, --unique               Print at most one line per date/time value.
