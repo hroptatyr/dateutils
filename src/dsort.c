@@ -37,11 +37,13 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <time.h>
 
 #include "dt-core.h"
@@ -101,6 +103,42 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	return;
 }
 
+static int
+proc_file(struct prln_ctx_s prln, const char *fn)
+{
+	size_t lno = 0;
+	void *pctx;
+	int fd;
+
+	if (fn == NULL) {
+		/* stdin then innit */
+		fd = STDIN_FILENO;
+	} else if ((fd = open(fn, O_RDONLY)) < 0) {
+		serror("Error: cannot open file `%s'", fn);
+		return -1;
+	}
+
+	/* using the prchunk reader now */
+	if ((pctx = init_prchunk(fd)) == NULL) {
+		serror("Error: cannot read from `%s'", fn ?: "<stdin>");
+		return -1;
+	}
+
+	while (prchunk_fill(pctx) >= 0) {
+		for (char *line; prchunk_haslinep(pctx); lno++) {
+			size_t llen = prchunk_getline(pctx, &line);
+
+			proc_line(prln, line, llen);
+		}
+	}
+	/* get rid of resources */
+	free_prchunk(pctx);
+	close(fd);
+	return 0;
+}
+
+
+/* helper children, sort(1) and cut(1) */
 static pid_t
 spawn_sort(int *restrict infd, const int outfd, struct sort_ctx_s sopt)
 {
@@ -231,23 +269,16 @@ main(int argc, char *argv[])
 		sopt.unqp = 1U;
 	}
 
-	if (argi->nargs) {
-		;
-	} else {
-		/* read from stdin */
-		size_t lno = 0;
+	{
+		/* process all files */
 		struct grep_atom_s __nstk[16], *needle = __nstk;
 		size_t nneedle = countof(__nstk);
 		struct grep_atom_soa_s ndlsoa;
-		void *pctx;
 		struct prln_ctx_s prln = {
 			.ndl = &ndlsoa,
 			.fromz = fromz,
 		};
 		pid_t cutp, sortp;
-
-		/* no threads reading this stream */
-		__io_setlocking_bycaller(stdout);
 
 		/* lest we overflow the stack */
 		if (nfmt >= nneedle) {
@@ -257,12 +288,6 @@ main(int argc, char *argv[])
 		}
 		/* and now build the needles */
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
-
-		/* using the prchunk reader now */
-		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
-			serror("Error: could not open stdin");
-			goto ndl_free;
-		}
 
 		/* spawn children */
 		with (int fd) {
@@ -275,31 +300,27 @@ main(int argc, char *argv[])
 			prln.outfd = fd;
 		}
 
-		while (prchunk_fill(pctx) >= 0) {
-			for (char *line; prchunk_haslinep(pctx); lno++) {
-				size_t llen = prchunk_getline(pctx, &line);
-
-				proc_line(prln, line, llen);
+		for (size_t i = 0U; i < argi->nargs || i == 0U; i++) {
+			if (proc_file(prln, argi->args[i]) < 0) {
+				rc = 1;
 			}
 		}
-		/* get rid of resources */
-		free_prchunk(pctx);
 
-		/* close outfd */
+		/* indicate we're no longer writing to the sort helper */
 		close(prln.outfd);
 
 		/* wait for sort first */
 		with (int st) {
 			while (waitpid(sortp, &st, 0) != sortp);
 			if (WIFEXITED(st) && WEXITSTATUS(st)) {
-				rc = WEXITSTATUS(st);
+				rc = rc ?: WEXITSTATUS(st);
 			}
 		}
 		/* wait for cut then */
 		with (int st) {
 			while (waitpid(cutp, &st, 0) != cutp);
 			if (WIFEXITED(st) && WEXITSTATUS(st)) {
-				rc = WEXITSTATUS(st);
+				rc = rc ?: WEXITSTATUS(st);
 			}
 		}
 
