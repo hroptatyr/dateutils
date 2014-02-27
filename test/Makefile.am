@@ -667,6 +667,15 @@ dt_tests += dzone.006.clit
 dt_tests += dzone.007.clit
 dt_tests += dzone.008.clit
 
+dt_tests += dsort.001.clit
+dt_tests += dsort.002.clit
+dt_tests += dsort.003.clit
+dt_tests += dsort.004.clit
+dt_tests += dsort.005.clit
+dt_tests += dsort.006.clit
+EXTRA_DIST += caev_01.txt
+EXTRA_DIST += caev_02.txt
+
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
 
