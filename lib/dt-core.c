@@ -1431,7 +1431,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {
 		int64_t sxdur;
 
-		if (d1.typ < DT_NDTYP && d2.typ < DT_NDTYP) {
+		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {
 			/* go for tdiff and ddiff independently */
 			res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
 			/* since target type is SEXY do the conversion here */
