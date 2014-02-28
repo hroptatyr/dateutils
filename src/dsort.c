@@ -50,7 +50,7 @@
 #include "dt-io.h"
 #include "prchunk.h"
 
-const char *prog = "dzone";
+const char *prog = "dsort";
 
 struct prln_ctx_s {
 	struct grep_atom_soa_s *ndl;
