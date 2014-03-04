@@ -114,6 +114,19 @@ DECLF __attribute__((nonnull(1))) void yuck_free(yuck_t*);
 DECLF __attribute__((nonnull(1))) void yuck_auto_help(const yuck_t*);
 DECLF __attribute__((nonnull(1))) void yuck_auto_usage(const yuck_t*);
 DECLF __attribute__((nonnull(1))) void yuck_auto_version(const yuck_t*);
+
+/* some hooks */
+#if defined yuck_post_help
+DECLF __attribute__((nonnull(1))) void yuck_post_help(const yuck_t*);
+#endif	/* yuck_post_help */
+
+#if defined yuck_post_usage
+DECLF __attribute__((nonnull(1))) void yuck_post_usage(const yuck_t*);
+#endif	/* yuck_post_usage */
+
+#if defined yuck_post_version
+DECLF __attribute__((nonnull(1))) void yuck_post_version(const yuck_t*);
+#endif	/* yuck_post_version */
 popdef([DECLF])[]dnl
 
 #endif	/* INCLUDED_yuck_h_ */
