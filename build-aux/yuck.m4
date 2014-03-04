@@ -159,6 +159,15 @@ define([yuck_set_option_desc], [dnl
 	define([YUCK_]defn([YUCK_CMD])[_$1_desc], [$2])
 ])
 
+## some yopts here, mostly flags
+define([yuck_setopt_allow_unknown_dash], [dnl
+	define([YOPT_ALLOW_UNKNOWN_DASH])
+])
+
+define([yuck_setopt_allow_unknown_dashdash], [dnl
+	define([YOPT_ALLOW_UNKNOWN_DASHDASH])
+])
+
 
 ## helpers for the m4c and m4h
 

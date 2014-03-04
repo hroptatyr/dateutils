@@ -85,6 +85,12 @@
 # define HAVE_GETLINE	1
 #endif	/* !HAVE_GETLINE && !HAVE_FGETLN */
 
+typedef enum {
+	YOPT_NONE,
+	YOPT_ALLOW_UNKNOWN_DASH,
+	YOPT_ALLOW_UNKNOWN_DASHDASH,
+} yopt_t;
+
 struct usg_s {
 	char *umb;
 	char *cmd;
@@ -141,7 +147,7 @@ deconst(const void *cp)
 }
 
 static inline __attribute__((always_inline)) unsigned int
-fls(unsigned int x)
+yfls(unsigned int x)
 {
 	return x ? sizeof(x) * 8U - __builtin_clz(x) : 0U;
 }
@@ -347,8 +353,8 @@ typedef struct {
 static char*
 bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
 {
-	size_t nu = max_zu(fls(ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(fls(b->z) + 1U, 6U) : 0U;
+	size_t nu = max_zu(yfls(ssz + 1U) + 1U, 6U);
+	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
 
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
@@ -361,8 +367,8 @@ bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
 static char*
 bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 {
-	size_t nu = max_zu(fls(b->z + ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(fls(b->z) + 1U, 6U) : 0U;
+	size_t nu = max_zu(yfls(b->z + ssz + 1U) + 1U, 6U);
+	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
 
 	if (UNLIKELY(nu > ol)) {
 		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
@@ -376,6 +382,7 @@ bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
 static void yield_usg(const struct usg_s *arg);
 static void yield_opt(const struct opt_s *arg);
 static void yield_inter(const bbuf_t x[static 1U]);
+static void yield_setopt(yopt_t);
 
 #define DEBUG(args...)
 
@@ -388,7 +395,8 @@ usagep(const char *line, size_t llen)
 	static bbuf_t cmd[1U];
 	static bbuf_t parg[1U];
 	static bbuf_t desc[1U];
-	static bool cur_usg_ylddp;
+	static bool cur_usg_yldd_p;
+	static bool umb_yldd_p;
 	const char *sp;
 	const char *up;
 	const char *cp;
@@ -400,28 +408,35 @@ usagep(const char *line, size_t llen)
 
 	DEBUG("USAGEP CALLED with %s", line);
 
-	if (!STREQLITP(line, "usage:")) {
+	if (STREQLITP(line, "setopt")) {
+		/* it's a setopt */
+		return 0;
+	} else if (!STREQLITP(line, "usage:")) {
 		if (only_whitespace_p(line, llen) && !desc->z) {
 			return 1;
-		} else if (!isspace(*line) && !cur_usg_ylddp) {
+		} else if (!isspace(*line) && !cur_usg_yldd_p) {
 			/* append to description */
 			cur_usg.desc = bbuf_cat(desc, line, llen);
 			return 1;
 		}
 	yield:
-		if (!cur_usg_ylddp) {
+#define RESET	cur_usg.cmd = cur_usg.parg = cur_usg.desc = NULL, desc->z = 0U
+
+		if (!cur_usg_yldd_p) {
 			yield_usg(&cur_usg);
 			/* reset */
-			memset(&cur_usg, 0, sizeof(cur_usg));
-			desc->z = 0U;
-			cur_usg_ylddp = true;
+			RESET;
+			cur_usg_yldd_p = true;
+			umb_yldd_p = true;
 		}
 		return 0;
-	} else if (!cur_usg_ylddp) {
+	} else if (!cur_usg_yldd_p) {
+		/* can't just goto yield because they wander off */
 		yield_usg(&cur_usg);
 		/* reset */
-		memset(&cur_usg, 0, sizeof(cur_usg));
-		desc->z = 0U;
+		RESET;
+		cur_usg_yldd_p = true;
+		umb_yldd_p = true;
 	}
 	/* overread whitespace then */
 	for (sp = line + sizeof("usage:") - 1; sp < ep && isspace(*sp); sp++);
@@ -433,6 +448,7 @@ usagep(const char *line, size_t llen)
 		;
 	} else {
 		cur_usg.umb = bbuf_cpy(umb, up, sp - up);
+		umb_yldd_p = false;
 	}
 
 	/* overread more whitespace and [--BLA] decls then */
@@ -471,7 +487,7 @@ overread:
 		   !strncasecmp(cp, "command", sp - cp)) {
 		/* special command COMMAND or <command> */
 		cur_usg.cmd = NULL;
-	} else if (*cp >= 'a' && *cp <= 'z') {
+	} else if (*cp >= 'a' && *cp <= 'z' && umb_yldd_p) {
 		/* we mandate commands start with a lower case alpha char */
 		cur_usg.cmd = bbuf_cpy(cmd, cp, sp - cp);
 	} else {
@@ -484,7 +500,7 @@ overread:
 	if (sp < ep) {
 		cur_usg.parg = bbuf_cpy(parg, sp, ep - sp - 1U);
 	}
-	cur_usg_ylddp = false;
+	cur_usg_yldd_p = false;
 	return 1;
 }
 
@@ -653,9 +669,38 @@ interp(const char *line, size_t llen)
 		/* reset */
 		desc->z = 0U;
 	} else if (!only_ws_p) {
+		if (STREQLITP(line, "setopt")) {
+			/* not an inter */
+			return 0;
+		}
 		/* snarf the line */
 		bbuf_cat(desc, line, llen);
 		return 1;
+	}
+	return 0;
+}
+
+static int
+setoptp(const char *line, size_t UNUSED(llen))
+{
+	if (UNLIKELY(line == NULL)) {
+		return 0;
+	}
+
+	DEBUG("SETOPTP CALLED with %s", line);
+	if (STREQLITP(line, "setopt")) {
+		/* 'nother option */
+		const char *lp = line + sizeof("setopt");
+
+		if (0) {
+			;
+		} else if (STREQLITP(lp, "allow-unknown-dash-options")) {
+			yield_setopt(YOPT_ALLOW_UNKNOWN_DASH);
+		} else if (STREQLITP(lp, "allow-unknown-dashdash-options")) {
+			yield_setopt(YOPT_ALLOW_UNKNOWN_DASHDASH);
+		} else {
+			/* unknown setopt option */
+		}
 	}
 	return 0;
 }
@@ -866,12 +911,30 @@ yield_inter(const bbuf_t x[static 1U])
 	return;
 }
 
+static void
+yield_setopt(yopt_t yo)
+{
+	switch (yo) {
+	default:
+	case YOPT_NONE:
+		break;
+	case YOPT_ALLOW_UNKNOWN_DASH:
+		fputs("yuck_setopt_allow_unknown_dash\n", outf);
+		break;
+	case YOPT_ALLOW_UNKNOWN_DASHDASH:
+		fputs("yuck_setopt_allow_unknown_dashdash\n", outf);
+		break;
+	}
+	return;
+}
+
 
 static enum {
 	UNKNOWN,
 	SET_INTER,
 	SET_UMBCMD,
 	SET_OPTION,
+	SET_SETOPT,
 }
 snarf_ln(char *line, size_t llen)
 {
@@ -905,6 +968,15 @@ snarf_ln(char *line, size_t llen)
 		/* check for some intro texts */
 		if (interp(line, llen)) {
 			st = SET_INTER;
+			break;
+		} else {
+			/* reset state, go on with setopt parsing */
+			st = UNKNOWN;
+		}
+	case SET_SETOPT:
+		/* check for setopt BLA lines */
+		if (setoptp(line, llen)) {
+			st = SET_SETOPT;
 			break;
 		} else {
 			/* reset state, go on with option parsing */
