@@ -155,9 +155,9 @@ EXTRA_DIST += author.h2m
 BUILT_SOURCES += format.th2m
 BUILT_SOURCES += format-ddiff.th2m
 BUILT_SOURCES += units.th2m
+BUILT_SOURCES += $(dateutils_H2M_EX)
 BUILT_SOURCES += $(built_texis)
 BUILT_SOURCES += $(built_mans)
-BUILT_SOURCES += $(dateutils_H2M_EX)
 
 
 dist_noinst_SCRIPTS = gentexi.sh genh2m.sh texi2h2m.sh
