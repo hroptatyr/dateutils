@@ -142,12 +142,12 @@ dateutils_EXAMPLES += $(dzone_EXAMPLES)
 dateutils_H2M_EX += dzone.h2m
 
 dsort_EXAMPLES =
-dsort_EXAMPLES += $(top_srcdir)/test/dsort.01.clit
-dsort_EXAMPLES += $(top_srcdir)/test/dsort.02.clit
-dsort_EXAMPLES += $(top_srcdir)/test/dsort.03.clit
-dsort_EXAMPLES += $(top_srcdir)/test/dsort.04.clit
-dsort_EXAMPLES += $(top_srcdir)/test/dsort.05.clit
-dsort_EXAMPLES += $(top_srcdir)/test/dsort.06.clit
+dsort_EXAMPLES += $(top_srcdir)/test/dsort.001.clit
+dsort_EXAMPLES += $(top_srcdir)/test/dsort.002.clit
+dsort_EXAMPLES += $(top_srcdir)/test/dsort.003.clit
+dsort_EXAMPLES += $(top_srcdir)/test/dsort.004.clit
+dsort_EXAMPLES += $(top_srcdir)/test/dsort.005.clit
+dsort_EXAMPLES += $(top_srcdir)/test/dsort.006.clit
 dateutils_EXAMPLES += $(dsort_EXAMPLES)
 dateutils_H2M_EX += dsort.h2m
 
