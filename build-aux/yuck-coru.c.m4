@@ -12,8 +12,11 @@ changecom([#])dnl
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
-ifdef([YUCK_HEADER], [#include "YUCK_HEADER"
+changecom([])dnl
+ifdef([YUCK_HEADER], [dnl
+#include "YUCK_HEADER"
 ])dnl
+changecom([#])dnl
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:177)
