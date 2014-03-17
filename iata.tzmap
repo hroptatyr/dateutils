@@ -1633,6 +1633,7 @@ DAK	Africa/Cairo
 DAL	America/Chicago
 DAM	Asia/Damascus
 DAN	America/New_York
+DAO	Pacific/Port_Moresby
 DAP	Asia/Kathmandu
 DAR	Africa/Dar_es_Salaam
 DAS	America/Yellowknife
@@ -3489,7 +3490,7 @@ KBQ	Africa/Blantyre
 KBR	Asia/Kuala_Lumpur
 KBS	Africa/Freetown
 KBT	Pacific/Majuro
-KBU	Asia/Jakarta
+KBU	Asia/Makassar
 KBV	Asia/Bangkok
 KBW	America/Anchorage
 KBX	Asia/Jayapura
@@ -5310,6 +5311,7 @@ OBM	Pacific/Port_Moresby
 OBN	Europe/London
 OBO	Asia/Tokyo
 OBS	Europe/Paris
+OBT	America/New_York
 OBU	America/Anchorage
 OBX	Pacific/Port_Moresby
 OBY	America/Scoresbysund
@@ -5331,6 +5333,7 @@ ODE	Europe/Copenhagen
 ODH	Europe/London
 ODJ	Africa/Bangui
 ODL	Australia/Adelaide
+ODM	America/New_York
 ODN	Asia/Kuching
 ODO	Asia/Irkutsk
 ODR	Australia/Perth
@@ -5400,6 +5403,7 @@ OKQ	Asia/Jayapura
 OKR	Australia/Lindeman
 OKT	Asia/Yekaterinburg
 OKU	Africa/Windhoek
+OKV	Pacific/Port_Moresby
 OKY	Australia/Brisbane
 OLA	Europe/Oslo
 OLB	Europe/Rome
