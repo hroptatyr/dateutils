@@ -947,6 +947,7 @@ EDQB	Europe/Berlin
 EDQD	Europe/Berlin
 EDQE	Europe/Berlin
 EDQF	Europe/Berlin
+EDQG	Europe/Berlin
 EDQH	Europe/Berlin
 EDQI	Europe/Berlin
 EDQL	Europe/Berlin
@@ -6297,6 +6298,7 @@ NTTH	Pacific/Tahiti
 NTTO	Pacific/Tahiti
 NTTP	Pacific/Tahiti
 NTTR	Pacific/Tahiti
+NTTX	Pacific/Tahiti
 NTUV	Pacific/Tahiti
 NVSA	Pacific/Efate
 NVSC	Pacific/Efate
@@ -8900,6 +8902,7 @@ WAMR	Asia/Jayapura
 WAMT	Asia/Jayapura
 WAMW	Asia/Makassar
 WAOC	Asia/Jakarta
+WAOK	Asia/Makassar
 WAOM	Asia/Pontianak
 WAON	Asia/Jakarta
 WAOP	Asia/Pontianak
@@ -9068,7 +9071,7 @@ WPOC	Asia/Dili
 WPVQ	Asia/Dili
 WRBB	Asia/Makassar
 WRBI	Asia/Pontianak
-WRBK	Asia/Jakarta
+WRBK	Asia/Makassar
 WRBP	Asia/Pontianak
 WRKK	Asia/Makassar
 WRKL	Asia/Makassar
