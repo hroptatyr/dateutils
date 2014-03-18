@@ -78,6 +78,8 @@
 
 #if !defined MAP_ANONYMOUS && defined MAP_ANON
 # define MAP_ANONYMOUS	(MAP_ANON)
+#elif !defined MAP_ANON
+# define MAP_ANON	(0x1000U)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
 
 typedef struct zih_s *zih_t;
