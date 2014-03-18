@@ -65,6 +65,16 @@ struct sort_ctx_s {
 
 
 static void
+safe_write(int fd, const char *buf, size_t bsz)
+{
+	size_t tot = 0U;
+	for (ssize_t nwr;
+	     tot < bsz && (nwr = write(fd, buf + tot, bsz - tot)) >= 0;
+	     tot += nwr);
+	return;
+}
+
+static void
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
 	struct dt_dt_s d;
@@ -78,7 +88,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		/* find first occurrence then */
 		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &tp, ctx.fromz);
 		/* print line, first thing */
-		write(ctx.outfd, line, llen);
+		safe_write(ctx.outfd, line, llen);
 
 		/* extend by separator */
 		*bp++ = '\001';
@@ -98,7 +108,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		}
 		/* finalise the line and print */
 		*bp++ = '\n';
-		write(ctx.outfd, buf, bp - buf);
+		safe_write(ctx.outfd, buf, bp - buf);
 	} while (0);
 	return;
 }
