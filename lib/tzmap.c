@@ -518,9 +518,11 @@ static bool
 tzmccp(FILE *fp)
 {
 	static char buf[4U];
-	fread(buf, sizeof(buf), sizeof(*buf), fp);
 
-	if (!memcmp(buf, TZM_MAGIC, sizeof(buf))) {
+	if (fread(buf, sizeof(buf), sizeof(*buf), fp) < (ssize_t)sizeof(buf)) {
+		/* definitely buggered */
+		;
+	} else if (!memcmp(buf, TZM_MAGIC, sizeof(buf))) {
 		return true;
 	}
 	/* otherwise, good try, seek back to the beginning */
