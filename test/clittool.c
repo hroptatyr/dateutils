@@ -879,15 +879,19 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	if (UNLIKELY(init_tst(ctx, tst) < 0)) {
 		return -1;
 	}
-	write(ctx->pin, tst->cmd.d, tst->cmd.z);
-
+	with (const char *p = tst->cmd.d, *const ep = tst->cmd.d + tst->cmd.z) {
+		for (ssize_t nwr;
+		     p < ep && (nwr = write(ctx->pin, p, ep - p)) > 0;
+		     p += nwr);
+	}
 	unblock_sigs();
 
-	if (LIKELY(!ctx->ptyp)) {
-		/* indicate we're not writing anymore on the child's stdin */
+	if (LIKELY(!ctx->ptyp) ||
+	    write(ctx->pin, "exit $?\n", 8U) < 8) {
+		/* indicate we're not writing anymore on the child's stdin
+		 * or in case of a pty, send exit command and keep fingers
+		 * crossed the pty will close itself */
 		close(ctx->pin);
-	} else {
-		write(ctx->pin, "exit $?\n", 8U);
 	}
 
 	/* wait for the beef child */

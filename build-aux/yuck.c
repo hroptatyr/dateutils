@@ -1193,8 +1193,13 @@ unmassage_fd(int tgtfd, int srcfd)
 	static char buf[4096U];
 
 	for (ssize_t nrd; (nrd = read(srcfd, buf, sizeof(buf))) > 0;) {
+		const char *bp = buf;
+		const char *const ep = buf + nrd;
+
 		unmassage_buf(buf, nrd);
-		write(tgtfd, buf, nrd);
+		for (ssize_t nwr;
+		     bp < ep && (nwr = write(tgtfd, bp, ep - bp)) > 0;
+		     bp += nwr);
 	}
 	return;
 }
