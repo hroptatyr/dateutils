@@ -143,6 +143,18 @@ deconst(const void *ptr)
 	return (char*)1 + ((const char*)ptr - (char*)1U);
 }
 
+static const void*
+align_to(size_t tz, const void *p)
+{
+	uintptr_t x = (uintptr_t)p;
+
+	if (x % tz) {
+		x -= x % tz;
+	}
+	return (const void*)x;
+}
+#define ALIGN_TO(tz, p)	align_to(sizeof(tz), p)
+
 
 /* public API */
 static inline size_t
@@ -245,7 +257,7 @@ tzm_find(tzmap_t m, const char *mname)
 	do {
 		const char *mp = mname;
 		const char *tp;
-		const znoff_t *p;
+		const char *p;
 
 		tp = (const char*)(sp + (ep - sp) / 2U);
 		if (!*tp) {
@@ -257,21 +269,24 @@ tzm_find(tzmap_t m, const char *mname)
 				tp--;
 			}
 		}
-		/* store tp in znoff_t speak */
-		p = (const znoff_t*)tp;
+		/* store tp again */
+		p = tp;
 		/* now unroll a strcmp */
 		for (; *mp && *mp == *tp; mp++, tp++);
 		if (*mp - *tp < 0) {
 			/* use lower half */
-			ep = p - 1U;
+			ep = (const znoff_t*)p - 1U;
 		} else {
 			/* forward to the next znoff_t alignment */
-			p += ((const znoff_t*)(tp - 1U) - p) + 1U;
+			const znoff_t *op =
+				(const znoff_t*)ALIGN_TO(znoff_t, tp - 1U) + 1U;
+
 			if (*mp - *tp > 0) {
 				/* use upper half */
-				sp = p + 1U;
+				sp = op + 1U;
 			} else {
-				return zns + (be32toh(*p) >> 8U);
+				/* found it */
+				return zns + (be32toh(*op) >> 8U);
 			}
 		}
 	} while (sp < ep);
