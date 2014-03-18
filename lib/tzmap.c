@@ -388,7 +388,7 @@ parse_line(char *ln, size_t lz)
 	} else if (*lp++ = '\0', *lp == '\0') {
 		/* huh? no zone name, cunt off */
 		return;
-	} else if (lp - ln > 256U) {
+	} else if (lp - ln > 256) {
 		/* too long */
 		return;
 	} else if ((znp = tzm_find_zn(lp, ln + lz - lp)) == -1U) {
