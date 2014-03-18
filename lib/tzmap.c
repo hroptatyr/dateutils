@@ -143,6 +143,18 @@ deconst(const void *ptr)
 	return (char*)1 + ((const char*)ptr - (char*)1U);
 }
 
+static const void*
+align_to(size_t tz, const void *p)
+{
+	uintptr_t x = (uintptr_t)p;
+
+	if (x % tz) {
+		x -= x % tz;
+	}
+	return (const void*)x;
+}
+#define ALIGN_TO(tz, p)	align_to(sizeof(tz), p)
+
 
 /* public API */
 static inline size_t
@@ -245,7 +257,7 @@ tzm_find(tzmap_t m, const char *mname)
 	do {
 		const char *mp = mname;
 		const char *tp;
-		const znoff_t *p;
+		const char *p;
 
 		tp = (const char*)(sp + (ep - sp) / 2U);
 		if (!*tp) {
@@ -257,21 +269,24 @@ tzm_find(tzmap_t m, const char *mname)
 				tp--;
 			}
 		}
-		/* store tp in znoff_t speak */
-		p = (const znoff_t*)tp;
+		/* store tp again */
+		p = tp;
 		/* now unroll a strcmp */
 		for (; *mp && *mp == *tp; mp++, tp++);
 		if (*mp - *tp < 0) {
 			/* use lower half */
-			ep = p - 1U;
+			ep = (const znoff_t*)p - 1U;
 		} else {
 			/* forward to the next znoff_t alignment */
-			p += ((const znoff_t*)(tp - 1U) - p) + 1U;
+			const znoff_t *op =
+				(const znoff_t*)ALIGN_TO(znoff_t, tp - 1U) + 1U;
+
 			if (*mp - *tp > 0) {
 				/* use upper half */
-				sp = p + 1U;
+				sp = op + 1U;
 			} else {
-				return zns + (be32toh(*p) >> 8U);
+				/* found it */
+				return zns + (be32toh(*op) >> 8U);
 			}
 		}
 	} while (sp < ep);
@@ -373,7 +388,7 @@ parse_line(char *ln, size_t lz)
 	} else if (*lp++ = '\0', *lp == '\0') {
 		/* huh? no zone name, cunt off */
 		return;
-	} else if (lp - ln > 256U) {
+	} else if (lp - ln > 256) {
 		/* too long */
 		return;
 	} else if ((znp = tzm_find_zn(lp, ln + lz - lp)) == -1U) {
@@ -503,9 +518,11 @@ static bool
 tzmccp(FILE *fp)
 {
 	static char buf[4U];
-	fread(buf, sizeof(buf), sizeof(*buf), fp);
 
-	if (!memcmp(buf, TZM_MAGIC, sizeof(buf))) {
+	if (fread(buf, sizeof(buf), sizeof(*buf), fp) < (ssize_t)sizeof(buf)) {
+		/* definitely buggered */
+		;
+	} else if (!memcmp(buf, TZM_MAGIC, sizeof(buf))) {
 		return true;
 	}
 	/* otherwise, good try, seek back to the beginning */
@@ -625,13 +642,25 @@ cmd_cc(const struct yuck_cmd_cc_s argi[static 1U])
 	/* generate a disk version now */
 	with (znoff_t off = zni) {
 		static struct tzmap_s r = {TZM_MAGIC};
+		ssize_t sz;
 
 		off = (off + sizeof(off) - 1U) / sizeof(off) * sizeof(off);
 		r.off = htobe32(off);
-		write(ofd, &r, sizeof(r));
-		write(ofd, zns, off);
-		write(ofd, mns, mni * sizeof(*mns));
+		if (sz = sizeof(r), write(ofd, &r, sz) < sz) {
+			goto trunc;
+		} else if (sz = off, write(ofd, zns, sz) < sz) {
+			goto trunc;
+		} else if (sz = mni * sizeof(*mns), write(ofd, mns, sz) < sz) {
+			goto trunc;
+		}
 		close(ofd);
+		break;
+
+	trunc:
+		/* some write failed, leave a 0 byte file around */
+		close(ofd);
+		unlink(outf);
+		rc = 1;
 	}
 
 out:
