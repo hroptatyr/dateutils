@@ -519,7 +519,7 @@ tzmccp(FILE *fp)
 {
 	static char buf[4U];
 
-	if (fread(buf, sizeof(buf), sizeof(*buf), fp) < (ssize_t)sizeof(buf)) {
+	if (fread(buf, sizeof(*buf), countof(buf), fp) < sizeof(buf)) {
 		/* definitely buggered */
 		;
 	} else if (!memcmp(buf, TZM_MAGIC, sizeof(buf))) {
