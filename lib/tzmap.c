@@ -640,13 +640,25 @@ cmd_cc(const struct yuck_cmd_cc_s argi[static 1U])
 	/* generate a disk version now */
 	with (znoff_t off = zni) {
 		static struct tzmap_s r = {TZM_MAGIC};
+		ssize_t sz;
 
 		off = (off + sizeof(off) - 1U) / sizeof(off) * sizeof(off);
 		r.off = htobe32(off);
-		write(ofd, &r, sizeof(r));
-		write(ofd, zns, off);
-		write(ofd, mns, mni * sizeof(*mns));
+		if (sz = sizeof(r), write(ofd, &r, sz) < sz) {
+			goto trunc;
+		} else if (sz = off, write(ofd, zns, sz) < sz) {
+			goto trunc;
+		} else if (sz = mni * sizeof(*mns), write(ofd, mns, sz) < sz) {
+			goto trunc;
+		}
 		close(ofd);
+		break;
+
+	trunc:
+		/* some write failed, leave a 0 byte file around */
+		close(ofd);
+		unlink(outf);
+		rc = 1;
 	}
 
 out:
