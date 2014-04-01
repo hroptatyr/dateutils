@@ -61,6 +61,7 @@ Following Linux distros and BSD flavours provide native packages
 
 + ArchLinux <https://aur.archlinux.org/packages/dateutils/>
 + Debian <http://packages.debian.org/sid/dateutils>
++ FreeBSD <http://svnweb.freebsd.org/ports/head/sysutils/dateutils/>
 + Gentoo <https://packages.gentoo.org/package/app-misc/dateutils>
 + NetBSD <http://pkgsrc.se/time/dateutils>
 + OpenSuSE <http://software.opensuse.org/download.html?project=utilities&package=dateutils>
