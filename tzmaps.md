@@ -3,6 +3,7 @@ title: dateutils tzmaps
 layout: subpage
 project: dateutils
 logo: dateutils_logo_120.png
+description: mapping airport codes to timezone, mapping exchange codes to timezone
 ---
 
 Timezone map files
