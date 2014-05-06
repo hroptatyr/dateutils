@@ -78,9 +78,9 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 		d = dt_dtadd(d, zd);
 		d.znfxd = 1;
 		if (zdiff > 0) {
+			d.neg = 1;
 			d.zdiff = (uint16_t)(zdiff / ZDIFF_RES);
 		} else if (zdiff < 0) {
-			d.neg = 1;
 			d.zdiff = (uint16_t)(-zdiff / ZDIFF_RES);
 		}
 	}
