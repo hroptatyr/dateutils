@@ -481,8 +481,9 @@ git_version(struct yuck_version_s v[static 1U])
 		v->dist = strtoul(dist, &bp, 10);
 
 		if (*++bp == 'g') {
+			bp++;
 			/* read scm revision */
-			v->rvsn = hextou(++bp, &bp);
+			v->rvsn = hextou(bp, &bp);
 		}
 		if (*bp == '\0') {
 			break;
