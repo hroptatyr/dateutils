@@ -521,8 +521,14 @@ optionp(const char *line, size_t llen)
 	DEBUG("OPTIONP CALLED with %s", line);
 
 	/* overread whitespace */
-	for (; sp < ep && isspace(*sp); sp++);
-	if (sp - line >= 2 && *sp != '-' && (cur_opt.sopt || cur_opt.lopt)) {
+	for (; sp < ep && isspace(*sp); sp++) {
+		if (*sp == '\t') {
+			/* make a tab character count 8 in total */
+			sp += 7U;
+		}
+	}
+	if ((sp - line >= 8 || sp - line >= 1 && *sp != '-') &&
+	    (cur_opt.sopt || cur_opt.lopt)) {
 		/* should be description */
 		goto desc;
 	}
@@ -1858,8 +1864,14 @@ flag -n|--use-reference requires -r|--reference parameter");
 		/* reserve exit code 3 for `updated reference file' */
 		rc = 3;
 	} else if (reffn && !argi->force_flag) {
-		/* don't worry about anything then */
-		return 0;
+		/* make sure the output file exists */
+		const char *const outfn = argi->output_arg;
+
+		if (outfn == NULL || regfilep(outfn)) {
+			/* don't worry about anything then */
+			return 0;
+		}
+		/* otherwise create at least one version of the output */
 	}
 
 	if (infn != NULL && regfilep(infn)) {
