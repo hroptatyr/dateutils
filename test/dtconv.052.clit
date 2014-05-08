@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## actual zone specs take precedence over --from-zone
+$ dconv --from-zone Europe/Berlin '2014-01-08T12:34:56+02:00' \
+  --zone Europe/Berlin -f "%FT%T%Z"
+2014-01-08T11:34:56+01:00
+$
+
+## dconv.106.clit ends here
