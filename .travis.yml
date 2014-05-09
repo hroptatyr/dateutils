@@ -4,6 +4,10 @@ compiler:
   - gcc
   - clang
 
+env:
+  global:
+    - secure: "GFjrqOUyqNLrPGtxNW4r9JxJBudjddBJFzEEcpPkfEbMHJ+kk4zOYsSLV1f1cAK+X8TWLsCq5Yjt/2Rzhu7Csjiy34RReZ9KwsmcwX78T8MkQQz4yv8by9J9a5mbHQ3S6mtF7PH1t38PKVcJi51icEqUjvi4FnfME5+VrdueE+c="
+
 before_install:
   - sudo apt-get -qq update
 
@@ -28,7 +32,18 @@ branches:
   only:
     - master
     - next
+    - coverity-scan
 
 notifications:
   email:
     - devel@fresse.org
+
+addons:
+  coverity_scan:
+    project:
+      name: "hroptatyr/dateutils"
+      description: "dateutils coverity scan"
+    notification_email: devel@fresse.org
+    build_command_prepend: "./configure"
+    build_command: "make all check"
+    branch_pattern: coverity-scan
