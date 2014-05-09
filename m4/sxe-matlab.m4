@@ -51,6 +51,15 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
 	PKG_CHECK_MODULES([octave], [octave >= 3.6.0])
 
+	## prep the octave extension path, this is twofold
+	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
+	if test -n "${OCTAVE_CONFIG}"; then
+		AC_MSG_CHECKING([for octave toolbox path])
+		OCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
+		AC_SUBST([OCTAVEPATH])
+		AC_MSG_RESULT([${OCTAVEPATH}])
+	fi
+
 	if test -n "${octave_CFLAGS}"; then
 		save_CPPFLAGS="${CPPFLAGS}"
 		CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
