@@ -1,49 +1,48 @@
 ## first parameter may point to a matlab root or the matlab binary
 AC_DEFUN([SXE_CHECK_MATLAB], [dnl
-	pushdef([mroot], [$1])
 	foo=`mktemp`
 
-	AC_MSG_CHECKING([for matlab root])
+	AC_ARG_VAR([MATLAB], [full path to matlab binary])
+	sxe_cv_matlab="${MATLAB:-matlab}"
 
+	AC_MSG_CHECKING([for matlab root])
 	## assume no matlab
+	sxe_cv_matlabpath="no"
 	sxe_cv_matlabroot="no"
 
-	if test "[]mroot[]" = "yes"; then
-		matlab -e
-	elif readlink -e "[]mroot[]" >/dev/null; then
-		if test -d "[]mroot[]"; then
-			"[]mroot[]/bin/matlab" -e
-		elif test -x "[]mroot[]"; then
-			"[]mroot[]" -e
-		fi
-	elif command -v "[]mroot[]" >/dev/null; then
-		"[]mroot[]" -e
-	else
-		matlab -e
-	fi 2>/dev/null | grep "MATLAB" > "${foo}"
+	"${sxe_cv_matlab}" -e 2>/dev/null | grep "MATLAB" > "${foo}"
 
 	## source that
 	source "${foo}"
 
-	if test -x "${MATLAB}"; then
-		sxe_cv_matlabroot="${MATLAB}"
-		MATLABROOT="${sxe_cv_matlabroot}"
-		AC_SUBST([MATLABROOT])
-	fi
+	MATLABROOT="${MATLAB}"
+	AC_SUBST([MATLABROOT])
+	AC_MSG_RESULT([${MATLABROOT}])
 
-	AC_MSG_RESULT([${sxe_cv_matlabroot}])
+	AC_MSG_CHECKING([for matlab toolbox path])
+	AC_MSG_RESULT([${MATLABPATH}])
 
-	save_CPPFLAGS="${CPPFLAGS}"
-	CPPFLAGS="${CPPFLAGS} -I${MATLABROOT}/extern/include"
-	AC_CHECK_HEADERS([mex.h])
-	if test "${ac_cv_header_mex_h}"; then
+	## now reset *our* idea of what MATLAB should be
+	MATLAB="${sxe_cv_matlab}"
+
+	AC_ARG_VAR([matlab_CFLAGS], [include directives for matlab headers])
+
+	if test -n "${matlab_CFLAGS}"; then
+		:
+	elif test -z "${MATLABROOT}"; then
+		## big cluster fuck
+		:
+	else
 		matlab_CFLAGS="-I${MATLABROOT}/extern/include"
-		AC_SUBST([matlab_CFLAGS])
 	fi
-	CPPFLAGS="${save_CPPFLAGS}"
+	if test -n "${matlab_CFLAGS}"; then
+		save_CPPFLAGS="${CPPFLAGS}"
+		CPPFLAGS="${CPPFLAGS} -I${matlab_CFLAGS}"
+		AC_CHECK_HEADERS([mex.h])
+		CPPFLAGS="${save_CPPFLAGS}"
+	fi
 
 	rm -f -- "${foo}"
-	popdef([mroot])
 ])dnl SXE_CHECK_MATLAB
 
 dnl sxe-matlab.m4 ends here
