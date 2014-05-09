@@ -94,11 +94,16 @@ mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 		for (mwSize i = 0; i < m * n; i++) {
 			double x = TO_UNIX(src[i]);
-			double frac = modf(x, &x);
-			int32_t utc = zif_utc_time(fromz, (int32_t)x);
-			int32_t lcl = zif_local_time(toz, utc);
 
-			tgt[i] = TO_MATL((double)lcl) + frac / 86400.0;
+			if (x < 2147483647.0 && x > -2147483648.0) {
+				double frac = modf(x, &x);
+				int32_t utc = zif_utc_time(fromz, (int32_t)x);
+				int32_t lcl = zif_local_time(toz, utc);
+
+				tgt[i] = TO_MATL((double)lcl) + frac / 86400.0;
+			} else {
+				tgt[i] = NAN;
+			}
 		}
 	}
 

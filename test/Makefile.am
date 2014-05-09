@@ -515,6 +515,10 @@ dt_tests += dtconv.045.clit
 dt_tests += dtconv.046.clit
 dt_tests += dtconv.047.clit
 dt_tests += dtconv.048.clit
+dt_tests += dtconv.049.clit
+dt_tests += dtconv.050.clit
+dt_tests += dtconv.051.clit
+dt_tests += dtconv.052.clit
 
 dt_tests += convt.ymcw-ymd.clit
 dt_tests += convt.ymcw-ywd.clit
@@ -573,6 +577,10 @@ dt_tests += dtadd.040.clit
 ## multi-sed
 dt_tests += dtadd.041.clit
 dt_tests += dtadd.042.clit
+dt_tests += dtadd.043.clit
+dt_tests += dtadd.044.clit
+dt_tests += dtadd.045.clit
+dt_tests += dtadd.046.clit
 
 dt_tests += dtgrep.001.clit
 dt_tests += dtgrep.002.clit
