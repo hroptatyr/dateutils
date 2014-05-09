@@ -37,7 +37,7 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 	fi
 	if test -n "${matlab_CFLAGS}"; then
 		save_CPPFLAGS="${CPPFLAGS}"
-		CPPFLAGS="${CPPFLAGS} -I${matlab_CFLAGS}"
+		CPPFLAGS="${CPPFLAGS} ${matlab_CFLAGS}"
 		AC_CHECK_HEADERS([mex.h])
 		CPPFLAGS="${save_CPPFLAGS}"
 	fi
