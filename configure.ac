@@ -171,8 +171,8 @@ if test "${enable_contrib}" != "no"; then
 	SXE_CHECK_MATLAB
 	SXE_CHECK_OCTAVE
 fi
-AM_CONDITIONAL([BUILD_MEXCLI], [test "${sxe_cv_matlab_mex_h}" = "yes"])
-AM_CONDITIONAL([BUILD_OCTCLI], [test "${sxe_cv_octave_mex_h}" = "yes"])
+AM_CONDITIONAL([BUILD_MEXCLI], [test "${sxe_cv_matlab_mex_h}" = "yes" -a -n "${MATLABPATH}"])
+AM_CONDITIONAL([BUILD_OCTCLI], [test "${sxe_cv_octave_mex_h}" = "yes" -a -n "${OCTAVEPATH}"])
 
 
 ## prepare the summary page
