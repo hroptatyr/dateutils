@@ -20,6 +20,7 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 	AC_MSG_RESULT([${MATLABROOT}])
 
 	AC_MSG_CHECKING([for matlab toolbox path])
+	AC_SUBST([MATLABPATH])
 	AC_MSG_RESULT([${MATLABPATH}])
 
 	## now reset *our* idea of what MATLAB should be
