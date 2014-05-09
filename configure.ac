@@ -144,17 +144,10 @@ denote the last day of the month.])
 AS_HELP_STRING([], [Default: disabled])],
 	[enable_fast_arith="${enableval}"], [enable_fast_arith="no"])
 
-AC_ARG_WITH([matlab], [
-AS_HELP_STRING([--with-matlab], [Build matlab contribs, default: no.])],
-        [dnl
-		## disallow warnings from here
-		SXE_LANG_WERROR([off])
-                SXE_CHECK_MATLAB([${withval}])
-                if test -n "${sxe_cv_matlabroot}"; then
-                        with_matlab="yes"
-                fi
-        ], [with_matlab="no"])
-AM_CONDITIONAL([BUILD_MATCLI], [test "${with_matlab}" = "yes"])
+AC_ARG_ENABLE([contrib], [
+AS_HELP_STRING([--enable-contrib], [Build contribs, default: no.])],
+        [enable_contrib="${enableval}"], [enable_contrib="no"])
+AM_CONDITIONAL([WITH_CONTRIB], [test "${enable_contrib}" != "no"])
 
 ## checks
 if test "${enable_fast_arith}" = "yes"; then
@@ -171,13 +164,27 @@ AM_CONDITIONAL([BUILD_DEXPR], [test "0" = "1"])
 
 AM_CONDITIONAL([BUILD_LTRCC], [test ! -f "${srcdir}/lib/leapseconds.def"])
 
-## trivial, no special stuff needed
-dut_apps="dadd dconv ddiff dgrep dround dseq dtest"
+
+## check for contrib stuff
+if test "${enable_contrib}" != "no"; then
+	## check for matlab, then octave
+	SXE_CHECK_MATLAB
+	SXE_CHECK_OCTAVE
+fi
+AM_CONDITIONAL([BUILD_MATCLI], [test "0" = "1"])
+
+
+## prepare the summary page
+dut_apps="dadd dconv ddiff dgrep dround dseq dsort dtest dzone"
 if test "${have_strptime}" = "yes"; then
 	misc_apps="strptime"
+else
+	misc_apps="none"
 fi
-if test "${with_matlab}" = "yes"; then
-        misc_apps="${misc_apps}${misc_apps:+ }tzconv.m(atlab)"
+if test "${enable_contrib}" != "no"; then
+        cntrb_apps="${cntrb_apps}${cntrb_apps:+ }tzconv.m(atlab)"
+else
+	cntrb_apps="none"
 fi
 
 AX_CHECK_YUCK
@@ -203,6 +210,7 @@ Build summary
 =============
 Build date/time apps:	${dut_apps}
 Build misc apps:	${misc_apps}
+Build contrib apps:	${cntrb_apps}
 
 EOF
 
