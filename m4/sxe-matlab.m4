@@ -38,11 +38,24 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 	if test -n "${matlab_CFLAGS}"; then
 		save_CPPFLAGS="${CPPFLAGS}"
 		CPPFLAGS="${CPPFLAGS} ${matlab_CFLAGS}"
-		AC_CHECK_HEADERS([mex.h])
+		AC_CHECK_HEADER([mex.h])
+		unset ac_cv_header_mex_h
 		CPPFLAGS="${save_CPPFLAGS}"
 	fi
 
 	rm -f -- "${foo}"
 ])dnl SXE_CHECK_MATLAB
+
+AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
+	PKG_CHECK_MODULES([octave], [octave >= 3.6.0])
+
+	if test -n "${octave_CFLAGS}"; then
+		save_CPPFLAGS="${CPPFLAGS}"
+		CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
+		AC_CHECK_HEADER([mex.h])
+		unset ac_cv_header_mex_h
+		CPPFLAGS="${save_CPPFLAGS}"
+	fi
+])dnl SXE_CHECK_OCTAVE
 
 dnl sxe-matlab.m4 ends here
