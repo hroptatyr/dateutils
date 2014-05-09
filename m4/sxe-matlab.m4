@@ -39,6 +39,7 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 		save_CPPFLAGS="${CPPFLAGS}"
 		CPPFLAGS="${CPPFLAGS} ${matlab_CFLAGS}"
 		AC_CHECK_HEADER([mex.h])
+		sxe_cv_matlab_mex_h="${ac_cv_header_mex_h}"
 		unset ac_cv_header_mex_h
 		CPPFLAGS="${save_CPPFLAGS}"
 	fi
@@ -53,6 +54,7 @@ AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
 		save_CPPFLAGS="${CPPFLAGS}"
 		CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
 		AC_CHECK_HEADER([mex.h])
+		sxe_cv_octave_mex_h="${ac_cv_header_mex_h}"
 		unset ac_cv_header_mex_h
 		CPPFLAGS="${save_CPPFLAGS}"
 	fi

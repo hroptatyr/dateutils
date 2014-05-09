@@ -171,7 +171,8 @@ if test "${enable_contrib}" != "no"; then
 	SXE_CHECK_MATLAB
 	SXE_CHECK_OCTAVE
 fi
-AM_CONDITIONAL([BUILD_MATCLI], [test "0" = "1"])
+AM_CONDITIONAL([BUILD_MATCLI], [test "${sxe_cv_matlab_mex_h}" = "yes"])
+AM_CONDITIONAL([BUILD_OCTVCLI], [test "${sxe_cv_octave_mex_h}" = "yes"])
 
 
 ## prepare the summary page
@@ -182,7 +183,12 @@ else
 	misc_apps="none"
 fi
 if test "${enable_contrib}" != "no"; then
-        cntrb_apps="${cntrb_apps}${cntrb_apps:+ }tzconv.m(atlab)"
+	if test "${sxe_cv_matlab_mex_h}" = "yes"; then
+		cntrb_apps="${cntrb_apps}${cntrb_apps:+ }tzconv.m(atlab)"
+	fi
+	if test "${sxe_cv_octave_mex_h}" = "yes"; then
+		cntrb_apps="${cntrb_apps}${cntrb_apps:+ }tzconv.m(octave)"
+	fi
 else
 	cntrb_apps="none"
 fi
