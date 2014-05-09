@@ -375,12 +375,10 @@ AC_DEFUN([SXE_FEATFLAGS], [dnl
 	## that affect the outcome of the following tests
 	SXE_CHECK_COMPILER_FLAG([-static-intel], [
 		featflags="${featflags} -static-intel"
-		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -static-intel"], [:],
-		[${SXE_CFLAGS}])
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -static-intel"], [:])
 	SXE_CHECK_COMPILER_FLAG([-static-libgcc], [
 		featflags="${featflags} -static-libgcc"
-		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -static-libgcc"], [:],
-		[${SXE_CFLAGS}])
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -static-libgcc"], [:])
 
 	SXE_CHECK_COMPILER_FLAG([-intel-extensions], [dnl
 		featflags="${featflags} -intel-extensions"])
