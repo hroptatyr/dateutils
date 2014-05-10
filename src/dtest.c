@@ -106,7 +106,6 @@ main(int argc, char *argv[])
 		case 1:
 			res = 1;
 			break;
-		case -2:
 		default:
 			res = 3;
 			break;
