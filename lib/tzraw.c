@@ -620,7 +620,7 @@ __find_zrng(const struct zif_s z[static 1U], int32_t t, int min, int max)
 			res.next = INT_MAX;
 		}
 	}
-	res.offs = zif_troffs(z, trno);
+	res.offs = zif_troffs(z, res.trno);
 	return res;
 }
 
