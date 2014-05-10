@@ -1190,7 +1190,7 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY + DAISY_UNIX_BASE;
 		break;
 
 	case DT_MD:
@@ -1207,7 +1207,7 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	/* time assignment */
 	if (outdtyp <= DT_NDTYP) {
-		unsigned int tonly = tv.tv_sec % 86400U;
+		unsigned int tonly = tv.tv_sec % (unsigned int)SECS_PER_DAY;
 
 		res.t.hms.h = tonly / SECS_PER_HOUR;
 		tonly %= SECS_PER_HOUR;
