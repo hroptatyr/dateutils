@@ -835,7 +835,7 @@ dt_strpdtdur(const char *str, char **ep)
 	long int tmp;
 	struct strpdt_s d;
 
-	if (str == NULL) {
+	if ((sp = str) == NULL) {
 		goto out;
 	}
 	/* read just one component, use rudi's errno trick */
