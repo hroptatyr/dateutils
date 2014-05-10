@@ -538,7 +538,7 @@ zif_open(const char *file)
 		file = coord_fn;
 	}
 
-	if (UNLIKELY((fd = __open_zif(file)) <= STDIN_FILENO)) {
+	if (UNLIKELY((fd = __open_zif(file)) < STDIN_FILENO)) {
 		return NULL;
 	} else if (UNLIKELY(__read_zif(tmp, fd) < 0)) {
 		return NULL;
