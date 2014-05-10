@@ -103,18 +103,18 @@ struct strpdti_s {
 #if !defined DT_DAISY_BASE_YEAR
 # error daisy base year cannot be obtained
 #elif DT_DAISY_BASE_YEAR == 1917
-# define DAISY_UNIX_BASE	(19359)
-# define DAISY_GPS_BASE		(23016)
+# define DAISY_UNIX_BASE	(19359L)
+# define DAISY_GPS_BASE		(23016L)
 #elif DT_DAISY_BASE_YEAR == 1753
-# define DAISY_UNIX_BASE	(79258)
-# define DAISY_GPS_BASE		(82915)
+# define DAISY_UNIX_BASE	(79258L)
+# define DAISY_GPS_BASE		(82915L)
 #elif DT_DAISY_BASE_YEAR == 1601
-# define DAISY_UNIX_BASE	(134775)
-# define DAISY_GPS_BASE		(138432)
+# define DAISY_UNIX_BASE	(134775L)
+# define DAISY_GPS_BASE		(138432L)
 #else
 # error unknown daisy base year
 #endif	/* DT_DAISY_BASE_YEAR */
-#if DAISY_GPS_BASE - DAISY_UNIX_BASE != 3657
+#if DAISY_GPS_BASE - DAISY_UNIX_BASE != 3657L
 # error daisy unix and gps bases diverge
 #endif	/* static assert */
 
