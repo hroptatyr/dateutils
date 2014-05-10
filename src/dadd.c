@@ -351,6 +351,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
 			serror("could not open stdin");
+			goto dur_out;
 		}
 
 		/* build the clo and then loop */
