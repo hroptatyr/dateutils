@@ -844,7 +844,7 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 		close(STDERR_FILENO);
 
 		/* close all other descriptors */
-		xclosefrom(STDOUT_FILENO + 1);
+		xclosefrom(STDERR_FILENO + 1);
 
 		execvp(cmd_diff, diff_opt);
 		error("execlp failed");
@@ -877,6 +877,10 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 			}
 			/* forget about expfd lest we leak it */
 			close(expfd);
+		} else {
+			/* best to let everyone know that we chose
+			 * not to use a feeder */
+			ctx->feed = -1;
 		}
 		break;
 	clobrk:
