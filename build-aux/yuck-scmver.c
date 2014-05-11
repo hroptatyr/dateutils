@@ -603,12 +603,13 @@ bzr_version(struct yuck_version_s v[static 1U])
 		bz = sizeof(buf);
 		while ((nrd = read(*fd, bp, bz)) == (ssize_t)bz) {
 			/* find last line */
-			char *lp = bp + bz;
-			while (--lp >= buf && *lp != '\n');
-			bz = ++lp - buf;
+			while (bz-- > 0 && buf[bz] != '\n');
+			/* reassess bz */
+			bz++;
+			/* reassess bp */
+			bp = buf + (sizeof(buf) - bz);
 			if (LIKELY(bz < sizeof(buf))) {
-				memmove(buf, lp, sizeof(buf) - bz);
-				bp = buf + sizeof(buf) - bz;
+				memmove(buf, buf + bz, sizeof(buf) - bz);
 			}
 		}
 		if (nrd <= 0) {
