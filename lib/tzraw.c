@@ -230,14 +230,15 @@ zif_trans(const struct zif_s z[static 1U], int n)
 {
 	size_t ntr = zif_ntrans(z);
 
-	if (LIKELY(ntr && n < (ssize_t)ntr)) {
-		return z->trs[n];
-	} else if (!ntr || n < 0) {
-		/* second most likely */
+	if (UNLIKELY(!ntr || n < 0)) {
+		/* return earliest possible stamp */
 		return INT_MIN;
+	} else if (UNLIKELY(n >= (ssize_t)ntr)) {
+		/* return last known stamp */
+		return z->trs[ntr - 1U];
 	}
-	/* otherwise return last known stamp */
-	return z->trs[ntr - 1U];
+	/* otherwise return n-th stamp */
+	return z->trs[n];
 }
 
 /**
@@ -247,14 +248,15 @@ zif_type(const struct zif_s z[static 1U], int n)
 {
 	size_t ntr = zif_ntrans(z);
 
-	if (LIKELY(ntr && n < (ssize_t)ntr)) {
-		return z->tys[n];
-	} else if (!ntr || n < 0) {
-		/* second most likely */
+	if (UNLIKELY(!ntr || n < 0)) {
+		/* return unknown type */
 		return 0;
+	} else if (UNLIKELY(n >= (ssize_t)ntr)) {
+		/* return last known type */
+		return z->tys[ntr - 1U];
 	}
-	/* otherwise return last known type */
-	return z->tys[ntr - 1U];
+	/* otherwise return n-th type */
+	return z->tys[n];
 }
 
 /**
