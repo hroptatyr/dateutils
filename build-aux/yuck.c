@@ -295,10 +295,14 @@ unmassage_buf(char *restrict buf, size_t bsz)
 static int
 mktempp(char *restrict tmpl[static 1U], int prefixlen)
 {
+	static mode_t umsk;
 	char *bp = *tmpl + prefixlen;
 	char *const ep = *tmpl + strlen(*tmpl);
 	int fd;
 
+	if (UNLIKELY(!umsk)) {
+		umsk = umask(0022);
+	}
 	if (ep[-6] != 'X' || ep[-5] != 'X' || ep[-4] != 'X' ||
 	    ep[-3] != 'X' || ep[-2] != 'X' || ep[-1] != 'X') {
 		if ((fd = open(bp, O_RDWR | O_CREAT | O_EXCL, 0666)) < 0 &&
