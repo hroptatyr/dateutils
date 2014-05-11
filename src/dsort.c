@@ -300,14 +300,14 @@ main(int argc, char *argv[])
 		ndlsoa = build_needle(needle, nneedle, fmt, nfmt);
 
 		/* spawn children */
-		with (int fd) {
-			if ((cutp = spawn_cut(&fd)) < 0) {
+		with (int ifd, ofd) {
+			if ((cutp = spawn_cut(&ifd)) < 0) {
 				goto ndl_free;
 			}
-			if ((sortp = spawn_sort(&fd, fd, sopt)) < 0) {
+			if ((sortp = spawn_sort(&ofd, ifd, sopt)) < 0) {
 				goto ndl_free;
 			}
-			prln.outfd = fd;
+			prln.outfd = ofd;
 		}
 
 		for (size_t i = 0U; i < argi->nargs || i == 0U; i++) {

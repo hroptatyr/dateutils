@@ -100,7 +100,7 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	unsigned int off;
 	dt_dow_t cand;
 
-	if (UNLIKELY(mon < 1 && mon > GREG_MONTHS_P_YEAR)) {
+	if (UNLIKELY(mon < 1 || mon > GREG_MONTHS_P_YEAR)) {
 		return DT_MIRACLEDAY;
 	}
 	cand = __get_jan01_wday(year);

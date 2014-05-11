@@ -605,9 +605,11 @@ bzr_version(struct yuck_version_s v[static 1U])
 			/* find last line */
 			char *lp = bp + bz;
 			while (--lp >= buf && *lp != '\n');
-			bz = sizeof(buf) - (++lp - buf);
-			bp = buf + bz;
-			memmove(buf, lp, bz);
+			bz = ++lp - buf;
+			if (LIKELY(bz < sizeof(buf))) {
+				memmove(buf, lp, sizeof(buf) - bz);
+				bp = buf + sizeof(buf) - bz;
+			}
 		}
 		if (nrd <= 0) {
 			/* no version then aye */
@@ -728,7 +730,7 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 			nrd = bp - buf;
 		} else {
 			/* finalise with \nul */
-			buf[nrd] = '\0';
+			buf[--nrd] = '\0';
 		}
 		/* otherwise just read him */
 		rc = rd_version(ref, buf, nrd);

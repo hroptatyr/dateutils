@@ -139,6 +139,8 @@ struct clit_tst_s {
 
 	/** don't pass the output on to external differ */
 	unsigned int supp_diff:1;
+	/** expand the proto-output as though it was a shell here-document */
+	unsigned int xpnd_proto:1;
 
 	/* padding */
 	unsigned int:5;
@@ -217,7 +219,7 @@ bufexp(const char src[static 1], size_t ssz)
 	}
 
 #define CHKBSZ(x)				\
-	if ((x) > bsz) {			\
+	if ((x) >= bsz) {			\
 		bsz = ((x) / 256U + 1U) * 256U;	\
 		buf = realloc(buf, bsz);	\
 	}
@@ -321,8 +323,13 @@ find_shtok(const char *bp, size_t bz)
 	for (const char *res;
 	     (res = memchr(bp, '$', bz)) != NULL;
 	     bz -= (res + 1 - bp), bp = res + 1) {
-		/* we're actually after a "\n$" */
-		if (res == bp || res[-1] == '\n') {
+		/* we're actually after a "\n$" or
+		 * a "$" at the beginning of the buffer pointer (bp)
+		 * now check that either the buffer ends there or
+		 * the $ is followed by a newline, or the $ is followed
+		 * by a space, which is the line-to-exec indicator */
+		if ((res == bp || res[-1] == '\n') &&
+		    (bz <= 1U || (res[1] == '\n' || res[1] == ' '))) {
 			return res;
 		}
 	}
@@ -429,8 +436,9 @@ find_ignore(struct clit_tst_s tst[static 1])
 		while (++cmd < ec && isspace(*cmd));
 		tst->cmd.z -= (cmd - tst->cmd.d);
 		tst->cmd.d = cmd;
+		return 0;
 	}
-	return 0;
+	return -1;
 }
 
 static int
@@ -451,7 +459,7 @@ find_negexp(struct clit_tst_s tst[static 1])
 				break;
 			}
 		default:
-			return 0;
+			return -1;
 		}
 
 		/* now, fast-forward to the actual command, and reass */
@@ -471,7 +479,7 @@ find_suppdiff(struct clit_tst_s tst[static 1])
 		case '@':
 			break;
 		default:
-			return 0;
+			return -1;
 		}
 
 		/* now, fast-forward to the actual command, and reass */
@@ -480,6 +488,26 @@ find_suppdiff(struct clit_tst_s tst[static 1])
 		tst->cmd.d = cmd;
 		tst->supp_diff = 1U;
 		tst->ign_out = 1U;
+	}
+	return 0;
+}
+
+static int
+find_xpnd_proto(struct clit_tst_s tst[static 1])
+{
+	with (const char *cmd = tst->cmd.d, *const ec = cmd + tst->cmd.z) {
+		switch (*cmd) {
+		case '$':
+			break;
+		default:
+			return -1;
+		}
+
+		/* now, fast-forward to the actual command, and reass */
+		while (++cmd < ec && isspace(*cmd));
+		tst->cmd.z -= (cmd - tst->cmd.d);
+		tst->cmd.d = cmd;
+		tst->xpnd_proto = 1U;
 	}
 	return 0;
 }
@@ -518,14 +546,20 @@ find_tst(struct clit_tst_s tst[static 1], const char *bp, size_t bz)
 		}
 	}
 
-	/* oh let's see if we should ignore things */
-	find_ignore(tst);
+	while (
+		/* oh let's see if we should ignore things */
+		!find_ignore(tst) ||
 
-	/* check for suppress diff */
-	find_suppdiff(tst);
+		/* check for suppress diff */
+		!find_suppdiff(tst) ||
 
-	/* check for expect and negate operators */
-	find_negexp(tst);
+		/* check for expect and negate operators */
+		!find_negexp(tst) ||
+
+		/* check for proto-output expander */
+		!find_xpnd_proto(tst) ||
+
+		0);
 
 	tst->err = (clit_bit_t){0U};
 	return 0;
@@ -672,7 +706,93 @@ feeder(clit_bit_t exp, int expfd)
 }
 
 static pid_t
-differ(struct clit_chld_s ctx[static 1], clit_bit_t exp)
+xpnder(clit_bit_t exp, int expfd)
+{
+	pid_t feed;
+
+	switch ((feed = fork())) {
+	case -1:
+		/* ah good then */
+		break;
+	case 0:;
+		/* i am the child */
+		ssize_t nwr;
+		int xin[2U];
+		pid_t sh;
+
+		if (UNLIKELY(pipe(xin) < 0)) {
+		fail:
+			/* whatever */
+			exit(EXIT_FAILURE);
+		}
+
+		switch ((sh = fork())) {
+			static char *const sh_args[] = {"sh", "-s", NULL};
+		case -1:
+			/* big fucking problem */
+			goto fail;
+		case 0:
+			/* close write end of pipe */
+			close(xin[1U]);
+			/* redir xin[0U] -> stdin */
+			dup2(xin[0U], STDIN_FILENO);
+			/* close read end of pipe */
+			close(xin[0U]);
+
+			/* redir stdout -> expfd */
+			dup2(expfd, STDOUT_FILENO);
+			/* close expfd */
+			close(expfd);
+
+			/* child again */
+			execv("/bin/sh", sh_args);
+			exit(EXIT_SUCCESS);
+		default:
+			/* parent i am */
+			close(xin[0U]);
+			/* also forget about expfd */
+			close(expfd);
+			break;
+		}
+
+		if (write(xin[1U], "cat <<EOF\n", 10U) < 10U) {
+			goto fail;
+		}
+		while (exp.z > 0 &&
+		       (nwr = write(xin[1U], exp.d, exp.z)) > 0) {
+			exp.d += nwr;
+			if ((size_t)nwr <= exp.z) {
+				exp.z -= nwr;
+			} else {
+				exp.z = 0;
+			}
+		}
+		if (write(xin[1U], "EOF\n", 4U) < 4U) {
+			goto fail;
+		}
+
+		/* we're done */
+		close(xin[1U]);
+
+		/* close all descriptors */
+		xclosefrom(0);
+
+		/* wait for child process */
+		with (int st) {
+			while (waitpid(sh, &st, 0) != sh);
+		}
+
+		/* and out, always succeed */
+		exit(EXIT_SUCCESS);
+	default:
+		/* i'm the parent */
+		break;
+	}
+	return feed;
+}
+
+static pid_t
+differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 {
 #if !defined L_tmpnam
 # define L_tmpnam	(PATH_MAX)
@@ -724,7 +844,7 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp)
 		close(STDERR_FILENO);
 
 		/* close all other descriptors */
-		xclosefrom(STDOUT_FILENO + 1);
+		xclosefrom(STDERR_FILENO + 1);
 
 		execvp(cmd_diff, diff_opt);
 		error("execlp failed");
@@ -737,7 +857,7 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp)
 		int actfd = -1;
 
 		/* clean up descriptors */
-		if (!clit_bit_fn_p(exp) &&
+		if (clit_bit_buf_p(exp) &&
 		    (expfd = open(expfn, ofl, 0666)) < 0) {
 			goto clobrk;
 		} else if ((actfd = open(actfn, ofl, 0666)) < 0) {
@@ -749,8 +869,18 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp)
 
 		/* fork out the feeder guy */
 		if (clit_bit_buf_p(exp)) {
-			ctx->feed = feeder(exp, expfd);
+			/* check if we need the expander */
+			if (LIKELY(!xpnd_proto_p)) {
+				ctx->feed = feeder(exp, expfd);
+			} else {
+				ctx->feed = xpnder(exp, expfd);
+			}
+			/* forget about expfd lest we leak it */
 			close(expfd);
+		} else {
+			/* best to let everyone know that we chose
+			 * not to use a feeder */
+			ctx->feed = -1;
 		}
 		break;
 	clobrk:
@@ -802,9 +932,10 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	}
 
 	if (!tst->supp_diff) {
-		ctx->diff = differ(ctx, tst->out);
+		ctx->diff = differ(ctx, tst->out, tst->xpnd_proto);
 	} else {
 		ctx->diff = -1;
+		ctx->feed = -1;
 		ctx->pou = -1;
 	}
 
@@ -854,7 +985,9 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		if (UNLIKELY(ctx->ptyp)) {
 			close(pin[1]);
 		}
-		close(ctx->pou);
+		if (LIKELY(ctx->pou >= 0)) {
+			close(ctx->pou);
+		}
 		ctx->pou = -1;
 
 		/* assign desc, write end of pin */
@@ -908,6 +1041,19 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		}
 	} else {
 		rc = 1;
+	}
+
+	/* wait for the feeder */
+	while (ctx->feed > 0 && waitpid(ctx->feed, &st, 0) != ctx->feed);
+	if (LIKELY(ctx->feed > 0 && WIFEXITED(st))) {
+		int tmp_rc = WEXITSTATUS(st);
+
+		if (tst->ign_out) {
+			/* don't worry */
+			;
+		} else if (tmp_rc > rc) {
+			rc = tmp_rc;
+		}
 	}
 
 	/* finally wait for the differ */
@@ -983,15 +1129,23 @@ prepend_path(const char *p)
 	pz = strlen(p);
 
 	if (UNLIKELY(paths == NULL)) {
-		char *envp = getenv("PATH");
-		size_t envz = strlen(envp);
+		size_t envz = 0UL;
+		char *envp;
+
+		if (LIKELY((envp = getenv("PATH")) != NULL)) {
+			envz = strlen(envp);
+			envp = strdup(envp);
+		}
 
 		/* get us a nice big cushion */
-		pathz = ((envz + pz + 1U) / 256U + 2U) * 256U;
+		pathz = ((envz + pz + 1U/*\nul*/) / 256U + 2U) * 256U;
 		paths = malloc(pathz);
 		/* glue the current path at the end of the array */
-		pp = (paths + pathz) - (envz + 1U);
-		memcpy(pp, envp, envz + 1U);
+		pp = (paths + pathz) - (envz + 1U/*\nul*/);
+		if (LIKELY(envp != NULL)) {
+			memcpy(pp, envp, envz + 1U/*\nul*/);
+			free(envp);
+		}
 	}
 
 	/* calc prepension pointer */
@@ -1000,7 +1154,7 @@ prepend_path(const char *p)
 	if (UNLIKELY(pp < paths)) {
 		/* awww, not enough space, is there */
 		ptrdiff_t ppoff = pp - paths;
-		size_t newsz = ((pathz + pz + 1U) / 256U + 1U) * 256U;
+		size_t newsz = ((pathz + pz + 1U/*:*/) / 256U + 1U) * 256U;
 
 		paths = realloc(paths, newsz);
 		/* memmove to the back */
@@ -1163,7 +1317,9 @@ main(int argc, char *argv[])
 	/* also bang builddir to path */
 	with (char *blddir = getenv("builddir")) {
 		if (LIKELY(blddir != NULL)) {
-			prepend_path(blddir);
+			char *_bd = strdup(blddir);
+			prepend_path(_bd);
+			free(_bd);
 		}
 	}
 

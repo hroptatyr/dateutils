@@ -103,18 +103,18 @@ struct strpdti_s {
 #if !defined DT_DAISY_BASE_YEAR
 # error daisy base year cannot be obtained
 #elif DT_DAISY_BASE_YEAR == 1917
-# define DAISY_UNIX_BASE	(19359)
-# define DAISY_GPS_BASE		(23016)
+# define DAISY_UNIX_BASE	(19359L)
+# define DAISY_GPS_BASE		(23016L)
 #elif DT_DAISY_BASE_YEAR == 1753
-# define DAISY_UNIX_BASE	(79258)
-# define DAISY_GPS_BASE		(82915)
+# define DAISY_UNIX_BASE	(79258L)
+# define DAISY_GPS_BASE		(82915L)
 #elif DT_DAISY_BASE_YEAR == 1601
-# define DAISY_UNIX_BASE	(134775)
-# define DAISY_GPS_BASE		(138432)
+# define DAISY_UNIX_BASE	(134775L)
+# define DAISY_GPS_BASE		(138432L)
 #else
 # error unknown daisy base year
 #endif	/* DT_DAISY_BASE_YEAR */
-#if DAISY_GPS_BASE - DAISY_UNIX_BASE != 3657
+#if DAISY_GPS_BASE - DAISY_UNIX_BASE != 3657L
 # error daisy unix and gps bases diverge
 #endif	/* static assert */
 
@@ -835,7 +835,7 @@ dt_strpdtdur(const char *str, char **ep)
 	long int tmp;
 	struct strpdt_s d;
 
-	if (str == NULL) {
+	if ((sp = str) == NULL) {
 		goto out;
 	}
 	/* read just one component, use rudi's errno trick */
@@ -1190,7 +1190,7 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / 86400U + DAISY_UNIX_BASE;
+		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY + DAISY_UNIX_BASE;
 		break;
 
 	case DT_MD:
@@ -1207,7 +1207,7 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	/* time assignment */
 	if (outdtyp <= DT_NDTYP) {
-		unsigned int tonly = tv.tv_sec % 86400U;
+		unsigned int tonly = tv.tv_sec % (unsigned int)SECS_PER_DAY;
 
 		res.t.hms.h = tonly / SECS_PER_HOUR;
 		tonly %= SECS_PER_HOUR;
