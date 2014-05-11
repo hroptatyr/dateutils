@@ -1296,6 +1296,7 @@ run_m4(const char *outfn, ...)
 
 			/* really redir now */
 			dup2(outfd, STDOUT_FILENO);
+			close(outfd);
 		}
 
 		close(intfd[1]);
