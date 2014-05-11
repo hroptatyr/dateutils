@@ -90,7 +90,6 @@ __get_d_equiv(dt_dow_t dow, int b)
 	}
 	/* b >= 0 && b < 5 */
 	switch (dow) {
-	case DT_SUNDAY:
 	case DT_MONDAY:
 	case DT_TUESDAY:
 	case DT_WEDNESDAY:
@@ -102,12 +101,10 @@ __get_d_equiv(dt_dow_t dow, int b)
 			res += b + 2;
 		}
 		break;
-	case DT_SATURDAY:
-		res += b + 1;
-		break;
 	case DT_MIRACLEDAY:
 	default:
 		res = 0;
+		break;
 	}
 	return res;
 }

@@ -175,7 +175,7 @@ DEFUN struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
 /* code dupe, see __strpdt_std() */
-	struct dt_d_s res;
+	struct dt_d_s res = dt_d_initialiser();
 	struct strpd_s d;
 	const char *sp;
 

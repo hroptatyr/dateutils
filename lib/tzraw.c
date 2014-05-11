@@ -538,7 +538,7 @@ zif_open(const char *file)
 		file = coord_fn;
 	}
 
-	if (UNLIKELY((fd = __open_zif(file)) <= STDIN_FILENO)) {
+	if (UNLIKELY((fd = __open_zif(file)) < STDIN_FILENO)) {
 		return NULL;
 	} else if (UNLIKELY(__read_zif(tmp, fd) < 0)) {
 		return NULL;
@@ -620,7 +620,7 @@ __find_zrng(const struct zif_s z[static 1U], int32_t t, int min, int max)
 			res.next = INT_MAX;
 		}
 	}
-	res.offs = zif_troffs(z, trno);
+	res.offs = zif_troffs(z, res.trno);
 	return res;
 }
 

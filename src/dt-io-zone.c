@@ -165,13 +165,13 @@ Set TZMAP_DIR environment variable to where " TZMAP_SUF " files reside", tzmfn);
 void
 dt_io_clear_zones(void)
 {
-	if (tzmaps != NULL) {
+	if (tzmaps->data != NULL) {
 		for (acons_t c; (c = alist_next(tzmaps)).val;) {
 			tzm_close(c.val);
 		}
 		free_alist(tzmaps);
 	}
-	if (zones != NULL) {
+	if (zones->data != NULL) {
 		for (acons_t c; (c = alist_next(zones)).val;) {
 			zif_close(c.val);
 		}
