@@ -2,7 +2,6 @@ language: c
 
 compiler:
   - gcc
-  - clang
 
 env:
   global:
@@ -13,7 +12,6 @@ before_install:
 
 install:
   - sudo apt-get install -qq gperf
-  - sudo apt-get install -qq help2man
   - sudo apt-get install -qq texinfo
   - sudo apt-get install -qq bison
   - sudo apt-get install -qq flex
@@ -21,17 +19,14 @@ install:
 
 before_script:
   - autoreconf -vfi
+  - ./configure
 
 script:
- - ./configure
- - make clean all check || { cat test/test-suite.log; false; }
- - make distcheck
+ - make all check
 
 ## whitelist
 branches:
   only:
-    - master
-    - next
     - coverity-scan
 
 notifications:
