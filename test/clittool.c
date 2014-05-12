@@ -166,14 +166,101 @@ error(const char *fmt, ...)
 	vfprintf(stderr, fmt, vap);
 	va_end(vap);
 	if (errno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
+		fputs(": ", stderr);
 		fputs(strerror(errno), stderr);
 	}
 	fputc('\n', stderr);
 	return;
 }
 
+static inline __attribute__((const, pure, always_inline)) char*
+deconst(const char *s)
+{
+	union {
+		const char *c;
+		char *p;
+	} x = {s};
+	return x.p;
+}
+
+
+/* imported code */
+/*** fast_strstr.c
+ *
+ * This algorithm is licensed under the open-source BSD3 license
+ *
+ * Copyright (c) 2014, Raphael Javaux
+ * All rights reserved.
+ *
+ * Licence text, see above.
+ *
+ * The code has been modified to mimic memmem().
+ *
+ **/
+/**
+* Finds the first occurrence of the sub-string needle in the string haystack.
+* Returns NULL if needle was not found.
+*/
+static char*
+xmemmem(const char *haystack, size_t hz, const char *needle, size_t nz)
+{
+	const char *const eoh = haystack + hz;
+	const char *const eon = needle + nz;
+	const char *hp;
+	const char *np;
+	unsigned int hsum;
+	unsigned int nsum;
+	bool identicalp;
+
+	/* trivial checks first
+         * a 0-sized needle is defined to be found anywhere in haystack
+         * then run strchr() to find a candidate in HAYSTACK (i.e. a portion
+         * that happens to begin with *NEEDLE) */
+	if (UNLIKELY(nz == 0UL)) {
+		return deconst(haystack);
+	} else if ((haystack = memchr(haystack, *needle, hz)) == NULL) {
+		/* trivial */
+		return NULL;
+	}
+
+	/* First characters of haystack and needle are the same now. Both are
+	 * guaranteed to be at least one character long.  Now computes the sum
+	 * of characters values of needle together with the sum of the first
+	 * needle_len characters of haystack. */
+	for (hp = haystack + 1U, np = needle + 1U,
+		     hsum = *haystack, nsum = *haystack,
+		     identicalp = true;
+	     hp < eoh && np < eon;
+	     hsum += *hp, nsum += *np, identicalp = *hp == *np, hp++, np++);
+
+	/* HP now references the (NZ + 1)-th character. */
+	if (np < eon) {
+		/* haystack is smaller than needle, :O */
+		return NULL;
+	} else if (identicalp) {
+		/* found a match */
+		return deconst(haystack);
+	}
+
+	/* now loop through the rest of haystack,
+	 * updating the sum iteratively */
+	for (const char *cand = haystack; hp < eoh; hp++) {
+		hsum -= *cand++;
+		hsum += *hp;
+
+		/* Since the sum of the characters is already known to be
+		 * equal at that point, it is enough to check just NZ - 1
+		 * characters for equality,
+		 * also CAND is by design < HP, so no need for range checks */
+		if (hsum == nsum && memcmp(cand, needle, nz - 1U) == 0) {
+			return deconst(cand);
+		}
+	}
+	return NULL;
+}
+
+
+/* clit bit handling */
 #define CLIT_BIT_FD(x)	(clit_bit_fd_p(x) ? (int)(x).z : -1)
 
 static inline __attribute__((const, pure)) bool
@@ -218,10 +305,13 @@ bufexp(const char src[static 1], size_t ssz)
 		return NULL;
 	}
 
-#define CHKBSZ(x)				\
-	if ((x) >= bsz) {			\
-		bsz = ((x) / 256U + 1U) * 256U;	\
-		buf = realloc(buf, bsz);	\
+#define CHKBSZ(x)						   \
+	if ((x) >= bsz) {					   \
+		bsz = ((x) / 256U + 1U) * 256U;			   \
+		if (UNLIKELY((buf = realloc(buf, bsz)) == NULL)) { \
+			/* well we'll leak XP here */		   \
+			return NULL;				   \
+		}						   \
 	}
 
 	/* get our own copy for deep vein massages */
@@ -362,12 +452,12 @@ find_cmd(const char *bp, size_t bz)
 		size_t lz = (res + 1U - bp);
 
 		/* check for trailing \ or <<EOF (in that line) */
-		if (UNLIKELY((tok.d = memmem(bp, lz, "<<", 2)) != NULL)) {
+		if (UNLIKELY((tok.d = xmemmem(bp, lz, "<<", 2U)) != NULL)) {
 			tok.d += 2U;
 			tok.z = res - tok.d;
 			/* analyse this eof token */
 			bp = res + 1U;
-			goto eof;
+			goto here_doc;
 		} else if (res == bp || res[-1] != '\\') {
 			resbit.z = res + 1 - resbit.d;
 			break;
@@ -375,7 +465,7 @@ find_cmd(const char *bp, size_t bz)
 	}
 	return resbit;
 
-eof:
+here_doc:
 	/* massage tok so that it starts on a non-space and ends on one */
 	for (; tok.z && (*tok.d == ' ' || *tok.d == '\t'); tok.d++, tok.z--);
 	for (;
@@ -388,7 +478,7 @@ eof:
 	}
 	/* now find the opposite EOF token */
 	for (const char *eotok;
-	     (eotok = memmem(bp, bz, tok.d, tok.z)) != NULL;
+	     (eotok = xmemmem(bp, bz, tok.d, tok.z)) != NULL;
 	     bz -= eotok + 1U - bp, bp = eotok + 1U) {
 		if (LIKELY(eotok[-1] == '\n' && eotok[tok.z] == '\n')) {
 			resbit.z = eotok + tok.z + 1U - resbit.d;
@@ -574,7 +664,7 @@ find_opt(struct clit_chld_s ctx[static 1], const char *bp, size_t bz)
 	static const char magic[] = "setopt ";
 
 	for (const char *mp;
-	     (mp = memmem(bp, bz, magic, sizeof(magic) - 1)) != NULL;
+	     (mp = xmemmem(bp, bz, magic, sizeof(magic) - 1U)) != NULL;
 	     bz -= (mp + 1U) - bp, bp = mp + 1U) {
 		unsigned int opt;
 
@@ -638,29 +728,6 @@ fini_chld(struct clit_chld_s ctx[static 1] __attribute__((unused)))
 }
 
 static void
-xclosefrom(int fd)
-{
-#if defined F_CLOSEM
-	fcntl(fd, F_CLOSEM, 0);
-#elif defined closefrom
-	closefrom(fd);
-#else  /* !F_CLOSEM */
-	with (const int maxfd = sysconf(_SC_OPEN_MAX)) {
-		for (int i = fd; i < maxfd; i++) {
-			int fl;
-
-			if ((fl = fcntl(i, F_GETFD)) < 0) {
-				/* nothing */
-				continue;
-			}
-			close(i);
-		}
-	}
-#endif	/* F_CLOSEM */
-	return;
-}
-
-static void
 mkfifofn(char *restrict buf, size_t bsz, const char *key, unsigned int tid)
 {
 	snprintf(buf, bsz, "%s output  %x", key, tid);
@@ -692,9 +759,6 @@ feeder(clit_bit_t exp, int expfd)
 
 		/* we're done */
 		close(expfd);
-
-		/* close all descriptors */
-		xclosefrom(0);
 
 		/* and out, always succeed */
 		exit(EXIT_SUCCESS);
@@ -774,9 +838,6 @@ xpnder(clit_bit_t exp, int expfd)
 		/* we're done */
 		close(xin[1U]);
 
-		/* close all descriptors */
-		xclosefrom(0);
-
 		/* wait for child process */
 		with (int st) {
 			while (waitpid(sh, &st, 0) != sh);
@@ -841,13 +902,19 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 
 		/* diff stdout -> stderr */
 		dup2(STDERR_FILENO, STDOUT_FILENO);
-		close(STDERR_FILENO);
-
-		/* close all other descriptors */
-		xclosefrom(STDERR_FILENO + 1);
 
 		execvp(cmd_diff, diff_opt);
-		error("execlp failed");
+
+		/* just unlink the files the WRONLY is waiting for
+		 * ACTFN is always something that we create and unlink,
+		 * so delete that one now to trigger an error in the
+		 * parent's open() code below */
+		unlink(actfn);
+		/* EXPFN is opened in the parent code below if it's
+		 * a fifo created by us, unlink that one to break the hang */
+		if (clit_bit_buf_p(exp)) {
+			unlink(expfn);
+		}
 		_exit(EXIT_FAILURE);
 
 	default:;
@@ -884,7 +951,7 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 		}
 		break;
 	clobrk:
-		error("setting up differ failed");
+		error("exec'ing %s failed", cmd_diff);
 		if (expfd >= 0) {
 			close(expfd);
 		}
@@ -921,6 +988,14 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		ctx->test_id = (unsigned int)(tv->tv_sec ^ tv->tv_usec);
 	}
 
+	if (!tst->supp_diff) {
+		ctx->diff = differ(ctx, tst->out, tst->xpnd_proto);
+	} else {
+		ctx->diff = -1;
+		ctx->feed = -1;
+		ctx->pou = -1;
+	}
+
 	if (0) {
 		;
 	} else if (UNLIKELY(pipe(pin) < 0)) {
@@ -929,14 +1004,6 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	} else if (UNLIKELY(ctx->ptyp && pipe(per) < 0)) {
 		ctx->chld = -1;
 		return -1;
-	}
-
-	if (!tst->supp_diff) {
-		ctx->diff = differ(ctx, tst->out, tst->xpnd_proto);
-	} else {
-		ctx->diff = -1;
-		ctx->feed = -1;
-		ctx->pou = -1;
 	}
 
 	block_sigs();
@@ -972,11 +1039,8 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 			close(ctx->pou);
 		}
 
-		/* close all other descriptors */
-		xclosefrom(STDERR_FILENO + 1);
-
 		execl("/bin/sh", "sh", NULL);
-		error("execl failed");
+		error("exec'ing /bin/sh failed");
 		_exit(EXIT_FAILURE);
 
 	default:
@@ -1010,7 +1074,8 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	int st;
 
 	if (UNLIKELY(init_tst(ctx, tst) < 0)) {
-		return -1;
+		rc = -1;
+		goto wait;
 	}
 	with (const char *p = tst->cmd.d, *const ep = tst->cmd.d + tst->cmd.z) {
 		for (ssize_t nwr;
@@ -1043,6 +1108,7 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		rc = 1;
 	}
 
+wait:
 	/* wait for the feeder */
 	while (ctx->feed > 0 && waitpid(ctx->feed, &st, 0) != ctx->feed);
 	if (LIKELY(ctx->feed > 0 && WIFEXITED(st))) {
@@ -1082,13 +1148,15 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 
 	/* also connect per's out end with stderr */
 	if (UNLIKELY(ctx->ptyp)) {
-#if !defined SPLICE_F_MOVE
-# define SPLICE_F_MOVE		(0)
-#endif	/* SPLICE_F_MOVE */
+# if defined HAVE_SPLICE
+#  if !defined SPLICE_F_MOVE
+#   define SPLICE_F_MOVE		(0)
+#  endif  /* SPLICE_F_MOVE */
 		for (ssize_t nsp;
 		     (nsp = splice(
 			      ctx->per, NULL, STDERR_FILENO, NULL,
 			      4096U, SPLICE_F_MOVE)) == 4096U;);
+# endif	/* HAVE_SPLICE */
 		close(ctx->per);
 	}
 #endif	/* HAVE_PTY_H */
@@ -1114,7 +1182,7 @@ prepend_path(const char *p)
 #define free_path()	prepend_path(NULL);
 	static char *paths;
 	static size_t pathz;
-	static char *pp;
+	static char *restrict pp;
 	size_t pz;
 
 	if (UNLIKELY(p == NULL)) {
@@ -1129,22 +1197,35 @@ prepend_path(const char *p)
 	pz = strlen(p);
 
 	if (UNLIKELY(paths == NULL)) {
-		size_t envz = 0UL;
 		char *envp;
 
 		if (LIKELY((envp = getenv("PATH")) != NULL)) {
-			envz = strlen(envp);
-			envp = strdup(envp);
-		}
+			const size_t envz = strlen(envp);
 
-		/* get us a nice big cushion */
-		pathz = ((envz + pz + 1U/*\nul*/) / 256U + 2U) * 256U;
-		paths = malloc(pathz);
-		/* glue the current path at the end of the array */
-		pp = (paths + pathz) - (envz + 1U/*\nul*/);
-		if (LIKELY(envp != NULL)) {
-			memcpy(pp, envp, envz + 1U/*\nul*/);
-			free(envp);
+			/* get us a nice big cushion */
+			pathz = ((envz + pz + 1U/*\nul*/) / 256U + 2U) * 256U;
+			if (UNLIKELY((paths = malloc(pathz)) == NULL)) {
+				/* don't bother then */
+				return;
+			}
+			/* set pp for further reference */
+			pp = (paths + pathz) - (envz + 1U/*\nul*/);
+			/* glue the current path at the end of the array */
+			memccpy(pp, envp, '\0', envz);
+			/* terminate pp at least at the very end */
+			pp[envz] = '\0';
+		} else {
+			/* just alloc space for P */
+			pathz = ((pz + 1U/*\nul*/) / 256U + 2U) * 256U;
+			if (UNLIKELY((paths = malloc(pathz)) == NULL)) {
+				/* don't bother then */
+				return;
+			}
+			/* set pp for further reference */
+			pp = (paths + pathz) - (pz + 1U/*\nul*/);
+			/* copy P and then exit */
+			memcpy(pp, p, pz + 1U/*\nul*/);
+			goto out;
 		}
 	}
 
@@ -1156,7 +1237,10 @@ prepend_path(const char *p)
 		ptrdiff_t ppoff = pp - paths;
 		size_t newsz = ((pathz + pz + 1U/*:*/) / 256U + 1U) * 256U;
 
-		paths = realloc(paths, newsz);
+		if (UNLIKELY((paths = realloc(paths, newsz)) == NULL)) {
+			/* just leave things be */
+			return;
+		}
 		/* memmove to the back */
 		memmove(paths + (newsz - pathz), paths, pathz);
 		/* recalc paths pointer */
@@ -1167,6 +1251,7 @@ prepend_path(const char *p)
 	/* actually prepend now */
 	memcpy(pp, p, pz);
 	pp[pz] = ':';
+out:
 	setenv("PATH", pp, 1);
 	return;
 }
@@ -1317,9 +1402,12 @@ main(int argc, char *argv[])
 	/* also bang builddir to path */
 	with (char *blddir = getenv("builddir")) {
 		if (LIKELY(blddir != NULL)) {
-			char *_bd = strdup(blddir);
-			prepend_path(_bd);
-			free(_bd);
+			/* use at most 256U bytes for blddir */
+			char _blddir[256U];
+
+			memccpy(_blddir, blddir, '\0', sizeof(_blddir) - 1U);
+			_blddir[sizeof(_blddir) - 1U] = '\0';
+			prepend_path(_blddir);
 		}
 	}
 
