@@ -23,6 +23,12 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 	AC_SUBST([MATLABPATH])
 	AC_MSG_RESULT([${MATLABPATH}])
 
+	AC_MSG_CHECKING([for matlab mex file extension])
+	sxe_cv_mexext=`"${MATLABROOT}/bin/mexext" 2>/dev/null`
+	MEXEXT="${sxe_cv_mexext:-mex}"
+	AC_SUBST([MEXEXT])
+	AC_MSG_RESULT([${sxe_cv_mexext:-mex (assumed)}])
+
 	## now reset *our* idea of what MATLAB should be
 	MATLAB="${sxe_cv_matlab}"
 
