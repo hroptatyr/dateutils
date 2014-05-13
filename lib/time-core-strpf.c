@@ -97,12 +97,39 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 			goto fucked;
 		}
 		break;
-	case DT_SPFL_N_NANO:
+	case DT_SPFL_N_NANO: {
 		/* nanoseconds */
-		if ((d->ns = strtoi_lim(sp, &sp, 0, 999999999)) < 0) {
+		const char *on;
+
+		if ((d->ns = strtoi_lim(sp, &on, 0, 999999999)) < 0) {
 			goto fucked;
 		}
+		switch (on - sp) {
+		case 0:
+			goto fucked;
+		case 1:
+			d->ns *= 10;
+		case 2:
+			d->ns *= 10;
+		case 3:
+			d->ns *= 10;
+		case 4:
+			d->ns *= 10;
+		case 5:
+			d->ns *= 10;
+		case 6:
+			d->ns *= 10;
+		case 7:
+			d->ns *= 10;
+		case 8:
+			d->ns *= 10;
+		default:
+		case 9:
+			break;
+		}
+		sp = on;
 		break;
+	}
 	case DT_SPFL_S_AMPM: {
 		const unsigned int casebit = 0x20;
 
