@@ -62,6 +62,9 @@ tzraw.c tzraw.h:
 leaps.c leaps.h:
 	$(LN_S) $(top_srcdir)/lib/$@ $@
 
+install-data-hook:
+	-cd $(DESTDIR)$(mexdir) && mv -f tzconv.mex tzconv.$(MEXEXT)
+
 # 
 # Help the developers get nice post-processed source files
 
