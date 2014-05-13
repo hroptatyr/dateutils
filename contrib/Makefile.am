@@ -65,6 +65,9 @@ leaps.c leaps.h:
 install-data-hook:
 	-cd $(DESTDIR)$(mexdir) && mv -f tzconv.mex tzconv.$(MEXEXT)
 
+uninstall-hook:
+	-$(RM) -- $(DESTDIR)$(mexdir)/tzconv.$(MEXEXT)
+
 # 
 # Help the developers get nice post-processed source files
 
