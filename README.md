@@ -3,6 +3,7 @@ Dateutils
 
 [![Build Status](https://secure.travis-ci.org/hroptatyr/dateutils.png?branch=master)](http://travis-ci.org/hroptatyr/dateutils)
 [![Build Status](https://drone.io/github.com/hroptatyr/dateutils/status.png)](https://drone.io/github.com/hroptatyr/dateutils/latest)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/2197/badge.svg)](https://scan.coverity.com/projects/2197)
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
 and times on the command line with a strong focus on use cases that

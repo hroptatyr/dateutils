@@ -5,7 +5,6 @@ AM_LDFLAGS =
 EXTRA_DIST =
 
 MEX_LDFLAGS = -module -shared -avoid-version -shrext ".mex"
-OCT_LDFLAGS = -module -shared -avoid-version -shrext ".oct"
 
 if BUILD_MEXCLI
 mexdir = $(MATLABPATH)/dateutils/
@@ -42,7 +41,7 @@ else  !BUILD_MEXCLI
 ## backup plan is to use octave to build the mex file
 if BUILD_OCTCLI
 tzconv_la_LDFLAGS = $(AM_LDFLAGS)
-tzconv_la_LDFLAGS += $(OCT_LDFLAGS)
+tzconv_la_LDFLAGS += $(MEX_LDFLAGS)
 tzconv_la_LDFLAGS += $(XCCLDFLAGS)
 tzconv_la_CPPFLAGS = $(AM_CPPFLAGS) -DOCTAVE_MEX_FILE
 tzconv_la_CPPFLAGS += -I$(top_srcdir)/lib
@@ -62,6 +61,12 @@ tzraw.c tzraw.h:
 
 leaps.c leaps.h:
 	$(LN_S) $(top_srcdir)/lib/$@ $@
+
+install-data-hook:
+	-cd $(DESTDIR)$(mexdir) && mv -f tzconv.mex tzconv.$(MEXEXT)
+
+uninstall-hook:
+	-$(RM) -- $(DESTDIR)$(mexdir)/tzconv.$(MEXEXT)
 
 # 
 # Help the developers get nice post-processed source files
