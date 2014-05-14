@@ -904,6 +904,13 @@ sp:
 		/* real seconds */
 		res.tai = 1;
 		goto sp;
+	case 'n':
+		d.st.ns = tmp;
+		if (*sp == 's') {
+			/* nanoseconds, my favourite */
+			sp++;
+		}
+		break;
 	default:
 		sp = str;
 		goto out;
