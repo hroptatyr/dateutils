@@ -904,6 +904,13 @@ sp:
 		/* real seconds */
 		res.tai = 1;
 		goto sp;
+	case 'n':
+		d.st.ns = tmp;
+		if (*sp == 's') {
+			/* nanoseconds, my favourite */
+			sp++;
+		}
+		break;
 	default:
 		sp = str;
 		goto out;
@@ -928,10 +935,11 @@ sp:
 		res.d.daisy = d.sd.w * 7 + d.sd.d;
 
 /* time specs here */
-	} else if (d.st.h || d.st.m || d.st.s) {
+	} else if (d.st.h || d.st.m || d.st.s || d.st.ns) {
 		/* treat as m for minute */
 		dt_make_t_only(&res, DT_HMS);
 		res.t.dur = 1;
+		res.t.nsdur = d.st.ns;
 		res.t.sdur = d.st.h * SECS_PER_HOUR +
 			d.st.m * SECS_PER_MIN +
 			d.st.s;

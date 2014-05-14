@@ -233,12 +233,19 @@ divrem(signed int n, unsigned int mod)
 DEFUN struct dt_t_s
 dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
 {
+	unsigned int ns;
 	signed int sec;
 	struct divrem_s tmp;
 
 	/* get both result in seconds since midnight */
 	sec = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
 	sec = sec + dur.sdur;
+
+	/* nanoseconds next */
+	if (UNLIKELY((ns = t.hms.ns + dur.nsdur) >= NANOS_PER_SEC)) {
+		ns -= NANOS_PER_SEC;
+		sec++;
+	}
 
 	if (LIKELY(corr == 0)) {
 		tmp = divrem(sec, SECS_PER_DAY);
@@ -268,6 +275,10 @@ dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
 			t.hms.s = 59 + corr;
 		}
 	}
+
+	/* nanoseconds are never affected by leaps,
+	 * until we implement smear-seconds or the like */
+	t.hms.ns = ns;
 
 	/* set up the return type */
 	t.typ = DT_HMS;
