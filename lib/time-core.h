@@ -96,13 +96,19 @@ struct dt_t_s {
 	} __attribute__((packed));
 	union {
 		uint64_t u:56;
-		signed int sdur;
+		struct {
+			signed int sdur;
+			unsigned int nsdur:10;
+		} __attribute__((packed));
 		dt_hms_t hms;
 	} __attribute__((packed));
 };
 
 
 /* helpers */
+#if !defined NANOS_PER_SEC
+# define NANOS_PER_SEC		(1000U * 1000U * 1000U)
+#endif	/* !SECS_PER_MIN */
 #if !defined SECS_PER_MIN
 # define SECS_PER_MIN		(60U)
 #endif	/* !SECS_PER_MIN */
