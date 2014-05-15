@@ -294,28 +294,28 @@ __trans_dtfmt(const char **fmt)
 		default:
 			break;
 		case DT_YMD:
-			*fmt = ymdhms_dflt;
+			*fmt = ymd_dflt;
 			break;
 		case DT_YMCW:
-			*fmt = ymcwhms_dflt;
+			*fmt = ymcw_dflt;
 			break;
 		case DT_BIZDA:
-			*fmt = bizdahms_dflt;
+			*fmt = bizda_dflt;
 			break;
 		case DT_DAISY:
-			*fmt = daisyhms_dflt;
+			*fmt = daisy_dflt;
 			break;
 		case DT_SEXY:
 			*fmt = sexy_dflt;
 			break;
 		case DT_BIZSI:
-			*fmt = bizsihms_dflt;
+			*fmt = bizsi_dflt;
 			break;
 		case DT_YWD:
-			*fmt = ywdhms_dflt;
+			*fmt = ywd_dflt;
 			break;
 		case DT_YD:
-			*fmt = ydhms_dflt;
+			*fmt = yd_dflt;
 			break;
 		}
 	}
