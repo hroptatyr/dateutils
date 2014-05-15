@@ -770,7 +770,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 	struct dt_d_s res = dt_d_initialiser();
 	struct strpd_s d = strpd_initialiser();
 	const char *sp = str;
-	const char *fp = fmt;
+	const char *fp;
 
 	if (UNLIKELY(fmt == NULL)) {
 		return __strpd_std(str, ep);
@@ -778,6 +778,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names */
 	__trans_dfmt(&fmt);
 
+	fp = fmt;
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
