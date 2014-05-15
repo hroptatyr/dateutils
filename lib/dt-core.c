@@ -555,7 +555,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	struct dt_dt_s res = dt_dt_initialiser();
 	struct strpdt_s d;
 	const char *sp = str;
-	const char *fp = fmt;
+	const char *fp;
 
 	if (LIKELY(fmt == NULL)) {
 		return __strpdt_std(str, ep);
@@ -563,6 +563,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	/* translate high-level format names, for sandwiches */
 	__trans_dtfmt(&fmt);
 
+	fp = fmt;
 	d = strpdt_initialiser();
 	while (*fp && *sp) {
 		const char *fp_sav = fp;

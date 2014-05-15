@@ -133,14 +133,13 @@ dt_strpt(const char *str, const char *fmt, char **ep)
 {
 	struct dt_t_s res = dt_t_initialiser();
 	struct strpt_s d = strpt_initialiser();
-	const char *sp;
+	const char *sp = str;
 	const char *fp;
 
 	/* translate high-level format names */
 	__trans_tfmt(&fmt);
 
 	fp = fmt;
-	sp = str;
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
