@@ -199,6 +199,18 @@ built_mans += dzone.man
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
 
+## just to aid the suffix rules
+strptime.man: strptime.h2m
+dadd.manu: dadd.h2m
+dconv.man: dconv.h2m
+ddiff.mand: ddiff.h2m
+dgrep.man: dgrep.h2m
+dround.manu: dround.h2m
+dseq.manu: dseq.h2m
+dsort.man: dsort.h2m
+dtest.man: dtest.h2m
+dzone.man: dzone.h2m
+
 SUFFIXES += .yuck
 VPATH += @top_srcdir@/src
 
