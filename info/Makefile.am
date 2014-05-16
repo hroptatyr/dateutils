@@ -151,6 +151,14 @@ dsort_EXAMPLES += $(top_srcdir)/test/dsort.006.clit
 dateutils_EXAMPLES += $(dsort_EXAMPLES)
 dateutils_H2M_EX += dsort.h2m
 
+if HAVE_STRPTIME
+strptime_EXAMPLES =
+strptime_EXAMPLES += $(top_srcdir)/test/strptime.001.clit
+strptime_EXAMPLES += $(top_srcdir)/test/strptime.002.clit
+dateutils_EXAMPLES += $(strptime_EXAMPLES)
+dateutils_H2M_EX += strptime.h2m
+endif  HAVE_STRPTIME
+
 EXTRA_DIST += author.h2m
 BUILT_SOURCES += format.th2m
 BUILT_SOURCES += format-ddiff.th2m
