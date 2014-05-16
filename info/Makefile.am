@@ -151,6 +151,14 @@ dsort_EXAMPLES += $(top_srcdir)/test/dsort.006.clit
 dateutils_EXAMPLES += $(dsort_EXAMPLES)
 dateutils_H2M_EX += dsort.h2m
 
+if HAVE_STRPTIME
+strptime_EXAMPLES =
+strptime_EXAMPLES += $(top_srcdir)/test/strptime.001.clit
+strptime_EXAMPLES += $(top_srcdir)/test/strptime.002.clit
+dateutils_EXAMPLES += $(strptime_EXAMPLES)
+dateutils_H2M_EX += strptime.h2m
+endif  HAVE_STRPTIME
+
 EXTRA_DIST += author.h2m
 BUILT_SOURCES += format.th2m
 BUILT_SOURCES += format-ddiff.th2m
@@ -190,6 +198,18 @@ built_mans += dzone.man
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
+
+## just to aid the suffix rules
+strptime.man: strptime.h2m
+dadd.manu: dadd.h2m
+dconv.man: dconv.h2m
+ddiff.mand: ddiff.h2m
+dgrep.man: dgrep.h2m
+dround.manu: dround.h2m
+dseq.manu: dseq.h2m
+dsort.man: dsort.h2m
+dtest.man: dtest.h2m
+dzone.man: dzone.h2m
 
 SUFFIXES += .yuck
 VPATH += @top_srcdir@/src
