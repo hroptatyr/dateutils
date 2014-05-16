@@ -55,8 +55,11 @@
 #include "leaps.h"
 #include "nifty.h"
 #include "dt-core.h"
+#include "dt-core-private.h"
 #include "date-core.h"
+#include "date-core-private.h"
 #include "time-core.h"
+#include "time-core-private.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
 #include "time-core-strpf.h"

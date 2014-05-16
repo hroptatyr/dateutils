@@ -48,6 +48,7 @@
 #include <time.h>
 
 #include "time-core.h"
+#include "time-core-private.h"
 #include "nifty.h"
 
 #if !defined DEFUN

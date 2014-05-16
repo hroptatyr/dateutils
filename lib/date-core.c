@@ -47,6 +47,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include "date-core.h"
+#include "date-core-private.h"
 #include "strops.h"
 #include "token.h"
 #include "nifty.h"

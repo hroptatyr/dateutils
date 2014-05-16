@@ -327,28 +327,6 @@ enum {
 #define DUWW_BDAYS_P_WEEK	(5U)
 
 
-/* formatting defaults */
-extern const char ymd_dflt[];
-extern const char ymcw_dflt[];
-extern const char ywd_dflt[];
-extern const char yd_dflt[];
-extern const char daisy_dflt[];
-extern const char bizsi_dflt[];
-extern const char bizda_dflt[];
-
-extern const char ymddur_dflt[];
-extern const char ymcwdur_dflt[];
-extern const char ywddur_dflt[];
-extern const char yddur_dflt[];
-extern const char daisydur_dflt[];
-extern const char bizsidur_dflt[];
-extern const char bizdadur_dflt[];
-
-extern dt_dtyp_t __trans_dfmt_special(const char*);
-extern void __trans_dfmt(const char **fmt);
-extern void __trans_ddurfmt(const char**fmt);
-
-
 /* decls */
 /**
  * Like strptime() for our dates.
