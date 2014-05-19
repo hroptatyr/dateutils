@@ -254,7 +254,16 @@ ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
 				/* [yuck_shorts()] (= yuck_shorts())
 				 * has numerals as shortopts
 				 * don't allow literal treatment of numerals */divert(-1)])
-			case '0' ... '9':;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
 				/* literal treatment of numeral */
 				resume_at(arg);
 
