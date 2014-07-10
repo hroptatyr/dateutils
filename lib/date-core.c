@@ -434,6 +434,10 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return __ywd_to_daisy(that.ywd);
 	case DT_BIZDA:
 		return __bizda_to_daisy(that.bizda, __get_bizda_param(that));
+	case DT_LDN:
+		return __ldn_to_daisy(that.ldn);
+	case DT_JDN:
+		return __jdn_to_daisy(that.jdn);
 	case DT_DUNK:
 	default:
 		break;
@@ -449,7 +453,13 @@ dt_conv_to_ymd(struct dt_d_s that)
 		return that.ymd;
 	case DT_YMCW:
 		return __ymcw_to_ymd(that.ymcw);
+	case DT_JDN:
+		that.daisy = __jdn_to_daisy(that.jdn);
+		goto daisy;
+	case DT_LDN:
+		that.daisy = __ldn_to_daisy(that.ldn);
 	case DT_DAISY:
+	daisy:
 		return __daisy_to_ymd(that.daisy);
 	case DT_BIZDA:
 		return __bizda_to_ymd(that.bizda);
@@ -470,7 +480,13 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		return __ymd_to_ymcw(that.ymd);
 	case DT_YMCW:
 		return that.ymcw;
+	case DT_JDN:
+		that.daisy = __jdn_to_daisy(that.jdn);
+		goto daisy;
+	case DT_LDN:
+		that.daisy = __ldn_to_daisy(that.ldn);
 	case DT_DAISY:
+	daisy:
 		return __daisy_to_ymcw(that.daisy);
 	case DT_BIZDA:
 		return __bizda_to_ymcw(that.bizda, __get_bizda_param(that));
@@ -516,7 +532,13 @@ dt_conv_to_ywd(struct dt_d_s this)
 		return __ymd_to_ywd(this.ymd);
 	case DT_YMCW:
 		return __ymcw_to_ywd(this.ymcw);
+	case DT_JDN:
+		this.daisy = __jdn_to_daisy(this.jdn);
+		goto daisy;
+	case DT_LDN:
+		this.daisy = __ldn_to_daisy(this.ldn);
 	case DT_DAISY:
+	daisy:
 		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
 		return __bizda_to_ywd(this.bizda, __get_bizda_param(this));
@@ -536,7 +558,13 @@ dt_conv_to_yd(struct dt_d_s this)
 		return this.yd;
 	case DT_YMD:
 		return __ymd_to_yd(this.ymd);
+	case DT_JDN:
+		this.daisy = __jdn_to_daisy(this.jdn);
+		goto daisy;
+	case DT_LDN:
+		this.daisy = __ldn_to_daisy(this.ldn);
 	case DT_DAISY:
+	daisy:
 		return __daisy_to_yd(this.daisy);
 	case DT_YMCW:
 		return __ymcw_to_yd(this.ymcw);
