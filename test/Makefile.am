@@ -167,6 +167,10 @@ dt_tests += dconv.099.clit
 dt_tests += dconv.100.clit
 dt_tests += dconv.101.clit
 dt_tests += dconv.102.clit
+dt_tests += dconv.103.clit
+dt_tests += dconv.104.clit
+dt_tests += dconv.105.clit
+dt_tests += dconv.106.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
