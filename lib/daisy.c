@@ -203,7 +203,7 @@ __daisy_to_jdn(dt_daisy_t d)
 	return (dt_jdn_t)d + DT_JDN_BASE;
 }
 
-static __attribute__((unused)) dt_daisy_t
+static dt_daisy_t
 __ldn_to_daisy(dt_ldn_t d)
 {
 	dt_sdaisy_t tmp;
@@ -214,7 +214,7 @@ __ldn_to_daisy(dt_ldn_t d)
 	return 0U;
 }
 
-static __attribute__((unused)) dt_daisy_t
+static dt_daisy_t
 __jdn_to_daisy(dt_jdn_t d)
 {
 	float tmp;

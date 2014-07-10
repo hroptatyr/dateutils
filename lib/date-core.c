@@ -434,6 +434,10 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return __ywd_to_daisy(that.ywd);
 	case DT_BIZDA:
 		return __bizda_to_daisy(that.bizda, __get_bizda_param(that));
+	case DT_LDN:
+		return __ldn_to_daisy(that.ldn);
+	case DT_JDN:
+		return __jdn_to_daisy(that.jdn);
 	case DT_DUNK:
 	default:
 		break;
