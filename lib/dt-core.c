@@ -566,7 +566,38 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		return __strpdt_std(str, ep);
 	}
 	/* translate high-level format names, for sandwiches */
-	__trans_dtfmt(&fmt);
+	switch ((dt_dtyp_t)__trans_dtfmt(&fmt)) {
+	default:
+		break;
+
+		/* special case julian/lilian dates as they have
+		 * no format specifiers */
+
+	case DT_JDN:
+		res.d.jdn = (dt_jdn_t)strtod(str, &(char*)sp);
+		dt_make_d_only(&res, DT_JDN);
+		goto sober;
+
+	case DT_LDN:
+		res.d.ldn = (dt_ldn_t)strtoi(str, &sp);
+		if (*sp != '.') {
+			dt_make_d_only(&res, DT_LDN);
+		} else {
+			/* yes, big cluster fuck */
+			double tmp = strtod(sp, &(char*)sp);
+
+			/* convert to HMS */
+			res.t.hms.h = (tmp *= HOURS_PER_DAY);
+			tmp -= (double)res.t.hms.h;
+			res.t.hms.m = (tmp *= MINS_PER_HOUR);
+			tmp -= (double)res.t.hms.m;
+			res.t.hms.s = (tmp *= SECS_PER_MIN);
+			tmp -= (double)res.t.hms.s;
+			res.t.hms.ns = (tmp *= NANOS_PER_SEC);
+			dt_make_sandwich(&res, DT_LDN, DT_HMS);
+		}
+		goto sober;
+	}
 
 	fp = fmt;
 	d = strpdt_initialiser();
@@ -638,6 +669,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		res.znfxd = 1;
 	}
 
+sober:
 	/* set the end pointer */
 	if (ep != NULL) {
 		*ep = (char*)sp;
