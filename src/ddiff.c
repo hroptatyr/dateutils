@@ -43,7 +43,8 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "dt-core.h"
+#include "date-core-private.h"
+#include "dt-core-private.h"
 #include "dt-io.h"
 #include "prchunk.h"
 

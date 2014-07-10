@@ -48,6 +48,7 @@
 #include <time.h>
 
 #include "time-core.h"
+#include "time-core-private.h"
 #include "nifty.h"
 
 #if !defined DEFUN
@@ -111,7 +112,7 @@ fucked:
 	return dt_t_initialiser();
 }
 
-DEFUN void
+DEFUN dt_ttyp_t
 __trans_tfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -122,8 +123,9 @@ __trans_tfmt(const char **fmt)
 		;
 	} else if (strcasecmp(*fmt, "hms") == 0) {
 		*fmt = hms_dflt;
+		return DT_HMS;
 	}
-	return;
+	return DT_TUNK;
 }
 
 

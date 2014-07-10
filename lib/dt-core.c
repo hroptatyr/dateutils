@@ -55,8 +55,11 @@
 #include "leaps.h"
 #include "nifty.h"
 #include "dt-core.h"
+#include "dt-core-private.h"
 #include "date-core.h"
+#include "date-core-private.h"
 #include "time-core.h"
+#include "time-core-private.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
 #include "time-core-strpf.h"
@@ -277,7 +280,7 @@ static const char sexydur_dflt[] = "%s";
 static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
 static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
-DEFUN void
+DEFUN dt_dttyp_t
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -287,42 +290,43 @@ __trans_dtfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
 		default:
 			break;
 		case DT_YMD:
-			*fmt = ymd_dflt;
+			*fmt = ymdhms_dflt;
 			break;
 		case DT_YMCW:
-			*fmt = ymcw_dflt;
+			*fmt = ymcwhms_dflt;
 			break;
 		case DT_BIZDA:
-			*fmt = bizda_dflt;
+			*fmt = bizdahms_dflt;
 			break;
 		case DT_DAISY:
-			*fmt = daisy_dflt;
+			*fmt = daisyhms_dflt;
 			break;
 		case DT_SEXY:
 			*fmt = sexy_dflt;
 			break;
 		case DT_BIZSI:
-			*fmt = bizsi_dflt;
+			*fmt = bizsihms_dflt;
 			break;
 		case DT_YWD:
-			*fmt = ywd_dflt;
+			*fmt = ywdhms_dflt;
 			break;
 		case DT_YD:
-			*fmt = yd_dflt;
+			*fmt = ydhms_dflt;
 			break;
 		}
+		return (dt_dttyp_t)tmp;
 	}
-	return;
+	return (dt_dttyp_t)DT_DUNK;
 }
 
-DEFUN void
+DEFUN dt_dttyp_t
 __trans_dtdurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -332,7 +336,7 @@ __trans_dtdurfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
@@ -363,8 +367,9 @@ __trans_dtdurfmt(const char **fmt)
 			*fmt = ydhmsdur_dflt;
 			break;
 		}
+		return (dt_dttyp_t)tmp;
 	}
-	return;
+	return (dt_dttyp_t)DT_DUNK;
 }
 
 #define FFFF_GMTIME_SUBDAY
