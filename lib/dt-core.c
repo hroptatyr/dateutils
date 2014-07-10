@@ -567,6 +567,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	}
 	/* translate high-level format names, for sandwiches */
 	switch ((dt_dtyp_t)__trans_dtfmt(&fmt)) {
+		char *on;
 	default:
 		break;
 
@@ -574,7 +575,11 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		 * no format specifiers */
 
 	case DT_JDN:
-		res.d.jdn = (dt_jdn_t)strtod(str, &(char*)sp);
+		res.d.jdn = (dt_jdn_t)strtod(str, &on);
+
+		/* fix up const-ness problem */
+		sp = on;
+		/* don't worry about time slot or date/time sandwiches */
 		dt_make_d_only(&res, DT_JDN);
 		goto sober;
 
@@ -584,8 +589,10 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			dt_make_d_only(&res, DT_LDN);
 		} else {
 			/* yes, big cluster fuck */
-			double tmp = strtod(sp, &(char*)sp);
+			double tmp = strtod(sp, &on);
 
+			/* fix up const-ness problem */
+			sp = on;
 			/* convert to HMS */
 			res.t.hms.h = (tmp *= HOURS_PER_DAY);
 			tmp -= (double)res.t.hms.h;
