@@ -619,7 +619,7 @@ __trans_dfmt_special(const char *fmt)
 	return DT_DUNK;
 }
 
-DEFUN void
+DEFUN dt_dtyp_t
 __trans_dfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -629,7 +629,9 @@ __trans_dfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		switch (__trans_dfmt_special(*fmt)) {
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+
+		switch (tmp) {
 		default:
 			break;
 		case DT_YMD:
@@ -654,11 +656,13 @@ __trans_dfmt(const char **fmt)
 			*fmt = bizsi_dflt;
 			break;
 		}
+
+		return tmp;
 	}
-	return;
+	return DT_DUNK;
 }
 
-DEFUN void
+DEFUN dt_dtyp_t
 __trans_ddurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -668,7 +672,9 @@ __trans_ddurfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		switch (__trans_dfmt_special(*fmt)) {
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+
+		switch (tmp) {
 		default:
 			break;
 		case DT_YMD:
@@ -693,8 +699,10 @@ __trans_ddurfmt(const char **fmt)
 			*fmt = bizsidur_dflt;
 			break;
 		}
+
+		return tmp;
 	}
-	return;
+	return DT_DUNK;
 }
 
 /* strpf glue */

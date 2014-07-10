@@ -59,7 +59,7 @@ extern const char bizsidur_dflt[];
 extern const char bizdadur_dflt[];
 
 extern dt_dtyp_t __trans_dfmt_special(const char*);
-extern void __trans_dfmt(const char **fmt);
-extern void __trans_ddurfmt(const char**fmt);
+extern dt_dtyp_t __trans_dfmt(const char **fmt);
+extern dt_dtyp_t __trans_ddurfmt(const char**fmt);
 
 #endif	/* INCLUDED_date_core_private_h_ */

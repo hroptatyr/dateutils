@@ -280,7 +280,7 @@ static const char sexydur_dflt[] = "%s";
 static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
 static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
-DEFUN void
+DEFUN dt_dttyp_t
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -290,7 +290,7 @@ __trans_dtfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
@@ -321,11 +321,12 @@ __trans_dtfmt(const char **fmt)
 			*fmt = yd_dflt;
 			break;
 		}
+		return (dt_dttyp_t)tmp;
 	}
-	return;
+	return (dt_dttyp_t)DT_DUNK;
 }
 
-DEFUN void
+DEFUN dt_dttyp_t
 __trans_dtdurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -335,7 +336,7 @@ __trans_dtdurfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
@@ -366,8 +367,9 @@ __trans_dtdurfmt(const char **fmt)
 			*fmt = ydhmsdur_dflt;
 			break;
 		}
+		return (dt_dttyp_t)tmp;
 	}
-	return;
+	return (dt_dttyp_t)DT_DUNK;
 }
 
 #define FFFF_GMTIME_SUBDAY

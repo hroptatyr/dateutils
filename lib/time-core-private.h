@@ -42,6 +42,6 @@
 /* formatting defaults */
 extern const char hms_dflt[];
 
-extern void __trans_tfmt(const char **fmt);
+extern dt_ttyp_t __trans_tfmt(const char **fmt);
 
 #endif	/* INCLUDED_time_core_private_h_ */
