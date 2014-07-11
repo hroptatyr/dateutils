@@ -77,10 +77,19 @@ Modifiers:
 
 By design dates before 1601-01-01 are not supported.
 
-For conformity here is a list of calendar spec names and their meaning:
+For conformity here is a list of calendar designators and their
+corresponding format string:
 @verbatim
-  ymd   %Y-%m-%d
-  ymcw  %Y-%m-%c-%w
-  ywd   %rY-W%V-%u
-  bizda %Y-%m-%db
+  ymd     %Y-%m-%d
+  ymcw    %Y-%m-%c-%w
+  ywd     %rY-W%V-%u
+  bizda   %Y-%m-%db
+  lilian     n/a
+  ldn        n/a
+  julian     n/a
+  jdn        n/a
 @end verbatim
+
+These designators can be used as output format string, moreover,
+@code{lilian}/@code{ldn} and @code{julian}/@code{jdn} can also be used
+as input format string.
