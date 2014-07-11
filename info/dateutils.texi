@@ -211,6 +211,23 @@ the Gregorian date switch to have taken place in October 1582.  This is
 unlike some other well-known tools (Unix cal for instance) which assume
 the reformation to have occurred in September 1752.
 
+@subsection julian, jdn
+
+A close sibling to the daisy system described before is the Julian day
+number, with reference date 01 Jan 4713 BC in the proleptic Julian
+calendar.
+
+The input and output format string is @code{jdn} or @code{julian}, there
+is no format specifier.
+
+@subsection lilian, ldn
+
+Another close sibling to the daisy system is the Lilian day number, its
+reference date is the first day of the Gregorian calendar, 15 Oct 1582.
+
+The input and output format string is @code{ldn} or @code{lilian}, there
+is no format specifier.
+
 @section bizda
 
 This calendric system is actually a whole tribe of calendars, in its
