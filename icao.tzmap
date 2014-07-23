@@ -2774,7 +2774,6 @@ K5T6	America/Denver
 K60G	America/Detroit
 K60M	America/New_York
 K62H	America/Chicago
-K67	America/Chicago
 K69R	America/Chicago
 K6R6	America/Chicago
 K6V3	America/New_York
@@ -4993,6 +4992,7 @@ KVHN	America/Chicago
 KVIH	America/Chicago
 KVIQ	America/Chicago
 KVIS	America/Los_Angeles
+KVJI	America/New_York
 KVKS	America/Chicago
 KVKX	America/New_York
 KVLA	America/Chicago
@@ -8327,6 +8327,7 @@ SPBC	America/Lima
 SPBL	America/Lima
 SPBR	America/Lima
 SPCG	America/Lima
+SPCH	America/Lima
 SPCL	America/Lima
 SPDO	America/Lima
 SPEO	America/Lima
@@ -9227,7 +9228,6 @@ VNTP	Asia/Kathmandu
 VNTR	Asia/Kathmandu
 VNVT	Asia/Kathmandu
 VO52	Asia/Kolkata
-VO80	Asia/Kolkata
 VOAT	Asia/Kolkata
 VOBG	Asia/Kolkata
 VOBI	Asia/Kolkata
@@ -10403,4 +10403,3 @@ ZYTL	Asia/Shanghai
 ZYTN	Asia/Harbin
 ZYTX	Asia/Harbin
 ZYYJ	Asia/Harbin
-ZZ07	Asia/Pyongyang
