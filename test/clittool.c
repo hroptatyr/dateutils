@@ -202,10 +202,10 @@ deconst(const char *s)
 * Returns NULL if needle was not found.
 */
 static char*
-xmemmem(const char *haystack, size_t hz, const char *needle, size_t nz)
+xmemmem(const char *haystk, size_t hayz, const char *needle, size_t ndlz)
 {
-	const char *const eoh = haystack + hz;
-	const char *const eon = needle + nz;
+	const char *const eoh = haystk + hayz;
+	const char *const eon = needle + ndlz;
 	const char *hp;
 	const char *np;
 	unsigned int hsum;
@@ -216,9 +216,9 @@ xmemmem(const char *haystack, size_t hz, const char *needle, size_t nz)
          * a 0-sized needle is defined to be found anywhere in haystack
          * then run strchr() to find a candidate in HAYSTACK (i.e. a portion
          * that happens to begin with *NEEDLE) */
-	if (UNLIKELY(nz == 0UL)) {
-		return deconst(haystack);
-	} else if ((haystack = memchr(haystack, *needle, hz)) == NULL) {
+	if (UNLIKELY(ndlz == 0UL)) {
+		return deconst(haystk);
+	} else if ((haystk = memchr(haystk, *needle, hayz)) == NULL) {
 		/* trivial */
 		return NULL;
 	}
@@ -227,8 +227,8 @@ xmemmem(const char *haystack, size_t hz, const char *needle, size_t nz)
 	 * guaranteed to be at least one character long.  Now computes the sum
 	 * of characters values of needle together with the sum of the first
 	 * needle_len characters of haystack. */
-	for (hp = haystack + 1U, np = needle + 1U,
-		     hsum = *haystack, nsum = *haystack,
+	for (hp = haystk + 1U, np = needle + 1U,
+		     hsum = *haystk, nsum = *haystk,
 		     identicalp = true;
 	     hp < eoh && np < eon;
 	     hsum += *hp, nsum += *np, identicalp = *hp == *np, hp++, np++);
@@ -239,12 +239,12 @@ xmemmem(const char *haystack, size_t hz, const char *needle, size_t nz)
 		return NULL;
 	} else if (identicalp) {
 		/* found a match */
-		return deconst(haystack);
+		return deconst(haystk);
 	}
 
 	/* now loop through the rest of haystack,
 	 * updating the sum iteratively */
-	for (const char *cand = haystack; hp < eoh; hp++) {
+	for (const char *cand = haystk; hp < eoh; hp++) {
 		hsum -= *cand++;
 		hsum += *hp;
 
@@ -252,7 +252,7 @@ xmemmem(const char *haystack, size_t hz, const char *needle, size_t nz)
 		 * equal at that point, it is enough to check just NZ - 1
 		 * characters for equality,
 		 * also CAND is by design < HP, so no need for range checks */
-		if (hsum == nsum && memcmp(cand, needle, nz - 1U) == 0) {
+		if (hsum == nsum && memcmp(cand, needle, ndlz - 1U) == 0) {
 			return deconst(cand);
 		}
 	}
