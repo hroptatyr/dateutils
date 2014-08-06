@@ -37,6 +37,16 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+/* for fgetln() */
+#if !defined _NETBSD_SOURCE
+# define _NETBSD_SOURCE
+#endif	/* !_NETBSD_SOURCE */
+#if !defined _DARWIN_SOURCE
+# define _DARWIN_SOURCE
+#endif	/* !_DARWIN_SOURCE */
+#if !defined _ALL_SOURCE
+# define _ALL_SOURCE
+#endif	/* !_ALL_SOURCE */
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -1524,8 +1534,8 @@ wr_man_include(char **const inc)
 		wr_man_incln(ofp, line, nrd);
 	}
 #elif defined HAVE_FGETLN
-	while ((line = fgetln(f, &llen)) != NULL) {
-		wr_man_incln(ofp, line, nrd);
+	while ((line = fgetln(fp, &llen)) != NULL) {
+		wr_man_incln(ofp, line, llen);
 	}
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line

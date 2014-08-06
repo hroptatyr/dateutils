@@ -55,8 +55,11 @@
 #include "leaps.h"
 #include "nifty.h"
 #include "dt-core.h"
+#include "dt-core-private.h"
 #include "date-core.h"
+#include "date-core-private.h"
 #include "time-core.h"
+#include "time-core-private.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
 #include "time-core-strpf.h"
@@ -277,7 +280,7 @@ static const char sexydur_dflt[] = "%s";
 static const char bizsihmsdur_dflt[] = "%dbT%0H:%0M:%0S";
 static const char bizdahmsdur_dflt[] = "%Y-%0m-%0dbT%0H:%0M:%0S";
 
-DEFUN void
+DEFUN dt_dttyp_t
 __trans_dtfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -287,42 +290,43 @@ __trans_dtfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
 		default:
 			break;
 		case DT_YMD:
-			*fmt = ymd_dflt;
+			*fmt = ymdhms_dflt;
 			break;
 		case DT_YMCW:
-			*fmt = ymcw_dflt;
+			*fmt = ymcwhms_dflt;
 			break;
 		case DT_BIZDA:
-			*fmt = bizda_dflt;
+			*fmt = bizdahms_dflt;
 			break;
 		case DT_DAISY:
-			*fmt = daisy_dflt;
+			*fmt = daisyhms_dflt;
 			break;
 		case DT_SEXY:
 			*fmt = sexy_dflt;
 			break;
 		case DT_BIZSI:
-			*fmt = bizsi_dflt;
+			*fmt = bizsihms_dflt;
 			break;
 		case DT_YWD:
-			*fmt = ywd_dflt;
+			*fmt = ywdhms_dflt;
 			break;
 		case DT_YD:
-			*fmt = yd_dflt;
+			*fmt = ydhms_dflt;
 			break;
 		}
+		return (dt_dttyp_t)tmp;
 	}
-	return;
+	return (dt_dttyp_t)DT_DUNK;
 }
 
-DEFUN void
+DEFUN dt_dttyp_t
 __trans_dtdurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -332,7 +336,7 @@ __trans_dtdurfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
@@ -363,8 +367,9 @@ __trans_dtdurfmt(const char **fmt)
 			*fmt = ydhmsdur_dflt;
 			break;
 		}
+		return (dt_dttyp_t)tmp;
 	}
-	return;
+	return (dt_dttyp_t)DT_DUNK;
 }
 
 #define FFFF_GMTIME_SUBDAY
@@ -561,7 +566,45 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		return __strpdt_std(str, ep);
 	}
 	/* translate high-level format names, for sandwiches */
-	__trans_dtfmt(&fmt);
+	switch ((dt_dtyp_t)__trans_dtfmt(&fmt)) {
+		char *on;
+	default:
+		break;
+
+		/* special case julian/lilian dates as they have
+		 * no format specifiers */
+
+	case DT_JDN:
+		res.d.jdn = (dt_jdn_t)strtod(str, &on);
+
+		/* fix up const-ness problem */
+		sp = on;
+		/* don't worry about time slot or date/time sandwiches */
+		dt_make_d_only(&res, DT_JDN);
+		goto sober;
+
+	case DT_LDN:
+		res.d.ldn = (dt_ldn_t)strtoi(str, &sp);
+		if (*sp != '.') {
+			dt_make_d_only(&res, DT_LDN);
+		} else {
+			/* yes, big cluster fuck */
+			double tmp = strtod(sp, &on);
+
+			/* fix up const-ness problem */
+			sp = on;
+			/* convert to HMS */
+			res.t.hms.h = (tmp *= HOURS_PER_DAY);
+			tmp -= (double)res.t.hms.h;
+			res.t.hms.m = (tmp *= MINS_PER_HOUR);
+			tmp -= (double)res.t.hms.m;
+			res.t.hms.s = (tmp *= SECS_PER_MIN);
+			tmp -= (double)res.t.hms.s;
+			res.t.hms.ns = (tmp *= NANOS_PER_SEC);
+			dt_make_sandwich(&res, DT_LDN, DT_HMS);
+		}
+		goto sober;
+	}
 
 	fp = fmt;
 	d = strpdt_initialiser();
@@ -633,6 +676,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		res.znfxd = 1;
 	}
 
+sober:
 	/* set the end pointer */
 	if (ep != NULL) {
 		*ep = (char*)sp;

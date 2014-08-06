@@ -90,6 +90,10 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 		])
 		M4="${pkg_cv_yuck_m4:-m4}"
 	fi
+
+	## further requirement is either getline() or fgetln()
+	AC_CHECK_FUNCS([getline])
+	AC_CHECK_FUNCS([fgetln])
 ])dnl AX_CHECK_YUCK
 
 AC_DEFUN([AX_YUCK_SCMVER], [dnl

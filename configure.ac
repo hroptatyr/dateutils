@@ -3,7 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-AC_INIT([dateutils], [0.3.0.GIT], [https://github.com/hroptatyr/dateutils/issues])
+AC_INIT([dateutils], [0.3.0rc1], [https://github.com/hroptatyr/dateutils/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -47,9 +47,9 @@ SXE_LANG_WERROR([off])
 ## check for mmap and friends
 SXE_CHECK_MMAP
 
-## check for getopt.h
-AC_CHECK_HEADERS([getopt.h])
-AM_CONDITIONAL([NEED_GETOPT_H], [test "${ac_cv_header_getopt_h}" != "yes"])
+## for getline()/fgetln() code (e.g. tzmap.c)
+AC_CHECK_FUNCS([getline])
+AC_CHECK_FUNCS([fgetln])
 
 ## AIX' take on stdint
 AC_CHECK_HEADERS([sys/stdint.h])

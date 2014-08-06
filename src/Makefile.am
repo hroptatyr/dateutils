@@ -151,9 +151,6 @@ SUFFIXES += .gperf
 ## just for parallel builds
 dexpr-parser.h: dexpr-parser.c
 
-## for dist or dist check we need binaries, so help2man can work
-dist-hook: $(bin_PROGRAMS)
-
 # 
 # Help the developers get nice post-processed source files
 

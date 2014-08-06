@@ -22,11 +22,11 @@ libdut_a_CPPFLAGS += -DDECLF=extern
 libdut_a_CPPFLAGS += -I$(builddir)
 libdut_a_SOURCES =
 libdut_a_SOURCES += version.c version.h version.c.in
-libdut_a_SOURCES += date-core.c date-core.h
+libdut_a_SOURCES += date-core.c date-core.h date-core-private.h
 libdut_a_SOURCES += date-core-strpf.h
-libdut_a_SOURCES += time-core.c time-core.h
+libdut_a_SOURCES += time-core.c time-core.h time-core-private.h
 libdut_a_SOURCES += time-core-strpf.h
-libdut_a_SOURCES += dt-core.h dt-core.c
+libdut_a_SOURCES += dt-core.c dt-core.h dt-core-private.h
 libdut_a_SOURCES += dt-core-strpf.h
 libdut_a_SOURCES += strops.h strops.c
 libdut_a_SOURCES += token.h token.c
@@ -69,7 +69,9 @@ ltrcc_SOURCES += time-core.c time-core.h
 ltrcc_SOURCES += dt-core.c dt-core.h
 EXTRA_ltrcc_SOURCES =
 EXTRA_ltrcc_SOURCES += fmt-special.gperf
+EXTRA_ltrcc_SOURCES += ltrcc.yuck
 endif  ## BUILD_LTRCC
+BUILT_SOURCES += ltrcc.yucc
 
 noinst_PROGRAMS += tzmap
 tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck

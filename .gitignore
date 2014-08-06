@@ -12,7 +12,7 @@ missing
 src/config.h.in
 *~
 =build*
-build*
+build/
 depcomp
 ++*
 Makefile
@@ -34,3 +34,4 @@ info/*.h2m
 info/*.man
 ylwrap
 test-driver
+compile
