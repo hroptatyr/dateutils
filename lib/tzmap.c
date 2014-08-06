@@ -455,6 +455,7 @@ check_line(char *ln, size_t lz)
 		/* already warned about this */
 		;
 	} else if (!tzdir_zone_p(lp, lz - (lp - ln))) {
+		lp[lz - (lp - ln)] = '\0';
 		CHECK_ERROR("cannot find zone `%s' in TZDIR", lp);
 		rc = -1;
 	}
