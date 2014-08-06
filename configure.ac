@@ -47,6 +47,10 @@ SXE_LANG_WERROR([off])
 ## check for mmap and friends
 SXE_CHECK_MMAP
 
+## for getline()/fgetln() code (e.g. tzmap.c)
+AC_CHECK_FUNCS([getline])
+AC_CHECK_FUNCS([fgetln])
+
 ## check for getopt.h
 AC_CHECK_HEADERS([getopt.h])
 AM_CONDITIONAL([NEED_GETOPT_H], [test "${ac_cv_header_getopt_h}" != "yes"])
