@@ -37,6 +37,10 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+/* for fgetln() */
+#define _NETBSD_SOURCE
+#define _DARWIN_SOURCE
+#define _ALL_SOURCE
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
