@@ -1524,8 +1524,8 @@ wr_man_include(char **const inc)
 		wr_man_incln(ofp, line, nrd);
 	}
 #elif defined HAVE_FGETLN
-	while ((line = fgetln(f, &llen)) != NULL) {
-		wr_man_incln(ofp, line, nrd);
+	while ((line = fgetln(fp, &llen)) != NULL) {
+		wr_man_incln(ofp, line, llen);
 	}
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
