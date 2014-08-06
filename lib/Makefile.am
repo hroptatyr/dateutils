@@ -69,7 +69,9 @@ ltrcc_SOURCES += time-core.c time-core.h
 ltrcc_SOURCES += dt-core.c dt-core.h
 EXTRA_ltrcc_SOURCES =
 EXTRA_ltrcc_SOURCES += fmt-special.gperf
+EXTRA_ltrcc_SOURCES += ltrcc.yuck
 endif  ## BUILD_LTRCC
+BUILT_SOURCES += ltrcc.yucc
 
 noinst_PROGRAMS += tzmap
 tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck

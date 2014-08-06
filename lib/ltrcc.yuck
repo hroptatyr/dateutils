@@ -1,0 +1,5 @@
+Usage: ltrcc LEAPS_FILE
+
+Compile LEAPS_FILE into C source code.
+
+  -C, --column-oriented  Produce column-oriented output.
