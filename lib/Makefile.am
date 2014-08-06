@@ -16,6 +16,22 @@ DISTCLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 SUFFIXES =
 
+if BUILD_LTRCC
+noinst_PROGRAMS += ltrcc
+ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+ltrcc_CPPFLAGS += -DDECLF=extern
+ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
+ltrcc_SOURCES = ltrcc.c ltrcc.yuck
+ltrcc_SOURCES += token.c token.h
+ltrcc_SOURCES += strops.c strops.h
+ltrcc_SOURCES += date-core.c date-core.h
+ltrcc_SOURCES += time-core.c time-core.h
+ltrcc_SOURCES += dt-core.c dt-core.h
+EXTRA_ltrcc_SOURCES =
+EXTRA_ltrcc_SOURCES += fmt-special.gperf
+endif  ## BUILD_LTRCC
+BUILT_SOURCES += ltrcc.yucc
+
 noinst_LIBRARIES += libdut.a
 libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
@@ -55,23 +71,6 @@ EXTRA_libdut_a_SOURCES += leapseconds
 BUILT_SOURCES += version.c
 BUILT_SOURCES += fmt-special.c
 BUILT_SOURCES += leapseconds.def
-
-if BUILD_LTRCC
-noinst_PROGRAMS += ltrcc
-ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
-ltrcc_CPPFLAGS += -DDECLF=extern
-ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
-ltrcc_SOURCES = ltrcc.c
-ltrcc_SOURCES += token.c token.h
-ltrcc_SOURCES += strops.c strops.h
-ltrcc_SOURCES += date-core.c date-core.h
-ltrcc_SOURCES += time-core.c time-core.h
-ltrcc_SOURCES += dt-core.c dt-core.h
-EXTRA_ltrcc_SOURCES =
-EXTRA_ltrcc_SOURCES += fmt-special.gperf
-EXTRA_ltrcc_SOURCES += ltrcc.yuck
-endif  ## BUILD_LTRCC
-BUILT_SOURCES += ltrcc.yucc
 
 noinst_PROGRAMS += tzmap
 tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck
