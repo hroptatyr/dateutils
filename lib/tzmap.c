@@ -510,6 +510,12 @@ parse_file(const char *file)
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+
+#if defined HAVE_GETLINE
+	/* free line buffer resources */
+	free(line);
+#endif	/* HAVE_GETLINE */
+
 	fclose(fp);
 	return 0;
 }
@@ -603,6 +609,11 @@ check_file(const char *file)
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+
+#if defined HAVE_GETLINE
+	/* free line buffer resources */
+	free(line);
+#endif	/* HAVE_GETLINE */
 
 	/* reset line checker */
 	check_line(NULL, 0U);
