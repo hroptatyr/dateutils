@@ -1,6 +1,0 @@
-#if !defined INCLUDED_getopt_h_in_
-#define INCLUDED_getopt_h_in_
-
-#include <unistd.h>
-
-#endif  /* INCLUDED_getopt_h_in_ */

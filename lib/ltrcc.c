@@ -416,65 +416,34 @@ const size_t nleaps = countof(leaps_corr);\n\
 }
 
 
-static void
-pr_version(FILE *where)
-{
-	fputs("ltrcc " VERSION "\n", where);
-	return;
-}
-
-static void
-pr_usage(FILE *where)
-{
-	pr_version(where);
-	fputs("\n\
-Usage: ltrcc LEAPS_FILE\n\
-\n\
-Compile LEAPS_FILE into C source code.\n\
-\n\
-  -h                    Print help and exit\n\
-  -V                    Print version and exit\n\
-\n\
-  -C                    Column-oriented output\n\
-", where);
-	return;
-}
+#include "ltrcc.yucc"
 
 int
 main(int argc, char *argv[])
 {
-	const char *leaps;
+	yuck_t argi[1U];
+	int rc = 0;
 
-	for (int c; (c = getopt(argc, argv, "ChVv")) != -1;) {
-		switch (c) {
-		case 'C':
-			col = 1;
-			break;
-		case 'h':
-			pr_usage(stdout);
-			return 0;
-		case 'v':
-		case 'V':
-			pr_version(stdout);
-			return 0;
-		case '?':
-			pr_usage(stderr);
-			return 1;
-		default:
-			return 2;
-		}
-	}
-	if (optind >= argc) {
-		pr_usage(stderr);
-		return 1;
+	if (yuck_parse(argi, argc, argv) < 0) {
+		rc = 1;
+		goto out;
+	} else if (!argi->nargs) {
+		fputs("LEAPS_FILE argument is mandatory\n", stderr);
+		rc = 1;
+		goto out;
 	}
 
-	leaps = argv[optind];
-	if (parse_file(leaps) < 0) {
+	/* assign params */
+	col = argi->column_oriented_flag;
+
+	if (parse_file(argi->args[0U]) < 0) {
 		perror("Cannot parse file");
-		return 1;
+		rc = 1;
 	}
-	return 0;
+
+out:
+	yuck_free(argi);
+	return rc;
 }
 
 /* ltrcc.c ends here */

@@ -37,6 +37,10 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+/* for fgetln() */
+#define _NETBSD_SOURCE
+#define _DARWIN_SOURCE
+#define _ALL_SOURCE
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -326,7 +330,7 @@ tzm_find_zn(const char *zn, size_t zz)
 	char *restrict p = zns;
 	const char *const ep = zns + znz;
 
-	for (; p < ep && *p && strcmp(p, zn); p += strlen(p), p++);
+	for (; p < ep && *p && strncmp(p, zn, zz); p += strlen(p), p++);
 	if (*p) {
 		/* found it, yay */
 		return p - zns;
@@ -380,7 +384,7 @@ parse_line(char *ln, size_t lz)
 		/* finalise */
 		return;
 	}
-	if ((lp = strchr(ln, '\t')) == NULL) {
+	if ((lp = memchr(ln, '\t', lz)) == NULL) {
 		/* buggered line */
 		return;
 	} else if (lp == ln) {
@@ -423,7 +427,7 @@ check_line(char *ln, size_t lz)
 	error("Error in %s:%u: " fmt, check_fn, lno, ## args)
 
 	/* the actual checks here */
-	if ((lp = strchr(ln, '\t')) == NULL) {
+	if ((lp = memchr(ln, '\t', lz)) == NULL) {
 		/* buggered line */
 		CHECK_ERROR("no separator");
 		return -1;
@@ -438,7 +442,7 @@ check_line(char *ln, size_t lz)
 	if ((cz = lp - ln - 1U) >= sizeof(last)) {
 		CHECK_ERROR("code too long (%zu chars, max is 255)", cz);
 		rc = -1;
-	} else if (strcmp(last, ln) >= 0) {
+	} else if (strncmp(last, ln, cz) >= 0) {
 		CHECK_ERROR("non-ascending order `%s' (after `%s')", ln, last);
 		rc = -1;
 	}
@@ -451,6 +455,7 @@ check_line(char *ln, size_t lz)
 		/* already warned about this */
 		;
 	} else if (!tzdir_zone_p(lp, lz - (lp - ln))) {
+		lp[lz - (lp - ln)] = '\0';
 		CHECK_ERROR("cannot find zone `%s' in TZDIR", lp);
 		rc = -1;
 	}
@@ -499,17 +504,21 @@ parse_file(const char *file)
 
 #if defined HAVE_GETLINE
 	for (ssize_t nrd; (nrd = getline(&line, &llen, fp)) > 0;) {
-		line[--nrd] = '\0';
-		parse_line(line, nrd);
+		parse_line(line, nrd - 1);
 	}
 #elif defined HAVE_FGETLN
-	while ((line = fgetln(f, &llen)) != NULL) {
-		line[--llen] = '\0';
-		parse_line(line, llen);
+	while ((line = fgetln(fp, &llen)) != NULL && llen > 0U) {
+		parse_line(line, llen - 1);
 	}
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+
+#if defined HAVE_GETLINE
+	/* free line buffer resources */
+	free(line);
+#endif	/* HAVE_GETLINE */
+
 	fclose(fp);
 	return 0;
 }
@@ -592,17 +601,20 @@ check_file(const char *file)
 
 #if defined HAVE_GETLINE
 	for (ssize_t nrd; (nrd = getline(&line, &llen, fp)) > 0;) {
-		line[--nrd] = '\0';
-		rc |= check_line(line, nrd);
+		rc |= check_line(line, nrd - 1);
 	}
 #elif defined HAVE_FGETLN
-	while ((line = fgetln(f, &llen)) != NULL) {
-		line[--llen] = '\0';
-		rc |= check_line(line, llen);
+	while ((line = fgetln(fp, &llen)) != NULL && llen > 0U) {
+		rc |= check_line(line, llen - 1);
 	}
 #else
 # error neither getline() nor fgetln() available, cannot read file line by line
 #endif	/* GETLINE/FGETLN */
+
+#if defined HAVE_GETLINE
+	/* free line buffer resources */
+	free(line);
+#endif	/* HAVE_GETLINE */
 
 	/* reset line checker */
 	check_line(NULL, 0U);
