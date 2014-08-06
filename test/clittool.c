@@ -202,23 +202,24 @@ deconst(const char *s)
 * Returns NULL if needle was not found.
 */
 static char*
-xmemmem(const char *haystk, size_t hayz, const char *needle, size_t ndlz)
+xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
 {
-	const char *const eoh = haystk + hayz;
-	const char *const eon = needle + ndlz;
+	const char *const eoh = hay + hayz;
+	const char *const eon = ndl + ndlz;
 	const char *hp;
 	const char *np;
+	const char *cand;
 	unsigned int hsum;
 	unsigned int nsum;
-	bool identicalp;
+	unsigned int eqp;
 
 	/* trivial checks first
          * a 0-sized needle is defined to be found anywhere in haystack
          * then run strchr() to find a candidate in HAYSTACK (i.e. a portion
          * that happens to begin with *NEEDLE) */
-	if (UNLIKELY(ndlz == 0UL)) {
-		return deconst(haystk);
-	} else if ((haystk = memchr(haystk, *needle, hayz)) == NULL) {
+	if (ndlz == 0UL) {
+		return deconst(hay);
+	} else if ((hay = memchr(hay, *ndl, hayz)) == NULL) {
 		/* trivial */
 		return NULL;
 	}
@@ -227,32 +228,30 @@ xmemmem(const char *haystk, size_t hayz, const char *needle, size_t ndlz)
 	 * guaranteed to be at least one character long.  Now computes the sum
 	 * of characters values of needle together with the sum of the first
 	 * needle_len characters of haystack. */
-	for (hp = haystk + 1U, np = needle + 1U,
-		     hsum = *haystk, nsum = *haystk,
-		     identicalp = true;
+	for (hp = hay + 1U, np = ndl + 1U, hsum = *hay, nsum = *hay, eqp = 1U;
 	     hp < eoh && np < eon;
-	     hsum += *hp, nsum += *np, identicalp = *hp == *np, hp++, np++);
+	     hsum ^= *hp, nsum ^= *np, eqp &= *hp == *np, hp++, np++);
 
 	/* HP now references the (NZ + 1)-th character. */
 	if (np < eon) {
 		/* haystack is smaller than needle, :O */
 		return NULL;
-	} else if (identicalp) {
+	} else if (eqp) {
 		/* found a match */
-		return deconst(haystk);
+		return deconst(hay);
 	}
 
 	/* now loop through the rest of haystack,
 	 * updating the sum iteratively */
-	for (const char *cand = haystk; hp < eoh; hp++) {
-		hsum -= *cand++;
-		hsum += *hp;
+	for (cand = hay; hp < eoh; hp++) {
+		hsum ^= *cand++;
+		hsum ^= *hp;
 
 		/* Since the sum of the characters is already known to be
 		 * equal at that point, it is enough to check just NZ - 1
 		 * characters for equality,
 		 * also CAND is by design < HP, so no need for range checks */
-		if (hsum == nsum && memcmp(cand, needle, ndlz - 1U) == 0) {
+		if (hsum == nsum && memcmp(cand, ndl, ndlz - 1U) == 0) {
 			return deconst(cand);
 		}
 	}
@@ -819,7 +818,7 @@ xpnder(clit_bit_t exp, int expfd)
 			break;
 		}
 
-		if (write(xin[1U], "cat <<EOF\n", 10U) < 10U) {
+		if (write(xin[1U], "cat <<EOF\n", 10U) < 10) {
 			goto fail;
 		}
 		while (exp.z > 0 &&
@@ -831,7 +830,7 @@ xpnder(clit_bit_t exp, int expfd)
 				exp.z = 0;
 			}
 		}
-		if (write(xin[1U], "EOF\n", 4U) < 4U) {
+		if (write(xin[1U], "EOF\n", 4U) < 4) {
 			goto fail;
 		}
 
@@ -1075,6 +1074,12 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 
 	if (UNLIKELY(init_tst(ctx, tst) < 0)) {
 		rc = -1;
+		if (ctx->feed > 0) {
+			kill(ctx->feed, SIGTERM);
+		}
+		if (ctx->diff > 0) {
+			kill(ctx->diff, SIGTERM);
+		}
 		goto wait;
 	}
 	with (const char *p = tst->cmd.d, *const ep = tst->cmd.d + tst->cmd.z) {
