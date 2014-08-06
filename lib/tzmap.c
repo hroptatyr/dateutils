@@ -503,7 +503,7 @@ parse_file(const char *file)
 		parse_line(line, nrd);
 	}
 #elif defined HAVE_FGETLN
-	while ((line = fgetln(f, &llen)) != NULL) {
+	while ((line = fgetln(fp, &llen)) != NULL) {
 		line[--llen] = '\0';
 		parse_line(line, llen);
 	}
@@ -596,7 +596,7 @@ check_file(const char *file)
 		rc |= check_line(line, nrd);
 	}
 #elif defined HAVE_FGETLN
-	while ((line = fgetln(f, &llen)) != NULL) {
+	while ((line = fgetln(fp, &llen)) != NULL) {
 		line[--llen] = '\0';
 		rc |= check_line(line, llen);
 	}
