@@ -1614,10 +1614,6 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 			tmp.md.d = res.daisy;
 			break;
 
-		case DT_BIZDA:
-		case DT_BIZSI:
-		case DT_MD:
-		case DT_DUNK:
 		default:
 			break;
 		}
