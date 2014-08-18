@@ -261,28 +261,35 @@ dt_dt_initialiser(void)
 	return res;
 }
 
-static inline bool
+static inline __attribute__((pure, const)) bool
 dt_unk_p(struct dt_dt_s d)
 {
 	return !(d.sandwich || d.typ > DT_UNK);
 }
 
-static inline bool
+static inline __attribute__((pure, const)) bool
 dt_sandwich_p(struct dt_dt_s d)
 {
 	return d.sandwich && d.d.typ > DT_DUNK;
 }
 
-static inline bool
+static inline __attribute__((pure, const)) bool
 dt_sandwich_only_d_p(struct dt_dt_s d)
 {
 	return !d.sandwich && d.d.typ > DT_DUNK && d.d.typ < DT_NDTYP;
 }
 
-static inline bool
+static inline __attribute__((pure, const)) bool
 dt_sandwich_only_t_p(struct dt_dt_s d)
 {
 	return d.sandwich && d.typ == DT_UNK;
+}
+
+static inline __attribute__((pure, const)) bool
+dt_separable_p(struct dt_dt_s d)
+{
+/* return true if D is a d+t sandwich or D is d-only or D is t-only */
+	return d.d.typ < DT_NDTYP;
 }
 
 #define DT_SANDWICH_UNK		(DT_UNK)
