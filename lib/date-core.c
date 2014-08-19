@@ -297,7 +297,20 @@ dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 		case YWD_SUNWK_CNT: {
 			/* using monwk_cnt is a minor trick
 			 * from = 1 = Mon or 0 = Sun */
-			int from = wkcnt_convention == YWD_MONWK_CNT;
+			dt_dow_t from;
+
+			switch (wkcnt_convention) {
+			case YWD_MONWK_CNT:
+				from = DT_MONDAY;
+				break;
+			case YWD_SUNWK_CNT:
+				from = DT_SUNDAY;
+				break;
+			default:
+				/* huh? */
+				from = DT_MIRACLEDAY;
+				break;
+			}
 			res = __yd_get_wcnt(yd, from);
 			break;
 		}
