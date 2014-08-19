@@ -361,7 +361,8 @@ __get_jan01_wday(unsigned int year)
 
 	year--,
 		res = year + year / 4 - year / 100 + year / 400 + 1;
-	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
+	res %= GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(res ?: DT_SUNDAY);
 }
 
 #endif	/* GET_JAN01_WDAY_* */
@@ -568,7 +569,7 @@ __yd_get_wcnt_iso(dt_yd_t d)
 			y01 += 5;
 			yd += 366;
 		}
-		if (y01 >= GREG_DAYS_P_WEEK) {
+		if (y01 > GREG_DAYS_P_WEEK) {
 			y01 -= GREG_DAYS_P_WEEK;
 		}
 		/* same computation now */
@@ -591,7 +592,7 @@ __yd_get_wcnt_iso(dt_yd_t d)
 }
 
 DEFUN int
-__yd_get_wcnt(dt_yd_t d, int wdays_from)
+__yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd)
 {
 /* absolutely count the n-th occurrence of WD regardless what WD
  * the year started with */
@@ -601,7 +602,7 @@ __yd_get_wcnt(dt_yd_t d, int wdays_from)
 	int wk;
 
 	/* yd of the FIRST week of the year */
-	if ((wk = 8 - (int)y01 + wdays_from) > 7) {
+	if ((wk = 8 - (int)y01 + (int)_1st_wd) > 7) {
 		wk -= 7;
 	}
 	/* and now express yd as 7k + n relative to jan01 */
