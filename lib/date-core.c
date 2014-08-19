@@ -46,6 +46,7 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
+#include <assert.h>
 #include "date-core.h"
 #include "date-core-private.h"
 #include "strops.h"

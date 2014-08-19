@@ -225,6 +225,8 @@ __strpd_std(const char *str, char **ep)
 			/* didn't work, fuck off */
 			goto fucked;
 		}
+		/* fix up d.w right away */
+		d.w = d.w ?: DT_SUNDAY;
 		break;
 	case 'B':
 		/* it's a bizda/YMDU before ultimo date */
@@ -302,6 +304,8 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode? */
 		d->w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
+		/* fix up d->w right away */
+		d->w = d->w ?: DT_SUNDAY;
 		res = 0 - (d->w < 0);
 		break;
 	case DT_SPFL_N_WCNT_MON:

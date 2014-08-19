@@ -71,9 +71,9 @@ __ywd_get_jan01_wday(dt_ywd_t d)
 	int res;
 
 	if (UNLIKELY((res = 1 - d.hang) < 0)) {
-		return (dt_dow_t)(GREG_DAYS_P_WEEK + res);
+		res += GREG_DAYS_P_WEEK;
 	}
-	return (dt_dow_t)res;
+	return (dt_dow_t)(res ?: DT_SUNDAY);
 }
 
 static int
@@ -83,7 +83,7 @@ __ywd_get_jan01_hang(dt_dow_t j01)
 	int res;
 
 	if (UNLIKELY((res = 1 - (int)j01) < -3)) {
-		return (int)(GREG_DAYS_P_WEEK + res);
+		return (int)GREG_DAYS_P_WEEK + res;
 	}
 	return res;
 }
@@ -95,7 +95,10 @@ __ywd_get_dec31_wday(dt_ywd_t d)
 	dt_dow_t res = __ywd_get_jan01_wday(d);
 
 	if (UNLIKELY(__leapp(d.y))) {
-		res = (dt_dow_t)((res + 1) % 7);
+		if (++res > GREG_DAYS_P_WEEK) {
+			/* wrap around DT_SUNDAY -> DT_MONDAY */
+			res = DT_MONDAY;
+		}
 	}
 	return res;
 }
@@ -430,7 +433,7 @@ __ywd_fixup(dt_ywd_t d)
 #if defined ASPECT_GETTERS && !defined YWD_ASPECT_GETTERS_
 #define YWD_ASPECT_GETTERS_
 static dt_ywd_t
-__make_ywd_c(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
+__make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 {
 /* build a 8601 compliant ywd object from year Y, week C and weekday W
  * where C conforms to week-count convention cc */
@@ -442,17 +445,18 @@ __make_ywd_c(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 	j01 = __get_jan01_wday(y);
 	hang = __ywd_get_jan01_hang(j01);
 
+	assert(w != DT_MIRACLEDAY);
+
 	switch (cc) {
 	default:
 	case YWD_ISOWK_CNT:
 		break;
 	case YWD_ABSWK_CNT:
-		if (hang == 1 && w >= DT_MONDAY) {
+		if (hang == 1 && w < DT_SUNDAY) {
 			/* n-th W in the year is n-th week,
-			 * year starts on sunday, so w >= DT_MONDAY is
-			 * equivalent to w < DT_SUNDAY */
+			 * year starts on sunday */
 			;
-		} else if (hang > 0 && w >= DT_MONDAY && w < j01) {
+		} else if (hang > 0 && w < DT_SUNDAY && w < j01) {
 			/* n-th W in the year is n-th week,
 			 * in this case the year doesnt start on sunday */
 			;
@@ -494,7 +498,7 @@ __make_ywd_c(unsigned int y, unsigned int c, unsigned int w, unsigned int cc)
 	/* assign and fuck off */
 	res.y = y;
 	res.c = c;
-	res.w = w < GREG_DAYS_P_WEEK ? w : 0;
+	res.w = w;
 	res.hang = hang;
 #if defined WITH_FAST_ARITH
 	return res;
@@ -554,7 +558,7 @@ __ywd_get_yday(dt_ywd_t d)
 {
 /* since everything is in ISO 8601 format, getting the doy is a matter of
  * counting how many days there are in a week. */
-	return GREG_DAYS_P_WEEK * (d.c - 1) + (d.w ? d.w : 7) + d.hang;
+	return GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
 }
 
 static dt_dow_t
@@ -592,12 +596,12 @@ __ywd_get_wcnt_year(dt_ywd_t d, unsigned int tgtcc)
 		}
 		break;
 	case YWD_MONWK_CNT:
-		if (j01 >= DT_TUESDAY) {
+		if (j01 >= DT_TUESDAY && j01 < DT_SUNDAY) {
 			return d.c - 1;
 		}
 		break;
 	case YWD_SUNWK_CNT:
-		if (j01 >= DT_MONDAY) {
+		if (j01 < DT_SUNDAY) {
 			return d.c - 1;
 		}
 		break;
@@ -647,14 +651,14 @@ __ywd_to_ymd(dt_ywd_t d)
 	if (d.c == 1) {
 		dt_dow_t f01 = __ywd_get_jan01_wday(d);
 
-		if (d.hang <= 0 && d.w >= DT_MONDAY && d.w < f01) {
+		if (d.hang <= 0 && d.w < f01) {
 			y--;
 		}
 
 	} else if (d.c >= __get_z31wk(y)) {
 		dt_dow_t z31 = __ywd_get_dec31_wday(d);
 
-		if (z31 && (d.w > z31 || d.w == DT_SUNDAY)) {
+		if (z31 < DT_SUNDAY && d.w > z31) {
 			y++;
 		}
 	}
@@ -682,7 +686,7 @@ __ywd_to_ymcw(dt_ywd_t d)
 	if (d.c == 1) {
 		dt_dow_t f01 = __ywd_get_jan01_wday(d);
 
-		if (d.hang <= 0 && d.w >= DT_MONDAY && d.w < f01) {
+		if (d.hang <= 0 && d.w < DT_MONDAY && d.w < f01) {
 			y--;
 		}
 
@@ -799,18 +803,11 @@ __ywd_add_d(dt_ywd_t d, int n)
 	signed int aw = n / 7;
 	signed int ad = n % 7;
 
-	if ((ad += d.w) >= (signed int)GREG_DAYS_P_WEEK) {
+	if ((ad += d.w) > (signed int)GREG_DAYS_P_WEEK) {
 		ad -= GREG_DAYS_P_WEEK;
 		aw++;
-	} else if (ad < 0) {
+	} else if (ad <= 0) {
 		ad += GREG_DAYS_P_WEEK;
-		aw--;
-	}
-
-	/* fixup Sun/Mon wrap around */
-	if ((dt_dow_t)d.w < DT_MONDAY && (dt_dow_t)ad >= DT_MONDAY) {
-		aw++;
-	} else if ((dt_dow_t)d.w >= DT_MONDAY && (dt_dow_t)ad < DT_MONDAY) {
 		aw--;
 	}
 
