@@ -776,7 +776,7 @@ __guess_dtyp(struct strpd_s d)
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
-		res.ywd = __make_ywd_c(d.y, d.c, d.w, d.flags.wk_cnt);
+		res.ywd = __make_ywd_c(d.y, d.c, (dt_dow_t)d.w, d.flags.wk_cnt);
 	} else if (d.y > 0 && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;

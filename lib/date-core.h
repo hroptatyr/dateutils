@@ -478,8 +478,8 @@ extern int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
 extern int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 
 /**
- * Get the week count of D in the year when weeks start at WDAYS_FROM. */
-extern int __yd_get_wcnt(dt_yd_t d, int wdays_from);
+ * Get the week count of D in the year when weeks start at _1st_wd. */
+extern int __yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd);
 
 /**
  * Like __yd_get_wcnt() but for ISO week convention. */
