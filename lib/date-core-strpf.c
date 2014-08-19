@@ -61,25 +61,25 @@
 #endif	/* !DEFVAR */
 
 static const char *__long_wday[] = {
-	"Sunday",
+	"Miracleday",
 	"Monday",
 	"Tuesday",
 	"Wednesday",
 	"Thursday",
 	"Friday",
 	"Saturday",
-	"Miracleday",
+	"Sunday",
 };
 DEFVAR const char **dut_long_wday = __long_wday;
 DEFVAR const ssize_t dut_nlong_wday = countof(__long_wday);
 
 static const char *__abbr_wday[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
+	"Mir", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
 };
 DEFVAR const char **dut_abbr_wday = __abbr_wday;
 DEFVAR const ssize_t dut_nabbr_wday = countof(__abbr_wday);
 
-static const char __abab_wday[] = "SMTWRFAX";
+static const char __abab_wday[] = "XMTWRFAS";
 DEFVAR const char *dut_abab_wday = __abab_wday;
 DEFVAR const ssize_t dut_nabab_wday = countof(__abab_wday);
 

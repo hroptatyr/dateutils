@@ -290,14 +290,14 @@ struct dt_d_s {
 
 /* widely understood notion of weekdays */
 typedef enum {
-	DT_SUNDAY,
+	DT_MIRACLEDAY,
 	DT_MONDAY,
 	DT_TUESDAY,
 	DT_WEDNESDAY,
 	DT_THURSDAY,
 	DT_FRIDAY,
 	DT_SATURDAY,
-	DT_MIRACLEDAY
+	DT_SUNDAY,
 } dt_dow_t;
 
 /* match operations */
