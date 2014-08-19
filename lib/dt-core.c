@@ -1366,10 +1366,25 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 	} else if (!dt_separable_p(d)) {
 		switch (d.typ) {
 		case DT_SEXY:
-			d = __sexy_to_daisy(d.sxepoch);
+		case DT_SEXYTAI:
+			if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
+				/* go through daisy */
+				d = __sexy_to_daisy(d.sxepoch);
+				d.d = dt_dconv((dt_dtyp_t)tgttyp, d.d);
+				d.sandwich = 1U;
+			} else if (tgttyp == DT_YMDHMS) {
+				;
+			}
 			break;
 		case DT_YMDHMS:
-			d = __ymdhms_to_ymd(d.ymdhms);
+			if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
+				/* go through ymd */
+				d = __ymdhms_to_ymd(d.ymdhms);
+				d.d = dt_dconv((dt_dtyp_t)tgttyp, d.d);
+				d.sandwich = 1U;
+			} else if (tgttyp == DT_SEXY) {
+				;
+			}
 			break;
 		default:
 			d = dt_dt_initialiser();
@@ -1502,8 +1517,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
-	} else if (tgttyp > (dt_dttyp_t)DT_UNK &&
-		   tgttyp < (dt_dttyp_t)DT_NDTYP) {
+	} else if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
 		/* check for negative carry */
 		if (UNLIKELY(res.t.sdur < 0)) {
 			d2.d = dt_dadd(d2.d, dt_make_daisydur(-1));
