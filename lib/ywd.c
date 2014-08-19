@@ -632,21 +632,12 @@ __ywd_get_mon(dt_ywd_t d)
 	unsigned int yd = __ywd_get_yday(d);
 	return __yday_get_md(d.y, yd).m;
 }
-#endif	/* ASPECT_GETTERS */
 
-
-#if defined ASPECT_CONV && !defined YWD_ASPECT_CONV_
-#define YWD_ASPECT_CONV_
-/* we need some of the stuff above, so get it */
-#define ASPECT_GETTERS
-#include "ywd.c"
-#undef ASPECT_GETTERS
-
-static dt_ymd_t
-__ywd_to_ymd(dt_ywd_t d)
+static unsigned int
+__ywd_get_year(dt_ywd_t d)
 {
+/* return the true gregorian year */
 	unsigned int y = d.y;
-	struct __md_s md = __ywd_get_md(d);
 
 	if (d.c == 1) {
 		dt_dow_t f01 = __ywd_get_jan01_wday(d);
@@ -662,6 +653,24 @@ __ywd_to_ymd(dt_ywd_t d)
 			y++;
 		}
 	}
+	return y;
+}
+#endif	/* ASPECT_GETTERS */
+
+
+#if defined ASPECT_CONV && !defined YWD_ASPECT_CONV_
+#define YWD_ASPECT_CONV_
+/* we need some of the stuff above, so get it */
+#define ASPECT_GETTERS
+#include "ywd.c"
+#undef ASPECT_GETTERS
+
+static dt_ymd_t
+__ywd_to_ymd(dt_ywd_t d)
+{
+	unsigned int y = __ywd_get_year(d);
+	struct __md_s md = __ywd_get_md(d);
+
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymd_t){.y = y, .m = md.m, .d = md.d};
 #else  /* !HAVE_ANON_STRUCTS_INIT */
@@ -679,24 +688,9 @@ __ywd_to_ymd(dt_ywd_t d)
 static dt_ymcw_t
 __ywd_to_ymcw(dt_ywd_t d)
 {
-	unsigned int y = d.y;
+	unsigned int y = __ywd_get_year(d);
 	struct __md_s md = __ywd_get_md(d);
 	unsigned int c;
-
-	if (d.c == 1) {
-		dt_dow_t f01 = __ywd_get_jan01_wday(d);
-
-		if (d.hang <= 0 && d.w < DT_MONDAY && d.w < f01) {
-			y--;
-		}
-
-	} else if (d.c >= __get_z31wk(y)) {
-		dt_dow_t z31 = __ywd_get_dec31_wday(d);
-
-		if (z31 && (d.w > z31 || d.w == DT_SUNDAY)) {
-			y++;
-		}
-	}
 
 	/* we obtain C from weekifying the month */
 	c = (md.d - 1U) / GREG_DAYS_P_WEEK + 1U;
