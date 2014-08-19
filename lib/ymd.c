@@ -105,7 +105,8 @@ __get_m01_wday(unsigned int year, unsigned int mon)
 	}
 	cand = __get_jan01_wday(year);
 	off = __md_get_yday(year, mon, 0);
-	return (dt_dow_t)((cand + off) % GREG_DAYS_P_WEEK);
+	off = (cand + off) % GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(off ?: DT_SUNDAY);
 }
 
 #if defined YMD_GET_WDAY_LOOKUP
@@ -118,7 +119,8 @@ __get_dom_wday(unsigned int year, unsigned int mon, unsigned int dom)
 
 	if ((yd = __md_get_yday(year, mon, dom)) > 0 &&
 	    (j01_wd = __get_jan01_wday(year)) != DT_MIRACLEDAY) {
-		return (dt_dow_t)((yd - 1 + j01_wd) % GREG_DAYS_P_WEEK);
+		unsigned int wd = (yd - 1 + j01_wd) % GREG_DAYS_P_WEEK;
+		return (dt_dow_t)(wd ?: DT_SUNDAY);
 	}
 	return DT_MIRACLEDAY;
 }
@@ -133,6 +135,7 @@ __get_dom_wday(int year, int mon, int dom)
 	int w;
 	int c, x;
 	int d, y;
+	unsigned int wd;
 
 	if ((mon -= 2) <= 0) {
 		mon += 12;
@@ -145,7 +148,8 @@ __get_dom_wday(int year, int mon, int dom)
 	y = d / 4;
 
 	w = (13 * mon - 1) / 5;
-	return (dt_dow_t)((w + x + y + dom + c - 2 * d) % GREG_DAYS_P_WEEK);
+	wd = (w + x + y + dom + c - 2 * d) % GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(wd ?: DT_SUNDAY);
 }
 #elif defined YMD_GET_WDAY_SAKAMOTO
 /* Sakamoto method */
@@ -154,11 +158,13 @@ __get_dom_wday(int year, int mon, int dom)
 {
 	static int t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
 	int res;
+	unsigned int wd;
 
 	year -= mon < 3;
 	res = year + year / 4 - year / 100 + year / 400;
 	res += t[mon - 1] + dom;
-	return (dt_dow_t)(res % GREG_DAYS_P_WEEK);
+	wd = (unsigned int)res % GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(wd ?: DT_SUNDAY);
 }
 
 #elif defined YMD_GET_WDAY_7YM_ALL || defined YMD_GET_WDAY_7YM_REP
@@ -355,6 +361,7 @@ __get_dom_wday(unsigned int year, unsigned int mon, unsigned int dom)
 	unsigned int bm = mon - 1;
 	unsigned int bd = dom - 1;
 	unsigned int idx;
+	unsigned int wd;
 
 	if (bm < 2U) {
 		/* FG */
@@ -373,8 +380,8 @@ __get_dom_wday(unsigned int year, unsigned int mon, unsigned int dom)
 		idx = __get_widx_H(by);
 	}
 
-	/* implicit assumption DT_SUN == 0! */
-	return (dt_dow_t)((__get_ser(idx, bm) + bd) % GREG_DAYS_P_WEEK);
+	wd = (__get_ser(idx, bm) + bd) % GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(wd ?: DT_SUNDAY);
 }
 
 #endif	/* 0 */
@@ -488,7 +495,7 @@ __ymd_to_ymcw(dt_ymd_t d)
 static dt_ywd_t
 __ymd_to_ywd(dt_ymd_t d)
 {
-	unsigned int w = __ymd_get_wday(d);
+	dt_dow_t w = __ymd_get_wday(d);
 	unsigned int c = __ymd_get_wcnt_abs(d);
 	return __make_ywd_c(d.y, c, w, YWD_ABSWK_CNT);
 }
