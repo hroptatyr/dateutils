@@ -289,7 +289,7 @@ static inline __attribute__((pure, const)) bool
 dt_separable_p(struct dt_dt_s d)
 {
 /* return true if D is a d+t sandwich or D is d-only or D is t-only */
-	return d.d.typ < DT_NDTYP;
+	return d.typ < DT_PACK;
 }
 
 #define DT_SANDWICH_UNK		(DT_UNK)
