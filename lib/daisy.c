@@ -134,7 +134,7 @@ __daisy_get_wday(dt_daisy_t d)
 {
 /* daisy wdays are simple because the base year is chosen so that day 0
  * in the daisy calendar is a sunday */
-	return (dt_dow_t)(d % GREG_DAYS_P_WEEK);
+	return (dt_dow_t)((d % GREG_DAYS_P_WEEK) ?: DT_SUNDAY);
 }
 
 static unsigned int
