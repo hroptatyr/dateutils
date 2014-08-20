@@ -486,6 +486,9 @@ __strfdt_xdn(char *buf, size_t bsz, struct dt_dt_s that)
 		break;
 	case DT_LDN:
 		dn = (double)that.d.ldn;
+		if (dt_sandwich_only_d_p(that)) {
+			return snprintf(buf, bsz, "%.0f", dn);
+		}
 		break;
 	default:
 		return 0;
@@ -495,7 +498,6 @@ __strfdt_xdn(char *buf, size_t bsz, struct dt_dt_s that)
 		unsigned int ss = __secs_since_midnight(that.t);
 		dn += (double)ss / (double)SECS_PER_DAY;
 	}
-
 	return snprintf(buf, bsz, "%.6f", dn);
 }
 
