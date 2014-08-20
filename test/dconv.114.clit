@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -i ldn -f ymd <<EOF
+157729.0
+157730.0
+EOF
+2014-08-20T00:00:00
+2014-08-21T00:00:00
+$
+
+## dconv.114.clit ends here
