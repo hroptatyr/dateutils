@@ -15,6 +15,7 @@
 #include <errno.h>
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
+#include "date-core-private.h"
 #include "tzraw.h"
 #include "tzmap.h"
 #include "strops.h"
@@ -324,7 +325,6 @@ calc_grep_atom(const char *fmt)
 	int8_t andl_idx = 0;
 	int8_t bndl_idx = 0;
 	int8_t pndl_idx = 0;
-	const char *fp = fmt;
 
 	/* init */
 	if (fmt == NULL) {
@@ -340,9 +340,23 @@ calc_grep_atom(const char *fmt)
 		res.pl.off_min = -2;
 		res.pl.off_max = -1;
 		goto out;
+	} else {
+		/* try and transform shortcuts */
+		switch (__trans_dfmt(&fmt)) {
+		default:
+			break;
+		case DT_LDN:
+		case DT_JDN:
+			/* there's no format specifiers for lilian/julian */
+			res.pl.off_min += -10;
+			res.pl.off_max += -1;
+			res.pl.flags |= GRPATM_DIGITS;
+			goto post_snarf;
+		}
 	}
+
 	/* rest here ... */
-	while (*fp) {
+	for (const char *fp = fmt; *fp;) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
@@ -483,6 +497,8 @@ calc_grep_atom(const char *fmt)
 			break;
 		}
 	}
+
+post_snarf:
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
 		if ((res.pl.flags & ~(GRPATM_DIGITS | GRPATM_ORDINALS)) == 0) {
 			/* ah, only digits, thats good */

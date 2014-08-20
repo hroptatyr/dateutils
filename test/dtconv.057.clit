@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -i ldn 157730.0 -f "%a %b %dth %H:%M:%S %Y"
+Thu Aug 21st 00:00:00 2014
+$
+
+## dconv.057.clit ends here

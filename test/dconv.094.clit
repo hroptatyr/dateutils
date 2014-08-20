@@ -1,7 +1,7 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ dconv 1917-01-01 -f lilian
-122069.000000
+122069
 $
 
 ## dconv.94.clit ends here

@@ -177,6 +177,10 @@ dt_tests += dconv.107.clit
 dt_tests += dconv.108.clit
 dt_tests += dconv.109.clit
 dt_tests += dconv.110.clit
+dt_tests += dconv.111.clit
+dt_tests += dconv.112.clit
+dt_tests += dconv.113.clit
+dt_tests += dconv.114.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -264,6 +268,8 @@ dt_tests += dadd.083.clit
 dt_tests += dadd.084.clit
 dt_tests += dadd.085.clit
 dt_tests += dadd.086.clit
+dt_tests += dadd.087.clit
+dt_tests += dadd.088.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
@@ -533,6 +539,10 @@ dt_tests += dtconv.053.clit
 dt_tests += dtconv.054.clit
 dt_tests += dtconv.055.clit
 dt_tests += dtconv.056.clit
+dt_tests += dtconv.057.clit
+dt_tests += dtconv.058.clit
+dt_tests += dtconv.059.clit
+dt_tests += dtconv.060.clit
 
 dt_tests += convt.ymcw-ymd.clit
 dt_tests += convt.ymcw-ywd.clit
