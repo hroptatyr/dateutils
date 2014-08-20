@@ -1334,8 +1334,30 @@ dt_dadd_d(struct dt_d_s d, int n)
 {
 /* add N (gregorian) days to D */
 	switch (d.typ) {
+	case DT_JDN:
+		d.daisy = __jdn_to_daisy(d.jdn);
+		goto daisy_add_d;
+
+	case DT_LDN:
+		d.daisy = __ldn_to_daisy(d.ldn);
+		goto daisy_add_d;
+
 	case DT_DAISY:
+	daisy_add_d:
 		d.daisy = __daisy_add_d(d.daisy, n);
+
+		/* transform back (maybe) */
+		switch (d.typ) {
+		case DT_DAISY:
+		default:
+			break;
+		case DT_LDN:
+			d.ldn = __daisy_to_ldn(d.daisy);
+			break;
+		case DT_JDN:
+			d.jdn = __daisy_to_jdn(d.daisy);
+			break;
+		}
 		break;
 
 	case DT_YMD:
@@ -1368,8 +1390,30 @@ dt_dadd_b(struct dt_d_s d, int n)
 {
 /* add N business days to D */
 	switch (d.typ) {
+	case DT_JDN:
+		d.daisy = __jdn_to_daisy(d.jdn);
+		goto daisy_add_b;
+
+	case DT_LDN:
+		d.daisy = __ldn_to_daisy(d.ldn);
+		goto daisy_add_b;
+
 	case DT_DAISY:
+	daisy_add_b:
 		d.daisy = __daisy_add_b(d.daisy, n);
+
+		/* transform back (maybe) */
+		switch (d.typ) {
+		case DT_DAISY:
+		default:
+			break;
+		case DT_LDN:
+			d.ldn = __daisy_to_ldn(d.daisy);
+			break;
+		case DT_JDN:
+			d.jdn = __daisy_to_jdn(d.daisy);
+			break;
+		}
 		break;
 
 	case DT_YMD:
@@ -1402,8 +1446,30 @@ dt_dadd_w(struct dt_d_s d, int n)
 {
 /* add N weeks to D */
 	switch (d.typ) {
+	case DT_JDN:
+		d.daisy = __jdn_to_daisy(d.jdn);
+		goto daisy_add_w;
+
+	case DT_LDN:
+		d.daisy = __ldn_to_daisy(d.ldn);
+		goto daisy_add_w;
+
 	case DT_DAISY:
+	daisy_add_w:
 		d.daisy = __daisy_add_w(d.daisy, n);
+
+		/* transform back (maybe) */
+		switch (d.typ) {
+		case DT_DAISY:
+		default:
+			break;
+		case DT_LDN:
+			d.ldn = __daisy_to_ldn(d.daisy);
+			break;
+		case DT_JDN:
+			d.jdn = __daisy_to_jdn(d.daisy);
+			break;
+		}
 		break;
 
 	case DT_YMD:
@@ -1436,6 +1502,8 @@ dt_dadd_m(struct dt_d_s d, int n)
 {
 /* add N months to D */
 	switch (d.typ) {
+	case DT_LDN:
+	case DT_JDN:
 	case DT_DAISY:
 		/* daisy objects have no notion of months */
 		break;
@@ -1470,6 +1538,8 @@ dt_dadd_y(struct dt_d_s d, int n)
 {
 /* add N years to D */
 	switch (d.typ) {
+	case DT_LDN:
+	case DT_JDN:
 	case DT_DAISY:
 		/* daisy objects have no notion of years */
 		break;
