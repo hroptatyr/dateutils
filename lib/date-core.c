@@ -950,7 +950,15 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.c = that.ymcw.c;
 		d.w = that.ymcw.w;
 		break;
+	case DT_JDN:
+		that.typ = DT_DAISY;
+		that.daisy = __jdn_to_daisy(that.jdn);
+		goto daisy_prep;
+	case DT_LDN:
+		that.typ = DT_DAISY;
+		that.daisy = __ldn_to_daisy(that.ldn);
 	case DT_DAISY:
+	daisy_prep:
 		__prep_strfd_daisy(&d, that.daisy);
 		break;
 	case DT_BIZDA:

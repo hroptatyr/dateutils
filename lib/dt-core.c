@@ -749,6 +749,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
+		strf_xian:
 			/* short cut, just print the guy here */
 			bp = buf + __strfdt_xdn(buf, bsz, that);
 			goto out;
@@ -784,9 +785,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
-			/* short cut, print the guy in here */
-			bp = buf + __strfdt_xdn(buf, bsz, that);
-			goto out;
+			goto strf_xian;
 		default:
 			/* fuck */
 			abort();
@@ -819,6 +818,11 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	case DT_YWD:
 		__prep_strfd_ywd(&d.sd, that.d.ywd);
 		break;
+	case DT_JDN:
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
+		goto daisy_prep;
+	case DT_LDN:
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
 	case DT_DAISY:
 	daisy_prep:
 		__prep_strfd_daisy(&d.sd, that.d.daisy);
@@ -843,8 +847,6 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 
 	default:
 	case DT_DUNK:
-	case DT_LDN:
-	case DT_JDN:
 		if (!dt_sandwich_only_t_p(that)) {
 			bp = buf;
 			goto out;
