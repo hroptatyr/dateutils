@@ -563,16 +563,13 @@ __strfd_card(
 	}
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
-		if (!d->w) {
-			d->w = dt_get_wday(that);
-		}
-		if (UNLIKELY(d->w == 0)) {
-			if (s.wk_cnt == YWD_MONWK_CNT) {
-				/* turn Sun 00 to Sun 07 */
-				d->w = 7;
+		with (unsigned int w = d->w ?: dt_get_wday(that)) {
+			if (w == DT_SUNDAY && s.wk_cnt != YWD_MONWK_CNT) {
+				/* turn Sun 07 to Sun 00 */
+				w = 0;
 			}
+			res = ui32tostr(buf, bsz, w, 2);
 		}
-		res = ui32tostr(buf, bsz, d->w, 2);
 		break;
 	case DT_SPFL_N_WCNT_MON: {
 		unsigned int c = d->c;
