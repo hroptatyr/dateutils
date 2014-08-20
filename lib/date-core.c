@@ -46,6 +46,7 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
+#include <assert.h>
 #include "date-core.h"
 #include "date-core-private.h"
 #include "strops.h"
@@ -296,7 +297,20 @@ dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention)
 		case YWD_SUNWK_CNT: {
 			/* using monwk_cnt is a minor trick
 			 * from = 1 = Mon or 0 = Sun */
-			int from = wkcnt_convention == YWD_MONWK_CNT;
+			dt_dow_t from;
+
+			switch (wkcnt_convention) {
+			case YWD_MONWK_CNT:
+				from = DT_MONDAY;
+				break;
+			case YWD_SUNWK_CNT:
+				from = DT_SUNDAY;
+				break;
+			default:
+				/* huh? */
+				from = DT_MIRACLEDAY;
+				break;
+			}
 			res = __yd_get_wcnt(yd, from);
 			break;
 		}
@@ -762,7 +776,7 @@ __guess_dtyp(struct strpd_s d)
 #endif	/* !WITH_FAST_ARITH */
 	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
-		res.ywd = __make_ywd_c(d.y, d.c, d.w, d.flags.wk_cnt);
+		res.ywd = __make_ywd_c(d.y, d.c, (dt_dow_t)d.w, d.flags.wk_cnt);
 	} else if (d.y > 0 && !d.flags.bizda) {
 		/* its legit for d.w to be naught */
 		res.typ = DT_YMCW;

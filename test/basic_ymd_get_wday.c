@@ -22,7 +22,7 @@ super(void)
 				x.m = m;
 				x.d = d;
 				w = __ymd_get_wday(x);
-				res += y * m * w + d;
+				res += y * m * (w == DT_SUNDAY ? 0 : w) + d;
 			}
 		}
 	}

@@ -17,7 +17,7 @@ super(void)
 		for (int m = 1; m <= 12; m ++) {
 			for (int d = 1; d <= 28; d++) {
 				dt_dow_t w = __get_dom_wday(y, m, d);
-				res += y * m * w + d;
+				res += y * m * (w == DT_SUNDAY ? 0 : w) + d;
 			}
 		}
 	}

@@ -194,6 +194,8 @@ __strpdt_std(const char *str, char **ep)
 			sp = str;
 			goto out;
 		}
+		/* fix up d.sd.w right away */
+		d.sd.w = d.sd.w ?: DT_SUNDAY;
 		break;
 	case 'B':
 		/* it's a bizda/YMDU before ultimo date */
