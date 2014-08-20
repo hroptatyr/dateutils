@@ -1,6 +1,8 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dadd -i ldn 157729 +1d
+## we have to use the .0 variant here because the LDN
+## can be mistaken for a duration
+$ dadd -i ldn 157729.0 +1d
 157730.000000
 $
 
