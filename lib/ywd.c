@@ -70,6 +70,7 @@ __ywd_get_jan01_wday(dt_ywd_t d)
 /* hang of 0 means Mon, -1 Tue, -2 Wed, -3 Thu, 3 Fri, 2 Sat, 1 Sun */
 	int res;
 
+	assert(d.hang >= -3 && d.hang <= 3);
 	if (UNLIKELY((res = 1 - d.hang) < 0)) {
 		res += GREG_DAYS_P_WEEK;
 	}

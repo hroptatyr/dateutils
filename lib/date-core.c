@@ -957,6 +957,7 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	case DT_LDN:
 		that.typ = DT_DAISY;
 		that.daisy = __ldn_to_daisy(that.ldn);
+		/* FALLTHROUGH */
 	case DT_DAISY:
 	daisy_prep:
 		__prep_strfd_daisy(&d, that.daisy);
