@@ -73,6 +73,7 @@ __ywd_get_jan01_wday(dt_ywd_t d)
 	assert(d.hang >= -3 && d.hang <= 3);
 	if (UNLIKELY((res = 1 - d.hang) <= 0)) {
 		res += GREG_DAYS_P_WEEK;
+		assert(res > DT_MIRACLEDAY);
 	}
 	return (dt_dow_t)res;
 }
