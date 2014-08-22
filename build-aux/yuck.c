@@ -1,6 +1,6 @@
 /*** yuck.c -- generate umbrella commands
  *
- * Copyright (C) 2013 Sebastian Freundt
+ * Copyright (C) 2013-2014 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -1583,7 +1583,8 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 		fprintf(outf, "define([YUCK_SCMVER_VTAG], [%s])\n", v->vtag);
 		fprintf(outf, "define([YUCK_SCMVER_SCM], [%s])\n", yscm);
 		fprintf(outf, "define([YUCK_SCMVER_DIST], [%u])\n", v->dist);
-		fprintf(outf, "define([YUCK_SCMVER_RVSN], [%08x])\n", v->rvsn);
+		fprintf(outf, "define([YUCK_SCMVER_RVSN], [%0*x])\n",
+			(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 		if (!v->dirty) {
 			fputs("define([YUCK_SCMVER_FLAG_CLEAN])\n", outf);
 		} else {
@@ -1596,7 +1597,9 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
 			fputc('.', outf);
 			fputs(yscm_strs[v->scm], outf);
-			fprintf(outf, "%u.%08x", v->dist, v->rvsn);
+			fprintf(outf, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", outf);
@@ -1710,18 +1713,19 @@ cmd_gen(const struct yuck_cmd_gen_s argi[static 1U])
 		goto out;
 	}
 	/* now route that stuff through m4 */
-	with (const char *outfn = argi->output_arg, *hdrfn) {
+	with (const char *outfn = argi->output_arg,
+	      *cusfn = argi->custom_arg ?: "/dev/null", *hdrfn) {
 		if ((hdrfn = argi->header_arg) != NULL) {
 			/* run a special one for the header */
 			if ((rc = run_m4(hdrfn, dslfn, deffn, genhfn, NULL))) {
 				break;
 			}
 			/* now run the whole shebang for the beef code */
-			rc = run_m4(outfn, dslfn, deffn, gencfn, NULL);
+			rc = run_m4(outfn, dslfn, deffn, cusfn, gencfn, NULL);
 			break;
 		}
 		/* standard case: pipe directives, then header, then code */
-		rc = run_m4(outfn, dslfn, deffn, genhfn, gencfn, NULL);
+		rc = run_m4(outfn, dslfn, deffn, cusfn, genhfn, gencfn, NULL);
 	}
 out:
 	/* unlink include files */
@@ -1919,7 +1923,9 @@ flag -n|--use-reference requires -r|--reference parameter");
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
 			fputc('.', stdout);
 			fputs(yscm_strs[v->scm], stdout);
-			fprintf(stdout, "%u.%08x", v->dist, v->rvsn);
+			fprintf(stdout, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", stdout);
