@@ -71,10 +71,11 @@ __ywd_get_jan01_wday(dt_ywd_t d)
 	int res;
 
 	assert(d.hang >= -3 && d.hang <= 3);
-	if (UNLIKELY((res = 1 - d.hang) < 0)) {
+	if (UNLIKELY((res = 1 - d.hang) <= 0)) {
 		res += GREG_DAYS_P_WEEK;
+		assert(res > DT_MIRACLEDAY);
 	}
-	return (dt_dow_t)(res ?: DT_SUNDAY);
+	return (dt_dow_t)res;
 }
 
 static int
