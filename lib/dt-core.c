@@ -823,6 +823,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto daisy_prep;
 	case DT_LDN:
 		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
+		/* FALLTHROUGH */
 	case DT_DAISY:
 	daisy_prep:
 		__prep_strfd_daisy(&d.sd, that.d.daisy);
