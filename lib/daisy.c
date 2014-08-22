@@ -134,7 +134,7 @@ __daisy_get_wday(dt_daisy_t d)
 {
 /* daisy wdays are simple because the base year is chosen so that day 0
  * in the daisy calendar is a sunday */
-	return (dt_dow_t)(d % GREG_DAYS_P_WEEK);
+	return (dt_dow_t)((d % GREG_DAYS_P_WEEK) ?: DT_SUNDAY);
 }
 
 static unsigned int
@@ -282,8 +282,8 @@ __daisy_to_ymcw(dt_daisy_t that)
 static dt_ywd_t
 __daisy_to_ywd(dt_daisy_t that)
 {
-	unsigned int wk = (that + 6) / 7;
-	unsigned int wd = (that + 6) % 7;
+	const unsigned int wk = (that + 6) / 7;
+	const unsigned int wd = (that + 6) % 7;
 	unsigned int y;
 	unsigned int yw;
 	dt_ywd_t res;
@@ -303,7 +303,7 @@ __daisy_to_ywd(dt_daisy_t that)
 	/* final assignment */
 	res.y = y;
 	res.c = yw;
-	res.w = (wd + 1U) % 7U;
+	res.w = wd % 7U + 1U;
 	return res;
 }
 

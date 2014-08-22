@@ -55,7 +55,7 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 ])dnl SXE_CHECK_MATLAB
 
 AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
-	PKG_CHECK_MODULES([octave], [octave >= 3.0.0])
+	PKG_CHECK_MODULES([octave], [octave >= 3.0.0], [:], [:])
 
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])

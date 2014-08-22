@@ -14,7 +14,7 @@ super(unsigned int res)
 	for (int y = 1917; y < 2199; y++) {
 		dt_dow_t w;
 		w = __get_jan01_wday(y);
-		res += y * w;
+		res += y * (w == DT_SUNDAY ? 0 : w);
 	}
 	return res;
 }

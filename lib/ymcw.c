@@ -92,7 +92,7 @@ __ymcw_fixup(dt_ymcw_t d)
 static dt_dow_t
 __ymcw_get_wday(dt_ymcw_t that)
 {
-	return (dt_dow_t)that.w;
+	return (dt_dow_t)(that.w ?: DT_SUNDAY);
 }
 
 DEFUN unsigned int
@@ -297,7 +297,7 @@ static dt_ywd_t
 __ymcw_to_ywd(dt_ymcw_t d)
 {
 	unsigned int y = d.y;
-	unsigned int w = d.w;
+	dt_dow_t w = (dt_dow_t)d.w;
 	unsigned int c = __ymcw_get_yday(d);
 	return __make_ywd_c(y, c, w, YWD_ABSWK_CNT);
 }

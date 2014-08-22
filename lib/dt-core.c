@@ -187,24 +187,42 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 	return dt;
 }
 
-static inline dt_ymdhms_t
-__epoch_to_ymdhms(dt_ssexy_t sx)
+static inline struct dt_dt_s
+__sexy_to_daisy(dt_ssexy_t sx)
 {
-	dt_ymdhms_t res;
+	struct dt_dt_s res = dt_dt_initialiser();
 
-	res.S = sx % SECS_PER_MIN;
+	res.t.hms.s = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
-	res.M = sx % MINS_PER_HOUR;
+	res.t.hms.m = sx % MINS_PER_HOUR;
 	sx /= MINS_PER_HOUR;
-	res.H = sx % HOURS_PER_DAY;
+	res.t.hms.h = sx % HOURS_PER_DAY;
 	sx /= HOURS_PER_DAY;
 
-	{
-		dt_ymd_t tmp = __daisy_to_ymd(sx + DAISY_UNIX_BASE);
-		res.y = tmp.y;
-		res.m = tmp.m;
-		res.d = tmp.d;
-	}
+	/* rest is a day-count, move to daisy */
+	res.d.daisy = sx + DAISY_UNIX_BASE;
+
+	/* sandwichify */
+	dt_make_sandwich(&res, DT_DAISY, DT_HMS);
+	return res;
+}
+
+static inline struct dt_dt_s
+__ymdhms_to_ymd(dt_ymdhms_t x)
+{
+	struct dt_dt_s res = dt_dt_initialiser();
+
+	res.t.hms.s = x.S;
+	res.t.hms.m = x.M;
+	res.t.hms.h = x.H;
+
+	/* rest is a day-count, move to daisy */
+	res.d.ymd.y = x.y;
+	res.d.ymd.m = x.m;
+	res.d.ymd.d = x.d;
+
+	/* sandwichify */
+	dt_make_sandwich(&res, DT_YMD, DT_HMS);
 	return res;
 }
 
@@ -731,6 +749,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
+		strf_xian:
 			/* short cut, just print the guy here */
 			bp = buf + __strfdt_xdn(buf, bsz, that);
 			goto out;
@@ -766,9 +785,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
-			/* short cut, print the guy in here */
-			bp = buf + __strfdt_xdn(buf, bsz, that);
-			goto out;
+			goto strf_xian;
 		default:
 			/* fuck */
 			abort();
@@ -782,8 +799,12 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		__trans_tfmt(&fmt);
 	}
 
+	/* make sure we always snarf the zdiff info */
+	d.zdiff = zdiff_sec(that);
+
 	switch (that.typ) {
 	case DT_YMD:
+	ymd_prep:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
@@ -797,7 +818,13 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	case DT_YWD:
 		__prep_strfd_ywd(&d.sd, that.d.ywd);
 		break;
+	case DT_JDN:
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
+		goto daisy_prep;
+	case DT_LDN:
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
 	case DT_DAISY:
+	daisy_prep:
 		__prep_strfd_daisy(&d.sd, that.d.daisy);
 		break;
 
@@ -806,22 +833,20 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			&d.sd, that.d.bizda, __get_bizda_param(that.d));
 		break;
 
-	case DT_SEXY: {
-		dt_ymdhms_t tmp = __epoch_to_ymdhms(that.sxepoch);
-		d.st.h = tmp.H;
-		d.st.m = tmp.M;
-		d.st.s = tmp.S;
-		d.sd.y = tmp.y;
-		d.sd.m = tmp.m;
-		d.sd.d = tmp.d;
-		break;
-	}
+	case DT_SEXY:
+		/* instead of leaving this as SEXY turn it into
+		 * DAISY/HMS sandwich */
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
+		/* prep d.sd */
+		goto daisy_prep;
 	case DT_YMDHMS:
-		break;
+		/* convert this to a YMD/HMS sandwich */
+		that = dt_dtconv((dt_dttyp_t)DT_YMD, that);
+		/* prep d.sd */
+		goto ymd_prep;
+
 	default:
 	case DT_DUNK:
-	case DT_LDN:
-	case DT_JDN:
 		if (!dt_sandwich_only_t_p(that)) {
 			bp = buf;
 			goto out;
@@ -835,8 +860,6 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		d.st.s = that.t.hms.s;
 		d.st.ns = that.t.hms.ns;
 	}
-	/* make sure we always snarf the zdiff info */
-	d.zdiff = zdiff_sec(that);
 
 	/* assign and go */
 	bp = buf;
@@ -1336,11 +1359,39 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 
 		case DT_DUNK:
 		default:
-			return dt_dt_initialiser();
+			d = dt_dt_initialiser();
+			break;
 		}
 	} else if (dt_sandwich_only_t_p(d)) {
 		/* ah, how good is that? */
 		;
+	} else if (!dt_separable_p(d)) {
+		switch (d.typ) {
+		case DT_SEXY:
+		case DT_SEXYTAI:
+			if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
+				/* go through daisy */
+				d = __sexy_to_daisy(d.sxepoch);
+				d.d = dt_dconv((dt_dtyp_t)tgttyp, d.d);
+				d.sandwich = 1U;
+			} else if (tgttyp == DT_YMDHMS) {
+				;
+			}
+			break;
+		case DT_YMDHMS:
+			if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
+				/* go through ymd */
+				d = __ymdhms_to_ymd(d.ymdhms);
+				d.d = dt_dconv((dt_dtyp_t)tgttyp, d.d);
+				d.sandwich = 1U;
+			} else if (tgttyp == DT_SEXY) {
+				;
+			}
+			break;
+		default:
+			d = dt_dt_initialiser();
+			break;
+		}
 	} else {
 		/* great, what now? */
 		;
@@ -1468,8 +1519,7 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
-	} else if (tgttyp > (dt_dttyp_t)DT_UNK &&
-		   tgttyp < (dt_dttyp_t)DT_NDTYP) {
+	} else if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
 		/* check for negative carry */
 		if (UNLIKELY(res.t.sdur < 0)) {
 			d2.d = dt_dadd(d2.d, dt_make_daisydur(-1));

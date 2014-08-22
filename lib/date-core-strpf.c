@@ -61,25 +61,25 @@
 #endif	/* !DEFVAR */
 
 static const char *__long_wday[] = {
-	"Sunday",
+	"Miracleday",
 	"Monday",
 	"Tuesday",
 	"Wednesday",
 	"Thursday",
 	"Friday",
 	"Saturday",
-	"Miracleday",
+	"Sunday",
 };
 DEFVAR const char **dut_long_wday = __long_wday;
 DEFVAR const ssize_t dut_nlong_wday = countof(__long_wday);
 
 static const char *__abbr_wday[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Mir",
+	"Mir", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
 };
 DEFVAR const char **dut_abbr_wday = __abbr_wday;
 DEFVAR const ssize_t dut_nabbr_wday = countof(__abbr_wday);
 
-static const char __abab_wday[] = "SMTWRFAX";
+static const char __abab_wday[] = "XMTWRFAS";
 DEFVAR const char *dut_abab_wday = __abab_wday;
 DEFVAR const ssize_t dut_nabab_wday = countof(__abab_wday);
 
@@ -225,6 +225,8 @@ __strpd_std(const char *str, char **ep)
 			/* didn't work, fuck off */
 			goto fucked;
 		}
+		/* fix up d.w right away */
+		d.w = d.w ?: DT_SUNDAY;
 		break;
 	case 'B':
 		/* it's a bizda/YMDU before ultimo date */
@@ -302,6 +304,8 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode? */
 		d->w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
+		/* fix up d->w right away */
+		d->w = d->w ?: DT_SUNDAY;
 		res = 0 - (d->w < 0);
 		break;
 	case DT_SPFL_N_WCNT_MON:
@@ -559,16 +563,13 @@ __strfd_card(
 	}
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
-		if (!d->w) {
-			d->w = dt_get_wday(that);
-		}
-		if (UNLIKELY(d->w == 0)) {
-			if (s.wk_cnt == YWD_MONWK_CNT) {
-				/* turn Sun 00 to Sun 07 */
-				d->w = 7;
+		with (unsigned int w = d->w ?: dt_get_wday(that)) {
+			if (w == DT_SUNDAY && s.wk_cnt != YWD_MONWK_CNT) {
+				/* turn Sun 07 to Sun 00 */
+				w = 0;
 			}
+			res = ui32tostr(buf, bsz, w, 2);
 		}
-		res = ui32tostr(buf, bsz, d->w, 2);
 		break;
 	case DT_SPFL_N_WCNT_MON: {
 		unsigned int c = d->c;

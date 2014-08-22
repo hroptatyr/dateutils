@@ -251,6 +251,8 @@ __get_nwedays(int dur, dt_dow_t wd)
  * (mod7 + wd >= 6) -> 1  */
 	int nss = (dur / (signed)GREG_DAYS_P_WEEK) * 2;
 	int mod = (dur % (signed)GREG_DAYS_P_WEEK);
+	/* this algo still works with SUNDAY == 0 */
+	int xwd = wd < DT_SUNDAY ? wd : 0;
 
 	if (mod == 0) {
 		return nss;
@@ -258,13 +260,13 @@ __get_nwedays(int dur, dt_dow_t wd)
 		return nss + 1;
 	} else if (UNLIKELY(wd == DT_SATURDAY && dur < 0)) {
 		return nss - 1;
-	} else if (mod > (int)wd + 1) {
+	} else if (mod > xwd + 1) {
 		return nss + 2;
-	} else if (mod > (int)wd) {
+	} else if (mod > xwd) {
 		return nss + 1;
-	} else if (mod + 7 <= (int)wd) {
+	} else if (mod + 7 <= xwd) {
 		return nss - 2;
-	} else if (mod + 6 <= (int)wd) {
+	} else if (mod + 6 <= xwd) {
 		return nss - 1;
 	}
 	return nss;
@@ -306,16 +308,16 @@ __get_bdays(unsigned int y, unsigned int m)
 	unsigned int md = __get_mdays(y, m);
 	unsigned int rd = (unsigned int)(md - 28U);
 	dt_dow_t m01wd;
-	unsigned int m28wd;
+	dt_dow_t m28wd;
 
 	/* rd should not overflow */
 	assert((signed int)md - 28 >= 0);
 
 	/* wday of the 1st and 28th */
 	m01wd = __get_m01_wday(y, m);
-	m28wd = __uimod((signed int)m01wd - 1, GREG_DAYS_P_WEEK);
+	m28wd = (dt_dow_t)(m01wd - 1 ?: DT_SUNDAY);
 	if (LIKELY(rd > 0)) {
-		switch ((dt_dow_t)m28wd) {
+		switch (m28wd) {
 		case DT_SUNDAY:
 		case DT_MONDAY:
 		case DT_TUESDAY:
@@ -378,7 +380,7 @@ __bizda_get_mday(dt_bizda_t that)
 		unsigned int b = that.bd;
 		unsigned int magic = (b - 1 + wd01 - 1);
 
-		assert(b - 1 + wd01 - 1 >= 0);
+		assert(b + wd01 >= 2);
 		wk = magic / DUWW_BDAYS_P_WEEK;
 		nd = magic % DUWW_BDAYS_P_WEEK;
 		res += wk * GREG_DAYS_P_WEEK + nd - wd01 + 1;
@@ -400,7 +402,7 @@ __bizda_get_wday(dt_bizda_t that)
 	/* find first of the month first */
 	wd01 = __get_m01_wday(that.y, that.m);
 	b = that.bd;
-	magic = (b - 1 + (wd01 ? wd01 : 6) - 1);
+	magic = (b - 1 + (wd01 < DT_SUNDAY ? wd01 : 6) - 1);
 	/* now just add up bdays */
 	return (dt_dow_t)((magic % DUWW_BDAYS_P_WEEK) + DT_MONDAY);
 }
@@ -460,10 +462,10 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 		/* 4 bits left */
 		unsigned int flags:4;
 	};
-	static struct __bdays_by_wday_s tbl[7] = {
+	static struct __bdays_by_wday_s tbl[8U] = {
 		{
-			/* DT_SUNDAY */
-			2, 0, 3,  0, 3, 2,  1, 3, 1,  2, 2, 1,  1, 2, 0
+			/* DT_MIRACLEDAY */
+			0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0
 		}, {
 			/* DT_MONDAY */
 			3, 0, 2,  1, 3, 1,  2, 3, 0,  3, 2, 1,  1, 1, 0
@@ -482,6 +484,9 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 		}, {
 			/* DT_SATURDAY */
 			1, 0, 3,  1, 2, 2,  1, 3, 2,  1, 2, 2,  1, 3, 0
+		}, {
+			/* DT_SUNDAY */
+			2, 0, 3,  0, 3, 2,  1, 3, 1,  2, 2, 1,  1, 2, 0
 		},
 	};
 	dt_dow_t j01wd;
@@ -526,7 +531,7 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 			accum += page.s.mar_leap;
 		}
 		/* load a different page now, shift to the right month */
-		page.s = tbl[(j01wd + DT_MONDAY) % GREG_DAYS_P_WEEK];
+		page.s = tbl[(j01wd < DT_SUNDAY ? j01wd : 0U) + DT_MONDAY];
 #if defined WORDS_BIGENDIAN
 		page.u <<= 6;
 #else  /* !WORDS_BIGENDIAN */
@@ -576,7 +581,7 @@ static dt_ymcw_t
 __bizda_to_ymcw(dt_bizda_t d, dt_bizda_param_t UNUSED(p))
 {
 	unsigned int c = __bizda_get_count(d);
-	unsigned int w = __bizda_get_wday(d);
+	dt_dow_t w = __bizda_get_wday(d);
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_ymcw_t){.y = d.y, .m = d.m, .c = c, .w = w};
 #else
