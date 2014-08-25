@@ -43,15 +43,15 @@ Dateutils commands are prefixed with a `d` but otherwise resemble known
 unix commands for reasons of intuition.  The only exception being
 `strptime` which is analogous to the libc function of the same name.
 
-+ `strptime`            Command line version of the C function
-+ `dadd`                Add durations to dates or times
-+ `dconv`               Convert dates or times between calendars
-+ `ddiff`               Compute durations between dates or times
-+ `dgrep`               Grep dates or times in input streams
-+ `dround`              Round dates or times to "fuller" values
-+ `dseq`                Generate sequences of dates or times
-+ `dtest`               Compare dates or times
-+ `dzone`               Convert date/times to timezones in bulk
++ [`strptime`](#strptime)  Command line version of the C function
++ [`dadd`](#dadd)       Add durations to dates or times
++ [`dconv`](#dconv)     Convert dates or times between calendars
++ [`ddiff`](#ddiff)     Compute durations between dates or times
++ [`dgrep`](#dgrep)     Grep dates or times in input streams
++ [`dround`](#dround)   Round dates or times to "fuller" values
++ [`dseq`](#dseq)       Generate sequences of dates or times
++ [`dtest`](#dtest)     Compare dates or times
++ [`dzone`](#dzone)     Convert date/times to timezones in bulk
 
 
 Distributions
