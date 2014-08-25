@@ -430,15 +430,15 @@ Use the one that best fits your purpose.  And in case you happen to like
 mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils)
 
 
-Social Media
-============
+Social Media et al
+==================
 
 Yes, we're aware of social media:
 
 + [Google+](https://plus.google.com/110311658013076591082) <a href="https://plus.google.com/110311658013076591082" rel="publisher"></a>
 + [twitter](https://twitter.com/dateutils)
 + [freecode](https://freecode.com/projects/dateutils)
-+ [Ohloh](https://www.ohloh.net/p/dateutils)
++ [Openhub](https://www.openhub.net/p/dateutils)
 
 Not that there will be no substantial content though.
 
