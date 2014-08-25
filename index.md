@@ -438,8 +438,8 @@ Yes, we're aware of social media:
 + [Google+](https://plus.google.com/110311658013076591082) <a href="https://plus.google.com/110311658013076591082" rel="publisher"></a>
 + [twitter](https://twitter.com/dateutils)
 + [Openhub](https://www.openhub.net/p/dateutils)
++ [Google Groups Mailing List](https://groups.google.com/d/forum/dateutils)
 
-Not that there will be no substantial content though.
 
 <!--
   Local variables:
