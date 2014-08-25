@@ -427,7 +427,7 @@ In no particular order and without any claim to completeness:
 + yest <http://yest.sourceforge.net/>
 
 Use the one that best fits your purpose.  And in case you happen to like
-mine, vote: [dateutils' Ohloh page](https://www.ohloh.net/p/dateutils)
+mine, vote: [dateutils' openhub page](https://www.openhub.net/p/dateutils)
 
 
 Social Media et al
