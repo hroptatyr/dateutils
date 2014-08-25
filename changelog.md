@@ -6,6 +6,34 @@ logo: dateutils_logo_120.png
 ---
 
 
+v0.3.0
+=======
+Summary: v0.3.0 of dateutils
+
+This is dateutils v0.3.0.
+
+This is a feature release.
+
+Features:
+
+- dgrep supports time zones both for the expression and the input
+- timezones can be specified by alternative codes and [tzmap files][1]
+- new tool dzone to inspect date/times in multiple timezones in bulk
+- new tool dsort to sort input chronologically
+- gengetopt and help2man maintainer dependencies removed
+- lilian/julian inputs via `-i ldn` and `-i jdn`
+- ymcw dates now follow ISO 8601 in using 07 to denote Sunday
+
+Bugfixes:
+
+- ddiff takes differences between a unix epoch stamp and a date/time
+- zone converter assigns correct sign to zone difference when using %Z
+- weekdays are properly calculated from epoch stamps (issue 24)
+
+See info page examples and/or README.
+
+  [1]: http://www.fresse.org/dateutils/tzmaps.html
+
 v0.2.7
 =======
 Summary: v0.2.7 of dateutils
@@ -15,7 +43,8 @@ This is dateutils v0.2.7.
 This is a feature release.
 
 Features:
-- dgrep supports -v|--invert-match like grep
+
+- dgrep supports `-v|--invert-match` like grep
 - output specifier %G is supported for compatibility with POSIX
 - ddiff calculates year-day differences
 - ddiff calculates ISO-week date differences
@@ -23,6 +52,7 @@ Features:
 - zoneinfo database on AIX >= 6.1 is taken into account
 
 Bug fixes:
+
 - ddiff can calculate full year differences, [issue 21][1] fixed
 - dseq now accepts %W, %V output formats, [issue 22][2] fixed
 - builds with clang >= 3.3 work again, [clang bug 18028][3]
@@ -42,6 +72,7 @@ This is dateutils v0.2.6.
 This is a bug fix release.
 
 Bug fixes:
+
 - issue 19, -q|--quiet no longer sends some commands into an inf-loop
 - netbsd test failures are fixed (due to missing leap seconds)
 - AIX builds are supported (getopt_long() is part of the code now)
@@ -60,6 +91,7 @@ This is dateutils v0.2.5.
 This is a bug fix release.
 
 Bug fixes:
+
 - issue 18, long inputs to a short specifier string will yield an error
 - consume zone specs (a la +1200) in the input via %Z specifier
 - ddiff's stdin stamps will undergo conversion according to --from-zone
@@ -76,6 +108,7 @@ This is dateutils v0.2.4.
 This is a bug fix release.
 
 Features:
+
 - added special output format `jdn` and `ldn` for julian/lilian day number
 - multiple occurrences of date/times within one line are now all processed
     rather than only the first occurrence
@@ -83,6 +116,7 @@ Features:
 - matlab zone converter tzconv has been added
 
 Bug fixes:
+
 - building with icc 13 works now
 - many gcc warnings are fixed
 
@@ -97,6 +131,7 @@ This is dateutils v0.2.3.
 This is a bug fix and feature release.
 
 Features:
+
 - ISO 8601 week dates are now first class objects (of type DT_YWD)
 - introduce %rY specifier to denote years in calendars that deviate from
     the Gregorian year
@@ -104,6 +139,7 @@ Features:
     specified by -i
 
 Bug fixes:
+
 - dadd'ing months and years to YMCW dates works now
 - zoneinfo files with only transitions in the past are handled properly
     (bug #10)
@@ -120,11 +156,13 @@ This is dateutils v0.2.2.
 This is a bug fix and feature release.
 
 Features:
+
 - Olson's zoneinfo database files are checked for at configure time
 - leap-aware calculations use shipped leapseconds file
 - ddiff and dadd can take leap-second transitions into account
 
 Bug fixes:
+
 - issue 7: ddiff without arguments does not segfault
 - issue 8: dadd copes with huge summands
 - issue 9: dadd stumbles on ymcw dates
@@ -146,6 +184,7 @@ A new tool dround is added to round dates or times or date-times to the
 next occurrence of what's given as round-spec.
 
 Bug fixes:
+
 - issue 7: ddiff without arguments does not segfault
 - issue 8: dadd copes with huge summands
 
