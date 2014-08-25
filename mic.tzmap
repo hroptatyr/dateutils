@@ -44,6 +44,7 @@ BATF	Europe/London
 BATO	America/New_York
 BATS	America/New_York
 BATY	America/New_York
+BCDX	America/New_York
 BCFS	America/Argentina/Cordoba
 BCMM	America/Sao_Paulo
 BCSE	Europe/Minsk
@@ -133,6 +134,7 @@ CHID	Europe/London
 CHIE	Asia/Tokyo
 CHIJ	Asia/Tokyo
 CHIO	Europe/London
+CHIV	Asia/Tokyo
 CHIX	Europe/London
 CHIY	Europe/London
 CICX	America/New_York
@@ -260,6 +262,7 @@ GOVX	America/New_York
 GREE	America/Chicago
 GRIF	Europe/London
 GSCI	America/Guyana
+GSEF	America/New_York
 GTCO	America/New_York
 GXGF	Europe/Copenhagen
 GXGM	Europe/Copenhagen
@@ -335,6 +338,7 @@ JADX	Asia/Singapore
 JASR	Asia/Tokyo
 JATA	Asia/Tokyo
 JPMX	America/New_York
+JSEF	America/New_York
 KABU	Asia/Tokyo
 KCCP	Europe/Budapest
 KDPW	Europe/Warsaw
@@ -393,6 +397,7 @@ MTAH	Europe/Rome
 MTAX	Europe/Rome
 MTCH	Europe/Paris
 MTSA	Europe/London
+MTSB	America/New_York
 MTSC	Europe/Rome
 MTSD	Europe/Brussels
 MTSF	Europe/Brussels
@@ -400,6 +405,7 @@ MTSG	Europe/London
 MTSM	Europe/Rome
 MTSP	Europe/Warsaw
 MTSS	Europe/London
+MTUS	America/New_York
 MTXC	America/New_York
 MTXM	America/New_York
 MUNA	Europe/Berlin
@@ -525,6 +531,7 @@ SGMX	Europe/London
 SHAD	America/New_York
 SHAR	Europe/London
 SHAW	America/New_York
+SHSC	Asia/Hong_Kong
 SIGA	Australia/Sydney
 SIGH	Asia/Hong_Kong
 SIGJ	Asia/Tokyo
@@ -533,6 +540,7 @@ SIMV	Australia/Sydney
 SLXT	Europe/London
 SMEX	Asia/Singapore
 SMTS	Europe/London
+SOHO	America/New_York
 SPAD	Europe/Prague
 SPEC	Europe/London
 SPIM	Europe/Moscow
@@ -631,6 +639,7 @@ XADF	America/New_York
 XADS	Asia/Dubai
 XAEX	Europe/Amsterdam
 XAFR	Europe/Paris
+XAFX	Indian/Mauritius
 XAIM	Europe/Rome
 XALB	America/Edmonton
 XALG	Africa/Algiers
@@ -1062,6 +1071,7 @@ XSOM	America/Sao_Paulo
 XSOP	Europe/Ljubljana
 XSPS	Pacific/Fiji
 XSRM	Europe/Madrid
+XSSC	Asia/Shanghai
 XSSE	Europe/Sarajevo
 XSTC	Asia/Ho_Chi_Minh
 XSTE	Asia/Tashkent
