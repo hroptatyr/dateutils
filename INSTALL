@@ -4,12 +4,7 @@ Requisites:
 -----------
 - compiler gcc >= 4.6.0 or compatible (icc, clang, ...)
 - autotools
-- gengetopt
 - texinfo
-
-Optional:
----------
-- help2man
 
 Build and install:
 ------------------
