@@ -6,6 +6,8 @@ EXTRA_DIST =
 
 MEX_LDFLAGS = -module -shared -avoid-version -shrext ".mex"
 
+EXTRA_DIST += $(mex_DATA) $(oct_DATA)
+
 if BUILD_MEXCLI
 mexdir = $(MATLABPATH)/dateutils/
 mex_LTLIBRARIES =
