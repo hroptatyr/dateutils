@@ -12,6 +12,7 @@ before_install:
   - sudo apt-get -qq update
 
 install:
+  - sudo apt-get install -qq pkg-config
   - sudo apt-get install -qq gperf
   - sudo apt-get install -qq texinfo
   - sudo apt-get install -qq bison
