@@ -162,7 +162,7 @@ and put them into $(abs_builddir).\n\
 	-@$(RM) -- "$*.hdr"
 
 .tzmap.tzmcc:
-	-$(AM_V_GEN) $(builddir)/tzmap cc -o $@ $<
+	-$(AM_V_GEN) $(builddir)/tzmap cc -e -o $@ $<
 
 ## make sure installing the tzmaps isn't fatal either
 .IGNORE: install-pkgdataDATA
