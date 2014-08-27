@@ -2,12 +2,15 @@ Usage: tzmap COMMAND [ARG]...
 
 Generate or inspect zoneinfo name map files.
 
+
 Usage: tzmap cc [FILE]...
 
 Generate a map to zoneinfo names suitable for dateutils.
 
   -o, --output=FILE     Output compiled map into FILE.
+  -e, --existing-only   Only map currently existing zones.
 
+
 Usage: tzmap show [MNAME]...
 
 Show mapped zonename for MNAMEs, if omitted show all entries
@@ -15,6 +18,7 @@ from the specified tzmap file.
 
   -f, --tzmap=FILE      Use FILE.
 
+
 Usage: tzmap check [FILE]...
 
 Check IANA zonenames in FILEs.
