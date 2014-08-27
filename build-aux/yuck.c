@@ -1584,7 +1584,7 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 		fprintf(outf, "define([YUCK_SCMVER_SCM], [%s])\n", yscm);
 		fprintf(outf, "define([YUCK_SCMVER_DIST], [%u])\n", v->dist);
 		fprintf(outf, "define([YUCK_SCMVER_RVSN], [%0*x])\n",
-			(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+			(int)(v->rvsn & 0b111), v->rvsn >> 4U);
 		if (!v->dirty) {
 			fputs("define([YUCK_SCMVER_FLAG_CLEAN])\n", outf);
 		} else {
@@ -1599,7 +1599,7 @@ wr_version(const struct yuck_version_s *v, const char *vlit)
 			fputs(yscm_strs[v->scm], outf);
 			fprintf(outf, "%u.%0*x",
 				v->dist,
-				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+				(int)(v->rvsn & 0b111), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", outf);
@@ -1925,7 +1925,7 @@ flag -n|--use-reference requires -r|--reference parameter");
 			fputs(yscm_strs[v->scm], stdout);
 			fprintf(stdout, "%u.%0*x",
 				v->dist,
-				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+				(int)(v->rvsn & 0b111), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", stdout);
