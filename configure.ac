@@ -198,6 +198,7 @@ AX_CHECK_YUCK
 dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags
 SXE_CHECK_LDFLAGS
+LT_INIT
 SXE_CHECK_LIBTOOL
 
 AC_CONFIG_FILES([Makefile])
