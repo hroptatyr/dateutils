@@ -48,6 +48,8 @@ typedef const struct tzmap_s *tzmap_t;
 
 typedef uint32_t znoff_t;
 
+#define NUL_ZNOFF	((uint32_t)-1)
+
 /** disk representation of tzm files */
 struct tzmap_s {
 	/* magic cookie, should be TZM_MAGIC */
