@@ -18,12 +18,13 @@ install:
   - sudo apt-get install -qq bison
   - sudo apt-get install -qq flex
   - sudo apt-get install -qq texlive
+  - sudo apt-get install -qq octave3.2-headers
 
 before_script:
   - autoreconf -vfi
 
 script:
- - ./configure
+ - ./configure --enable-contrib || { cat config.log; false; }
  - make clean all check || { cat test/test-suite.log; false; }
  - make distcheck
 
