@@ -55,24 +55,33 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 ])dnl SXE_CHECK_MATLAB
 
 AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
-	PKG_CHECK_MODULES([octave], [octave >= 3.0.0], [:], [:])
+	PKG_CHECK_MODULES([octave], [octave >= 3.0.0],
+		[have_octave="yes"], [have_octave="no"])
 
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
 	if test -n "${OCTAVE_CONFIG}"; then
+		if test "${have_octave}" = "no"; then
+			octave_CFLAGS=`"${OCTAVE_CONFIG}" -p OCTINCLUDEDIR`
+			octave_LIBS=`"${OCTAVE_CONFIG}" -p OCTLIBDIR`
+		fi
 		AC_MSG_CHECKING([for octave toolbox path])
 		OCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
 		AC_SUBST([OCTAVEPATH])
 		AC_MSG_RESULT([${OCTAVEPATH}])
 	fi
 
-	if test -n "${octave_CFLAGS}"; then
-		save_CPPFLAGS="${CPPFLAGS}"
-		CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
-		AC_CHECK_HEADER([mex.h])
-		sxe_cv_octave_mex_h="${ac_cv_header_mex_h}"
-		unset ac_cv_header_mex_h
-		CPPFLAGS="${save_CPPFLAGS}"
+	save_CPPFLAGS="${CPPFLAGS}"
+	CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
+	AC_CHECK_HEADER([mex.h])
+	sxe_cv_octave_mex_h="${ac_cv_header_mex_h}"
+	unset ac_cv_header_mex_h
+	CPPFLAGS="${save_CPPFLAGS}"
+
+	if test "${sxe_cv_octave_mex_h}" = "yes"; then
+		have_octave="yes"
+	else
+		have_octave="no"
 	fi
 ])dnl SXE_CHECK_OCTAVE
 
