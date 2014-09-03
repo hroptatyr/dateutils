@@ -14,7 +14,12 @@ SUBDIRS += lib
 SUBDIRS += src
 SUBDIRS += info
 SUBDIRS += test
+if BUILD_MEXCLI
 SUBDIRS += contrib
+endif  BUILD_MEXCLI
+if BUILD_OCTCLI
+SUBDIRS += contrib
+endif  BUILD_OCTCLI
 
 DISTCLEANFILES = version.mk
 EXTRA_DIST += version.mk.in
