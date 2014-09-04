@@ -55,21 +55,40 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 ])dnl SXE_CHECK_MATLAB
 
 AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
+	## mimic pkg-config
+	AC_ARG_VAR([octave_CFLAGS], [include directives for matlab headers])
+	AC_ARG_VAR([octave_LIBS], [library directives for octave linking])
+
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
 	if test -n "${OCTAVE_CONFIG}"; then
 		octave_CFLAGS=-I`"${OCTAVE_CONFIG}" -p OCTINCLUDEDIR`
 		octave_LIBS=-L`"${OCTAVE_CONFIG}" -p OCTLIBDIR`
 		AC_MSG_CHECKING([for octave toolbox path])
-		OCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
+		ORIGOCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
+		OCTAVELIBDIR=`"${OCTAVE_CONFIG}" -p LIBDIR`
+		OCTAVEPATH=`echo "${ORIGOCTAVEPATH#${OCTAVELIBDIR}}"`
+		if test "${OCTAVEPATH}" = "${OCTAVEORIGPATH}"; then
+			:
+		else
+			## we did substitute then innit?
+			OCTAVEPATH="\${libdir}${OCTAVEPATH}"
+		fi
 		AC_SUBST([OCTAVEPATH])
-		AC_MSG_RESULT([${OCTAVEPATH}])
+		AC_SUBST([ORIGOCTAVEPATH])
+		AC_MSG_RESULT([${ORIGOCTAVEPATH} -> ${OCTAVEPATH}])
+
 	fi
 
 	save_CPPFLAGS="${CPPFLAGS}"
 	CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
-	AC_CHECK_HEADER([mex.h])
-	sxe_cv_octave_mex_h="${ac_cv_header_mex_h}"
+	AC_CHECK_HEADERS([mex.h])
+	AC_CHECK_HEADERS([octave/mex.h])
+	if test "${ac_cv_header_mex_h}" = "yes"; then
+		sxe_cv_octave_mex_h="yes"
+	elif test "${ac_cv_header_octave_mex_h}" = "yes"; then
+		sxe_cv_octave_mex_h="yes"
+	fi
 	unset ac_cv_header_mex_h
 	CPPFLAGS="${save_CPPFLAGS}"
 
