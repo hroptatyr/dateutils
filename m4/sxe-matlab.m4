@@ -55,16 +55,11 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 ])dnl SXE_CHECK_MATLAB
 
 AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
-	PKG_CHECK_MODULES([octave], [octave >= 3.0.0],
-		[have_octave="yes"], [have_octave="no"])
-
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
 	if test -n "${OCTAVE_CONFIG}"; then
-		if test "${have_octave}" = "no"; then
-			octave_CFLAGS=`"${OCTAVE_CONFIG}" -p OCTINCLUDEDIR`
-			octave_LIBS=`"${OCTAVE_CONFIG}" -p OCTLIBDIR`
-		fi
+		octave_CFLAGS=`"${OCTAVE_CONFIG}" -p OCTINCLUDEDIR`
+		octave_LIBS=`"${OCTAVE_CONFIG}" -p OCTLIBDIR`
 		AC_MSG_CHECKING([for octave toolbox path])
 		OCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
 		AC_SUBST([OCTAVEPATH])
