@@ -11,13 +11,13 @@ mex_DATA =
 EXTRA_DIST += $(mex_DATA)
 
 if BUILD_MEXCLI
-mexdir = $(MATLABPATH)/dateutils/
+mexdir = $(MATLABPATH)/dateutils
 octlab_CFLAGS = -DMATLAB_MEX_FILE $(matlab_CFLAGS)
 else  !BUILD_MEXCLI
 
 ## backup plan is to use octave to build the mex file
 if BUILD_OCTCLI
-mexdir = $(OCTAVEPATH)/dateutils/
+mexdir = $(OCTAVEPATH)/dateutils
 octlab_CFLAGS = -DOCTAVE_MEX_FILE $(octave_CFLAGS)
 
 else  !BUILD_OCTCLI
