@@ -55,6 +55,10 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 ])dnl SXE_CHECK_MATLAB
 
 AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
+	## mimic pkg-config
+	AC_ARG_VAR([octave_CFLAGS], [include directives for matlab headers])
+	AC_ARG_VAR([octave_LIBS], [library directives for octave linking])
+
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
 	if test -n "${OCTAVE_CONFIG}"; then
@@ -64,9 +68,6 @@ AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
 		OCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
 		AC_SUBST([OCTAVEPATH])
 		AC_MSG_RESULT([${OCTAVEPATH}])
-
-		AC_SUBST([octave_CFLAGS])
-		AC_SUBST([octave_LIBS])
 	fi
 
 	save_CPPFLAGS="${CPPFLAGS}"
