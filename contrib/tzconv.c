@@ -41,7 +41,11 @@
 #include <stdint.h>
 #include <math.h>
 /* matlab stuff */
-#include "mex.h"
+#if defined HAVE_OCTAVE_MEX_H
+# include <octave/mex.h>
+#else  /* !HAVE_OCTAVE_MEX_H */
+# include <mex.h>
+#endif	/* HAVE_OCTAVE_MEX_H */
 /* our stuff */
 #include "tzraw.h"
 
