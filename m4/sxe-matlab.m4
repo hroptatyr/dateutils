@@ -68,8 +68,8 @@ AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
 
 	save_CPPFLAGS="${CPPFLAGS}"
 	CPPFLAGS="${CPPFLAGS} ${octave_CFLAGS}"
-	AC_CHECK_HEADER([mex.h])
-	AC_CHECK_HEADER([octave/mex.h])
+	AC_CHECK_HEADERS([mex.h])
+	AC_CHECK_HEADERS([octave/mex.h])
 	if test "${ac_cv_header_mex_h}" = "yes"; then
 		sxe_cv_octave_mex_h="yes"
 	elif test "${ac_cv_header_octave_mex_h}" = "yes"; then
