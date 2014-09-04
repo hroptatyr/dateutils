@@ -58,8 +58,8 @@ AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
 	if test -n "${OCTAVE_CONFIG}"; then
-		octave_CFLAGS=`"${OCTAVE_CONFIG}" -p OCTINCLUDEDIR`
-		octave_LIBS=`"${OCTAVE_CONFIG}" -p OCTLIBDIR`
+		octave_CFLAGS=-I`"${OCTAVE_CONFIG}" -p OCTINCLUDEDIR`
+		octave_LIBS=-L`"${OCTAVE_CONFIG}" -p OCTLIBDIR`
 		AC_MSG_CHECKING([for octave toolbox path])
 		OCTAVEPATH=`"${OCTAVE_CONFIG}" -p LOCALOCTFILEDIR`
 		AC_SUBST([OCTAVEPATH])
