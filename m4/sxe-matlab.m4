@@ -5,9 +5,11 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 	AC_ARG_VAR([MATLAB], [full path to matlab binary])
 	sxe_cv_matlab="${MATLAB:-matlab}"
 
+	AC_ARG_VAR([MATLABPATH], [path to matlab toolboxes])
+	sxe_cv_matlabpath="${MATLABPATH:-no}"
+
 	AC_MSG_CHECKING([for matlab root])
 	## assume no matlab
-	sxe_cv_matlabpath="no"
 	sxe_cv_matlabroot="no"
 
 	"${sxe_cv_matlab}" -e 2>/dev/null | grep "MATLAB" > "${foo}"
@@ -20,6 +22,14 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 	AC_MSG_RESULT([${MATLABROOT}])
 
 	AC_MSG_CHECKING([for matlab toolbox path])
+	if test -z "${sxe_cv_matlabpath}" \
+		-o "${sxe_cv_matlabpath}" = "no"; then
+		MATLABORIGPATH="${MATLABPATH}"
+	else
+		MATLABORIGPATH="${MATLABPATH}"
+		MATLABPATH="${sxe_cv_matlabpath}"
+	fi
+	AC_SUBST([MATLABORIGPATH])
 	AC_SUBST([MATLABPATH])
 	AC_MSG_RESULT([${MATLABPATH}])
 
