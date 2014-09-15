@@ -343,6 +343,10 @@ dt_tests += ddiff.059.clit
 dt_tests += ddiff.060.clit
 dt_tests += ddiff.061.clit
 dt_tests += ddiff.062.clit
+dt_tests += ddiff.063.clit
+dt_tests += ddiff.064.clit
+dt_tests += ddiff.065.clit
+dt_tests += ddiff.066.clit
 dt_tests += ddiff.067.clit
 dt_tests += ddiff.068.clit
 
