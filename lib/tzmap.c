@@ -373,7 +373,36 @@ tzm_add_mn(const char *mn, size_t mz, znoff_t off)
 }
 
 
-static void
+static unsigned int exst_only_p;
+static const char *check_fn;
+
+static bool
+tzdir_zone_p(const char *zn, size_t zz)
+{
+	struct stat st[1U];
+	char fullzn[256U] = {0};
+
+	if (*zn == '/') {
+		/* absolute zonename? */
+		;
+	} else if (*zn) {
+		/* relative zonename */
+		char *zp = fullzn;
+		const char *const ep = fullzn + sizeof(fullzn);
+
+		zp += xstrlncpy(zp, ep - zp, tzdir, sizeof(tzdir) - 1U);
+		*zp++ = '/';
+		zp += xstrlncpy(zp, ep - zp, zn, zz);
+		*zp = '\0';
+	}
+	/* finally the actual check */
+	if (stat(fullzn, st) < 0) {
+		return false;
+	}
+	return true;
+}
+
+static znoff_t
 parse_line(char *ln, size_t lz)
 {
 	/* find the separator */
@@ -382,29 +411,32 @@ parse_line(char *ln, size_t lz)
 
 	if (UNLIKELY(ln == NULL || lz == 0U)) {
 		/* finalise */
-		return;
+		return NUL_ZNOFF;
 	}
 	if ((lp = memchr(ln, '\t', lz)) == NULL) {
 		/* buggered line */
-		return;
+		return NUL_ZNOFF;
 	} else if (lp == ln) {
-		return;
+		return NUL_ZNOFF;
 	} else if (*lp++ = '\0', *lp == '\0') {
 		/* huh? no zone name, cunt off */
-		return;
+		return NUL_ZNOFF;
 	} else if (lp - ln > 256) {
 		/* too long */
-		return;
+		return NUL_ZNOFF;
+	} else if (exst_only_p && !tzdir_zone_p(lp, ln + lz - lp)) {
+		error("\
+Warning: zone `%.*s' skipped: not present in global zone database",
+		      (int)(ln + lz - lp), lp);
+		return NUL_ZNOFF;
 	} else if ((znp = tzm_find_zn(lp, ln + lz - lp)) == -1U) {
 		/* brilliant, can't add anything */
-		return;
+		return NUL_ZNOFF;
 	}
 	tzm_add_mn(ln, lp - ln - 1U, znp);
-	return;
+	return znp;
 }
 
-static const char *check_fn;
-static bool tzdir_zone_p(const char *zn, size_t zz);
 static int
 check_line(char *ln, size_t lz)
 {
@@ -461,32 +493,6 @@ check_line(char *ln, size_t lz)
 	}
 #undef CHECK_ERROR
 	return rc;
-}
-
-static bool
-tzdir_zone_p(const char *zn, size_t zz)
-{
-	struct stat st[1U];
-	char fullzn[256U] = {0};
-
-	if (*zn == '/') {
-		/* absolute zonename? */
-		;
-	} else if (*zn) {
-		/* relative zonename */
-		char *zp = fullzn;
-		const char *const ep = fullzn + sizeof(fullzn);
-
-		zp += xstrlncpy(zp, ep - zp, tzdir, sizeof(tzdir) - 1U);
-		*zp++ = '/';
-		zp += xstrlncpy(zp, ep - zp, zn, zz);
-		*zp = '\0';
-	}
-	/* finally the actual check */
-	if (stat(fullzn, st) < 0) {
-		return false;
-	}
-	return true;
 }
 
 static int
@@ -635,8 +641,10 @@ cmd_cc(const struct yuck_cmd_cc_s argi[static 1U])
 	int rc = 0;
 	int ofd;
 
-	/* reserver some space */
+	/* reserve some space */
 	init_tzm();
+	/* establish environment */
+	exst_only_p = argi->existing_only_flag;
 
 	if (parse_file(argi->args[0U]) < 0) {
 		error("cannot read file `%s'", *argi->args ?: "stdin");

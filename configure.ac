@@ -3,7 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-AC_INIT([dateutils], [0.3.0rc2], [https://github.com/hroptatyr/dateutils/issues])
+AC_INIT([dateutils], [0.3.0.GIT], [https://github.com/hroptatyr/dateutils/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -198,6 +198,7 @@ AX_CHECK_YUCK
 dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags
 SXE_CHECK_LDFLAGS
+LT_INIT
 SXE_CHECK_LIBTOOL
 
 AC_CONFIG_FILES([Makefile])

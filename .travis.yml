@@ -11,15 +11,17 @@ before_install:
   - sudo apt-get -qq update
 
 install:
+  - sudo apt-get install -qq pkg-config
   - sudo apt-get install -qq gperf
   - sudo apt-get install -qq texinfo
   - sudo apt-get install -qq bison
   - sudo apt-get install -qq flex
   - sudo apt-get install -qq texlive
+  - sudo apt-get install -qq octave3.2-headers
 
 before_script:
   - autoreconf -vfi
-  - ./configure
+  - ./configure --enable-contrib
 
 script:
  - make all check

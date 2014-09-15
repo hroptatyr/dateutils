@@ -6,53 +6,41 @@ EXTRA_DIST =
 
 MEX_LDFLAGS = -module -shared -avoid-version -shrext ".mex"
 
-if BUILD_MEXCLI
-mexdir = $(MATLABPATH)/dateutils/
 mex_LTLIBRARIES =
 mex_DATA =
+EXTRA_DIST += $(mex_DATA)
+
+if BUILD_MEXCLI
+mexdir = $(MATLABPATH)/dateutils
+octlab_CFLAGS = -DMATLAB_MEX_FILE $(matlab_CFLAGS)
+else  !BUILD_MEXCLI
+
+## backup plan is to use octave to build the mex file
+if BUILD_OCTCLI
+mexdir = $(OCTAVEPATH)/dateutils
+octlab_CFLAGS = -DOCTAVE_MEX_FILE $(octave_CFLAGS)
+
+else  !BUILD_OCTCLI
+## no idea what we're doing here
+mexdir = $(pkglibexecdir)
+
+endif  !BUILD_OCTCLI
+endif  !BUILD_MEXCLI
+
 
 mex_LTLIBRARIES += tzconv.la
 mex_DATA += tzconv.m
-endif  BUILD_MEXCLI
-EXTRA_DIST += $(mex_DATA)
-
-if BUILD_OCTCLI
-octdir = $(OCTAVEPATH)/dateutils/
-oct_LTLIBRARIES =
-oct_DATA =
-
-oct_LTLIBRARIES += tzconv.la
-oct_DATA += tzconv.m
-endif  BUILD_OCTCLI
-
-if BUILD_MEXCLI
 tzconv_la_LDFLAGS = $(AM_LDFLAGS)
 tzconv_la_LDFLAGS += $(MEX_LDFLAGS)
 tzconv_la_LDFLAGS += $(XCCLDFLAGS)
-tzconv_la_CPPFLAGS = $(AM_CPPFLAGS) -DMATLAB_MEX_FILE
+tzconv_la_CPPFLAGS = $(AM_CPPFLAGS)
+tzconv_la_CPPFLAGS += $(octlab_CFLAGS)
 tzconv_la_CPPFLAGS += -I$(top_srcdir)/lib
 tzconv_la_CPPFLAGS += -I$(top_builddir)/lib
-tzconv_la_CPPFLAGS += $(matlab_CFLAGS)
 tzconv_la_CPPFLAGS += -DDECLF=extern -DDEFUN=
 tzconv_la_SOURCES = tzconv.c
 tzconv_la_SOURCES += tzraw.c tzraw.h
 tzconv_la_SOURCES += leaps.c leaps.h
-else  !BUILD_MEXCLI
-## backup plan is to use octave to build the mex file
-if BUILD_OCTCLI
-tzconv_la_LDFLAGS = $(AM_LDFLAGS)
-tzconv_la_LDFLAGS += $(MEX_LDFLAGS)
-tzconv_la_LDFLAGS += $(XCCLDFLAGS)
-tzconv_la_CPPFLAGS = $(AM_CPPFLAGS) -DOCTAVE_MEX_FILE
-tzconv_la_CPPFLAGS += -I$(top_srcdir)/lib
-tzconv_la_CPPFLAGS += -I$(top_builddir)/lib
-tzconv_la_CPPFLAGS += $(octave_CFLAGS)
-tzconv_la_CPPFLAGS += -DDECLF=extern -DDEFUN=
-tzconv_la_SOURCES = tzconv.c
-tzconv_la_SOURCES += tzraw.c tzraw.h
-tzconv_la_SOURCES += leaps.c leaps.h
-endif  BUILD_OCTCLI
-endif  !BUILD_MEXCLI
 
 
 ## get around subdir-object bug in conjunction with distclean in automake 1.14+
