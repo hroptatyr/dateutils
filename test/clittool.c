@@ -726,11 +726,16 @@ fini_chld(struct clit_chld_s ctx[static 1] __attribute__((unused)))
 	return 0;
 }
 
-static void
-mkfifofn(char *restrict buf, size_t bsz, const char *key, unsigned int tid)
+static char*
+mkfifofn(const char *key, unsigned int tid)
 {
-	snprintf(buf, bsz, "%s output  %x", key, tid);
-	return;
+	size_t len = strlen(key) + 9U + 8U + 1U;
+	char *buf;
+
+	if ((buf = malloc(len)) != NULL) {
+		snprintf(buf, len, "%s output  %x", key, tid);
+	}
+	return buf;
 }
 
 static pid_t
@@ -854,26 +859,27 @@ xpnder(clit_bit_t exp, int expfd)
 static pid_t
 differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 {
-#if !defined L_tmpnam
-# define L_tmpnam	(PATH_MAX)
-#endif	/* !L_tmpnam */
-	static char expfn[PATH_MAX];
-	static char actfn[PATH_MAX];
+	char *expfn;
+	char *actfn;
 	pid_t difftool = -1;
 
 	assert(!clit_bit_fd_p(exp));
 
-	if (clit_bit_fn_p(exp) &&
-	    (strlen(exp.d) >= sizeof(expfn) || strcpy(expfn, exp.d) == NULL)) {
-		error("cannot prepare in file `%s'", exp.d);
-		goto out;
-	} else if (!clit_bit_fn_p(exp) &&
-		   (mkfifofn(expfn, sizeof(expfn), "expected", ctx->test_id),
-		    mkfifo(expfn, 0666) < 0)) {
-		error("cannot create fifo `%s'", expfn);
-		goto out;
-	} else if (mkfifofn(actfn, sizeof(actfn), "actual", ctx->test_id),
-		   mkfifo(actfn, 0666) < 0) {
+	if (clit_bit_fn_p(exp)) {
+		expfn = malloc(strlen(exp.d) + 1U);
+		if (UNLIKELY(expfn == NULL || strcpy(expfn, exp.d) == NULL)) {
+			error("cannot prepare in file `%s'", exp.d);
+			goto out;
+		}
+	} else {
+		expfn = mkfifofn("expected", ctx->test_id);
+		if (expfn == NULL || mkfifo(expfn, 0666) < 0) {
+			error("cannot create fifo `%s'", expfn);
+			goto out;
+		}
+	}
+	actfn = mkfifofn("actual", ctx->test_id);
+	if (actfn == NULL || mkfifo(actfn, 0666) < 0) {
 		error("cannot create fifo `%s'", actfn);
 		goto out;
 	}
@@ -886,9 +892,9 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 		error("vfork for diff failed");
 		break;
 
-	case 0:;
+	case 0: {
 		/* i am the child */
-		static char *const diff_opt[] = {
+		char *const diff_opt[] = {
 			"diff",
 			"-u",
 			expfn, actfn, NULL,
@@ -915,7 +921,7 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 			unlink(expfn);
 		}
 		_exit(EXIT_FAILURE);
-
+	}
 	default:;
 		/* i am the parent */
 		static const int ofl = O_WRONLY;
@@ -964,11 +970,15 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 
 	unblock_sigs();
 out:
-	if (*expfn && !clit_bit_fn_p(exp)) {
-		unlink(expfn);
+	if (expfn) {
+		if (!clit_bit_fn_p(exp)) {
+			unlink(expfn);
+		}
+		free(expfn);
 	}
-	if (*actfn) {
+	if (actfn) {
 		unlink(actfn);
+		free(actfn);
 	}
 	return difftool;
 }
