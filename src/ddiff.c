@@ -449,6 +449,30 @@ static struct precalc_s {
 			res.M = res.S / (long int)SECS_PER_MIN;
 			res.S %= (long int)SECS_PER_MIN;
 		}
+
+		/* just in case the duration iss negative jump through all
+		 * the hoops again, backwards */
+		if (res.w < 0 || res.d < 0 ||
+		    res.H < 0 || res.M < 0 || res.S < 0) {
+			if (0) {
+			fixup_d:
+				res.d = -res.d;
+			fixup_H:
+				res.H = -res.H;
+			fixup_M:
+				res.M = -res.M;
+			fixup_S:
+				res.S = -res.S;
+			} else if (f.has_week) {
+				goto fixup_d;
+			} else if (f.has_day) {
+				goto fixup_H;
+			} else if (f.has_hour) {
+				goto fixup_M;
+			} else if (f.has_min) {
+				goto fixup_S;
+			}
+		}
 	}
 	return res;
 }
