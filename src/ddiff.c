@@ -431,10 +431,7 @@ static struct precalc_s {
 
 		if (f.has_week) {
 			res.w = res.S / (long int)SECS_PER_WEEK;
-			if ((res.S %= (long int)SECS_PER_WEEK) < 0) {
-				res.S += SECS_PER_WEEK;
-				res.w--;
-			}
+			res.S %= (long int)SECS_PER_WEEK;
 		}
 		if (f.has_day) {
 			res.d = res.S / (long int)SECS_PER_DAY;
