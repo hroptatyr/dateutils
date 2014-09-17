@@ -438,10 +438,7 @@ static struct precalc_s {
 		}
 		if (f.has_day) {
 			res.d = res.S / (long int)SECS_PER_DAY;
-			if ((res.S %= (long int)SECS_PER_DAY) < 0) {
-				res.S += SECS_PER_DAY;
-				res.d--;
-			}
+			res.S %= (long int)SECS_PER_DAY;
 		}
 		if (f.has_hour) {
 			res.H = res.S / (long int)SECS_PER_HOUR;
