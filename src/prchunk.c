@@ -164,7 +164,6 @@ prchunk_fill(prch_ctx_t ctx)
  * bytes read */
 #define CHUNK_SIZE	(4096)
 #define YIELD(x)	goto yield##x
-	int res = 0;
 	char *off = ctx->buf + 0;
 	char *bno = ctx->buf + ctx->bno;
 	ssize_t nrd;
@@ -254,7 +253,7 @@ yield4:
 	ctx->bno = bno - ctx->buf;
 #undef YIELD
 #undef CHUNK_SIZE
-	return res;
+	return 0;
 }
 
 
