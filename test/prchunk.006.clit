@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris
+
+$ printf "2014-08-08\n" | strptime -i '%F'
+2014-08-08
+$ printf "2014-08-08" | strptime -i '%F'
+2014-08-08
+$
