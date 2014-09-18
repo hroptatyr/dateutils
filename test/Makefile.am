@@ -723,6 +723,14 @@ EXTRA_DIST += caev_02.txt
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
 
+## testing the prchunker
+dt_tests += prchunk.001.clit
+dt_tests += prchunk.002.clit
+dt_tests += prchunk.003.clit
+dt_tests += prchunk.004.clit
+dt_tests += prchunk.005.clit
+dt_tests += prchunk.006.clit
+
 ## testing tzmaps, regardless if the official ones are here or not
 EXTRA_DIST += dummy.tzmap
 built_nodist_sources += dummy.tzmcc
