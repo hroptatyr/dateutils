@@ -80,16 +80,16 @@ struct prch_ctx_s {
 	/* buffer */
 	char *buf;
 	/* number of lines in the buffer */
-	uint32_t lno;
+	uint32_t tot_lno;
 	/* number of columns per line */
-	uint32_t cno;
+	uint32_t tot_cno;
 	/* number of bytes in the buffer */
 	size_t bno;
 	/* last known offset */
 	size_t off;
 	/* offsets */
 	off32_t loff[MAX_NLINES];
-	off32_t lno_cur;
+	off32_t cur_lno;
 	/* delimiter offsets */
 	off16_t *soff;
 };
@@ -169,7 +169,7 @@ prchunk_fill(prch_ctx_t ctx)
 	ssize_t nrd;
 
 	/* initial work, reset the line counters et al */
-	ctx->lno = 0;
+	ctx->tot_lno = 0;
 	/* we just memcpy() the left over stuff to the front and restart
 	 * from there, someone left us a note in __ctx with the left
 	 * over offset */
@@ -204,7 +204,7 @@ yield1:
 	 * has been called, then off would be 0 and __ctx->bno would be
 	 * the buffer filled so far, if no more bytes could be read then
 	 * we'd proceed processing them (off < __ctx->bno + nrd */
-	if (UNLIKELY(!nrd && off < bno && ctx->lno_cur <= ctx->lno)) {
+	if (UNLIKELY(!nrd && off < bno && ctx->cur_lno <= ctx->tot_lno)) {
 		/* last line then, unyielded :| */
 		set_loff(ctx, 0, bno - ctx->buf);
 		YIELD(4);
@@ -230,16 +230,16 @@ yield2:
 			p = bno;
 		}
 		/* massage our status structures */
-		set_loff(ctx, ctx->lno, p - ctx->buf);
+		set_loff(ctx, ctx->tot_lno, p - ctx->buf);
 		if (UNLIKELY(p[-1] == '\r')) {
 			/* oh god, when is this nightmare gonna end */
 			p[-1] = '\0';
-			set_lftermd(ctx, ctx->lno);
+			set_lftermd(ctx, ctx->tot_lno);
 		}
 		*p = '\0';
 		off = ++p;
 		/* count it as line and check if we need more */
-		if (++ctx->lno >= MAX_NLINES) {
+		if (++ctx->tot_lno >= MAX_NLINES) {
 			YIELD(3);
 		}
 	}
@@ -247,7 +247,7 @@ yield2:
 yield3:
 	/* need clean up, something like unread(),
 	 * in particular leave a note in __ctx with the left over offset */
-	ctx->lno_cur = 0;
+	ctx->cur_lno = 0;
 yield4:
 	ctx->off = off - ctx->buf;
 	ctx->bno = bno - ctx->buf;
@@ -306,7 +306,7 @@ free_prchunk(prch_ctx_t ctx)
 FDEFU size_t
 prchunk_get_nlines(prch_ctx_t ctx)
 {
-	return ctx->lno;
+	return ctx->tot_lno;
 }
 
 FDEFU size_t
@@ -327,13 +327,13 @@ prchunk_getlineno(prch_ctx_t ctx, char **p, int lno)
 FDEFU size_t
 prchunk_getline(prch_ctx_t ctx, char **p)
 {
-	return prchunk_getlineno(ctx, p, ctx->lno_cur++);
+	return prchunk_getlineno(ctx, p, ctx->cur_lno++);
 }
 
 FDEFU void
 prchunk_reset(prch_ctx_t ctx)
 {
-	ctx->lno_cur = 0;
+	ctx->cur_lno = 0;
 	return;
 }
 
@@ -341,21 +341,21 @@ FDEFU int
 prchunk_haslinep(prch_ctx_t ctx)
 {
 /* the second condition is to allow unterminated last lines */
-	return ctx->lno_cur < ctx->lno || ctx->lno_cur == 0U;
+	return ctx->cur_lno < ctx->tot_lno || ctx->cur_lno == 0U;
 }
 
 
 static inline void
 set_ncols(prch_ctx_t ctx, size_t ncols)
 {
-	ctx->cno = ncols;
+	ctx->tot_cno = ncols;
 	return;
 }
 
 FDEFU size_t
 prchunk_get_ncols(prch_ctx_t ctx)
 {
-	return ctx->cno;
+	return ctx->tot_cno;
 }
 
 static inline void
