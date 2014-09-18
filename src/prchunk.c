@@ -205,7 +205,11 @@ yield1:
 	 * has been called, then off would be 0 and __ctx->bno would be
 	 * the buffer filled so far, if no more bytes could be read then
 	 * we'd proceed processing them (off < __ctx->bno + nrd */
-	if (UNLIKELY(nrd <= 0 && off == ctx->buf)) {
+	if (UNLIKELY(!nrd && off < bno && ctx->lno_cur <= ctx->lno)) {
+		/* last line then, unyielded :| */
+		set_loff(ctx, 0, bno - ctx->buf);
+		YIELD(4);
+	} else if (UNLIKELY(nrd <= 0 && off == ctx->buf)) {
 		/* special case, we worked our arses off and nothing's
 		 * in the pipe line so just fuck off here */
 		return -1;
@@ -245,6 +249,7 @@ yield3:
 	/* need clean up, something like unread(),
 	 * in particular leave a note in __ctx with the left over offset */
 	ctx->lno_cur = 0;
+yield4:
 	ctx->off = off - ctx->buf;
 	ctx->bno = bno - ctx->buf;
 #undef YIELD
@@ -336,7 +341,8 @@ prchunk_reset(prch_ctx_t ctx)
 FDEFU int
 prchunk_haslinep(prch_ctx_t ctx)
 {
-	return ctx->lno_cur < ctx->lno;
+/* the second condition is to allow unterminated last lines */
+	return ctx->lno_cur < ctx->lno || ctx->lno_cur == 0U;
 }
 
 
