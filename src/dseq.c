@@ -362,11 +362,9 @@ __seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
 static int
 __get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
 {
-	struct dt_dt_s tmp;
-
 	if (!dt_sandwich_only_t_p(d)) {
 		/* trial addition to to see where it goes */
-		tmp = __seq_next(d, clo);
+		struct dt_dt_s tmp = __seq_next(d, clo);
 		return dt_dtcmp(tmp, d);
 	}
 	if (clo->ite->t.sdur && !clo->ite->t.neg) {
