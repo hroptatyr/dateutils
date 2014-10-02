@@ -1,0 +1,10 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## dconv fixes up dates
+$ ?2 dconv --strict 2013-02-29
+$ ?2 dconv --strict 2013-09-31
+$ ?2 dconv --strict 2012-02-30
+$ ?2 dconv --strict 2012-03-32
+$
+
+## dconv.116.clit ends here
