@@ -299,8 +299,11 @@ static bool
 __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(now)) {
-		return (dt_dt_in_range_p(now, clo->fst, clo->lst) ||
-			dt_dt_in_range_p(now, clo->lst, clo->fst));
+		if (clo->dir > 0) {
+			return dt_dt_in_range_p(now, clo->fst, clo->lst);
+		} else if (clo->dir < 0) {
+			return dt_dt_in_range_p(now, clo->lst, clo->fst);
+		}
 	}
 	/* otherwise perform a simple range check */
 	if (clo->dir > 0) {
