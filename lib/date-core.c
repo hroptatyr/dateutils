@@ -798,7 +798,14 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
+#if defined WITH_FAST_ARITH
 		res.bizda.bd = d.b;
+#else  /* !WITH_FAST_ARITH */
+		unsigned int bd = __get_bdays(d.y, d.m);
+		if ((res.bizda.bd = d.b) > bd) {
+			res.bizda.bd = bd;
+		}
+#endif	/* WITH_FAST_ARITH */
 	} else {
 		/* anything else is bollocks for now */
 		;
