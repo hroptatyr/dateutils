@@ -66,6 +66,8 @@ dt_tests += dseq.23.clit
 dt_tests += dseq.24.clit
 dt_tests += dseq.25.clit
 dt_tests += dseq.26.clit
+dt_tests += dseq.27.clit
+dt_tests += dseq.28.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
