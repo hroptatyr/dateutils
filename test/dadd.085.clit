@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dadd 2d -i "%d.%m.%Y" <<EOF
+$ ?2 dadd 2d -i "%d.%m.%Y" <<EOF
  FOLGENDE WERTPAPIERE WERDEN AM 02.10.2013 EX DIVIDENDE GEHANDELT.
  THE EX-DIVIDEND DAY OF THE FOLLOWING SHARES WILL BE 02.10.2013.
 
