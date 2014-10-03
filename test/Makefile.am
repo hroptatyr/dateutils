@@ -421,6 +421,10 @@ dt_tests += dround.021.clit
 dt_tests += dround.022.clit
 dt_tests += dround.023.clit
 dt_tests += dround.024.clit
+dt_tests += dround.025.clit
+dt_tests += dround.026.clit
+dt_tests += dround.027.clit
+dt_tests += dround.028.clit
 
 
 dt_tests += tseq.01.clit
