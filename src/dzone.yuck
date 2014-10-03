@@ -11,7 +11,9 @@ DATE/TIME can also be one of the following specials
   - `y[ester]day'   yesterday's date (according to UTC)
 
   -q, --quiet                Suppress message about date/time or zonename
-                               parser errors.
+                             parser errors and fix-ups.
+                             The default is to print a warning or the
+                             fixed up value and return error code 2.
 
   -i, --input-format=STRING...  Input format, can be used multiple times.
                                Each date/time will be passed to the input

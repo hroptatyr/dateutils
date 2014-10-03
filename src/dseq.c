@@ -439,7 +439,7 @@ main(int argc, char *argv[])
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
-	int res = 0;
+	int rc = 0;
 	struct dseq_clo_s clo = {
 		.ite = &ite_p1,
 		.nite = 1,
@@ -451,7 +451,7 @@ main(int argc, char *argv[])
 	};
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* assign ofmt/ifmt */
@@ -475,7 +475,7 @@ main(int argc, char *argv[])
 					error("Error: \
 cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
-				res = 1;
+				rc = 1;
 				goto out;
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -488,7 +488,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		struct dt_dt_s fst, lst;
 	default:
 		yuck_auto_help(argi);
-		res = 1;
+		rc = 1;
 		goto out;
 
 	case 2:
@@ -497,8 +497,10 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[1U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 		/* fallthrough */
 	case 1:
@@ -507,8 +509,10 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[0U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 
 		/* check the input arguments and do the sane thing now
@@ -543,7 +547,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		} else {
 			error("\
 don't know how to handle single argument case");
-			res = 1;
+			rc = 1;
 			goto out;
 		}
 
@@ -560,8 +564,10 @@ don't know how to handle single argument case");
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[0U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(fst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 
 		/* get increment */
@@ -569,7 +575,7 @@ don't know how to handle single argument case");
 			if (dt_io_strpdtdur(&st, argi->args[1U]) < 0) {
 				error("Error: \
 cannot parse duration string `%s'", argi->args[1U]);
-				res = 1;
+				rc = 1;
 				goto out;
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -584,8 +590,10 @@ cannot parse duration string `%s'", argi->args[1U]);
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[2U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 		clo.fst = fst;
 		clo.lst = lst;
@@ -598,7 +606,7 @@ cannot parse duration string `%s'", argi->args[1U]);
 	    (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_only_d_p(clo.lst))) {
 		error("\
 cannot mix dates and times as arguments");
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (dt_sandwich_only_d_p(clo.fst) && dt_sandwich_p(clo.lst)) {
 		/* promote clo.fst */
@@ -628,7 +636,7 @@ cannot mix dates and times as arguments");
 			error("\
 cannot convert calendric system internally");
 		}
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->t.sdur == 0) {
 		clo.ite->t = tseq_guess_ite(clo.fst.t, clo.lst.t);
@@ -640,7 +648,7 @@ cannot convert calendric system internally");
 			error("\
 increment must not be naught");
 		}
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (argi->compute_from_last_flag) {
 		tmp = __fixup_fst(&clo);
@@ -661,7 +669,7 @@ out:
 		free(clo.altite);
 	}
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dseq.c ends here */

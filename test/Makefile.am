@@ -421,6 +421,10 @@ dt_tests += dround.021.clit
 dt_tests += dround.022.clit
 dt_tests += dround.023.clit
 dt_tests += dround.024.clit
+dt_tests += dround.025.clit
+dt_tests += dround.026.clit
+dt_tests += dround.027.clit
+dt_tests += dround.028.clit
 
 
 dt_tests += tseq.01.clit
@@ -696,6 +700,8 @@ dt_tests += dtdiff.041.clit
 dt_tests += dtdiff.042.clit
 dt_tests += dtdiff.043.clit
 dt_tests += dtdiff.044.clit
+dt_tests += dtdiff.045.clit
+dt_tests += dtdiff.046.clit
 
 dt_tests += dtround.001.clit
 dt_tests += dtround.002.clit
