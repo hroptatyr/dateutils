@@ -190,7 +190,7 @@ int
 main(int argc, char *argv[])
 {
 	yuck_t argi[1U];
-	int res = 0;
+	int rc = 0;
 	zif_t fromz = NULL;
 	char **fmt;
 	size_t nfmt;
@@ -206,11 +206,11 @@ main(int argc, char *argv[])
 	bool trnsp = false;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (argi->nargs == 0U) {
 		error("Need at least a ZONENAME or a DATE/TIME");
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 
@@ -239,6 +239,9 @@ main(int argc, char *argv[])
 
 		/* try dt_strp'ing the input or assume it's a zone  */
 		if (!dt_unk_p(d[nd] = dt_io_strpdt(inp, fmt, nfmt, fromz))) {
+			if (UNLIKELY(d[nd].fix) && !argi->quiet_flag) {
+				rc = 2;
+			}
 			nd++;
 		} else if ((z[nz].zone = dt_io_zone(inp)) != NULL) {
 			z[nz].name = inp;
@@ -248,6 +251,7 @@ main(int argc, char *argv[])
 			error("\
 Cannot use `%s', it does not appear to be a zonename\n\
 nor a date/time corresponding to the given input formats", inp);
+			rc = 2;
 		}
 	}
 	/* operate with default zone UTC and default time now */
@@ -309,7 +313,7 @@ nor a date/time corresponding to the given input formats", inp);
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dzone.c ends here */
