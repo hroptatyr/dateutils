@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dconv -i "%a%y%m%d" <<EOF
+$ ?2 dconv -i "%a%y%m%d" <<EOF
 this line was created on Thu111013 and should match
 whereas this line Thu1110 shouldn't
 EOF

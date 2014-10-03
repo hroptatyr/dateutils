@@ -59,12 +59,13 @@ struct prln_ctx_s {
 	int quietp;
 };
 
-static void
+static int
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
 	struct dt_dt_s d;
 	char *sp = NULL;
 	char *ep = NULL;
+	int rc = 0;
 
 	do {
 		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
@@ -76,6 +77,9 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			llen -= (ep - line);
 			line = ep;
 		} else if (!dt_unk_p(d)) {
+			if (UNLIKELY(d.fix) && !ctx.quietp) {
+				rc = 2;
+			}
 			dt_io_write(d, ctx.ofmt, ctx.outz, '\n');
 			break;
 		} else if (ctx.sed_mode_p) {
@@ -86,11 +90,12 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			/* obviously unmatched, warn about it in non -q mode */
 			if (!ctx.quietp) {
 				dt_io_warn_strpdt(line);
+				rc = 2;
 			}
 			break;
 		}
 	} while (1);
-	return;
+	return rc;
 }
 
 
@@ -103,12 +108,12 @@ main(int argc, char *argv[])
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
-	int res = 0;
+	int rc = 0;
 	zif_t fromz = NULL;
 	zif_t z = NULL;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* init and unescape sequences, maybe */
@@ -140,8 +145,12 @@ main(int argc, char *argv[])
 			struct dt_dt_s d = dt_io_strpdt(inp, fmt, nfmt, fromz);
 
 			if (!dt_unk_p(d)) {
+				if (UNLIKELY(d.fix) && !argi->quiet_flag) {
+					rc = 2;
+				}
 				dt_io_write(d, ofmt, z, '\n');
 			} else if (!argi->quiet_flag) {
+				rc = 2;
 				dt_io_warn_strpdt(inp);
 			}
 		}
@@ -182,7 +191,7 @@ main(int argc, char *argv[])
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen = prchunk_getline(pctx, &line);
 
-				proc_line(prln, line, llen);
+				rc |= proc_line(prln, line, llen);
 			}
 		}
 		/* get rid of resources */
@@ -197,7 +206,7 @@ main(int argc, char *argv[])
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dconv.c ends here */

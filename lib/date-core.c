@@ -766,6 +766,7 @@ __guess_dtyp(struct strpd_s d)
 			/* check for illegal dates, like 31st of April */
 			if ((res.ymd.d = d.d) > md) {
 				res.ymd.d = md;
+				res.fix = 1U;
 			}
 		} else {
 			/* convert dcnt to m + d */
@@ -798,7 +799,15 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_BIZDA;
 		res.bizda.y = d.y;
 		res.bizda.m = d.m;
+#if defined WITH_FAST_ARITH
 		res.bizda.bd = d.b;
+#else  /* !WITH_FAST_ARITH */
+		unsigned int bd = __get_bdays(d.y, d.m);
+		if ((res.bizda.bd = d.b) > bd) {
+			res.bizda.bd = bd;
+			res.fix = 1U;
+		}
+#endif	/* WITH_FAST_ARITH */
 	} else {
 		/* anything else is bollocks for now */
 		;

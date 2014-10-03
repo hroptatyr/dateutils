@@ -259,7 +259,9 @@ struct dt_d_s {
 	/* date type */
 	dt_dtyp_t typ:4;
 	/* unused here, but used by inherited types (e.g. dt_dt_s) */
-	uint32_t:4;
+	uint32_t:3;
+	/* error indicator, usually means date has been fixed up */
+	uint32_t fix:1;
 	/* duration predicate */
 	uint32_t dur:1;
 	/* negated predicate */

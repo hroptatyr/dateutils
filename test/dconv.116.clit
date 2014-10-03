@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## dconv fixes up dates and reports no error back
+$ dconv -q 2013-02-29
+2013-02-28
+$ dconv -q 2013-09-31
+2013-09-30
+$ dconv -q 2012-02-30
+2012-02-29
+$ dconv -q 2012-03-32
+$
+
+## dconv.116.clit ends here
