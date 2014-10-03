@@ -21,7 +21,9 @@ See section `The refinement rule' in ddiff(1).
   -h, --help                 Print help and exit
   -V, --version              Print version and exit
   -q, --quiet                Suppress message about date/time and duration
-                               parser errors.
+                             parser errors and fix-ups.
+                             The default is to print a warning or the
+                             fixed up value and return error code 2.
   -f, --format=STRING        Output format.  This can either be a specifier
                                string (similar to strftime()'s FMT) or the name
                                of a calendar.
