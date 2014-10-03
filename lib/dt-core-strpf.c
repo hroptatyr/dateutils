@@ -232,11 +232,10 @@ __strpdt_std(const char *str, char **ep)
 	}
 try_time:
 	/* and now parse the time */
-	if ((d.st.h = strtoi_lim(sp, &sp, 0, 23)) < 0) {
+	if ((d.st.h = strtoi_lim(sp, &sp, 0, 23)) < 0 ||
+	    *sp != ':') {
 		sp = str;
 		goto out;
-	} else if (*sp != ':') {
-		goto eval_time;
 	} else if ((d.st.m = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
 		d.st.m = 0;
 		goto eval_time;
