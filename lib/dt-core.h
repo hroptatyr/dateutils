@@ -118,8 +118,8 @@ struct dt_dt_s {
 			uint16_t znfxd:1;
 			/* whether to be aware of leap-seconds */
 			uint16_t tai:1;
-			/* unused, pad to next ui8 */
-			uint16_t:1;
+			/* error indicator to denote date has been fixed up */
+			uint16_t fix:1;
 			/* duration indicator */
 			uint16_t dur:1;
 			/* negation indicator */
