@@ -85,18 +85,22 @@ struct mass_add_clo_s {
 	int quietp;
 };
 
-static void
+static int
 proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 {
 	struct dt_dt_s d;
 	char *sp = NULL;
 	char *ep = NULL;
+	int rc = 0;
 
 	do {
 		/* check if line matches, */
 		d = dt_io_find_strpdt2(line, clo->gra, &sp, &ep, clo->fromz);
 
 		if (!dt_unk_p(d)) {
+			if (UNLIKELY(d.fix) && !clo->quietp) {
+				rc = 2;
+			}
 			/* perform addition now */
 			d = dadd_add(d, clo->st.durs, clo->st.ndurs);
 
@@ -122,14 +126,15 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 			/* obviously unmatched, warn about it in non -q mode */
 			if (!clo->quietp) {
 				dt_io_warn_strpdt(line);
+				rc = 2;
 			}
 			break;
 		}
 	} while (1);
-	return;
+	return rc;
 }
 
-static void
+static int
 mass_add_dur(const struct mass_add_clo_s *clo)
 {
 /* read lines from stdin
@@ -137,16 +142,17 @@ mass_add_dur(const struct mass_add_clo_s *clo)
  * add to reference duration
  * output */
 	size_t lno = 0;
+	int rc = 0;
 
 	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen = prchunk_getline(clo->pctx, &line);
 
-		proc_line(clo, line, llen);
+		rc |= proc_line(clo, line, llen);
 	}
-	return;
+	return rc;
 }
 
-static void
+static int
 mass_add_d(const struct mass_add_clo_s *clo)
 {
 /* read lines from stdin
@@ -156,6 +162,7 @@ mass_add_d(const struct mass_add_clo_s *clo)
 	size_t lno = 0;
 	struct dt_dt_s d;
 	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
+	int rc = 0;
 
 	for (char *line; prchunk_haslinep(clo->pctx); lno++) {
 		size_t llen;
@@ -174,6 +181,9 @@ mass_add_d(const struct mass_add_clo_s *clo)
 		line[llen] = '\n';
 
 		if (has_dur_p) {
+			if (UNLIKELY(clo->rd.fix) && !clo->quietp) {
+				rc = 2;
+			}
 			/* perform addition now */
 			d = dadd_add(clo->rd, st.durs, st.ndurs);
 
@@ -189,13 +199,14 @@ mass_add_d(const struct mass_add_clo_s *clo)
 		} else if (!clo->quietp) {
 			line[llen] = '\0';
 			dt_io_warn_strpdt(line);
+			rc = 2;
 		}
 		/* just reset the ndurs slot */
 		st.ndurs = 0;
 	}
 	/* free associated duration resources */
 	__strpdtdur_free(&st);
-	return;
+	return rc;
 }
 
 
@@ -211,19 +222,19 @@ main(int argc, char *argv[])
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
-	int res = 0;
+	int rc = 0;
 	bool dt_given_p = false;
 	zif_t fromz = NULL;
 	zif_t z = NULL;
 	zif_t hackz = NULL;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (argi->nargs == 0) {
 		error("Error: DATE or DURATION must be specified\n");
 		yuck_auto_help(argi);
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* init and unescape sequences, maybe */
@@ -257,7 +268,7 @@ main(int argc, char *argv[])
 				} else {
 					serror("Error: \
 cannot parse duration string `%s'", st.istr);
-					res = 1;
+					rc = 1;
 					goto dur_out;
 				}
 			}
@@ -276,7 +287,7 @@ cannot parse duration string `%s'", st.istr);
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
 			error("\
 Error: cannot interpret date/time string `%s'", inp);
-			res = 1;
+			rc = 1;
 			goto dur_out;
 		}
 	}
@@ -284,14 +295,16 @@ Error: cannot interpret date/time string `%s'", inp);
 	/* start the actual work */
 	if (dt_given_p && st.ndurs) {
 		if (!dt_unk_p(d = dadd_add(d, st.durs, st.ndurs))) {
+			if (UNLIKELY(d.fix) && !argi->quiet_flag) {
+				rc = 2;
+			}
 			if (hackz == NULL && fromz != NULL) {
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
 			}
 			dt_io_write(d, ofmt, z, '\n');
-			res = 0;
 		} else {
-			res = 1;
+			rc = 1;
 		}
 
 	} else if (st.ndurs) {
@@ -331,7 +344,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->sed_mode_p = argi->sed_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
-			mass_add_dur(clo);
+			rc |= mass_add_dur(clo);
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
@@ -364,7 +377,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->sed_mode_p = argi->sed_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
-			mass_add_d(clo);
+			rc |= mass_add_d(clo);
 		}
 		/* get rid of resources */
 		free_prchunk(pctx);
@@ -377,7 +390,7 @@ dur_out:
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dadd.c ends here */
