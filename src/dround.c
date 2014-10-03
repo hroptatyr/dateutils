@@ -395,18 +395,22 @@ struct prln_ctx_s {
 	bool nextp;
 };
 
-static void
+static int
 proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 {
 	struct dt_dt_s d;
 	char *sp = NULL;
 	char *ep = NULL;
+	int rc = 0;
 
 	do {
 		/* check if line matches, */
 		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
 
 		if (!dt_unk_p(d)) {
+			if (UNLIKELY(d.fix) && !ctx.quietp) {
+				rc = 2;
+			}
 			/* perform addition now */
 			d = dround(d, ctx.st->durs, ctx.st->ndurs, ctx.nextp);
 
@@ -432,11 +436,12 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			/* obviously unmatched, warn about it in non -q mode */
 			if (!ctx.quietp) {
 				dt_io_warn_strpdt(line);
+				rc = 2;
 			}
 			break;
 		}
 	} while (1);
-	return;
+	return rc;
 }
 
 
@@ -452,7 +457,7 @@ main(int argc, char *argv[])
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
-	int res = 0;
+	int rc = 0;
 	bool dt_given_p = false;
 	bool nextp = false;
 	zif_t fromz = NULL;
@@ -460,12 +465,12 @@ main(int argc, char *argv[])
 	zif_t hackz = NULL;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (argi->nargs == 0U) {
 		error("Error: DATE or DURATION must be specified\n");
 		yuck_auto_help(argi);
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* init and unescape sequences, maybe */
@@ -517,27 +522,29 @@ cannot parse duration/rounding string `%s'", st.istr);
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
 			error("Error: \
 cannot interpret date/time string `%s'", argi->args[0U]);
-			res = 1;
+			rc = 1;
 			goto out;
 		}
 	} else if (st.ndurs == 0) {
 		error("Error: \
 no durations given");
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 
 	/* start the actual work */
 	if (dt_given_p) {
+		if (UNLIKELY(d.fix) && !argi->quiet_flag) {
+			rc = 2;
+		}
 		if (!dt_unk_p(d = dround(d, st.durs, st.ndurs, nextp))) {
 			if (hackz == NULL && fromz != NULL) {
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
 			}
 			dt_io_write(d, ofmt, z, '\n');
-			res = 0;
 		} else {
-			res = 1;
+			rc = 1;
 		}
 	} else {
 		/* read from stdin */
@@ -580,7 +587,7 @@ no durations given");
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				size_t llen = prchunk_getline(pctx, &line);
 
-				proc_line(prln, line, llen);
+				rc |= proc_line(prln, line, llen);
 			}
 		}
 		/* get rid of resources */
@@ -598,7 +605,7 @@ no durations given");
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dround.c ends here */
