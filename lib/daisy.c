@@ -298,12 +298,17 @@ __daisy_to_ywd(dt_daisy_t that)
 		/* hanging over into the new year */
 		yw = 1U;
 		y++;
+	} else {
+		yw++;
 	}
 
 	/* final assignment */
 	res.y = y;
 	res.c = yw;
-	res.w = wd % 7U + 1U;
+	with (dt_dow_t dow = (dt_dow_t)(wd % 7U + 1U)) {
+		res.w = dow;
+		res.hang = __ywd_get_jan01_hang(dow);
+	}
 	return res;
 }
 
