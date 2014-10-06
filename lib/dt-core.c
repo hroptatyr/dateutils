@@ -570,6 +570,19 @@ see http://llvm.org/bugs/show_bug.cgi?id=18028
 }
 #endif	/* WITH_LEAP_SECONDS */
 
+static inline int32_t
+zdiff_sec(struct dt_dt_s d)
+{
+/* obtain zdiff in signed seconds, instead of absolute ZDIFF_RES multiples */
+	int32_t zdiff = d.zdiff * ZDIFF_RES;
+
+	if (d.neg) {
+		zdiff = -zdiff;
+	}
+	return zdiff;
+}
+
+
 
 /* parser implementations */
 DEFUN struct dt_dt_s

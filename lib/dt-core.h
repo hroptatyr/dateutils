@@ -323,17 +323,6 @@ dt_make_t_only(struct dt_dt_s *d, dt_ttyp_t tty)
 	return;
 }
 
-static inline int32_t
-zdiff_sec(struct dt_dt_s d)
-{
-	int32_t zdiff = d.zdiff * ZDIFF_RES;
-
-	if (d.neg) {
-		zdiff = -zdiff;
-	}
-	return zdiff;
-}
-
 #if defined __cplusplus
 }
 #endif	/* __cplusplus */
