@@ -308,8 +308,12 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 	static char buf[256];
 	size_t n;
 
-	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
+	if (zone != NULL) {
 		d = dtz_enrichz(d, zone);
+	} else {
+		/* zone == NULL is UTC, kill zdiff */
+		d.zdiff = 0U;
+		d.neg = 0U;
 	}
 	n = dt_io_strfdt(buf, sizeof(buf), fmt, d, apnd_ch);
 	__io_write(buf, n, stdout);

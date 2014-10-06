@@ -127,7 +127,9 @@ struct dt_dt_s {
 			/* we've got 6 bits left here to coincide with dt_d_s
 			 * use that and the neg flag for zdiffs
 			 * zdiff itself has 15-minute resolution,
-			 * range [0, 63] aka [00:00 16:00] */
+			 * range [0, 63] aka [00:00 16:00]
+			 * The policy is to store the time always in UTC
+			 * but keep the difference in this slot. */
 			uint16_t zdiff:6;
 #define ZDIFF_RES	(15U * 60U)
 
