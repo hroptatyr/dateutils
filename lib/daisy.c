@@ -286,6 +286,7 @@ __daisy_to_ywd(dt_daisy_t that)
 	const unsigned int wd = (that + 6) % 7;
 	unsigned int y;
 	unsigned int yw;
+	dt_ywd_t res;
 
 	/* get an estimate for the year and readjust */
 	y = __daisy_get_year(that);
@@ -299,8 +300,11 @@ __daisy_to_ywd(dt_daisy_t that)
 		y++;
 	}
 
-	/* final ctor */
-	return __make_ywd_c(y, yw, (dt_dow_t)(wd % 7U + 1U), YWD_MONWK_CNT);
+	/* final assignment */
+	res.y = y;
+	res.c = yw;
+	res.w = wd % 7U + 1U;
+	return res;
 }
 
 static dt_yd_t
