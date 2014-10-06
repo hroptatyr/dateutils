@@ -627,14 +627,14 @@ cannot mix dates and times as arguments");
 	}
 
 #define x_DAISY	((dt_dttyp_t)DT_DAISY)
-	if (dt_sandwich_only_d_p(clo.fst) &&
+	if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
 	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0) {
 		/* iterate year-wise */
 		dt_make_d_only(clo.ite, DT_YMD);
 		clo.ite->d.ymd.y = 1;
 		clo.ite->d.ymd.m = 0;
 		clo.ite->d.ymd.d = 0;
-	} else if (dt_sandwich_only_d_p(clo.fst) &&
+	} else if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
 		   clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.d == 0) {
 		/* iterate month-wise */
 		dt_make_d_only(clo.ite, DT_YMD);
