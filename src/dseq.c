@@ -627,9 +627,23 @@ cannot mix dates and times as arguments");
 	}
 
 #define x_DAISY	((dt_dttyp_t)DT_DAISY)
-	/* convert to daisies */
 	if (dt_sandwich_only_d_p(clo.fst) &&
+	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0) {
+		/* iterate year-wise */
+		dt_make_d_only(clo.ite, DT_YMD);
+		clo.ite->d.ymd.y = 1;
+		clo.ite->d.ymd.m = 0;
+		clo.ite->d.ymd.d = 0;
+	} else if (dt_sandwich_only_d_p(clo.fst) &&
+		   clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.d == 0) {
+		/* iterate month-wise */
+		dt_make_d_only(clo.ite, DT_YMD);
+		clo.ite->d.ymd.y = 0;
+		clo.ite->d.ymd.m = 1;
+		clo.ite->d.ymd.d = 0;
+	} else if (dt_sandwich_only_d_p(clo.fst) &&
 	    __daisy_feasible_p(clo.ite, clo.nite) &&
+	    /* convert to daisies */
 	    ((clo.fst = dt_dtconv(x_DAISY, clo.fst)).d.typ != DT_DAISY ||
 	     (clo.lst = dt_dtconv(x_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_flag) {
