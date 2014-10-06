@@ -300,7 +300,7 @@ __daisy_to_ywd(dt_daisy_t that)
 	}
 
 	/* final ctor */
-	return __make_ywd_c(y, yw, (dt_dow_t)(wd % 7U + 1U), YWD_ABSWK_CNT);
+	return __make_ywd_c(y, yw, (dt_dow_t)(wd % 7U + 1U), YWD_MONWK_CNT);
 }
 
 static dt_yd_t
