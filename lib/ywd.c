@@ -85,6 +85,7 @@ __ywd_get_jan01_hang(dt_dow_t j01)
 	int res;
 
 	if (UNLIKELY((res = 1 - (int)j01) < -3)) {
+		assert(res >= -6);
 		return (int)GREG_DAYS_P_WEEK + res;
 	}
 	return res;
