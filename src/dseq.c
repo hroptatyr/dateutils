@@ -511,7 +511,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			}
 			rc = 1;
 			goto out;
-		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
+		} else if (UNLIKELY(fst.fix) && !argi->quiet_flag) {
 			rc = 2;
 		}
 
