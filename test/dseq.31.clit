@@ -1,0 +1,10 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq 2012 2015 -i '%Y'
+2012-00-00
+2013-00-00
+2014-00-00
+2015-00-00
+$
+
+## dseq.31.clit ends here

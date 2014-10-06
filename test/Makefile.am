@@ -68,6 +68,10 @@ dt_tests += dseq.25.clit
 dt_tests += dseq.26.clit
 dt_tests += dseq.27.clit
 dt_tests += dseq.28.clit
+dt_tests += dseq.29.clit
+dt_tests += dseq.30.clit
+dt_tests += dseq.31.clit
+dt_tests += dseq.32.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -577,6 +581,12 @@ dt_tests += convt.ywd-ymd.clit
 
 dt_tests += dtseq.01.clit
 dt_tests += dtseq.02.clit
+dt_tests += dtseq.03.clit
+dt_tests += dtseq.04.clit
+dt_tests += dtseq.05.clit
+dt_tests += dtseq.06.clit
+dt_tests += dtseq.07.clit
+dt_tests += dtseq.08.clit
 
 dt_tests += dtadd.001.clit
 dt_tests += dtadd.002.clit
