@@ -234,7 +234,7 @@ __daisy_to_ymcw(dt_daisy_t that)
 static __attribute__((const, pure)) dt_ywd_t
 __daisy_to_ywd(dt_daisy_t that)
 {
-	const unsigned int wd = (that + 6) % 7;
+	const unsigned int wd = (that + GREG_DAYS_P_WEEK - 1) % GREG_DAYS_P_WEEK;
 	dt_dow_t dow = (dt_dow_t)(wd + 1U);
 	unsigned int y = __daisy_get_year(that);
 	int yd = that - __jan00_daisy(y);

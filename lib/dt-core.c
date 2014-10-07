@@ -1611,12 +1611,15 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 	}
 	/* go through it hierarchically and without upmotes */
 	switch (d1.d.typ) {
+		int res;
+
 	case DT_DUNK:
 	default:
 		goto try_time;
 	case DT_YMD:
 	case DT_DAISY:
 	case DT_BIZDA:
+	case DT_YWD:
 		/* use arithmetic comparison */
 		if (d1.d.u < d2.d.u) {
 			return -1;
@@ -1626,39 +1629,21 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 			/* means they're equal, so try the time part */
 			goto try_time;
 		}
-	case DT_YMCW: {
+	case DT_YMCW:
 		/* use designated thing since ymcw dates aren't
 		 * increasing */
-		int res = __ymcw_cmp(d1.d.ymcw, d2.d.ymcw);
-		if (res == 0) {
+		if (!(res = __ymcw_cmp(d1.d.ymcw, d2.d.ymcw))) {
 			goto try_time;
 		}
 		return res;
 	}
-	}
 try_time:
-#if 0
-/* constant select is evil */
-	switch (DT_SANDWICH_T(d1.typ)) {
-	case DT_HMS:
-		if (d1.t.hms.u < d2.t.hms.u) {
-			return -1;
-		} else if (d1.t.hms.u > d2.t.hms.u) {
-			return 1;
-		}
-	case DT_TUNK:
-	default:
-		return 0;
-	}
-#else
 	if (d1.t.hms.u < d2.t.hms.u) {
 		return -1;
 	} else if (d1.t.hms.u > d2.t.hms.u) {
 		return 1;
 	}
 	return 0;
-#endif
-
 }
 
 DEFUN int

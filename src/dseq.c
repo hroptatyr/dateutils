@@ -439,6 +439,7 @@ main(int argc, char *argv[])
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
+	dt_dttyp_t tgttyp;
 	int rc = 0;
 	struct dseq_clo_s clo = {
 		.ite = &ite_p1,
@@ -626,7 +627,8 @@ cannot mix dates and times as arguments");
 		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	}
 
-#define x_DAISY	((dt_dttyp_t)DT_DAISY)
+#define _DAISY	((dt_dttyp_t)DT_DAISY)
+	tgttyp = clo.fst.typ;
 	if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
 	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0) {
 		/* iterate year-wise */
@@ -642,10 +644,11 @@ cannot mix dates and times as arguments");
 		clo.ite->d.ymd.m = 1;
 		clo.ite->d.ymd.d = 0;
 	} else if (dt_sandwich_only_d_p(clo.fst) &&
-	    __daisy_feasible_p(clo.ite, clo.nite) &&
-	    /* convert to daisies */
-	    ((clo.fst = dt_dtconv(x_DAISY, clo.fst)).d.typ != DT_DAISY ||
-	     (clo.lst = dt_dtconv(x_DAISY, clo.lst)).d.typ != DT_DAISY)) {
+		   __daisy_feasible_p(clo.ite, clo.nite) &&
+		   clo.fst.d.typ == DT_YMD &&
+		   /* convert to daisies */
+		   ((clo.fst = dt_dtconv(_DAISY, clo.fst)).d.typ != DT_DAISY ||
+		    (clo.lst = dt_dtconv(_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_flag) {
 			error("\
 cannot convert calendric system internally");
@@ -671,7 +674,12 @@ increment must not be naught");
 	}
 
 	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
-		dt_io_write(tmp, ofmt, NULL, '\n');
+		struct dt_dt_s tgt = tmp;
+
+		if (UNLIKELY(ofmt == NULL)) {
+			tgt = dt_dtconv(tgttyp, tmp);
+		}
+		dt_io_write(tgt, ofmt, NULL, '\n');
 	}
 
 out:
