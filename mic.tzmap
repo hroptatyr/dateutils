@@ -243,6 +243,7 @@ FSHX	Europe/Oslo
 FXAL	America/New_York
 FXCM	America/New_York
 FXMT	Europe/London
+G1XX	America/Chicago
 GBOT	Indian/Mauritius
 GEMX	Europe/London
 GFIA	Europe/London
@@ -253,6 +254,7 @@ GFIN	Europe/London
 GFIR	Europe/London
 GLBX	America/Chicago
 GLLC	America/New_York
+GLPS	America/Chicago
 GMEG	Europe/London
 GMEX	Europe/Berlin
 GMNI	America/New_York
@@ -368,6 +370,7 @@ LMEC	Europe/London
 LMTS	Europe/London
 LOTC	Europe/London
 LPPM	Europe/London
+LQFI	America/New_York
 LYNX	America/Toronto
 MABX	Europe/Madrid
 MACX	Europe/Rome
@@ -1075,6 +1078,7 @@ XSSC	Asia/Shanghai
 XSSE	Europe/Sarajevo
 XSTC	Asia/Ho_Chi_Minh
 XSTE	Asia/Tashkent
+XSTM	America/New_York
 XSTO	Europe/Stockholm
 XSTU	Europe/Berlin
 XSTV	Europe/Zurich
