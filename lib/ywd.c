@@ -430,6 +430,19 @@ __ywd_fixup(dt_ywd_t d)
 	return d;
 }
 
+#define canon_yc(y, c)					\
+	if (LIKELY(c >= 1 && c <= 52)) {		\
+		/* all years support this */		\
+		;					\
+	} else if (UNLIKELY(c < 1)) {			\
+		y--;					\
+		c += __get_isowk(y);			\
+	} else if (UNLIKELY(c > __get_isowk(y))) {	\
+		c -= __get_isowk(y);			\
+		y++;					\
+	}
+
+
 #endif	/* !YWD_ASPECT_HELPERS_ */
 
 
@@ -474,13 +487,7 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 			c++;
 		}
 
-		if (UNLIKELY(c > __get_isowk(y))) {
-			y++;
-			c = 1;
-		} else if (UNLIKELY(c == 0)) {
-			y--;
-			c = __get_isowk(y);
-		}
+		canon_yc(y, c);
 		break;
 	case YWD_SUNWK_CNT:
 		if (j01 == DT_SUNDAY) {
@@ -517,7 +524,6 @@ __make_ywd_ybd(unsigned int y, int yd)
 	dt_ywd_t res = {0};
 	dt_dow_t j01;
 	unsigned int c;
-	unsigned int nwk;
 	int w;
 	int hang;
 
@@ -538,15 +544,7 @@ __make_ywd_ybd(unsigned int y, int yd)
 
 	/* fixup c (and y) */
 	c++;
-	if (LIKELY(c >= 1 && c <= 52)) {
-		/* all years support this */
-		;
-	} else if (UNLIKELY(c < 1)) {
-		c += __get_isowk(--y);
-	} else if (UNLIKELY(c > (nwk = __get_isowk(y)))) {
-		c -= nwk;
-		y++;
-	}
+	canon_yc(y, c);
 
 	/* assign and fuck off */
 	res.y = y;
