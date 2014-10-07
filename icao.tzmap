@@ -495,6 +495,7 @@ CYTS	America/Toronto
 CYTZ	America/Toronto
 CYUB	America/Yellowknife
 CYUI	America/Cambridge_Bay
+CYUJ	America/Cambridge_Bay
 CYUK	America/Cambridge_Bay
 CYUL	America/Montreal
 CYUQ	America/Cambridge_Bay
@@ -2490,6 +2491,7 @@ HCMF	Africa/Mogadishu
 HCMG	Africa/Mogadishu
 HCMH	Africa/Mogadishu
 HCMI	Africa/Mogadishu
+HCMJ	Africa/Mogadishu
 HCMK	Africa/Mogadishu
 HCMM	Africa/Mogadishu
 HCMN	Africa/Mogadishu
@@ -2661,6 +2663,7 @@ HTMB	Africa/Dar_es_Salaam
 HTMD	Africa/Dar_es_Salaam
 HTMI	Africa/Dar_es_Salaam
 HTMP	Africa/Dar_es_Salaam
+HTMR	Africa/Dar_es_Salaam
 HTMS	Africa/Dar_es_Salaam
 HTMT	Africa/Dar_es_Salaam
 HTMU	Africa/Dar_es_Salaam
@@ -4029,6 +4032,7 @@ KLRD	America/Chicago
 KLRF	America/Chicago
 KLRG	America/New_York
 KLRJ	America/Chicago
+KLRO	America/New_York
 KLRU	America/Denver
 KLRY	America/Chicago
 KLSB	America/Denver
@@ -4315,6 +4319,7 @@ KNVD	America/Chicago
 KNXP	America/Los_Angeles
 KNXX	America/New_York
 KNYG	America/New_York
+KNYL	America/Phoenix
 KNZY	America/Los_Angeles
 KO87	America/Los_Angeles
 KOAJ	America/New_York
@@ -6238,6 +6243,7 @@ MPHO	America/Panama
 MPJE	America/Panama
 MPLP	America/Panama
 MPMG	America/Panama
+MPOA	America/Panama
 MPRH	America/Panama
 MPSA	America/Panama
 MPTO	America/Panama
@@ -6246,9 +6252,11 @@ MRAN	America/Costa_Rica
 MRAO	America/Costa_Rica
 MRBA	America/Costa_Rica
 MRBC	America/Costa_Rica
+MRBP	America/Costa_Rica
 MRCC	America/Costa_Rica
 MRCH	America/Costa_Rica
 MRCR	America/Costa_Rica
+MRDC	America/Costa_Rica
 MRDK	America/Costa_Rica
 MRFS	America/Costa_Rica
 MRGF	America/Costa_Rica
@@ -6266,6 +6274,7 @@ MRPM	America/Costa_Rica
 MRPV	America/Costa_Rica
 MRQP	America/Costa_Rica
 MRRF	America/Costa_Rica
+MRSG	America/Costa_Rica
 MRSI	America/Costa_Rica
 MRSR	America/Costa_Rica
 MRSV	America/Costa_Rica
@@ -6368,7 +6377,9 @@ MYNN	America/Nassau
 MYPI	America/Nassau
 MYRD	America/Nassau
 MYRP	America/Nassau
+MYRT	America/Costa_Rica
 MYSM	America/Nassau
+MYX6	America/Nassau
 MYXA	America/Nassau
 MYXD	America/Nassau
 MYXF	America/Nassau
@@ -7298,10 +7309,10 @@ RORT	Asia/Tokyo
 RORY	Asia/Tokyo
 ROTM	Asia/Tokyo
 ROYN	Asia/Tokyo
-RP02	Asia/Manila
 RPLB	Asia/Manila
 RPLC	Asia/Manila
 RPLI	Asia/Manila
+RPLJ	Asia/Manila
 RPLL	Asia/Manila
 RPLN	Asia/Manila
 RPLO	Asia/Manila
@@ -7379,6 +7390,7 @@ RPVV	Asia/Manila
 RPVW	Asia/Manila
 RPVY	Asia/Manila
 RPWC	Asia/Manila
+RPWY	Asia/Manila
 SAAA	America/Argentina/Buenos_Aires
 SAAC	America/Argentina/Cordoba
 SAAG	America/Argentina/Cordoba
@@ -7998,8 +8010,10 @@ SIBY	America/Recife
 SILC	America/Cuiaba
 SIMK	America/Sao_Paulo
 SIZX	America/Cuiaba
+SJCM	America/Cuiaba
 SJHG	America/Cuiaba
 SJNP	America/Santarem
+SJQE	America/Sao_Paulo
 SJTC	America/Sao_Paulo
 SKAC	America/Bogota
 SKAD	America/Bogota
@@ -8330,8 +8344,10 @@ SPCG	America/Lima
 SPCH	America/Lima
 SPCL	America/Lima
 SPDO	America/Lima
+SPEB	America/Lima
 SPEO	America/Lima
 SPGM	America/Lima
+SPGU	America/Lima
 SPHA	America/Lima
 SPHI	America/Lima
 SPHO	America/Lima
@@ -8372,6 +8388,7 @@ SPUR	America/Lima
 SPVL	America/Lima
 SPVR	America/Lima
 SPYL	America/Lima
+SPYO	America/Lima
 SPZA	America/Lima
 SPZO	America/Lima
 SSAP	America/Sao_Paulo
@@ -8380,6 +8397,7 @@ SSCK	America/Sao_Paulo
 SSCN	America/Sao_Paulo
 SSCP	America/Sao_Paulo
 SSDO	America/Campo_Grande
+SSDY	America/Cuiaba
 SSER	America/Sao_Paulo
 SSFB	America/Sao_Paulo
 SSGY	America/Sao_Paulo
@@ -8535,6 +8553,7 @@ SVWB	America/Caracas
 SVYT	America/Caracas
 SWBC	America/Manaus
 SWBI	America/Manaus
+SWBL	America/Manaus
 SWBR	America/Manaus
 SWCA	America/Manaus
 SWCQ	America/Porto_Velho
@@ -8561,6 +8580,7 @@ SWMW	America/Manaus
 SWNA	America/Manaus
 SWNI	America/Porto_Velho
 SWNK	America/Manaus
+SWNO	America/Manaus
 SWNQ	America/Sao_Paulo
 SWOB	America/Manaus
 SWPI	America/Manaus
@@ -8571,6 +8591,7 @@ SWRP	America/Cuiaba
 SWSI	America/Cuiaba
 SWST	America/Cuiaba
 SWTP	America/Manaus
+SWTX	America/Cuiaba
 SWTY	America/Araguaina
 SWUA	America/Sao_Paulo
 SWVC	America/Cuiaba
@@ -9641,6 +9662,7 @@ WSSL	Asia/Singapore
 WSSS	Asia/Singapore
 X2RT	Europe/London
 XLLN	Europe/Moscow
+XSBY	Europe/London
 XUBS	Europe/Moscow
 YABA	Australia/Perth
 YABI	Australia/Brisbane
@@ -9736,6 +9758,7 @@ YCCY	Australia/Brisbane
 YCDO	Australia/Sydney
 YCDR	Australia/Brisbane
 YCEE	Australia/Adelaide
+YCEL	Australia/Brisbane
 YCFD	Australia/Darwin
 YCGO	Australia/Brisbane
 YCHT	Australia/Brisbane
@@ -9798,6 +9821,7 @@ YELD	Australia/Darwin
 YEMG	Australia/Brisbane
 YEML	Australia/Brisbane
 YERN	Australia/Adelaide
+YESD	Australia/Brisbane
 YESE	Australia/Brisbane
 YESP	Australia/Perth
 YEVA	Australia/Darwin
@@ -9875,6 +9899,7 @@ YJNB	Australia/Perth
 YJUN	Australia/Perth
 YKAL	Australia/Perth
 YKAR	Australia/Perth
+YKAT	Australia/Sydney
 YKBL	Australia/Perth
 YKBR	Australia/Perth
 YKBY	Australia/Adelaide
@@ -10020,6 +10045,7 @@ YPBO	Australia/Perth
 YPCC	Indian/Cocos
 YPCD	Australia/Adelaide
 YPCE	Australia/Sydney
+YPDA	Australia/Adelaide
 YPDI	Australia/Adelaide
 YPDN	Australia/Darwin
 YPDO	Australia/Perth
@@ -10094,6 +10120,7 @@ YSPI	Australia/Brisbane
 YSPK	Australia/Brisbane
 YSPT	Australia/Brisbane
 YSPV	Australia/Brisbane
+YSPY	Australia/Adelaide
 YSRD	Australia/Perth
 YSRN	Australia/Hobart
 YSSY	Australia/Sydney
@@ -10130,6 +10157,7 @@ YUNY	Australia/Brisbane
 YUSL	Australia/Perth
 YVRD	Australia/Darwin
 YVRS	Australia/Brisbane
+YVSH	Australia/Darwin
 YWAL	Australia/Perth
 YWAV	Australia/Darwin
 YWBL	Australia/Melbourne
@@ -10141,6 +10169,7 @@ YWCH	Australia/Sydney
 YWCK	Australia/Brisbane
 YWDG	Australia/Perth
 YWDH	Australia/Brisbane
+YWGI	Australia/Adelaide
 YWGT	Australia/Melbourne
 YWHA	Australia/Adelaide
 YWHI	Australia/Brisbane
@@ -10166,6 +10195,7 @@ YWWL	Australia/Sydney
 YWYF	Australia/Melbourne
 YWYM	Australia/Perth
 YWYY	Australia/Hobart
+YXEI	Australia/Brisbane
 YYAL	Australia/Perth
 YYKI	Australia/Lindeman
 YYMI	Australia/Lindeman
