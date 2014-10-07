@@ -535,6 +535,7 @@ dt_make_ymd(unsigned int y, unsigned int m, unsigned int d)
 	res.typ = DT_YMD;
 	res.dur = 0U;
 	res.neg = 0U;
+	res.fix = 0U;
 	res.param = 0U;
 	res.ymd.y = y;
 	res.ymd.m = m;
@@ -550,6 +551,7 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 	res.typ = DT_YMCW;
 	res.dur = 0U;
 	res.neg = 0U;
+	res.fix = 0U;
 	res.param = 0U;
 	res.ymcw.y = y;
 	res.ymcw.m = m;
@@ -566,6 +568,7 @@ dt_make_daisydur(signed int d)
 	res.typ = DT_DAISY;
 	res.dur = 1U;
 	res.neg = 0U;
+	res.fix = 0U;
 	res.param = 0U;
 	res.daisydur = d;
 	return res;
