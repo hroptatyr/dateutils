@@ -543,7 +543,7 @@ __make_ywd_yd_dow(unsigned int y, int yd, dt_dow_t dow)
 	hang = __ywd_get_jan01_hang(j01);
 
 	/* compute weekday, decompose yd into 7p + q */
-	c = (yd + 6 - hang) / (signed int)GREG_DAYS_P_WEEK;
+	c = (yd + GREG_DAYS_P_WEEK - 1 - hang) / (signed int)GREG_DAYS_P_WEEK;
 
 	/* fixup c (and y) */
 	canon_yc(y, c, hang);
