@@ -107,7 +107,7 @@ __ywd_get_dec31_wday(dt_ywd_t d)
 }
 
 #if defined GET_ISOWK_FULL_SWITCH
-static unsigned int
+static __attribute__((const, pure)) unsigned int
 __get_isowk(unsigned int y)
 {
 /* return the number of iso weeks in Y */
@@ -364,7 +364,7 @@ __get_z31wk(unsigned int y)
 }
 
 #elif defined GET_ISOWK_28Y_SWITCH
-static inline __attribute__((pure))  unsigned int
+static inline __attribute__((const, pure)) unsigned int
 __get_isowk(unsigned int y)
 {
 	switch (y % 28U) {
@@ -430,6 +430,19 @@ __ywd_fixup(dt_ywd_t d)
 	return d;
 }
 
+#define canon_yc(y, c)					\
+	if (LIKELY(c >= 1 && c <= 52)) {		\
+		/* all years support this */		\
+		;					\
+	} else if (UNLIKELY(c < 1)) {			\
+		y--;					\
+		c += __get_isowk(y);			\
+	} else if (UNLIKELY(c > __get_isowk(y))) {	\
+		c -= __get_isowk(y);			\
+		y++;					\
+	}
+
+
 #endif	/* !YWD_ASPECT_HELPERS_ */
 
 
@@ -474,13 +487,7 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 			c++;
 		}
 
-		if (UNLIKELY(c > __get_isowk(y))) {
-			y++;
-			c = 1;
-		} else if (UNLIKELY(c == 0)) {
-			y--;
-			c = __get_isowk(y);
-		}
+		canon_yc(y, c);
 		break;
 	case YWD_SUNWK_CNT:
 		if (j01 == DT_SUNDAY) {
@@ -511,13 +518,42 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 }
 
 static dt_ywd_t
+__make_ywd_yd_dow(unsigned int y, int yd, dt_dow_t dow)
+{
+/* build a 8601 compliant ywd object from year Y, day-of-year YD
+ * and weekday DOW */
+	dt_ywd_t res = {0};
+	dt_dow_t j01;
+	unsigned int c;
+	int hang;
+
+	/* deduce the weekday of the first, given the weekday
+	 * of the yd-th is DOW */
+	j01 = __get_jan01_yday_dow(yd, dow);
+	hang = __ywd_get_jan01_hang(j01);
+
+
+	/* compute weekday, decompose yd into 7p + q */
+	c = (yd + 6 - hang) / (signed int)GREG_DAYS_P_WEEK;
+
+	/* fixup c (and y) */
+	canon_yc(y, c);
+
+	/* assign and fuck off */
+	res.y = y;
+	res.c = c;
+	res.w = dow;
+	res.hang = hang;
+	return res;
+}
+
+static dt_ywd_t
 __make_ywd_ybd(unsigned int y, int yd)
 {
 /* build a 8601 compliant ywd object from year Y and year-business-day YD */
 	dt_ywd_t res = {0};
 	dt_dow_t j01;
 	unsigned int c;
-	unsigned int nwk;
 	int w;
 	int hang;
 
@@ -538,15 +574,7 @@ __make_ywd_ybd(unsigned int y, int yd)
 
 	/* fixup c (and y) */
 	c++;
-	if (LIKELY(c >= 1 && c <= 52)) {
-		/* all years support this */
-		;
-	} else if (UNLIKELY(c < 1)) {
-		c += __get_isowk(--y);
-	} else if (UNLIKELY(c > (nwk = __get_isowk(y)))) {
-		c -= nwk;
-		y++;
-	}
+	canon_yc(y, c);
 
 	/* assign and fuck off */
 	res.y = y;
