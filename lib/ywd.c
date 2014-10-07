@@ -778,44 +778,44 @@ __ywd_to_yd(dt_ywd_t d)
 #define YWD_ASPECT_ADD_
 
 static dt_ywd_t
-__ywd_fixup_w(unsigned int y, signed int w, dt_dow_t d)
+__ywd_fixup_w(unsigned int y, signed int w, dt_dow_t d, int hang)
 {
 	dt_ywd_t res = {0};
-	int new_hang_p = 0;
 
 	/* fixup q */
 	if (LIKELY(w >= 1 && w <= 52)) {
 		/* all years support this */
 		;
 	} else if (w < 1) {
-		int nw;
-
 		do {
-			nw = __get_isowk(--y);
-			w += nw;
+			if (UNLIKELY(__leapp(--y))) {
+				hang++;
+			}
+			if (++hang > 3) {
+				hang -= GREG_DAYS_P_WEEK;
+			}
+			w += __get_isowk(y);
 		} while (w < 1);
-		new_hang_p = 1;
 
 	} else {
 		int nw;
 
 		while (w > (nw = __get_isowk(y))) {
 			w -= nw;
-			y++;
-			new_hang_p = 1;
+			if (UNLIKELY(__leapp(y++))) {
+				hang--;
+			}
+			if (--hang < -3) {
+				hang += GREG_DAYS_P_WEEK;
+			}
 		}
 	}
 
-	if (new_hang_p) {
-		/* recompute hang */
-		dt_dow_t j01 = __get_jan01_wday(y);
-		res.hang = __ywd_get_jan01_hang(j01);
-	}
-
-	/* final assignment, what about the hang? */
+	/* final assignment */
 	res.y = y;
 	res.c = w;
 	res.w = d;
+	res.hang = hang;
 	return res;
 }
 
@@ -825,7 +825,7 @@ __ywd_add_w(dt_ywd_t d, int n)
 /* add N weeks to D */
 	signed int tgtc = d.c + n;
 
-	return __ywd_fixup_w(d.y, tgtc, (dt_dow_t)d.w);
+	return __ywd_fixup_w(d.y, tgtc, (dt_dow_t)d.w, d.hang);
 }
 
 static dt_ywd_t
