@@ -521,8 +521,8 @@ __yday_get_md(unsigned int year, unsigned int yday)
 static inline __attribute__((const, pure)) dt_dow_t
 __get_jan01_yday_dow(unsigned int yd, dt_dow_t w)
 {
-	unsigned int res = (yd - 1U + (unsigned int)w) % GREG_DAYS_P_WEEK;
-	return (dt_dow_t)(res ?: DT_SUNDAY);
+	unsigned int res = (yd + 6U - (unsigned int)w) % GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(DT_SUNDAY - res);
 }
 
 #endif	/* YD_ASPECT_HELPERS_ */
