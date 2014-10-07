@@ -1638,28 +1638,12 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 		return res;
 	}
 try_time:
-#if 0
-/* constant select is evil */
-	switch (DT_SANDWICH_T(d1.typ)) {
-	case DT_HMS:
-		if (d1.t.hms.u < d2.t.hms.u) {
-			return -1;
-		} else if (d1.t.hms.u > d2.t.hms.u) {
-			return 1;
-		}
-	case DT_TUNK:
-	default:
-		return 0;
-	}
-#else
 	if (d1.t.hms.u < d2.t.hms.u) {
 		return -1;
 	} else if (d1.t.hms.u > d2.t.hms.u) {
 		return 1;
 	}
 	return 0;
-#endif
-
 }
 
 DEFUN int
