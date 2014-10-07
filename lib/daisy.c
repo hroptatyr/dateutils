@@ -48,7 +48,7 @@
 #define TO_BASE(x)	((x) - DT_DAISY_BASE_YEAR)
 #define TO_YEAR(x)	((x) + DT_DAISY_BASE_YEAR)
 
-static inline __attribute__((pure)) dt_daisy_t
+static inline __attribute__((const, pure)) dt_daisy_t
 __jan00_daisy(unsigned int year)
 {
 /* daisy's base year is both 1 mod 4 and starts on a monday, so ... */
@@ -81,7 +81,7 @@ __jan00_daisy(unsigned int year)
 #if defined ASPECT_GETTERS && !defined DAISY_ASPECT_GETTERS_
 #define DAISY_ASPECT_GETTERS_
 
-static dt_dow_t
+static __attribute__((const, pure)) dt_dow_t
 __daisy_get_wday(dt_daisy_t d)
 {
 /* daisy wdays are simple because the base year is chosen so that day 0
@@ -89,7 +89,7 @@ __daisy_get_wday(dt_daisy_t d)
 	return (dt_dow_t)((d % GREG_DAYS_P_WEEK) ?: DT_SUNDAY);
 }
 
-static unsigned int
+static __attribute__((const, pure)) unsigned int
 __daisy_get_year(dt_daisy_t d)
 {
 /* given days since 1917-01-01 (Mon), compute a year */
@@ -111,7 +111,7 @@ __daisy_get_year(dt_daisy_t d)
 	return TO_YEAR(by);
 }
 
-static unsigned int
+static __attribute__((const, pure)) unsigned int
 __daisy_get_yday(dt_daisy_t d)
 {
 	dt_daisy_t j00;
@@ -143,19 +143,19 @@ __daisy_get_yday(dt_daisy_t d)
 # error cannot convert to ldn, unknown base year
 #endif
 
-static dt_ldn_t
+static __attribute__((const, pure)) dt_ldn_t
 __daisy_to_ldn(dt_daisy_t d)
 {
 	return d + DT_LDN_BASE;
 }
 
-static dt_jdn_t
+static __attribute__((const, pure)) dt_jdn_t
 __daisy_to_jdn(dt_daisy_t d)
 {
 	return (dt_jdn_t)d + DT_JDN_BASE;
 }
 
-static dt_daisy_t
+static __attribute__((const, pure)) dt_daisy_t
 __ldn_to_daisy(dt_ldn_t d)
 {
 	dt_sdaisy_t tmp;
@@ -166,7 +166,7 @@ __ldn_to_daisy(dt_ldn_t d)
 	return 0U;
 }
 
-static dt_daisy_t
+static __attribute__((const, pure)) dt_daisy_t
 __jdn_to_daisy(dt_jdn_t d)
 {
 	float tmp;
@@ -176,7 +176,7 @@ __jdn_to_daisy(dt_jdn_t d)
 	return 0U;
 }
 
-DEFUN dt_ymd_t
+DEFUN __attribute__((const, pure)) dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
 	dt_daisy_t j00;
@@ -204,7 +204,7 @@ __daisy_to_ymd(dt_daisy_t that)
 #endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
-static dt_ymcw_t
+static __attribute__((const, pure)) dt_ymcw_t
 __daisy_to_ymcw(dt_daisy_t that)
 {
 	dt_ymd_t tmp;
@@ -231,7 +231,7 @@ __daisy_to_ymcw(dt_daisy_t that)
 #endif
 }
 
-static dt_ywd_t
+static __attribute__((const, pure)) dt_ywd_t
 __daisy_to_ywd(dt_daisy_t that)
 {
 	const unsigned int wd = (that + 6) % 7;
@@ -242,7 +242,7 @@ __daisy_to_ywd(dt_daisy_t that)
 	return __make_ywd_yd_dow(y, yd, dow);
 }
 
-static dt_yd_t
+static __attribute__((const, pure)) dt_yd_t
 __daisy_to_yd(dt_daisy_t d)
 {
 	int yd = __daisy_get_yday(d);
@@ -266,7 +266,7 @@ __daisy_to_yd(dt_daisy_t d)
 #include "daisy.c"
 #undef ASPECT_GETTERS
 
-static dt_daisy_t
+static __attribute__((const, pure)) dt_daisy_t
 __daisy_add_d(dt_daisy_t d, int n)
 {
 /* add N days to D */
@@ -274,7 +274,7 @@ __daisy_add_d(dt_daisy_t d, int n)
 	return d;
 }
 
-static dt_daisy_t
+static __attribute__((const, pure)) dt_daisy_t
 __daisy_add_b(dt_daisy_t d, int n)
 {
 /* add N business days to D */
@@ -284,7 +284,7 @@ __daisy_add_b(dt_daisy_t d, int n)
 	return d;
 }
 
-static dt_daisy_t
+static __attribute__((const, pure)) dt_daisy_t
 __daisy_add_w(dt_daisy_t d, int n)
 {
 /* add N weeks to D */
@@ -295,7 +295,7 @@ __daisy_add_w(dt_daisy_t d, int n)
 
 #if defined ASPECT_DIFF && !defined DAISY_ASPECT_DIFF_
 #define DAISY_ASPECT_DIFF_
-static struct dt_d_s
+static __attribute__((const, pure)) struct dt_d_s
 __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 {
 /* compute d2 - d1 */
