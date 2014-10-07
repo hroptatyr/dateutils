@@ -571,8 +571,8 @@ __make_ywd_ybd(unsigned int y, int yd)
 	hang = __ywd_get_jan01_hang(j01);
 
 	/* compute weekday, decompose yd into 7p + q */
-	c = (yd - 1) / (signed int)DUWW_BDAYS_P_WEEK;
-	w = (yd - 1) % (signed int)DUWW_BDAYS_P_WEEK;
+	c = (yd + DUWW_BDAYS_P_WEEK - 1) / (signed int)DUWW_BDAYS_P_WEEK;
+	w = (yd + DUWW_BDAYS_P_WEEK - 1) % (signed int)DUWW_BDAYS_P_WEEK;
 	if ((w += j01) > (signed int)DUWW_BDAYS_P_WEEK) {
 		w -= DUWW_BDAYS_P_WEEK;
 		c++;
@@ -582,7 +582,6 @@ __make_ywd_ybd(unsigned int y, int yd)
 	}
 
 	/* fixup c (and y) */
-	c++;
 	canon_yc(y, c, hang);
 
 	/* assign and fuck off */
