@@ -282,34 +282,12 @@ __daisy_to_ymcw(dt_daisy_t that)
 static dt_ywd_t
 __daisy_to_ywd(dt_daisy_t that)
 {
-	const unsigned int wk = (that + 6) / 7;
 	const unsigned int wd = (that + 6) % 7;
-	unsigned int y;
-	unsigned int yw;
-	dt_ywd_t res;
+	dt_dow_t dow = (dt_dow_t)(wd + 1U);
+	unsigned int y = __daisy_get_year(that);
+	int yd = that - __jan00_daisy(y);
 
-	/* get an estimate for the year and readjust */
-	y = __daisy_get_year(that);
-	/* get the cumulative week count */
-	if (UNLIKELY((yw = wk - __get_cumwk(y)) == 0)) {
-		y--;
-		yw = __get_isowk(y);
-	} else if (UNLIKELY(yw > __get_isowk(y))) {
-		/* hanging over into the new year */
-		yw = 1U;
-		y++;
-	} else {
-		yw++;
-	}
-
-	/* final assignment */
-	res.y = y;
-	res.c = yw;
-	with (dt_dow_t dow = (dt_dow_t)(wd % 7U + 1U)) {
-		res.w = dow;
-		res.hang = __ywd_get_jan01_hang(dow);
-	}
-	return res;
+	return __make_ywd_yd_dow(y, yd, dow);
 }
 
 static dt_yd_t
