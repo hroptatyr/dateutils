@@ -75,54 +75,6 @@ __jan00_daisy(unsigned int year)
 	return by;
 #endif	/* WITH_FAST_ARITH */
 }
-
-static unsigned int
-__get_cumwk(unsigned int year)
-{
-/* return the number of weeks elapsed since 1917 for the first week of YEAR
- * we follow the 28y cycle */
-	unsigned int by = TO_BASE(year);
-	unsigned int add = 0U;
-
-	switch (by % 28U) {
-	case 27/*1944*/:
-	case 26/*1943*/:
-		add++;
-	case 25/*1942*/:
-	case 24/*1941*/:
-	case 23/*1940*/:
-	case 22/*1939*/:
-	case 21/*1938*/:
-	case 20/*1937*/:
-		add++;
-	case 19/*1936*/:
-	case 18/*1935*/:
-	case 17/*1934*/:
-	case 16/*1933*/:
-	case 15/*1932*/:
-		add++;
-	case 14/*1931*/:
-	case 13/*1930*/:
-	case 12/*1929*/:
-	case 11/*1928*/:
-	case 10/*1927*/:
-	case 9/*1926*/:
-		add++;
-	case 8/*1925*/:
-	case 7/*1924*/:
-	case 6/*1923*/:
-	case 5/*1922*/:
-		add++;
-	case 4/*1921*/:
-	case 3/*1920*/:
-	case 2/*1919*/:
-	case 1/*1918*/:
-	case 0/*1917*/:
-	default:
-		break;
-	}
-	return 52U * by + 5U * (by / 28U) + add;
-}
 #endif	/* DAISY_ASPECT_HELPERS_ */
 
 
