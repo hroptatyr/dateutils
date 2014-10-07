@@ -1739,6 +1739,7 @@ dt_dcmp(struct dt_d_s d1, struct dt_d_s d2)
 	case DT_YMD:
 	case DT_DAISY:
 	case DT_BIZDA:
+	case DT_YWD:
 		/* use arithmetic comparison */
 		if (d1.u == d2.u) {
 			return 0;
