@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ ddiff 12:14:00 2012-03-02T10:14:00
+$ ?2 ddiff 12:14:00 2012-03-02T10:14:00
 $
 
 ## dtdiff.9.clit ends here

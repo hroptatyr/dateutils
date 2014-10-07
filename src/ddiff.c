@@ -431,17 +431,11 @@ static struct precalc_s {
 
 		if (f.has_week) {
 			res.w = res.S / (long int)SECS_PER_WEEK;
-			if ((res.S %= (long int)SECS_PER_WEEK) < 0) {
-				res.S += SECS_PER_WEEK;
-				res.w--;
-			}
+			res.S %= (long int)SECS_PER_WEEK;
 		}
 		if (f.has_day) {
 			res.d = res.S / (long int)SECS_PER_DAY;
-			if ((res.S %= (long int)SECS_PER_DAY) < 0) {
-				res.S += SECS_PER_DAY;
-				res.d--;
-			}
+			res.S %= (long int)SECS_PER_DAY;
 		}
 		if (f.has_hour) {
 			res.H = res.S / (long int)SECS_PER_HOUR;
@@ -451,6 +445,30 @@ static struct precalc_s {
 			/* minutes and seconds */
 			res.M = res.S / (long int)SECS_PER_MIN;
 			res.S %= (long int)SECS_PER_MIN;
+		}
+
+		/* just in case the duration iss negative jump through all
+		 * the hoops again, backwards */
+		if (res.w < 0 || res.d < 0 ||
+		    res.H < 0 || res.M < 0 || res.S < 0) {
+			if (0) {
+			fixup_d:
+				res.d = -res.d;
+			fixup_H:
+				res.H = -res.H;
+			fixup_M:
+				res.M = -res.M;
+			fixup_S:
+				res.S = -res.S;
+			} else if (f.has_week) {
+				goto fixup_d;
+			} else if (f.has_day) {
+				goto fixup_H;
+			} else if (f.has_hour) {
+				goto fixup_M;
+			} else if (f.has_min) {
+				goto fixup_S;
+			}
 		}
 	}
 	return res;
@@ -648,13 +666,13 @@ main(int argc, char *argv[])
 	const char *refinp;
 	char **fmt;
 	size_t nfmt;
-	int res = 0;
+	int rc = 0;
 	durfmt_t dfmt;
 	dt_dttyp_t dtyp;
 	zif_t fromz = NULL;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* unescape sequences, maybe */
@@ -677,8 +695,10 @@ main(int argc, char *argv[])
 	     dt_unk_p(d = dt_io_strpdt(refinp, NULL, 0U, fromz)))) {
 		error("Error: reference DATE must be specified\n");
 		yuck_auto_help(argi);
-		res = 1;
+		rc = 1;
 		goto out;
+	} else if (UNLIKELY(d.fix) && !argi->quiet_flag) {
+		rc = 2;
 	}
 
 	/* try and guess the diff tgttype most suitable for user's FMT */
@@ -694,13 +714,17 @@ main(int argc, char *argv[])
 			if (dt_unk_p(d2)) {
 				if (!argi->quiet_flag) {
 					dt_io_warn_strpdt(inp);
+					rc = 2;
 				}
 				continue;
+			} else if (UNLIKELY(d2.fix) && !argi->quiet_flag) {
+				rc = 2;
 			}
 			/* guess the diff type */
 			if ((dtyp = determine_durtype(d, d2, dfmt)) == DT_UNK) {
 				if (!argi->quiet_flag) {
 				        dt_io_warn_dur(refinp, inp);
+					rc = 2;
 				}
 				continue;
 			}
@@ -732,14 +756,19 @@ main(int argc, char *argv[])
 				if (dt_unk_p(d2)) {
 					if (!argi->quiet_flag) {
 						dt_io_warn_strpdt(line);
+						rc = 2;
 					}
 					continue;
+				} else if (UNLIKELY(d2.fix) &&
+					   !argi->quiet_flag) {
+					rc = 2;
 				}
 				/* guess the diff type */
 				dtyp = determine_durtype(d, d2, dfmt);
 				if (dtyp == DT_UNK) {
 					if (!argi->quiet_flag) {
 						dt_io_warn_dur(refinp, line);
+						rc = 2;
 					}
 					continue;
 				}
@@ -756,7 +785,7 @@ main(int argc, char *argv[])
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* ddiff.c ends here */

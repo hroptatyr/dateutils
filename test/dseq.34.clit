@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq 2018-01-01 2018-12-30 | dconv -f ywd > "dseq.34.ref"
+$ dseq 2018-W01-01 2018-W52-07
+< dseq.34.ref
+$ rm -f -- "dseq.34.ref"
+$
+
+## dseq.34.clit ends here

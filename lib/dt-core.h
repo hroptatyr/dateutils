@@ -118,8 +118,8 @@ struct dt_dt_s {
 			uint16_t znfxd:1;
 			/* whether to be aware of leap-seconds */
 			uint16_t tai:1;
-			/* unused, pad to next ui8 */
-			uint16_t:1;
+			/* error indicator to denote date has been fixed up */
+			uint16_t fix:1;
 			/* duration indicator */
 			uint16_t dur:1;
 			/* negation indicator */
@@ -127,7 +127,9 @@ struct dt_dt_s {
 			/* we've got 6 bits left here to coincide with dt_d_s
 			 * use that and the neg flag for zdiffs
 			 * zdiff itself has 15-minute resolution,
-			 * range [0, 63] aka [00:00 16:00] */
+			 * range [0, 63] aka [00:00 16:00]
+			 * The policy is to store the time always in UTC
+			 * but keep the difference in this slot. */
 			uint16_t zdiff:6;
 #define ZDIFF_RES	(15U * 60U)
 
@@ -319,17 +321,6 @@ dt_make_t_only(struct dt_dt_s *d, dt_ttyp_t tty)
 	d->t.typ = tty;
 	d->sandwich = 1;
 	return;
-}
-
-static inline int32_t
-zdiff_sec(struct dt_dt_s d)
-{
-	int32_t zdiff = d.zdiff * ZDIFF_RES;
-
-	if (d.neg) {
-		zdiff = -zdiff;
-	}
-	return zdiff;
 }
 
 #if defined __cplusplus

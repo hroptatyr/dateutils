@@ -299,8 +299,11 @@ static bool
 __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(now)) {
-		return (dt_dt_in_range_p(now, clo->fst, clo->lst) ||
-			dt_dt_in_range_p(now, clo->lst, clo->fst));
+		if (clo->dir > 0) {
+			return dt_dt_in_range_p(now, clo->fst, clo->lst);
+		} else if (clo->dir < 0) {
+			return dt_dt_in_range_p(now, clo->lst, clo->fst);
+		}
 	}
 	/* otherwise perform a simple range check */
 	if (clo->dir > 0) {
@@ -359,11 +362,9 @@ __seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
 static int
 __get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
 {
-	struct dt_dt_s tmp;
-
 	if (!dt_sandwich_only_t_p(d)) {
 		/* trial addition to to see where it goes */
-		tmp = __seq_next(d, clo);
+		struct dt_dt_s tmp = __seq_next(d, clo);
 		return dt_dtcmp(tmp, d);
 	}
 	if (clo->ite->t.sdur && !clo->ite->t.neg) {
@@ -438,7 +439,8 @@ main(int argc, char *argv[])
 	char **ifmt;
 	size_t nifmt;
 	char *ofmt;
-	int res = 0;
+	dt_dttyp_t tgttyp;
+	int rc = 0;
 	struct dseq_clo_s clo = {
 		.ite = &ite_p1,
 		.nite = 1,
@@ -450,7 +452,7 @@ main(int argc, char *argv[])
 	};
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 	/* assign ofmt/ifmt */
@@ -474,7 +476,7 @@ main(int argc, char *argv[])
 					error("Error: \
 cannot parse duration string `%s'", argi->alt_inc_arg);
 				}
-				res = 1;
+				rc = 1;
 				goto out;
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -487,7 +489,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		struct dt_dt_s fst, lst;
 	default:
 		yuck_auto_help(argi);
-		res = 1;
+		rc = 1;
 		goto out;
 
 	case 2:
@@ -496,8 +498,10 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[1U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 		/* fallthrough */
 	case 1:
@@ -506,8 +510,10 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[0U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(fst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 
 		/* check the input arguments and do the sane thing now
@@ -542,7 +548,7 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		} else {
 			error("\
 don't know how to handle single argument case");
-			res = 1;
+			rc = 1;
 			goto out;
 		}
 
@@ -559,8 +565,10 @@ don't know how to handle single argument case");
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[0U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(fst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 
 		/* get increment */
@@ -568,7 +576,7 @@ don't know how to handle single argument case");
 			if (dt_io_strpdtdur(&st, argi->args[1U]) < 0) {
 				error("Error: \
 cannot parse duration string `%s'", argi->args[1U]);
-				res = 1;
+				rc = 1;
 				goto out;
 			}
 		} while (__strpdtdur_more_p(&st));
@@ -583,8 +591,10 @@ cannot parse duration string `%s'", argi->args[1U]);
 			if (!argi->quiet_flag) {
 				dt_io_warn_strpdt(argi->args[2U]);
 			}
-			res = 1;
+			rc = 1;
 			goto out;
+		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
+			rc = 2;
 		}
 		clo.fst = fst;
 		clo.lst = lst;
@@ -597,7 +607,7 @@ cannot parse duration string `%s'", argi->args[1U]);
 	    (dt_sandwich_only_t_p(clo.fst) && dt_sandwich_only_d_p(clo.lst))) {
 		error("\
 cannot mix dates and times as arguments");
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (dt_sandwich_only_d_p(clo.fst) && dt_sandwich_p(clo.lst)) {
 		/* promote clo.fst */
@@ -617,17 +627,33 @@ cannot mix dates and times as arguments");
 		dt_make_sandwich(&clo.lst, clo.lst.d.typ, clo.fst.t.typ);
 	}
 
-#define x_DAISY	((dt_dttyp_t)DT_DAISY)
-	/* convert to daisies */
-	if (dt_sandwich_only_d_p(clo.fst) &&
-	    __daisy_feasible_p(clo.ite, clo.nite) &&
-	    ((clo.fst = dt_dtconv(x_DAISY, clo.fst)).d.typ != DT_DAISY ||
-	     (clo.lst = dt_dtconv(x_DAISY, clo.lst)).d.typ != DT_DAISY)) {
+#define _DAISY	((dt_dttyp_t)DT_DAISY)
+	tgttyp = clo.fst.typ;
+	if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
+	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0) {
+		/* iterate year-wise */
+		dt_make_d_only(clo.ite, DT_YMD);
+		clo.ite->d.ymd.y = 1;
+		clo.ite->d.ymd.m = 0;
+		clo.ite->d.ymd.d = 0;
+	} else if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
+		   clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.d == 0) {
+		/* iterate month-wise */
+		dt_make_d_only(clo.ite, DT_YMD);
+		clo.ite->d.ymd.y = 0;
+		clo.ite->d.ymd.m = 1;
+		clo.ite->d.ymd.d = 0;
+	} else if (dt_sandwich_only_d_p(clo.fst) &&
+		   __daisy_feasible_p(clo.ite, clo.nite) &&
+		   clo.fst.d.typ == DT_YMD &&
+		   /* convert to daisies */
+		   ((clo.fst = dt_dtconv(_DAISY, clo.fst)).d.typ != DT_DAISY ||
+		    (clo.lst = dt_dtconv(_DAISY, clo.lst)).d.typ != DT_DAISY)) {
 		if (!argi->quiet_flag) {
 			error("\
 cannot convert calendric system internally");
 		}
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->t.sdur == 0) {
 		clo.ite->t = tseq_guess_ite(clo.fst.t, clo.lst.t);
@@ -639,7 +665,7 @@ cannot convert calendric system internally");
 			error("\
 increment must not be naught");
 		}
-		res = 1;
+		rc = 1;
 		goto out;
 	} else if (argi->compute_from_last_flag) {
 		tmp = __fixup_fst(&clo);
@@ -648,7 +674,12 @@ increment must not be naught");
 	}
 
 	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
-		dt_io_write(tmp, ofmt, NULL, '\n');
+		struct dt_dt_s tgt = tmp;
+
+		if (UNLIKELY(ofmt == NULL)) {
+			tgt = dt_dtconv(tgttyp, tmp);
+		}
+		dt_io_write(tgt, ofmt, NULL, '\n');
 	}
 
 out:
@@ -660,7 +691,7 @@ out:
 		free(clo.altite);
 	}
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dseq.c ends here */

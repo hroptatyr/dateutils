@@ -117,6 +117,10 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 			d.neg = 1;
 			d.zdiff = (uint16_t)(-zdiff / ZDIFF_RES);
 		}
+	} else {
+		/* no difference to UTC means the offset is +00:00 */
+		d.zdiff = 0U;
+		d.neg = 0U;
 	}
 	return d;
 }

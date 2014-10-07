@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dround -q -S -n 1 <<EOF
+pay cable	2012-02-28
+pay gas	2012-02-29
+pay rent	2012-02-30
+redeem loan	2012-02-31
+EOF
+pay cable	2012-03-01
+pay gas	2012-03-01
+pay rent	2012-03-01
+redeem loan	2012-03-01
+$
+
+## dround.026.clit ends here

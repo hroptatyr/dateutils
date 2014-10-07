@@ -1,0 +1,5 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff 17:00:00 11:19:20 -f '%H %S'
+-5 2440
+$

@@ -563,7 +563,7 @@ wr_version(char *restrict buf, size_t bsz, const struct yuck_version_s *v)
 	*bp++ = '-';
 	*bp++ = yscm_abbr[v->scm];
 	bp += snprintf(bp, ep - bp, "%0*x",
-		       (int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+		       (int)(v->rvsn & 0x07U), v->rvsn >> 4U);
 	if (!v->dirty) {
 		goto out;
 	} else if (bp + 1U + 5U >= ep) {
@@ -965,7 +965,7 @@ main(int argc, char *argv[])
 			fputs(yscm_strs[v->scm], stdout);
 			fprintf(stdout, "%u.%0*x",
 				v->dist,
-				(int)(v->rvsn & 0b111U), v->rvsn >> 4U);
+				(int)(v->rvsn & 0x07U), v->rvsn >> 4U);
 		}
 		if (v->dirty) {
 			fputs(".dirty", stdout);

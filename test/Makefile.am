@@ -66,6 +66,22 @@ dt_tests += dseq.23.clit
 dt_tests += dseq.24.clit
 dt_tests += dseq.25.clit
 dt_tests += dseq.26.clit
+dt_tests += dseq.27.clit
+dt_tests += dseq.28.clit
+dt_tests += dseq.29.clit
+dt_tests += dseq.30.clit
+dt_tests += dseq.31.clit
+dt_tests += dseq.32.clit
+dt_tests += dseq.33.clit
+dt_tests += dseq.34.clit
+dt_tests += dseq.35.clit
+dt_tests += dseq.36.clit
+dt_tests += dseq.37.clit
+dt_tests += dseq.38.clit
+dt_tests += dseq.39.clit
+dt_tests += dseq.40.clit
+dt_tests += dseq.41.clit
+dt_tests += dseq.42.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -181,6 +197,10 @@ dt_tests += dconv.111.clit
 dt_tests += dconv.112.clit
 dt_tests += dconv.113.clit
 dt_tests += dconv.114.clit
+dt_tests += dconv.115.clit
+dt_tests += dconv.116.clit
+dt_tests += dconv.117.clit
+dt_tests += dconv.118.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -343,6 +363,12 @@ dt_tests += ddiff.059.clit
 dt_tests += ddiff.060.clit
 dt_tests += ddiff.061.clit
 dt_tests += ddiff.062.clit
+dt_tests += ddiff.063.clit
+dt_tests += ddiff.064.clit
+dt_tests += ddiff.065.clit
+dt_tests += ddiff.066.clit
+dt_tests += ddiff.067.clit
+dt_tests += ddiff.068.clit
 
 dt_tests += dgrep.001.clit
 dt_tests += dgrep.002.clit
@@ -409,6 +435,10 @@ dt_tests += dround.021.clit
 dt_tests += dround.022.clit
 dt_tests += dround.023.clit
 dt_tests += dround.024.clit
+dt_tests += dround.025.clit
+dt_tests += dround.026.clit
+dt_tests += dround.027.clit
+dt_tests += dround.028.clit
 
 
 dt_tests += tseq.01.clit
@@ -543,6 +573,14 @@ dt_tests += dtconv.057.clit
 dt_tests += dtconv.058.clit
 dt_tests += dtconv.059.clit
 dt_tests += dtconv.060.clit
+dt_tests += dtconv.061.clit
+dt_tests += dtconv.062.clit
+dt_tests += dtconv.063.clit
+dt_tests += dtconv.064.clit
+dt_tests += dtconv.065.clit
+dt_tests += dtconv.066.clit
+dt_tests += dtconv.067.clit
+dt_tests += dtconv.068.clit
 
 dt_tests += convt.ymcw-ymd.clit
 dt_tests += convt.ymcw-ywd.clit
@@ -553,6 +591,12 @@ dt_tests += convt.ywd-ymd.clit
 
 dt_tests += dtseq.01.clit
 dt_tests += dtseq.02.clit
+dt_tests += dtseq.03.clit
+dt_tests += dtseq.04.clit
+dt_tests += dtseq.05.clit
+dt_tests += dtseq.06.clit
+dt_tests += dtseq.07.clit
+dt_tests += dtseq.08.clit
 
 dt_tests += dtadd.001.clit
 dt_tests += dtadd.002.clit
@@ -680,6 +724,8 @@ dt_tests += dtdiff.041.clit
 dt_tests += dtdiff.042.clit
 dt_tests += dtdiff.043.clit
 dt_tests += dtdiff.044.clit
+dt_tests += dtdiff.045.clit
+dt_tests += dtdiff.046.clit
 
 dt_tests += dtround.001.clit
 dt_tests += dtround.002.clit
@@ -716,6 +762,14 @@ EXTRA_DIST += caev_02.txt
 
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
+
+## testing the prchunker
+dt_tests += prchunk.001.clit
+dt_tests += prchunk.002.clit
+dt_tests += prchunk.003.clit
+dt_tests += prchunk.004.clit
+dt_tests += prchunk.005.clit
+dt_tests += prchunk.006.clit
 
 ## testing tzmaps, regardless if the official ones are here or not
 EXTRA_DIST += dummy.tzmap

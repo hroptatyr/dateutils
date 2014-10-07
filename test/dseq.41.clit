@@ -1,0 +1,18 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq Jan Dec -i '%b' -f '%b'
+Jan
+Feb
+Mar
+Apr
+May
+Jun
+Jul
+Aug
+Sep
+Oct
+Nov
+Dec
+$
+
+## dseq.41.clit ends here

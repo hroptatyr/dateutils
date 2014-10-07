@@ -85,6 +85,9 @@ the other hand in a chain of refinements inner elements are optional,
 i.e. you can express a duration in weeks and hours because every day has
 24 hours and hence there are 168 hours in a week.
 
+In case of negative durations (the minuend is in the future relative to
+the subtrahend) @emph{only} the largest unit will carry the minus sign.
+
 Using the refinement rule keeps the format string dead simple, there's
 no need for operators or a full-blown language to distinguish the range
 ambiguity, which then would have to be escaped because they could also

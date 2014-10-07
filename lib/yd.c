@@ -141,13 +141,13 @@ static const __jan01_wday_block_t __jan01_wday[] = {
 # undef A
 # undef S
 
-static inline __attribute__((pure)) __jan01_wday_block_t
+static inline __attribute__((const, pure)) __jan01_wday_block_t
 __get_jan01_block(unsigned int year)
 {
 	return __jan01_wday[(year - __JAN01_WDAY_BEG) / __JAN01_Y_PER_B];
 }
 
-static inline __attribute__((pure)) dt_dow_t
+static inline __attribute__((const, pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR */
@@ -229,7 +229,7 @@ static const dt_dow_t __jan01_28y_wday[] = {
 # undef A
 # undef S
 
-static __attribute__((pure)) unsigned int
+static __attribute__((const, pure)) unsigned int
 __get_28y_year_equiv(unsigned year)
 {
 /* the 28y cycle works for 1901 to 2100, for other years find an equivalent */
@@ -245,7 +245,7 @@ __get_28y_year_equiv(unsigned year)
 	return year + 2000;
 }
 
-static inline __attribute__((pure)) dt_dow_t
+static inline __attribute__((const, pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR
@@ -269,7 +269,7 @@ __get_jan01_wday(unsigned int year)
 
 #elif defined GET_JAN01_WDAY_28Y_SWITCH
 
-static inline __attribute__((pure)) dt_dow_t
+static inline __attribute__((const, pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR
@@ -354,7 +354,7 @@ __get_jan01_wday(unsigned int year)
 
 #elif defined GET_JAN01_WDAY_SAKAMOTO
 
-static inline __attribute__((pure)) dt_dow_t
+static inline __attribute__((const, pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 	unsigned int res;
@@ -368,7 +368,7 @@ __get_jan01_wday(unsigned int year)
 #endif	/* GET_JAN01_WDAY_* */
 
 #if defined YMD_GET_YD_LOOKUP
-static inline __attribute__((pure)) unsigned int
+static inline __attribute__((const, pure)) unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
 	static uint16_t __mon_yday[] = {
@@ -382,7 +382,7 @@ __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 }
 
 #elif defined YMD_GET_YD_DIVREM
-static inline __attribute__((pure)) unsigned int
+static inline __attribute__((const, pure)) unsigned int
 __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 {
 #define SL(x)	((x) * 5)
@@ -410,7 +410,7 @@ __md_get_yday(unsigned int year, unsigned int mon, unsigned int dom)
 
 #if defined GET_MD_FREUNDT
 /* Freundt's 32-adic algo */
-static struct __md_s
+static __attribute__((const, pure)) struct __md_s
 __yday_get_md(unsigned int year, unsigned int doy)
 {
 /* Given a year and the day of the year, return gregorian month + dom
@@ -468,7 +468,7 @@ __yday_get_md(unsigned int year, unsigned int doy)
 
 #elif defined GET_MD_TRIMESTER
 /* Trimester algo, we can't figure out which one's faster */
-static struct __md_s
+static __attribute__((const, pure)) struct __md_s
 __yday_get_md(unsigned int year, unsigned int yday)
 {
 /* The idea here is that the year can be divided into trimesters:
@@ -518,12 +518,19 @@ __yday_get_md(unsigned int year, unsigned int yday)
 }
 #endif	/* GET_MD_* */
 
+static inline __attribute__((const, pure)) dt_dow_t
+__get_jan01_yday_dow(unsigned int yd, dt_dow_t w)
+{
+	unsigned int res = (yd + 6U - (unsigned int)w) % GREG_DAYS_P_WEEK;
+	return (dt_dow_t)(DT_SUNDAY - res);
+}
+
 #endif	/* YD_ASPECT_HELPERS_ */
 
 
 #if defined ASPECT_GETTERS && !defined YD_ASPECT_GETTERS_
 #define YD_ASPECT_GETTERS_
-static inline __attribute__((pure)) int
+static inline __attribute__((const, pure)) int
 __get_isowk_wd(unsigned int yd, dt_dow_t f01)
 {
 /* given the weekday the year starts with, F01, and the year-day YD
@@ -532,7 +539,7 @@ __get_isowk_wd(unsigned int yd, dt_dow_t f01)
 	return (yd - iso[f01]) / GREG_DAYS_P_WEEK + 1;
 }
 
-DEFUN int
+DEFUN __attribute__((const, pure)) int
 __yd_get_wcnt_abs(dt_yd_t d)
 {
 /* absolutely count the n-th occurrence of WD regardless what WD
@@ -542,7 +549,7 @@ __yd_get_wcnt_abs(dt_yd_t d)
 	return (yd - 1) / 7 + 1;
 }
 
-DEFUN int
+DEFUN __attribute__((const, pure)) int
 __yd_get_wcnt_iso(dt_yd_t d)
 {
 /* like __yd_get_wcnt() but for iso week conventions
@@ -591,7 +598,7 @@ __yd_get_wcnt_iso(dt_yd_t d)
 	return wk;
 }
 
-DEFUN int
+DEFUN __attribute__((const, pure)) int
 __yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd)
 {
 /* absolutely count the n-th occurrence of WD regardless what WD
@@ -613,7 +620,7 @@ __yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd)
 
 #if defined ASPECT_DIFF && !defined YD_ASPECT_DIFF_
 #define YD_ASPECT_DIFF_
-static struct dt_d_s
+static __attribute__((const, pure)) struct dt_d_s
 __yd_diff(dt_yd_t d1, dt_yd_t d2)
 {
 /* compute d2 - d1 entirely in terms of ymd but express the result as yd */

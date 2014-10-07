@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq 2012T17 2015T16 -i '%YT%H'
+2012-00-00T17:00:00
+2013-00-00T17:00:00
+2014-00-00T17:00:00
+$
+
+## dtseq.07.clit ends here
