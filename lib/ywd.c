@@ -518,6 +518,36 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 }
 
 static dt_ywd_t
+__make_ywd_yd_dow(unsigned int y, int yd, dt_dow_t dow)
+{
+/* build a 8601 compliant ywd object from year Y, day-of-year YD
+ * and weekday DOW */
+	dt_ywd_t res = {0};
+	dt_dow_t j01;
+	unsigned int c;
+	int hang;
+
+	/* deduce the weekday of the first, given the weekday
+	 * of the yd-th is DOW */
+	j01 = __get_jan01_yday_dow(yd, dow);
+	hang = __ywd_get_jan01_hang(j01);
+
+
+	/* compute weekday, decompose yd into 7p + q */
+	c = (yd + 6 - hang) / (signed int)GREG_DAYS_P_WEEK;
+
+	/* fixup c (and y) */
+	canon_yc(y, c);
+
+	/* assign and fuck off */
+	res.y = y;
+	res.c = c;
+	res.w = dow;
+	res.hang = hang;
+	return res;
+}
+
+static dt_ywd_t
 __make_ywd_ybd(unsigned int y, int yd)
 {
 /* build a 8601 compliant ywd object from year Y and year-business-day YD */
