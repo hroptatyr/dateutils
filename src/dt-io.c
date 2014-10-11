@@ -149,7 +149,7 @@ dt_io_find_strpdt(
 	zif_t zone)
 {
 	const char *__sp = str;
-	struct dt_dt_s d = dt_dt_initialiser();
+	struct dt_dt_s d;
 	const char *const *cfmt = (const char*const*)fmt;
 
 	d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone);
