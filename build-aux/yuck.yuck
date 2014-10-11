@@ -5,6 +5,7 @@ Generate command line option parsers for umbrella commands.
   -k, --keep         Keep intermediary files.
   -o, --output=FILE  Output goes into FILE instead of stdout.
 
+
 ## Usages of the single commands
 Usage: yuck [OPTION]... gen [FILE]...
 
@@ -16,6 +17,7 @@ Generate a parser from definitions in FILE, or stdin if omitted.
   --version=VERSION  Hardwire version number.
   --custom=FILE      Include custom macros from FILE.
 
+
 ## GENMAN
 Usage: yuck [OPTION]... genman [FILE]...
 
@@ -27,6 +29,7 @@ Generate a man page from definitions in FILE, or stdin if omitted.
   -i, --include=FILE...  Include sections from FILE
   --info-page[=NAME]     Include reference to Texinfo manual.
 
+
 ## GENDSL
 Usage: yuck gendsl [FILE]...
 
@@ -37,6 +40,7 @@ if omitted.
   --no-auto-actions  Do not automatically handle auto flags.
   --version=VERSION  Hardwire version number.
 
+
 ## VER
 Usage: yuck scmver [PATH]
 
@@ -66,3 +70,10 @@ full version number.
   -n, --use-reference   Use version number provided in the reference
                         file instead of determining it.
       --ignore-noscm    Don't treat no scm as error.
+
+
+Usage: yuck config
+
+Output config values for yuck.
+
+  --m4                  Print m4 value used during yuck build.
