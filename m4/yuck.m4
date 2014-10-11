@@ -36,7 +36,7 @@ dnl This file is part of yuck.
 AC_DEFUN([AX_CHECK_M4_BUFFERS], [dnl
 	AC_MSG_CHECKING([for m4 with sufficient capabilities])
 
-	AC_SUBST([M4])
+	AC_ARG_VAR([M4], [full path to the m4 tool])
 	probe_M4="${M4:-m4}"
 	if ${probe_M4} >/dev/null 2>&1 \
 		-Dx='y y y y y y y y y y y y y y y y' \
@@ -66,6 +66,8 @@ EOF
 			M4="${M4:-m4}"
 		fi
 	fi
+
+	AC_DEFINE_UNQUOTED([YUCK_M4], ["${M4}"], [m4 value used for yuck build])
 ])dnl AX_CHECK_M4_BUFFERS
 
 AC_DEFUN([AX_CHECK_YUCK], [dnl
@@ -74,22 +76,19 @@ AS_HELP_STRING([--with-included-yuck], [
 Use included copy of the yuck command line parser generator
 instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 
+	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
 	if test "${with_included_yuck}" != "yes"; then
 		AC_PATH_PROG([YUCK], [yuck])
 		AC_ARG_VAR([YUCK], [full path to the yuck tool])
-		AC_MSG_CHECKING([for yuck])
-		AC_MSG_RESULT([${YUCK}])
-	fi
-	AM_CONDITIONAL([HAVE_YUCK], [test -n "${YUCK}"])
 
-	AC_REQUIRE([AX_CHECK_M4_BUFFERS])
-	if test -n "${YUCK}"; then
-		## see what m4 they used back then
-		PKG_CHECK_EXISTS([yuck >= 0.1], [dnl
-			_PKG_CONFIG([yuck_m4], [variable=yuck_m4], [yuck])
-		])
-		M4="${pkg_cv_yuck_m4:-m4}"
+		if test -n "${YUCK}"; then
+			## see what m4 they used back then
+			YUCK_M4=`${YUCK} config --m4 2>/dev/null`
+			M4="${YUCK_M4:-${M4}}"
+		fi
 	fi
+	AM_CONDITIONAL([HAVE_YUCK], [dnl
+		test "${with_included_yuck}" != "yes" -a -n "${YUCK}"])
 
 	## further requirement is either getline() or fgetln()
 	AC_CHECK_FUNCS([getline])
