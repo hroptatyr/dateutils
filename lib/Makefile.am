@@ -189,13 +189,13 @@ dist-hook: $(noinst_LIBRARIES)
 .c.s:
 	$(COMPILE) -S -c $(AM_CFLAGS) $<
 
-# Run Clang static analyzer over sources.
+## Run Clang static analyzer over sources.
 anal: $(SOURCES)
 	@list='$(SOURCES)'; \
 	result=0; \
 	for file in $$list; do \
 		if echo $$file | grep '\.c$$' >/dev/null 2>&1; then \
-			$(RECHO) "Analyzing $$file"; \
+			echo "Analyzing $$file"; \
 			$(ANALYZE_COMMAND) $(srcdir)/$$file; \
 			status=$$?; \
 			if test $$status != 0; then \
