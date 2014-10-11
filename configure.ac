@@ -44,9 +44,6 @@ AC_CHECK_HEADERS([byteswap.h])
 ## to make lintian happy
 AC_SYS_LARGEFILE
 
-## disallow warnings from here
-SXE_LANG_WERROR([off])
-
 ## check for mmap and friends
 SXE_CHECK_MMAP
 
