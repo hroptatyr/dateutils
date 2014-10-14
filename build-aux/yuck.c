@@ -170,6 +170,9 @@ max_zu(size_t x, size_t y)
 static size_t
 xstrncpy(char *restrict dst, const char *src, size_t ssz)
 {
+	if (UNLIKELY(dst == NULL)) {
+		return 0U;
+	}
 	memcpy(dst, src, ssz);
 	dst[ssz] = '\0';
 	return ssz;
@@ -362,35 +365,37 @@ typedef struct {
 	/* the actual buffer (resizable) */
 	char *s;
 	/* current size */
+	size_t n;
+	/* current alloc size */
 	size_t z;
 }  bbuf_t;
 
-static char*
-bbuf_cpy(bbuf_t b[static 1U], const char *str, size_t ssz)
+static __attribute__((nonnull(1, 2))) char*
+bbuf_cat(bbuf_t *restrict b, const char *str, size_t ssz)
 {
-	size_t nu = max_zu(yfls(ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
+	if (UNLIKELY(b->n + ssz + 1U/*\nul*/ > b->z)) {
+		const size_t nu = max_zu(yfls(b->n + ssz + 1U) + 1U, 6U);
 
-	if (UNLIKELY(nu > ol)) {
-		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
+		b->s = realloc(b->s, (b->z = (1ULL << nu) * sizeof(*b->s)));
+		if (UNLIKELY(b->s == NULL)) {
+			goto free;
+		}
 	}
-	xstrncpy(b->s, str, ssz);
-	b->z += ssz;
+	xstrncpy(b->s + b->n, str, ssz);
+	b->n += ssz;
 	return b->s;
+free:
+	b->n = 0U;
+	b->z = 0U;
+	return NULL;
 }
 
-static char*
-bbuf_cat(bbuf_t b[static 1U], const char *str, size_t ssz)
+static __attribute__((nonnull(1, 2))) char*
+bbuf_cpy(bbuf_t *restrict b, const char *str, size_t ssz)
 {
-	size_t nu = max_zu(yfls(b->z + ssz + 1U) + 1U, 6U);
-	size_t ol = b->z ? max_zu(yfls(b->z) + 1U, 6U) : 0U;
-
-	if (UNLIKELY(nu > ol)) {
-		b->s = realloc(b->s, (1U << nu) * sizeof(*b->s));
-	}
-	xstrncpy(b->s + b->z, str, ssz);
-	b->z += ssz;
-	return b->s;
+/* reduce to bbuf_cat() with zero offset */
+	b->n = 0U;
+	return bbuf_cat(b, str, ssz);
 }
 
 
@@ -427,7 +432,7 @@ usagep(const char *line, size_t llen)
 		/* it's a setopt */
 		return 0;
 	} else if (!STREQLITP(line, "usage:")) {
-		if (only_whitespace_p(line, llen) && !desc->z) {
+		if (only_whitespace_p(line, llen) && !desc->n) {
 			return 1;
 		} else if (!isspace(*line) && !cur_usg_yldd_p) {
 			/* append to description */
@@ -435,7 +440,7 @@ usagep(const char *line, size_t llen)
 			return 1;
 		}
 	yield:
-#define RESET	cur_usg.cmd = cur_usg.parg = cur_usg.desc = NULL, desc->z = 0U
+#define RESET	cur_usg.cmd = cur_usg.parg = cur_usg.desc = NULL, desc->n = 0U
 
 		if (!cur_usg_yldd_p) {
 			yield_usg(&cur_usg);
@@ -663,7 +668,7 @@ yield:
 	/* space eater */
 	for (; sp < ep && isspace(*sp); sp++);
 	/* dont free but reset the old guy */
-	desc->z = 0U;
+	desc->n = 0U;
 desc:
 	with (size_t sz = llen - (sp - line)) {
 		if (LIKELY(sz > 0U)) {
@@ -684,11 +689,11 @@ interp(const char *line, size_t llen)
 	}
 
 	DEBUG("INTERP CALLED with %s", line);
-	if (only_ws_p && desc->z) {
+	if (only_ws_p && desc->n) {
 	yield:
 		yield_inter(desc);
 		/* reset */
-		desc->z = 0U;
+		desc->n = 0U;
 	} else if (!only_ws_p) {
 		if (STREQLITP(line, "setopt")) {
 			/* not an inter */
@@ -739,6 +744,9 @@ static struct {
 static void
 __identify(char *restrict idn)
 {
+	if (UNLIKELY(idn == NULL)) {
+		return;
+	}
 	for (char *restrict ip = idn; *ip; ip++) {
 		switch (*ip) {
 		case '0' ... '9':
@@ -802,14 +810,18 @@ make_opt_ident(const struct opt_s *arg)
 	if (arg->lopt != NULL) {
 		bbuf_cpy(i, arg->lopt, strlen(arg->lopt));
 	} else if (arg->sopt) {
-		bbuf_cpy(i, "dash.", 5U);
-		i->s[4U] = arg->sopt;
+		if (bbuf_cpy(i, "dash.", 5U) != NULL) {
+			i->s[4U] = arg->sopt;
+		}
 	} else {
 		static unsigned int cnt;
-		bbuf_cpy(i, "idnXXXX", 7U);
-		snprintf(i->s + 3U, 5U, "%u", cnt++);
+		if (bbuf_cpy(i, "idnXXXX", 7U) != NULL) {
+			snprintf(i->s + 3U, 5U, "%u", cnt++);
+		}
 	}
-	__identify(i->s);
+	if (LIKELY(i->s != NULL)) {
+		__identify(i->s);
+	}
 	return i->s;
 }
 
@@ -818,8 +830,9 @@ make_ident(const char *str)
 {
 	static bbuf_t buf[1U];
 
-	bbuf_cpy(buf, str, strlen(str));
-	__identify(buf->s);
+	if (LIKELY(bbuf_cpy(buf, str, strlen(str)) != NULL)) {
+		__identify(buf->s);
+	}
 	return buf->s;
 }
 
@@ -922,9 +935,9 @@ yield_opt(const struct opt_s *arg)
 static void
 yield_inter(const bbuf_t x[static 1U])
 {
-	if (x->z) {
-		if (x->s[x->z - 1U] == '\n') {
-			x->s[x->z - 1U] = '\0';
+	if (x->n) {
+		if (x->s[x->n - 1U] == '\n') {
+			x->s[x->n - 1U] = '\0';
 		}
 		massage_desc(x->s);
 		fprintf(outf, "yuck_add_inter([%s])\n", x->s);
