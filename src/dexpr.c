@@ -239,16 +239,23 @@ __pr_infix(dexpr_t root)
 static dexpr_t
 make_dexpr(dex_type_t type)
 {
-	dexpr_t res = calloc(1, sizeof(*res));
-	res->type = type;
+	dexpr_t res;
+
+	if ((res = calloc(1, sizeof(*res))) != NULL) {
+		res->type = type;
+	}
 	return res;
 }
 
 static dexpr_t
 dexpr_copy(const_dexpr_t src)
 {
-	dexpr_t res = calloc(1, sizeof(*res));
+	dexpr_t res;
 
+	if ((res = calloc(1, sizeof(*res))) == NULL) {
+		return NULL;
+	}
+	/* otherwise start by (shallow) copying things */
 	memcpy(res, src, sizeof(*res));
 
 	/* deep copy anyone? */

@@ -16,6 +16,14 @@ DISTCLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 SUFFIXES =
 
+ANALYZE = clang
+ANALYZE_FLAGS = "--analyze"
+# Based on COMPILE target
+ANALYZE_COMMAND = $(ANALYZE) \
+	$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) \
+	$(ANALYZE_FLAGS)
+
 if BUILD_LTRCC
 noinst_PROGRAMS += ltrcc
 ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
@@ -180,3 +188,19 @@ dist-hook: $(noinst_LIBRARIES)
 ## Create assembler output (debugging purposes only)
 .c.s:
 	$(COMPILE) -S -c $(AM_CFLAGS) $<
+
+## Run Clang static analyzer over sources.
+anal: $(SOURCES)
+	@list='$(SOURCES)'; \
+	result=0; \
+	for file in $$list; do \
+		if echo $$file | grep '\.c$$' >/dev/null 2>&1; then \
+			echo "Analyzing $$file"; \
+			$(ANALYZE_COMMAND) $(srcdir)/$$file; \
+			status=$$?; \
+			if test $$status != 0; then \
+				result=1; \
+			fi; \
+		fi; \
+	done; \
+	set -e; exit $$result

@@ -514,7 +514,7 @@ __strfd_card(
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
 			buf[4] = '-';
-			res = ui32tostr(buf + 5, bsz, d->m, 2);
+			ui32tostr(buf + 5, bsz, d->m, 2);
 			buf[7] = '-';
 			ui32tostr(buf + 8, bsz, d->d, 2);
 			res = 10;
@@ -550,7 +550,6 @@ __strfd_card(
 				__strfd_get_md(d, that);
 			} else if (UNLIKELY(!d->d)) {
 				__strfd_get_d(d, that);
-				pd = d->d;
 			}
 			pd = d->d;
 		} else {
