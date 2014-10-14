@@ -137,9 +137,11 @@ xdirname(char *restrict fn, const char *fp)
 /* find next dir in FN from FP backwards */
 	if (fp == NULL) {
 		fp = fn + strlen(fn);
+	} else if (fp <= fn) {
+		return NULL;
 	}
 
-	while (--fp >= fn && *fp != '/');
+	for (--fp; fp >= fn && *fp != '/'; fp--);
 	while (fp >= fn && *--fp == '/');
 	if (fp >= fn) {
 		/* replace / by \nul and return pointer */
@@ -486,6 +488,11 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 	case '\0':
 		return 0;
 	case '.':
+		if (v->scm <= YUCK_SCM_TARBALL) {
+			/* huh? */
+			return -1;
+		}
+		/*@fallthrough@*/
 	case '-':
 		/* the show is going on, like it must */
 		bp = eod + 1U;
@@ -501,9 +508,12 @@ rd_version(struct yuck_version_s *restrict v, const char *buf, size_t bsz)
 		v->scm = YUCK_SCM_HG;
 		break;
 	case 'b':
-		/* bzr repo */
-		v->scm = YUCK_SCM_BZR;
-		break;
+		if (v->scm <= YUCK_SCM_TARBALL) {
+			v->scm = YUCK_SCM_BZR;
+			break;
+		}
+		/* else probably git or hg hash starting with b */
+		/*@fallthrough@*/
 	default:
 		/* could have been set already then */
 		if (v->scm > YUCK_SCM_TARBALL) {
@@ -862,7 +872,9 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 	/* initialise result structure */
 	memset(ref, 0, sizeof(*ref));
 
-	if ((fd = open(fn, O_RDONLY)) < 0) {
+	if (fn[0U] == '-' && fn[1U] == '\0') {
+		fd = STDIN_FILENO;
+	} else if ((fd = open(fn, O_RDONLY)) < 0) {
 		return -1;
 	}
 	/* otherwise read and parse the string */
@@ -909,7 +921,9 @@ yuck_version_write(const char *fn, const struct yuck_version_s *ref)
 	int rc = 0;
 	int fd;
 
-	if ((fd = open(fn, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
+	if (fn[0U] == '-' && fn[1U] == '\0') {
+		fd = STDOUT_FILENO;
+	} else if ((fd = open(fn, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0) {
 		return -1;
 	}
 	if (yuck_version_write_fd(fd, ref) < 0) {

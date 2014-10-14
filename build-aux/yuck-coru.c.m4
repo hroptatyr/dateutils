@@ -45,6 +45,9 @@ yuck_append(char **array, size_t n, char *val)
 	if (!(n % 16U)) {
 		/* resize */
 		array = realloc(array, (n + 16U) * sizeof(*array));
+		if (array == NULL) {
+			return NULL;
+		}
 	}
 	array[[n]] = val;
 	return array;
@@ -68,13 +71,13 @@ Try `--help' for a list of commands.\n", cmd);
 DEFUN int yuck_parse(yuck_t tgt[[static 1U]], int argc, char *argv[[]])
 {
 	char *op;
-	char **args;
 	int i;
 
 	/* we'll have at most this many args */
 	memset(tgt, 0, sizeof(*tgt));
-	tgt->args = args = calloc(argc, sizeof(*tgt->args));
-	tgt->nargs = 0U;
+	if ((tgt->args = calloc(argc, sizeof(*tgt->args))) == NULL) {
+		return -1;
+	}
 ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 	for (i = 1; i < argc && tgt->nargs < YUCK_MAX_POSARGS; i++) {
 		op = argv[[i]];
@@ -122,7 +125,7 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		 * don't check for subcommands either, this is in accordance to
 		 * the git tool which won't accept commands after -- */
 		for (; i < argc; i++) {
-			args[[tgt->nargs++]] = argv[[i]];
+			tgt->args[[tgt->nargs++]] = argv[[i]];
 		}
 	}
 	return 0;
@@ -154,11 +157,17 @@ pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_
 pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]), tgt->yuck_cnt_slot([$1], [$2])++,
-						arg ?: argv[[++i]])])dnl
+						arg ?: argv[[++i]]);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]), tgt->yuck_cnt_slot([$1], [$2])++,
-						arg ?: YUCK_OPTARG_NONE)])dnl
+						arg ?: YUCK_OPTARG_NONE);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
@@ -228,12 +237,18 @@ pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]),
 						tgt->yuck_cnt_slot([$1], [$2])++,
-						*arg ? (op += strlen(arg), arg) : argv[[++i]])])dnl
+						*arg ? (op += strlen(arg), arg) : argv[[++i]]);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_arg_mul_opt_action], [tgt->yuck_slot([$1], [$2]) =
 					yuck_append(
 						tgt->yuck_slot([$1], [$2]),
 						tgt->yuck_cnt_slot([$1], [$2])++,
-						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE)])dnl
+						*arg ? (op += strlen(arg), arg) : YUCK_OPTARG_NONE);
+				if (tgt->yuck_slot([$1], [$2]) == NULL) {
+					return -1;
+				}])dnl
 pushdef([yuck_auto_action], [/* invoke auto action and exit */
 				yuck_auto_[]yuck_canon([$1], [$2])(tgt);
 				resume_at(success)])dnl
@@ -300,7 +315,7 @@ popdef([yuck_auto_action])dnl
 	coroutine(arg)
 	{
 		if (tgt->cmd || !YUCK_NCMDS) {
-			args[[tgt->nargs++]] = argv[[i]];
+			tgt->args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
 			if ((tgt->cmd = yuck_parse_cmd(op)) > YUCK_NCMDS) {
