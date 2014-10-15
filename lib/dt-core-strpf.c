@@ -232,7 +232,7 @@ __strpdt_std(const char *str, char **ep)
 	}
 try_time:
 	/* and now parse the time */
-	if ((d.st.h = strtoi_lim(sp, &sp, 0, 23)) < 0 ||
+	if ((d.st.h = strtoi_lim(sp, &sp, 0, 24)) < 0 ||
 	    *sp != ':') {
 		sp = str;
 		goto out;
@@ -250,6 +250,12 @@ try_time:
 		goto eval_time;
 	}
 eval_time:
+	if (UNLIKELY(d.st.h == 24)) {
+		if (d.st.m || d.st.s || d.st.ns) {
+			sp = str;
+			goto out;
+		}
+	}
 	res.t.hms.h = d.st.h;
 	res.t.hms.m = d.st.m;
 	res.t.hms.s = d.st.s;
