@@ -785,6 +785,15 @@ dt_tests += tzmap_check_01.clit
 dt_tests += tzmap_check_02.clit
 TESTS_ENVIRONMENT += TZMAP=$(top_builddir)/lib/tzmap
 
+## military midnight
+dt_tests += mil-midnight.001.clit
+dt_tests += mil-midnight.002.clit
+dt_tests += mil-midnight.003.clit
+dt_tests += mil-midnight.004.clit
+dt_tests += mil-midnight.005.clit
+dt_tests += mil-midnight.006.clit
+dt_tests += mil-midnight.007.clit
+dt_tests += mil-midnight.008.clit
 
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
