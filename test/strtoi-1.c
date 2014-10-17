@@ -11,11 +11,13 @@ main(void)
 {
 	for (size_t i = 0U; i < countof(tst1); i++) {
 		const char *x;
-		printf("%d %td\n", strtoi_lim(tst1[i], &x, 0, 60), x - tst1[i]);
+		int32_t r = strtoi_lim(tst1[i], &x, 0, 60);
+		printf("%d %td\n", r, x - tst1[i]);
 	}
 	for (size_t i = 0U; i < countof(tst0); i++) {
 		const char *x;
-		printf("%d %td\n", strtoi_lim(tst0[i], &x, 0, 60), x - tst0[i]);
+		int32_t r = strtoi_lim(tst0[i], &x, 0, 60);
+		printf("%d %td\n", r, x - tst0[i]);
 	}
 	return 0;
 }
