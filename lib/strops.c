@@ -72,12 +72,11 @@ strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 	/* we keep track of the number of digits via rulim */
 	int32_t rulim;
 
+	/* read over leading 0s */
 	for (sp = str, rulim = ulim > 10 ? ulim : 10;
-	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
-	     sp++, rulim /= 10) {
-		res *= 10;
-		res += *sp - '0';
-	}
+	     rulim && (unsigned char)(*sp ^ '0') < 10U &&
+		     (res *= 10, res += (unsigned char)(*sp++ ^ '0')) <= ulim;
+	     rulim /= 10);
 	if (UNLIKELY(sp == str)) {
 		res = -1;
 	} else if (UNLIKELY(res < llim || res > ulim)) {
@@ -110,7 +109,7 @@ DEFUN size_t
 ui32tostr(char *restrict buf, size_t bsz, uint32_t d, int width)
 {
 /* all strings should be little */
-#define C(x, d)	(char)((x) / (d) % 10 + '0')
+#define C(x, d)	(char)(((x) / (d) % 10) ^ '0')
 	size_t res;
 
 	if (UNLIKELY(d > 1000000000U)) {
@@ -151,7 +150,7 @@ DEFUN size_t
 ui32topstr(char *restrict b, size_t z, uint32_t d, int width, char pad)
 {
 /* all strings should be little */
-#define C(x)	(char)((x) + '0')
+#define C(x)	(char)((x) ^ '0')
 	char *restrict bp = b;
 	const char *const ep = b + z;
 
