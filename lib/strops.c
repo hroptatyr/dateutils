@@ -72,11 +72,11 @@ strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 	/* we keep track of the number of digits via rulim */
 	int32_t rulim;
 
+	/* read over leading 0s */
 	for (sp = str, rulim = ulim > 10 ? ulim : 10;
-	     rulim && *sp >= '0' && *sp <= '9' && (res *= 10) <= ulim;
-	     sp++, rulim /= 10) {
-		res += *sp ^ '0';
-	}
+	     rulim && (unsigned char)(*sp ^ '0') < 10U &&
+		     (res *= 10, res += (unsigned char)(*sp++ ^ '0')) <= ulim;
+	     rulim /= 10);
 	if (UNLIKELY(sp == str)) {
 		res = -1;
 	} else if (UNLIKELY(res < llim || res > ulim)) {
