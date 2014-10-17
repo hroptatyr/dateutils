@@ -238,7 +238,7 @@ try_time:
 		goto out;
 	} else if ((d.st.m = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
 		d.st.m = 0;
-		goto eval_time;
+		goto out;
 	} else if (*sp != ':') {
 		goto eval_time;
 	} else if ((d.st.s = strtoi_lim(++sp, &sp, 0, 60)) < 0) {
