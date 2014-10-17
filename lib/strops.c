@@ -73,9 +73,8 @@ strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 	int32_t rulim;
 
 	for (sp = str, rulim = ulim > 10 ? ulim : 10;
-	     res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
+	     rulim && *sp >= '0' && *sp <= '9' && (res *= 10) <= ulim;
 	     sp++, rulim /= 10) {
-		res *= 10;
 		res += *sp - '0';
 	}
 	if (UNLIKELY(sp == str)) {
