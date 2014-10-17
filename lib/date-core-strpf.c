@@ -562,7 +562,7 @@ __strfd_card(
 	}
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
-		with (unsigned int w = d->w ?: dt_get_wday(that)) {
+		with (unsigned int w = (unsigned)d->w ?: dt_get_wday(that)) {
 			if (w == DT_SUNDAY && s.wk_cnt != YWD_MONWK_CNT) {
 				/* turn Sun 07 to Sun 00 */
 				w = 0;
