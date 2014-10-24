@@ -36,14 +36,6 @@ SXE_CHECK_CC([gnu11 c11 gnu1x c1x gnu99 c99])
 AC_C_BIGENDIAN
 SXE_CHECK_CFLAGS
 
-## fiddle with xiar and xild params, kick ansi aliasing warnings
-if test "${ac_cv_prog_ac_ct_AR}" = "xiar"; then
-	AR="${AR} -qdiag-disable=2102"
-fi
-if test "${ac_cv_prog_ac_ct_LD}" = "xild"; then
-	LD="${LD} -qdiag-disable=2102"
-fi
-
 
 ## check for byteorder utils
 AC_CHECK_HEADERS([endian.h sys/endian.h machine/endian.h byteorder.h])

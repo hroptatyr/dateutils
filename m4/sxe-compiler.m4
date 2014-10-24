@@ -346,6 +346,7 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 
 AC_DEFUN([SXE_OPTIFLAGS], [dnl
 	AC_REQUIRE([SXE_USER_CFLAGS])
+	AC_REQUIRE([SXE_WARNFLAGS])
 
 	case " ${CFLAGS} ${EXTRA_CFLAGS}" in
 	(*" -O"[0-9]" "*)
@@ -361,6 +362,14 @@ AC_DEFUN([SXE_OPTIFLAGS], [dnl
 
 		AC_CHECK_TOOLS([AR], [xiar ar], [false])
 		AC_CHECK_TOOLS([LD], [xild ld], [false])
+
+		## fiddle with xiar and xild params, kick ansi aliasing warnings
+		if test "${ac_cv_prog_ac_ct_AR}" = "xiar"; then
+			AR="${AR} -qdiag-disable=2102"
+		fi
+		if test "${ac_cv_prog_ac_ct_LD}" = "xild"; then
+			LD="${LD} -qdiag-disable=2102"
+		fi
 	])
 
 	SXE_CHECK_COMPILER_FLAG([-no-prec-div], [
