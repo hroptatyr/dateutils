@@ -351,11 +351,8 @@ AC_DEFUN([SXE_OPTIFLAGS], [dnl
 		;;
 	esac
 
-	SXE_CHECK_COMPILER_FLAG([-ipo256], [
-		optiflags="${optiflags} -ipo256"])
-
-	SXE_CHECK_COMPILER_FLAG([-ipo-jobs256], [
-		optiflags="${optiflags} -ipo-jobs256"])
+	SXE_CHECK_COMPILER_FLAG([-ipo], [
+		optiflags="${optiflags} -ipo"])
 
 	SXE_CHECK_COMPILER_FLAG([-no-prec-div], [
 		optiflags="${optiflags} -no-prec-div"])
