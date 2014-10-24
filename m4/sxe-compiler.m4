@@ -445,6 +445,10 @@ AC_DEFUN([SXE_FEATFLAGS], [dnl
 	SXE_CHECK_COMPILER_FLAG([-intel-extensions], [dnl
 		featflags="${featflags} -intel-extensions"])
 
+	## check if ipo needs passing to the linker
+	if test "${sxe_cv_c_flag__ipo}" = "yes"; then
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -ipo"
+	fi
 	## also pass on some diags to the linker
 	if test "${sxe_cv_c_flag__diag_disable_10237}" = "yes"; then
 		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -diag-disable=10237"
