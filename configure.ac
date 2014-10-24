@@ -34,6 +34,7 @@ AC_CONFIG_LINKS([GNUmakefile:GNUmakefile])
 AC_PROG_CC([icc gcc tcc cc])
 SXE_CHECK_CC([gnu11 c11 gnu1x c1x gnu99 c99])
 AC_CHECK_TOOLS([AR], [xiar ar], [false])
+AC_CHECK_TOOLS([LD], [xild ld], [false])
 AC_C_BIGENDIAN
 SXE_CHECK_CFLAGS
 
