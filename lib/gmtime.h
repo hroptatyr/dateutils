@@ -1,6 +1,7 @@
 /* metaprogramming */
 #if !defined INCLUDED_gmtime_h_
 #define INCLUDED_gmtime_h_
+#include <stdint.h>
 
 /* UTC has a constant day length */
 #define UTC_SECS_PER_DAY	(86400)
@@ -18,9 +19,15 @@ ffff_gmtime(struct tm *tm, const time_t t)
 	register int days;
 	register unsigned int yy;
 	const uint16_t *ip;
+#if defined FFFF_GMTIME_SUBDAY
+	int secs;
+#endif	/* FFFF_GMTIME_SUBDAY */
 
 	/* just go to day computation */
 	days = (int)(t / UTC_SECS_PER_DAY);
+#if defined FFFF_GMTIME_SUBDAY
+	secs = (int)(t % UTC_SECS_PER_DAY);
+#endif	/* FFFF_GMTIME_SUBDAY */
 	/* week day computation, that one's easy, 1 jan '70 was Thu */
 	tm->tm_wday = (days + 4) % GREG_DAYS_P_WEEK;
 
@@ -76,9 +83,11 @@ ffff_gmtime(struct tm *tm, const time_t t)
 		}
 	}
 #if defined FFFF_GMTIME_SUBDAY
-	tm->tm_hour = (t % UTC_SECS_PER_DAY) / 60U / 60U;
-	tm->tm_min = (tm->tm_sec % 3600U) / 60U;
-	tm->tm_sec = (tm->tm_sec % 60U);
+	tm->tm_sec = secs % 60U;
+	secs /= 60U;
+	tm->tm_min = secs % 60U;
+	secs /= 60U;
+	tm->tm_hour = secs;
 #endif	/* FFFF_GMTIME_SUBDAY */
 	return;
 }
