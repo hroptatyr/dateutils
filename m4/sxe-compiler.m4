@@ -436,6 +436,14 @@ AC_DEFUN([SXE_FEATFLAGS], [dnl
 	SXE_CHECK_COMPILER_FLAG([-intel-extensions], [dnl
 		featflags="${featflags} -intel-extensions"])
 
+	## also pass on some diags to the linker
+	if test "${sxe_cv_c_flag__diag_disable_10237}" = "yes"; then
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -diag-disable=10237"
+	fi
+	if test "${sxe_cv_c_flag__diag_disable_2102}" = "yes"; then
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -diag-disable=2102"
+	fi
+
 	AC_SUBST([XCCLDFLAGS])
 	AC_SUBST([XCCFLAG])
 ])dnl SXE_FEATFLAGS
