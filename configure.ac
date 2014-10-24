@@ -33,9 +33,9 @@ AC_CONFIG_LINKS([GNUmakefile:GNUmakefile])
 ## the build chain
 AC_PROG_CC([icc gcc tcc cc])
 SXE_CHECK_CC([gnu11 c11 gnu1x c1x gnu99 c99])
-AC_CHECK_TOOLS([AR], [xiar ar], [false])
 AC_C_BIGENDIAN
 SXE_CHECK_CFLAGS
+
 
 ## check for byteorder utils
 AC_CHECK_HEADERS([endian.h sys/endian.h machine/endian.h byteorder.h])

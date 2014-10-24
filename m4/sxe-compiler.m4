@@ -325,6 +325,11 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		SXE_CHECK_COMPILER_FLAG([-wd 10237], [dnl
 			warnflags="${warnflags} -wd 10237"])])
 
+	SXE_CHECK_COMPILER_FLAG([-diag-disable 2102], [dnl
+		warnflags="${warnflags} -diag-disable 2102"], [
+		SXE_CHECK_COMPILER_FLAG([-wd 2102], [dnl
+			warnflags="${warnflags} -wd 2102"])])
+
 	SXE_CHECK_COMPILER_FLAG([-debug inline-debug-info], [
 		warnflags="${warnflags} -debug inline-debug-info"])
 
@@ -341,6 +346,7 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 
 AC_DEFUN([SXE_OPTIFLAGS], [dnl
 	AC_REQUIRE([SXE_USER_CFLAGS])
+	AC_REQUIRE([SXE_WARNFLAGS])
 
 	case " ${CFLAGS} ${EXTRA_CFLAGS}" in
 	(*" -O"[0-9]" "*)
@@ -351,11 +357,20 @@ AC_DEFUN([SXE_OPTIFLAGS], [dnl
 		;;
 	esac
 
-	SXE_CHECK_COMPILER_FLAG([-ipo256], [
-		optiflags="${optiflags} -ipo256"])
+	SXE_CHECK_COMPILER_FLAG([-ipo], [
+		optiflags="${optiflags} -ipo"
 
-	SXE_CHECK_COMPILER_FLAG([-ipo-jobs256], [
-		optiflags="${optiflags} -ipo-jobs256"])
+		AC_CHECK_TOOLS([AR], [xiar ar], [false])
+		AC_CHECK_TOOLS([LD], [xild ld], [false])
+
+		## fiddle with xiar and xild params, kick ansi aliasing warnings
+		if test "${ac_cv_prog_ac_ct_AR}" = "xiar"; then
+			AR="${AR} -qdiag-disable=2102"
+		fi
+		if test "${ac_cv_prog_ac_ct_LD}" = "xild"; then
+			LD="${LD} -qdiag-disable=2102"
+		fi
+	])
 
 	SXE_CHECK_COMPILER_FLAG([-no-prec-div], [
 		optiflags="${optiflags} -no-prec-div"])
@@ -429,6 +444,18 @@ AC_DEFUN([SXE_FEATFLAGS], [dnl
 
 	SXE_CHECK_COMPILER_FLAG([-intel-extensions], [dnl
 		featflags="${featflags} -intel-extensions"])
+
+	## check if ipo needs passing to the linker
+	if test "${sxe_cv_c_flag__ipo}" = "yes"; then
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -ipo"
+	fi
+	## also pass on some diags to the linker
+	if test "${sxe_cv_c_flag__diag_disable_10237}" = "yes"; then
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -diag-disable=10237"
+	fi
+	if test "${sxe_cv_c_flag__diag_disable_2102}" = "yes"; then
+		XCCLDFLAGS="${XCCLDFLAGS} \${XCCFLAG} -diag-disable=2102"
+	fi
 
 	AC_SUBST([XCCLDFLAGS])
 	AC_SUBST([XCCFLAG])

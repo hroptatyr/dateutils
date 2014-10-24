@@ -1297,13 +1297,9 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	/* time assignment */
 	if (outdtyp <= DT_NDTYP) {
-		unsigned int tonly = tv.tv_sec % (unsigned int)SECS_PER_DAY;
-
-		res.t.hms.h = tonly / SECS_PER_HOUR;
-		tonly %= SECS_PER_HOUR;
-		res.t.hms.m = tonly / SECS_PER_MIN;
-		tonly %= SECS_PER_MIN;
-		res.t.hms.s = tonly;
+		res.t.hms.h = tm.tm_hour;
+		res.t.hms.m = tm.tm_min;
+		res.t.hms.s = tm.tm_sec;
 		res.t.hms.ns = tv.tv_usec * 1000;
 		dt_make_sandwich(&res, (dt_dtyp_t)outtyp, DT_HMS);
 	} else {
