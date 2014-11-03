@@ -934,6 +934,9 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case DT_YWD:
 			fmt = ywd_dflt;
 			break;
+		case DT_YD:
+			fmt = yd_dflt;
+			break;
 		case DT_DAISY:
 			/* subject to change */
 			fmt = ymd_dflt;
@@ -959,6 +962,11 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.m = that.ymcw.m;
 		d.c = that.ymcw.c;
 		d.w = that.ymcw.w;
+		break;
+	case DT_YD:
+		d.y = that.yd.y;
+		d.d = that.yd.d;
+		d.flags.d_dcnt_p = 1U;
 		break;
 	case DT_JDN:
 		that.typ = DT_DAISY;
@@ -1247,7 +1255,8 @@ dt_date(dt_dtyp_t outtyp)
 
 	switch ((res.typ = outtyp)) {
 	case DT_YMD:
-	case DT_YMCW: {
+	case DT_YMCW:
+	case DT_YD: {
 		struct tm tm;
 		ffff_gmtime(&tm, t);
 		switch (res.typ) {
@@ -1275,6 +1284,10 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymcw.w = tm.tm_wday;
 			break;
 		}
+		case DT_YD:
+			res.yd.y = tm.tm_year;
+			res.yd.d = tm.tm_yday;
+			break;
 		default:
 			break;
 		}
@@ -1390,6 +1403,10 @@ dt_dadd_d(struct dt_d_s d, int n)
 		d.ywd = __ywd_add_d(d.ywd, n);
 		break;
 
+	case DT_YD:
+		d.yd = __yd_add_d(d.yd, n);
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1444,6 +1461,10 @@ dt_dadd_b(struct dt_d_s d, int n)
 
 	case DT_YWD:
 		d.ywd = __ywd_add_b(d.ywd, n);
+		break;
+
+	case DT_YD:
+		d.yd = __yd_add_b(d.yd, n);
 		break;
 
 	case DT_DUNK:
@@ -1502,6 +1523,10 @@ dt_dadd_w(struct dt_d_s d, int n)
 		d.ywd = __ywd_add_w(d.ywd, n);
 		break;
 
+	case DT_YD:
+		d.yd = __yd_add_w(d.yd, n);
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1538,6 +1563,10 @@ dt_dadd_m(struct dt_d_s d, int n)
 		/* ywd have no notion of months */
 		break;
 
+	case DT_YD:
+		/* yd have no notion of months */
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1572,6 +1601,10 @@ dt_dadd_y(struct dt_d_s d, int n)
 
 	case DT_YWD:
 		d.ywd = __ywd_add_y(d.ywd, n);
+		break;
+
+	case DT_YD:
+		d.yd = __yd_add_y(d.yd, n);
 		break;
 
 	case DT_DUNK:
@@ -1648,6 +1681,8 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 			tmptyp = DT_YMD;
 		} else if (d1.typ == DT_YMCW || d2.typ == DT_YMCW) {
 			tmptyp = DT_YMCW;
+		} else if (d1.typ == DT_YD || d2.typ == DT_YD) {
+			tmptyp = DT_YD;
 		} else {
 			tmptyp = DT_DAISY;
 		}
@@ -1715,6 +1750,10 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 			tmp.md.m = res.ymcw.y * GREG_MONTHS_P_YEAR + res.ymcw.m;
 			tmp.md.d = res.ymcw.w * GREG_DAYS_P_WEEK + res.ymcw.c;
 			break;
+		case DT_YD:
+			tmp.md.m = res.yd.y * GREG_MONTHS_P_YEAR;
+			tmp.md.d = res.yd.d;
+			break;
 		case DT_DAISY:
 			tmp.md.m = 0;
 			tmp.md.d = res.daisy;
@@ -1744,6 +1783,7 @@ dt_dcmp(struct dt_d_s d1, struct dt_d_s d2)
 	case DT_DAISY:
 	case DT_BIZDA:
 	case DT_YWD:
+	case DT_YD:
 		/* use arithmetic comparison */
 		if (d1.u == d2.u) {
 			return 0;
