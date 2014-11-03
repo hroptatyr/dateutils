@@ -805,7 +805,7 @@ __guess_dtyp(struct strpd_s d)
 #if defined WITH_FAST_ARITH
 		res.ymcw.c = d.c;
 #else  /* !WITH_FAST_ARITH */
-		if ((res.ymcw.c = d.c) >= 5) {
+		if (UNLIKELY((res.ymcw.c = d.c) >= 5)) {
 			/* the user meant the LAST wday actually */
 			res.ymcw.c = __get_mcnt(d.y, d.m, (dt_dow_t)d.w);
 		}
