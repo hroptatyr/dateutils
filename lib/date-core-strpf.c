@@ -201,18 +201,25 @@ __strpd_std(const char *str, char **ep)
 		goto dow;
 	}
 	/* read the month, then day count */
-	if ((d.m = strtoi_lim(sp, &sp, 0, 366)) < 0) {
-		sp = str;
-		goto fucked;
-	} else if (UNLIKELY(*sp != '-')) {
-		/* oh, could be an ordinal date */
-		d.d = d.m;
-		d.m = 0U;
-		d.flags.d_dcnt_p = 1U;
-	} else if ((d.d = strtoi_lim(++sp, &sp, 0, 31)) < 0) {
-		/* didn't work, fuck off */
-		sp = str;
-		goto fucked;
+	with (const char *tmp) {
+		if ((d.m = strtoi_lim(sp, &tmp, 0, 366)) < 0) {
+			goto fucked;
+		} else if (UNLIKELY(*tmp != '-')) {
+			/* oh, could be an ordinal date */
+			if (tmp - sp >= 3U) {
+				d.d = d.m;
+				d.m = 0U;
+				d.flags.d_dcnt_p = 1U;
+			} else if ((unsigned int)d.m <= GREG_MONTHS_P_YEAR) {
+				;
+			} else {
+				goto fucked;
+			}
+			sp = tmp;
+		} else if ((d.d = strtoi_lim(++tmp, &sp, 0, 31)) < 0) {
+			/* didn't work, fuck off */
+			goto fucked;
+		}
 	}
 	/* check the date type */
 	switch (*sp) {
