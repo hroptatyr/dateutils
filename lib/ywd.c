@@ -770,9 +770,9 @@ __ywd_to_yd(dt_ywd_t d)
 
 	if (UNLIKELY(x <= 0)) {
 		/* gotta go for last years thing */
-		x += __get_ydays(y - 1);
-	} else if (x > (int)__get_ydays(y)) {
-		x -= __get_ydays(y);
+		x += __get_ydays(d.y - 1);
+	} else if (x > (int)__get_ydays(d.y)) {
+		x -= __get_ydays(d.y);
 	}
 
 #if defined HAVE_ANON_STRUCTS_INIT
