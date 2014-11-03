@@ -1,6 +1,8 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 $ dconv -i '%Y-%D' 2012-17
+2012-017
+$ dconv -f '%F' 2012-017
 2012-01-17
 $
 

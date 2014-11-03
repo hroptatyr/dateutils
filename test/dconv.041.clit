@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dconv -i '%Y-%D' <<EOF
+$ dconv -f '%F' <<EOF
 2011-001
 2011-002
 2011-003
@@ -733,7 +733,7 @@ EOF
 2011-12-29
 2011-12-30
 2011-12-31
-2011-13-01
+2011-12-31
 $
 
 ## dconv.41.clit ends here

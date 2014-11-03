@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dconv -i '%Y-%D' <<EOF
+$ dconv -f '%F' <<EOF
 2012-001
 2012-002
 2012-003

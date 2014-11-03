@@ -200,15 +200,26 @@ __strpd_std(const char *str, char **ep)
 		d.flags.wk_cnt = YWD_ISOWK_CNT;
 		goto dow;
 	}
-	/* read the month */
-	if ((d.m = strtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) < 0 ||
-	    *sp++ != '-') {
-		goto fucked;
-	}
-	/* read the day or the count */
-	if ((d.d = strtoi_lim(sp, &sp, 0, 31)) < 0) {
-		/* didn't work, fuck off */
-		goto fucked;
+	/* read the month, then day count */
+	with (const char *tmp) {
+		if ((d.m = strtoi_lim(sp, &tmp, 0, 366)) < 0) {
+			goto fucked;
+		} else if (UNLIKELY(*tmp != '-')) {
+			/* oh, could be an ordinal date */
+			if (tmp - sp >= 3U) {
+				d.d = d.m;
+				d.m = 0U;
+				d.flags.d_dcnt_p = 1U;
+			} else if ((unsigned int)d.m <= GREG_MONTHS_P_YEAR) {
+				;
+			} else {
+				goto fucked;
+			}
+			sp = tmp;
+		} else if ((d.d = strtoi_lim(++tmp, &sp, 0, 31)) < 0) {
+			/* didn't work, fuck off */
+			goto fucked;
+		}
 	}
 	/* check the date type */
 	switch (*sp) {
@@ -506,7 +517,7 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		if (UNLIKELY(!d->m && !d->d)) {
+		if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 			__strfd_get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			__strfd_get_d(d, that);
@@ -534,7 +545,7 @@ __strfd_card(
 		break;
 	}
 	case DT_SPFL_N_MON:
-		if (UNLIKELY(!d->m && !d->d)) {
+		if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 			__strfd_get_md(d, that);
 		} else if (UNLIKELY(!d->m)) {
 			__strfd_get_m(d, that);
@@ -546,7 +557,7 @@ __strfd_card(
 		unsigned int pd;
 
 		if (LIKELY(!s.bizda)) {
-			if (UNLIKELY(!d->m && !d->d)) {
+			if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 				__strfd_get_md(d, that);
 			} else if (UNLIKELY(!d->d)) {
 				__strfd_get_d(d, that);
@@ -672,6 +683,9 @@ __strfd_card(
 			}
 			break;
 		}
+		case DT_YD:
+			res = ui32tostr(buf, bsz, d->d, 3);
+			break;
 		case DT_LDN:
 			res = snprintf(buf, bsz, "%u", that.ldn);
 			break;

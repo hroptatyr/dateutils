@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq "1917-01-01" "2399-12-31" -f "yd" > "add.yd-1d.ref"
+$ dadd +1d < "add.yd-1d.ref" | dadd -1d
+< "add.yd-1d.ref"
+$ rm -- "add.yd-1d.ref"
+$
+
+## add.yd-1d.clit

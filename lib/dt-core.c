@@ -283,7 +283,7 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
 static const char ymdhms_dflt[] = "%FT%T";
 static const char ymcwhms_dflt[] = "%Y-%m-%c-%wT%T";
 static const char ywdhms_dflt[] = "%rY-W%V-%uT%T";
-static const char ydhms_dflt[] = "%Y-%d";
+static const char ydhms_dflt[] = "%Y-%D";
 static const char daisyhms_dflt[] = "%dT%T";
 static const char sexy_dflt[] = "%s";
 static const char bizsihms_dflt[] = "%dbT%T";
@@ -756,6 +756,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		case DT_YWD:
 			fmt = ywdhms_dflt;
 			break;
+		case DT_YD:
+			fmt = ydhms_dflt;
+			break;
 		case DT_DAISY:
 			/* subject to change */
 			fmt = ymdhms_dflt;
@@ -788,6 +791,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_YWD:
 			fmt = ywd_dflt;
+			break;
+		case DT_YD:
+			fmt = yd_dflt;
 			break;
 		case DT_DAISY:
 			/* subject to change */
@@ -830,6 +836,11 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		break;
 	case DT_YWD:
 		__prep_strfd_ywd(&d.sd, that.d.ywd);
+		break;
+	case DT_YD:
+		d.sd.y = that.d.yd.y;
+		d.sd.d = that.d.yd.d;
+		d.sd.flags.d_dcnt_p = 1U;
 		break;
 	case DT_JDN:
 		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);

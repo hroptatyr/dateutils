@@ -150,71 +150,13 @@ __strpdt_std(const char *str, char **ep)
 		}
 		goto out;
 	}
-	/* read the year */
-	if ((d.sd.y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) < 0 ||
-	    *sp++ != '-') {
-		sp = str;
-		goto try_time;
-	}
-	/* check for ywd dates */
-	if (UNLIKELY(*sp == 'W')) {
-		/* brilliant */
-		if ((sp++, d.sd.c = strtoi_lim(sp, &sp, 0, 53)) < 0 ||
-		    *sp++ != '-') {
+	with (char *tmp) {
+		/* let date-core do the hard yakka */
+		if ((res.d = __strpd_std(str, &tmp)).typ == DT_DUNK) {
+			/* not much use parsing on */
 			goto try_time;
 		}
-		d.sd.flags.c_wcnt_p = 1;
-		d.sd.flags.wk_cnt = YWD_ISOWK_CNT;
-		goto dow;
-	}
-	/* read the month */
-	if ((d.sd.m = strtoi_lim(sp, &sp, 0, 12)) < 0 ||
-	    *sp++ != '-') {
-		sp = str;
-		goto out;
-	}
-	/* read the day or the count */
-	if ((d.sd.d = strtoi_lim(sp, &sp, 0, 31)) < 0) {
-		/* didn't work, fuck off */
-		sp = str;
-		goto out;
-	}
-	/* check the date type */
-	switch (*sp) {
-	case '-':
-		/* it is a YMCW date */
-		if ((d.sd.c = d.sd.d) > 5) {
-			/* nope, it was bollocks */
-			break;
-		}
-		d.sd.d = 0;
-	dow:
-		if ((d.sd.w = strtoi_lim(++sp, &sp, 0, 7)) < 0) {
-			/* didn't work, fuck off */
-			sp = str;
-			goto out;
-		}
-		/* fix up d.sd.w right away */
-		d.sd.w = d.sd.w ?: DT_SUNDAY;
-		break;
-	case 'B':
-		/* it's a bizda/YMDU before ultimo date */
-		d.sd.flags.ab = BIZDA_BEFORE;
-	case 'b':
-		/* it's a bizda/YMDU after ultimo date */
-		d.sd.flags.bizda = 1;
-		d.sd.b = d.sd.d;
-		d.sd.d = 0;
-		sp++;
-		break;
-	default:
-		/* we don't care */
-		break;
-	}
-	/* guess what we're doing */
-	if ((res.d = __guess_dtyp(d.sd)).typ == DT_DUNK) {
-		/* not much use parsing on */
-		goto out;
+		sp = tmp;
 	}
 	/* check for the d/t separator */
 	switch (*sp) {

@@ -242,8 +242,10 @@ dt_get_md(struct dt_d_s that)
 		return (struct __md_s){.m = that.ymcw.m, .d = d};
 	}
 	case DT_YWD:
-		/* should have come throught the GETTERS aspect */
+		/* should have come through the GETTERS aspect */
 		return __ywd_get_md(that.ywd);
+	case DT_YD:
+		return __yd_get_md(that.yd);
 	}
 }
 
@@ -452,6 +454,8 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return __ldn_to_daisy(that.ldn);
 	case DT_JDN:
 		return __jdn_to_daisy(that.jdn);
+	case DT_YD:
+		return __yd_to_daisy(that.yd);
 	case DT_DUNK:
 	default:
 		break;
@@ -479,6 +483,8 @@ dt_conv_to_ymd(struct dt_d_s that)
 		return __bizda_to_ymd(that.bizda);
 	case DT_YWD:
 		return __ywd_to_ymd(that.ywd);
+	case DT_YD:
+		return __yd_to_ymd(that.yd);
 	case DT_DUNK:
 	default:
 		break;
@@ -506,6 +512,8 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		return __bizda_to_ymcw(that.bizda, __get_bizda_param(that));
 	case DT_YWD:
 		return __ywd_to_ymcw(that.ywd);
+	case DT_YD:
+		return __yd_to_ymcw(that.yd);
 	case DT_DUNK:
 	default:
 		break;
@@ -527,6 +535,8 @@ dt_conv_to_bizda(struct dt_d_s that)
 	case DT_YMCW:
 		break;
 	case DT_DAISY:
+		break;
+	case DT_YD:
 		break;
 	case DT_DUNK:
 	default:
@@ -556,6 +566,8 @@ dt_conv_to_ywd(struct dt_d_s this)
 		return __daisy_to_ywd(this.daisy);
 	case DT_BIZDA:
 		return __bizda_to_ywd(this.bizda, __get_bizda_param(this));
+	case DT_YD:
+		return __yd_to_ywd(this.yd);
 	case DT_DUNK:
 	default:
 		break;
@@ -632,7 +644,7 @@ dt_conv_to_yd(struct dt_d_s this)
 DEFVAR const char ymd_dflt[] = "%F";
 DEFVAR const char ymcw_dflt[] = "%Y-%m-%c-%w";
 DEFVAR const char ywd_dflt[] = "%rY-W%V-%u";
-DEFVAR const char yd_dflt[] = "%Y-%d";
+DEFVAR const char yd_dflt[] = "%Y-%D";
 DEFVAR const char daisy_dflt[] = "%d";
 DEFVAR const char bizsi_dflt[] = "%db";
 DEFVAR const char bizda_dflt[] = "%Y-%m-%db";
@@ -758,7 +770,6 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		if (LIKELY(!d.flags.d_dcnt_p)) {
-			res.ymd.m = d.m;
 #if defined WITH_FAST_ARITH
 			res.ymd.d = d.d;
 #else  /* !WITH_FAST_ARITH */
@@ -768,13 +779,23 @@ __guess_dtyp(struct strpd_s d)
 				res.ymd.d = md;
 				res.fix = 1U;
 			}
-		} else {
-			/* convert dcnt to m + d */
-			struct __md_s r = __yday_get_md(d.y, d.d);
-			res.ymd.m = r.m;
-			res.ymd.d = r.d;
-		}
 #endif	/* !WITH_FAST_ARITH */
+			/* month is always pertained */
+			res.ymd.m = d.m;
+		} else {
+			/* produce yd dates */
+			res.typ = DT_YD;
+			res.yd.y = d.y;
+#if defined WITH_FAST_ARITH
+			res.yd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+			with (int maxd = __get_ydays(d.y)) {
+				if (UNLIKELY((res.yd.d = d.d) > maxd)) {
+					res.yd.d = maxd;
+				}
+			}
+#endif	/* WITH_FAST_ARITH */
+		}
 	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
 		res.ywd = __make_ywd_c(d.y, d.c, (dt_dow_t)d.w, d.flags.wk_cnt);
@@ -786,7 +807,7 @@ __guess_dtyp(struct strpd_s d)
 #if defined WITH_FAST_ARITH
 		res.ymcw.c = d.c;
 #else  /* !WITH_FAST_ARITH */
-		if ((res.ymcw.c = d.c) >= 5) {
+		if (UNLIKELY((res.ymcw.c = d.c) >= 5)) {
 			/* the user meant the LAST wday actually */
 			res.ymcw.c = __get_mcnt(d.y, d.m, (dt_dow_t)d.w);
 		}
@@ -933,6 +954,9 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case DT_YWD:
 			fmt = ywd_dflt;
 			break;
+		case DT_YD:
+			fmt = yd_dflt;
+			break;
 		case DT_DAISY:
 			/* subject to change */
 			fmt = ymd_dflt;
@@ -958,6 +982,11 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		d.m = that.ymcw.m;
 		d.c = that.ymcw.c;
 		d.w = that.ymcw.w;
+		break;
+	case DT_YD:
+		d.y = that.yd.y;
+		d.d = that.yd.d;
+		d.flags.d_dcnt_p = 1U;
 		break;
 	case DT_JDN:
 		that.typ = DT_DAISY;
@@ -1246,7 +1275,8 @@ dt_date(dt_dtyp_t outtyp)
 
 	switch ((res.typ = outtyp)) {
 	case DT_YMD:
-	case DT_YMCW: {
+	case DT_YMCW:
+	case DT_YD: {
 		struct tm tm;
 		ffff_gmtime(&tm, t);
 		switch (res.typ) {
@@ -1274,6 +1304,10 @@ dt_date(dt_dtyp_t outtyp)
 			res.ymcw.w = tm.tm_wday;
 			break;
 		}
+		case DT_YD:
+			res.yd.y = tm.tm_year;
+			res.yd.d = tm.tm_yday;
+			break;
 		default:
 			break;
 		}
@@ -1331,6 +1365,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 	case DT_YWD:
 		res.ywd = dt_conv_to_ywd(d);
 		break;
+	case DT_YD:
+		res.yd = dt_conv_to_yd(d);
+		break;
 	case DT_DUNK:
 	default:
 		res.typ = DT_DUNK;
@@ -1384,6 +1421,10 @@ dt_dadd_d(struct dt_d_s d, int n)
 
 	case DT_YWD:
 		d.ywd = __ywd_add_d(d.ywd, n);
+		break;
+
+	case DT_YD:
+		d.yd = __yd_add_d(d.yd, n);
 		break;
 
 	case DT_DUNK:
@@ -1442,6 +1483,10 @@ dt_dadd_b(struct dt_d_s d, int n)
 		d.ywd = __ywd_add_b(d.ywd, n);
 		break;
 
+	case DT_YD:
+		d.yd = __yd_add_b(d.yd, n);
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1498,6 +1543,10 @@ dt_dadd_w(struct dt_d_s d, int n)
 		d.ywd = __ywd_add_w(d.ywd, n);
 		break;
 
+	case DT_YD:
+		d.yd = __yd_add_w(d.yd, n);
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1534,6 +1583,10 @@ dt_dadd_m(struct dt_d_s d, int n)
 		/* ywd have no notion of months */
 		break;
 
+	case DT_YD:
+		/* yd have no notion of months */
+		break;
+
 	case DT_DUNK:
 	default:
 		d.typ = DT_DUNK;
@@ -1568,6 +1621,10 @@ dt_dadd_y(struct dt_d_s d, int n)
 
 	case DT_YWD:
 		d.ywd = __ywd_add_y(d.ywd, n);
+		break;
+
+	case DT_YD:
+		d.yd = __yd_add_y(d.yd, n);
 		break;
 
 	case DT_DUNK:
@@ -1644,6 +1701,8 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 			tmptyp = DT_YMD;
 		} else if (d1.typ == DT_YMCW || d2.typ == DT_YMCW) {
 			tmptyp = DT_YMCW;
+		} else if (d1.typ == DT_YD || d2.typ == DT_YD) {
+			tmptyp = DT_YD;
 		} else {
 			tmptyp = DT_DAISY;
 		}
@@ -1711,6 +1770,10 @@ dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 			tmp.md.m = res.ymcw.y * GREG_MONTHS_P_YEAR + res.ymcw.m;
 			tmp.md.d = res.ymcw.w * GREG_DAYS_P_WEEK + res.ymcw.c;
 			break;
+		case DT_YD:
+			tmp.md.m = res.yd.y * GREG_MONTHS_P_YEAR;
+			tmp.md.d = res.yd.d;
+			break;
 		case DT_DAISY:
 			tmp.md.m = 0;
 			tmp.md.d = res.daisy;
@@ -1740,6 +1803,7 @@ dt_dcmp(struct dt_d_s d1, struct dt_d_s d2)
 	case DT_DAISY:
 	case DT_BIZDA:
 	case DT_YWD:
+	case DT_YD:
 		/* use arithmetic comparison */
 		if (d1.u == d2.u) {
 			return 0;
