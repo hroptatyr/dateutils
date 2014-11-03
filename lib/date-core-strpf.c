@@ -200,14 +200,17 @@ __strpd_std(const char *str, char **ep)
 		d.flags.wk_cnt = YWD_ISOWK_CNT;
 		goto dow;
 	}
-	/* read the month */
-	if ((d.m = strtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) < 0 ||
-	    *sp++ != '-') {
+	/* read the month, then day count */
+	if ((d.m = strtoi_lim(sp, &sp, 0, 366)) < 0) {
+		sp = str;
 		goto fucked;
-	}
-	/* read the day or the count */
-	if ((d.d = strtoi_lim(sp, &sp, 0, 31)) < 0) {
+	} else if (UNLIKELY(*sp != '-')) {
+		/* oh, could be an ordinal date */
+		d.d = d.m;
+		d.m = 0U;
+	} else if ((d.d = strtoi_lim(++sp, &sp, 0, 31)) < 0) {
 		/* didn't work, fuck off */
+		sp = str;
 		goto fucked;
 	}
 	/* check the date type */
