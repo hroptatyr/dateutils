@@ -595,6 +595,19 @@ dt_tests += convt.yd-ymcw.clit
 dt_tests += convt.yd-ymd.clit
 dt_tests += convt.yd-ywd.clit
 
+dt_tests += add.ymcw-1d.clit
+dt_tests += add.ymd-1d.clit
+dt_tests += add.ywd-1d.clit
+dt_tests += add.yd-1d.clit
+dt_tests += add.ymcw-1w.clit
+dt_tests += add.ymd-1w.clit
+dt_tests += add.ywd-1w.clit
+dt_tests += add.yd-1w.clit
+dt_tests += add.ymcw-1y.clit
+dt_tests += add.ymd-1y.clit
+dt_tests += add.ywd-1y.clit
+dt_tests += add.yd-1y.clit
+
 dt_tests += dtseq.01.clit
 dt_tests += dtseq.02.clit
 dt_tests += dtseq.03.clit
