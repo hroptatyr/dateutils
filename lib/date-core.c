@@ -786,7 +786,13 @@ __guess_dtyp(struct strpd_s d)
 			/* produce yd dates */
 			res.typ = DT_YD;
 			res.yd.y = d.y;
+#if defined WITH_FAST_ARITH
 			res.yd.d = d.d;
+#else  /* !WITH_FAST_ARITH */
+			if (UNLIKELY((res.yd.d = d.d) > __get_ydays(d.y))) {
+				res.yd.d = __get_ydays(d.y);
+			}
+#endif	/* WITH_FAST_ARITH */
 		}
 	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
