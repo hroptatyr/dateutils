@@ -208,6 +208,7 @@ __strpd_std(const char *str, char **ep)
 		/* oh, could be an ordinal date */
 		d.d = d.m;
 		d.m = 0U;
+		d.flags.d_dcnt_p = 1U;
 	} else if ((d.d = strtoi_lim(++sp, &sp, 0, 31)) < 0) {
 		/* didn't work, fuck off */
 		sp = str;

@@ -758,7 +758,6 @@ __guess_dtyp(struct strpd_s d)
 		res.typ = DT_YMD;
 		res.ymd.y = d.y;
 		if (LIKELY(!d.flags.d_dcnt_p)) {
-			res.ymd.m = d.m;
 #if defined WITH_FAST_ARITH
 			res.ymd.d = d.d;
 #else  /* !WITH_FAST_ARITH */
@@ -768,13 +767,15 @@ __guess_dtyp(struct strpd_s d)
 				res.ymd.d = md;
 				res.fix = 1U;
 			}
-		} else {
-			/* convert dcnt to m + d */
-			struct __md_s r = __yday_get_md(d.y, d.d);
-			res.ymd.m = r.m;
-			res.ymd.d = r.d;
-		}
 #endif	/* !WITH_FAST_ARITH */
+			/* month is always pertained */
+			res.ymd.m = d.m;
+		} else {
+			/* produce yd dates */
+			res.typ = DT_YD;
+			res.yd.y = d.y;
+			res.yd.d = d.d;
+		}
 	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
 		res.typ = DT_YWD;
 		res.ywd = __make_ywd_c(d.y, d.c, (dt_dow_t)d.w, d.flags.wk_cnt);
