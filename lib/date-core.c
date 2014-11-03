@@ -1332,6 +1332,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 	case DT_YWD:
 		res.ywd = dt_conv_to_ywd(d);
 		break;
+	case DT_YD:
+		res.yd = dt_conv_to_yd(d);
+		break;
 	case DT_DUNK:
 	default:
 		res.typ = DT_DUNK;
