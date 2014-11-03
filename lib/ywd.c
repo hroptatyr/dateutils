@@ -593,12 +593,20 @@ __make_ywd_ybd(unsigned int y, int yd)
 	return res;
 }
 
-static unsigned int
+static __attribute__((pure, const)) unsigned int
 __ywd_get_yday(dt_ywd_t d)
 {
 /* since everything is in ISO 8601 format, getting the doy is a matter of
  * counting how many days there are in a week. */
-	return GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
+	int try = GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
+
+	if (UNLIKELY(try <= 0)) {
+		/* gotta go for last years thing */
+		try += __get_ydays(d.y - 1);
+	} else if (try > (int)__get_ydays(d.y)) {
+		try -= __get_ydays(d.y);
+	}
+	return try;
 }
 
 static dt_dow_t
@@ -763,14 +771,17 @@ __ywd_to_daisy(dt_ywd_t d)
 static dt_yd_t
 __ywd_to_yd(dt_ywd_t d)
 {
+	unsigned int y = __ywd_get_year(d);
+	unsigned int x = __ywd_get_yday(d);
+
 #if defined HAVE_ANON_STRUCTS_INIT
-	return (dt_yd_t){.y = d.y, .d = __ywd_get_yday(d)};
-#else
+	return (dt_yd_t){.y = y, .d = x};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
 	dt_yd_t res;
-	res.y = d.y;
-	res.d = __ywd_get_yday(d);
+	res.y = y;
+	res.d = x;
 	return res;
-#endif
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 #endif	/* ASPECT_CONV */
 
