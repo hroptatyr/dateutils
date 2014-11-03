@@ -676,6 +676,9 @@ __strfd_card(
 			}
 			break;
 		}
+		case DT_YD:
+			res = ui32tostr(buf, bsz, d->d, 3);
+			break;
 		case DT_LDN:
 			res = snprintf(buf, bsz, "%u", that.ldn);
 			break;

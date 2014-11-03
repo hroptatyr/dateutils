@@ -756,6 +756,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		case DT_YWD:
 			fmt = ywdhms_dflt;
 			break;
+		case DT_YD:
+			fmt = ydhms_dflt;
+			break;
 		case DT_DAISY:
 			/* subject to change */
 			fmt = ymdhms_dflt;
@@ -788,6 +791,9 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_YWD:
 			fmt = ywd_dflt;
+			break;
+		case DT_YD:
+			fmt = yd_dflt;
 			break;
 		case DT_DAISY:
 			/* subject to change */
@@ -830,6 +836,11 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		break;
 	case DT_YWD:
 		__prep_strfd_ywd(&d.sd, that.d.ywd);
+		break;
+	case DT_YD:
+		d.sd.y = that.d.yd.y;
+		d.sd.d = that.d.yd.d;
+		d.sd.flags.d_dcnt_p = 1U;
 		break;
 	case DT_JDN:
 		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
