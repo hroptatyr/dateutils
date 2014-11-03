@@ -789,8 +789,10 @@ __guess_dtyp(struct strpd_s d)
 #if defined WITH_FAST_ARITH
 			res.yd.d = d.d;
 #else  /* !WITH_FAST_ARITH */
-			if (UNLIKELY((res.yd.d = d.d) > __get_ydays(d.y))) {
-				res.yd.d = __get_ydays(d.y);
+			with (int maxd = __get_ydays(d.y)) {
+				if (UNLIKELY((res.yd.d = d.d) > maxd)) {
+					res.yd.d = maxd;
+				}
 			}
 #endif	/* WITH_FAST_ARITH */
 		}
