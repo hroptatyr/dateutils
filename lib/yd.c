@@ -654,6 +654,70 @@ __yd_get_md(dt_yd_t this)
 #endif	/* YD_ASPECT_GETTERS_ */
 
 
+#if defined ASPECT_CONV && !defined YD_ASPECT_CONV_
+#define YD_ASPECT_CONV_
+/* we need some getter stuff, so get it */
+#define ASPECT_GETTERS
+#include "yd.c"
+#undef ASPECT_GETTERS
+
+static dt_ymd_t
+__yd_to_ymd(dt_yd_t d)
+{
+	struct __md_s md = __yd_get_md(d);
+
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymd_t){.y = d.y, .m = md.m, .d = md.d};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	dt_ymd_t res;
+	res.y = d.y;
+	res.m = md.m;
+	res.d = md.d;
+	return res;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+}
+
+static dt_daisy_t
+__yd_to_daisy(dt_yd_t d)
+{
+	if (UNLIKELY((signed int)TO_BASE(d.y) < 0)) {
+		return 0;
+	}
+	return __jan00_daisy(d.y) + d.d;
+}
+
+static dt_ymcw_t
+__yd_to_ymcw(dt_yd_t d)
+{
+	struct __md_s md = __yd_get_md(d);
+	unsigned int w = __yd_get_wday(d);
+	unsigned int c;
+
+	/* we obtain C from weekifying the month */
+	c = (md.d - 1U) / GREG_DAYS_P_WEEK + 1U;
+
+#if defined HAVE_ANON_STRUCTS_INIT
+	return (dt_ymcw_t){.y = d.y, .m = md.m, .c = c, .w = w};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	dt_ymcw_t res;
+	res.y = d.y;
+	res.m = md.m;
+	res.c = c;
+	res.w = w;
+	return res;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+}
+
+static dt_ywd_t
+__yd_to_ywd(dt_yd_t d)
+{
+	dt_dow_t w = __yd_get_wday(d);
+	unsigned int c = __yd_get_wcnt_abs(d);
+	return __make_ywd_c(d.y, c, w, YWD_ABSWK_CNT);
+}
+#endif	/* ASPECT_CONV */
+
+
 #if defined ASPECT_ADD && !defined YD_ASPECT_ADD_
 #define YD_ASPECT_ADD_
 static __attribute__((pure)) dt_yd_t
