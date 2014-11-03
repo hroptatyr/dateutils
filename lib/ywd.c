@@ -593,20 +593,14 @@ __make_ywd_ybd(unsigned int y, int yd)
 	return res;
 }
 
-static __attribute__((pure, const)) unsigned int
+static __attribute__((pure, const)) int
 __ywd_get_yday(dt_ywd_t d)
 {
 /* since everything is in ISO 8601 format, getting the doy is a matter of
- * counting how many days there are in a week. */
-	int try = GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
-
-	if (UNLIKELY(try <= 0)) {
-		/* gotta go for last years thing */
-		try += __get_ydays(d.y - 1);
-	} else if (try > (int)__get_ydays(d.y)) {
-		try -= __get_ydays(d.y);
-	}
-	return try;
+ * counting how many days there are in a week.
+ * This may return negative values and values larger than the number of
+ * days in that year. */
+	return GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
 }
 
 static dt_dow_t
@@ -620,7 +614,7 @@ __ywd_get_wcnt_mon(dt_ywd_t d)
 {
 /* given a YWD with week-count within the year (ISOWK_CNT convention)
  * return the week-count within the month (ABSWK_CNT convention) */
-	unsigned int yd = __ywd_get_yday(d);
+	int yd = __ywd_get_yday(d);
 	struct __md_s x = __yday_get_md(d.y, yd);
 	return (x.d - 1) / 7 + 1;
 }
@@ -662,7 +656,7 @@ __ywd_get_wcnt_year(dt_ywd_t d, unsigned int tgtcc)
 static struct __md_s
 __ywd_get_md(dt_ywd_t d)
 {
-	unsigned int yday = __ywd_get_yday(d);
+	int yday = __ywd_get_yday(d);
 	struct __md_s res = __yday_get_md(d.y, yday);
 
 	if (UNLIKELY(res.m == 0)) {
@@ -677,7 +671,7 @@ __ywd_get_md(dt_ywd_t d)
 static unsigned int
 __ywd_get_mon(dt_ywd_t d)
 {
-	unsigned int yd = __ywd_get_yday(d);
+	int yd = __ywd_get_yday(d);
 	return __yday_get_md(d.y, yd).m;
 }
 
@@ -772,7 +766,14 @@ static dt_yd_t
 __ywd_to_yd(dt_ywd_t d)
 {
 	unsigned int y = __ywd_get_year(d);
-	unsigned int x = __ywd_get_yday(d);
+	int x = __ywd_get_yday(d);
+
+	if (UNLIKELY(x <= 0)) {
+		/* gotta go for last years thing */
+		x += __get_ydays(y - 1);
+	} else if (x > (int)__get_ydays(y)) {
+		x -= __get_ydays(y);
+	}
 
 #if defined HAVE_ANON_STRUCTS_INIT
 	return (dt_yd_t){.y = y, .d = x};
