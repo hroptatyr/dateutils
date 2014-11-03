@@ -525,6 +525,25 @@ __get_jan01_yday_dow(unsigned int yd, dt_dow_t w)
 	return (dt_dow_t)(DT_SUNDAY - res);
 }
 
+static inline __attribute__((const, pure)) unsigned int
+__get_ydays(unsigned int y)
+{
+	return LIKELY(!__leapp(y)) ? 365U : 366U;
+}
+
+static __attribute__((pure)) dt_yd_t
+__yd_fixup(dt_yd_t d)
+{
+	int ydays;
+
+	if (LIKELY(d.d <= 365)) {
+		/* trivial */
+		;
+	} else if (d.d > (ydays = __get_ydays(d.y))) {
+		d.d = ydays;
+	}
+	return d;
+}
 #endif	/* YD_ASPECT_HELPERS_ */
 
 
@@ -615,7 +634,89 @@ __yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd)
 	/* and now express yd as 7k + n relative to jan01 */
 	return (yd - wk + 7) / 7;
 }
+
+static dt_dow_t
+__yd_get_wday(dt_yd_t this)
+{
+	unsigned int j01_wd = __get_jan01_wday(this.y);
+	if (LIKELY(j01_wd != DT_MIRACLEDAY && this.d)) {
+		unsigned int wd = (this.d - 1 + j01_wd) % GREG_DAYS_P_WEEK;
+		return (dt_dow_t)(wd ?: DT_SUNDAY);
+	}
+	return DT_MIRACLEDAY;
+}
 #endif	/* YD_ASPECT_GETTERS_ */
+
+
+#if defined ASPECT_ADD && !defined YD_ASPECT_ADD_
+#define YD_ASPECT_ADD_
+static __attribute__((pure)) dt_yd_t
+__yd_fixup_d(unsigned int y, signed int d)
+{
+	dt_yd_t res = {0};
+
+	if (LIKELY(d >= 1 && d <= 365)) {
+		/* all years in our design range have at least 365 days */
+		;
+	} else if (d < 1) {
+		int ydays;
+
+		do {
+			y--;
+			ydays = __get_ydays(y);
+			d += ydays;
+		} while (d < 1);
+
+	} else {
+		int ydays;
+
+		while (d > (ydays = __get_ydays(y))) {
+			d -= ydays;
+			y++;
+		}
+	}
+
+	res.y = y;
+	res.d = d;
+	return res;
+}
+
+static dt_yd_t
+__yd_add_d(dt_yd_t d, int n)
+{
+/* add N days to D */
+	signed int tgtd = d.d + n;
+
+	/* fixup the day */
+	return __yd_fixup_d(d.y, tgtd);
+}
+
+static dt_yd_t
+__yd_add_b(dt_yd_t d, int n)
+{
+/* add N business days to D */
+	dt_dow_t wd = __yd_get_wday(d);
+	int tgtd = d.d + __get_d_equiv(wd, n);
+
+	/* fixup the day, i.e. 2012-0367 -> 2013-001 */
+	return __yd_fixup_d(d.y, tgtd);
+}
+
+static dt_yd_t
+__yd_add_w(dt_yd_t d, int n)
+{
+/* add N weeks to D */
+	return __yd_add_d(d, GREG_DAYS_P_WEEK * n);
+}
+
+static dt_yd_t
+__yd_add_y(dt_yd_t d, int n)
+{
+/* add N years to D */
+	d.y += n;
+	return __yd_fixup(d);
+}
+#endif	/* ASPECT_ADD */
 
 
 #if defined ASPECT_DIFF && !defined YD_ASPECT_DIFF_
