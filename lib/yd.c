@@ -645,6 +645,12 @@ __yd_get_wday(dt_yd_t this)
 	}
 	return DT_MIRACLEDAY;
 }
+
+static struct __md_s
+__yd_get_md(dt_yd_t this)
+{
+	return __yday_get_md(this.y, this.d);
+}
 #endif	/* YD_ASPECT_GETTERS_ */
 
 

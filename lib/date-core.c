@@ -242,8 +242,10 @@ dt_get_md(struct dt_d_s that)
 		return (struct __md_s){.m = that.ymcw.m, .d = d};
 	}
 	case DT_YWD:
-		/* should have come throught the GETTERS aspect */
+		/* should have come through the GETTERS aspect */
 		return __ywd_get_md(that.ywd);
+	case DT_YD:
+		return __yd_get_md(that.yd);
 	}
 }
 

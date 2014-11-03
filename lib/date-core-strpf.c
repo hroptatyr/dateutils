@@ -517,7 +517,7 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		if (UNLIKELY(!d->m && !d->d)) {
+		if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 			__strfd_get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			__strfd_get_d(d, that);
@@ -545,7 +545,7 @@ __strfd_card(
 		break;
 	}
 	case DT_SPFL_N_MON:
-		if (UNLIKELY(!d->m && !d->d)) {
+		if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 			__strfd_get_md(d, that);
 		} else if (UNLIKELY(!d->m)) {
 			__strfd_get_m(d, that);
@@ -557,7 +557,7 @@ __strfd_card(
 		unsigned int pd;
 
 		if (LIKELY(!s.bizda)) {
-			if (UNLIKELY(!d->m && !d->d)) {
+			if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 				__strfd_get_md(d, that);
 			} else if (UNLIKELY(!d->d)) {
 				__strfd_get_d(d, that);
