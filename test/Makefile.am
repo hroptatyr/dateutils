@@ -33,7 +33,7 @@ DT_LIBS = $(top_builddir)/lib/libdut.a
 
 TEST_EXTENSIONS += .clit
 TESTS_ENVIRONMENT += root=$(top_srcdir)
-CLIT_LOG_COMPILER = $(builddir)/clittool
+CLIT_LOG_COMPILER = $(builddir)/clitosis
 AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
@@ -878,11 +878,11 @@ batch_tests += dconv-batch.2.sh
 endif  HAVE_GDATE
 
 
-check_PROGRAMS += clittool
-clittool_CPPFLAGS = $(AM_CPPFLAGS)
-clittool_CPPFLAGS += -D_GNU_SOURCE
-EXTRA_DIST += clittool.yuck
-built_dist_sources += clittool.yucc
+check_PROGRAMS += clitosis
+clitosis_CPPFLAGS = $(AM_CPPFLAGS)
+clitosis_CPPFLAGS += -D_GNU_SOURCE
+EXTRA_DIST += clitosis.yuck
+built_dist_sources += clitosis.yucc
 
 
 ## ggo rule

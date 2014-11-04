@@ -1,4 +1,4 @@
-/*** clittool.c -- command-line-interface tester or is it?
+/*** clitosis.c -- command-line-interface tester on shell input syntax
  *
  * Copyright (C) 2013-2014 Sebastian Freundt
  *
@@ -1437,7 +1437,7 @@ out:
 }
 
 
-#include "clittool.yucc"
+#include "clitosis.yucc"
 
 int
 main(int argc, char *argv[])
@@ -1519,4 +1519,4 @@ out:
 	return rc;
 }
 
-/* clittool.c ends here */
+/* clitosis.c ends here */
