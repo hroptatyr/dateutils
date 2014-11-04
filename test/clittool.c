@@ -106,6 +106,18 @@ struct clit_bit_s {
 	const char *d;
 };
 
+struct clit_opt_s {
+	unsigned int timeo;
+
+	unsigned int verbosep:1;
+	unsigned int ptyp:1;
+	unsigned int keep_going_p:1;
+	unsigned int shcmdp:1;
+
+	/* use this instead of /bin/sh */
+	char *shcmd;
+};
+
 struct clit_chld_s {
 	int pin;
 	int pou;
@@ -117,11 +129,11 @@ struct clit_chld_s {
 
 	unsigned int test_id;
 
-	unsigned int verbosep:1;
-	unsigned int ptyp:1;
-	unsigned int keep_going_p:1;
+	/* options to control behaviour */
+	struct clit_opt_s options;
 
-	unsigned int timeo;
+	/* cmd'ified version of options.shell */
+	char **huskv;
 };
 
 /* a test is the command (inlcuding stdin), stdout result, and stderr result */
@@ -256,6 +268,32 @@ xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
 		}
 	}
 	return NULL;
+}
+
+static char*
+xstrndup(const char *s, size_t z)
+{
+	char *res = malloc(z + 1U);
+	memcpy(res, s, z);
+	res[z] = '\0';
+	return res;
+}
+
+static char**
+cmdify(char *restrict cmd)
+{
+	/* prep for about 16 params */
+	char **v = calloc(16U, sizeof(*v));
+	size_t i = 0U;
+	const char *ifs = getenv("IFS") ?: " \t\n";
+
+	v[0U] = strtok(cmd, ifs);
+	do {
+		if (UNLIKELY((i % 16U) == 15U)) {
+			v = realloc(v, (i + 1U + 16U) * sizeof(*v));
+		}
+	} while ((v[++i] = strtok(NULL, ifs)) != NULL);
+	return v;
 }
 
 
@@ -657,8 +695,8 @@ fail:
 	return -1;
 }
 
-static int
-find_opt(struct clit_chld_s ctx[static 1], const char *bp, size_t bz)
+static struct clit_opt_s
+find_opt(struct clit_opt_s options, const char *bp, size_t bz)
 {
 	static const char magic[] = "setopt ";
 
@@ -685,23 +723,33 @@ find_opt(struct clit_chld_s ctx[static 1], const char *bp, size_t bz)
 		if ((mp += sizeof(magic) - 1U) == NULL) {
 			;
 		} else if (CMP(mp, "verbose\n") == 0) {
-			ctx->verbosep = opt;
+			options.verbosep = opt;
 		} else if (CMP(mp, "pseudo-tty\n") == 0) {
-			ctx->ptyp = opt;
+			options.ptyp = opt;
 		} else if (CMP(mp, "timeout") == 0) {
 			const char *arg = mp + sizeof("timeout");
 			char *p;
 			long unsigned int timeo;
 
 			if ((timeo = strtoul(arg, &p, 0), *p == '\n')) {
-				ctx->timeo = (unsigned int)timeo;
+				options.timeo = (unsigned int)timeo;
 			}
 		} else if (CMP(mp, "keep-going\n") == 0) {
-			ctx->keep_going_p = opt;
+			options.keep_going_p = opt;
+		} else if (CMP(mp, "shell") == 0) {
+			const char *arg = mp + sizeof("shell");
+			char *eol = memchr(arg, '\n', bz - (arg - mp));
+
+			if (UNLIKELY(eol == NULL)) {
+				/* ignore and get on with it */
+				continue;
+			}
+			options.shcmd = xstrndup(arg, eol - arg);
+			options.shcmdp = 1U;
 		}
 #undef CMP
 	}
-	return 0;
+	return options;
 }
 
 static int
@@ -717,12 +765,23 @@ init_chld(struct clit_chld_s ctx[static 1] __attribute__((unused)))
 	sigaddset(fatal_signal_set, SIGXFSZ);
 	/* also the empty set */
 	sigemptyset(empty_signal_set);
+
+	/* cmdify the shell command, if any */
+	if (ctx->options.shcmd != NULL) {
+		ctx->huskv = cmdify(ctx->options.shcmd);
+	}
 	return 0;
 }
 
 static int
-fini_chld(struct clit_chld_s ctx[static 1] __attribute__((unused)))
+fini_chld(struct clit_chld_s ctx[static 1])
 {
+	if (ctx->huskv != NULL) {
+		free(ctx->huskv);
+	}
+	if (ctx->options.shcmdp) {
+		free(ctx->options.shcmd);
+	}
 	return 0;
 }
 
@@ -1010,13 +1069,13 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	} else if (UNLIKELY(pipe(pin) < 0)) {
 		ctx->chld = -1;
 		return -1;
-	} else if (UNLIKELY(ctx->ptyp && pipe(per) < 0)) {
+	} else if (UNLIKELY(ctx->options.ptyp && pipe(per) < 0)) {
 		ctx->chld = -1;
 		return -1;
 	}
 
 	block_sigs();
-	switch ((ctx->chld = LIKELY(!ctx->ptyp) ? vfork() : pfork(&pty))) {
+	switch ((ctx->chld = !ctx->options.ptyp ? vfork() : pfork(&pty))) {
 	case -1:
 		/* i am an error */
 		unblock_sigs();
@@ -1025,13 +1084,13 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	case 0:
 		/* i am the child */
 		unblock_sigs();
-		if (UNLIKELY(ctx->ptyp)) {
+		if (UNLIKELY(ctx->options.ptyp)) {
 			/* in pty mode connect child's stderr to parent's */
 			;
 		}
 
 		/* read from pin and write to pou */
-		if (LIKELY(!ctx->ptyp)) {
+		if (LIKELY(!ctx->options.ptyp)) {
 			/* pin[0] ->stdin */
 			dup2(pin[0], STDIN_FILENO);
 		} else {
@@ -1048,14 +1107,18 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 			close(ctx->pou);
 		}
 
-		execl("/bin/sh", "sh", NULL);
+		if (!ctx->huskv) {
+			execl("/bin/sh", "sh", NULL);
+		} else {
+			execvp(*ctx->huskv, ctx->huskv);
+		}
 		error("exec'ing /bin/sh failed");
 		_exit(EXIT_FAILURE);
 
 	default:
 		/* i am the parent, clean up descriptors */
 		close(pin[0]);
-		if (UNLIKELY(ctx->ptyp)) {
+		if (UNLIKELY(ctx->options.ptyp)) {
 			close(pin[1]);
 		}
 		if (LIKELY(ctx->pou >= 0)) {
@@ -1064,7 +1127,7 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		ctx->pou = -1;
 
 		/* assign desc, write end of pin */
-		if (LIKELY(!ctx->ptyp)) {
+		if (LIKELY(!ctx->options.ptyp)) {
 			ctx->pin = pin[1];
 		} else {
 			ctx->pin = pty;
@@ -1074,6 +1137,31 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		break;
 	}
 	return 0;
+}
+
+static struct {
+	sig_t old_hdl;
+	pid_t feed;
+	pid_t diff;
+} alrm_handler_closure;
+
+static void
+alrm_handler(int signum)
+{
+	assert(signum == SIGALRM);
+	if (alrm_handler_closure.feed > 0) {
+		kill(alrm_handler_closure.feed, SIGALRM);
+	}
+	if (alrm_handler_closure.diff > 0) {
+		kill(alrm_handler_closure.diff, SIGALRM);
+	}
+	signal(SIGALRM, alrm_handler_closure.old_hdl);
+	with (pid_t self = getpid()) {
+		if (LIKELY(self > 0)) {
+			kill(self, SIGALRM);
+		}
+	}
+	return;
 }
 
 static int
@@ -1092,6 +1180,9 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		}
 		goto wait;
 	}
+	if (ctx->options.timeo > 0 && (ctx->feed > 0 || ctx->diff > 0)) {
+		alrm_handler_closure.old_hdl = signal(SIGALRM, alrm_handler);
+	}
 	with (const char *p = tst->cmd.d, *const ep = tst->cmd.d + tst->cmd.z) {
 		for (ssize_t nwr;
 		     p < ep && (nwr = write(ctx->pin, p, ep - p)) > 0;
@@ -1099,7 +1190,7 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	}
 	unblock_sigs();
 
-	if (LIKELY(!ctx->ptyp) ||
+	if (LIKELY(!ctx->options.ptyp) ||
 	    write(ctx->pin, "exit $?\n", 8U) < 8) {
 		/* indicate we're not writing anymore on the child's stdin
 		 * or in case of a pty, send exit command and keep fingers
@@ -1156,13 +1247,13 @@ wait:
 	}
 
 #if defined HAVE_PTY_H
-	if (UNLIKELY(ctx->ptyp)) {
+	if (UNLIKELY(ctx->options.ptyp)) {
 		/* also close child's stdin here */
 		close(ctx->pin);
 	}
 
 	/* also connect per's out end with stderr */
-	if (UNLIKELY(ctx->ptyp)) {
+	if (UNLIKELY(ctx->options.ptyp)) {
 # if defined HAVE_SPLICE
 #  if !defined SPLICE_F_MOVE
 #   define SPLICE_F_MOVE		(0)
@@ -1175,6 +1266,9 @@ wait:
 		close(ctx->per);
 	}
 #endif	/* HAVE_PTY_H */
+	if (ctx->options.timeo > 0 && (ctx->feed > 0 || ctx->diff > 0)) {
+		signal(SIGALRM, alrm_handler_closure.old_hdl);
+	}
 	return rc;
 }
 
@@ -1272,13 +1366,8 @@ out:
 }
 
 
-static int verbosep;
-static int ptyp;
-static int keep_going_p;
-static unsigned int timeo;
-
 static int
-test_f(clitf_t tf)
+test_f(clitf_t tf, struct clit_opt_s options)
 {
 	static struct clit_chld_s ctx[1];
 	static struct clit_tst_s tst[1];
@@ -1286,41 +1375,29 @@ test_f(clitf_t tf)
 	size_t bz = tf.z;
 	int rc = 0;
 
+	/* find options in the test script or from the proto */
+	ctx->options = find_opt(options, bp, bz);
+
 	if (UNLIKELY(init_chld(ctx) < 0)) {
 		return -1;
 	}
 
-	/* preset options */
-	if (verbosep) {
-		ctx->verbosep = 1U;
-	}
-	if (ptyp) {
-		ctx->ptyp = 1U;
-	}
-	if (keep_going_p) {
-		ctx->keep_going_p = 1U;
-	}
-	ctx->timeo = timeo;
-
-	/* find options in the test script */
-	find_opt(ctx, bp, bz);
-
 	/* prepare */
-	if (ctx->timeo > 0) {
-		set_timeout(ctx->timeo);
+	if (ctx->options.timeo > 0) {
+		set_timeout(ctx->options.timeo);
 	}
 	for (; find_tst(tst, bp, bz) == 0; bp = tst->rest.d, bz = tst->rest.z) {
-		if (ctx->verbosep) {
+		if (ctx->options.verbosep) {
 			fputs("$ ", stderr);
 			fwrite(tst->cmd.d, sizeof(char), tst->cmd.z, stderr);
 		}
 		with (int tst_rc = run_tst(ctx, tst)) {
-			if (ctx->verbosep) {
+			if (ctx->options.verbosep) {
 				fprintf(stderr, "$? %d\n", tst_rc);
 			}
 			rc = rc ?: tst_rc;
 		}
-		if (rc && !ctx->keep_going_p) {
+		if (rc && !ctx->options.keep_going_p) {
 			break;
 		}
 	}
@@ -1331,7 +1408,7 @@ test_f(clitf_t tf)
 }
 
 static int
-test(const char *testfile)
+test(const char *testfile, struct clit_opt_s options)
 {
 	int fd;
 	struct stat st;
@@ -1349,7 +1426,7 @@ test(const char *testfile)
 		goto clo;
 	}
 	/* yaay, perform the test */
-	rc = test_f(tf);
+	rc = test_f(tf, options);
 
 	/* and out we are */
 	munmap_fd(tf);
@@ -1366,6 +1443,7 @@ int
 main(int argc, char *argv[])
 {
 	yuck_t argi[1U];
+	struct clit_opt_s options = {0U};
 	int rc = 99;
 
 	if (yuck_parse(argi, argc, argv)) {
@@ -1381,23 +1459,20 @@ main(int argc, char *argv[])
 	if (argi->srcdir_arg) {
 		setenv("srcdir", argi->srcdir_arg, 1);
 	}
-	if (argi->hash_arg) {
-		setenv("hash", argi->hash_arg, 1);
-	}
-	if (argi->husk_arg) {
-		setenv("husk", argi->husk_arg, 1);
+	if (argi->shell_arg) {
+		options.shcmd = argi->shell_arg;
 	}
 	if (argi->verbose_flag) {
-		verbosep = 1U;
+		options.verbosep = 1U;
 	}
 	if (argi->pseudo_tty_flag) {
-		ptyp = 1U;
+		options.ptyp = 1U;
 	}
 	if (argi->timeout_arg) {
-		timeo = strtoul(argi->timeout_arg, NULL, 10);
+		options.timeo = strtoul(argi->timeout_arg, NULL, 10);
 	}
 	if (argi->keep_going_flag) {
-		keep_going_p = 1U;
+		options.keep_going_p = 1U;
 	}
 	if (argi->diff_arg) {
 		cmd_diff = argi->diff_arg;
@@ -1433,7 +1508,7 @@ main(int argc, char *argv[])
 	setenv("endian", "little", 1);
 #endif	/* WORDS_BIGENDIAN */
 
-	if ((rc = test(argi->args[0U])) < 0) {
+	if ((rc = test(argi->args[0U], options)) < 0) {
 		rc = 99;
 	}
 
