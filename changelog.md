@@ -6,6 +6,37 @@ logo: dateutils_logo_120.png
 ---
 
 
+v0.3.1
+=======
+Summary: v0.3.1 of dateutils
+
+This is dateutils v0.3.1.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- octave/matlab code is distributed fully
+- negative durations with refined units are minus-signed only once
+- ddiff is entirely anticommutative now
+- tests don't fail if zones don't exist on the build system
+- dseq with empty ranges will no longer produce output (just as seq(1))
+- arbitrary integers are not interpreted as time anymore
+- when converting from zone info properly clear zone difference for %Z
+- dseq(1) will automatically resort to +1mo and +1y iterators for
+    wildcarded ymd dates
+- dadd(1)'ing ywd dates with output as ymd works properly now
+
+Features:
+
+- ddiff can output nanosecond diffs
+- automatic fix-up of dates is documented now
+- parser errors and fix ups are reported through return code 2
+- dseq with no `-f|--format` stays in the calendric system of the start
+    value instead of converting all output to ymd
+
+See info page examples and/or README.
+
 v0.3.0
 =======
 Summary: v0.3.0 of dateutils
