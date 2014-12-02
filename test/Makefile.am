@@ -32,7 +32,7 @@ SUFFIXES =
 DT_LIBS = $(top_builddir)/lib/libdut.a
 
 TEST_EXTENSIONS += .clit
-TESTS_ENVIRONMENT += LC_ALL=C root=$(top_srcdir)
+TESTS_ENVIRONMENT += LC_ALL=C
 CLIT_LOG_COMPILER = $(builddir)/clitosis
 AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20
 
