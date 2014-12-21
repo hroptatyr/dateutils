@@ -758,6 +758,10 @@ main(int argc, char *argv[])
 						dt_io_warn_strpdt(line);
 						rc = 2;
 					}
+					if (argi->skip_illegal_flag) {
+						/* empty line */
+						__io_write("\n", 1U, stdout);
+					}
 					continue;
 				} else if (UNLIKELY(d2.fix) &&
 					   !argi->quiet_flag) {
