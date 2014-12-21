@@ -369,6 +369,9 @@ dt_tests += ddiff.065.clit
 dt_tests += ddiff.066.clit
 dt_tests += ddiff.067.clit
 dt_tests += ddiff.068.clit
+dt_tests += ddiff.069.clit
+dt_tests += ddiff.070.clit
+EXTRA_DIST += some-dates-and-other-stuff.csv
 
 dt_tests += dgrep.001.clit
 dt_tests += dgrep.002.clit
