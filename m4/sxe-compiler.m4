@@ -348,8 +348,16 @@ AC_DEFUN([SXE_OPTIFLAGS], [dnl
 	AC_REQUIRE([SXE_USER_CFLAGS])
 	AC_REQUIRE([SXE_WARNFLAGS])
 
-	case " ${CFLAGS} ${EXTRA_CFLAGS}" in
-	(*" -O"[0-9]" "*)
+	case " ${CFLAGS} ${EXTRA_CFLAGS} " in
+	(*" -O"[[0-9]]" "*)
+		;;
+	(*" -Os "*)
+		;;
+	(*" -Og "*)
+		;;
+	(*" -Ofast "*)
+		;;
+	(*" -O "*)
 		;;
 	(*)
 		SXE_CHECK_COMPILER_FLAG([-O3], [
@@ -776,6 +784,7 @@ dnl defines sxe_cv_feat_cilk to "yes" if applicable, "no" otherwise
 dnl also AC_DEFINEs HAVE_CILK
 	AC_CHECK_HEADERS([cilk/cilk.h])
 
+	save_CFLAGS="${CFLAGS}"
 	SXE_CHECK_COMPILER_FLAG([-fcilkplus], [CFLAGS="${CFLAGS} -fcilkplus"])
 
 	AC_MSG_CHECKING([whether Cilk+ keywords work])
@@ -811,6 +820,7 @@ cilk_for(j = 0; j < 8; j++) {
 	sxe_cv_feat_cilk="yes"
 	$1
 ], [
+	CFLAGS="${save_CFLAGS}"
 	sxe_cv_feat_cilk="no"
 	$2
 ])
