@@ -1,6 +1,6 @@
 /*** tzraw.h -- reader for olson database zoneinfo files
  *
- * Copyright (C) 2009-2014 Sebastian Freundt
+ * Copyright (C) 2009-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
