@@ -932,7 +932,7 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 	if (clit_bit_fn_p(exp)) {
 		expfn = malloc(strlen(exp.d) + 1U);
 		if (UNLIKELY(expfn == NULL || strcpy(expfn, exp.d) == NULL)) {
-			error("cannot prepare in file `%s'", exp.d);
+			error("cannot prepare file `%s'", exp.d);
 			goto out;
 		}
 	} else {
