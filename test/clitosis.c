@@ -1,6 +1,6 @@
 /*** clitosis.c -- command-line-interface tester on shell input syntax
  *
- * Copyright (C) 2013-2014 Sebastian Freundt
+ * Copyright (C) 2013-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -126,8 +126,6 @@ struct clit_chld_s {
 	pid_t chld;
 	pid_t diff;
 	pid_t feed;
-
-	unsigned int test_id;
 
 	/* options to control behaviour */
 	struct clit_opt_s options;
@@ -791,8 +789,23 @@ mkfifofn(const char *key, unsigned int tid)
 	size_t len = strlen(key) + 9U + 8U + 1U;
 	char *buf;
 
-	if ((buf = malloc(len)) != NULL) {
-		snprintf(buf, len, "%s output  %x", key, tid);
+	if (UNLIKELY((buf = malloc(len)) == NULL)) {
+		return NULL;
+	}
+redo:
+	/* otherwise generate a name for use as fifo */
+	snprintf(buf, len, "%s output  %x", key, tid);
+	if (mkfifo(buf, 0666) < 0) {
+		switch (errno) {
+		case EEXIST:
+			/* try and generate a different name */
+			tid++;
+			goto redo;
+		default:
+			free(buf);
+			buf = NULL;
+			break;
+		}
 	}
 	return buf;
 }
@@ -918,27 +931,34 @@ xpnder(clit_bit_t exp, int expfd)
 static pid_t
 differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 {
-	char *expfn;
-	char *actfn;
+	char *expfn = NULL;
+	char *actfn = NULL;
 	pid_t difftool = -1;
+	unsigned int test_id;
 
 	assert(!clit_bit_fd_p(exp));
+
+	/* obtain a test id */
+	with (struct timeval tv[1]) {
+		(void)gettimeofday(tv, NULL);
+		test_id = (unsigned int)(tv->tv_sec ^ tv->tv_usec);
+	}
 
 	if (clit_bit_fn_p(exp)) {
 		expfn = malloc(strlen(exp.d) + 1U);
 		if (UNLIKELY(expfn == NULL || strcpy(expfn, exp.d) == NULL)) {
-			error("cannot prepare in file `%s'", exp.d);
+			error("cannot prepare file `%s'", exp.d);
 			goto out;
 		}
 	} else {
-		expfn = mkfifofn("expected", ctx->test_id);
-		if (expfn == NULL || mkfifo(expfn, 0666) < 0) {
+		expfn = mkfifofn("expected", test_id);
+		if (expfn == NULL) {
 			error("cannot create fifo `%s'", expfn);
 			goto out;
 		}
 	}
-	actfn = mkfifofn("actual", ctx->test_id);
-	if (actfn == NULL || mkfifo(actfn, 0666) < 0) {
+	actfn = mkfifofn("actual", test_id);
+	if (actfn == NULL) {
 		error("cannot create fifo `%s'", actfn);
 		goto out;
 	}
@@ -1049,12 +1069,6 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	int pty;
 	int pin[2];
 	int per[2];
-
-	/* obtain a test id */
-	with (struct timeval tv[1]) {
-		(void)gettimeofday(tv, NULL);
-		ctx->test_id = (unsigned int)(tv->tv_sec ^ tv->tv_usec);
-	}
 
 	if (!tst->supp_diff) {
 		ctx->diff = differ(ctx, tst->out, tst->xpnd_proto);
