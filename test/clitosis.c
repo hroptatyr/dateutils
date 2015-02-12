@@ -1,6 +1,6 @@
 /*** clitosis.c -- command-line-interface tester on shell input syntax
  *
- * Copyright (C) 2013-2014 Sebastian Freundt
+ * Copyright (C) 2013-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -918,8 +918,8 @@ xpnder(clit_bit_t exp, int expfd)
 static pid_t
 differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 {
-	char *expfn;
-	char *actfn;
+	char *expfn = NULL;
+	char *actfn = NULL;
 	pid_t difftool = -1;
 
 	assert(!clit_bit_fd_p(exp));
