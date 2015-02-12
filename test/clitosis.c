@@ -127,8 +127,6 @@ struct clit_chld_s {
 	pid_t diff;
 	pid_t feed;
 
-	unsigned int test_id;
-
 	/* options to control behaviour */
 	struct clit_opt_s options;
 
@@ -921,8 +919,15 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 	char *expfn = NULL;
 	char *actfn = NULL;
 	pid_t difftool = -1;
+	unsigned int test_id;
 
 	assert(!clit_bit_fd_p(exp));
+
+	/* obtain a test id */
+	with (struct timeval tv[1]) {
+		(void)gettimeofday(tv, NULL);
+		test_id = (unsigned int)(tv->tv_sec ^ tv->tv_usec);
+	}
 
 	if (clit_bit_fn_p(exp)) {
 		expfn = malloc(strlen(exp.d) + 1U);
@@ -1049,12 +1054,6 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 	int pty;
 	int pin[2];
 	int per[2];
-
-	/* obtain a test id */
-	with (struct timeval tv[1]) {
-		(void)gettimeofday(tv, NULL);
-		ctx->test_id = (unsigned int)(tv->tv_sec ^ tv->tv_usec);
-	}
 
 	if (!tst->supp_diff) {
 		ctx->diff = differ(ctx, tst->out, tst->xpnd_proto);
