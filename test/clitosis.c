@@ -789,8 +789,23 @@ mkfifofn(const char *key, unsigned int tid)
 	size_t len = strlen(key) + 9U + 8U + 1U;
 	char *buf;
 
-	if ((buf = malloc(len)) != NULL) {
-		snprintf(buf, len, "%s output  %x", key, tid);
+	if (UNLIKELY((buf = malloc(len)) == NULL)) {
+		return NULL;
+	}
+redo:
+	/* otherwise generate a name for use as fifo */
+	snprintf(buf, len, "%s output  %x", key, tid);
+	if (mkfifo(buf, 0666) < 0) {
+		switch (errno) {
+		case EEXIST:
+			/* try and generate a different name */
+			tid++;
+			goto redo;
+		default:
+			free(buf);
+			buf = NULL;
+			break;
+		}
 	}
 	return buf;
 }
@@ -936,14 +951,14 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 			goto out;
 		}
 	} else {
-		expfn = mkfifofn("expected", ctx->test_id);
-		if (expfn == NULL || mkfifo(expfn, 0666) < 0) {
+		expfn = mkfifofn("expected", test_id);
+		if (expfn == NULL) {
 			error("cannot create fifo `%s'", expfn);
 			goto out;
 		}
 	}
-	actfn = mkfifofn("actual", ctx->test_id);
-	if (actfn == NULL || mkfifo(actfn, 0666) < 0) {
+	actfn = mkfifofn("actual", test_id);
+	if (actfn == NULL) {
 		error("cannot create fifo `%s'", actfn);
 		goto out;
 	}
