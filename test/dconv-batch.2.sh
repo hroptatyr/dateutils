@@ -23,7 +23,7 @@ for y in `seq ${BEG} ${END}`; do
 	"${DCONV}" "${y}-12-31" -f '%F	%a'
 done > "${foo}"
 for y in `seq ${BEG} ${END}`; do
-	"${GDATE}" -d "${y}-12-31" '+%F	%a'
+	TZ=UTC LANG=C LC_ALL=C "${GDATE}" -d "${y}-12-31" '+%F	%a'
 done > "${bar}"
 
 diff "${foo}" "${bar}"

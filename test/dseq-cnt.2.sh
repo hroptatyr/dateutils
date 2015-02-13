@@ -25,7 +25,7 @@ bar=`mktemp "/tmp/tmp.XXXXXXXXXX"`
 BEG=`echo ${BEG} | sed 's/-.*//'`
 END=`echo ${END} | sed 's/-.*//'`
 for y in `seq ${BEG} ${END}`; do
-	"${GDATE}" -d "${y}-01-01" '+%F	%a'
+	TZ=UTC LANG=C LC_ALL=C "${GDATE}" -d "${y}-01-01" '+%F	%a'
 done > "${bar}"
 
 diff "${foo}" "${bar}"
