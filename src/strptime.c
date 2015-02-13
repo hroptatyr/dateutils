@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
+#include <locale.h>
 
 #include "dt-io.h"
 #include "prchunk.h"
@@ -169,6 +170,13 @@ main(int argc, char *argv[])
 	}
 	/* get quiet predicate */
 	quietp = argi->quiet_flag;
+
+	/* get locale flag */
+	if (!argi->locale_flag) {
+		setlocale(LC_TIME, "C");
+	} else {
+		setlocale(LC_TIME, "");
+	}
 
 	/* get lines one by one, apply format string and print date/time */
 	if (ninput == 0) {
