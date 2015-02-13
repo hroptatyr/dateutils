@@ -171,11 +171,18 @@ main(int argc, char *argv[])
 	/* get quiet predicate */
 	quietp = argi->quiet_flag;
 
-	/* get locale flag */
-	if (!argi->locale_flag) {
-		setlocale(LC_TIME, "C");
-	} else {
-		setlocale(LC_TIME, "");
+	/* set locale specific/independent behaviour */
+	with (const char *loc) {
+		if (!argi->locale_flag) {
+			loc = "C";
+			/* we need to null out TZ for UTC */
+			setenv("TZ", "", 1);
+		} else {
+			loc = "";
+		}
+		/* actually set our findings in stone */
+		setlocale(LC_TIME, loc);
+		tzset();
 	}
 
 	/* get lines one by one, apply format string and print date/time */
