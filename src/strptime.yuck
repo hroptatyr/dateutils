@@ -24,3 +24,6 @@ The format string specifiers are the same as for strptime(3).
                                matching date/time.
                                Note that all occurrences of date/times within a
                                line will be processed.
+  -l, --locale          Make internal strptime(3) and strftime(3) behave
+                        in a locale dependent way, default is to pretend
+                        LC_ALL=C is in place.
