@@ -172,7 +172,7 @@ static const char coord_fn[] = "/usr/share/zoneinfo/right/UTC";
 #endif	/* ZONEINFO_UTC_RIGHT */
 
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
-#define MAP_MEMMAP	MAP_PRIVATE | MAP_ANONYMOUS
+#define MAP_MEMMAP	MAP_PRIVATE | MAP_ANON
 
 #define AS_MUT_ZIF(x)	((struct zif_s*)deconst(x))
 
