@@ -159,6 +159,12 @@ struct clit_tst_s {
 	unsigned int exp_ret:8;
 };
 
+typedef enum {
+	CLIT_END_UNKNOWN,
+	CLIT_END_BIG,
+	CLIT_END_LITTLE,
+	CLIT_END_MIDDLE,
+} clit_end_t;
 
 static sigset_t fatal_signal_set[1];
 static sigset_t empty_signal_set[1];
@@ -191,6 +197,30 @@ deconst(const char *s)
 		char *p;
 	} x = {s};
 	return x.p;
+}
+
+static clit_end_t
+get_endianness(void)
+{
+	static const unsigned int u = 0x01234567U;
+	unsigned char p[sizeof(u)];
+
+	memcpy(p, &u, sizeof(u));
+
+	switch (*p) {
+	case 0x01U:
+		return CLIT_END_BIG;
+	case 0x67U:
+		return CLIT_END_LITTLE;
+	case 0x23U:
+		if (p[1U] == 0x01U && p[2U] == 0x67U && p[3U] == 0x45U) {
+			return CLIT_END_MIDDLE;
+		}
+		/*@fallthrough@*/
+	default:
+		break;
+        }
+	return CLIT_END_UNKNOWN;
 }
 
 
@@ -1451,11 +1481,17 @@ out:
 }
 
 
-#include "clitosis.yucc"
+#include "clitoris.yucc"
 
 int
 main(int argc, char *argv[])
 {
+	static const char *const ends[] = {
+		[CLIT_END_UNKNOWN] = "unknown",
+		[CLIT_END_BIG] = "big",
+		[CLIT_END_LITTLE] = "little",
+		[CLIT_END_MIDDLE] = "middle",
+	};
 	yuck_t argi[1U];
 	struct clit_opt_s options = {0U};
 	int rc = 99;
@@ -1516,11 +1552,7 @@ main(int argc, char *argv[])
 	}
 
 	/* just to be clear about this */
-#if defined WORDS_BIGENDIAN
-	setenv("endian", "big", 1);
-#else  /* !WORDS_BIGENDIAN */
-	setenv("endian", "little", 1);
-#endif	/* WORDS_BIGENDIAN */
+	setenv("endian", ends[get_endianness()], 1);
 
 	if ((rc = test(argi->args[0U], options)) < 0) {
 		rc = 99;
