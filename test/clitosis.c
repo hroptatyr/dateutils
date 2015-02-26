@@ -1481,7 +1481,7 @@ out:
 }
 
 
-#include "clitoris.yucc"
+#include "clitosis.yucc"
 
 int
 main(int argc, char *argv[])
