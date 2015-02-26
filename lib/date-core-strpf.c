@@ -185,15 +185,15 @@ __strpd_std(const char *str, char **ep)
 
 	d = strpd_initialiser();
 	/* read the year */
-	if ((d.y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) < 0 ||
-	    *sp++ != '-') {
+	d.y = strtoi(sp, &sp);
+	if (d.y < DT_MIN_YEAR || d.y > DT_MAX_YEAR || *sp++ != '-') {
 		goto fucked;
 	}
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		if ((sp++, d.c = strtoi_lim(sp, &sp, 0, 53)) < 0 ||
-		    *sp++ != '-') {
+		sp++, d.c = strtoi(sp, &sp);
+		if (d.c < 0 || d.c > 53 || *sp++ != '-') {
 			goto fucked;
 		}
 		d.flags.c_wcnt_p = 1;
@@ -202,7 +202,8 @@ __strpd_std(const char *str, char **ep)
 	}
 	/* read the month, then day count */
 	with (const char *tmp) {
-		if ((d.m = strtoi_lim(sp, &tmp, 0, 366)) < 0) {
+		d.m = strtoi(sp, &tmp);
+		if (d.m < 0 || d.m > 366) {
 			goto fucked;
 		} else if (UNLIKELY(*tmp != '-')) {
 			/* oh, could be an ordinal date */
@@ -216,7 +217,7 @@ __strpd_std(const char *str, char **ep)
 				goto fucked;
 			}
 			sp = tmp;
-		} else if ((d.d = strtoi_lim(++tmp, &sp, 0, 31)) < 0) {
+		} else if (d.d = strtoi(++tmp, &sp), d.d < 0 || d.d > 31) {
 			/* didn't work, fuck off */
 			goto fucked;
 		}
@@ -232,7 +233,8 @@ __strpd_std(const char *str, char **ep)
 		d.d = 0;
 		sp++;
 	dow:
-		if ((d.w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) < 0) {
+		if (d.w = strtoi(sp, &sp),
+		    d.w < 0 || (unsigned int)d.w > GREG_DAYS_P_WEEK) {
 			/* didn't work, fuck off */
 			goto fucked;
 		}

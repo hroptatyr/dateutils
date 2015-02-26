@@ -200,6 +200,8 @@ dt_tests += dconv.115.clit
 dt_tests += dconv.116.clit
 dt_tests += dconv.117.clit
 dt_tests += dconv.118.clit
+dt_tests += dconv.119.clit
+dt_tests += dconv.120.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit

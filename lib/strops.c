@@ -91,17 +91,21 @@ strtoi(const char *str, const char **ep)
 {
 	const char *sp = str;
 	bool negp = false;
-	int32_t res;
+	int32_t res = 0;
 
 	if (*str == '-') {
 		negp = true;
 		sp++;
 	}
-	if ((res = strtoi_lim(sp, ep, 0, INT32_MAX)) < 0) {
-		*ep = str;
+	while (res < INT32_MAX / 10 && (unsigned char)(*sp ^ '0') < 10U) {
+		res *= 10, res += (unsigned char)(*sp++ ^ '0');
+	}
+	if (UNLIKELY(sp == str)) {
+		res = -1;
 	} else if (negp) {
 		res = -res;
 	}
+	*ep = (char*)sp;
 	return res;
 }
 
