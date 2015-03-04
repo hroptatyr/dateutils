@@ -1184,7 +1184,7 @@ init_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 }
 
 static struct {
-	sig_t old_hdl;
+	void (*old_hdl)(int);
 	pid_t feed;
 	pid_t diff;
 } alrm_handler_closure;
