@@ -10,9 +10,10 @@ _dist-target_p ?= $(filter dist%,$(MAKECMDGOALS))
 include Makefile
 
 # update the included makefile snippet which sets VERSION variables
-version.mk: .version version.mk.in FORCE
+.PHONY: version.mk
+version.mk: .version version.mk.in
 	-$(AM_V_GEN) \
-	if test -w $< -a "$(MAKECMDGOALS)" != "am--refresh"; then \
+	if test "$(MAKECMDGOALS)" != "am--refresh"; then \
 		$(MAKE) -C "$(top_builddir)/build-aux" $(MAKECMDGOALS); \
 		PATH="$(top_builddir)/build-aux:$${PATH}" \
 			yuck scmver --ignore-noscm -o $@ --reference $^; \
