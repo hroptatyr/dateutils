@@ -17,6 +17,7 @@ depcomp
 ++*
 Makefile
 .version
+version.mk
 config.log
 config.status
 libtool
