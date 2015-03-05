@@ -21,6 +21,14 @@ SUFFIXES =
 DT_INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib
 DT_LIBS = $(top_builddir)/lib/libdut.a
 
+ANALYZE = clang
+ANALYZE_FLAGS = "--analyze"
+# Based on COMPILE target
+ANALYZE_COMMAND = $(ANALYZE) \
+	$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(DT_INCLUDES) $(AM_CFLAGS) $(CFLAGS) \
+	$(ANALYZE_FLAGS)
+
 noinst_LIBRARIES += libdutio.a
 libdutio_a_SOURCES =
 libdutio_a_SOURCES += dt-io.c dt-io.h
@@ -161,3 +169,19 @@ dexpr-parser.h: dexpr-parser.c
 ## Create assembler output (debugging purposes only)
 .c.s:
 	$(COMPILE) -S -c $(AM_CFLAGS) $<
+
+## Run Clang static analyzer over sources.
+anal: $(SOURCES)
+	@list='$(SOURCES)'; \
+	result=0; \
+	for file in $$list; do \
+		if echo $$file | grep '\.c$$' >/dev/null 2>&1; then \
+			echo "Analyzing $$file"; \
+			$(ANALYZE_COMMAND) $(srcdir)/$$file; \
+			status=$$?; \
+			if test $$status != 0; then \
+				result=1; \
+			fi; \
+		fi; \
+	done; \
+	set -e; exit $$result

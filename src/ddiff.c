@@ -1,6 +1,6 @@
 /*** ddiff.c -- perform simple date arithmetic, date minus date
  *
- * Copyright (C) 2011-2014 Sebastian Freundt
+ * Copyright (C) 2011-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -757,6 +757,10 @@ main(int argc, char *argv[])
 					if (!argi->quiet_flag) {
 						dt_io_warn_strpdt(line);
 						rc = 2;
+					}
+					if (argi->skip_illegal_flag) {
+						/* empty line */
+						__io_write("\n", 1U, stdout);
 					}
 					continue;
 				} else if (UNLIKELY(d2.fix) &&

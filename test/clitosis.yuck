@@ -4,9 +4,7 @@ Run .clit regression test files.
 
   --builddir=DIR  Specify where the compiled binaries can be found.
   --srcdir=DIR  Specify where the source tree resides.
-  --hash=PROG  Use hasher PROG instead of md5sum.
-  --husk=PROG  Use husk around tool, e.g. 'valgrind -v'
-  --shell-bits=SCRIPT  Use SCRIPT as shell part of the test
+  --shell=CMD   Use CMD as shell command, default: /bin/sh
 
   -v, --verbose  Repeat execution steps on stderr.
   -t, --pseudo-tty  Allocate a pseudo-tty for the tests to run in.

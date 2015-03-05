@@ -1,6 +1,6 @@
 /*** prchunk.c -- guessing line oriented data formats
  *
- * Copyright (C) 2010-2014 Sebastian Freundt
+ * Copyright (C) 2010-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -261,7 +261,7 @@ yield4:
 FDEFU prch_ctx_t
 init_prchunk(int fd)
 {
-#define MAP_MEM		(MAP_ANONYMOUS | MAP_PRIVATE)
+#define MAP_MEM		(MAP_ANON | MAP_PRIVATE)
 #define PROT_MEM	(PROT_READ | PROT_WRITE)
 #define MAP_LEN		(MAX_NLINES * MAX_LLEN)
 	static struct prch_ctx_s __ctx;

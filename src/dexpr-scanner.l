@@ -1,6 +1,6 @@
 /*** dexpr.l -- date/time expressions for dateutils -*- C -*-
  *
- * Copyright (C) 2002-2014 Sebastian Freundt
+ * Copyright (C) 2002-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@fresse.org>
  *
@@ -127,7 +127,9 @@ dexpr_parse(dexpr_t *root, const char *s, size_t l)
 	/* hack to avoid string dup'ing, we assume, that l can take
 	 * at least 2 more bytes */
 	
-	scan = malloc(l + 2);
+	if ((scan = malloc(l + 2)) == NULL) {
+		return -1;
+	}
 	memcpy(scan, s, l);
 	scan[l++] = '\0';
 	scan[l++] = '\0';

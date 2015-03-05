@@ -202,7 +202,7 @@ popdef([type])dnl
 define([yuck_cnt_slot], [dnl
 pushdef([type], yuck_option_type([$1], [$2]))dnl
 ifelse(yuck_type(defn([type])), [arg], [dnl
-ifelse(first(yuck_type_sufx(defn([type]))), [mul], [
+ifelse(first(yuck_type_sufx(defn([type]))), [mul], [dnl
 pushdef([idn], [yuck_canon([$1], [$2])[_nargs]])dnl
 ifelse([$2], [], [idn], [$2.idn])[]dnl
 popdef([idn])dnl

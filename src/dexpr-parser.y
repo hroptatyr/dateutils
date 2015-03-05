@@ -1,6 +1,6 @@
 /*** dexpr-parser.y -- parsing date expressions -*- c -*-
  *
- * Copyright (C) 2002-2014 Sebastian Freundt
+ * Copyright (C) 2002-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@fresse.org>
  *
@@ -36,7 +36,7 @@
  ***/
 
 %defines
-%output="y.tab.c"
+%output "y.tab.c"
 %pure-parser
 %parse-param{dexpr_t *cur}
 

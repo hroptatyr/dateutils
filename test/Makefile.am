@@ -32,8 +32,7 @@ SUFFIXES =
 DT_LIBS = $(top_builddir)/lib/libdut.a
 
 TEST_EXTENSIONS += .clit
-TESTS_ENVIRONMENT += root=$(top_srcdir)
-CLIT_LOG_COMPILER = $(builddir)/clittool
+CLIT_LOG_COMPILER = $(builddir)/clitosis
 AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
@@ -201,6 +200,8 @@ dt_tests += dconv.115.clit
 dt_tests += dconv.116.clit
 dt_tests += dconv.117.clit
 dt_tests += dconv.118.clit
+dt_tests += dconv.119.clit
+dt_tests += dconv.120.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -369,6 +370,9 @@ dt_tests += ddiff.065.clit
 dt_tests += ddiff.066.clit
 dt_tests += ddiff.067.clit
 dt_tests += ddiff.068.clit
+dt_tests += ddiff.069.clit
+dt_tests += ddiff.070.clit
+EXTRA_DIST += some-dates-and-other-stuff.csv
 
 dt_tests += dgrep.001.clit
 dt_tests += dgrep.002.clit
@@ -584,10 +588,29 @@ dt_tests += dtconv.068.clit
 
 dt_tests += convt.ymcw-ymd.clit
 dt_tests += convt.ymcw-ywd.clit
+dt_tests += convt.ymcw-yd.clit
 dt_tests += convt.ymd-ymcw.clit
 dt_tests += convt.ymd-ywd.clit
+dt_tests += convt.ymd-yd.clit
 dt_tests += convt.ywd-ymcw.clit
 dt_tests += convt.ywd-ymd.clit
+dt_tests += convt.ywd-yd.clit
+dt_tests += convt.yd-ymcw.clit
+dt_tests += convt.yd-ymd.clit
+dt_tests += convt.yd-ywd.clit
+
+dt_tests += add.ymcw-1d.clit
+dt_tests += add.ymd-1d.clit
+dt_tests += add.ywd-1d.clit
+dt_tests += add.yd-1d.clit
+dt_tests += add.ymcw-1w.clit
+dt_tests += add.ymd-1w.clit
+dt_tests += add.ywd-1w.clit
+dt_tests += add.yd-1w.clit
+dt_tests += add.ymcw-1y.clit
+dt_tests += add.ymd-1y.clit
+dt_tests += add.ywd-1y.clit
+dt_tests += add.yd-1y.clit
 
 dt_tests += dtseq.01.clit
 dt_tests += dtseq.02.clit
@@ -785,6 +808,15 @@ dt_tests += tzmap_check_01.clit
 dt_tests += tzmap_check_02.clit
 TESTS_ENVIRONMENT += TZMAP=$(top_builddir)/lib/tzmap
 
+## military midnight
+dt_tests += mil-midnight.001.clit
+dt_tests += mil-midnight.002.clit
+dt_tests += mil-midnight.003.clit
+dt_tests += mil-midnight.004.clit
+dt_tests += mil-midnight.005.clit
+dt_tests += mil-midnight.006.clit
+dt_tests += mil-midnight.007.clit
+dt_tests += mil-midnight.008.clit
 
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
@@ -810,6 +842,8 @@ check_PROGRAMS += basic_ymd_get_wday
 check_PROGRAMS += basic_get_jan01_wday
 check_PROGRAMS += basic_md_get_yday
 check_PROGRAMS += basic_get_dom_wday
+check_PROGRAMS += strtoi-bench
+check_PROGRAMS += strtoi-1
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -835,6 +869,8 @@ dtcore_conv_LDADD = $(DT_LIBS)
 dtcore_add_LDADD = $(DT_LIBS)
 time_core_add_LDADD = $(DT_LIBS)
 
+dt_tests += strtoi.001.clit
+
 ## batch checks
 batch_tests += dseq-cnt.1.sh
 if HAVE_GDATE
@@ -846,11 +882,11 @@ batch_tests += dconv-batch.2.sh
 endif  HAVE_GDATE
 
 
-check_PROGRAMS += clittool
-clittool_CPPFLAGS = $(AM_CPPFLAGS)
-clittool_CPPFLAGS += -D_GNU_SOURCE
-EXTRA_DIST += clittool.yuck
-built_dist_sources += clittool.yucc
+check_PROGRAMS += clitosis
+clitosis_CPPFLAGS = $(AM_CPPFLAGS)
+clitosis_CPPFLAGS += -D_GNU_SOURCE
+EXTRA_DIST += clitosis.yuck
+built_dist_sources += clitosis.yucc
 
 
 ## ggo rule

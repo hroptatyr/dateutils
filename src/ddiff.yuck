@@ -24,6 +24,11 @@ See section `The refinement rule' in ddiff(1).
                              parser errors and fix-ups.
                              The default is to print a warning or the
                              fixed up value and return error code 2.
+                             Also see -S|--skip-illegal to output an empty
+                             line instead of leaving out the line altogether.
+  -S, --skip-illegal         Output empty lines as placeholder for illegal
+                             input, i.e. parser errors or date/times that
+                             cannot be subtracted.
   -f, --format=STRING        Output format.  This can either be a specifier
                                string (similar to strftime()'s FMT) or the name
                                of a calendar.
@@ -37,4 +42,3 @@ See section `The refinement rule' in ddiff(1).
                                output and input format specifier strings.
       --from-zone=ZONE       Interpret dates on stdin or the command line as
                                coming from the time zone ZONE.
-

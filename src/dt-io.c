@@ -101,21 +101,19 @@ dt_io_strpdt_ep(
 		res = dt_datetime((dt_dttyp_t)DT_YMD);
 		/* rinse according to flags */
 		switch (now) {
-			signed int add;
+			static signed int add[] = {
+				[STRPDT_YDAY] = -1,
+				[STRPDT_TOMO] = 1,
+			};
 		case STRPDT_TOMO:
-			add = 1;
-			goto date;
 		case STRPDT_YDAY:
-			add = -1;
-			goto date;
 		case STRPDT_DATE:
-			add = 0;
-		date:
 			res.t = dt_t_initialiser();
 			dt_make_d_only(&res, res.d.typ);
-			if (add) {
-				res.d = dt_dadd(res.d, dt_make_daisydur(add));
+			if (LIKELY(now == STRPDT_DATE)) {
+				break;
 			}
+			res.d = dt_dadd(res.d, dt_make_daisydur(add[now]));
 			break;
 		case STRPDT_TIME:
 			res.d = dt_d_initialiser();
@@ -149,7 +147,7 @@ dt_io_find_strpdt(
 	zif_t zone)
 {
 	const char *__sp = str;
-	struct dt_dt_s d = dt_dt_initialiser();
+	struct dt_dt_s d;
 	const char *const *cfmt = (const char*const*)fmt;
 
 	d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone);

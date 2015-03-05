@@ -1,6 +1,6 @@
 /*** date-core-strpf.c -- parser and formatter funs for date-core
  *
- * Copyright (C) 2011-2014 Sebastian Freundt
+ * Copyright (C) 2011-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -185,30 +185,42 @@ __strpd_std(const char *str, char **ep)
 
 	d = strpd_initialiser();
 	/* read the year */
-	if ((d.y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR)) < 0 ||
-	    *sp++ != '-') {
+	d.y = strtoi(sp, &sp);
+	if (d.y < DT_MIN_YEAR || d.y > DT_MAX_YEAR || *sp++ != '-') {
 		goto fucked;
 	}
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		if ((sp++, d.c = strtoi_lim(sp, &sp, 0, 53)) < 0 ||
-		    *sp++ != '-') {
+		sp++, d.c = strtoi(sp, &sp);
+		if (d.c < 0 || d.c > 53 || *sp++ != '-') {
 			goto fucked;
 		}
 		d.flags.c_wcnt_p = 1;
 		d.flags.wk_cnt = YWD_ISOWK_CNT;
 		goto dow;
 	}
-	/* read the month */
-	if ((d.m = strtoi_lim(sp, &sp, 0, GREG_MONTHS_P_YEAR)) < 0 ||
-	    *sp++ != '-') {
-		goto fucked;
-	}
-	/* read the day or the count */
-	if ((d.d = strtoi_lim(sp, &sp, 0, 31)) < 0) {
-		/* didn't work, fuck off */
-		goto fucked;
+	/* read the month, then day count */
+	with (const char *tmp) {
+		d.m = strtoi(sp, &tmp);
+		if (d.m < 0 || d.m > 366) {
+			goto fucked;
+		} else if (UNLIKELY(*tmp != '-')) {
+			/* oh, could be an ordinal date */
+			if (tmp - sp >= 3U) {
+				d.d = d.m;
+				d.m = 0U;
+				d.flags.d_dcnt_p = 1U;
+			} else if ((unsigned int)d.m <= GREG_MONTHS_P_YEAR) {
+				;
+			} else {
+				goto fucked;
+			}
+			sp = tmp;
+		} else if (d.d = strtoi(++tmp, &sp), d.d < 0 || d.d > 31) {
+			/* didn't work, fuck off */
+			goto fucked;
+		}
 	}
 	/* check the date type */
 	switch (*sp) {
@@ -221,7 +233,8 @@ __strpd_std(const char *str, char **ep)
 		d.d = 0;
 		sp++;
 	dow:
-		if ((d.w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK)) < 0) {
+		if (d.w = strtoi(sp, &sp),
+		    d.w < 0 || (unsigned int)d.w > GREG_DAYS_P_WEEK) {
 			/* didn't work, fuck off */
 			goto fucked;
 		}
@@ -506,7 +519,7 @@ __strfd_card(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_DSTD:
-		if (UNLIKELY(!d->m && !d->d)) {
+		if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 			__strfd_get_md(d, that);
 		} else if (UNLIKELY(!d->d)) {
 			__strfd_get_d(d, that);
@@ -514,7 +527,7 @@ __strfd_card(
 		if (LIKELY(bsz >= 10)) {
 			ui32tostr(buf + 0, bsz, d->y, 4);
 			buf[4] = '-';
-			res = ui32tostr(buf + 5, bsz, d->m, 2);
+			ui32tostr(buf + 5, bsz, d->m, 2);
 			buf[7] = '-';
 			ui32tostr(buf + 8, bsz, d->d, 2);
 			res = 10;
@@ -534,7 +547,7 @@ __strfd_card(
 		break;
 	}
 	case DT_SPFL_N_MON:
-		if (UNLIKELY(!d->m && !d->d)) {
+		if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 			__strfd_get_md(d, that);
 		} else if (UNLIKELY(!d->m)) {
 			__strfd_get_m(d, that);
@@ -546,11 +559,10 @@ __strfd_card(
 		unsigned int pd;
 
 		if (LIKELY(!s.bizda)) {
-			if (UNLIKELY(!d->m && !d->d)) {
+			if (UNLIKELY(!d->m && (!d->d || d->flags.d_dcnt_p))) {
 				__strfd_get_md(d, that);
 			} else if (UNLIKELY(!d->d)) {
 				__strfd_get_d(d, that);
-				pd = d->d;
 			}
 			pd = d->d;
 		} else {
@@ -563,7 +575,7 @@ __strfd_card(
 	}
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
-		with (unsigned int w = d->w ?: dt_get_wday(that)) {
+		with (unsigned int w = (unsigned)d->w ?: dt_get_wday(that)) {
 			if (w == DT_SUNDAY && s.wk_cnt != YWD_MONWK_CNT) {
 				/* turn Sun 07 to Sun 00 */
 				w = 0;
@@ -673,6 +685,9 @@ __strfd_card(
 			}
 			break;
 		}
+		case DT_YD:
+			res = ui32tostr(buf, bsz, d->d, 3);
+			break;
 		case DT_LDN:
 			res = snprintf(buf, bsz, "%u", that.ldn);
 			break;

@@ -15,12 +15,6 @@ main(void)
 	} uint128_t;
 #define __uint128_t_defined
 #endif	/* !uint128_t */
-#if !defined __uint160_t_defined
-	typedef struct {
-		uint32_t l[5];
-	} uint160_t;
-#define __uint160_t_defined
-#endif	/* !uint160_t */
 
 #define CHECK_SIZE(x, y)						\
 	if (sizeof(x) != sizeof(y)) {					\

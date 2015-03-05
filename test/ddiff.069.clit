@@ -1,0 +1,12 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff -qS 2012-03-02 < "${srcdir}/some-dates-and-other-stuff.csv"
+673
+703
+732
+
+799
+
+$
+
+## ddiff.069.clit ends here

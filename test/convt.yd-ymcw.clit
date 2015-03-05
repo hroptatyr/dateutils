@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq "1917-01-01" "2399-12-31" -f "yd" > "convt.yd-ymcw.ref"
+$ dconv -f "ymcw" < "convt.yd-ymcw.ref" | dconv -f "yd"
+< "convt.yd-ymcw.ref"
+$ rm -- "convt.yd-ymcw.ref"
+$
+
+## convt.yd-ymcw.clit

@@ -5,15 +5,16 @@
 _gl-Makefile := $(wildcard [M]akefile)
 ifneq ($(_gl-Makefile),)
 
-_dist-target_p ?= $(filter-out %clean, $(filter dist%,$(MAKECMDGOALS)))
+_dist-target_p ?= $(filter dist%,$(MAKECMDGOALS))
 
 include Makefile
 
 # update the included makefile snippet which sets VERSION variables
-version.mk: .version version.mk.in FORCE
+.PHONY: version.mk
+version.mk: .version version.mk.in
 	-$(AM_V_GEN) \
-	if test -w $< -a "$(MAKECMDGOALS)" != "am--refresh"; then \
-		$(MAKE) -C "$(top_builddir)/build-aux"; \
+	if test "$(MAKECMDGOALS)" != "am--refresh"; then \
+		$(MAKE) -C "$(top_builddir)/build-aux" $(MAKECMDGOALS); \
 		PATH="$(top_builddir)/build-aux:$${PATH}" \
 			yuck scmver --ignore-noscm -o $@ --reference $^; \
 		if test $$? -eq 3 -a -n "$(_dist-target_p)"; then \

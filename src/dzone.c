@@ -1,6 +1,6 @@
 /*** dzone.c -- convert date/times between timezones
  *
- * Copyright (C) 2011-2014 Sebastian Freundt
+ * Copyright (C) 2011-2015 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -198,11 +198,11 @@ main(int argc, char *argv[])
 	struct {
 		zif_t zone;
 		const char *name;
-	} *z;
-	size_t nz;
+	} *z = NULL;
+	size_t nz = 0U;
 	/* all them datetimes to consider */
-	struct dt_dt_s *d;
-	size_t nd;
+	struct dt_dt_s *d = NULL;
+	size_t nd = 0U;
 	bool trnsp = false;
 
 	if (yuck_parse(argi, argc, argv)) {
@@ -230,7 +230,10 @@ main(int argc, char *argv[])
 	 * we'll then sort them by traversing the input args and ass'ing
 	 * to the one or the other */
 	nz = 0U;
-	z = malloc(argi->nargs * sizeof(*z));
+	if ((z = malloc(argi->nargs * sizeof(*z))) == NULL) {
+		error("failed to allocate space for zone info");
+		goto out;
+	}
 	nd = 0U;
 	d = malloc(argi->nargs * sizeof(*d));
 
@@ -301,17 +304,21 @@ nor a date/time corresponding to the given input formats", inp);
 		}
 	}
 
+out:
 	/* release the zones */
 	dt_io_clear_zones();
 	/* release those arrays */
-	free(z);
-	free(d);
+	if (LIKELY(z != NULL)) {
+		free(z);
+	}
+	if (LIKELY(d != NULL)) {
+		free(d);
+	}
 
-	if (argi->from_zone_arg) {
+	if (fromz != NULL) {
 		zif_close(fromz);
 	}
 
-out:
 	yuck_free(argi);
 	return rc;
 }
