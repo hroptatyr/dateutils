@@ -37,6 +37,8 @@
 #if !defined INCLUDED_yuck_version_h_
 #define INCLUDED_yuck_version_h_
 
+#include "stdlib.h"
+
 typedef const struct yuck_version_s *yuck_version_t;
 
 typedef enum {
@@ -56,6 +58,8 @@ struct yuck_version_s {
 	 * the lower 4bits denote the length */
 	unsigned int rvsn;
 };
+
+extern const char *const yscm_strs[];
 
 
 /* public api */

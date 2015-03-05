@@ -48,7 +48,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <yuck-scmver.h>
+#include "yuck-scmver.h"
 
 #if !defined LIKELY
 # define LIKELY(_x)	__builtin_expect((_x), 1)
@@ -73,6 +73,14 @@
 #endif	/* !with */
 
 #define DEBUG(args...)
+
+/* globals */
+const char *const yscm_strs[] = {
+	[YUCK_SCM_TARBALL] = "tarball",
+	[YUCK_SCM_GIT] = "git",
+	[YUCK_SCM_BZR] = "bzr",
+	[YUCK_SCM_HG] = "hg",
+};
 
 
 static __attribute__((format(printf, 1, 2))) void
@@ -593,7 +601,7 @@ git_version(struct yuck_version_s v[static 1U])
 	int rc = 0;
 
 	if ((chld = run(fd, "git", "describe",
-			"--match=v[0-9]*",
+			"--tags", "--match=v[0-9]*",
 			"--abbrev=8", "--dirty", NULL)) < 0) {
 		return -1;
 	}
@@ -890,8 +898,11 @@ yuck_version_read(struct yuck_version_s *restrict ref, const char *fn)
 			/* just go with the first line */
 			*bp = '\0';
 			nrd = bp - buf;
-		} else {
+		} else if ((size_t)nrd < sizeof(buf)) {
 			/* finalise with \nul */
+			buf[nrd] = '\0';
+		} else {
+			/* finalise with \nul, cutting off the last byte */
 			buf[--nrd] = '\0';
 		}
 		/* otherwise just read him */
@@ -946,13 +957,6 @@ yuck_version_cmp(yuck_version_t v1, yuck_version_t v2)
 
 
 #if defined BOOTSTRAP
-static const char *yscm_strs[] = {
-	[YUCK_SCM_TARBALL] = "tarball",
-	[YUCK_SCM_GIT] = "git",
-	[YUCK_SCM_BZR] = "bzr",
-	[YUCK_SCM_HG] = "hg",
-};
-
 int
 main(int argc, char *argv[])
 {
@@ -960,18 +964,14 @@ main(int argc, char *argv[])
 	static struct yuck_version_s v[1U];
 	int rc = 0;
 
-	switch ((rc = yuck_version(v, argv[1U]))) {
-	default:
-		/* one more chance there is */
-		if (argc <= 2) {
-			/* no reference file given */
-			break;
-		} else if ((rc = yuck_version_read(v, argv[2U])) < 0) {
-			/* ok, can't help it then */
-			break;
-		}
-		/* yay, fallthrough to success */
-	case 0:
+	/* prefer reference file */
+	if (argc > 2 && (rc = yuck_version_read(v, argv[2U])) == 0) {
+		/* just use this one */
+		;
+	} else {
+		rc = yuck_version(v, argv[1U]);
+	}
+	if (rc == 0) {
 		fputs("define(YUCK_SCMVER_VERSION, ", stdout);
 		fputs(v->vtag, stdout);
 		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
@@ -985,10 +985,46 @@ main(int argc, char *argv[])
 			fputs(".dirty", stdout);
 		}
 		fputs(")\n", stdout);
-		break;
 	}
 	return -rc;
 }
 #endif	/* BOOTSTRAP */
+
+
+#if defined CONFIGURE
+int
+main(int argc, char *argv[])
+{
+/* usage would be yuck-scmver [REFERENCE] */
+	static struct yuck_version_s v[1U];
+	int rc = 0;
+
+	if (argc > 1) {
+		rc = yuck_version_read(v, argv[1U]);
+#if defined VERSION_FILE
+	} else if ((rc = yuck_version_read(v, VERSION_FILE)) == 0) {
+		;
+#endif	/* VERSION_FILE */
+	} else {
+		rc = yuck_version(v, NULL);
+	}
+	/* print if successful */
+	if (rc == 0) {
+		fputs(v->vtag, stdout);
+		if (v->scm > YUCK_SCM_TARBALL && v->dist) {
+			fputc('.', stdout);
+			fputs(yscm_strs[v->scm], stdout);
+			fprintf(stdout, "%u.%0*x",
+				v->dist,
+				(int)(v->rvsn & 0x07U), v->rvsn >> 4U);
+		}
+		if (v->dirty) {
+			fputs(".dirty", stdout);
+		}
+		fputc('\n', stdout);
+	}
+	return -rc;
+}
+#endif	/* CONFIGURE */
 
 /* yuck-scmver.c ends here */
