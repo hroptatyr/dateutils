@@ -6,6 +6,25 @@ logo: dateutils_logo_120.png
 ---
 
 
+v0.3.2
+======
+Summary: v0.3.2 of dateutils
+
+This is dateutils v0.3.2.
+
+This is a bugfix release.
+
+Bugfixes:
+- out of range minutes will be discarded
+- bug 30 (malicious input crashes dconv) has been fixed
+
+Features:
+- military midnight stamps are supported (T24:00:00)
+- 8601 ordinal dates (year + doy) are recognised directly (`-f yd`)
+- strptime(1) can behave in a locale-dependent way
+
+See info page examples and/or README.
+
 v0.3.1
 =======
 Summary: v0.3.1 of dateutils
