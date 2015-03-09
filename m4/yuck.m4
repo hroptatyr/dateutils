@@ -120,18 +120,16 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 		VERSION="${STIP_VERSION}"
 	fi
 	## also massage version.mk file
-	if test -f "[]vfile[]" -a ! -w "${srcdir}/[]vfile[]"; then
+	if test -f "[]vfile[]" -a ! -w "[]vfile[]"; then
 		:
+	elif test -f "${srcdir}/[]vfile[]"; then
+		## make sure it's in the builddir as well
+		cp -p "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
 	elif test -f "${srcdir}/[]vfile[].in"; then
 		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
 			"${srcdir}/[]vfile[].in" > "[]vfile[]"
 	else
 		echo "VERSION = ${VERSION}" > "[]vfile[]"
-	fi
-	## just to be on the safe side
-	if test -f "${srcdir}/[]vfile[]"; then
-		## make sure it's in the builddir as well
-		cp -p "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
 	fi
 	## make sure .version is generated (for version.mk target in GNUmakefile)
 	if test -f "${srcdir}/.version"; then
