@@ -2,8 +2,8 @@ Usage: dgrep [OPTION]... EXPRESSION
 
 Grep standard input for lines that match EXPRESSION.
 
-EXPRESSION may be date/times prefixed with an operator `<', `<=', '=', '>=',
-'>', `!=', `<>' (if omitted defaults to `='),
+EXPRESSION may be date/times prefixed with an operator `<', `<=', `=', `>=',
+`>', `!=', `<>' (if omitted defaults to `='),
 which will match lines with date/times which are older, older-equal, equal,
 newer-equal, newer, or not equal respectively.
 
