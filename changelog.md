@@ -5,9 +5,12 @@ project: dateutils
 logo: dateutils_logo_120.png
 ---
 
+Changelog in reverse order
+==========================
+
 
 v0.3.2
-======
+------
 Summary: v0.3.2 of dateutils
 
 This is dateutils v0.3.2.
@@ -28,7 +31,7 @@ Features:
 See info page examples and/or README.
 
 v0.3.1
-=======
+------
 Summary: v0.3.1 of dateutils
 
 This is dateutils v0.3.1.
@@ -59,7 +62,7 @@ Features:
 See info page examples and/or README.
 
 v0.3.0
-=======
+------
 Summary: v0.3.0 of dateutils
 
 This is dateutils v0.3.0.
@@ -87,7 +90,7 @@ See info page examples and/or README.
   [1]: http://www.fresse.org/dateutils/tzmaps.html
 
 v0.2.7
-=======
+------
 Summary: v0.2.7 of dateutils
 
 This is dateutils v0.2.7.
@@ -116,7 +119,7 @@ See info page examples and/or README.
   [3]: http://llvm.org/bugs/show_bug.cgi?id=18028
 
 v0.2.6
-=======
+------
 Summary: v0.2.6 of dateutils
 
 This is dateutils v0.2.6.
@@ -135,7 +138,7 @@ Bug fixes:
 See info page examples and/or README.
 
 v0.2.5
-=======
+------
 Summary: v0.2.5 of dateutils
 
 This is dateutils v0.2.5.
@@ -152,7 +155,7 @@ Bug fixes:
 See info page examples and/or README.
 
 v0.2.4
-=======
+------
 Summary: v0.2.4 of dateutils
 
 This is dateutils v0.2.4.
@@ -175,7 +178,7 @@ Bug fixes:
 See info page examples and/or README.
 
 v0.2.3
-=======
+------
 Summary: v0.2.3 of dateutils
 
 This is dateutils v0.2.3.
@@ -200,7 +203,7 @@ Bug fixes:
 See info page examples and/or README.
 
 v0.2.2
-=======
+------
 Summary: v0.2.2 of dateutils
 
 This is dateutils v0.2.2.
@@ -223,7 +226,7 @@ Bug fixes:
 See info page examples and/or README.
 
 v0.2.1
-=======
+------
 Summary: v0.2.1 of dateutils
 
 This is dateutils v0.2.1.
@@ -243,7 +246,7 @@ Bug fixes:
 See info page examples and/or README.
 
 v0.2.0
-=======
+------
 Summary: v0.2.0 of dateutils
 
 This is dateutils v0.2.0.
@@ -266,8 +269,23 @@ Virtual timezones have been added (use `GPS` or `TAI`).
 
 See info page examples and/or README.
 
+v0.1.10
+-------
+Summary: v0.1.10 of dateutils
+
+This is dateutils v0.1.10.
+
+This is a bug fix release.
+
+- account for big-endian machines
+- GNUisms (mempcpy() and getline()) are removed
+- inf-loop in tseq is fixed (bug #6)
+- nanoseconds are preserved upon time zone conversion
+
+See info page examples and/or README.
+
 v0.1.9
-=======
+------
 Summary: v0.1.9 of dateutils
 
 This is dateutils v0.1.9.
@@ -280,7 +298,7 @@ introduced, DT_MD, to capture larger month and day summands.
 See info page examples and/or README.
 
 v0.1.8
-=======
+------
 Summary: v0.1.8 of dateutils
 
 This is dateutils v0.1.8.
@@ -296,7 +314,7 @@ joined with conjunctions (&&) and disjunctions (||) as well as negations
 See info page examples and/or README.
 
 v0.1.7
-=======
+------
 Summary: v0.1.7 of dateutils
 
 This is dateutils v0.1.7.
@@ -315,7 +333,7 @@ properly compared.
 See info page examples and/or README.
 
 v0.1.6
-=======
+------
 Summary: v0.1.6 of dateutils
 
 This is dateutils v0.1.6.
@@ -340,7 +358,7 @@ Also, many gnu-isms are removed to facilitate \*BSD builds.
 See info page examples and/or README.
 
 v0.1.5
-=======
+------
 Summary: v0.1.5 of dateutils
 
 This is dateutils v0.1.5.
@@ -360,7 +378,7 @@ matches instead of writing a warning.
 See info page examples and/or README.
 
 v0.1.4
-=======
+------
 Summary: v0.1.4 of dateutils
 
 This is dateutils v0.1.4.
@@ -378,7 +396,7 @@ Man pages have an author now and most of the format specs are
 documented, at least the specs we do not plan to change.
 
 v0.1.3
-=======
+------
 Summary: release v0.1.3 of dateutils
 
 This is dateutils v0.1.3.
@@ -388,7 +406,7 @@ Most importantly, the project is now called `dateutils`.
 All tools are documented now (to some degree) and have their own tests.
 
 v0.1.2
-=======
+------
 Summary: release v0.1.2 of datetools
 
 This is datetools v0.1.2.
@@ -418,23 +436,8 @@ Likewise, FIRST can be newer than LAST and with a negative increment,
 the end is variable whereas a positive increment leaves the beginning
 variable.
 
-v0.1.10
-=======
-Summary: v0.1.10 of dateutils
-
-This is dateutils v0.1.10.
-
-This is a bug fix release.
-
-- account for big-endian machines
-- GNUisms (mempcpy() and getline()) are removed
-- inf-loop in tseq is fixed (bug #6)
-- nanoseconds are preserved upon time zone conversion
-
-See info page examples and/or README.
-
 v0.1.1
-=======
+------
 Summary: release v0.1.1 of datetools
 
 This is datetools v0.1.1.
@@ -448,7 +451,7 @@ options, -i or --input-format to specify one or more input formats to be
 tried and -f or --format to specify an output format if applicable.
 
 v0.1.0
-=======
+------
 Summary: release v0.1.0 of datetools
 
 This is datetools v0.1.0.
