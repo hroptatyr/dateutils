@@ -19,6 +19,7 @@ for i; do
 	echo
 	sed '/^#!/d; /ends here$/d; /^[ \t]*$/d;
 s/@/@@/g; s/{/@{/g; s/}/@}/g
+s/\\/\\\\/g
 s/^/  /' "${i}"
 	echo
 done
