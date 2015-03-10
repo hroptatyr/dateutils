@@ -67,8 +67,8 @@ Following Linux distros and BSD flavours provide native packages
 + NetBSD <http://pkgsrc.se/time/dateutils>
 + OpenSuSE <http://software.opensuse.org/download.html?project=utilities&package=dateutils>
 + OS X Homebrew <http://brewformulas.org/Dateutils>
-+ Slackware <http://slackbuilds.org/repository/14.0/system/dateutils/>
-+ Ubuntu <https://launchpad.net/ubuntu/trusty/+package/dateutils>
++ Slackware <http://slackbuilds.org/repository/14.1/system/dateutils/>
++ Ubuntu <http://packages.ubuntu.com/vivid/dateutils>
 
 
 [Changelog][1]
