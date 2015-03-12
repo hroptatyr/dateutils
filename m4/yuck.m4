@@ -112,7 +112,7 @@ AC_DEFUN([AX_YUCK_SCMVER], [dnl
 #define _XOPEN_SOURCE	600
 #define VERSION_FILE	"${srcdir}/.version"
 #include "yuck-scmver.c"
-]])], [STIP_VERSION=`./conftest$EXEEXT`], [AC_MSG_RESULT([none])])
+]])], [STIP_VERSION=`./conftest$EXEEXT`], [AC_MSG_RESULT([none])], [AC_MSG_RESULT([impossible, cross-compiling])])
 	CPPFLAGS="${save_CPPFLAGS}"
 	AC_LANG_POP([C])
 
