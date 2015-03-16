@@ -70,34 +70,48 @@ try_zone(const char *str, const char **ep)
 
 	switch (*sp) {
 		int32_t tmp;
+		const char *tp;
+		const char *up;
 	case '-':
 		minusp = 1;
 	case '+':
 		/* read hour part */
-		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
+		if ((tmp = strtoi_lim(sp + 1U, &tp, 0, 14)) < 0) {
+			break;
+		} else if (tp - sp < 3U) {
+			/* only accept fully zero-padded hours */
 			break;
 		}
 		res += 3600 * tmp;
 		/* colon separator is optional */
-		if (*sp == ':') {
-			sp++;
+		if (*tp == ':') {
+			tp++;
 		}
 
 		/* read minute part */
-		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
+		if ((tmp = strtoi_lim(tp, &up, 0, 59)) < 0) {
 			break;
+		} else if (up - tp < 2U) {
+			/* only accept zero-padded minutes */
+			break;
+		} else {
+			tp = up;
 		}
 		res += 60 * tmp;
+		/* at least we've got hours and minutes */
+		sp = tp;
 		/* again colon separator is optional */
-		if (*sp == ':') {
-			sp++;
+		if (*tp == ':') {
+			tp++;
 		}
 
 		/* read second part */
-		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
+		if ((tmp = strtoi_lim(tp, &tp, 0, 59)) < 0) {
 			break;
 		}
 		res += tmp;
+		/* fully determined */
+		sp = tp;
 		break;
 	default:
 		/* clearly a mistake to advance SP */
