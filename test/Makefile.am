@@ -585,6 +585,8 @@ dt_tests += dtconv.065.clit
 dt_tests += dtconv.066.clit
 dt_tests += dtconv.067.clit
 dt_tests += dtconv.068.clit
+dt_tests += dtconv.069.clit
+dt_tests += dtconv.070.clit
 
 dt_tests += convt.ymcw-ymd.clit
 dt_tests += convt.ymcw-ywd.clit
