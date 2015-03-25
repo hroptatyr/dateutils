@@ -1,0 +1,6 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv -i ldn 12345678 -f ymd
+$
+
+## dconv.121.clit ends here
