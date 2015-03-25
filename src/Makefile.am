@@ -42,7 +42,6 @@ EXTRA_DIST += strpdt-special.gperf
 BUILT_SOURCES += strpdt-special.c
 
 ## all them binaries, alphabetical
-if WITH_OLD_NAMES
 bin_PROGRAMS += dadd
 bin_PROGRAMS += dconv
 bin_PROGRAMS += ddiff
@@ -52,53 +51,32 @@ bin_PROGRAMS += dseq
 bin_PROGRAMS += dsort
 bin_PROGRAMS += dtest
 bin_PROGRAMS += dzone
-else  ## !WITH_OLD_NAMES
-noinst_PROGRAMS += dadd
-noinst_PROGRAMS += dconv
-noinst_PROGRAMS += ddiff
-noinst_PROGRAMS += dgrep
-noinst_PROGRAMS += dround
-noinst_PROGRAMS += dseq
-noinst_PROGRAMS += dsort
-noinst_PROGRAMS += dtest
-noinst_PROGRAMS += dzone
-bin_PROGRAMS += dateadd
-bin_PROGRAMS += dateconv
-bin_PROGRAMS += datediff
-bin_PROGRAMS += dategrep
-bin_PROGRAMS += dateround
-bin_PROGRAMS += dateseq
-bin_PROGRAMS += datesort
-bin_PROGRAMS += datetest
-bin_PROGRAMS += datezone
 
-dateadd: dadd
-	cp -p $< $@
+if !WITH_OLD_NAMES
+install-exec-hook:
+	cd $(DESTDIR)$(bindir) && \
+		mv -f dadd$(EXEEXT) dateadd$(EXEEXT) ; \
+		mv -f dconv$(EXEEXT) dateconv$(EXEEXT) ; \
+		mv -f ddiff$(EXEEXT) datediff$(EXEEXT) ; \
+		mv -f dgrep$(EXEEXT) dategrep$(EXEEXT) ; \
+		mv -f dround$(EXEEXT) dateround$(EXEEXT) ; \
+		mv -f dseq$(EXEEXT) dateseq$(EXEEXT) ; \
+		mv -f dsort$(EXEEXT) datesort$(EXEEXT) ; \
+		mv -f dtest$(EXEEXT) datetest$(EXEEXT) ; \
+		mv -f dzone$(EXEEXT) datezone$(EXEEXT)
 
-dateconv: dconv
-	cp -p $< $@
-
-datediff: ddiff
-	cp -p $< $@
-
-dategrep: dgrep
-	cp -p $< $@
-
-dateround: dround
-	cp -p $< $@
-
-dateseq: dseq
-	cp -p $< $@
-
-datesort: dsort
-	cp -p $< $@
-
-datetest: dtest
-	cp -p $< $@
-
-datezone: dzone
-	cp -p $< $@
-endif  ## WITH_OLD_NAMES
+uninstall-hook:
+	cd $(DESTDIR)$(bindir) && \
+		$(RM) dateadd$(EXEEXT) ; \
+		$(RM) dateconv$(EXEEXT) ; \
+		$(RM) datediff$(EXEEXT) ; \
+		$(RM) dategrep$(EXEEXT) ; \
+		$(RM) dateround$(EXEEXT) ; \
+		$(RM) dateseq$(EXEEXT) ; \
+		$(RM) datesort$(EXEEXT) ; \
+		$(RM) datetest$(EXEEXT) ; \
+		$(RM) datezone$(EXEEXT)
+endif  ## !WITH_OLD_NAMES
 
 dseq_SOURCES = dseq.c dseq.yuck
 dseq_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
