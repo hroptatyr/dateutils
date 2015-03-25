@@ -103,9 +103,7 @@ __daisy_get_year(dt_daisy_t d)
 	if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
 		by--;
 #if !defined WITH_FAST_ARITH
-		if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
-			by--;
-		}
+		for (; UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d); by--);
 #endif	/* WITH_FAST_ARITH */
 	}
 	return TO_YEAR(by);
