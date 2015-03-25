@@ -149,6 +149,11 @@ AS_HELP_STRING([--enable-contrib], [Build contribs, default: no.])],
         [enable_contrib="${enableval}"], [enable_contrib="no"])
 AM_CONDITIONAL([WITH_CONTRIB], [test "${enable_contrib}" != "no"])
 
+AC_ARG_WITH([old-names], [
+AS_HELP_STRING([--with-old-names], [Use old binary names, default: no.])],
+        [with_old_names="${withval}"], [with_old_names="no"])
+AM_CONDITIONAL([WITH_OLD_NAMES], [test "${with_old_names}" != "no"])
+
 ## checks
 if test "${enable_fast_arith}" = "yes"; then
 	AC_DEFINE([WITH_FAST_ARITH], [1],
@@ -176,7 +181,11 @@ AM_CONDITIONAL([BUILD_OCTCLI], [test "${sxe_cv_octave_mex_h}" = "yes" -a -n "${O
 
 
 ## prepare the summary page
-dut_apps="dadd dconv ddiff dgrep dround dseq dsort dtest dzone"
+if test "${with_old_names}" = "no"; then
+	dut_apps="dateadd dateconv datediff dategrep dateround dateseq datesort datetest datezone"
+else
+	dut_apps="dadd dconv ddiff dgrep dround dseq dsort dtest dzone"
+fi
 if test "${have_strptime}" = "yes"; then
 	misc_apps="strptime"
 else
@@ -220,5 +229,11 @@ Build misc apps:	${misc_apps}
 Build contrib apps:	${cntrb_apps}
 
 EOF
+
+if test "${with_old_names}" = "no"; then
+	echo "New binary names will be used."
+else
+	echo "Old binary names will be used."
+fi
 
 dnl configure.ac ends here
