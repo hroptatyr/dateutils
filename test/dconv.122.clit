@@ -1,0 +1,10 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## this one would be 4095-12-31 but we cut off earlier than that
+$ dconv -i ldn 917932 -f ymd
+0000-00-00
+$ dconv -i ldn 917933 -f ymd
+0000-00-00
+$
+
+## dconv.122.clit ends here
