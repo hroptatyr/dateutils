@@ -231,7 +231,11 @@ Build contrib apps:	${cntrb_apps}
 EOF
 
 if test "${with_old_names}" = "no"; then
-	echo "New binary names will be used."
+	cat <<EOF
+New binary names will be used.
+To use old binary names, reissue this command as
+  `dirname ${0}`/configure --with-old-names <YOUR-OPTIONS>
+EOF
 else
 	echo "Old binary names will be used."
 fi
