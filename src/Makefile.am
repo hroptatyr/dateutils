@@ -52,30 +52,23 @@ bin_PROGRAMS += dsort
 bin_PROGRAMS += dtest
 bin_PROGRAMS += dzone
 
+if WITH_OLD_LINKS
+CREATE_OLD_LINKS =  $(LN_S) date$$prog$(EXEEXT) d$$prog$(EXEEXT);
+endif
+
 if !WITH_OLD_NAMES
 install-exec-hook:
 	cd $(DESTDIR)$(bindir) && \
-		mv -f dadd$(EXEEXT) dateadd$(EXEEXT) ; \
-		mv -f dconv$(EXEEXT) dateconv$(EXEEXT) ; \
-		mv -f ddiff$(EXEEXT) datediff$(EXEEXT) ; \
-		mv -f dgrep$(EXEEXT) dategrep$(EXEEXT) ; \
-		mv -f dround$(EXEEXT) dateround$(EXEEXT) ; \
-		mv -f dseq$(EXEEXT) dateseq$(EXEEXT) ; \
-		mv -f dsort$(EXEEXT) datesort$(EXEEXT) ; \
-		mv -f dtest$(EXEEXT) datetest$(EXEEXT) ; \
-		mv -f dzone$(EXEEXT) datezone$(EXEEXT)
+		for prog in add conv diff grep round seq sort test zone; do \
+			mv -f d$$prog$(EXEEXT) date$$prog$(EXEEXT) ; \
+			$(CREATE_OLD_LINKS) \
+		done
 
 uninstall-hook:
 	cd $(DESTDIR)$(bindir) && \
-		$(RM) dateadd$(EXEEXT) ; \
-		$(RM) dateconv$(EXEEXT) ; \
-		$(RM) datediff$(EXEEXT) ; \
-		$(RM) dategrep$(EXEEXT) ; \
-		$(RM) dateround$(EXEEXT) ; \
-		$(RM) dateseq$(EXEEXT) ; \
-		$(RM) datesort$(EXEEXT) ; \
-		$(RM) datetest$(EXEEXT) ; \
-		$(RM) datezone$(EXEEXT)
+		for prog in add conv diff grep round seq sort test zone; do \
+			$(RM) date$$prog$(EXEEXT) ; \
+		done
 endif  ## !WITH_OLD_NAMES
 
 dseq_SOURCES = dseq.c dseq.yuck

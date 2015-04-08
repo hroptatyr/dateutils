@@ -150,9 +150,14 @@ AS_HELP_STRING([--enable-contrib], [Build contribs, default: no.])],
 AM_CONDITIONAL([WITH_CONTRIB], [test "${enable_contrib}" != "no"])
 
 AC_ARG_WITH([old-names], [
-AS_HELP_STRING([--with-old-names], [Use old binary names, default: no.])],
+AS_HELP_STRING([--with-old-names], [Install old binary names only, default: no.])],
         [with_old_names="${withval}"], [with_old_names="no"])
 AM_CONDITIONAL([WITH_OLD_NAMES], [test "${with_old_names}" != "no"])
+
+AC_ARG_WITH([old-links], [
+AS_HELP_STRING([--with-old-links], [Install compatibility symlinks, default: yes.])],
+	[with_old_links="${withval}"], [with_old_links="yes"])
+AM_CONDITIONAL([WITH_OLD_LINKS], [test "${with_old_links}" != "no"])
 
 ## checks
 if test "${enable_fast_arith}" = "yes"; then
@@ -232,9 +237,8 @@ EOF
 
 if test "${with_old_names}" = "no"; then
 	cat <<EOF
-New binary names will be used.
-To use old binary names, reissue this command as
-  `dirname ${0}`/configure --with-old-names <YOUR-OPTIONS>
+New binary names will be used (compatibility symlinks: $with_old_links).
+See configure options --with-old-names and --with-old-links.
 EOF
 else
 	echo "Old binary names will be used."
