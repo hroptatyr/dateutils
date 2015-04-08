@@ -139,7 +139,7 @@ extern const ssize_t dut_nabab_mon;
 #if defined INCLUDED_date_core_h_
 /**
  * Populate TGT with duration information from DUR. */
-extern inline void __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur);
+extern void __fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur);
 
 /**
  * Parse STR with the standard parser, put the end of the parsed string in EP.*/
