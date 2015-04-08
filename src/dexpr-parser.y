@@ -36,7 +36,6 @@
  ***/
 
 %defines
-%output "y.tab.c"
 %pure-parser
 %parse-param{dexpr_t *cur}
 
