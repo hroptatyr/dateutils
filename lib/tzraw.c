@@ -167,9 +167,11 @@ static const char tzdir[] = "/usr/share/zoneinfo";
 #if defined ZONEINFO_UTC_RIGHT
 /* where can we deduce some info for our coordinated zones */
 static const char coord_fn[] = ZONEINFO_UTC_RIGHT;
-#else  /* !ZONEINFO_UTC_RIGHT */
-static const char coord_fn[] = "/usr/share/zoneinfo/right/UTC";
-#endif	/* ZONEINFO_UTC_RIGHT */
+#elif defined ZONEINFO_UTC
+static const char coord_fn[] = ZONEINFO_UTC;
+#else  /* !ZONEINFO_UTC_RIGHT && !ZONEINFO_UTC */
+static const char coord_fn[] = "/usr/share/zoneinfo/UTC";
+#endif	/* ZONEINFO_UTC_RIGHT || ZONEINFO_UTC */
 
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
 #define MAP_MEMMAP	MAP_PRIVATE | MAP_ANON

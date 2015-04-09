@@ -210,6 +210,12 @@ Define when zoneinfo directory has been present during configuration.])
 Configuration time zoneinfo directory.])
 	fi
 
+	if test -n "${ax_cv_zoneinfo_utc}"; then
+		AC_DEFINE_UNQUOTED([ZONEINFO_UTC],
+			["${ax_cv_zoneinfo_utc}"], [
+Leap-second UNAWARE UTC zoneinfo file.])
+	fi
+
 	popdef([check_tzdir])
 ])dnl AX_ZONEINFO_TZDIR
 
