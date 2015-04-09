@@ -1,4 +1,4 @@
-Usage: dseq [OPTION]... FIRST [[INCREMENT] LAST]
+Usage: dateseq [OPTION]... FIRST [[INCREMENT] LAST]
 
 Generate a sequence of date/times from FIRST to LAST, optionally in steps of
 INCREMENT (which defaults to `1d').

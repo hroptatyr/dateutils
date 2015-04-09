@@ -186,6 +186,7 @@ built_mans =
 if HAVE_STRPTIME
 built_mans += strptime.man
 endif  HAVE_STRPTIME
+
 built_mans += dadd.manu
 built_mans += dconv.man
 built_mans += ddiff.mand
@@ -195,6 +196,17 @@ built_mans += dseq.manu
 built_mans += dsort.man
 built_mans += dtest.man
 built_mans += dzone.man
+
+built_mans += dateadd.manu
+built_mans += dateconv.man
+built_mans += datediff.mand
+built_mans += dategrep.man
+built_mans += dateround.manu
+built_mans += dateseq.manu
+built_mans += datesort.man
+built_mans += datetest.man
+built_mans += datezone.man
+
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
@@ -210,6 +222,29 @@ dseq.manu: dseq.h2m
 dsort.man: dsort.h2m
 dtest.man: dtest.h2m
 dzone.man: dzone.h2m
+
+## new file names
+TRAFO = sed 's/dadd/dateadd/g; s/dconv/dateconv/g; s/ddiff/datediff/g; s/dgrep/dategrep/g; s/dround/dateround/g; s/dseq/dateseq/g; s/dsort/datesort/g; s/dtest/datetest/g; s/dzone/datezone/g'
+
+dateadd.manu: dadd.manu
+	$(TRAFO) < $< > $@
+dateconv.man: dconv.man
+	$(TRAFO) < $< > $@
+datediff.mand: ddiff.mand
+	$(TRAFO) < $< > $@
+dategrep.man: dgrep.man
+	$(TRAFO) < $< > $@
+dateround.manu: dround.manu
+	$(TRAFO) < $< > $@
+dateseq.manu: dseq.manu
+	$(TRAFO) < $< > $@
+datesort.man: dsort.man
+	$(TRAFO) < $< > $@
+datetest.man: dtest.man
+	$(TRAFO) < $< > $@
+datezone.man: dzone.man
+	$(TRAFO) < $< > $@
+
 
 SUFFIXES += .yuck
 VPATH += @top_srcdir@/src

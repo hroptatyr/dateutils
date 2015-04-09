@@ -1,4 +1,4 @@
-Usage: dtest [OPTION]... DATE/TIME1 OP DATE/TIME2
+Usage: datetest [OPTION]... DATE/TIME1 OP DATE/TIME2
 
 Like test(1) but for dates.
 

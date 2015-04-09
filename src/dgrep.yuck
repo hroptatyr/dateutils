@@ -1,4 +1,4 @@
-Usage: dgrep [OPTION]... EXPRESSION
+Usage: dategrep [OPTION]... EXPRESSION
 
 Grep standard input for lines that match EXPRESSION.
 
