@@ -1,4 +1,4 @@
-Usage: dadd [OPTION]... [DATE/TIME] [DURATION]
+Usage: dateadd [OPTION]... [DATE/TIME] [DURATION]
 
 Add DURATION to DATE/TIME and print the result.
 If DATE/TIME is omitted but DURATION is given, read a list of DATE/TIMEs from
