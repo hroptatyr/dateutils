@@ -187,6 +187,7 @@ if HAVE_STRPTIME
 built_mans += strptime.man
 endif  HAVE_STRPTIME
 
+if WITH_OLD_NAMES
 built_mans += dadd.manu
 built_mans += dconv.man
 built_mans += ddiff.mand
@@ -196,7 +197,7 @@ built_mans += dseq.manu
 built_mans += dsort.man
 built_mans += dtest.man
 built_mans += dzone.man
-
+else  !WITH_OLD_NAMES
 built_mans += dateadd.manu
 built_mans += dateconv.man
 built_mans += datediff.mand
@@ -206,7 +207,20 @@ built_mans += dateseq.manu
 built_mans += datesort.man
 built_mans += datetest.man
 built_mans += datezone.man
+endif  !WITH_OLD_NAMES
 
+if WITH_OLD_LINKS
+## install them as files, not links
+built_mans += dadd.manu
+built_mans += dconv.man
+built_mans += ddiff.mand
+built_mans += dgrep.man
+built_mans += dround.manu
+built_mans += dseq.manu
+built_mans += dsort.man
+built_mans += dtest.man
+built_mans += dzone.man
+endif  WITH_OLD_LINKS
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
