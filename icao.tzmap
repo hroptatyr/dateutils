@@ -43,7 +43,7 @@ AYAX	Pacific/Port_Moresby
 AYAY	Pacific/Port_Moresby
 AYBA	Pacific/Port_Moresby
 AYBH	Pacific/Port_Moresby
-AYBK	Pacific/Port_Moresby
+AYBK	Pacific/Bougainville
 AYBM	Pacific/Port_Moresby
 AYBQ	Pacific/Port_Moresby
 AYBU	Pacific/Port_Moresby
@@ -64,9 +64,9 @@ AYGT	Pacific/Port_Moresby
 AYGU	Pacific/Port_Moresby
 AYHG	Pacific/Port_Moresby
 AYHK	Pacific/Port_Moresby
-AYIA	Pacific/Port_Moresby
+AYIA	Pacific/Bougainville
 AYIH	Pacific/Port_Moresby
-AYIQ	Pacific/Port_Moresby
+AYIQ	Pacific/Bougainville
 AYJB	Pacific/Port_Moresby
 AYKA	Pacific/Port_Moresby
 AYKB	Pacific/Port_Moresby
@@ -1286,6 +1286,7 @@ EGSY	Europe/London
 EGTC	Europe/London
 EGTD	Europe/London
 EGTE	Europe/London
+EGTF	Europe/London
 EGTG	Europe/London
 EGTK	Europe/London
 EGTN	Europe/London
@@ -1762,6 +1763,7 @@ FALI	Africa/Johannesburg
 FALK	Africa/Johannesburg
 FALL	Africa/Johannesburg
 FALM	Africa/Johannesburg
+FALO	Africa/Johannesburg
 FALW	Africa/Johannesburg
 FALY	Africa/Johannesburg
 FAMB	Africa/Johannesburg
@@ -3924,6 +3926,7 @@ KJSO	America/Chicago
 KJST	America/New_York
 KJSV	America/Chicago
 KJSY	America/Los_Angeles
+KJTC	America/Phoenix
 KJVL	America/Chicago
 KJVW	America/Chicago
 KJVY	America/Kentucky/Louisville
@@ -5111,6 +5114,7 @@ LDZA	Europe/Zagreb
 LDZD	Europe/Zagreb
 LDZL	Europe/Zagreb
 LEAB	Europe/Madrid
+LEAG	Europe/Madrid
 LEAL	Europe/Madrid
 LEAM	Europe/Madrid
 LEAO	Europe/Madrid
@@ -5709,6 +5713,7 @@ LIER	Europe/Rome
 LIET	Europe/Rome
 LILN	Europe/Rome
 LILQ	Europe/Rome
+LIMB	Europe/Rome
 LIMC	Europe/Rome
 LIME	Europe/Rome
 LIMF	Europe/Rome
@@ -5952,6 +5957,7 @@ LTAN	Europe/Istanbul
 LTAP	Europe/Istanbul
 LTAQ	Europe/Istanbul
 LTAR	Europe/Istanbul
+LTAS	Europe/Istanbul
 LTAT	Europe/Istanbul
 LTAU	Europe/Istanbul
 LTAV	Europe/Istanbul
@@ -6770,6 +6776,7 @@ OOKB	Asia/Muscat
 OOMA	Asia/Muscat
 OOMS	Asia/Muscat
 OOMX	Asia/Muscat
+OORQ	Asia/Muscat
 OOSA	Asia/Muscat
 OOSR	Asia/Muscat
 OOTH	Asia/Muscat
@@ -7321,6 +7328,7 @@ RPLS	Asia/Manila
 RPLT	Asia/Manila
 RPLU	Asia/Manila
 RPLV	Asia/Manila
+RPLX	Asia/Manila
 RPLZ	Asia/Manila
 RPMA	Asia/Manila
 RPMB	Asia/Manila
@@ -7391,6 +7399,7 @@ RPVW	Asia/Manila
 RPVY	Asia/Manila
 RPWC	Asia/Manila
 RPWY	Asia/Manila
+SA35	America/Argentina/Catamarca
 SAAA	America/Argentina/Buenos_Aires
 SAAC	America/Argentina/Cordoba
 SAAG	America/Argentina/Cordoba
@@ -8296,6 +8305,7 @@ SNKN	America/Recife
 SNLB	America/Bahia
 SNLO	America/Sao_Paulo
 SNMA	America/Santarem
+SNMR	America/Bahia
 SNMU	America/Bahia
 SNMX	America/Sao_Paulo
 SNMZ	America/Santarem
@@ -8724,6 +8734,7 @@ UEEA	Asia/Yakutsk
 UEEE	Asia/Yakutsk
 UELL	Asia/Yakutsk
 UEMA	Asia/Magadan
+UEMH	Asia/Vladivostok
 UEMM	Asia/Yakutsk
 UEMO	Asia/Yakutsk
 UENK	Asia/Yakutsk
@@ -8777,6 +8788,7 @@ UHPT	Asia/Anadyr
 UHPX	Asia/Kamchatka
 UHSB	Asia/Kamchatka
 UHSH	Asia/Sakhalin
+UHSM	Asia/Sakhalin
 UHSO	Asia/Sakhalin
 UHSS	Asia/Sakhalin
 UHWW	Asia/Vladivostok
@@ -9417,6 +9429,7 @@ WABD	Asia/Jayapura
 WABF	Asia/Jayapura
 WABG	Asia/Jayapura
 WABI	Asia/Jayapura
+WABK	Asia/Jayapura
 WABL	Asia/Jayapura
 WABN	Asia/Jayapura
 WABP	Asia/Jayapura
@@ -9429,6 +9442,7 @@ WADT	Asia/Makassar
 WADW	Asia/Makassar
 WAJA	Asia/Jayapura
 WAJB	Asia/Jayapura
+WAJI	Asia/Jayapura
 WAJJ	Asia/Jayapura
 WAJL	Asia/Jayapura
 WAJM	Asia/Jayapura
@@ -9587,7 +9601,7 @@ WIMG	Asia/Jakarta
 WIMM	Asia/Jakarta
 WIMN	Asia/Jakarta
 WIMO	Asia/Jakarta
-WIMP	Asia/Jayapura
+WIMP	Asia/Jakarta
 WIMS	Asia/Jakarta
 WIOD	Asia/Jakarta
 WIOG	Asia/Pontianak
@@ -9685,18 +9699,20 @@ YAUV	Australia/Darwin
 YAYE	Australia/Darwin
 YAYR	Australia/Brisbane
 YBAF	Australia/Brisbane
+YBAL	Australia/Perth
 YBAR	Australia/Brisbane
 YBAS	Australia/Darwin
 YBAU	Australia/Brisbane
 YBBE	Australia/Perth
 YBBN	Australia/Brisbane
-YBCG	Australia/Sydney
+YBCG	Australia/Brisbane
 YBCK	Australia/Brisbane
 YBCS	Australia/Brisbane
 YBCV	Australia/Brisbane
 YBDG	Australia/Melbourne
 YBDV	Australia/Brisbane
 YBEO	Australia/Brisbane
+YBEV	Australia/Perth
 YBGD	Australia/Perth
 YBGO	Australia/Perth
 YBHI	Australia/Broken_Hill
@@ -9717,9 +9733,11 @@ YBMA	Australia/Brisbane
 YBMK	Australia/Brisbane
 YBNA	Australia/Sydney
 YBNS	Australia/Melbourne
+YBOA	Australia/Brisbane
 YBOI	Pacific/Port_Moresby
 YBOK	Australia/Brisbane
 YBOU	Australia/Brisbane
+YBOV	Australia/Adelaide
 YBPI	Australia/Lindeman
 YBPN	Australia/Brisbane
 YBRK	Australia/Brisbane
@@ -9739,6 +9757,7 @@ YBUN	Australia/Perth
 YBWG	Australia/Perth
 YBWN	Australia/Brisbane
 YBWP	Australia/Brisbane
+YBWW	Australia/Brisbane
 YBWX	Australia/Perth
 YBYS	Australia/Perth
 YCAB	Australia/Brisbane
@@ -9802,6 +9821,7 @@ YDLT	Australia/Brisbane
 YDLV	Australia/Darwin
 YDMG	Australia/Brisbane
 YDMN	Australia/Darwin
+YDNA	Australia/Hobart
 YDNI	Pacific/Port_Moresby
 YDOD	Australia/Melbourne
 YDOR	Australia/Brisbane
@@ -9826,6 +9846,7 @@ YESE	Australia/Brisbane
 YESP	Australia/Perth
 YEVA	Australia/Darwin
 YEVD	Australia/Sydney
+YEVP	Australia/Adelaide
 YEXM	Australia/Perth
 YFBS	Australia/Sydney
 YFDF	Australia/Perth
@@ -9848,6 +9869,7 @@ YGEL	Australia/Perth
 YGFN	Australia/Sydney
 YGGE	Australia/Perth
 YGIB	Australia/Perth
+YGIR	Australia/Perth
 YGLA	Australia/Brisbane
 YGLB	Australia/Sydney
 YGLE	Australia/Brisbane
@@ -9991,6 +10013,7 @@ YMOR	Australia/Sydney
 YMOT	Australia/Brisbane
 YMPA	Australia/Adelaide
 YMQA	Australia/Darwin
+YMRA	Australia/Adelaide
 YMRB	Australia/Brisbane
 YMRE	Australia/Adelaide
 YMRW	Australia/Perth
@@ -10028,6 +10051,7 @@ YNUL	Australia/Perth
 YNUM	Australia/Darwin
 YNWN	Australia/Perth
 YNYN	Australia/Sydney
+YOAD	Australia/Darwin
 YOEN	Australia/Darwin
 YOLA	Australia/Melbourne
 YOLD	Australia/Adelaide
@@ -10099,6 +10123,7 @@ YSCN	Australia/Sydney
 YSCO	Australia/Sydney
 YSCR	Australia/Perth
 YSDU	Australia/Sydney
+YSFY	Australia/Hobart
 YSGE	Australia/Brisbane
 YSGT	Australia/Sydney
 YSGW	Australia/Brisbane
@@ -10139,6 +10164,7 @@ YTDR	Australia/Brisbane
 YTEE	Australia/Brisbane
 YTEF	Australia/Perth
 YTEM	Australia/Sydney
+YTEX	Australia/Brisbane
 YTGM	Australia/Brisbane
 YTGT	Australia/Darwin
 YTHY	Australia/Brisbane
@@ -10151,6 +10177,7 @@ YTNG	Australia/Brisbane
 YTOC	Australia/Sydney
 YTRE	Australia/Sydney
 YTTI	Australia/Perth
+YTUY	Australia/Brisbane
 YTWB	Australia/Brisbane
 YUDA	Australia/Brisbane
 YUNY	Australia/Brisbane
