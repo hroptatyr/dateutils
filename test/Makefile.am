@@ -777,6 +777,8 @@ dt_tests += dzone.005.clit
 dt_tests += dzone.006.clit
 dt_tests += dzone.007.clit
 dt_tests += dzone.008.clit
+dt_tests += dzone.009.clit
+dt_tests += dzone.010.clit
 
 dt_tests += dsort.001.clit
 dt_tests += dsort.002.clit
