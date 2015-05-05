@@ -539,6 +539,7 @@ zif_open(const char *file)
 
 	/* check for special time zones */
 	if ((cz = coord_zone(file)) > TZCZ_UNK) {
+		/* use UTC file */
 		file = coord_fn;
 	}
 
@@ -616,6 +617,11 @@ __find_zrng(const struct zif_s z[static 1U], int32_t t, int min, int max)
 		res.prev = INT_MIN;
 		/* assume the first offset has always been there */
 		res.next = res.prev;
+	} else if (UNLIKELY(trno < 0)) {
+		/* special case where no transitions are recorded */
+		res.trno = 0U;
+		res.prev = INT_MIN;
+		res.next = INT_MAX;
 	} else {
 		res.trno = (uint8_t)trno;
 		if (LIKELY(trno + 1U < zif_ntrans(z))) {
