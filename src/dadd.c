@@ -255,6 +255,10 @@ main(int argc, char *argv[])
 	if (argi->zone_arg) {
 		z = dt_io_zone(argi->zone_arg);
 	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
+	}
 
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */

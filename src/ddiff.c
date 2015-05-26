@@ -684,6 +684,10 @@ main(int argc, char *argv[])
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
 	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
+	}
 
 	ofmt = argi->format_arg;
 	fmt = argi->input_format_args;

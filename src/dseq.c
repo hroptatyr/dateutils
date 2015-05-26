@@ -463,6 +463,11 @@ main(int argc, char *argv[])
 	nifmt = argi->input_format_nargs;
 	ifmt = argi->input_format_args;
 
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
+	}
+
 	for (size_t i = 0; i < argi->skip_nargs; i++) {
 		clo.ss = set_skip(clo.ss, argi->skip_args[i]);
 	}

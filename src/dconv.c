@@ -134,9 +134,9 @@ main(int argc, char *argv[])
 	if (argi->zone_arg) {
 		z = dt_io_zone(argi->zone_arg);
 	}
-	if (argi->default_arg) {
-		struct dt_dt_s dflt = dt_strpdt(argi->default_arg, NULL, NULL);
-		dt_set_default(dflt);
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
 	}
 
 	if (argi->nargs) {

@@ -12,6 +12,12 @@ Like test(1) but for dates.
                                date/time can be read successfully with a given
                                input format specifier string, that value will
                                be used.
+  -b, --base=DT              For underspecified input use DT as a fallback to
+                             fill in missing fields.  Also used for ambiguous
+                             format specifiers to position their range on the
+                             absolute time line.
+                             Must be a date/time in ISO8601 format.
+                             If omitted defaults to the current date/time.
   -e, --backslash-escapes    Enable interpretation of backslash escapes in the
                                output and input format specifier strings.
 
