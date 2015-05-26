@@ -72,9 +72,9 @@ next:
 	case 'T':
 		res.spfl = DT_SPFL_N_TSTD;
 		break;
-	case 'y':
-		res.abbr = DT_SPMOD_ABBR;
 	case 'Y':
+		res.abbr = DT_SPMOD_LONG;
+	case 'y':
 		res.spfl = DT_SPFL_N_YEAR;
 		break;
 	case 'm':
@@ -190,6 +190,7 @@ next:
 		/* for compatibility with posix */
 		res.tai = 1U;
 		res.spfl = DT_SPFL_N_YEAR;
+		res.abbr = DT_SPMOD_LONG;
 		break;
 	}
 	/* check for ordinals */

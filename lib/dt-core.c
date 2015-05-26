@@ -432,41 +432,6 @@ now_tm(void)
 	return tm;
 }
 
-static struct tm
-dflt_tm(const struct dt_dt_s *set)
-{
-/* getter/setter and singleton for SET == NULL */
-	static struct tm tm;
-
-	if (LIKELY(set == NULL && tm.tm_year != 0U)) {
-		/* show what we've got */
-		;
-	} else if (set == NULL) {
-		/* take over the value of now */
-		tm = now_tm();
-	} else {
-		switch (set->typ) {
-		case DT_YMD:
-			tm.tm_year = set->d.ymd.y;
-			tm.tm_mon = set->d.ymd.m;
-			tm.tm_mday = set->d.ymd.d;
-			tm.tm_hour = set->t.hms.h;
-			tm.tm_min = set->t.hms.m;
-			tm.tm_sec = set->t.hms.s;
-			break;
-		default:
-			/* good question */
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-			return (struct tm){};
-#else  /* !HAVE_SLOPPY_STRUCTS_INIT */
-			memset(&tm, 0, sizeof(tm));
-			break;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-		}
-	}
-	return tm;
-}
-
 static struct strpdt_s
 massage_strpdt(struct strpdt_s d)
 {
@@ -478,34 +443,35 @@ massage_strpdt(struct strpdt_s d)
 #else  /* !HAVE_SLOPPY_STRUCTS_INIT */
 		static const struct strpd_s d0;
 #endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-		struct tm now = dflt_tm(NULL);
+		struct dt_dt_s now = dt_get_base();
 
 		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
 			goto msgg_time;
 		}
 
-		d.sd.y = now.tm_year;
+		d.sd.y = now.d.ymd.y;
 		if (LIKELY(d.sd.m)) {
 			goto out;
 		}
-		d.sd.m = now.tm_mon;
+		d.sd.m = now.d.ymd.m;
 		if (LIKELY(d.sd.d)) {
 			goto out;
 		}
-		d.sd.d = now.tm_mday;
+		d.sd.d = now.d.ymd.d;
 
 	msgg_time:
 		/* same for time values, but obtain those through now_tv() */
 		if (UNLIKELY(!d.st.flags.h_set)) {
-			d.st.h = now.tm_hour;
+			d.st.h = now.t.hms.h;
 			if (LIKELY(d.st.flags.m_set)) {
 				goto out;
 			}
-			d.st.m = now.tm_min;
+			d.st.m = now.t.hms.m;
 			if (LIKELY(d.st.flags.s_set)) {
 				goto out;
 			}
-			d.st.s = now.tm_sec;
+			d.st.s = now.t.hms.s;
+			d.st.ns = now.t.hms.ns;
 		}
 	}
 out:
@@ -1665,12 +1631,49 @@ dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
 # pragma GCC diagnostic warning "-Wcast-qual"
 #endif	/* __INTEL_COMPILER */
 
+static struct dt_dt_s base;
+
 DEFUN void
-dt_set_default(struct dt_dt_s dt)
+dt_set_base(struct dt_dt_s dt)
 {
-	(void)dflt_tm(&dt);
+	if (UNLIKELY(dt.typ != (dt_dttyp_t)DT_YMD)) {
+		dt = dt_dtconv((dt_dttyp_t)DT_YMD, dt);
+	}
+	base = dt;
 	return;
 }
+
+DEFUN struct dt_dt_s
+dt_get_base(void)
+{
+	if (UNLIKELY(base.typ == DT_UNK)) {
+		/* singleton */
+		base = dt_datetime((dt_dttyp_t)DT_YMD);
+	}
+	return base;
+}
+
+#if defined LIBDUT
+# if defined INCLUDED_date_core_h_
+/* service routines */
+DEFUN struct dt_d_s
+dt_get_dbase(void)
+{
+	struct dt_dt_s b = dt_get_base();
+	return b.d;
+}
+# endif	/* INCLUDED_date_core_h_ */
+
+# if defined INCLUDED_time_core_h_
+/* service routines */
+DEFUN struct dt_t_s
+dt_get_tbase(void)
+{
+	struct dt_dt_s b = dt_get_base();
+	return b.t;
+}
+# endif	/* INCLUDED_time_core_h_ */
+#endif	/* LIBDUT */
 
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */

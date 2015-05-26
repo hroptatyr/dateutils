@@ -247,8 +247,16 @@ extern dt_ssexy_t dt_to_gps_epoch(struct dt_dt_s);
 /**
  * Set specific fallback date/time to use when input is underspecified.
  * Internally, when no default is set and input is underspecified  the
- * value of `dt_datetime()' (i.e. now) is used to fill fields up. */
-extern void dt_set_default(struct dt_dt_s);
+ * value of `dt_datetime()' (i.e. now) is used to fill fields up.
+ * This is also used for ambiguous format specifiers (like %y or %_y)
+ * to position their range on the absolute time scale. */
+extern void dt_set_base(struct dt_dt_s);
+#define HAVE_DT_SET_BASE	1
+
+/**
+ * Return the base date/time as struct dt_dt_s. */
+extern struct dt_dt_s dt_get_base(void);
+#define HAVE_DT_GET_BASE	1
 
 
 /* some useful gimmicks, sort of */

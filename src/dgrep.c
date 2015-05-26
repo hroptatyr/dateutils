@@ -142,6 +142,10 @@ main(int argc, char *argv[])
 			dt_io_unescape(fmt[i]);
 		}
 	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
+	}
 
 	if (argi->eq_flag) {
 		o = OP_EQ;

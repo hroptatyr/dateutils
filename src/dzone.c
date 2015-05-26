@@ -221,6 +221,10 @@ main(int argc, char *argv[])
 	if (argi->next_flag || argi->prev_flag) {
 		trnsp = true;
 	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
+	}
 
 	/* very well then */
 	fmt = argi->input_format_args;

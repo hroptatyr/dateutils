@@ -72,6 +72,10 @@ main(int argc, char *argv[])
 		res = 2;
 		goto out;
 	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
+	}
 
 	ifmt = argi->input_format_args;
 	nifmt = argi->input_format_nargs;

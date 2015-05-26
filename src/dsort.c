@@ -266,9 +266,9 @@ main(int argc, char *argv[])
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
 	}
-	if (argi->default_arg) {
-		struct dt_dt_s dflt = dt_strpdt(argi->default_arg, NULL, NULL);
-		dt_set_default(dflt);
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
 	}
 
 	/* prepare a mini-argi for the sort invocation */

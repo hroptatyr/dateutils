@@ -288,15 +288,57 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = 0 - (d->y < 0 || d->m < 0 || d->d < 0);
 		break;
 	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
+		switch (s.abbr) {
+		case DT_SPMOD_LONG:
 			d->y = strtoi_lim(sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		} else if (s.abbr == DT_SPMOD_ABBR) {
+			break;
+		case DT_SPMOD_NORM:
 			d->y = strtoi_lim(sp, &sp, 0, 99);
 			if (UNLIKELY(d->y < 0)) {
-				;
-			} else if ((d->y += 2000) > 2068) {
+				break;
+			}
+#if defined LIBDUT
+			with (struct dt_d_s b = dt_get_dbase()) {
+				unsigned int by = b.ymd.y - 50U;
+				int c = by / 100U;
+				int y = by % 100U;
+
+				if (d->y < y) {
+					c++;
+				}
+				d->y += c * 100;
+			}
+#else  /* !LIBDUT */
+			/* hardcode base as 2015-01-01 */
+			if ((d->y += 2000) > 2065) {
 				d->y -= 100;
 			}
+#endif	/* LIBDUT */
+			break;
+		case DT_SPMOD_ABBR:
+			if (UNLIKELY((unsigned char)(*sp ^ '0') >= 10)) {
+				d->y = -1;
+				break;
+			}
+			d->y = (*sp++ ^ '0');
+#if defined LIBDUT
+			with (struct dt_d_s b = dt_get_dbase()) {
+				unsigned int by = b.ymd.y;
+				int c = by / 10U;
+				int y = by % 10U;
+
+				if (d->y < y) {
+					c++;
+				}
+				d->y += c * 10;
+			}
+#else  /* !LIBDUT */
+			/* hardcode base as 2015-01-01 */
+			if ((d->y += 2010) < 2015) {
+				d->y += 10;
+			}
+#endif	/* LIBDUT */
+			break;
 		}
 		res = 0 - (d->y < 0);
 		break;
@@ -444,16 +486,27 @@ __strpd_rom(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		break;
 
 	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
+		switch (s.abbr) {
+		case DT_SPMOD_LONG:
 			d->y = romstrtoi_lim(
 				sp, &sp, DT_MIN_YEAR, DT_MAX_YEAR);
-		} else if (s.abbr == DT_SPMOD_ABBR) {
+			break;
+		case DT_SPMOD_NORM:
 			d->y = romstrtoi_lim(sp, &sp, 0, 99);
 			if (UNLIKELY(d->y < 0)) {
 				;
 			} else if ((d->y += 2000) > 2068) {
 				d->y -= 100;
 			}
+			break;
+		case DT_SPMOD_ABBR:
+			d->y = romstrtoi_lim(sp, &sp, 0, 9);
+			if (UNLIKELY(d->y < 0)) {
+				;
+			} else {
+				d->y += 2010;
+			}
+			break;
 		}
 		res = 0 - (d->y < 0);
 		break;
@@ -535,13 +588,21 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_YEAR: {
 		unsigned int y = d->y;
-		int prec = 4;
+		int prec;
 
 		if (UNLIKELY(s.tai && d->flags.real_y_in_q)) {
 			y = d->q;
 		}
-		if (UNLIKELY(s.abbr == DT_SPMOD_ABBR)) {
+		switch (s.abbr) {
+		case DT_SPMOD_LONG:
+			prec = 4;
+			break;
+		case DT_SPMOD_NORM:
 			prec = 2;
+			break;
+		case DT_SPMOD_ABBR:
+			prec = 1;
+			break;
 		}
 		res = ui32tostr(buf, bsz, y, prec);
 		break;
@@ -724,11 +785,15 @@ __strfd_rom(
 	case DT_SPFL_UNK:
 		break;
 	case DT_SPFL_N_YEAR:
-		if (s.abbr == DT_SPMOD_NORM) {
+		switch (s.abbr) {
+		case DT_SPMOD_LONG:
 			res = ui32tostrrom(buf, bsz, d->y);
 			break;
-		} else if (s.abbr == DT_SPMOD_ABBR) {
+		case DT_SPMOD_NORM:
 			res = ui32tostrrom(buf, bsz, d->y % 100);
+			break;
+		case DT_SPMOD_ABBR:
+			res = ui32tostrrom(buf, bsz, d->y % 10);
 			break;
 		}
 		break;
