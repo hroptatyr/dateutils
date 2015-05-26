@@ -43,6 +43,7 @@ BUILT_SOURCES += ltrcc.yucc
 noinst_LIBRARIES += libdut.a
 libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
+libdut_a_CPPFLAGS += -DLIBDUT
 libdut_a_CPPFLAGS += -I$(builddir)
 libdut_a_SOURCES =
 libdut_a_SOURCES += version.c version.h version.c.in

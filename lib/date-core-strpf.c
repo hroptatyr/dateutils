@@ -297,6 +297,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			if (UNLIKELY(d->y < 0)) {
 				break;
 			}
+#if defined LIBDUT
 			with (struct dt_d_s b = dt_get_dbase()) {
 				unsigned int by = b.ymd.y - 50U;
 				int c = by / 100U;
@@ -307,6 +308,12 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				}
 				d->y += c * 100;
 			}
+#else  /* !LIBDUT */
+			/* hardcode base as 2015-01-01 */
+			if ((d->y += 2000) > 2065) {
+				d->y -= 100;
+			}
+#endif	/* LIBDUT */
 			break;
 		case DT_SPMOD_ABBR:
 			if (UNLIKELY((unsigned char)(*sp ^ '0') >= 10)) {
@@ -314,6 +321,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				break;
 			}
 			d->y = (*sp++ ^ '0');
+#if defined LIBDUT
 			with (struct dt_d_s b = dt_get_dbase()) {
 				unsigned int by = b.ymd.y;
 				int c = by / 10U;
@@ -324,6 +332,12 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				}
 				d->y += c * 10;
 			}
+#else  /* !LIBDUT */
+			/* hardcode base as 2015-01-01 */
+			if ((d->y += 2010) < 2015) {
+				d->y += 10;
+			}
+#endif	/* LIBDUT */
 			break;
 		}
 		res = 0 - (d->y < 0);
