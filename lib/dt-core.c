@@ -1653,5 +1653,25 @@ dt_get_base(void)
 	return base;
 }
 
+#if defined INCLUDED_date_core_h_
+/* service routines */
+DEFUN struct dt_d_s
+dt_get_dbase(void)
+{
+	struct dt_dt_s b = dt_get_base();
+	return b.d;
+}
+#endif	/* INCLUDED_date_core_h_ */
+
+#if defined INCLUDED_time_core_h_
+/* service routines */
+DEFUN struct dt_t_s
+dt_get_tbase(void)
+{
+	struct dt_dt_s b = dt_get_base();
+	return b.t;
+}
+#endif	/* INCLUDED_time_core_h_ */
+
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */

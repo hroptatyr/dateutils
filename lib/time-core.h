@@ -163,6 +163,11 @@ extern int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
  * Like time() but always return the current UTC time. */
 extern struct dt_t_s dt_time(void);
 
+/**
+ * Return the base date/time as struct dt_t_s.
+ * Defined in dt-core.c */
+extern struct dt_t_s dt_get_tbase(void);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_t_s

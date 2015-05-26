@@ -295,16 +295,34 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		case DT_SPMOD_NORM:
 			d->y = strtoi_lim(sp, &sp, 0, 99);
 			if (UNLIKELY(d->y < 0)) {
-				;
-			} else if ((d->y += 2000) > 2068) {
-				d->y -= 100;
+				break;
+			}
+			with (struct dt_d_s b = dt_get_dbase()) {
+				int c = b.ymd.y / 100U;
+				int y = b.ymd.y % 100U;
+
+				if (d->y > y + 50) {
+					c--;
+				} else if (d->y <= y - 50) {
+					c++;
+				}
+				d->y += c * 100;
 			}
 			break;
 		case DT_SPMOD_ABBR:
 			if (UNLIKELY((unsigned char)(*sp ^ '0') >= 10)) {
 				d->y = -1;
-			} else {
-				d->y = (*sp ^ '0') + 2010;
+				break;
+			}
+			d->y = (*sp++ ^ '0');
+			with (struct dt_d_s b = dt_get_dbase()) {
+				int c = b.ymd.y / 10U;
+				int y = b.ymd.y % 10U;
+
+				if (d->y < y) {
+					c++;
+				}
+				d->y += c * 10;
 			}
 			break;
 		}

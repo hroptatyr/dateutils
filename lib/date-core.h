@@ -513,6 +513,11 @@ extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
  * Get N where N is the N-th occurrence of wday in the month of that year */
 extern unsigned int __ymd_get_count(dt_ymd_t that);
 
+/**
+ * Return the base date/time as struct dt_d_s.
+ * Defined in dt-core.c */
+extern struct dt_d_s dt_get_dbase(void);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_d_s
