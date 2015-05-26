@@ -113,6 +113,10 @@ try_zone(const char *str, const char **ep)
 		/* fully determined */
 		sp = tp;
 		break;
+	case 'Z':
+		/* accept Zulu specifier */
+		sp++;
+		break;
 	default:
 		/* clearly a mistake to advance SP */
 		break;
