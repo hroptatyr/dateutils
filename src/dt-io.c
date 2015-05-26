@@ -425,12 +425,19 @@ calc_grep_atom(const char *fmt)
 		case DT_SPFL_N_TSTD:
 			goto tstd;
 		case DT_SPFL_N_YEAR:
-			if (spec.abbr != DT_SPMOD_ABBR) {
+			switch (spec.abbr) {
+			case DT_SPMOD_LONG:
 				res.pl.off_min += -4;
 				res.pl.off_max += -4;
-			} else {
+				break;
+			case DT_SPMOD_NORM:
 				res.pl.off_min += -2;
 				res.pl.off_max += -2;
+				break;
+			case DT_SPMOD_ABBR:
+				res.pl.off_min += -1;
+				res.pl.off_max += -1;
+				break;
 			}
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
