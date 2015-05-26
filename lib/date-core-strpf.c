@@ -298,12 +298,11 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 				break;
 			}
 			with (struct dt_d_s b = dt_get_dbase()) {
-				int c = b.ymd.y / 100U;
-				int y = b.ymd.y % 100U;
+				unsigned int by = b.ymd.y - 50U;
+				int c = by / 100U;
+				int y = by % 100U;
 
-				if (d->y > y + 50) {
-					c--;
-				} else if (d->y <= y - 50) {
+				if (d->y < y) {
 					c++;
 				}
 				d->y += c * 100;
@@ -316,8 +315,9 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			}
 			d->y = (*sp++ ^ '0');
 			with (struct dt_d_s b = dt_get_dbase()) {
-				int c = b.ymd.y / 10U;
-				int y = b.ymd.y % 10U;
+				unsigned int by = b.ymd.y;
+				int c = by / 10U;
+				int y = by % 10U;
 
 				if (d->y < y) {
 					c++;
