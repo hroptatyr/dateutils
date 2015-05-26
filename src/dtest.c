@@ -60,6 +60,7 @@ main(int argc, char *argv[])
 	char **ifmt;
 	size_t nifmt;
 	struct dt_dt_s d1, d2;
+	zif_t fromz = NULL;
 	int res = 0;
 
 	if (yuck_parse(argi, argc, argv)) {
@@ -72,6 +73,9 @@ main(int argc, char *argv[])
 		res = 2;
 		goto out;
 	}
+	if (argi->from_zone_arg) {
+		fromz = dt_io_zone(argi->from_zone_arg);
+	}
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
 		dt_set_base(base);
@@ -80,14 +84,14 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_args;
 	nifmt = argi->input_format_nargs;
 
-	if (dt_unk_p(d1 = dt_io_strpdt(argi->args[0U], ifmt, nifmt, NULL))) {
+	if (dt_unk_p(d1 = dt_io_strpdt(argi->args[0U], ifmt, nifmt, fromz))) {
 		if (!argi->quiet_flag) {
 			dt_io_warn_strpdt(argi->args[0U]);
 		}
 		res = 2;
 		goto out;
 	}
-	if (dt_unk_p(d2 = dt_io_strpdt(argi->args[1U], ifmt, nifmt, NULL))) {
+	if (dt_unk_p(d2 = dt_io_strpdt(argi->args[1U], ifmt, nifmt, fromz))) {
 		if (!argi->quiet_flag) {
 			dt_io_warn_strpdt(argi->args[1U]);
 		}
