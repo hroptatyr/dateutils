@@ -132,9 +132,10 @@ static struct dt_dt_s
 __fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
 {
 	/* apply time zone difference */
-	struct dt_dt_s zd = dt_dt_initialiser();
+	struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
-	dt_make_t_only(&zd, DT_HMS);
+	zd.sandwich = 1;
+	zd.t.typ = DT_HMS;
 	zd.t.dur = 1;
 	zd.t.sdur = -zdiff;
 	/* reuse dt for result */
@@ -390,7 +391,7 @@ __strfdt_card(
 DEFUN size_t
 __strfdt_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpdt_s *d, struct dt_dt_s that)
+	struct strpdt_s *d, struct dt_dtdur_s that)
 {
 	switch (s.spfl) {
 	default:

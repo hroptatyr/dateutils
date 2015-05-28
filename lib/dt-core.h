@@ -113,10 +113,7 @@ struct dt_dt_s {
 		/* packs */
 		struct {
 			/* dt type, or date type */
-			union {
-				dt_dttyp_t typ:4;
-				dt_dtdurtyp_t durtyp:4;
-			};
+			dt_dttyp_t typ:4;
 			/* sandwich indicator (use d and t slots below) */
 			uint16_t sandwich:1;
 			/* whether we had zone info already but fixed it */
@@ -164,6 +161,57 @@ struct dt_dt_s {
 	};
 };
 
+struct dt_dtdur_s {
+	union {
+		/* packs */
+		struct {
+			/* dt type, or date type */
+			dt_dtdurtyp_t durtyp:4;
+			/* sandwich indicator (use d and t slots below) */
+			uint16_t sandwich:1;
+			/* whether we had zone info already but fixed it */
+			uint16_t znfxd:1;
+			/* whether to be aware of leap-seconds */
+			uint16_t tai:1;
+			/* error indicator to denote date has been fixed up */
+			uint16_t fix:1;
+			/* duration indicator */
+			uint16_t dur:1;
+			/* negation indicator */
+			uint16_t neg:1;
+			/* we've got 6 bits left here to coincide with dt_d_s
+			 * use that and the neg flag for zdiffs
+			 * zdiff itself has 15-minute resolution,
+			 * range [0, 63] aka [00:00 16:00]
+			 * The policy is to store the time always in UTC
+			 * but keep the difference in this slot. */
+			uint16_t zdiff:6;
+#define ZDIFF_RES	(15U * 60U)
+
+			union {
+				uint64_t u:48;
+				dt_ymdhms_t ymdhms;
+				/* for value+unit durations */
+				dt_ssexy_t dv:48;
+				struct {
+#if defined WORDS_BIGENDIAN
+					int32_t corr:16;
+					int32_t soft:32;
+#else  /* !WORDS_BIGENDIAN */
+					int32_t soft:32;
+					int32_t corr:16;
+#endif	/* WORDS_BIGENDIAN */
+				};
+			};
+		} __attribute__((packed));
+		/* sandwich types */
+		struct {
+			struct dt_ddur_s d;
+			struct dt_t_s t;
+		};
+	};
+};
+
 
 /* decls */
 /**
@@ -189,21 +237,21 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-extern struct dt_dt_s
+extern struct dt_dtdur_s
 dt_strpdtdur(const char *str, char **ep);
 
 /**
  * Print a duration. */
 extern size_t
-dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
+dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dtdur_s);
 
 /**
  * Negate the duration. */
-extern struct dt_dt_s dt_neg_dtdur(struct dt_dt_s);
+extern struct dt_dtdur_s dt_neg_dtdur(struct dt_dtdur_s);
 
 /**
  * Is duration DUR negative? */
-extern int dt_dtdur_neg_p(struct dt_dt_s dur);
+extern int dt_dtdur_neg_p(struct dt_dtdur_s dur);
 
 /**
  * Like time() but return the current date in the desired format. */
@@ -218,7 +266,7 @@ extern struct dt_dt_s dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s);
  * The result will be in the calendar as specified by TGTTYP, or if
  * DT_UNK is given, the calendar of D will be used. */
 extern struct dt_dt_s
-dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
+dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur);
 
 /**
  * Get duration between D1 and D2.
@@ -227,7 +275,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
  * etc. conventions count.
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
-extern struct dt_dt_s
+extern struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /**
@@ -284,6 +332,12 @@ dt_unk_p(struct dt_dt_s d)
 }
 
 static inline __attribute__((pure, const)) bool
+dt_durunk_p(struct dt_dtdur_s d)
+{
+	return !(d.sandwich || d.durtyp);
+}
+
+static inline __attribute__((pure, const)) bool
 dt_sandwich_p(struct dt_dt_s d)
 {
 	return d.sandwich && d.d.typ > DT_DUNK;
@@ -306,6 +360,24 @@ dt_separable_p(struct dt_dt_s d)
 {
 /* return true if D is a d+t sandwich or D is d-only or D is t-only */
 	return d.typ < DT_PACK;
+}
+
+static inline __attribute__((pure, const)) bool
+dt_dursandwich_p(struct dt_dtdur_s d)
+{
+	return d.sandwich && d.d.durtyp > DT_DURUNK;
+}
+
+static inline __attribute__((pure, const)) bool
+dt_dursandwich_only_d_p(struct dt_dtdur_s d)
+{
+	return !d.sandwich && d.d.durtyp > DT_DURUNK && d.d.durtyp < DT_NDURTYP;
+}
+
+static inline __attribute__((pure, const)) bool
+dt_dursandwich_only_t_p(struct dt_dtdur_s d)
+{
+	return d.sandwich && d.durtyp == (dt_dtdurtyp_t)DT_DURUNK;
 }
 
 #define DT_SANDWICH_UNK		(DT_UNK)

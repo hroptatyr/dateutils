@@ -263,10 +263,7 @@ typedef int32_t dt_dur_t;
  * Collection of all date types. */
 struct dt_d_s {
 	/* date type */
-	union {
-		dt_dtyp_t typ:4;
-		dt_durtyp_t durtyp:4;
-	};
+	dt_dtyp_t typ:4;
 	/* unused here, but used by inherited types (e.g. dt_dt_s) */
 	uint32_t:3;
 	/* error indicator, usually means date has been fixed up */
@@ -288,6 +285,36 @@ struct dt_d_s {
 		dt_daisy_t bizsi;
 		dt_jdn_t jdn;
 		dt_ldn_t ldn;
+		/* all bizdas mixed into this */
+		dt_bizda_t bizda;
+		/* duration value, for value+unit durations only,
+		 * the .durtyp slot indicates the unit */
+		dt_dur_t dv;
+		/* for helper purposes only */
+		dt_yd_t yd;
+	};
+};
+
+struct dt_ddur_s {
+	/* date duration type */
+	dt_durtyp_t durtyp:4;
+	/* unused here, but used by inherited types (e.g. dt_dt_s) */
+	uint32_t:3;
+	/* error indicator, usually means date has been fixed up */
+	uint32_t fix:1;
+	/* duration predicate */
+	uint32_t dur:1;
+	/* negated predicate */
+	uint32_t neg:1;
+	/* fill up to next ui16 boundary */
+	uint32_t:6;
+	/* for parametrised types */
+	uint32_t param:16;
+	union {
+		uint32_t u;
+		dt_ymd_t ymd;
+		dt_ymcw_t ymcw;
+		dt_ywd_t ywd;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
 		/* duration value, for value+unit durations only,
@@ -361,13 +388,13 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-extern struct dt_d_s
+extern struct dt_ddur_s
 dt_strpddur(const char *str, char **ep);
 
 /**
  * Print a duration. */
 extern size_t
-dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s);
+dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s);
 
 /**
  * Like time() but return the current date in the desired format. */
@@ -430,7 +457,7 @@ extern dt_ymd_t __daisy_to_ymd(dt_daisy_t);
 /**
  * Add duration DUR to date D. */
 extern struct dt_d_s
-dt_dadd(struct dt_d_s d, struct dt_d_s dur);
+dt_dadd(struct dt_d_s d, struct dt_ddur_s dur);
 
 /**
  * Add N (gregorian) days to date D. */
@@ -461,11 +488,11 @@ dt_dadd_y(struct dt_d_s d, int n);
 
 /**
  * Negate the duration. */
-extern struct dt_d_s dt_neg_dur(struct dt_d_s);
+extern struct dt_ddur_s dt_neg_dur(struct dt_ddur_s);
 
 /**
  * Is duration DUR negative? */
-extern int dt_dur_neg_p(struct dt_d_s dur);
+extern int dt_dur_neg_p(struct dt_ddur_s dur);
 
 /**
  * Get duration between D1 and D2.
@@ -474,7 +501,7 @@ extern int dt_dur_neg_p(struct dt_d_s dur);
  * etc. conventions count.
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
-extern struct dt_d_s
+extern struct dt_ddur_s
 dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
 
 /**
@@ -486,40 +513,6 @@ extern int dt_dcmp(struct dt_d_s d1, struct dt_d_s d2);
  * Check if D is in the interval spanned by D1 and D2,
  * 1 if D1 is younger than the D2. */
 extern int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
-
-/**
- * Get the week count of D in the year when weeks start at _1st_wd. */
-extern int __yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd);
-
-/**
- * Like __yd_get_wcnt() but for ISO week convention. */
-extern int __yd_get_wcnt_iso(dt_yd_t d);
-
-/**
- * Like __yd_get_wcnt() but disregard what day the year started with. */
-extern int __yd_get_wcnt_abs(dt_yd_t d);
-
-/**
- * Return the N-th W-day in the year of THAT.
- * This is equivalent with 8601's Y-W-D calendar where W is the week
- * of the year and D the day in the week */
-extern unsigned int __ymcw_get_yday(dt_ymcw_t that);
-
-/**
- * Get the number of days in month M of year Y. */
-extern unsigned int __get_mdays(unsigned int y, unsigned int m);
-
-/**
- * Get the number of business days in month M of year Y. */
-extern unsigned int __get_bdays(unsigned int y, unsigned int m);
-
-/**
- * Compare two ymcw objects, return <0, 0, >0 when D1 < D2, D1 == D2, D1 > D2 */
-extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
-
-/**
- * Get N where N is the N-th occurrence of wday in the month of that year */
-extern unsigned int __ymd_get_count(dt_ymd_t that);
 
 #if defined LIBDUT
 /**
@@ -575,10 +568,10 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 	return res;
 }
 
-static inline struct dt_d_s
+static inline struct dt_ddur_s
 dt_make_ddur(dt_durtyp_t typ, dt_dur_t d)
 {
-	struct dt_d_s res;
+	struct dt_ddur_s res;
 
 	res.durtyp = typ;
 	res.dur = 1U;

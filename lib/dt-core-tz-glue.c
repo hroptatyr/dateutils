@@ -70,9 +70,10 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	d_unix = zif_utc_time(zone, d_locl);
 	if (LIKELY((zdiff = d_unix - d_locl))) {
 		/* let dt_dtadd() do the magic */
-		struct dt_dt_s zd = dt_dt_initialiser();
+		struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
-		dt_make_t_only(&zd, DT_HMS);
+		zd.sandwich = 0;
+		zd.t.typ = DT_HMS;
 		zd.t.dur = 1;
 		zd.t.sdur = zdiff;
 		d = dt_dtadd(d, zd);
@@ -105,9 +106,10 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	d_locl = zif_local_time(zone, d_unix);
 	if (LIKELY((zdiff = d_locl - d_unix))) {
 		/* let dt_dtadd() do the magic */
-		struct dt_dt_s zd = dt_dt_initialiser();
+		struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
-		dt_make_t_only(&zd, DT_HMS);
+		zd.sandwich = 0;
+		zd.t.typ = DT_HMS;
 		zd.t.dur = 1;
 		zd.t.sdur = zdiff;
 		d = dt_dtadd(d, zd);

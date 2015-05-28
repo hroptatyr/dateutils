@@ -774,7 +774,7 @@ __strfd_rom(
 DEFUN size_t
 __strfd_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpd_s *d, struct dt_d_s UNUSED(that))
+	struct strpd_s *d, struct dt_ddur_s UNUSED(that))
 {
 	size_t res = 0;
 

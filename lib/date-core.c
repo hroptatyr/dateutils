@@ -1052,11 +1052,11 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	return bp - buf;
 }
 
-DEFUN struct dt_d_s
+DEFUN struct dt_ddur_s
 dt_strpddur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_d_s res = dt_d_initialiser();
+	struct dt_ddur_s res = dt_make_ddur(DT_DURUNK, 0);
 	const char *sp = str;
 	int tmp;
 
@@ -1111,7 +1111,7 @@ out:
 }
 
 DEFUN size_t
-dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
+dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s that)
 {
 	struct strpd_s d = strpd_initialiser();
 	const char *fp;
@@ -1154,8 +1154,10 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = yddur_dflt;
 		}
 		break;
-	case DT_DURBIZDA: {
-		dt_bizda_param_t bparam = __get_bizda_param(that);
+	case DT_DURBIZDA:;
+		dt_bizda_param_t bparam;
+
+		bparam.bs = that.param;
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
 		d.b = that.bizda.bd;
@@ -1169,7 +1171,6 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = bizdadur_dflt;
 		}
 		break;
-	}
 
 	case DT_DURD:
 	case DT_DURB:
@@ -1624,7 +1625,7 @@ dt_dadd_y(struct dt_d_s d, int n)
 }
 
 DEFUN struct dt_d_s
-dt_dadd(struct dt_d_s d, struct dt_d_s dur)
+dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 {
 	switch (dur.durtyp) {
 	case DT_DURD:
@@ -1650,8 +1651,8 @@ dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 	return d;
 }
 
-DEFUN struct dt_d_s
-dt_neg_dur(struct dt_d_s dur)
+DEFUN struct dt_ddur_s
+dt_neg_dur(struct dt_ddur_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
 	switch (dur.durtyp) {
@@ -1671,7 +1672,7 @@ dt_neg_dur(struct dt_d_s dur)
 }
 
 DEFUN int
-dt_dur_neg_p(struct dt_d_s dur)
+dt_dur_neg_p(struct dt_ddur_s dur)
 {
 	switch (dur.durtyp) {
 	case DT_DURD:
@@ -1687,10 +1688,10 @@ dt_dur_neg_p(struct dt_d_s dur)
 	return dur.neg;
 }
 
-DEFUN struct dt_d_s
+DEFUN struct dt_ddur_s
 dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 {
-	struct dt_d_s res = {.typ = DT_DUNK};
+	struct dt_ddur_s res = dt_make_ddur(DT_DURUNK, 0);
 
 	switch (tgttyp) {
 	case DT_DURD:
@@ -1733,9 +1734,6 @@ dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	case DT_DURBIZDA:
 	case DT_DURUNK:
 	default:
-		res.typ = DT_DUNK;
-		res.u = 0;
-		/* @fallthrough@ */
 		break;
 	}
 	return res;

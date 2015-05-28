@@ -74,7 +74,7 @@ __strfdt_card(
 extern size_t
 __strfdt_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpdt_s *d, struct dt_dt_s that);
+	struct strpdt_s *d, struct dt_dtdur_s that);
 
 #if defined __cplusplus
 }

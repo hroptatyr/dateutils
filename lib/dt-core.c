@@ -244,7 +244,7 @@ __epoch_to_ymd_sandwich(dt_ssexy_t sx)
 }
 
 static inline dt_sexy_t
-__sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
+__sexy_add(dt_sexy_t sx, struct dt_dtdur_s dur)
 {
 /* sexy add
  * only works for continuous types (DAISY, etc.)
@@ -893,11 +893,11 @@ out:
 	return bp - buf;
 }
 
-DEFUN struct dt_dt_s
+DEFUN struct dt_dtdur_s
 dt_strpdtdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	const char *sp;
 	long int tmp;
 
@@ -996,7 +996,7 @@ out:
 
 DEFUN size_t
 dt_strfdtdur(
-	char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
+	char *restrict buf, size_t bsz, const char *fmt, struct dt_dtdur_s that)
 {
 	struct strpdt_s d;
 	const char *fp;
@@ -1008,14 +1008,14 @@ dt_strfdtdur(
 	}
 
 	d = strpdt_initialiser();
-	switch (that.d.typ) {
+	switch (that.d.durtyp) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
 		d.sd.d = that.d.ymd.d;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			fmt = ymdhmsdur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = ymddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
@@ -1026,9 +1026,9 @@ dt_strfdtdur(
 		d.sd.m = that.d.ymcw.m;
 		d.sd.c = that.d.ymcw.c;
 		d.sd.d = that.d.ymcw.w;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			fmt = ymcwhmsdur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = ymcwdur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
@@ -1038,9 +1038,9 @@ dt_strfdtdur(
 		d.sd.y = that.d.ywd.y;
 		d.sd.c = that.d.ywd.c;
 		d.sd.d = that.d.ywd.w;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			fmt = ywdhmsdur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = ywddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
@@ -1049,37 +1049,39 @@ dt_strfdtdur(
 	case DT_YD:
 		d.sd.y = that.d.yd.y;
 		d.sd.d = that.d.yd.d;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			fmt = ydhmsdur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = yddur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
 		break;
-	case DT_DAISY:
-		d.sd.d = that.d.daisy;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+	case DT_DURD:
+		d.sd.d = that.d.dv;
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			fmt = daisydur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = daisydur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
 		break;
-	case DT_BIZSI:
-		d.sd.d = that.d.bizsi;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+	case DT_DURB:
+		d.sd.d = that.d.dv;
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			/* subject to change */
 			fmt = bizsidur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = bizsidur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
 		break;
-	case DT_BIZDA: {
-		dt_bizda_param_t bparam = __get_bizda_param(that.d);
+	case DT_BIZDA:;
+		dt_bizda_param_t bparam;
+
+		bparam.bs = that.d.param;
 		d.sd.y = that.d.bizda.y;
 		d.sd.m = that.d.bizda.m;
 		d.sd.b = that.d.bizda.bd;
@@ -1089,25 +1091,25 @@ dt_strfdtdur(
 			d.sd.flags.ab = BIZDA_BEFORE;
 		}
 		d.sd.flags.bizda = 1;
-		if (fmt == NULL && dt_sandwich_p(that)) {
+		if (fmt == NULL && dt_dursandwich_p(that)) {
 			fmt = bizdahmsdur_dflt;
-		} else if (fmt == NULL && dt_sandwich_only_d_p(that)) {
+		} else if (fmt == NULL && dt_dursandwich_only_d_p(that)) {
 			fmt = bizdadur_dflt;
 		} else if (fmt == NULL) {
 			goto try_time;
 		}
 		break;
-	}
+
 	default:
 	case DT_DUNK:
 		break;
 	}
 	/* translate high-level format names */
-	if (dt_sandwich_p(that)) {
+	if (dt_dursandwich_p(that)) {
 		__trans_dtdurfmt(&fmt);
-	} else if (dt_sandwich_only_d_p(that)) {
+	} else if (dt_dursandwich_only_d_p(that)) {
 		__trans_ddurfmt(&fmt);
-	} else if (dt_sandwich_only_t_p(that)) {
+	} else if (dt_dursandwich_only_t_p(that)) {
 	try_time:
 		fmt = "%S";
 	} else {
@@ -1147,13 +1149,12 @@ out:
 	return bp - buf;
 }
 
-DEFUN struct dt_dt_s
-dt_neg_dtdur(struct dt_dt_s dur)
+DEFUN struct dt_dtdur_s
+dt_neg_dtdur(struct dt_dtdur_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
 	dur.t.neg = (uint16_t)(~dur.t.neg & 0x01);
 
-	/* treat daisy and bizsi durs specially */
 	switch (dur.durtyp) {
 	case DT_DURD:
 	case DT_DURB:
@@ -1179,7 +1180,7 @@ dt_neg_dtdur(struct dt_dt_s dur)
 }
 
 DEFUN int
-dt_dtdur_neg_p(struct dt_dt_s dur)
+dt_dtdur_neg_p(struct dt_dtdur_s dur)
 {
 	switch (dur.durtyp) {
 	case DT_DURD:
@@ -1372,7 +1373,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 }
 
 DEFUN struct dt_dt_s
-dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
+dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 {
 /* we decompose the problem like so:
  * carry <- dpart(dur);
@@ -1425,7 +1426,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	}
 
 	/* demote D's and DUR's type temporarily */
-	if (d.typ != DT_SANDWICH_UNK && dur.d.typ != DT_DUNK) {
+	if (d.typ != DT_SANDWICH_UNK && dur.d.durtyp != DT_DURUNK) {
 	dadd:
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
@@ -1479,10 +1480,10 @@ pre_corr:
 	return d;
 }
 
-DEFUN struct dt_dt_s
+DEFUN struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
 	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
 		/* do the time portion difference right away */
@@ -1490,7 +1491,10 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	}
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
-		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
+		/* make t-only */
+		res.d.durtyp = DT_DURUNK;
+		res.t.typ = (dt_ttyp_t)DT_SEXY;
+		res.sandwich = 1U;
 	} else if (tgttyp && tgttyp < DT_DURSEXY) {
 		/* check for negative carry */
 		if (UNLIKELY(res.t.sdur < 0)) {
@@ -1499,9 +1503,15 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		}
 		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
 		if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
-			dt_make_d_only(&res, (dt_dtyp_t)tgttyp);
+			/* make d-only */
+			res.durtyp = tgttyp;
+			res.t.typ = DT_TUNK;
+			res.sandwich = 0;
 		} else {
-			dt_make_sandwich(&res, (dt_dtyp_t)tgttyp, DT_HMS);
+			/* make sandwich */
+			res.durtyp = tgttyp;
+			res.t.typ = DT_HMS;
+			res.sandwich = 1;
 		}
 	} else if (tgttyp >= DT_DURSEXY) {
 		int64_t sxdur;

@@ -298,15 +298,12 @@ __daisy_add_w(dt_daisy_t d, int n)
 
 #if defined ASPECT_DIFF && !defined DAISY_ASPECT_DIFF_
 #define DAISY_ASPECT_DIFF_
-static __attribute__((const, pure)) struct dt_d_s
+static __attribute__((const, pure)) struct dt_ddur_s
 __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 {
 /* compute d2 - d1 */
-	struct dt_d_s res = {.durtyp = DT_DURD, .dur = 1};
 	int32_t diff = d2 - d1;
-
-	res.dv = diff;
-	return res;
+	return dt_make_ddur(DT_DURD, diff);
 }
 #endif	/* ASPECT_DIFF */
 

@@ -644,11 +644,11 @@ __ymd_add_y(dt_ymd_t d, int n)
 
 #if defined ASPECT_DIFF && !defined YMD_ASPECT_DIFF_
 #define YMD_ASPECT_DIFF_
-static struct dt_d_s
+static struct dt_ddur_s
 __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 {
 /* compute d2 - d1 entirely in terms of ymd */
-	struct dt_d_s res = dt_make_ddur(DT_DURYMD, 0);
+	struct dt_ddur_s res = dt_make_ddur(DT_DURYMD, 0);
 	signed int tgtd;
 	signed int tgtm;
 
