@@ -716,7 +716,7 @@ __trans_dfmt(const char **fmt)
 	return DT_DUNK;
 }
 
-DEFUN dt_dtyp_t
+DEFUN dt_durtyp_t
 __trans_ddurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -726,37 +726,44 @@ __trans_ddurfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		unsigned int tmp = __trans_dfmt_special(*fmt);
 
 		switch (tmp) {
 		default:
 			break;
 		case DT_YMD:
 			*fmt = ymddur_dflt;
+			tmp = DT_DURYMD;
 			break;
 		case DT_YMCW:
 			*fmt = ymcwdur_dflt;
+			tmp = DT_DURYMCW;
 			break;
 		case DT_YWD:
 			*fmt = ywddur_dflt;
+			tmp = DT_DURYWD;
 			break;
 		case DT_YD:
 			*fmt = yddur_dflt;
+			tmp = DT_DURYD;
 			break;
 		case DT_BIZDA:
 			*fmt = bizdadur_dflt;
+			tmp = DT_DURBIZDA;
 			break;
 		case DT_DAISY:
 			*fmt = daisydur_dflt;
+			tmp = DT_DURD;
 			break;
 		case DT_BIZSI:
 			*fmt = bizsidur_dflt;
+			tmp = DT_DURB;
 			break;
 		}
 
-		return tmp;
+		return (dt_durtyp_t)tmp;
 	}
-	return DT_DUNK;
+	return DT_DURUNK;
 }
 
 /* strpf glue */
@@ -1050,7 +1057,6 @@ dt_strpddur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
 	struct dt_d_s res = dt_d_initialiser();
-	struct strpd_s d = strpd_initialiser();
 	const char *sp = str;
 	int tmp;
 
@@ -1062,63 +1068,41 @@ dt_strpddur(const char *str, char **ep)
 	switch (*sp++) {
 	case '\0':
 		/* must have been day then */
-		d.d = tmp;
+		res.durtyp = DT_DURD;
 		sp--;
 		break;
 	case 'd':
 	case 'D':
-		d.d = tmp;
+		res.durtyp = DT_DURD;
 		break;
 	case 'y':
 	case 'Y':
-		d.y = tmp;
+		res.durtyp = DT_DURY;
 		break;
 	case 'm':
 	case 'M':
-		d.m = tmp;
+		res.durtyp = DT_DURM;
 		break;
 	case 'w':
 	case 'W':
-		d.w = tmp;
+		res.durtyp = DT_DURW;
 		break;
 	case 'b':
 	case 'B':
-		d.b = tmp;
+		res.durtyp = DT_DURB;
 		break;
 	case 'q':
 	case 'Q':
-		d.q = tmp;
+		res.durtyp = DT_DURQ;
 		break;
 	default:
 		sp = str;
 		goto out;
 	}
-	/* assess */
-	if (d.b && (d.y || d.m >= 1)) {
-		res.typ = DT_BIZDA;
-		res.bizda.y = d.y;
-		res.bizda.m = d.q * 3 + d.m;
-		res.bizda.bd = d.b + d.w * DUWW_BDAYS_P_WEEK;
-	} else if (LIKELY(d.y || d.m >= 1)) {
-		res.typ = DT_YMD;
-		res.ymd.y = d.y;
-		res.ymd.m = d.q * 3 + d.m;
-		res.ymd.d = d.d + d.w * GREG_DAYS_P_WEEK;
-	} else if (d.d) {
-		res.typ = DT_DAISY;
-		res.daisydur = d.w * GREG_DAYS_P_WEEK + d.d;
-	} else if (d.b) {
-		res.typ = DT_BIZSI;
-		res.bizsidur = d.w * DUWW_BDAYS_P_WEEK + d.b;
-	} else {
-		/* we leave out YMCW diffs simply because YMD diffs
-		 * cover them better
-		 * anything that doesn't fit shall be mapped to MD durs
-		 * using the definitions of MONTHS_P_YEAR and DAYS_P_WEEK */
-		res.typ = DT_MD;
-		res.md.d = d.w * GREG_DAYS_P_WEEK + d.d;
-		res.md.m = d.y * GREG_MONTHS_P_YEAR + d.m;
-	}
+	/* no further checks on TMP */
+	res.dv = tmp;
+	/* it's a duration alright */
+	res.dur = 1U;
 out:
 	if (ep != NULL) {
 		*ep = (char*)sp;
@@ -1137,8 +1121,8 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		return 0;
 	}
 
-	switch (that.typ) {
-	case DT_YMD:
+	switch (that.durtyp) {
+	case DT_DURYMD:
 		d.y = that.ymd.y;
 		d.m = that.ymd.m;
 		d.d = that.ymd.d;
@@ -1146,7 +1130,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = ymddur_dflt;
 		}
 		break;
-	case DT_YMCW:
+	case DT_DURYMCW:
 		d.y = that.ymcw.y;
 		d.m = that.ymcw.m;
 		d.c = that.ymcw.c;
@@ -1155,7 +1139,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = ymcwdur_dflt;
 		}
 		break;
-	case DT_YWD:
+	case DT_DURYWD:
 		d.y = that.ywd.y;
 		d.c = that.ywd.c;
 		d.d = that.ywd.w;
@@ -1163,40 +1147,14 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 			fmt = ywddur_dflt;
 		}
 		break;
-	case DT_YD:
+	case DT_DURYD:
 		d.y = that.yd.y;
 		d.d = that.yd.d;
 		if (fmt == NULL) {
 			fmt = yddur_dflt;
 		}
 		break;
-	case DT_DAISY:
-		if (that.daisydur >= 0) {
-			d.d = that.daisydur;
-		} else {
-			d.d = -that.daisydur;
-			/* make sure the neg bit doesn't bite us */
-			that.neg = 1;
-		}
-		if (fmt == NULL) {
-			/* subject to change */
-			fmt = daisydur_dflt;
-		}
-		break;
-	case DT_BIZSI:
-		if (that.bizsidur >= 0) {
-			d.d = that.bizsidur;
-		} else {
-			d.d = -that.bizsidur;
-			/* make sure the neg bit doesn't bite us */
-			that.neg = 1;
-		}
-		if (fmt == NULL) {
-			/* subject to change */
-			fmt = bizsidur_dflt;
-		}
-		break;
-	case DT_BIZDA: {
+	case DT_DURBIZDA: {
 		dt_bizda_param_t bparam = __get_bizda_param(that);
 		d.y = that.bizda.y;
 		d.m = that.bizda.m;
@@ -1212,12 +1170,41 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		}
 		break;
 	}
-	case DT_MD:
-		d.y = __uidiv(that.md.m, GREG_MONTHS_P_YEAR);
-		d.m = __uimod(that.md.m, GREG_MONTHS_P_YEAR);
-		d.w = __uidiv(that.md.d, GREG_DAYS_P_WEEK);
-		d.d = __uimod(that.md.d, GREG_DAYS_P_WEEK);
+
+	case DT_DURD:
+	case DT_DURB:
+	case DT_DURW:
+	case DT_DURM:
+	case DT_DURQ:
+	case DT_DURY:
+		if (that.dv >= 0) {
+			/* make sure the neg bit doesn't bite us */
+			that.dv = -that.dv;
+			that.neg = 1U;
+		}
+
+		switch (that.durtyp) {
+		case DT_DURD:
+			d.d = that.dv;
+			break;
+		case DT_DURB:
+			d.b = that.dv;
+			break;
+		case DT_DURW:
+			d.d = that.dv * GREG_DAYS_P_WEEK;
+			break;
+		case DT_DURM:
+			d.m = that.dv;
+			break;
+		case DT_DURQ:
+			d.m = that.dv * 3U;
+			break;
+		case DT_DURY:
+			d.y = that.dv;
+			break;
+		}
 		break;
+
 	default:
 	case DT_DUNK:
 		bp = buf;
@@ -1317,9 +1304,9 @@ dt_date(dt_dtyp_t outtyp)
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.daisy = t / 86400 + 19359;
 		break;
+
+		/* the rest doesn't make sense I say */
 	default:
-	case DT_MD:
-		/* doesn't make sense */
 	case DT_DUNK:
 		res.u = 0;
 	}
@@ -1639,23 +1626,26 @@ dt_dadd_y(struct dt_d_s d, int n)
 DEFUN struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_d_s dur)
 {
-	struct strpdi_s durcch = strpdi_initialiser();
-
-	__fill_strpdi(&durcch, dur);
-
-	if (durcch.d) {
-		d = dt_dadd_d(d, durcch.d);
-	} else if (durcch.b) {
-		d = dt_dadd_b(d, durcch.b);
-	}
-	if (durcch.w) {
-		d = dt_dadd_w(d, durcch.w);
-	}
-	if (durcch.m) {
-		d = dt_dadd_m(d, durcch.m);
-	}
-	if (durcch.y) {
-		d = dt_dadd_y(d, durcch.y);
+	switch (dur.durtyp) {
+	case DT_DURD:
+		d = dt_dadd_d(d, dur.dv);
+		break;
+	case DT_DURB:
+		d = dt_dadd_b(d, dur.dv);
+		break;
+	case DT_DURW:
+		d = dt_dadd_w(d, dur.dv);
+		break;
+	case DT_DURM:
+		d = dt_dadd_m(d, dur.dv);
+		break;
+	case DT_DURY:
+		d = dt_dadd_y(d, dur.dv);
+		break;
+	default:
+	case DT_DURUNK:
+		/* huh? */
+		break;
 	}
 	return d;
 }
@@ -1664,13 +1654,16 @@ DEFUN struct dt_d_s
 dt_neg_dur(struct dt_d_s dur)
 {
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
-	switch (dur.typ) {
-	case DT_DAISY:
-		dur.daisydur = -dur.daisydur;
+	switch (dur.durtyp) {
+	case DT_DURD:
+	case DT_DURB:
+	case DT_DURW:
+	case DT_DURM:
+	case DT_DURQ:
+	case DT_DURY:
+		dur.dv = -dur.dv;
 		break;
-	case DT_BIZSI:
-		dur.bizsidur = -dur.bizsidur;
-		break;
+
 	default:
 		break;
 	}
@@ -1680,109 +1673,70 @@ dt_neg_dur(struct dt_d_s dur)
 DEFUN int
 dt_dur_neg_p(struct dt_d_s dur)
 {
-	switch (dur.typ) {
-	case DT_DAISY:
-		return dur.daisydur < 0;
-	case DT_BIZSI:
-		return dur.bizsidur < 0;
+	switch (dur.durtyp) {
+	case DT_DURD:
+	case DT_DURB:
+	case DT_DURW:
+	case DT_DURM:
+	case DT_DURQ:
+	case DT_DURY:
+		return dur.dv < 0;
 	default:
-		return dur.neg;
+		break;
 	}
+	return dur.neg;
 }
 
 DEFUN struct dt_d_s
-dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
+dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 {
 	struct dt_d_s res = {.typ = DT_DUNK};
-	dt_dtyp_t tmptyp = tgttyp;
 
-	if (tgttyp == DT_MD) {
-		if (d1.typ == DT_YMD || d2.typ == DT_YMD) {
-			tmptyp = DT_YMD;
-		} else if (d1.typ == DT_YMCW || d2.typ == DT_YMCW) {
-			tmptyp = DT_YMCW;
-		} else if (d1.typ == DT_YD || d2.typ == DT_YD) {
-			tmptyp = DT_YD;
-		} else {
-			tmptyp = DT_DAISY;
-		}
-	}
-
-	switch (tmptyp) {
-	case DT_BIZSI:
-	case DT_DAISY: {
+	switch (tgttyp) {
+	case DT_DURD:
+	case DT_DURB: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
 		dt_daisy_t tmp2 = dt_conv_to_daisy(d2);
 		res = __daisy_diff(tmp1, tmp2);
 
 		/* fix up result in case it's bizsi, i.e. kick weekends */
-		if (tgttyp == DT_BIZSI) {
+		if (tgttyp == DT_DURB) {
 			dt_dow_t wdb = __daisy_get_wday(tmp2);
-			res.bizsidur = __get_nbdays(res.daisydur, wdb);
+			res.dv = __get_nbdays(res.dv, wdb);
 		}
 		break;
 	}
-	case DT_YMD: {
+	case DT_DURYMD: {
 		dt_ymd_t tmp1 = dt_conv_to_ymd(d1);
 		dt_ymd_t tmp2 = dt_conv_to_ymd(d2);
 		res = __ymd_diff(tmp1, tmp2);
 		break;
 	}
-	case DT_YMCW: {
+	case DT_DURYMCW: {
 		dt_ymcw_t tmp1 = dt_conv_to_ymcw(d1);
 		dt_ymcw_t tmp2 = dt_conv_to_ymcw(d2);
 		res = __ymcw_diff(tmp1, tmp2);
 		break;
 	}
-	case DT_YD: {
+	case DT_DURYD: {
 		dt_yd_t tmp1 = dt_conv_to_yd(d1);
 		dt_yd_t tmp2 = dt_conv_to_yd(d2);
 		res = __yd_diff(tmp1, tmp2);
 		break;
 	}
-	case DT_YWD: {
+	case DT_DURYWD: {
 		dt_ywd_t tmp1 = dt_conv_to_ywd(d1);
 		dt_ywd_t tmp2 = dt_conv_to_ywd(d2);
 		res = __ywd_diff(tmp1, tmp2);
 		break;
 	}
-	case DT_BIZDA:
-	case DT_DUNK:
+	case DT_DURBIZDA:
+	case DT_DURUNK:
 	default:
 		res.typ = DT_DUNK;
 		res.u = 0;
 		/* @fallthrough@ */
-	case DT_MD:
-		/* md is handled later */
 		break;
-	}
-	/* check if we had DT_MD as tgttyp */
-	if (tgttyp == DT_MD) {
-		/* convert res back to DT_MD */
-		struct dt_d_s tmp = {.typ = DT_MD};
-
-		switch (tmptyp) {
-		case DT_YMD:
-			tmp.md.m = res.ymd.y * GREG_MONTHS_P_YEAR + res.ymd.m;
-			tmp.md.d = res.ymd.d;
-			break;
-		case DT_YMCW:
-			tmp.md.m = res.ymcw.y * GREG_MONTHS_P_YEAR + res.ymcw.m;
-			tmp.md.d = res.ymcw.w * GREG_DAYS_P_WEEK + res.ymcw.c;
-			break;
-		case DT_YD:
-			tmp.md.m = res.yd.y * GREG_MONTHS_P_YEAR;
-			tmp.md.d = res.yd.d;
-			break;
-		case DT_DAISY:
-			tmp.md.m = 0;
-			tmp.md.d = res.daisy;
-			break;
-
-		default:
-			break;
-		}
-		res = tmp;
 	}
 	return res;
 }

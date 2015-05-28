@@ -53,17 +53,19 @@ extern "C" {
 typedef enum {
 	/* this one's our own version of UNK */
 	DT_UNK = 0,
-#define DT_UNK		(dt_dttyp_t)(DT_UNK)
 	/* the lower date types come from date-core.h */
 	DT_PACK = DT_NDTYP,
 	DT_YMDHMS = DT_PACK,
-#define DT_YMDHMS	(dt_dttyp_t)(DT_YMDHMS)
 	DT_SEXY,
-#define DT_SEXY		(dt_dttyp_t)(DT_SEXY)
 	DT_SEXYTAI,
-#define DT_SEXYTAI	(dt_dttyp_t)(DT_SEXYTAI)
 	DT_NDTTYP,
 } dt_dttyp_t;
+
+typedef enum {
+	DT_DURSEXY = DT_NDURTYP,
+	DT_DURNANO = DT_NDURTYP + 1U,
+	DT_NDTDURTYP = DT_NDURTYP + 2U,
+} dt_dtdurtyp_t;
 
 /** packs
  * packs are just packs of dates and times */
@@ -111,7 +113,10 @@ struct dt_dt_s {
 		/* packs */
 		struct {
 			/* dt type, or date type */
-			dt_dttyp_t typ:4;
+			union {
+				dt_dttyp_t typ:4;
+				dt_dtdurtyp_t durtyp:4;
+			};
 			/* sandwich indicator (use d and t slots below) */
 			uint16_t sandwich:1;
 			/* whether we had zone info already but fixed it */
@@ -137,8 +142,9 @@ struct dt_dt_s {
 				uint64_t u:48;
 				dt_ymdhms_t ymdhms;
 				dt_sexy_t sexy:48;
-				dt_ssexy_t sexydur:48;
 				dt_ssexy_t sxepoch:48;
+				/* for value+unit durations */
+				dt_ssexy_t dv:48;
 				struct {
 #if defined WORDS_BIGENDIAN
 					int32_t corr:16;
@@ -222,7 +228,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
 extern struct dt_dt_s
-dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
+dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,

@@ -251,14 +251,14 @@ __sexy_add(dt_sexy_t sx, struct dt_dt_s dur)
  * we need to take leap seconds into account here */
 	signed int delta = 0;
 
-	switch (dur.d.typ) {
-	case DT_SEXY:
-	case DT_SEXYTAI:
-		delta = dur.sexydur;
+	switch (dur.durtyp) {
+	case DT_DURSEXY:
+	case DT_DURNANO:
+		delta = dur.dv;
 		break;
-	case DT_DAISY:
-		delta = dur.d.daisydur * SECS_PER_DAY;
-	case DT_DUNK:
+	case DT_DURB:
+		delta = dur.d.dv * SECS_PER_DAY;
+	case DT_DURUNK:
 		delta += dur.t.sdur;
 	default:
 		break;
@@ -344,7 +344,7 @@ __trans_dtfmt(const char **fmt)
 	return (dt_dttyp_t)DT_DUNK;
 }
 
-DEFUN dt_dttyp_t
+DEFUN dt_dtdurtyp_t
 __trans_dtdurfmt(const char **fmt)
 {
 	if (UNLIKELY(*fmt == NULL)) {
@@ -354,7 +354,7 @@ __trans_dtdurfmt(const char **fmt)
 		/* don't worry about it */
 		;
 	} else {
-		const dt_dtyp_t tmp = __trans_dfmt_special(*fmt);
+		unsigned int tmp = __trans_dfmt_special(*fmt);
 
 		/* thanks gcc for making me cast this :( */
 		switch ((unsigned int)tmp) {
@@ -362,32 +362,40 @@ __trans_dtdurfmt(const char **fmt)
 			break;
 		case DT_YMD:
 			*fmt = ymdhmsdur_dflt;
+			tmp = DT_DURYMD;
 			break;
 		case DT_YMCW:
 			*fmt = ymcwhmsdur_dflt;
+			tmp = DT_DURYMCW;
 			break;
 		case DT_BIZDA:
 			*fmt = bizdahmsdur_dflt;
+			tmp = DT_DURBIZDA;
 			break;
 		case DT_DAISY:
 			*fmt = daisyhmsdur_dflt;
+			tmp = DT_DURD;
 			break;
 		case DT_SEXY:
 			*fmt = sexydur_dflt;
+			tmp = DT_DURSEXY;
 			break;
 		case DT_BIZSI:
 			*fmt = bizsihmsdur_dflt;
+			tmp = DT_DURB;
 			break;
 		case DT_YWD:
 			*fmt = ywdhmsdur_dflt;
+			tmp = DT_DURYWD;
 			break;
 		case DT_YD:
 			*fmt = ydhmsdur_dflt;
+			tmp = DT_DURYD;
 			break;
 		}
-		return (dt_dttyp_t)tmp;
+		return (dt_dtdurtyp_t)tmp;
 	}
-	return (dt_dttyp_t)DT_DUNK;
+	return (dt_dtdurtyp_t)DT_DURUNK;
 }
 
 #define FFFF_GMTIME_SUBDAY
@@ -892,7 +900,6 @@ dt_strpdtdur(const char *str, char **ep)
 	struct dt_dt_s res = dt_dt_initialiser();
 	const char *sp;
 	long int tmp;
-	struct strpdt_s d;
 
 	if ((sp = str) == NULL) {
 		goto out;
@@ -907,64 +914,65 @@ dt_strpdtdur(const char *str, char **ep)
 		goto out;
 	}
 
-	d = strpdt_initialiser();
 sp:
 	switch (*sp++) {
 	case '\0':
 		/* must have been day then */
-		d.sd.d = tmp;
+		res.d.durtyp = DT_DURD;
 		sp--;
 		break;
 	case 'd':
 	case 'D':
-		d.sd.d = tmp;
+		res.d.durtyp = DT_DURD;
 		break;
 	case 'y':
 	case 'Y':
-		d.sd.y = tmp;
-		break;
-	case 'm':
-	case 'M':
-		d.sd.m = tmp;
-		if (*sp == 'o') {
-			/* that makes it unique */
-			sp++;
-			break;
-		}
-	case '\'':
-		/* could stand for minute, so just to be sure ... */
-		d.st.m = tmp;
+		res.d.durtyp = DT_DURY;
 		break;
 	case 'w':
 	case 'W':
-		d.sd.w = tmp;
+		res.d.durtyp = DT_DURW;
 		break;
 	case 'b':
 	case 'B':
-		d.sd.b = tmp;
+		res.d.durtyp = DT_DURB;
 		break;
 	case 'q':
 	case 'Q':
-		d.sd.q = tmp;
+		res.d.durtyp = DT_DURQ;
 		break;
 
 	case 'h':
 	case 'H':
-		d.st.h = tmp;
-		break;
+		/* on-the-fly convert to minutes */
+		tmp *= MINS_PER_HOUR;
+		/*@fallthrough@*/
+	case 'm':
+	case 'M':
+		res.d.durtyp = DT_DURM;
+		if (*sp == 'o') {
+			/* that makes it a month */
+			sp++;
+			break;
+		}
+		/*@fallthrough@*/
+	case '\'':
+		/* on-the-fly convert to seconds */
+		tmp *= SECS_PER_MIN;
+		/*@fallthrough@*/
 	case 's':
 	case 'S':
 	case '"':
-		/* could also stand for second, so update this as well */
-		d.st.s = tmp;
+		res.durtyp = DT_DURSEXY;
 		break;
 
 	case 'r':
-		/* real seconds */
+		/* real seconds/hours/minutes */
 		res.tai = 1;
 		goto sp;
+
 	case 'n':
-		d.st.ns = tmp;
+		res.durtyp = DT_DURNANO;
 		if (*sp == 's') {
 			/* nanoseconds, my favourite */
 			sp++;
@@ -974,45 +982,10 @@ sp:
 		sp = str;
 		goto out;
 	}
-	/* assess */
-	if (d.sd.b && (d.sd.m || d.sd.y)) {
-		res.d.typ = DT_BIZDA;
-		res.d.bizda.y = d.sd.y;
-		res.d.bizda.m = d.sd.q * 3 + d.sd.m;
-		res.d.bizda.bd = d.sd.b + d.sd.w * 5;
-	} else if (d.sd.y || (d.sd.m && !d.st.m)) {
-	dflt:
-		res.d.typ = DT_YMD;
-		res.d.ymd.y = d.sd.y;
-		res.d.ymd.m = d.sd.q * 3 + d.sd.m;
-		res.d.ymd.d = d.sd.d + d.sd.w * 7;
-	} else if (d.sd.b) {
-		res.d.typ = DT_BIZSI;
-		res.d.bizsi = d.sd.w * 5 + d.sd.b;
-	} else if (d.sd.d || d.sd.w) {
-		res.d.typ = DT_DAISY;
-		res.d.daisy = d.sd.w * 7 + d.sd.d;
-
-/* time specs here */
-	} else if (d.st.h || d.st.m || d.st.s || d.st.ns) {
-		/* treat as m for minute */
-		dt_make_t_only(&res, DT_HMS);
-		res.t.dur = 1;
-		res.t.nsdur = d.st.ns;
-		res.t.sdur = d.st.h * SECS_PER_HOUR +
-			d.st.m * SECS_PER_MIN +
-			d.st.s;
-		/* but also put the a note in the md slot */
-		if (!d.st.h && !d.st.s && d.sd.m) {
-			res.d.md.m = d.sd.m;
-		}
-
-	} else {
-		/* we leave out YMCW diffs simply because YMD diffs
-		 * cover them better */
-		goto dflt;
-	}
-
+	/* no further checks on tmp */
+	res.d.dv = tmp;
+	/* it's a duration alright */
+	res.dur = 1U;
 out:
 	if (ep != NULL) {
 		*ep = (char*)sp;
@@ -1181,13 +1154,21 @@ dt_neg_dtdur(struct dt_dt_s dur)
 	dur.t.neg = (uint16_t)(~dur.t.neg & 0x01);
 
 	/* treat daisy and bizsi durs specially */
-	switch (dur.d.typ) {
-	case DT_DAISY:
-		dur.d.daisydur = -dur.d.daisydur;
+	switch (dur.durtyp) {
+	case DT_DURD:
+	case DT_DURB:
+	case DT_DURW:
+	case DT_DURM:
+	case DT_DURQ:
+	case DT_DURY:
+		dur.d.dv = -dur.d.dv;
 		break;
-	case DT_BIZSI:
-		dur.d.bizsidur = -dur.d.bizsidur;
+
+	case DT_DURSEXY:
+	case DT_DURNANO:
+		dur.dv = -dur.dv;
 		break;
+
 	default:
 		break;
 	}
@@ -1200,15 +1181,23 @@ dt_neg_dtdur(struct dt_dt_s dur)
 DEFUN int
 dt_dtdur_neg_p(struct dt_dt_s dur)
 {
-	/* daisy durs and bizsi durs are special */
-	switch (dur.d.typ) {
-	case DT_DAISY:
-		return dur.d.daisydur < 0;
-	case DT_BIZSI:
-		return dur.d.bizsidur < 0;
+	switch (dur.durtyp) {
+	case DT_DURD:
+	case DT_DURB:
+	case DT_DURW:
+	case DT_DURM:
+	case DT_DURQ:
+	case DT_DURY:
+		return dur.d.dv < 0;
+
+	case DT_DURSEXY:
+	case DT_DURNANO:
+		return dur.dv < 0;
+
 	default:
-		return dur.neg;
+		break;
 	}
+	return dur.neg;
 }
 
 
@@ -1260,9 +1249,6 @@ dt_datetime(dt_dttyp_t outtyp)
 		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY + DAISY_UNIX_BASE;
 		break;
 
-	case DT_MD:
-		/* this one doesn't make sense at all */
-
 	case DT_BIZDA:
 	case DT_BIZSI:
 		/* could be an idea to have those, innit? */
@@ -1298,7 +1284,6 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 		case DT_BIZDA:
 		case DT_DAISY:
 		case DT_BIZSI:
-		case DT_MD:
 		case DT_YWD:
 		case DT_YD:
 		case DT_JDN:
@@ -1406,7 +1391,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 	if (UNLIKELY(dur.t.dur && dt_sandwich_only_d_p(d))) {
 		/* probably +/-[n]m where `m' was meant to be `mo' */
-		dur.d.typ = DT_MD;
+		dur.d.durtyp = DT_DURM;
 		goto dadd;
 	} else if (dur.t.dur && d.sandwich) {
 		/* make sure we don't blow the carry slot */
@@ -1422,16 +1407,16 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 
 	/* store the carry somehow */
 	if (carry) {
-		switch (dur.d.typ) {
-		case DT_DAISY:
-			/* just add the carry, daisydur is signed enough */
-			dur.d.daisydur += carry;
+		switch (dur.d.durtyp) {
+		case DT_DURD:
+			/* just add the carry, dv is signed enough */
+			dur.d.dv += carry;
 			break;
 		case DT_DUNK:
 			/* fiddle with DUR, so we can use date-core's adder */
-			dur.d.typ = DT_DAISY;
+			dur.d.durtyp = DT_DURD;
 			/* add the carry */
-			dur.d.daisydur = carry;
+			dur.d.dv = carry;
 			break;
 		default:
 			/* we're fucked */
@@ -1444,9 +1429,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur)
 	dadd:
 		/* let date-core do the addition */
 		d.d = dt_dadd(d.d, dur.d);
-	} else if (dur.d.typ != DT_DUNK) {
+	} else if (dur.d.durtyp != DT_DURUNK) {
 		/* put the carry back into d's daisydur slot */
-		d.d.daisydur += dur.d.daisydur;
+		d.d.dv += dur.d.dv;
 	}
 	/* and promote the whole shebang again */
 	d.typ = typ;
@@ -1473,8 +1458,8 @@ pre_corr:
 				/* great, we need to sub/add again
 				 * as there's been a wrap-around at
 				 * midnight, spooky */
-				dur.d.typ = DT_DAISY;
-				dur.d.daisydur = d.t.carry;
+				dur.d.durtyp = DT_DURD;
+				dur.d.dv = d.t.carry;
 				d.d = dt_dadd(d.d, dur.d);
 			}
 
@@ -1495,7 +1480,7 @@ pre_corr:
 }
 
 DEFUN struct dt_dt_s
-dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
+dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 
@@ -1506,47 +1491,53 @@ dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		dt_make_t_only(&res, (dt_ttyp_t)DT_SEXY);
-	} else if (tgttyp > DT_UNK && tgttyp < DT_PACK) {
+	} else if (tgttyp && tgttyp < DT_DURSEXY) {
 		/* check for negative carry */
 		if (UNLIKELY(res.t.sdur < 0)) {
-			d2.d = dt_dadd(d2.d, dt_make_daisydur(-1));
+			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
 			res.t.sdur += SECS_PER_DAY;
 		}
-		res.d = dt_ddiff((dt_dtyp_t)tgttyp, d1.d, d2.d);
+		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
 		if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
 			dt_make_d_only(&res, (dt_dtyp_t)tgttyp);
 		} else {
 			dt_make_sandwich(&res, (dt_dtyp_t)tgttyp, DT_HMS);
 		}
-	} else if (tgttyp == DT_SEXY || tgttyp == DT_SEXYTAI) {
+	} else if (tgttyp >= DT_DURSEXY) {
 		int64_t sxdur;
 
 		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {
 			/* go for tdiff and ddiff independently */
-			res.d = dt_ddiff(DT_DAISY, d1.d, d2.d);
+			res.d = dt_ddiff(DT_DURD, d1.d, d2.d);
 			/* since target type is SEXY do the conversion here */
 			sxdur = (int64_t)res.t.sdur +
-				(int64_t)res.d.daisydur * SECS_PER_DAY;
+				(int64_t)res.d.dv * SECS_PER_DAY;
 		} else {
 			/* oh we're in the sexy domain already,
 			 * note, we can't diff ymdhms packs */
-			d1 = dt_dtconv(tgttyp, d1);
-			d2 = dt_dtconv(tgttyp, d2);
+			d1 = dt_dtconv(DT_SEXY, d1);
+			d2 = dt_dtconv(DT_SEXY, d2);
 
 			/* now it's fuck-easy */
 			sxdur = d2.sexy - d1.sexy;
 		}
 
 		/* set up the output here */
-		res.typ = tgttyp;
-		res.dur = 0;
-		res.neg = 0;
-		res.tai = (uint16_t)(tgttyp == DT_SEXYTAI);
-		res.sexydur = sxdur;
+		res.durtyp = tgttyp;
+		res.dur = 1U;
+		res.neg = 0U;
+		if (LIKELY(tgttyp < DT_NDTDURTYP)) {
+			res.tai = 0U;
+		} else {
+			/* just a hack to transfer the notion of TAIness */
+			res.tai = 1U;
+		}
+		res.dv = sxdur;
 
 #if defined WITH_LEAP_SECONDS
-		if (tgttyp == DT_SEXYTAI) {
-			/* check for transitions */
+		if (tgttyp >= DT_NDTDURTYP) {
+			/* just a hack to transfer the notion of TAIness
+			 * check for transitions */
 			zidx_t i_d1 = leaps_before(d1);
 			zidx_t i_d2 = leaps_before(d2);
 

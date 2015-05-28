@@ -49,31 +49,43 @@
 extern "C" {
 #endif	/* __cplusplus */
 
+/**
+ * Date types we support.
+ * Must not be more than 16. */
 typedef enum {
 	DT_DUNK,
-#define DT_DUNK		(dt_dtyp_t)(DT_DUNK)
 	DT_YMD,
-#define DT_YMD		(dt_dtyp_t)(DT_YMD)
 	DT_YMCW,
-#define DT_YMCW		(dt_dtyp_t)(DT_YMCW)
 	DT_BIZDA,
-#define DT_BIZDA	(dt_dtyp_t)(DT_BIZDA)
-	DT_DAISY,
-#define DT_DAISY	(dt_dtyp_t)(DT_DAISY)
-	DT_BIZSI,
-#define DT_BIZSI	(dt_dtyp_t)(DT_BIZSI)
-	DT_MD,
-#define DT_MD		(dt_dtyp_t)(DT_MD)
 	DT_YWD,
-#define DT_YWD		(dt_dtyp_t)(DT_YWD)
 	DT_YD,
-#define DT_YD		(dt_dtyp_t)(DT_YD)
+	DT_DAISY,
+	DT_BIZSI,
 	DT_JDN,
-#define DT_JDN		(dt_dtyp_t)(DT_JDN)
 	DT_LDN,
-#define DT_LDN		(dt_dtyp_t)(DT_LDN)
 	DT_NDTYP,
 } dt_dtyp_t;
+
+/**
+ * Duration types we support.
+ * Must not be more than 16. */
+typedef enum {
+	DT_DURUNK,
+	/* compacted durations */
+	DT_DURYMD,
+	DT_DURYMCW,
+	DT_DURBIZDA,
+	DT_DURYWD,
+	DT_DURYD,
+	/* value-unit designated durations */
+	DT_DURD,
+	DT_DURB,
+	DT_DURW,
+	DT_DURM,
+	DT_DURQ,
+	DT_DURY,
+	DT_NDURTYP,
+} dt_durtyp_t;
 
 #if defined WITH_FAST_ARITH
 # define DT_MIN_YEAR	(1917)
@@ -190,7 +202,7 @@ typedef union {
  * daisys are days since X, <DT_MIN_YEAR>-01-00 here */
 typedef uint32_t dt_daisy_t;
 #define DT_DAISY_BASE_YEAR	(DT_MIN_YEAR)
-/* and a signed version for durations */
+/* and a signed version */
 typedef int32_t dt_sdaisy_t;
 
 /** jdn (julian day number)
@@ -244,20 +256,17 @@ typedef union {
 } __attribute__((__packed__)) dt_bizda_param_t;
 
 /**
- * One more type that's only used for durations. */
-typedef union {
-	uint32_t u;
-	struct {
-		unsigned int d:16;
-		unsigned int m:16;
-	};
-} dt_md_t;
+ * Duration type. */
+typedef int32_t dt_dur_t;
 
 /**
  * Collection of all date types. */
 struct dt_d_s {
 	/* date type */
-	dt_dtyp_t typ:4;
+	union {
+		dt_dtyp_t typ:4;
+		dt_durtyp_t durtyp:4;
+	};
 	/* unused here, but used by inherited types (e.g. dt_dt_s) */
 	uint32_t:3;
 	/* error indicator, usually means date has been fixed up */
@@ -281,10 +290,9 @@ struct dt_d_s {
 		dt_ldn_t ldn;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
-		/* for durations only */
-		dt_md_t md;
-		dt_sdaisy_t daisydur;
-		dt_sdaisy_t bizsidur;
+		/* duration value, for value+unit durations only,
+		 * the .durtyp slot indicates the unit */
+		dt_dur_t dv;
 		/* for helper purposes only */
 		dt_yd_t yd;
 	};
@@ -467,7 +475,7 @@ extern int dt_dur_neg_p(struct dt_d_s dur);
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
 extern struct dt_d_s
-dt_ddiff(dt_dtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
+dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
@@ -568,16 +576,16 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 }
 
 static inline struct dt_d_s
-dt_make_daisydur(signed int d)
+dt_make_ddur(dt_durtyp_t typ, dt_dur_t d)
 {
 	struct dt_d_s res;
 
-	res.typ = DT_DAISY;
+	res.durtyp = typ;
 	res.dur = 1U;
 	res.neg = 0U;
 	res.fix = 0U;
 	res.param = 0U;
-	res.daisydur = d;
+	res.dv = d;
 	return res;
 }
 

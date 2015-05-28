@@ -648,7 +648,7 @@ static struct dt_d_s
 __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 {
 /* compute d2 - d1 entirely in terms of ymd */
-	struct dt_d_s res = {.typ = DT_YMD, .dur = 1};
+	struct dt_d_s res = dt_make_ddur(DT_DURYMD, 0);
 	signed int tgtd;
 	signed int tgtm;
 

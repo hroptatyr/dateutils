@@ -60,6 +60,6 @@ extern const char bizdadur_dflt[];
 
 extern dt_dtyp_t __trans_dfmt_special(const char*);
 extern dt_dtyp_t __trans_dfmt(const char **fmt);
-extern dt_dtyp_t __trans_ddurfmt(const char**fmt);
+extern dt_durtyp_t __trans_ddurfmt(const char**fmt);
 
 #endif	/* INCLUDED_date_core_private_h_ */
