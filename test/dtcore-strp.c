@@ -36,7 +36,7 @@ test_d_only_no_fmt(void)
 	CHECK(d.t.u,
 	      "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.t.u);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
@@ -82,7 +82,7 @@ test_t_only_no_fmt(void)
 	CHECK(d.d.u,
 	      "  DATE COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.d.u);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME DURATION BIT SET\n");
@@ -128,7 +128,7 @@ test_dt_no_fmt(void)
 	      (unsigned int)d.t.typ,
 	      (unsigned int)DT_HMS);
 
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME DURATION BIT SET\n");

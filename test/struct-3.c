@@ -8,13 +8,13 @@ main(void)
 {
 	struct dt_dt_s dt;
 
-	dt.dur = 1;
-	if (dt.d.dur != 1) {
+	dt.xxx = 1;
+	if (dt.d.xxx != 1) {
 		return 1;
 	}
 
-	dt.dur = 0;
-	if (dt.d.dur != 0) {
+	dt.xxx = 0;
+	if (dt.d.xxx != 0) {
 		return 1;
 	}
 	return 0;
