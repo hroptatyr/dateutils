@@ -984,13 +984,10 @@ sp:
 	}
 	/* no further checks on tmp */
 	res.d.dv = tmp;
-	/* it's a duration alright */
-	res.dur = 1U;
 out:
 	if (ep != NULL) {
 		*ep = (char*)sp;
 	}
-	res.dur = 1;
 	return res;
 }
 
@@ -1534,7 +1531,6 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		/* set up the output here */
 		res.durtyp = tgttyp;
-		res.dur = 1U;
 		res.neg = 0U;
 		if (LIKELY(tgttyp < DT_NDTDURTYP)) {
 			res.tai = 0U;

@@ -1101,8 +1101,6 @@ dt_strpddur(const char *str, char **ep)
 	}
 	/* no further checks on TMP */
 	res.dv = tmp;
-	/* it's a duration alright */
-	res.dur = 1U;
 out:
 	if (ep != NULL) {
 		*ep = (char*)sp;
@@ -1117,7 +1115,7 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s th
 	const char *fp;
 	char *bp;
 
-	if (UNLIKELY(buf == NULL || bsz == 0 || !that.dur)) {
+	if (UNLIKELY(buf == NULL || bsz == 0)) {
 		return 0;
 	}
 

@@ -122,8 +122,8 @@ struct dt_dt_s {
 			uint16_t tai:1;
 			/* error indicator to denote date has been fixed up */
 			uint16_t fix:1;
-			/* duration indicator */
-			uint16_t dur:1;
+			/* was duration indicator */
+			uint16_t xxx:1;
 			/* negation indicator */
 			uint16_t neg:1;
 			/* we've got 6 bits left here to coincide with dt_d_s
@@ -175,8 +175,8 @@ struct dt_dtdur_s {
 			uint16_t tai:1;
 			/* error indicator to denote date has been fixed up */
 			uint16_t fix:1;
-			/* duration indicator */
-			uint16_t dur:1;
+			/* was duration indicator */
+			uint16_t xxx:1;
 			/* negation indicator */
 			uint16_t neg:1;
 			/* we've got 6 bits left here to coincide with dt_d_s

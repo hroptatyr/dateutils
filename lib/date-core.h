@@ -268,8 +268,8 @@ struct dt_d_s {
 	uint32_t:3;
 	/* error indicator, usually means date has been fixed up */
 	uint32_t fix:1;
-	/* duration predicate */
-	uint32_t dur:1;
+	/* was duration predicate */
+	uint32_t xxx:1;
 	/* negated predicate */
 	uint32_t neg:1;
 	/* fill up to next ui16 boundary */
@@ -302,8 +302,8 @@ struct dt_ddur_s {
 	uint32_t:3;
 	/* error indicator, usually means date has been fixed up */
 	uint32_t fix:1;
-	/* duration predicate */
-	uint32_t dur:1;
+	/* was duration predicate */
+	uint32_t xxx:1;
 	/* negated predicate */
 	uint32_t neg:1;
 	/* fill up to next ui16 boundary */
@@ -541,7 +541,6 @@ dt_make_ymd(unsigned int y, unsigned int m, unsigned int d)
 	struct dt_d_s res;
 
 	res.typ = DT_YMD;
-	res.dur = 0U;
 	res.neg = 0U;
 	res.fix = 0U;
 	res.param = 0U;
@@ -557,7 +556,6 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 	struct dt_d_s res;
 
 	res.typ = DT_YMCW;
-	res.dur = 0U;
 	res.neg = 0U;
 	res.fix = 0U;
 	res.param = 0U;
@@ -574,7 +572,6 @@ dt_make_ddur(dt_durtyp_t typ, dt_dur_t d)
 	struct dt_ddur_s res;
 
 	res.durtyp = typ;
-	res.dur = 1U;
 	res.neg = 0U;
 	res.fix = 0U;
 	res.param = 0U;
