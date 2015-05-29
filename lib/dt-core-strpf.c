@@ -408,23 +408,32 @@ __strfdt_dur(
 
 		/* noone's ever bothered doing the same thing for times */
 	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_SEC:
+	case DT_SPFL_N_SEC:;
+		int64_t dv;
+
+		dv = that.dv;
 		switch (that.durtyp) {
-			int64_t dur;
+		default:
+			if (that.d.durtyp != DT_DURD) {
+				return 0U;
+			}
+			dv = that.d.dv * HOURS_PER_DAY;
+			/*@fallthrough@*/
+		case DT_DURH:
+			dv *= MINS_PER_HOUR;
+			/*@fallthrough@*/
+		case DT_DURM:
+			dv *= SECS_PER_MIN;
+			/*@fallthrough@*/
 		case DT_DURS:
-			dur = that.dv;
 			if (LIKELY(!that.tai)) {
 				return (size_t)snprintf(
-					buf, bsz, "%" PRIi64 "s", dur);
+					buf, bsz, "%" PRIi64 "s", dv);
 			} else {
 				return (size_t)snprintf(
-					buf, bsz, "%" PRIi64 "rs", dur);
+					buf, bsz, "%" PRIi64 "rs", dv);
 			}
 			break;
-		default:
-			/* too many cases handled here :O */
-			dur = that.t.sdur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi64 "s", dur);
 		}
 		break;
 
