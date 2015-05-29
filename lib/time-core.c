@@ -96,7 +96,7 @@ __guess_ttyp(struct strpt_s t)
 	}
 
 	res.typ = DT_HMS;
-	res.dur = res.neg = 0;
+	res.neg = 0;
 	res.hms.s = t.s;
 	res.hms.m = t.m;
 	res.hms.h = t.h;
@@ -230,83 +230,51 @@ divrem(signed int n, unsigned int mod)
 }
 
 
-/* arith */
 DEFUN struct dt_t_s
-dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr)
+dt_tadd_s(struct dt_t_s t, int durs, int corr)
 {
-	unsigned int ns;
-	signed int sec;
 	struct divrem_s tmp;
+	signed int sec;
 
 	/* get both result in seconds since midnight */
 	sec = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
-	sec = sec + dur.sdur;
+	sec += durs;
 
-	/* nanoseconds next */
-	if (UNLIKELY((ns = t.hms.ns + dur.nsdur) >= NANOS_PER_SEC)) {
-		ns -= NANOS_PER_SEC;
-		sec++;
-	}
+	/* doesn't work if we span more than 2 days */
+	tmp = divrem(sec, SECS_PER_DAY + corr);
 
-	if (LIKELY(corr == 0)) {
-		tmp = divrem(sec, SECS_PER_DAY);
-
-		/* fill up biggest first */
+	/* fill up biggest first */
+	if (LIKELY(tmp.rem < SECS_PER_DAY)) {
 		t.hms.h = tmp.rem / SECS_PER_HOUR;
 		tmp.rem %= SECS_PER_HOUR;
 		t.hms.m = tmp.rem / SECS_PER_MIN;
 		tmp.rem %= SECS_PER_MIN;
 		t.hms.s = tmp.rem;
 	} else {
-		/* doesn't work if we span more than 1 day */
-		tmp = divrem(sec, SECS_PER_DAY + corr);
-
-		/* fill up biggest first */
-		if (LIKELY(tmp.rem < SECS_PER_DAY)) {
-			t.hms.h = tmp.rem / SECS_PER_HOUR;
-			tmp.rem %= SECS_PER_HOUR;
-			t.hms.m = tmp.rem / SECS_PER_MIN;
-			tmp.rem %= SECS_PER_MIN;
-			t.hms.s = tmp.rem;
-		} else {
-			/* leap-second day case
-			 * corr < 0 will always end up in the above case */
-			t.hms.h = 23;
-			t.hms.m = 59;
-			t.hms.s = 59 + corr;
-		}
+		/* leap-second day case
+		 * corr < 0 will always end up in the above case */
+		t.hms.h = 23;
+		t.hms.m = 59;
+		t.hms.s = 59 + corr;
 	}
-
-	/* nanoseconds are never affected by leaps,
-	 * until we implement smear-seconds or the like */
-	t.hms.ns = ns;
 
 	/* set up the return type */
 	t.typ = DT_HMS;
-	t.dur = 0;
 	t.neg = 0;
 	t.carry = tmp.div;
 	return t;
 }
 
-DEFUN struct dt_t_s
-dt_tdiff(struct dt_t_s t1, struct dt_t_s t2)
+DEFUN int
+dt_tdiff_s(struct dt_t_s t1, struct dt_t_s t2)
 {
 /* compute t2 - t1 */
-#if defined HAVE_ANON_STRUCTS_INIT
-	struct dt_t_s dur = {.u = 0};
-#else
-	struct dt_t_s dur;
-#endif
+	int r = 0;
 
-#if !defined HAVE_ANON_STRUCTS_INIT
-/* thanks gcc */
-	dur.u = 0;
-#endif
-	dur.sdur = (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
-	dur.sdur += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
-	dur.sdur += (t2.hms.s - t1.hms.s);
-	return dur;
+	r += (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
+	r += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
+	r += (t2.hms.s - t1.hms.s);
+	return r;
 }
 
 DEFUN int
