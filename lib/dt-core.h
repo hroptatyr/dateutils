@@ -144,8 +144,6 @@ struct dt_dt_s {
 				dt_ymdhms_t ymdhms;
 				dt_sexy_t sexy:48;
 				dt_ssexy_t sxepoch:48;
-				/* for value+unit durations */
-				dt_ssexy_t dv:48;
 				struct {
 #if defined WORDS_BIGENDIAN
 					int32_t corr:16;

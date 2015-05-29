@@ -287,9 +287,6 @@ struct dt_d_s {
 		dt_ldn_t ldn;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
-		/* duration value, for value+unit durations only,
-		 * the .durtyp slot indicates the unit */
-		dt_dur_t dv;
 		/* for helper purposes only */
 		dt_yd_t yd;
 	};
