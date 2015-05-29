@@ -1162,6 +1162,7 @@ dt_neg_dtdur(struct dt_dtdur_s dur)
 	case DT_DURQU:
 	case DT_DURYR:
 		dur.d.dv = -dur.d.dv;
+		dur.t.sdur = -dur.t.sdur;
 		break;
 
 	case DT_DURH:
@@ -1174,9 +1175,6 @@ dt_neg_dtdur(struct dt_dtdur_s dur)
 	default:
 		break;
 	}
-
-	/* there's just DT_SEXY as time duration type atm, negate it */
-	dur.t.sdur = -dur.t.sdur;
 	return dur;
 }
 
@@ -1190,7 +1188,7 @@ dt_dtdur_neg_p(struct dt_dtdur_s dur)
 	case DT_DURMO:
 	case DT_DURQU:
 	case DT_DURYR:
-		return dur.d.dv < 0;
+		return dur.d.dv < 0 || (!dur.d.dv && dur.t.sdur < 0);
 
 	case DT_DURH:
 	case DT_DURM:
