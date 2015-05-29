@@ -167,8 +167,8 @@ struct dt_dtdur_s {
 		struct {
 			/* dt type, or date type */
 			dt_dtdurtyp_t durtyp:4;
-			/* sandwich indicator (use d and t slots below) */
-			uint16_t sandwich:1;
+			/* was sandwich indicator */
+			uint16_t:1;
 			/* whether we had zone info already but fixed it */
 			uint16_t znfxd:1;
 			/* whether to be aware of leap-seconds */
@@ -334,7 +334,7 @@ dt_unk_p(struct dt_dt_s d)
 static inline __attribute__((pure, const)) bool
 dt_durunk_p(struct dt_dtdur_s d)
 {
-	return !(d.sandwich || d.durtyp);
+	return !d.durtyp;
 }
 
 static inline __attribute__((pure, const)) bool
@@ -360,24 +360,6 @@ dt_separable_p(struct dt_dt_s d)
 {
 /* return true if D is a d+t sandwich or D is d-only or D is t-only */
 	return d.typ < DT_PACK;
-}
-
-static inline __attribute__((pure, const)) bool
-dt_dursandwich_p(struct dt_dtdur_s d)
-{
-	return d.sandwich && d.d.durtyp > DT_DURUNK;
-}
-
-static inline __attribute__((pure, const)) bool
-dt_dursandwich_only_d_p(struct dt_dtdur_s d)
-{
-	return !d.sandwich && d.d.durtyp > DT_DURUNK && d.d.durtyp < DT_NDURTYP;
-}
-
-static inline __attribute__((pure, const)) bool
-dt_dursandwich_only_t_p(struct dt_dtdur_s d)
-{
-	return d.sandwich && d.durtyp == (dt_dtdurtyp_t)DT_DURUNK;
 }
 
 #define DT_SANDWICH_UNK		(DT_UNK)

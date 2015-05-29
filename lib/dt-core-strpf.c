@@ -134,7 +134,6 @@ __fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
 	/* apply time zone difference */
 	struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
-	zd.sandwich = 1;
 	zd.t.typ = DT_HMS;
 	zd.t.dur = 1;
 	zd.t.sdur = -zdiff;

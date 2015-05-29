@@ -72,7 +72,6 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 		/* let dt_dtadd() do the magic */
 		struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
-		zd.sandwich = 0;
 		zd.t.typ = DT_HMS;
 		zd.t.dur = 1;
 		zd.t.sdur = zdiff;
@@ -108,7 +107,6 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 		/* let dt_dtadd() do the magic */
 		struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 
-		zd.sandwich = 0;
 		zd.t.typ = DT_HMS;
 		zd.t.dur = 1;
 		zd.t.sdur = zdiff;
