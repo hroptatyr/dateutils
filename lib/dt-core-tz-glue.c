@@ -59,9 +59,13 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	int32_t zdiff;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		/* we need date/times to do the conversion */
 		return d;
 	} else if (d.znfxd) {
 		/* already forgotten about */
+		return d;
+	} else if (zone == NULL) {
+		/* convert from UTC, great idea */
 		return d;
 	}
 
@@ -97,6 +101,10 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	int32_t zdiff;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		/* nah, we need a date/time for this */
+		return d;
+	} else if (zone == NULL) {
+		/* UTC -> UTC? */
 		return d;
 	}
 

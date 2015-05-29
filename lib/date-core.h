@@ -79,11 +79,11 @@ typedef enum {
 	DT_DURYD,
 	/* value-unit designated durations */
 	DT_DURD,
-	DT_DURB,
-	DT_DURW,
-	DT_DURM,
-	DT_DURQ,
-	DT_DURY,
+	DT_DURBD,
+	DT_DURWK,
+	DT_DURMO,
+	DT_DURQU,
+	DT_DURYR,
 	DT_NDURTYP,
 } dt_durtyp_t;
 

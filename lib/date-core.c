@@ -757,7 +757,7 @@ __trans_ddurfmt(const char **fmt)
 			break;
 		case DT_BIZSI:
 			*fmt = bizsidur_dflt;
-			tmp = DT_DURB;
+			tmp = DT_DURBD;
 			break;
 		}
 
@@ -1077,23 +1077,23 @@ dt_strpddur(const char *str, char **ep)
 		break;
 	case 'y':
 	case 'Y':
-		res.durtyp = DT_DURY;
+		res.durtyp = DT_DURYR;
 		break;
 	case 'm':
 	case 'M':
-		res.durtyp = DT_DURM;
+		res.durtyp = DT_DURMO;
 		break;
 	case 'w':
 	case 'W':
-		res.durtyp = DT_DURW;
+		res.durtyp = DT_DURWK;
 		break;
 	case 'b':
 	case 'B':
-		res.durtyp = DT_DURB;
+		res.durtyp = DT_DURBD;
 		break;
 	case 'q':
 	case 'Q':
-		res.durtyp = DT_DURQ;
+		res.durtyp = DT_DURQU;
 		break;
 	default:
 		sp = str;
@@ -1171,11 +1171,11 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s th
 		break;
 
 	case DT_DURD:
-	case DT_DURB:
-	case DT_DURW:
-	case DT_DURM:
-	case DT_DURQ:
-	case DT_DURY:
+	case DT_DURBD:
+	case DT_DURWK:
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
 		if (that.dv >= 0) {
 			/* make sure the neg bit doesn't bite us */
 			that.dv = -that.dv;
@@ -1186,19 +1186,19 @@ dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s th
 		case DT_DURD:
 			d.d = that.dv;
 			break;
-		case DT_DURB:
+		case DT_DURBD:
 			d.b = that.dv;
 			break;
-		case DT_DURW:
+		case DT_DURWK:
 			d.d = that.dv * GREG_DAYS_P_WEEK;
 			break;
-		case DT_DURM:
+		case DT_DURMO:
 			d.m = that.dv;
 			break;
-		case DT_DURQ:
+		case DT_DURQU:
 			d.m = that.dv * 3U;
 			break;
-		case DT_DURY:
+		case DT_DURYR:
 			d.y = that.dv;
 			break;
 		}
@@ -1629,16 +1629,16 @@ dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 	case DT_DURD:
 		d = dt_dadd_d(d, dur.dv);
 		break;
-	case DT_DURB:
+	case DT_DURBD:
 		d = dt_dadd_b(d, dur.dv);
 		break;
-	case DT_DURW:
+	case DT_DURWK:
 		d = dt_dadd_w(d, dur.dv);
 		break;
-	case DT_DURM:
+	case DT_DURMO:
 		d = dt_dadd_m(d, dur.dv);
 		break;
-	case DT_DURY:
+	case DT_DURYR:
 		d = dt_dadd_y(d, dur.dv);
 		break;
 	default:
@@ -1655,11 +1655,11 @@ dt_neg_dur(struct dt_ddur_s dur)
 	dur.neg = (uint16_t)(~dur.neg & 0x01);
 	switch (dur.durtyp) {
 	case DT_DURD:
-	case DT_DURB:
-	case DT_DURW:
-	case DT_DURM:
-	case DT_DURQ:
-	case DT_DURY:
+	case DT_DURBD:
+	case DT_DURWK:
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
 		dur.dv = -dur.dv;
 		break;
 
@@ -1674,11 +1674,11 @@ dt_dur_neg_p(struct dt_ddur_s dur)
 {
 	switch (dur.durtyp) {
 	case DT_DURD:
-	case DT_DURB:
-	case DT_DURW:
-	case DT_DURM:
-	case DT_DURQ:
-	case DT_DURY:
+	case DT_DURBD:
+	case DT_DURWK:
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
 		return dur.dv < 0;
 	default:
 		break;
@@ -1693,13 +1693,13 @@ dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 
 	switch (tgttyp) {
 	case DT_DURD:
-	case DT_DURB: {
+	case DT_DURBD: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
 		dt_daisy_t tmp2 = dt_conv_to_daisy(d2);
 		res = __daisy_diff(tmp1, tmp2);
 
 		/* fix up result in case it's bizsi, i.e. kick weekends */
-		if (tgttyp == DT_DURB) {
+		if (tgttyp == DT_DURBD) {
 			dt_dow_t wdb = __daisy_get_wday(tmp2);
 			res.dv = __get_nbdays(res.dv, wdb);
 		}

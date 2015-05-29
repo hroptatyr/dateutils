@@ -252,11 +252,14 @@ __sexy_add(dt_sexy_t sx, struct dt_dtdur_s dur)
 	signed int delta = 0;
 
 	switch (dur.durtyp) {
-	case DT_DURSEXY:
+	case DT_DURH:
+	case DT_DURM:
+	case DT_DURS:
 	case DT_DURNANO:
 		delta = dur.dv;
 		break;
-	case DT_DURB:
+	case DT_DURD:
+	case DT_DURBD:
 		delta = dur.d.dv * SECS_PER_DAY;
 	case DT_DURUNK:
 		delta += dur.t.sdur;
@@ -378,11 +381,11 @@ __trans_dtdurfmt(const char **fmt)
 			break;
 		case DT_SEXY:
 			*fmt = sexydur_dflt;
-			tmp = DT_DURSEXY;
+			tmp = DT_DURS;
 			break;
 		case DT_BIZSI:
 			*fmt = bizsihmsdur_dflt;
-			tmp = DT_DURB;
+			tmp = DT_DURBD;
 			break;
 		case DT_YWD:
 			*fmt = ywdhmsdur_dflt;
@@ -559,7 +562,7 @@ zdiff_sec(struct dt_dt_s d)
 static inline __attribute__((const, pure)) bool
 dt_dur_only_d_p(struct dt_dtdur_s d)
 {
-	return d.durtyp && d.durtyp < DT_DURSEXY && !d.t.sdur;
+	return d.durtyp && d.d.durtyp < DT_NDURTYP && !d.t.sdur;
 }
 
 
@@ -932,43 +935,41 @@ sp:
 		break;
 	case 'y':
 	case 'Y':
-		res.d.durtyp = DT_DURY;
+		res.d.durtyp = DT_DURYR;
 		break;
 	case 'w':
 	case 'W':
-		res.d.durtyp = DT_DURW;
+		res.d.durtyp = DT_DURWK;
 		break;
 	case 'b':
 	case 'B':
-		res.d.durtyp = DT_DURB;
+		res.d.durtyp = DT_DURBD;
 		break;
 	case 'q':
 	case 'Q':
-		res.d.durtyp = DT_DURQ;
+		res.d.durtyp = DT_DURQU;
 		break;
 
 	case 'h':
 	case 'H':
-		/* on-the-fly convert to minutes */
-		tmp *= MINS_PER_HOUR;
-		/*@fallthrough@*/
+		res.durtyp = DT_DURH;
+		break;
 	case 'm':
 	case 'M':
-		res.d.durtyp = DT_DURM;
 		if (*sp == 'o') {
 			/* that makes it a month */
+			res.d.durtyp = DT_DURMO;
 			sp++;
 			break;
 		}
 		/*@fallthrough@*/
 	case '\'':
-		/* on-the-fly convert to seconds */
-		tmp *= SECS_PER_MIN;
-		/*@fallthrough@*/
+		res.durtyp = DT_DURM;
+		break;
 	case 's':
 	case 'S':
 	case '"':
-		res.durtyp = DT_DURSEXY;
+		res.durtyp = DT_DURS;
 		break;
 
 	case 'r':
@@ -988,7 +989,11 @@ sp:
 		goto out;
 	}
 	/* no further checks on tmp */
-	res.d.dv = tmp;
+	if (res.durtyp < (unsigned int)DT_NDURTYP) {
+		res.d.dv = tmp;
+	} else {
+		res.dv = tmp;
+	}
 out:
 	if (ep != NULL) {
 		*ep = (char*)sp;
@@ -1065,7 +1070,7 @@ dt_strfdtdur(
 			fmt = daisydur_dflt;
 		}
 		break;
-	case DT_DURB:
+	case DT_DURBD:
 		d.sd.d = that.d.dv;
 		if (fmt == NULL) {
 			/* subject to change */
@@ -1151,15 +1156,17 @@ dt_neg_dtdur(struct dt_dtdur_s dur)
 
 	switch (dur.durtyp) {
 	case DT_DURD:
-	case DT_DURB:
-	case DT_DURW:
-	case DT_DURM:
-	case DT_DURQ:
-	case DT_DURY:
+	case DT_DURBD:
+	case DT_DURWK:
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
 		dur.d.dv = -dur.d.dv;
 		break;
 
-	case DT_DURSEXY:
+	case DT_DURH:
+	case DT_DURM:
+	case DT_DURS:
 	case DT_DURNANO:
 		dur.dv = -dur.dv;
 		break;
@@ -1178,14 +1185,16 @@ dt_dtdur_neg_p(struct dt_dtdur_s dur)
 {
 	switch (dur.durtyp) {
 	case DT_DURD:
-	case DT_DURB:
-	case DT_DURW:
-	case DT_DURM:
-	case DT_DURQ:
-	case DT_DURY:
+	case DT_DURBD:
+	case DT_DURWK:
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
 		return dur.d.dv < 0;
 
-	case DT_DURSEXY:
+	case DT_DURH:
+	case DT_DURM:
+	case DT_DURS:
 	case DT_DURNANO:
 		return dur.dv < 0;
 
@@ -1386,7 +1395,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 
 	if (UNLIKELY(dur.t.dur && dt_sandwich_only_d_p(d))) {
 		/* probably +/-[n]m where `m' was meant to be `mo' */
-		dur.d.durtyp = DT_DURM;
+		dur.d.durtyp = DT_DURMO;
 		goto dadd;
 	} else if (dur.t.dur && d.sandwich) {
 		/* make sure we don't blow the carry slot */
@@ -1486,8 +1495,8 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
-		res.durtyp = DT_DURSEXY;
-	} else if (tgttyp && tgttyp < DT_DURSEXY) {
+		res.durtyp = DT_DURS;
+	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
 		/* check for negative carry */
 		if (UNLIKELY(res.t.sdur < 0)) {
 			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
@@ -1503,7 +1512,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			res.durtyp = tgttyp;
 			res.t.typ = DT_HMS;
 		}
-	} else if (tgttyp >= DT_DURSEXY) {
+	} else if ((dt_durtyp_t)tgttyp >= DT_NDURTYP) {
 		int64_t sxdur;
 
 		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {

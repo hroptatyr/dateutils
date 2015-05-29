@@ -416,7 +416,7 @@ __strfdt_dur(
 	case DT_SPFL_N_SEC:
 		switch (that.durtyp) {
 			int64_t dur;
-		case DT_DURSEXY:
+		case DT_DURS:
 			dur = that.dv;
 			if (LIKELY(!that.tai)) {
 				return (size_t)snprintf(
@@ -437,7 +437,7 @@ __strfdt_dur(
 		int64_t dur = that.dv;
 
 		switch (that.durtyp) {
-		case DT_DURSEXY:
+		case DT_DURS:
 			dur *= NANOS_PER_SEC;
 		case DT_DURNANO:
 			if (LIKELY(!that.tai)) {

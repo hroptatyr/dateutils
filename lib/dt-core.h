@@ -62,10 +62,14 @@ typedef enum {
 } dt_dttyp_t;
 
 typedef enum {
-	DT_DURSEXY = DT_NDURTYP,
-	DT_DURNANO = DT_NDURTYP + 1U,
-	DT_NDTDURTYP = DT_NDURTYP + 2U,
+	DT_DURH = DT_NDURTYP + 0U,
+	DT_DURM = DT_NDURTYP + 1U,
+	DT_DURS = DT_NDURTYP + 2U,
+	DT_DURNANO = DT_NDURTYP + 3U,
 } dt_dtdurtyp_t;
+/* this will be 16 and hence must be #defined as we're using
+ * a bitfield of size 4 to store the dtdurtyp. */
+#define DT_NDTDURTYP	(DT_NDURTYP + 4U)
 
 /** packs
  * packs are just packs of dates and times */
