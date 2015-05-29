@@ -1380,8 +1380,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
  * carry <- dpart(dur);
  * tpart(res), carry <- tadd(d, tpart(dur), corr);
  * res <- dadd(dpart(res), carry); */
-	signed int carry = 0;
-	dt_dttyp_t typ = d.typ;
+	dt_ssexy_t dv;
 #if defined WITH_LEAP_SECONDS
 	struct dt_dt_s orig;
 
@@ -1391,56 +1390,70 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 	}
 #endif	/* WITH_LEAP_SECONDS */
 
-	if (UNLIKELY(dur.t.dur && dt_sandwich_only_d_p(d))) {
+	if (UNLIKELY(dur.durtyp == DT_DURM && dt_sandwich_only_d_p(d))) {
 		/* probably +/-[n]m where `m' was meant to be `mo' */
 		dur.d.durtyp = DT_DURMO;
-		goto dadd;
-	} else if (dur.t.dur && d.sandwich) {
-		/* make sure we don't blow the carry slot */
-		carry = dur.t.sdur / (signed int)SECS_PER_DAY;
-		dur.t.sdur = dur.t.sdur % (signed int)SECS_PER_DAY;
-		/* accept both t-onlies and sandwiches */
-		d.t = dt_tadd(d.t, dur.t, 0);
-		carry += d.t.carry;
-	} else if (d.typ == DT_SEXY) {
+		dur.d.dv = dur.dv;
+	}
+
+	if (d.typ == DT_SEXY) {
 		d.sexy = __sexy_add(d.sexy, dur);
-		goto pre_corr;
+		return d;
 	}
 
-	/* store the carry somehow */
-	if (carry) {
-		switch (dur.d.durtyp) {
-		case DT_DURD:
-			/* just add the carry, dv is signed enough */
-			dur.d.dv += carry;
-			break;
-		case DT_DUNK:
-			/* fiddle with DUR, so we can use date-core's adder */
-			dur.d.durtyp = DT_DURD;
-			/* add the carry */
-			dur.d.dv = carry;
-			break;
-		default:
-			/* we're fucked */
-			;
-		}
-	}
-
-	/* demote D's and DUR's type temporarily */
-	if (d.typ != DT_SANDWICH_UNK && dur.d.durtyp != DT_DURUNK) {
+	dv = dur.dv;
+	switch (dur.durtyp) {
+	default:
 	dadd:
-		/* let date-core do the addition */
+		/* let date-core's dt_dadd() do the yakka */
 		d.d = dt_dadd(d.d, dur.d);
-	} else if (dur.d.durtyp != DT_DURUNK) {
-		/* put the carry back into d's daisydur slot */
-		d.d.dv += dur.d.dv;
-	}
-	/* and promote the whole shebang again */
-	d.typ = typ;
+		break;
 
-pre_corr:
+	case DT_DURH:
+		dv *= MINS_PER_HOUR;
+		/*@fallthrough@*/
+	case DT_DURM:
+		dv *= SECS_PER_MIN;
+		/*@fallthrough@*/
+	case DT_DURS:;
+		int carry;
+
+	tadd:
+		/* make sure we don't blow the carry slot */
+		carry = dv / (signed int)SECS_PER_DAY;
+		dv = dv % (signed int)SECS_PER_DAY;
+
+		if (d.sandwich) {
+			/* accept both t-onlies and sandwiches */
+			d.t = dt_tadd_s(d.t, dv, 0);
+
+			if ((carry += d.t.carry) && !dt_sandwich_only_t_p(d)) {
+				/* add some days as well */
+				dur.d.durtyp = DT_DURD;
+				dur.d.dv = carry;
+				goto dadd;
+			}
+		}
+		break;
+
+	case DT_DURNANO:;
+		/* quickly do the addition ourselves */
+		dv += d.t.hms.ns;
+		carry = dv / (signed int)NANOS_PER_SEC;
+		if ((dv = dv % (signed int)NANOS_PER_SEC) < 0) {
+			dv += NANOS_PER_SEC;
+			carry--;
+		}
+
+		d.t.hms.ns = dv;
+
+		/* the rest is normal second-wise tadd */
+		dv = carry;
+		goto tadd;
+	}
+
 #if defined WITH_LEAP_SECONDS
-	if (UNLIKELY(dur.tai) && d.typ != DT_SEXY) {
+	if (UNLIKELY(dur.tai)) {
 		/* the reason we omitted SEXY is because there's simply
 		 * no representation in there */
 		zidx_t i_orig = leaps_before(orig);
@@ -1453,10 +1466,9 @@ pre_corr:
 			/* save a copy of d again */
 			orig = d;
 			i_orig = i_d;
-			/* reuse dur for the correction */
-			if ((dur.t.sdur = nltr) &&
+			if (nltr &&
 			    /* get our special tadd with carry */
-			    (d.t = dt_tadd(d.t, dur.t, 0), d.t.carry)) {
+			    (d.t = dt_tadd_s(d.t, nltr, 0), d.t.carry)) {
 				/* great, we need to sub/add again
 				 * as there's been a wrap-around at
 				 * midnight, spooky */
@@ -1485,31 +1497,26 @@ DEFUN struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
 	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	int dt = 0;
 
 	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
 		/* do the time portion difference right away */
-		res.t = dt_tdiff(d1.t, d2.t);
+		dt = dt_tdiff_s(d1.t, d2.t);
 	}
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
 		res.durtyp = DT_DURS;
+		res.dv = dt;
 	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
 		/* check for negative carry */
-		if (UNLIKELY(res.t.sdur < 0)) {
+		if (UNLIKELY(dt < 0)) {
 			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
-			res.t.sdur += SECS_PER_DAY;
+			dt += SECS_PER_DAY;
 		}
+		res.durtyp = tgttyp;
 		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
-		if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
-			/* make d-only */
-			res.durtyp = tgttyp;
-			res.t.typ = DT_TUNK;
-		} else {
-			/* make sandwich */
-			res.durtyp = tgttyp;
-			res.t.typ = DT_HMS;
-		}
+		res.t.sdur = dt;
 	} else if ((dt_durtyp_t)tgttyp >= DT_NDURTYP) {
 		int64_t sxdur;
 
@@ -1517,7 +1524,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			/* go for tdiff and ddiff independently */
 			res.d = dt_ddiff(DT_DURD, d1.d, d2.d);
 			/* since target type is SEXY do the conversion here */
-			sxdur = (int64_t)res.t.sdur +
+			sxdur = (int64_t)dt +
 				(int64_t)res.d.dv * SECS_PER_DAY;
 		} else {
 			/* oh we're in the sexy domain already,
