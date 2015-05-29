@@ -49,6 +49,7 @@
 #include "prchunk.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
+#include "date-core-private.h"
 
 #if !defined assert
 # define assert(x)
@@ -58,7 +59,7 @@ const char *prog = "dround";
 
 
 static bool
-durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
+durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		if (dur[i].t.typ) {
@@ -113,17 +114,17 @@ tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
 }
 
 static struct dt_d_s
-dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
+dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 {
-	switch (dur.typ) {
+	switch (dur.durtyp) {
 		unsigned int tgt;
 		bool forw;
-	case DT_DAISY:
-		if (dur.daisydur > 0) {
-			tgt = dur.daisydur;
+	case DT_DURD:
+		if (dur.dv > 0) {
+			tgt = dur.dv;
 			forw = true;
-		} else if (dur.daisydur < 0) {
-			tgt = -dur.daisydur;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
 			forw = false;
 		} else {
 			/* user is an idiot */
@@ -167,13 +168,13 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		}
 		break;
 
-	case DT_BIZSI:
+	case DT_DURBD:
 		/* bizsis only work on bizsidurs atm */
-		if (dur.bizsidur > 0) {
-			tgt = dur.bizsidur;
+		if (dur.dv > 0) {
+			tgt = dur.dv;
 			forw = true;
-		} else if (dur.bizsidur < 0) {
-			tgt = -dur.bizsidur;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
 			forw = false;
 		} else {
 			/* user is an idiot */
@@ -286,33 +287,28 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		break;
 	}
 
-	case DT_MD:
+	case DT_YWD:
+		break;
+
 	default:
 		break;
 	}
 	return d;
 }
 
-static struct dt_d_s one_day = {
-	.typ = DT_DAISY,
-	.dur = 1,
-	.neg = 0,
-};
-
 static struct dt_dt_s
-dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
+dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 {
-	if (dt_sandwich_only_t_p(dur) && d.sandwich) {
-		d.t = tround_tdur(d.t, dur.t, nextp);
-		/* check carry */
-		if (UNLIKELY(d.t.neg == 1)) {
-			/* we need to add a day */
-			one_day.daisydur = 1 | -(dur.t.sdur < 0);
-			d.t.neg = 0;
-			d.d = dt_dadd(d.d, one_day);
-		}
-	} else if (dt_sandwich_only_d_p(dur) &&
-		   (dt_sandwich_p(d) || dt_sandwich_only_d_p(d))) {
+	d.t = tround_tdur(d.t, dur.t, nextp);
+	/* check carry */
+	if (UNLIKELY(d.t.neg == 1)) {
+		/* we need to add a day */
+		struct dt_ddur_s one_day =
+			dt_make_ddur(DT_DURD, 1 | -(dur.t.sdur < 0));
+		d.t.neg = 0;
+		d.d = dt_dadd(d.d, one_day);
+	}
+	{
 		unsigned int sw = d.sandwich;
 		d.d = dround_ddur(d.d, dur.d, nextp);
 		d.sandwich = (uint8_t)sw;
@@ -322,7 +318,7 @@ dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
 
 
 static struct dt_dt_s
-dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur, bool nextp)
+dround(struct dt_dt_s d, struct dt_dtdur_s dur[], size_t ndur, bool nextp)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_round(d, dur[i], nextp);
@@ -337,7 +333,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	char *sp = NULL;
 	struct strpd_s d = strpd_initialiser();
 	struct dt_spec_s s = spec_initialiser();
-	struct dt_dt_s payload = dt_dt_initialiser();
+	struct dt_dtdur_s payload = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	bool negp = false;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
@@ -356,9 +352,8 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d = dt_make_ymcw(0, 0, 0, d.w);
-		/* make sure it's d-only */
-		payload.sandwich = 0;
+		payload.d.durtyp = DT_DURWK;
+		payload.d.dv = d.w;
 		goto out;
 	}
 
@@ -366,9 +361,8 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d = dt_make_ymd(0, d.m, 0);
-		/* make sure it's d-only */
-		payload.sandwich = 0;
+		payload.d.durtyp = DT_DURMO;
+		payload.d.dv = d.m;
 		goto out;
 	}
 
