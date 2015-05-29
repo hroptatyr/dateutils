@@ -131,14 +131,9 @@ try_zone(const char *str, const char **ep)
 static struct dt_dt_s
 __fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
 {
-	/* apply time zone difference */
-	struct dt_dtdur_s zd = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
-
-	zd.t.typ = DT_HMS;
-	zd.t.dur = 1;
-	zd.t.sdur = -zdiff;
+/* apply time zone difference */
 	/* reuse dt for result */
-	dt = dt_dtadd(dt, zd);
+	dt = dt_dtadd(dt, (struct dt_dtdur_s){DT_DURS, .dv = -zdiff});
 	dt.znfxd = 1;
 	return dt;
 }

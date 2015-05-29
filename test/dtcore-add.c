@@ -33,7 +33,6 @@ add_d_only(void)
 	/* prep the duration */
 	dur.d = dt_make_ddur(DT_DURD, 1);
 	dur.t = dt_t_initialiser();
-	dur.sandwich = 0U;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -76,11 +75,8 @@ add_t_only(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* prep the duration */
-	dur.sandwich = 1U;
-	dur.t.typ = DT_HMS;
-	dur.t.dur = 1;
-	dur.t.neg = 0;
-	dur.t.sdur = 3600;
+	dur.durtyp = DT_DURS;
+	dur.dv = 3600;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -128,7 +124,6 @@ dt_add_d(void)
 	/* prep the duration */
 	dur.d = dt_make_ddur(DT_DURD, 1);
 	dur.t = dt_t_initialiser();
-	dur.sandwich = 0U;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -178,11 +173,8 @@ dt_add_t(void)
 	d = dt_strpdt(str, NULL, NULL);
 
 	/* prep the duration */
-	dur.sandwich = 1U;
-	dur.t.typ = DT_HMS;
-	dur.t.dur = 1;
-	dur.t.neg = 0;
-	dur.t.sdur = 3600;
+	dur.durtyp = DT_DURS;
+	dur.dv = 3600;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -237,13 +229,12 @@ dt_add_dt(void)
 
 	/* prep the duration */
 	dur.d = dt_make_ddur(DT_DURD, 1);
-	dur.t.typ = DT_HMS;
-	dur.t.dur = 1;
-	dur.t.neg = 0;
-	dur.t.sdur = 3600;
-	dur.sandwich = 1U;
-
-	/* the actual addition */
+	/* addition 1 */
+	d = dt_dtadd(d, dur);
+	/* duration 2 */
+	dur.durtyp = DT_DURH;
+	dur.dv = 1;
+	/* addition 2 */
 	d = dt_dtadd(d, dur);
 
 	CHECK(d.d.typ != DT_YMD,
