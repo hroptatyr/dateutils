@@ -261,7 +261,7 @@ dt_tadd_s(struct dt_t_s t, int durs, int corr)
 	/* set up the return type */
 	t.typ = DT_HMS;
 	t.neg = 0;
-	t.carry = tmp.div;
+	t.carry += tmp.div;
 	return t;
 }
 

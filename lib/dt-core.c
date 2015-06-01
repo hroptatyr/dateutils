@@ -1432,6 +1432,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 				/* add some days as well */
 				dur.d.durtyp = DT_DURD;
 				dur.d.dv = carry;
+				d.t.carry = 0;
 				goto dadd;
 			}
 		}
