@@ -304,16 +304,24 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 	}
 	/* otherwise perform a simple range check */
 	if (clo->dir > 0) {
-		if (now.t.u >= clo->fst.t.u && now.t.u <= clo->lst.t.u) {
-			return true;
-		} else if (clo->fst.t.u >= clo->lst.t.u) {
-			return now.t.u <= clo->lst.t.u || now.d.u == 0U;
+		if (clo->fst.t.u < clo->lst.t.u) {
+			/* dseq A B  with A < B */
+			return now.t.u >= clo->fst.t.u &&
+				now.t.u <= clo->lst.t.u;
+		} else {
+			/* dseq A B  with A > B and wrap-around */
+			return (now.t.u >= clo->fst.t.u && !now.t.carry) ||
+				now.t.u <= clo->lst.t.u;
 		}
 	} else if (clo->dir < 0) {
-		if (now.t.u <= clo->fst.t.u && now.t.u >= clo->lst.t.u) {
-			return true;
-		} else if (clo->fst.t.u <= clo->lst.t.u) {
-			return now.t.u >= clo->lst.t.u || now.d.u == 0U;
+		if (clo->fst.t.u > clo->lst.t.u) {
+			/* counting down from A to B */
+			return now.t.u <= clo->fst.t.u &&
+				now.t.u >= clo->lst.t.u;
+		} else {
+			/* count down from A to B with wrap around */
+			return (now.t.u <= clo->fst.t.u && !now.t.carry) ||
+				now.t.u >= clo->lst.t.u;
 		}
 	}
 	return false;
