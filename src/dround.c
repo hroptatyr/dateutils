@@ -62,7 +62,7 @@ static bool
 durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		if (dur[i].t.typ) {
+		if (dur[i].durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
 			return false;
 		}
 	}
@@ -70,46 +70,61 @@ durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 }
 
 static struct dt_t_s
-tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
+tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
 /* this will return the rounded to DUR time of T and, to encode carry
  * (which can only take values 0 or 1), we will use t's neg bit */
-	signed int mdur;
+	signed int tunp;
+	signed int sdur;
 	signed int diff;
 
 	/* no dur is a no-op */
-	if (UNLIKELY(!dur.sdur)) {
+	if (UNLIKELY(!dur.dv)) {
 		return t;
 	}
 
-	/* unpack t */
-	mdur = t.hms.h * SECS_PER_HOUR +
-		t.hms.m * SECS_PER_MIN +
-		t.hms.s;
-	if (!(diff = mdur % dur.sdur) && !t.hms.ns && !nextp) {
-		return t;
+	sdur = dur.dv % (signed int)SECS_PER_DAY;
+	switch (dur.durtyp) {
+	case DT_DURH:
+		sdur *= MINS_PER_HOUR;
+		/*@fallthrough@*/
+	case DT_DURM:
+		sdur *= SECS_PER_MIN;
+		/*@fallthrough@*/
+	case DT_DURS:
+		/* unpack t */
+		tunp = t.hms.h * SECS_PER_HOUR +
+			t.hms.m * SECS_PER_MIN +
+			t.hms.s;
+		if (!(diff = tunp % sdur) && !t.hms.ns && !nextp) {
+			return t;
+		}
+		break;
+	default:
+		sdur = 0;
+		break;
 	}
 
 	/* compute the result */
-	mdur -= diff;
-	if (dur.sdur > 0 || nextp) {
-		mdur += dur.sdur;
+	tunp -= diff;
+	if (sdur > 0 || nextp) {
+		tunp += sdur;
 	}
-	if (UNLIKELY(mdur < 0)) {
+	if (UNLIKELY(tunp < 0)) {
 		/* lift */
-		mdur += SECS_PER_DAY;
+		tunp += SECS_PER_DAY;
 		/* denote the carry */
 		t.neg = 1;
-	} else if (UNLIKELY(mdur >= (signed)SECS_PER_DAY)) {
+	} else if (UNLIKELY(tunp >= (signed)SECS_PER_DAY)) {
 		t.neg = 1;
 	}
 	/* and convert back */
 	t.hms.ns = 0;
-	t.hms.s = mdur % SECS_PER_MIN;
-	mdur /= SECS_PER_MIN;
-	t.hms.m = mdur % MINS_PER_HOUR;
-	mdur /= MINS_PER_HOUR;
-	t.hms.h = mdur % HOURS_PER_DAY;
+	t.hms.s = tunp % SECS_PER_MIN;
+	tunp /= SECS_PER_MIN;
+	t.hms.m = tunp % MINS_PER_HOUR;
+	tunp /= MINS_PER_HOUR;
+	t.hms.h = tunp % HOURS_PER_DAY;
 	return t;
 }
 
@@ -299,7 +314,18 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 static struct dt_dt_s
 dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 {
-	d.t = tround_tdur(d.t, dur.t, nextp);
+	switch (dur.durtyp) {
+	default:
+		/* all the date durs */
+		break;
+
+	case DT_DURH:
+	case DT_DURM:
+	case DT_DURS:
+	case DT_DURNANO:
+		d.t = tround_tdur(d.t, dur, nextp);
+		break;
+	}
 	/* check carry */
 	if (UNLIKELY(d.t.neg == 1)) {
 		/* we need to add a day */
