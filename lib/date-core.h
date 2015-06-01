@@ -295,7 +295,7 @@ struct dt_d_s {
 struct dt_ddur_s {
 	/* date duration type */
 	dt_durtyp_t durtyp:4;
-	/* unused here, but used by inherited types (e.g. dt_dt_s) */
+	/* unused here, but used by dt_dtdur_s */
 	uint32_t:3;
 	/* error indicator, usually means date has been fixed up */
 	uint32_t fix:1;
@@ -566,14 +566,7 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 static inline struct dt_ddur_s
 dt_make_ddur(dt_durtyp_t typ, dt_dur_t d)
 {
-	struct dt_ddur_s res;
-
-	res.durtyp = typ;
-	res.neg = 0U;
-	res.fix = 0U;
-	res.param = 0U;
-	res.dv = d;
-	return res;
+	return (struct dt_ddur_s){typ, .dv = d};
 }
 
 static inline dt_bizda_param_t
