@@ -272,7 +272,8 @@ __daisy_feasible_p(struct dt_dtdur_s dur[], size_t ndur)
 static bool
 __dur_naught_p(struct dt_dtdur_s dur)
 {
-	return dur.d.dv == 0 && dur.t.sdur == 0;
+	/* we use the fact that dur.dv overlaps dur.d.dv */
+	return dur.dv == 0;
 }
 
 static bool
@@ -363,9 +364,9 @@ __get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
 		struct dt_dt_s tmp = __seq_next(d, clo);
 		return dt_dtcmp(tmp, d);
 	}
-	if (clo->ite->t.sdur && !clo->ite->t.neg) {
+	if (clo->ite->dv > 0) {
 		return 1;
-	} else if (clo->ite->t.sdur && clo->ite->t.neg) {
+	} else if (clo->ite->dv < 0) {
 		return -1;
 	}
 	return 0;
@@ -392,35 +393,32 @@ __fixup_fst(struct dseq_clo_s *clo)
 	return old;
 }
 
-static struct dt_t_s
+static struct dt_dtdur_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
-	struct dt_t_s res;
-
 	if (beg.hms.h != end.hms.h &&
 	    beg.hms.m == 0 && end.hms.m == 0&&
 	    beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.sdur = SECS_PER_HOUR;
+			return (struct dt_dtdur_s){DT_DURH, .dv = 1};
 		} else {
-			res.sdur = -SECS_PER_HOUR;
+			return (struct dt_dtdur_s){DT_DURH, .dv = -1};
 		}
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.sdur = SECS_PER_MIN;
+			return (struct dt_dtdur_s){DT_DURM, .dv = 1};
 		} else {
-			res.sdur = -SECS_PER_MIN;
+			return (struct dt_dtdur_s){DT_DURM, .dv = -1};
 		}
 	} else {
 		if (beg.u < end.u) {
-			res.sdur = 1L;
+			return (struct dt_dtdur_s){DT_DURS, .dv = 1};
 		} else {
-			res.sdur = -1L;
+			return (struct dt_dtdur_s){DT_DURS, .dv = -1};
 		}
 	}
-	res.dur = 1;
-	return res;
+	/* no reach */
 }
 
 
@@ -518,8 +516,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		}
 
 		/* check the input arguments and do the sane thing now
-		 * if it's all dates, use daisy iterator
-		 * if it's all times, use sdur iterator
+		 * if it's all dates, use DURD iterator
+		 * if it's all times, use DURS/DURM/DURH iterators
 		 * if one of them is a dt, promote the other */
 		if (dt_sandwich_only_d_p(fst)) {
 			/* emulates old dseq(1) */
@@ -643,8 +641,8 @@ cannot convert calendric system internally");
 		}
 		rc = 1;
 		goto out;
-	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->t.sdur == 0) {
-		clo.ite->t = tseq_guess_ite(clo.fst.t, clo.lst.t);
+	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->dv == 0) {
+		*clo.ite = tseq_guess_ite(clo.fst.t, clo.lst.t);
 	}
 
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
