@@ -1384,7 +1384,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 #if defined WITH_LEAP_SECONDS
 	struct dt_dt_s orig;
 
-	if (UNLIKELY(dur.tai)) {
+	if (UNLIKELY(dur.tai && !dt_sandwich_only_d_p(d))) {
 		/* make a copy */
 		orig = d;
 	}
@@ -1453,7 +1453,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 	}
 
 #if defined WITH_LEAP_SECONDS
-	if (UNLIKELY(dur.tai)) {
+	if (UNLIKELY(dur.tai && !dt_sandwich_only_d_p(orig))) {
 		/* the reason we omitted SEXY is because there's simply
 		 * no representation in there */
 		zidx_t i_orig = leaps_before(orig);
