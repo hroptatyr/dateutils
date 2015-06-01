@@ -233,12 +233,15 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		}
 		break;
 
-	case DT_YMD:
+	case DT_DURMO:
 		switch (d.typ) {
 			unsigned int mdays;
 		case DT_YMD:
-			forw = !dur.neg;
-			tgt = dur.ymd.m;
+			if ((forw = !dt_dur_neg_p(dur))) {
+				tgt = dur.dv;
+			} else {
+				tgt = -dur.dv;
+			}
 
 			if ((forw && d.ymd.m < tgt) ||
 			    (!forw && d.ymd.m > tgt)) {
@@ -268,13 +271,16 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		}
 		break;
 
-	case DT_YMCW: {
+	case DT_DURWK: {
 		struct dt_d_s tmp;
 		unsigned int wday;
 		signed int diff;
 
-		forw = !dur.neg;
-		tgt = dur.ymcw.w;
+		if ((forw = !dt_dur_neg_p(dur))) {
+			tgt = dur.dv;
+		} else {
+			tgt = -dur.dv;
+		}
 
 		tmp = dt_dconv(DT_DAISY, d);
 		wday = dt_get_wday(tmp);
@@ -378,8 +384,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d.durtyp = DT_DURWK;
-		payload.d.dv = d.w;
+		payload.d = dt_make_ddur(DT_DURWK, !negp ? d.w : -d.w);
 		goto out;
 	}
 
@@ -387,8 +392,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d.durtyp = DT_DURMO;
-		payload.d.dv = d.m;
+		payload.d = dt_make_ddur(DT_DURMO, !negp ? d.m : -d.m);
 		goto out;
 	}
 
@@ -398,7 +402,6 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 out:
 	st->sign = 0;
 	st->cont = NULL;
-	payload.neg = negp;
 	return __add_dur(st, payload);
 }
 
