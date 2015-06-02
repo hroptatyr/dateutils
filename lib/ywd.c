@@ -108,7 +108,7 @@ __ywd_get_dec31_wday(dt_ywd_t d)
 }
 
 #if defined GET_ISOWK_FULL_SWITCH
-static __attribute__((const, pure)) unsigned int
+DEFUN __attribute__((const, pure)) inline unsigned int
 __get_isowk(unsigned int y)
 {
 /* return the number of iso weeks in Y */
@@ -365,7 +365,7 @@ __get_z31wk(unsigned int y)
 }
 
 #elif defined GET_ISOWK_28Y_SWITCH
-static inline __attribute__((const, pure)) unsigned int
+DEFUN __attribute__((const, pure)) inline unsigned int
 __get_isowk(unsigned int y)
 {
 	switch (y % 28U) {

@@ -233,15 +233,12 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		}
 		break;
 
-	case DT_DURMO:
+	case DT_DURYMD:
 		switch (d.typ) {
 			unsigned int mdays;
 		case DT_YMD:
-			if ((forw = !dt_dur_neg_p(dur))) {
-				tgt = dur.dv;
-			} else {
-				tgt = -dur.dv;
-			}
+			tgt = dur.ymd.m;
+			forw = !dt_dur_neg_p(dur);
 
 			if ((forw && d.ymd.m < tgt) ||
 			    (!forw && d.ymd.m > tgt)) {
@@ -271,16 +268,13 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		}
 		break;
 
-	case DT_DURWK: {
+	case DT_DURYMCW: {
 		struct dt_d_s tmp;
 		unsigned int wday;
 		signed int diff;
 
-		if ((forw = !dt_dur_neg_p(dur))) {
-			tgt = dur.dv;
-		} else {
-			tgt = -dur.dv;
-		}
+		forw = !dt_dur_neg_p(dur);
+		tgt = dur.ymcw.w;
 
 		tmp = dt_dconv(DT_DAISY, d);
 		wday = dt_get_wday(tmp);
@@ -308,7 +302,47 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		break;
 	}
 
-	case DT_YWD:
+	case DT_DURWK:
+		if (dur.dv > 0) {
+			tgt = dur.dv;
+			forw = true;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
+			forw = false;
+		} else {
+			/* user is an idiot */
+			break;
+		}
+
+		switch (d.typ) {
+			unsigned int nw;
+		case DT_YWD:
+			if ((forw && d.ywd.c < tgt) ||
+			    (!forw && d.ywd.c > tgt)) {
+				/* no year adjustment */
+				;
+			} else if (d.ywd.c == tgt && !nextp) {
+				/* we're IN the week already and no
+				 * next/prev date is requested */
+				;
+			} else if (forw) {
+				/* years don't wrap around */
+				d.ywd.y++;
+			} else {
+				/* years don't wrap around */
+				d.ywd.y--;
+			}
+			/* final assignment */
+			d.ywd.c = tgt;
+			/* fixup ultimo mismatches */
+			nw = __get_isowk(d.ywd.y);
+			if (UNLIKELY(d.ywd.c > nw)) {
+				d.ywd.c = nw;
+			}
+			break;
+		default:
+			break;
+		}
 		break;
 
 	default:
@@ -384,7 +418,11 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d = dt_make_ddur(DT_DURWK, !negp ? d.w : -d.w);
+		payload.d = (struct dt_ddur_s){
+			DT_DURYMCW,
+			.neg = negp,
+			.ymcw.w = d.w,
+		};
 		goto out;
 	}
 
@@ -392,7 +430,11 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d = dt_make_ddur(DT_DURMO, !negp ? d.m : -d.m);
+		payload.d = (struct dt_ddur_s){
+			DT_DURYMD,
+			.neg = negp,
+			.ymd.m = d.m,
+		};
 		goto out;
 	}
 

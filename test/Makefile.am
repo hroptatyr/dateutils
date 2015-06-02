@@ -449,7 +449,8 @@ dt_tests += dround.025.clit
 dt_tests += dround.026.clit
 dt_tests += dround.027.clit
 dt_tests += dround.028.clit
-
+dt_tests += dround.029.clit
+dt_tests += dround.030.clit
 
 dt_tests += tseq.01.clit
 dt_tests += tseq.02.clit
