@@ -302,7 +302,47 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		break;
 	}
 
-	case DT_YWD:
+	case DT_DURWK:
+		if (dur.dv > 0) {
+			tgt = dur.dv;
+			forw = true;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
+			forw = false;
+		} else {
+			/* user is an idiot */
+			break;
+		}
+
+		switch (d.typ) {
+			unsigned int nw;
+		case DT_YWD:
+			if ((forw && d.ywd.c < tgt) ||
+			    (!forw && d.ywd.c > tgt)) {
+				/* no year adjustment */
+				;
+			} else if (d.ywd.c == tgt && !nextp) {
+				/* we're IN the week already and no
+				 * next/prev date is requested */
+				;
+			} else if (forw) {
+				/* years don't wrap around */
+				d.ywd.y++;
+			} else {
+				/* years don't wrap around */
+				d.ywd.y--;
+			}
+			/* final assignment */
+			d.ywd.c = tgt;
+			/* fixup ultimo mismatches */
+			nw = __get_isowk(d.ywd.y);
+			if (UNLIKELY(d.ywd.c > nw)) {
+				d.ywd.c = nw;
+			}
+			break;
+		default:
+			break;
+		}
 		break;
 
 	default:
