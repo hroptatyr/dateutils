@@ -261,6 +261,7 @@ __sexy_add(dt_sexy_t sx, struct dt_dtdur_s dur)
 	case DT_DURD:
 	case DT_DURBD:
 		delta = dur.d.dv * SECS_PER_DAY;
+		/*@fallthrough@*/
 	case DT_DURUNK:
 		delta += dur.t.sdur;
 	default:

@@ -101,8 +101,7 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		}
 		break;
 	default:
-		sdur = 0;
-		break;
+		return t;
 	}
 
 	/* compute the result */

@@ -557,6 +557,9 @@ __strfd_card(
 		case DT_SPMOD_ABBR:
 			prec = 1;
 			break;
+		default:
+			/* it's just bollocks */
+			return 0U;
 		}
 		res = ui32tostr(buf, bsz, y, prec);
 		break;
