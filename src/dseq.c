@@ -239,8 +239,15 @@ set_skip(__skipspec_t ss, char *spec)
 static struct dt_dt_s
 date_add(struct dt_dt_s d, struct dt_dtdur_s dur[], size_t ndur)
 {
+	int32_t carries = d.d.u;
+
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_dtadd(d, dur[i]);
+		/* keep track of carries */
+		carries += d.t.carry;
+	}
+	if (UNLIKELY(dt_sandwich_only_t_p(d))) {
+		d.d.u = carries;
 	}
 	return d;
 }
@@ -324,9 +331,9 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 			return now.t.u >= clo->fst.t.u &&
 				now.t.u <= clo->lst.t.u;
 		} else {
-			/* dseq A B  with A > B and wrap-around */
-			return (now.t.u >= clo->fst.t.u && !now.t.carry) ||
-				now.t.u <= clo->lst.t.u;
+			/* dseq A B  with A > B and wrap-around,
+			 * carries have kindly been stored in d.u */
+			return now.t.u <= clo->lst.t.u || now.d.u == 0U;
 		}
 	} else if (clo->dir < 0) {
 		if (clo->fst.t.u > clo->lst.t.u) {
@@ -334,9 +341,9 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 			return now.t.u <= clo->fst.t.u &&
 				now.t.u >= clo->lst.t.u;
 		} else {
-			/* count down from A to B with wrap around */
-			return (now.t.u <= clo->fst.t.u && !now.t.carry) ||
-				now.t.u >= clo->lst.t.u;
+			/* count down from A to B with wrap around,
+			 * carries have kindly been stored in d.u */
+			return now.t.u >= clo->lst.t.u || now.d.u == 0U;
 		}
 	}
 	return false;
