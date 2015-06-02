@@ -1545,6 +1545,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		} else {
 			/* just a hack to transfer the notion of TAIness */
 			res.tai = 1U;
+			res.durtyp = DT_DURS;
 		}
 		res.dv = sxdur;
 
