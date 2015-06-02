@@ -417,7 +417,7 @@ __strfdt_dur(
 			if (that.d.durtyp != DT_DURD) {
 				return 0U;
 			}
-			dv = that.d.dv * HOURS_PER_DAY;
+			dv = (int64_t)that.d.dv * HOURS_PER_DAY;
 			/*@fallthrough@*/
 		case DT_DURH:
 			dv *= MINS_PER_HOUR;
@@ -443,6 +443,7 @@ __strfdt_dur(
 		switch (that.durtyp) {
 		case DT_DURS:
 			dur *= NANOS_PER_SEC;
+			/*@fallthrough@*/
 		case DT_DURNANO:
 			if (LIKELY(!that.tai)) {
 				return (size_t)snprintf(
