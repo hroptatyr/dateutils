@@ -259,14 +259,29 @@ __daisy_feasible_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->d.durtyp == DT_DURYMD) {
-		if (dur->d.ymd.y || dur->d.ymd.m) {
-			return false;
-		}
-	} else if (dur->d.durtyp == DT_DURBIZDA && (dur->d.bizda.bd)) {
+	}
+
+	switch (dur->d.durtyp) {
+	case DT_DURYMD:
+		return !(dur->d.ymd.y || dur->d.ymd.m);
+	case DT_DURBIZDA:
+		return !dur->d.bizda.bd;
+	case DT_DURD:
+	case DT_DURBD:
+		/* definitley, they're daisy already */
+		return true;
+	case DT_DURWK:
+		/* borderline, could be less efficient for ywd dates */
+		return true;
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
+		/* most definitely not */
+	default:
+		/* all the time durs make it infeasible as well */
 		return false;
 	}
-	return true;
+	/* not reached */
 }
 
 static bool
