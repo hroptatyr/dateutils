@@ -489,7 +489,7 @@ __strfdtdur(
 	}
 
 	/* translate high-level format names */
-	if (dur.durtyp >= DT_DURS) {
+	if (dur.durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
 		if (fmt == NULL) {
 			fmt = sexy_dflt_dur;
 			f.has_sec = 1U;
