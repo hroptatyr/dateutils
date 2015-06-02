@@ -443,6 +443,7 @@ __strfdt_dur(
 		switch (that.durtyp) {
 		case DT_DURS:
 			dur *= NANOS_PER_SEC;
+			/*@fallthrough@*/
 		case DT_DURNANO:
 			if (LIKELY(!that.tai)) {
 				return (size_t)snprintf(
