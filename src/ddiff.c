@@ -104,6 +104,9 @@ determine_durfmt(const char *fmt)
 			res.has_day = 1;
 			res.has_biz = 1;
 			break;
+		case DT_DAISY:
+			res.has_day = 1;
+			break;
 		case DT_BIZSI:
 			res.has_day = 1;
 			res.has_biz = 1;
@@ -502,7 +505,6 @@ __strfdtdur(
 			f.has_day = 1U;
 		} else {
 			__trans_ddurfmt(&fmt);
-			f.has_day = 1U;
 		}
 	}
 
