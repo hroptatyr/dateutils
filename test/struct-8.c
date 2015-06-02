@@ -19,7 +19,6 @@ main(void)
 	CHECK_SIZE(dt_ymd_t, uint32_t);
 	CHECK_SIZE(dt_ymcw_t, uint32_t);
 	CHECK_SIZE(dt_bizda_t, uint32_t);
-	CHECK_SIZE(dt_md_t, uint32_t);
 	CHECK_SIZE(dt_daisy_t, uint32_t);
 	return res;
 }

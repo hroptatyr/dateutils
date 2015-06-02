@@ -144,15 +144,12 @@ extern size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s);
 
 /**
- * Add DUR to T and return its result.
- * Optional argument CORR is the number of leap-seconds to insert at
- * the end of the day (or remove if negative). */
-extern struct dt_t_s dt_tadd(struct dt_t_s t, struct dt_t_s dur, int corr);
+ * Add DURS seconds and CORR corrections to T. */
+extern struct dt_t_s dt_tadd_s(struct dt_t_s t, int durs, int corr);
 
 /**
- * Compute the duration between T1 and T2 (as in T2 - T1) and return the
- * result in the .sdur slot. */
-extern struct dt_t_s dt_tdiff(struct dt_t_s t1, struct dt_t_s t2);
+ * Compute the duration between T1 and T2 (as in T2 - T1). */
+extern int dt_tdiff_s(struct dt_t_s t1, struct dt_t_s t2);
 
 /**
  * Compare two time values, yielding 0 if they are equal, -1 if T1 is older,
@@ -162,6 +159,13 @@ extern int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
 /**
  * Like time() but always return the current UTC time. */
 extern struct dt_t_s dt_time(void);
+
+#if defined LIBDUT
+/**
+ * Return the base date/time as struct dt_t_s.
+ * Defined in dt-core.c */
+extern struct dt_t_s dt_get_tbase(void);
+#endif	/* LIBDUT */
 
 
 /* some useful gimmicks, sort of */

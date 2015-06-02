@@ -64,7 +64,7 @@ main(void)
 {
 	int rc = 0;
 	struct dt_t_s t;
-	struct dt_t_s dur;
+	int dur;
 	struct dt_t_s res;
 	struct dt_t_s chk;
 
@@ -75,9 +75,7 @@ main(void)
 	t.hms.m = 34;
 	t.hms.s = 56;
 
-	dur = dt_t_initialiser();
-	dur.sdur = 17;
-	dur.dur = 1;
+	dur = 17;
 
 	/* should be 12:35:13 */
 	chk = dt_t_initialiser();
@@ -87,7 +85,7 @@ main(void)
 	chk.hms.s = 13;
 
 	/* add, then check */
-	if (res = dt_tadd(t, dur, 0), add_chk(res, chk)) {
+	if (res = dt_tadd_s(t, dur, 0), add_chk(res, chk)) {
 		rc = 1;
 	}
 
@@ -99,9 +97,7 @@ main(void)
 	t.hms.m = 34;
 	t.hms.s = 56;
 
-	dur = dt_t_initialiser();
-	dur.sdur = 11 * 3600 + 25 * 60 + 4;
-	dur.dur = 1;
+	dur = 11 * 3600 + 25 * 60 + 4;
 
 	/* should be 00:00:00 */
 	chk = dt_t_initialiser();
@@ -112,7 +108,7 @@ main(void)
 	chk.carry = 1;
 
 	/* add, then check */
-	if (res = dt_tadd(t, dur, 0), add_chk(res, chk)) {
+	if (res = dt_tadd_s(t, dur, 0), add_chk(res, chk)) {
 		rc = 1;
 	}
 
@@ -124,9 +120,7 @@ main(void)
 	t.hms.m = 34;
 	t.hms.s = 56;
 
-	dur = dt_t_initialiser();
-	dur.sdur = 11 * 3600 + 25 * 60 + 4;
-	dur.dur = 1;
+	dur = 11 * 3600 + 25 * 60 + 4;
 
 	/* should be 00:00:00 */
 	chk = dt_t_initialiser();
@@ -137,7 +131,7 @@ main(void)
 	chk.carry = 0;
 
 	/* add, then check */
-	if (res = dt_tadd(t, dur, 1), add_chk(res, chk)) {
+	if (res = dt_tadd_s(t, dur, 1), add_chk(res, chk)) {
 		rc = 1;
 	}
 
@@ -149,9 +143,7 @@ main(void)
 	t.hms.m = 34;
 	t.hms.s = 56;
 
-	dur = dt_t_initialiser();
-	dur.sdur = 11 * 3600 + 25 * 60 + 3;
-	dur.dur = 1;
+	dur = 11 * 3600 + 25 * 60 + 3;
 
 	/* should be 00:00:00 */
 	chk = dt_t_initialiser();
@@ -162,7 +154,7 @@ main(void)
 	chk.carry = 1;
 
 	/* add, then check */
-	if (res = dt_tadd(t, dur, -1), add_chk(res, chk)) {
+	if (res = dt_tadd_s(t, dur, -1), add_chk(res, chk)) {
 		rc = 1;
 	}
 
@@ -174,9 +166,7 @@ main(void)
 	t.hms.m = 34;
 	t.hms.s = 56;
 
-	dur = dt_t_initialiser();
-	dur.sdur = 11 * 3600 + 25 * 60 + 2;
-	dur.dur = 1;
+	dur = 11 * 3600 + 25 * 60 + 2;
 
 	/* should be 00:00:00 */
 	chk = dt_t_initialiser();
@@ -187,7 +177,7 @@ main(void)
 	chk.carry = 0;
 
 	/* add, then check */
-	if (res = dt_tadd(t, dur, -1), add_chk(res, chk)) {
+	if (res = dt_tadd_s(t, dur, -1), add_chk(res, chk)) {
 		rc = 1;
 	}
 
@@ -199,9 +189,7 @@ main(void)
 	t.hms.m = 34;
 	t.hms.s = 56;
 
-	dur = dt_t_initialiser();
-	dur.sdur = 11 * 3600 + 25 * 60 + 3;
-	dur.dur = 1;
+	dur = 11 * 3600 + 25 * 60 + 3;
 
 	/* should be 00:00:00 */
 	chk = dt_t_initialiser();
@@ -212,7 +200,7 @@ main(void)
 	chk.carry = 0;
 
 	/* add, then check */
-	if (res = dt_tadd(t, dur, 1), add_chk(res, chk)) {
+	if (res = dt_tadd_s(t, dur, 1), add_chk(res, chk)) {
 		rc = 1;
 	}
 	return rc;

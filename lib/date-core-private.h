@@ -60,6 +60,44 @@ extern const char bizdadur_dflt[];
 
 extern dt_dtyp_t __trans_dfmt_special(const char*);
 extern dt_dtyp_t __trans_dfmt(const char **fmt);
-extern dt_dtyp_t __trans_ddurfmt(const char**fmt);
+extern dt_durtyp_t __trans_ddurfmt(const char**fmt);
+
+/**
+ * Get the week count of D in the year when weeks start at _1st_wd. */
+extern int __yd_get_wcnt(dt_yd_t d, dt_dow_t _1st_wd);
+
+/**
+ * Like __yd_get_wcnt() but for ISO week convention. */
+extern int __yd_get_wcnt_iso(dt_yd_t d);
+
+/**
+ * Like __yd_get_wcnt() but disregard what day the year started with. */
+extern int __yd_get_wcnt_abs(dt_yd_t d);
+
+/**
+ * Return the N-th W-day in the year of THAT.
+ * This is equivalent with 8601's Y-W-D calendar where W is the week
+ * of the year and D the day in the week */
+extern unsigned int __ymcw_get_yday(dt_ymcw_t that);
+
+/**
+ * Get the number of days in month M of year Y. */
+extern unsigned int __get_mdays(unsigned int y, unsigned int m);
+
+/**
+ * Get the number of business days in month M of year Y. */
+extern unsigned int __get_bdays(unsigned int y, unsigned int m);
+
+/**
+ * Get the number of ISO weeks in year Y. */
+extern unsigned int __get_isowk(unsigned int y);
+
+/**
+ * Compare two ymcw objects, return <0, 0, >0 when D1 < D2, D1 == D2, D1 > D2 */
+extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
+
+/**
+ * Get N where N is the N-th occurrence of wday in the month of that year */
+extern unsigned int __ymd_get_count(dt_ymd_t that);
 
 #endif	/* INCLUDED_date_core_private_h_ */

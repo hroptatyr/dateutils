@@ -3,7 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-AC_INIT([dateutils], [0.3.2], [https://github.com/hroptatyr/dateutils/issues])
+AC_INIT([dateutils], [0.3.3.GIT], [https://github.com/hroptatyr/dateutils/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -149,6 +149,16 @@ AS_HELP_STRING([--enable-contrib], [Build contribs, default: no.])],
         [enable_contrib="${enableval}"], [enable_contrib="no"])
 AM_CONDITIONAL([WITH_CONTRIB], [test "${enable_contrib}" != "no"])
 
+AC_ARG_WITH([old-names], [
+AS_HELP_STRING([--with-old-names], [Install old binary names only, default: no.])],
+        [with_old_names="${withval}"], [with_old_names="no"])
+AM_CONDITIONAL([WITH_OLD_NAMES], [test "${with_old_names}" != "no"])
+
+AC_ARG_WITH([old-links], [
+AS_HELP_STRING([--with-old-links], [Install compatibility symlinks, default: yes.])],
+	[with_old_links="${withval}"], [with_old_links="yes"])
+AM_CONDITIONAL([WITH_OLD_LINKS], [test "${with_old_links}" != "no"])
+
 ## checks
 if test "${enable_fast_arith}" = "yes"; then
 	AC_DEFINE([WITH_FAST_ARITH], [1],
@@ -176,7 +186,11 @@ AM_CONDITIONAL([BUILD_OCTCLI], [test "${sxe_cv_octave_mex_h}" = "yes" -a -n "${O
 
 
 ## prepare the summary page
-dut_apps="dadd dconv ddiff dgrep dround dseq dsort dtest dzone"
+if test "${with_old_names}" = "no"; then
+	dut_apps="dateadd dateconv datediff dategrep dateround dateseq datesort datetest datezone"
+else
+	dut_apps="dadd dconv ddiff dgrep dround dseq dsort dtest dzone"
+fi
 if test "${have_strptime}" = "yes"; then
 	misc_apps="strptime"
 else
@@ -220,5 +234,14 @@ Build misc apps:	${misc_apps}
 Build contrib apps:	${cntrb_apps}
 
 EOF
+
+if test "${with_old_names}" = "no"; then
+	cat <<EOF
+New binary names will be used (compatibility symlinks: $with_old_links).
+See configure options --with-old-names and --with-old-links.
+EOF
+else
+	echo "Old binary names will be used."
+fi
 
 dnl configure.ac ends here

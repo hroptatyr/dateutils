@@ -52,10 +52,10 @@ const char *prog = "dadd";
 
 
 static bool
-durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
+durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		if (dur[i].t.typ) {
+		if (dur[i].durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
 			return false;
 		}
 	}
@@ -63,7 +63,7 @@ durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
 }
 
 static struct dt_dt_s
-dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
+dadd_add(struct dt_dt_s d, struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_dtadd(d, dur[i]);
@@ -254,6 +254,10 @@ main(int argc, char *argv[])
 	}
 	if (argi->zone_arg) {
 		z = dt_io_zone(argi->zone_arg);
+	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
 	}
 
 	/* check first arg, if it's a date the rest of the arguments are

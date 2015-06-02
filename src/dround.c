@@ -49,6 +49,7 @@
 #include "prchunk.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"
+#include "date-core-private.h"
 
 #if !defined assert
 # define assert(x)
@@ -58,10 +59,10 @@ const char *prog = "dround";
 
 
 static bool
-durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
+durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		if (dur[i].t.typ) {
+		if (dur[i].durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
 			return false;
 		}
 	}
@@ -69,61 +70,76 @@ durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
 }
 
 static struct dt_t_s
-tround_tdur(struct dt_t_s t, struct dt_t_s dur, bool nextp)
+tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
 /* this will return the rounded to DUR time of T and, to encode carry
  * (which can only take values 0 or 1), we will use t's neg bit */
-	signed int mdur;
+	signed int tunp;
+	signed int sdur;
 	signed int diff;
 
 	/* no dur is a no-op */
-	if (UNLIKELY(!dur.sdur)) {
+	if (UNLIKELY(!dur.dv)) {
 		return t;
 	}
 
-	/* unpack t */
-	mdur = t.hms.h * SECS_PER_HOUR +
-		t.hms.m * SECS_PER_MIN +
-		t.hms.s;
-	if (!(diff = mdur % dur.sdur) && !t.hms.ns && !nextp) {
-		return t;
+	sdur = dur.dv % (signed int)SECS_PER_DAY;
+	switch (dur.durtyp) {
+	case DT_DURH:
+		sdur *= MINS_PER_HOUR;
+		/*@fallthrough@*/
+	case DT_DURM:
+		sdur *= SECS_PER_MIN;
+		/*@fallthrough@*/
+	case DT_DURS:
+		/* unpack t */
+		tunp = t.hms.h * SECS_PER_HOUR +
+			t.hms.m * SECS_PER_MIN +
+			t.hms.s;
+		if (!(diff = tunp % sdur) && !t.hms.ns && !nextp) {
+			return t;
+		}
+		break;
+	default:
+		sdur = 0;
+		break;
 	}
 
 	/* compute the result */
-	mdur -= diff;
-	if (dur.sdur > 0 || nextp) {
-		mdur += dur.sdur;
+	tunp -= diff;
+	if (sdur > 0 || nextp) {
+		tunp += sdur;
 	}
-	if (UNLIKELY(mdur < 0)) {
+	if (UNLIKELY(tunp < 0)) {
 		/* lift */
-		mdur += SECS_PER_DAY;
+		tunp += SECS_PER_DAY;
 		/* denote the carry */
 		t.neg = 1;
-	} else if (UNLIKELY(mdur >= (signed)SECS_PER_DAY)) {
+	} else if (UNLIKELY(tunp >= (signed)SECS_PER_DAY)) {
 		t.neg = 1;
 	}
 	/* and convert back */
 	t.hms.ns = 0;
-	t.hms.s = mdur % SECS_PER_MIN;
-	mdur /= SECS_PER_MIN;
-	t.hms.m = mdur % MINS_PER_HOUR;
-	mdur /= MINS_PER_HOUR;
-	t.hms.h = mdur % HOURS_PER_DAY;
+	t.hms.s = tunp % SECS_PER_MIN;
+	tunp /= SECS_PER_MIN;
+	t.hms.m = tunp % MINS_PER_HOUR;
+	tunp /= MINS_PER_HOUR;
+	t.hms.h = tunp % HOURS_PER_DAY;
 	return t;
 }
 
 static struct dt_d_s
-dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
+dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 {
-	switch (dur.typ) {
+	switch (dur.durtyp) {
 		unsigned int tgt;
 		bool forw;
-	case DT_DAISY:
-		if (dur.daisydur > 0) {
-			tgt = dur.daisydur;
+	case DT_DURD:
+		if (dur.dv > 0) {
+			tgt = dur.dv;
 			forw = true;
-		} else if (dur.daisydur < 0) {
-			tgt = -dur.daisydur;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
 			forw = false;
 		} else {
 			/* user is an idiot */
@@ -167,13 +183,13 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		}
 		break;
 
-	case DT_BIZSI:
+	case DT_DURBD:
 		/* bizsis only work on bizsidurs atm */
-		if (dur.bizsidur > 0) {
-			tgt = dur.bizsidur;
+		if (dur.dv > 0) {
+			tgt = dur.dv;
 			forw = true;
-		} else if (dur.bizsidur < 0) {
-			tgt = -dur.bizsidur;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
 			forw = false;
 		} else {
 			/* user is an idiot */
@@ -217,12 +233,12 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		}
 		break;
 
-	case DT_YMD:
+	case DT_DURYMD:
 		switch (d.typ) {
 			unsigned int mdays;
 		case DT_YMD:
-			forw = !dur.neg;
 			tgt = dur.ymd.m;
+			forw = !dt_dur_neg_p(dur);
 
 			if ((forw && d.ymd.m < tgt) ||
 			    (!forw && d.ymd.m > tgt)) {
@@ -252,12 +268,12 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		}
 		break;
 
-	case DT_YMCW: {
+	case DT_DURYMCW: {
 		struct dt_d_s tmp;
 		unsigned int wday;
 		signed int diff;
 
-		forw = !dur.neg;
+		forw = !dt_dur_neg_p(dur);
 		tgt = dur.ymcw.w;
 
 		tmp = dt_dconv(DT_DAISY, d);
@@ -286,33 +302,79 @@ dround_ddur(struct dt_d_s d, struct dt_d_s dur, bool nextp)
 		break;
 	}
 
-	case DT_MD:
+	case DT_DURWK:
+		if (dur.dv > 0) {
+			tgt = dur.dv;
+			forw = true;
+		} else if (dur.dv < 0) {
+			tgt = -dur.dv;
+			forw = false;
+		} else {
+			/* user is an idiot */
+			break;
+		}
+
+		switch (d.typ) {
+			unsigned int nw;
+		case DT_YWD:
+			if ((forw && d.ywd.c < tgt) ||
+			    (!forw && d.ywd.c > tgt)) {
+				/* no year adjustment */
+				;
+			} else if (d.ywd.c == tgt && !nextp) {
+				/* we're IN the week already and no
+				 * next/prev date is requested */
+				;
+			} else if (forw) {
+				/* years don't wrap around */
+				d.ywd.y++;
+			} else {
+				/* years don't wrap around */
+				d.ywd.y--;
+			}
+			/* final assignment */
+			d.ywd.c = tgt;
+			/* fixup ultimo mismatches */
+			nw = __get_isowk(d.ywd.y);
+			if (UNLIKELY(d.ywd.c > nw)) {
+				d.ywd.c = nw;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+
 	default:
 		break;
 	}
 	return d;
 }
 
-static struct dt_d_s one_day = {
-	.typ = DT_DAISY,
-	.dur = 1,
-	.neg = 0,
-};
-
 static struct dt_dt_s
-dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
+dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 {
-	if (dt_sandwich_only_t_p(dur) && d.sandwich) {
-		d.t = tround_tdur(d.t, dur.t, nextp);
-		/* check carry */
-		if (UNLIKELY(d.t.neg == 1)) {
-			/* we need to add a day */
-			one_day.daisydur = 1 | -(dur.t.sdur < 0);
-			d.t.neg = 0;
-			d.d = dt_dadd(d.d, one_day);
-		}
-	} else if (dt_sandwich_only_d_p(dur) &&
-		   (dt_sandwich_p(d) || dt_sandwich_only_d_p(d))) {
+	switch (dur.durtyp) {
+	default:
+		/* all the date durs */
+		break;
+
+	case DT_DURH:
+	case DT_DURM:
+	case DT_DURS:
+	case DT_DURNANO:
+		d.t = tround_tdur(d.t, dur, nextp);
+		break;
+	}
+	/* check carry */
+	if (UNLIKELY(d.t.neg == 1)) {
+		/* we need to add a day */
+		struct dt_ddur_s one_day =
+			dt_make_ddur(DT_DURD, 1 | -(dur.t.sdur < 0));
+		d.t.neg = 0;
+		d.d = dt_dadd(d.d, one_day);
+	}
+	{
 		unsigned int sw = d.sandwich;
 		d.d = dround_ddur(d.d, dur.d, nextp);
 		d.sandwich = (uint8_t)sw;
@@ -322,7 +384,7 @@ dt_round(struct dt_dt_s d, struct dt_dt_s dur, bool nextp)
 
 
 static struct dt_dt_s
-dround(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur, bool nextp)
+dround(struct dt_dt_s d, struct dt_dtdur_s dur[], size_t ndur, bool nextp)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_round(d, dur[i], nextp);
@@ -337,7 +399,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	char *sp = NULL;
 	struct strpd_s d = strpd_initialiser();
 	struct dt_spec_s s = spec_initialiser();
-	struct dt_dt_s payload = dt_dt_initialiser();
+	struct dt_dtdur_s payload = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	bool negp = false;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
@@ -356,9 +418,11 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d = dt_make_ymcw(0, 0, 0, d.w);
-		/* make sure it's d-only */
-		payload.sandwich = 0;
+		payload.d = (struct dt_ddur_s){
+			DT_DURYMCW,
+			.neg = negp,
+			.ymcw.w = d.w,
+		};
 		goto out;
 	}
 
@@ -366,9 +430,11 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
-		payload.d = dt_make_ymd(0, d.m, 0);
-		/* make sure it's d-only */
-		payload.sandwich = 0;
+		payload.d = (struct dt_ddur_s){
+			DT_DURYMD,
+			.neg = negp,
+			.ymd.m = d.m,
+		};
 		goto out;
 	}
 
@@ -378,7 +444,6 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 out:
 	st->sign = 0;
 	st->cont = NULL;
-	payload.neg = negp;
 	return __add_dur(st, payload);
 }
 
@@ -493,6 +558,10 @@ main(int argc, char *argv[])
 	}
 	if (argi->next_flag) {
 		nextp = true;
+	}
+	if (argi->base_arg) {
+		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
+		dt_set_base(base);
 	}
 
 	/* check first arg, if it's a date the rest of the arguments are

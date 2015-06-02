@@ -96,11 +96,13 @@ __daisy_get_year(dt_daisy_t d)
 	unsigned int by;
 
 	if (UNLIKELY(d == 0)) {
-		return 0;
+		return 0U;
 	}
 	/* get an estimate for the year and readjust */
 	by = d / 365U;
-	if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
+	if (UNLIKELY(TO_YEAR(by) > DT_MAX_YEAR)) {
+		return 0U;
+	} else if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
 		by--;
 #if !defined WITH_FAST_ARITH
 		if (UNLIKELY(__jan00_daisy(TO_YEAR(by)) >= d)) {
@@ -186,8 +188,9 @@ __daisy_to_ymd(dt_daisy_t that)
 
 	if (UNLIKELY(that == 0)) {
 		return (dt_ymd_t){.u = 0};
+	} else if (UNLIKELY(!(y = __daisy_get_year(that)))) {
+		return (dt_ymd_t){.u = 0};
 	}
-	y = __daisy_get_year(that);
 	j00 = __jan00_daisy(y);
 	doy = that - j00;
 	md = __yday_get_md(y, doy);
@@ -295,15 +298,12 @@ __daisy_add_w(dt_daisy_t d, int n)
 
 #if defined ASPECT_DIFF && !defined DAISY_ASPECT_DIFF_
 #define DAISY_ASPECT_DIFF_
-static __attribute__((const, pure)) struct dt_d_s
+static __attribute__((const, pure)) struct dt_ddur_s
 __daisy_diff(dt_daisy_t d1, dt_daisy_t d2)
 {
 /* compute d2 - d1 */
-	struct dt_d_s res = {.typ = DT_DAISY, .dur = 1};
 	int32_t diff = d2 - d1;
-
-	res.daisydur = diff;
-	return res;
+	return dt_make_ddur(DT_DURD, diff);
 }
 #endif	/* ASPECT_DIFF */
 

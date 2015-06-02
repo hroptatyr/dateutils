@@ -108,7 +108,7 @@ __ywd_get_dec31_wday(dt_ywd_t d)
 }
 
 #if defined GET_ISOWK_FULL_SWITCH
-static __attribute__((const, pure)) unsigned int
+DEFUN __attribute__((const, pure)) inline unsigned int
 __get_isowk(unsigned int y)
 {
 /* return the number of iso weeks in Y */
@@ -365,7 +365,7 @@ __get_z31wk(unsigned int y)
 }
 
 #elif defined GET_ISOWK_28Y_SWITCH
-static inline __attribute__((const, pure)) unsigned int
+DEFUN __attribute__((const, pure)) inline unsigned int
 __get_isowk(unsigned int y)
 {
 	switch (y % 28U) {
@@ -886,11 +886,11 @@ __ywd_add_y(dt_ywd_t d, int n)
 #if defined ASPECT_DIFF && !defined YWD_ASPECT_DIFF_
 #define YWD_ASPECT_DIFF_
 
-static struct dt_d_s
+static struct dt_ddur_s
 __ywd_diff(dt_ywd_t d1, dt_ywd_t d2)
 {
 /* compute d2 - d1 entirely in terms of ymd but express the result as yd */
-	struct dt_d_s res = {.typ = DT_YWD, .dur = 1};
+	struct dt_ddur_s res = dt_make_ddur(DT_DURYWD, 0);
 	signed int tgtd;
 	signed int tgtw;
 	signed int tgty;

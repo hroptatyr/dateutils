@@ -12,7 +12,7 @@ main(void)
 
 	memset(&dt, 0, sizeof(dt));
 	dt.sexy = 0x1fffffffffffffLL;
-	if (dt.typ != DT_UNK || dt.dur || dt.neg) {
+	if (dt.typ != DT_UNK || dt.xxx || dt.neg) {
 		return 1;
 	}
 	return 0;

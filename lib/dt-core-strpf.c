@@ -70,34 +70,52 @@ try_zone(const char *str, const char **ep)
 
 	switch (*sp) {
 		int32_t tmp;
+		const char *tp;
+		const char *up;
 	case '-':
 		minusp = 1;
 	case '+':
 		/* read hour part */
-		if ((tmp = strtoi_lim(++sp, &sp, 0, 14)) < 0) {
+		if ((tmp = strtoi_lim(sp + 1U, &tp, 0, 14)) < 0) {
+			break;
+		} else if (tp - sp < 3U) {
+			/* only accept fully zero-padded hours */
 			break;
 		}
 		res += 3600 * tmp;
 		/* colon separator is optional */
-		if (*sp == ':') {
-			sp++;
+		if (*tp == ':') {
+			tp++;
 		}
 
 		/* read minute part */
-		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
+		if ((tmp = strtoi_lim(tp, &up, 0, 59)) < 0) {
 			break;
+		} else if (up - tp < 2U) {
+			/* only accept zero-padded minutes */
+			break;
+		} else {
+			tp = up;
 		}
 		res += 60 * tmp;
+		/* at least we've got hours and minutes */
+		sp = tp;
 		/* again colon separator is optional */
-		if (*sp == ':') {
-			sp++;
+		if (*tp == ':') {
+			tp++;
 		}
 
 		/* read second part */
-		if ((tmp = strtoi_lim(sp, &sp, 0, 59)) < 0) {
+		if ((tmp = strtoi_lim(tp, &tp, 0, 59)) < 0) {
 			break;
 		}
 		res += tmp;
+		/* fully determined */
+		sp = tp;
+		break;
+	case 'Z':
+		/* accept Zulu specifier */
+		sp++;
 		break;
 	default:
 		/* clearly a mistake to advance SP */
@@ -113,14 +131,9 @@ try_zone(const char *str, const char **ep)
 static struct dt_dt_s
 __fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
 {
-	/* apply time zone difference */
-	struct dt_dt_s zd = dt_dt_initialiser();
-
-	dt_make_t_only(&zd, DT_HMS);
-	zd.t.dur = 1;
-	zd.t.sdur = -zdiff;
+/* apply time zone difference */
 	/* reuse dt for result */
-	dt = dt_dtadd(dt, zd);
+	dt = dt_dtadd(dt, (struct dt_dtdur_s){DT_DURS, .dv = -zdiff});
 	dt.znfxd = 1;
 	return dt;
 }
@@ -372,7 +385,7 @@ __strfdt_card(
 DEFUN size_t
 __strfdt_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpdt_s *d, struct dt_dt_s that)
+	struct strpdt_s *d, struct dt_dtdur_s that)
 {
 	switch (s.spfl) {
 	default:
@@ -395,16 +408,54 @@ __strfdt_dur(
 
 		/* noone's ever bothered doing the same thing for times */
 	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_SEC:
-		if (that.typ == DT_SEXY) {
-			/* use the sexy slot */
-			int64_t dur = that.sexydur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi64 "s", dur);
-		} else {
-			/* replace me!!! */
-			int32_t dur = that.t.sdur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi32 "s", dur);
+	case DT_SPFL_N_SEC:;
+		int64_t dv;
+
+		dv = that.dv;
+		switch (that.durtyp) {
+		default:
+			if (that.d.durtyp != DT_DURD) {
+				return 0U;
+			}
+			dv = that.d.dv * HOURS_PER_DAY;
+			/*@fallthrough@*/
+		case DT_DURH:
+			dv *= MINS_PER_HOUR;
+			/*@fallthrough@*/
+		case DT_DURM:
+			dv *= SECS_PER_MIN;
+			/*@fallthrough@*/
+		case DT_DURS:
+			if (LIKELY(!that.tai)) {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "s", dv);
+			} else {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "rs", dv);
+			}
+			break;
 		}
+		break;
+
+	case DT_SPFL_N_NANO: {
+		int64_t dur = that.dv;
+
+		switch (that.durtyp) {
+		case DT_DURS:
+			dur *= NANOS_PER_SEC;
+		case DT_DURNANO:
+			if (LIKELY(!that.tai)) {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "ns", dur);
+			} else {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "rns", dur);
+			}
+		default:
+			break;
+		}
+		break;
+	}
 
 	case DT_SPFL_LIT_PERCENT:
 		/* literal % */

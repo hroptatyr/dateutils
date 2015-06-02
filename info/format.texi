@@ -30,6 +30,7 @@ Date specs:
   %W  The week count, first day of week is Mon (range 00 to 53)
   %y  The year without a century (range 00 to 99)
   %Y  The year including the century
+  %_y The year shortened to a single digit
   %Z  The zone offset in hours and minutes (HH:MM) with
       a preceding sign (+ for offsets east of UTC, - for offsets
       west of UTC)

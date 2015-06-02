@@ -791,11 +791,11 @@ __yd_add_y(dt_yd_t d, int n)
 
 #if defined ASPECT_DIFF && !defined YD_ASPECT_DIFF_
 #define YD_ASPECT_DIFF_
-static __attribute__((const, pure)) struct dt_d_s
+static __attribute__((const, pure)) struct dt_ddur_s
 __yd_diff(dt_yd_t d1, dt_yd_t d2)
 {
 /* compute d2 - d1 entirely in terms of ymd but express the result as yd */
-	struct dt_d_s res = {.typ = DT_YD, .dur = 1};
+	struct dt_ddur_s res = dt_make_ddur(DT_DURYD, 0);
 	signed int tgtd;
 	signed int tgty;
 

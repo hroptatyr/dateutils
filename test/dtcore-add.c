@@ -23,19 +23,16 @@ add_d_only(void)
 {
 	static const char str[] = "2012-03-28";
 	struct dt_dt_s d;
-	struct dt_dt_s dur;
+	struct dt_dtdur_s dur;
 	int res = 0;
 
 	/* 2012-03-28 (using no format) */
 	fprintf(stderr, "testing %s +1d ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	/* we lack some lovely ctors for this */
+	/* prep the duration */
+	dur.d = dt_make_ddur(DT_DURD, 1);
 	dur.t = dt_t_initialiser();
-	dt_make_d_only(&dur, DT_DAISY);
-	dur.dur = 1;
-	dur.neg = 0;
-	dur.d.daisy = 1;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -47,7 +44,7 @@ add_d_only(void)
 	CHECK(d.t.u,
 	      "  TIME COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.t.u);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
@@ -70,21 +67,16 @@ add_t_only(void)
 {
 	static const char str[] = "12:34:56";
 	struct dt_dt_s d;
-	struct dt_dt_s dur;
+	struct dt_dtdur_s dur = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	int res = 0;
 
 	/* 2012-03-28 (using no format) */
 	fprintf(stderr, "testing %s +1h ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	/* we lack some lovely ctors for this */
-	dur.d = dt_d_initialiser();
-	dt_make_t_only(&dur, DT_TUNK);
-	dur.dur = 1;
-	dur.neg = 0;
-	dur.t.dur = 1;
-	dur.t.neg = 0;
-	dur.t.sdur = 3600;
+	/* prep the duration */
+	dur.durtyp = DT_DURS;
+	dur.dv = 3600;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -100,7 +92,7 @@ add_t_only(void)
 	CHECK(d.d.u,
 	      "  DATE COMPONENT NOT NAUGHT %" PRIu64 "\n",
 	      (uint64_t)d.d.u);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
@@ -123,18 +115,15 @@ dt_add_d(void)
 {
 	static const char str[] = "2012-03-28T12:34:56";
 	struct dt_dt_s d;
-	struct dt_dt_s dur;
+	struct dt_dtdur_s dur;
 	int res = 0;
 
 	fprintf(stderr, "testing %s +1d ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	/* we lack some lovely ctors for this */
+	/* prep the duration */
+	dur.d = dt_make_ddur(DT_DURD, 1);
 	dur.t = dt_t_initialiser();
-	dt_make_d_only(&dur, DT_DAISY);
-	dur.dur = 1;
-	dur.neg = 0;
-	dur.d.daisy = 1;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -143,7 +132,7 @@ dt_add_d(void)
 	      "  TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.d.typ,
 	      (unsigned int)DT_YMD);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
@@ -177,20 +166,15 @@ dt_add_t(void)
 {
 	static const char str[] = "2012-03-28T23:12:01";
 	struct dt_dt_s d;
-	struct dt_dt_s dur;
+	struct dt_dtdur_s dur = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	int res = 0;
 
 	fprintf(stderr, "testing %s +1h ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	/* we lack some lovely ctors for this */
-	dur.d = dt_d_initialiser();
-	dt_make_t_only(&dur, DT_TUNK);
-	dur.dur = 1;
-	dur.neg = 0;
-	dur.t.dur = 1;
-	dur.t.neg = 0;
-	dur.t.sdur = 3600;
+	/* prep the duration */
+	dur.durtyp = DT_DURS;
+	dur.dv = 3600;
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -203,7 +187,7 @@ dt_add_t(void)
 	      "  TIME TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.t.typ,
 	      (unsigned int)DT_HMS);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");
@@ -237,23 +221,20 @@ dt_add_dt(void)
 {
 	static const char str[] = "2012-03-28T23:55:55";
 	struct dt_dt_s d;
-	struct dt_dt_s dur;
+	struct dt_dtdur_s dur = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	int res = 0;
 
 	fprintf(stderr, "testing %s +1d1h ...\n", str);
 	d = dt_strpdt(str, NULL, NULL);
 
-	/* we lack some lovely ctors for this */
-	dur = dt_dt_initialiser();
-	dt_make_sandwich(&dur, DT_DAISY, DT_TUNK);
-	dur.dur = 1;
-	dur.neg = 0;
-	dur.d.daisy = 1;
-	dur.t.dur = 1;
-	dur.t.neg = 0;
-	dur.t.sdur = 3600;
-
-	/* the actual addition */
+	/* prep the duration */
+	dur.d = dt_make_ddur(DT_DURD, 1);
+	/* addition 1 */
+	d = dt_dtadd(d, dur);
+	/* duration 2 */
+	dur.durtyp = DT_DURH;
+	dur.dv = 1;
+	/* addition 2 */
 	d = dt_dtadd(d, dur);
 
 	CHECK(d.d.typ != DT_YMD,
@@ -264,7 +245,7 @@ dt_add_dt(void)
 	      "  TIME TYPE DIFFERS %u ... should be %u\n",
 	      (unsigned int)d.t.typ,
 	      (unsigned int)DT_HMS);
-	CHECK(d.dur, "  DURATION BIT SET\n");
+	CHECK(d.xxx, "  FORMER DURATION BIT SET\n");
 	CHECK(d.neg, "  NEGATED BIT SET\n");
 	CHECK(d.t.dur, "  TIME DURATION BIT SET\n");
 	CHECK(d.t.neg, "  TIME NEGATED BIT SET\n");

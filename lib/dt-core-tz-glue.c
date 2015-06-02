@@ -59,9 +59,13 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	int32_t zdiff;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		/* we need date/times to do the conversion */
 		return d;
 	} else if (d.znfxd) {
 		/* already forgotten about */
+		return d;
+	} else if (zone == NULL) {
+		/* convert from UTC, great idea */
 		return d;
 	}
 
@@ -70,12 +74,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	d_unix = zif_utc_time(zone, d_locl);
 	if (LIKELY((zdiff = d_unix - d_locl))) {
 		/* let dt_dtadd() do the magic */
-		struct dt_dt_s zd = dt_dt_initialiser();
-
-		dt_make_t_only(&zd, DT_HMS);
-		zd.t.dur = 1;
-		zd.t.sdur = zdiff;
-		d = dt_dtadd(d, zd);
+		d = dt_dtadd(d, (struct dt_dtdur_s){DT_DURS, .dv = zdiff});
 		d.znfxd = 1;
 		if (zdiff > 0) {
 			d.neg = 1;
@@ -97,6 +96,10 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	int32_t zdiff;
 
 	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+		/* nah, we need a date/time for this */
+		return d;
+	} else if (zone == NULL) {
+		/* UTC -> UTC? */
 		return d;
 	}
 
@@ -105,12 +108,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	d_locl = zif_local_time(zone, d_unix);
 	if (LIKELY((zdiff = d_locl - d_unix))) {
 		/* let dt_dtadd() do the magic */
-		struct dt_dt_s zd = dt_dt_initialiser();
-
-		dt_make_t_only(&zd, DT_HMS);
-		zd.t.dur = 1;
-		zd.t.sdur = zdiff;
-		d = dt_dtadd(d, zd);
+		d = dt_dtadd(d, (struct dt_dtdur_s){DT_DURS, .dv = zdiff});
 		if (zdiff > 0) {
 			d.zdiff = (uint16_t)(zdiff / ZDIFF_RES);
 		} else if (zdiff < 0) {

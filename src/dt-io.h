@@ -70,7 +70,7 @@ struct __strpdtdur_st_s {
 	const char *istr;
 	const char *cont;
 	size_t ndurs;
-	struct dt_dt_s *durs;
+	struct dt_dtdur_s *durs;
 };
 
 
@@ -116,7 +116,7 @@ extern __attribute__((format(printf, 1, 2))) void serror(const char *fmt, ...);
 extern const char *prog;
 
 /* duration parser */
-extern int __add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur);
+extern int __add_dur(struct __strpdtdur_st_s *st, struct dt_dtdur_s dur);
 extern int dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str);
 
 /* zone handling, tzmaps et al. */

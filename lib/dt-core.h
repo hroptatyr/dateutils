@@ -53,17 +53,23 @@ extern "C" {
 typedef enum {
 	/* this one's our own version of UNK */
 	DT_UNK = 0,
-#define DT_UNK		(dt_dttyp_t)(DT_UNK)
 	/* the lower date types come from date-core.h */
 	DT_PACK = DT_NDTYP,
 	DT_YMDHMS = DT_PACK,
-#define DT_YMDHMS	(dt_dttyp_t)(DT_YMDHMS)
 	DT_SEXY,
-#define DT_SEXY		(dt_dttyp_t)(DT_SEXY)
 	DT_SEXYTAI,
-#define DT_SEXYTAI	(dt_dttyp_t)(DT_SEXYTAI)
 	DT_NDTTYP,
 } dt_dttyp_t;
+
+typedef enum {
+	DT_DURH = DT_NDURTYP + 0U,
+	DT_DURM = DT_NDURTYP + 1U,
+	DT_DURS = DT_NDURTYP + 2U,
+	DT_DURNANO = DT_NDURTYP + 3U,
+} dt_dtdurtyp_t;
+/* this will be 16 and hence must be #defined as we're using
+ * a bitfield of size 4 to store the dtdurtyp. */
+#define DT_NDTDURTYP	(DT_NDURTYP + 4U)
 
 /** packs
  * packs are just packs of dates and times */
@@ -120,8 +126,8 @@ struct dt_dt_s {
 			uint16_t tai:1;
 			/* error indicator to denote date has been fixed up */
 			uint16_t fix:1;
-			/* duration indicator */
-			uint16_t dur:1;
+			/* was duration indicator */
+			uint16_t xxx:1;
 			/* negation indicator */
 			uint16_t neg:1;
 			/* we've got 6 bits left here to coincide with dt_d_s
@@ -137,7 +143,6 @@ struct dt_dt_s {
 				uint64_t u:48;
 				dt_ymdhms_t ymdhms;
 				dt_sexy_t sexy:48;
-				dt_ssexy_t sexydur:48;
 				dt_ssexy_t sxepoch:48;
 				struct {
 #if defined WORDS_BIGENDIAN
@@ -153,6 +158,57 @@ struct dt_dt_s {
 		/* sandwich types */
 		struct {
 			struct dt_d_s d;
+			struct dt_t_s t;
+		};
+	};
+};
+
+struct dt_dtdur_s {
+	union {
+		/* packs */
+		struct {
+			/* dt type, or date type */
+			dt_dtdurtyp_t durtyp:4;
+			/* was sandwich indicator */
+			uint16_t:1;
+			/* whether we had zone info already but fixed it */
+			uint16_t znfxd:1;
+			/* whether to be aware of leap-seconds */
+			uint16_t tai:1;
+			/* error indicator to denote date has been fixed up */
+			uint16_t fix:1;
+			/* was duration indicator */
+			uint16_t xxx:1;
+			/* negation indicator */
+			uint16_t neg:1;
+			/* we've got 6 bits left here to coincide with dt_d_s
+			 * use that and the neg flag for zdiffs
+			 * zdiff itself has 15-minute resolution,
+			 * range [0, 63] aka [00:00 16:00]
+			 * The policy is to store the time always in UTC
+			 * but keep the difference in this slot. */
+			uint16_t zdiff:6;
+#define ZDIFF_RES	(15U * 60U)
+
+			union {
+				uint64_t u:48;
+				dt_ymdhms_t ymdhms;
+				/* for value+unit durations */
+				dt_ssexy_t dv:48;
+				struct {
+#if defined WORDS_BIGENDIAN
+					int32_t corr:16;
+					int32_t soft:32;
+#else  /* !WORDS_BIGENDIAN */
+					int32_t soft:32;
+					int32_t corr:16;
+#endif	/* WORDS_BIGENDIAN */
+				};
+			};
+		} __attribute__((packed));
+		/* sandwich types */
+		struct {
+			struct dt_ddur_s d;
 			struct dt_t_s t;
 		};
 	};
@@ -183,21 +239,21 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
 
 /**
  * Parse durations as in 1w5d, etc. */
-extern struct dt_dt_s
+extern struct dt_dtdur_s
 dt_strpdtdur(const char *str, char **ep);
 
 /**
  * Print a duration. */
 extern size_t
-dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s);
+dt_strfdtdur(char *restrict buf, size_t bsz, const char *fmt, struct dt_dtdur_s);
 
 /**
  * Negate the duration. */
-extern struct dt_dt_s dt_neg_dtdur(struct dt_dt_s);
+extern struct dt_dtdur_s dt_neg_dtdur(struct dt_dtdur_s);
 
 /**
  * Is duration DUR negative? */
-extern int dt_dtdur_neg_p(struct dt_dt_s dur);
+extern int dt_dtdur_neg_p(struct dt_dtdur_s dur);
 
 /**
  * Like time() but return the current date in the desired format. */
@@ -212,7 +268,7 @@ extern struct dt_dt_s dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s);
  * The result will be in the calendar as specified by TGTTYP, or if
  * DT_UNK is given, the calendar of D will be used. */
 extern struct dt_dt_s
-dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
+dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur);
 
 /**
  * Get duration between D1 and D2.
@@ -221,8 +277,8 @@ dt_dtadd(struct dt_dt_s d, struct dt_dt_s dur);
  * etc. conventions count.
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
-extern struct dt_dt_s
-dt_dtdiff(dt_dttyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
+extern struct dt_dtdur_s
+dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,
@@ -247,8 +303,16 @@ extern dt_ssexy_t dt_to_gps_epoch(struct dt_dt_s);
 /**
  * Set specific fallback date/time to use when input is underspecified.
  * Internally, when no default is set and input is underspecified  the
- * value of `dt_datetime()' (i.e. now) is used to fill fields up. */
-extern void dt_set_default(struct dt_dt_s);
+ * value of `dt_datetime()' (i.e. now) is used to fill fields up.
+ * This is also used for ambiguous format specifiers (like %y or %_y)
+ * to position their range on the absolute time scale. */
+extern void dt_set_base(struct dt_dt_s);
+#define HAVE_DT_SET_BASE	1
+
+/**
+ * Return the base date/time as struct dt_dt_s. */
+extern struct dt_dt_s dt_get_base(void);
+#define HAVE_DT_GET_BASE	1
 
 
 /* some useful gimmicks, sort of */
@@ -267,6 +331,12 @@ static inline __attribute__((pure, const)) bool
 dt_unk_p(struct dt_dt_s d)
 {
 	return !(d.sandwich || d.typ > DT_UNK);
+}
+
+static inline __attribute__((pure, const)) bool
+dt_durunk_p(struct dt_dtdur_s d)
+{
+	return !d.durtyp;
 }
 
 static inline __attribute__((pure, const)) bool
