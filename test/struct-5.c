@@ -9,14 +9,14 @@ main(void)
 	struct dt_dt_s dt;
 
 	dt.neg = 0;
-	dt.dur = 0;
+	dt.xxx = 0;
 	dt.typ = DT_SEXY;
-	if (dt.d.typ != (dt_dtyp_t)DT_SEXY || dt.d.neg || dt.d.dur) {
+	if (dt.d.typ != (dt_dtyp_t)DT_SEXY || dt.d.neg || dt.d.xxx) {
 		return 1;
 	}
 
 	dt_make_sandwich(&dt, DT_DUNK, DT_TUNK);
-	if (!dt.sandwich || dt.d.neg || dt.d.dur) {
+	if (!dt.sandwich || dt.d.neg || dt.d.xxx) {
 		return 1;
 	}
 	return 0;

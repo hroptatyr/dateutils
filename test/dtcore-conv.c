@@ -28,10 +28,10 @@ conv_chk(struct dt_dt_s tes, struct dt_dt_s ref)
 	      (unsigned int)tes.typ,
 	      (unsigned int)ref.typ);
 
-	if (!ref.dur) {
-		CHECK(tes.dur, "  DURATION BIT SET\n");
+	if (!ref.xxx) {
+		CHECK(tes.xxx, "  FORMER DURATION BIT SET\n");
 	} else {
-		CHECK(!tes.dur, "  DURATION BIT NOT SET\n");
+		CHECK(!tes.xxx, "  FORMER DURATION BIT NOT SET\n");
 	}
 	if (!ref.neg) {
 		CHECK(tes.neg, "  NEGATED BIT SET\n");

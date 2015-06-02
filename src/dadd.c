@@ -52,10 +52,10 @@ const char *prog = "dadd";
 
 
 static bool
-durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
+durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
-		if (dur[i].t.typ) {
+		if (dur[i].durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
 			return false;
 		}
 	}
@@ -63,7 +63,7 @@ durs_only_d_p(struct dt_dt_s dur[], size_t ndur)
 }
 
 static struct dt_dt_s
-dadd_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
+dadd_add(struct dt_dt_s d, struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_dtadd(d, dur[i]);

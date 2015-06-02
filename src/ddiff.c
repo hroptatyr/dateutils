@@ -104,6 +104,9 @@ determine_durfmt(const char *fmt)
 			res.has_day = 1;
 			res.has_biz = 1;
 			break;
+		case DT_DAISY:
+			res.has_day = 1;
+			break;
 		case DT_BIZSI:
 			res.has_day = 1;
 			res.has_biz = 1;
@@ -178,7 +181,7 @@ determine_durfmt(const char *fmt)
 	return res;
 }
 
-static dt_dttyp_t
+static dt_dtdurtyp_t
 determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 {
 	/* the type-multiplication table looks like:
@@ -195,27 +198,28 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		;
 	} else if (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)) {
 		/* isn't defined */
-		return (dt_dttyp_t)DT_UNK;
+		return (dt_dtdurtyp_t)DT_DURUNK;
 	} else if (f.has_week && f.has_mon) {
-		return (dt_dttyp_t)DT_YMCW;
+		return (dt_dtdurtyp_t)DT_DURYMCW;
 	} else if (f.has_week && f.has_year) {
-		return (dt_dttyp_t)DT_YWD;
+		return (dt_dtdurtyp_t)DT_DURYWD;
 	} else if (f.has_mon) {
-		return (dt_dttyp_t)DT_YMD;
+		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (f.has_year && f.has_day) {
-		return (dt_dttyp_t)DT_YD;
+		return (dt_dtdurtyp_t)DT_DURYD;
 	} else if (f.has_day && f.has_biz) {
-		return (dt_dttyp_t)DT_BIZSI;
+		return (dt_dtdurtyp_t)DT_DURBD;
 	} else if (f.has_year) {
-		return (dt_dttyp_t)DT_MD;
+		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (dt_sandwich_only_d_p(d1) || dt_sandwich_only_d_p(d2)) {
 		/* default date-only type */
-		return (dt_dttyp_t)DT_DAISY;
+		return (dt_dtdurtyp_t)DT_DURD;
 	} else if (UNLIKELY(f.has_tai)) {
 		/* we has tais */
-		return (dt_dttyp_t)DT_SEXYTAI;
+		return (dt_dtdurtyp_t)0xffU;
 	}
-	return (dt_dttyp_t)DT_SEXY;
+	/* otherwise */
+	return DT_DURS;
 }
 
 
@@ -274,14 +278,16 @@ duration between `%s' and `%s' is not defined", d1, d2);
 }
 
 static long int
-__strf_tot_secs(struct dt_dt_s dur)
+__strf_tot_secs(struct dt_dtdur_s dur)
 {
 	long int res;
 
-	if (dur.typ == DT_SEXY) {
-		res = dur.sexydur;
-	} else if (dur.typ == DT_SEXYTAI) {
-		res = dur.soft;
+	if (dur.durtyp == DT_DURS) {
+		if (!dur.tai) {
+			res = dur.dv;
+		} else {
+			res = dur.soft;
+		}
 	} else {
 		/* otherwise */
 		res = dur.t.sdur;
@@ -290,9 +296,9 @@ __strf_tot_secs(struct dt_dt_s dur)
 }
 
 static long int
-__strf_tot_corr(struct dt_dt_s dur)
+__strf_tot_corr(struct dt_dtdur_s dur)
 {
-	if (dur.typ == DT_SEXYTAI) {
+	if (dur.durtyp == DT_DURS && dur.tai) {
 		return dur.corr;
 	}
 	/* otherwise no corrections */
@@ -300,81 +306,75 @@ __strf_tot_corr(struct dt_dt_s dur)
 }
 
 static int
-__strf_tot_days(struct dt_dt_s dur)
+__strf_tot_days(struct dt_dtdur_s dur)
 {
 /* DUR expressed solely as the number of days */
-	int d = 0;
+	int d;
 
-	switch (dur.d.typ) {
-	case DT_DAISY:
-		d = dur.d.daisydur;
+	switch (dur.d.durtyp) {
+	case DT_DURD:
+	case DT_DURBD:
+		d = dur.d.dv;
 		break;
-	case DT_BIZSI:
-		d = dur.d.bizsidur;
-		break;
-	case DT_BIZDA:
+	case DT_DURBIZDA:
 		d = dur.d.bizda.bd;
 		break;
-	case DT_YMD:
+	case DT_DURYMD:
 		d = dur.d.ymd.d;
 		break;
-	case DT_YD:
+	case DT_DURYD:
 		d = dur.d.yd.d;
 		break;
-	case DT_YMCW:
+	case DT_DURYMCW:
 		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;;
 		break;
-	case DT_YWD:
+	case DT_DURYWD:
 		d = dur.d.ywd.w + dur.d.ywd.c * (int)GREG_DAYS_P_WEEK;
 		break;
-	case DT_MD:
-		d = dur.d.md.d;
-		break;
 	default:
+		d = 0;
 		break;
 	}
 	return d;
 }
 
 static int
-__strf_tot_mon(struct dt_dt_s dur)
+__strf_tot_mon(struct dt_dtdur_s dur)
 {
 /* DUR expressed as month and days */
-	int m = 0;
+	int m;
 
-	switch (dur.d.typ) {
-	case DT_BIZDA:
+	switch (dur.d.durtyp) {
+	case DT_DURBIZDA:
 		m = dur.d.bizda.m + dur.d.bizda.y * (int)GREG_MONTHS_P_YEAR;
 		break;
-	case DT_YMD:
+	case DT_DURYMD:
 		m = dur.d.ymd.m + dur.d.ymd.y * (int)GREG_MONTHS_P_YEAR;
 		break;
-	case DT_MD:
-		m = dur.d.md.m;
-		break;
-	case DT_YMCW:
+	case DT_DURYMCW:
 		m = dur.d.ymcw.m + dur.d.ymcw.y * (int)GREG_MONTHS_P_YEAR;
 		break;
-	case DT_YD:
+	case DT_DURYD:
 		m = dur.d.yd.y * (int)GREG_MONTHS_P_YEAR;
 		break;
-	case DT_YWD:
+	case DT_DURYWD:
 		m = dur.d.ywd.y * (int)GREG_MONTHS_P_YEAR;
 		break;
 	default:
+		m = 0;
 		break;
 	}
 	return m;
 }
 
 static int
-__strf_ym_mon(struct dt_dt_s dur)
+__strf_ym_mon(struct dt_dtdur_s dur)
 {
 	return __strf_tot_mon(dur) % (int)GREG_MONTHS_P_YEAR;
 }
 
 static int
-__strf_tot_years(struct dt_dt_s dur)
+__strf_tot_years(struct dt_dtdur_s dur)
 {
 	return __strf_tot_mon(dur) / (int)GREG_MONTHS_P_YEAR;
 }
@@ -392,7 +392,7 @@ static struct precalc_s {
 	long int N;
 
 	long int rS;
-} precalc(durfmt_t f, struct dt_dt_s dur)
+} precalc(durfmt_t f, struct dt_dtdur_s dur)
 {
 #define MINS_PER_DAY	(MINS_PER_HOUR * HOURS_PER_DAY)
 #define SECS_PER_WEEK	(SECS_PER_DAY * GREG_DAYS_P_WEEK)
@@ -477,7 +477,7 @@ static struct precalc_s {
 static size_t
 __strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt,
-	struct dt_dt_s dur, durfmt_t f)
+	struct dt_dtdur_s dur, durfmt_t f, bool only_d_p)
 {
 /* like strfdtdur() but do some calculations based on F on the way there */
 	static const char sexy_dflt_dur[] = "%0T";
@@ -492,39 +492,16 @@ __strfdtdur(
 	}
 
 	/* translate high-level format names */
-	if (dur.typ == DT_SEXY) {
-		if (fmt == NULL) {
-			fmt = sexy_dflt_dur;
-			f.has_sec = 1U;
-		}
-	} else if (dur.typ == DT_SEXYTAI) {
-		if (fmt == NULL) {
-			fmt = sexy_dflt_dur;
-			f.has_sec = 1U;
-		}
-	} else if (dt_sandwich_p(dur)) {
-		if (fmt == NULL) {
-			fmt = sexy_dflt_dur;
-			f.has_sec = 1U;
-		} else {
-			__trans_dtdurfmt(&fmt);
-		}
-	} else if (dt_sandwich_only_d_p(dur)) {
-		if (fmt == NULL) {
-			fmt = ddur_dflt_dur;
-			f.has_day = 1U;
-		} else {
-			__trans_ddurfmt(&fmt);
-			f.has_day = 1U;
-		}
-	} else if (dt_sandwich_only_t_p(dur)) {
-		if (fmt == NULL) {
-			fmt = sexy_dflt_dur;
-			f.has_sec = 1U;
-		}
+	if (fmt == NULL && dur.durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
+		fmt = sexy_dflt_dur;
+		f.has_sec = 1U;
+	} else if (fmt == NULL) {
+		fmt = ddur_dflt_dur;
+		f.has_day = 1U;
+	} else if (only_d_p) {
+		__trans_ddurfmt(&fmt);
 	} else {
-		bp = buf;
-		goto out;
+		__trans_dtdurfmt(&fmt);
 	}
 
 	/* precompute */
@@ -577,7 +554,10 @@ __strfdtdur(
 		bizda_suffix:
 			if (spec.bizda) {
 				/* don't print the b after an ordinal */
-				switch (__get_bizda_param(dur.d).ab) {
+				dt_bizda_param_t bprm;
+
+				bprm.bs = dur.d.param;
+				switch (bprm.ab) {
 				case BIZDA_AFTER:
 					*bp++ = 'b';
 					break;
@@ -638,11 +618,11 @@ out:
 }
 
 static int
-ddiff_prnt(struct dt_dt_s dur, const char *fmt, durfmt_t f)
+ddiff_prnt(struct dt_dtdur_s dur, const char *fmt, durfmt_t f, bool only_d_p)
 {
 /* this is mainly a better dt_strfdtdur() */
 	char buf[256];
-	size_t res = __strfdtdur(buf, sizeof(buf), fmt, dur, f);
+	size_t res = __strfdtdur(buf, sizeof(buf), fmt, dur, f, only_d_p);
 
 	if (res > 0 && buf[res - 1] != '\n') {
 		/* auto-newline */
@@ -668,7 +648,7 @@ main(int argc, char *argv[])
 	size_t nfmt;
 	int rc = 0;
 	durfmt_t dfmt;
-	dt_dttyp_t dtyp;
+	dt_dtdurtyp_t dtyp;
 	zif_t fromz = NULL;
 
 	if (yuck_parse(argi, argc, argv)) {
@@ -711,8 +691,9 @@ main(int argc, char *argv[])
 	if (argi->nargs > 1) {
 		for (size_t i = 1; i < argi->nargs; i++) {
 			struct dt_dt_s d2;
-			struct dt_dt_s dur;
+			struct dt_dtdur_s dur;
 			const char *inp = argi->args[i];
+			bool onlydp;
 
 			d2 = dt_io_strpdt(inp, fmt, nfmt, fromz);
 			if (dt_unk_p(d2)) {
@@ -725,7 +706,9 @@ main(int argc, char *argv[])
 				rc = 2;
 			}
 			/* guess the diff type */
-			if ((dtyp = determine_durtype(d, d2, dfmt)) == DT_UNK) {
+			onlydp = dt_sandwich_only_d_p(d) ||
+				dt_sandwich_only_d_p(d2);
+			if (!(dtyp = determine_durtype(d, d2, dfmt))) {
 				if (!argi->quiet_flag) {
 				        dt_io_warn_dur(refinp, inp);
 					rc = 2;
@@ -734,7 +717,7 @@ main(int argc, char *argv[])
 			}
 			/* subtraction and print */
 			dur = dt_dtdiff(dtyp, d, d2);
-			ddiff_prnt(dur, ofmt, dfmt);
+			ddiff_prnt(dur, ofmt, dfmt, onlydp);
 		}
 	} else {
 		/* read from stdin */
@@ -752,7 +735,8 @@ main(int argc, char *argv[])
 		while (prchunk_fill(pctx) >= 0) {
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				struct dt_dt_s d2;
-				struct dt_dt_s dur;
+				struct dt_dtdur_s dur;
+				bool onlydp;
 
 				(void)prchunk_getline(pctx, &line);
 				d2 = dt_io_strpdt(line, fmt, nfmt, fromz);
@@ -772,8 +756,9 @@ main(int argc, char *argv[])
 					rc = 2;
 				}
 				/* guess the diff type */
-				dtyp = determine_durtype(d, d2, dfmt);
-				if (dtyp == DT_UNK) {
+				onlydp = dt_sandwich_only_d_p(d) ||
+					dt_sandwich_only_d_p(d2);
+				if (!(dtyp = determine_durtype(d, d2, dfmt))) {
 					if (!argi->quiet_flag) {
 						dt_io_warn_dur(refinp, line);
 						rc = 2;
@@ -782,7 +767,7 @@ main(int argc, char *argv[])
 				}
 				/* perform subtraction now */
 				dur = dt_dtdiff(dtyp, d, d2);
-				ddiff_prnt(dur, ofmt, dfmt);
+				ddiff_prnt(dur, ofmt, dfmt, onlydp);
 			}
 		}
 		/* get rid of resources */

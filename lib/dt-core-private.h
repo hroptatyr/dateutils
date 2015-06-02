@@ -42,6 +42,6 @@
 
 
 extern dt_dttyp_t __trans_dtfmt(const char **fmt);
-extern dt_dttyp_t __trans_dtdurfmt(const char**fmt);
+extern dt_dtdurtyp_t __trans_dtdurfmt(const char**fmt);
 
 #endif	/* INCLUDED_dt_core_private_h_ */

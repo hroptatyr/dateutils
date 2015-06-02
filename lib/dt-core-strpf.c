@@ -131,14 +131,9 @@ try_zone(const char *str, const char **ep)
 static struct dt_dt_s
 __fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
 {
-	/* apply time zone difference */
-	struct dt_dt_s zd = dt_dt_initialiser();
-
-	dt_make_t_only(&zd, DT_HMS);
-	zd.t.dur = 1;
-	zd.t.sdur = -zdiff;
+/* apply time zone difference */
 	/* reuse dt for result */
-	dt = dt_dtadd(dt, zd);
+	dt = dt_dtadd(dt, (struct dt_dtdur_s){DT_DURS, .dv = -zdiff});
 	dt.znfxd = 1;
 	return dt;
 }
@@ -390,7 +385,7 @@ __strfdt_card(
 DEFUN size_t
 __strfdt_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpdt_s *d, struct dt_dt_s that)
+	struct strpdt_s *d, struct dt_dtdur_s that)
 {
 	switch (s.spfl) {
 	default:
@@ -413,16 +408,54 @@ __strfdt_dur(
 
 		/* noone's ever bothered doing the same thing for times */
 	case DT_SPFL_N_TSTD:
-	case DT_SPFL_N_SEC:
-		if (that.typ == DT_SEXY) {
-			/* use the sexy slot */
-			int64_t dur = that.sexydur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi64 "s", dur);
-		} else {
-			/* replace me!!! */
-			int32_t dur = that.t.sdur;
-			return (size_t)snprintf(buf, bsz, "%" PRIi32 "s", dur);
+	case DT_SPFL_N_SEC:;
+		int64_t dv;
+
+		dv = that.dv;
+		switch (that.durtyp) {
+		default:
+			if (that.d.durtyp != DT_DURD) {
+				return 0U;
+			}
+			dv = that.d.dv * HOURS_PER_DAY;
+			/*@fallthrough@*/
+		case DT_DURH:
+			dv *= MINS_PER_HOUR;
+			/*@fallthrough@*/
+		case DT_DURM:
+			dv *= SECS_PER_MIN;
+			/*@fallthrough@*/
+		case DT_DURS:
+			if (LIKELY(!that.tai)) {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "s", dv);
+			} else {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "rs", dv);
+			}
+			break;
 		}
+		break;
+
+	case DT_SPFL_N_NANO: {
+		int64_t dur = that.dv;
+
+		switch (that.durtyp) {
+		case DT_DURS:
+			dur *= NANOS_PER_SEC;
+		case DT_DURNANO:
+			if (LIKELY(!that.tai)) {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "ns", dur);
+			} else {
+				return (size_t)snprintf(
+					buf, bsz, "%" PRIi64 "rns", dur);
+			}
+		default:
+			break;
+		}
+		break;
+	}
 
 	case DT_SPFL_LIT_PERCENT:
 		/* literal % */

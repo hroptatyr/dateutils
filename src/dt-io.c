@@ -113,7 +113,7 @@ dt_io_strpdt_ep(
 			if (LIKELY(now == STRPDT_DATE)) {
 				break;
 			}
-			res.d = dt_dadd(res.d, dt_make_daisydur(add[now]));
+			res.d = dt_dadd(res.d, dt_make_ddur(DT_DURD, add[now]));
 			break;
 		case STRPDT_TIME:
 			res.d = dt_d_initialiser();
@@ -632,9 +632,9 @@ dt_io_unescape(char *s)
  * 2000-03-30 +1m -> 2000-04-30 +1d -> 2000-05-01
  * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
 int
-__add_dur(struct __strpdtdur_st_s *st, struct dt_dt_s dur)
+__add_dur(struct __strpdtdur_st_s *st, struct dt_dtdur_s dur)
 {
-	if (dt_unk_p(dur)) {
+	if (dt_durunk_p(dur)) {
 		return -1;
 	}
 	if (st->durs == NULL) {
@@ -710,7 +710,7 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 
 	/* try reading the stuff with our strpdur() */
 	{
-		struct dt_dt_s d = dt_strpdtdur(sp, (char**)&ep);
+		struct dt_dtdur_s d = dt_strpdtdur(sp, (char**)&ep);
 		if ((st->sign == 1 && dt_dtdur_neg_p(d)) ||
 		    (st->sign == -1 && !dt_dtdur_neg_p(d))) {
 			d = dt_neg_dtdur(d);

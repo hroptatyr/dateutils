@@ -125,52 +125,6 @@ DEFVAR const char *dut_abab_mon = __abab_mon;
 DEFVAR const ssize_t dut_nabab_mon = countof(__abab_mon);
 
 
-DEFUN inline void
-__fill_strpdi(struct strpdi_s *tgt, struct dt_d_s dur)
-{
-	switch (dur.typ) {
-	case DT_YMD:
-		tgt->y = dur.ymd.y;
-		tgt->m = dur.ymd.m;
-		tgt->d = dur.ymd.d;
-		break;
-	case DT_DAISY:
-		tgt->d = dur.daisydur;
-		/* we don't need the negation, so return here */
-		return;
-	case DT_BIZSI:
-		tgt->b = dur.bizsidur;
-		/* we don't need the negation, so return here */
-		return;
-	case DT_BIZDA:
-		tgt->y = dur.bizda.y;
-		tgt->m = dur.bizda.m;
-		tgt->b = dur.bizda.bd;
-		break;
-	case DT_YMCW:
-		tgt->y = dur.ymcw.y;
-		tgt->m = dur.ymcw.m;
-		tgt->w = dur.ymcw.c;
-		tgt->d = dur.ymcw.w;
-		break;
-	case DT_MD:
-		tgt->m = dur.md.m;
-		tgt->d = dur.md.d;
-		break;
-	default:
-		break;
-	}
-
-	if (UNLIKELY(dur.neg)) {
-		tgt->y = -tgt->y;
-		tgt->m = -tgt->m;
-		tgt->d = -tgt->d;
-		tgt->w = -tgt->w;
-		tgt->b = -tgt->b;
-	}
-	return;
-}
-
 DEFUN struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
@@ -820,7 +774,7 @@ __strfd_rom(
 DEFUN size_t
 __strfd_dur(
 	char *buf, size_t bsz, struct dt_spec_s s,
-	struct strpd_s *d, struct dt_d_s UNUSED(that))
+	struct strpd_s *d, struct dt_ddur_s UNUSED(that))
 {
 	size_t res = 0;
 

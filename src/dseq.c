@@ -55,9 +55,9 @@ typedef uint8_t __skipspec_t;
 struct dseq_clo_s {
 	struct dt_dt_s fst;
 	struct dt_dt_s lst;
-	struct dt_dt_s *ite;
+	struct dt_dtdur_s *ite;
 	size_t nite;
-	struct dt_dt_s *altite;
+	struct dt_dtdur_s *altite;
 	__skipspec_t ss;
 	size_t naltite;
 	/* direction, >0 if increasing, <0 if decreasing, 0 if undefined */
@@ -237,16 +237,23 @@ set_skip(__skipspec_t ss, char *spec)
 }
 
 static struct dt_dt_s
-date_add(struct dt_dt_s d, struct dt_dt_s dur[], size_t ndur)
+date_add(struct dt_dt_s d, struct dt_dtdur_s dur[], size_t ndur)
 {
+	int32_t carries = d.d.u;
+
 	for (size_t i = 0; i < ndur; i++) {
 		d = dt_dtadd(d, dur[i]);
+		/* keep track of carries */
+		carries += d.t.carry;
+	}
+	if (UNLIKELY(dt_sandwich_only_t_p(d))) {
+		d.d.u = carries;
 	}
 	return d;
 }
 
 static void
-date_neg_dur(struct dt_dt_s dur[], size_t ndur)
+date_neg_dur(struct dt_dtdur_s dur[], size_t ndur)
 {
 	for (size_t i = 0; i < ndur; i++) {
 		dur[i] = dt_neg_dtdur(dur[i]);
@@ -255,32 +262,44 @@ date_neg_dur(struct dt_dt_s dur[], size_t ndur)
 }
 
 static bool
-__daisy_feasible_p(struct dt_dt_s dur[], size_t ndur)
+__daisy_feasible_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	if (ndur != 1) {
 		return false;
-	} else if (dur->typ == (dt_dttyp_t)DT_YMD) {
-		if (dur->d.ymd.y || dur->d.ymd.m) {
-			return false;
-		}
-	} else if (dur->typ == (dt_dttyp_t)DT_MD) {
-		if (dur->d.md.m) {
-			return false;
-		}
-	} else if (dur->typ == (dt_dttyp_t)DT_BIZDA && (dur->d.bizda.bd)) {
+	}
+
+	switch (dur->d.durtyp) {
+	case DT_DURYMD:
+		return !(dur->d.ymd.y || dur->d.ymd.m);
+	case DT_DURBIZDA:
+		return !dur->d.bizda.bd;
+	case DT_DURD:
+	case DT_DURBD:
+		/* definitley, they're daisy already */
+		return true;
+	case DT_DURWK:
+		/* borderline, could be less efficient for ywd dates */
+		return true;
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
+		/* most definitely not */
+	default:
+		/* all the time durs make it infeasible as well */
 		return false;
 	}
-	return true;
+	/* not reached */
 }
 
 static bool
-__dur_naught_p(struct dt_dt_s dur)
+__dur_naught_p(struct dt_dtdur_s dur)
 {
-	return dur.d.u == 0 && dur.t.sdur == 0;
+	/* we use the fact that dur.dv overlaps dur.d.dv */
+	return dur.dv == 0;
 }
 
 static bool
-__durstack_naught_p(struct dt_dt_s dur[], size_t ndur)
+__durstack_naught_p(struct dt_dtdur_s dur[], size_t ndur)
 {
 	if (ndur == 0) {
 		return true;
@@ -307,16 +326,24 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 	}
 	/* otherwise perform a simple range check */
 	if (clo->dir > 0) {
-		if (now.t.u >= clo->fst.t.u && now.t.u <= clo->lst.t.u) {
-			return true;
-		} else if (clo->fst.t.u >= clo->lst.t.u) {
-			return now.t.u <= clo->lst.t.u || now.d.daisydur == 0;
+		if (clo->fst.t.u < clo->lst.t.u) {
+			/* dseq A B  with A < B */
+			return now.t.u >= clo->fst.t.u &&
+				now.t.u <= clo->lst.t.u;
+		} else {
+			/* dseq A B  with A > B and wrap-around,
+			 * carries have kindly been stored in d.u */
+			return now.t.u <= clo->lst.t.u || now.d.u == 0U;
 		}
 	} else if (clo->dir < 0) {
-		if (now.t.u <= clo->fst.t.u && now.t.u >= clo->lst.t.u) {
-			return true;
-		} else if (clo->fst.t.u <= clo->lst.t.u) {
-			return now.t.u >= clo->lst.t.u || now.d.daisydur == 0;
+		if (clo->fst.t.u > clo->lst.t.u) {
+			/* counting down from A to B */
+			return now.t.u <= clo->fst.t.u &&
+				now.t.u >= clo->lst.t.u;
+		} else {
+			/* count down from A to B with wrap around,
+			 * carries have kindly been stored in d.u */
+			return now.t.u >= clo->lst.t.u || now.d.u == 0U;
 		}
 	}
 	return false;
@@ -367,9 +394,9 @@ __get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
 		struct dt_dt_s tmp = __seq_next(d, clo);
 		return dt_dtcmp(tmp, d);
 	}
-	if (clo->ite->t.sdur && !clo->ite->t.neg) {
+	if (clo->ite->dv > 0) {
 		return 1;
-	} else if (clo->ite->t.sdur && clo->ite->t.neg) {
+	} else if (clo->ite->dv < 0) {
 		return -1;
 	}
 	return 0;
@@ -396,35 +423,32 @@ __fixup_fst(struct dseq_clo_s *clo)
 	return old;
 }
 
-static struct dt_t_s
+static struct dt_dtdur_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
-	struct dt_t_s res;
-
 	if (beg.hms.h != end.hms.h &&
 	    beg.hms.m == 0 && end.hms.m == 0&&
 	    beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.sdur = SECS_PER_HOUR;
+			return (struct dt_dtdur_s){DT_DURH, .dv = 1};
 		} else {
-			res.sdur = -SECS_PER_HOUR;
+			return (struct dt_dtdur_s){DT_DURH, .dv = -1};
 		}
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
 		if (beg.u < end.u) {
-			res.sdur = SECS_PER_MIN;
+			return (struct dt_dtdur_s){DT_DURM, .dv = 1};
 		} else {
-			res.sdur = -SECS_PER_MIN;
+			return (struct dt_dtdur_s){DT_DURM, .dv = -1};
 		}
 	} else {
 		if (beg.u < end.u) {
-			res.sdur = 1L;
+			return (struct dt_dtdur_s){DT_DURS, .dv = 1};
 		} else {
-			res.sdur = -1L;
+			return (struct dt_dtdur_s){DT_DURS, .dv = -1};
 		}
 	}
-	res.dur = 1;
-	return res;
+	/* no reach */
 }
 
 
@@ -433,7 +457,7 @@ tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 int
 main(int argc, char *argv[])
 {
-	static struct dt_dt_s ite_p1;
+	static struct dt_dtdur_s ite_p1;
 	yuck_t argi[1U];
 	struct dt_dt_s tmp;
 	char **ifmt;
@@ -522,8 +546,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		}
 
 		/* check the input arguments and do the sane thing now
-		 * if it's all dates, use daisy iterator
-		 * if it's all times, use sdur iterator
+		 * if it's all dates, use DURD iterator
+		 * if it's all times, use DURS/DURM/DURH iterators
 		 * if one of them is a dt, promote the other */
 		if (dt_sandwich_only_d_p(fst)) {
 			/* emulates old dseq(1) */
@@ -531,25 +555,19 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 				lst.d = dt_date(DT_YMD);
 				dt_make_d_only(&lst, DT_YMD);
 			}
-
-			dt_make_d_only(clo.ite, DT_DAISY);
-			clo.ite->d.daisy = 1;
+			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else if (dt_sandwich_only_t_p(fst)) {
 			/* emulates old tseq(1) */
 			if (argi->nargs == 1U) {
 				lst.t = dt_time();
 				dt_make_t_only(&lst, DT_HMS);
 			}
-			/* let the guesser do the work */
-			clo.ite->t.sdur = 0;
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->nargs == 1U) {
 				lst = dt_datetime((dt_dttyp_t)DT_YMD);
 				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
 			}
-
-			dt_make_sandwich(clo.ite, DT_DAISY, DT_TUNK);
-			clo.ite->d.daisy = 1;
+			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else {
 			error("\
 don't know how to handle single argument case");
@@ -559,7 +577,6 @@ don't know how to handle single argument case");
 
 		clo.fst = fst;
 		clo.lst = lst;
-		clo.ite->dur = 1;
 		break;
 	case 3: {
 		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
@@ -637,17 +654,11 @@ cannot mix dates and times as arguments");
 	if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
 	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0) {
 		/* iterate year-wise */
-		dt_make_d_only(clo.ite, DT_YMD);
-		clo.ite->d.ymd.y = 1;
-		clo.ite->d.ymd.m = 0;
-		clo.ite->d.ymd.d = 0;
+		clo.ite->d = dt_make_ddur(DT_DURYR, 1);
 	} else if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
 		   clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.d == 0) {
 		/* iterate month-wise */
-		dt_make_d_only(clo.ite, DT_YMD);
-		clo.ite->d.ymd.y = 0;
-		clo.ite->d.ymd.m = 1;
-		clo.ite->d.ymd.d = 0;
+		clo.ite->d = dt_make_ddur(DT_DURMO, 1);
 	} else if (dt_sandwich_only_d_p(clo.fst) &&
 		   __daisy_feasible_p(clo.ite, clo.nite) &&
 		   clo.fst.d.typ == DT_YMD &&
@@ -660,8 +671,8 @@ cannot convert calendric system internally");
 		}
 		rc = 1;
 		goto out;
-	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->t.sdur == 0) {
-		clo.ite->t = tseq_guess_ite(clo.fst.t, clo.lst.t);
+	} else if (dt_sandwich_only_t_p(clo.fst) && clo.ite->dv == 0) {
+		*clo.ite = tseq_guess_ite(clo.fst.t, clo.lst.t);
 	}
 
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
