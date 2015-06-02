@@ -89,6 +89,10 @@ extern unsigned int __get_mdays(unsigned int y, unsigned int m);
 extern unsigned int __get_bdays(unsigned int y, unsigned int m);
 
 /**
+ * Get the number of ISO weeks in year Y. */
+extern unsigned int __get_isowk(unsigned int y);
+
+/**
  * Compare two ymcw objects, return <0, 0, >0 when D1 < D2, D1 == D2, D1 > D2 */
 extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
 
