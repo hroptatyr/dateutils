@@ -477,7 +477,7 @@ static struct precalc_s {
 static size_t
 __strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt,
-	struct dt_dtdur_s dur, durfmt_t f)
+	struct dt_dtdur_s dur, durfmt_t f, bool only_d_p)
 {
 /* like strfdtdur() but do some calculations based on F on the way there */
 	static const char sexy_dflt_dur[] = "%0T";
@@ -492,20 +492,16 @@ __strfdtdur(
 	}
 
 	/* translate high-level format names */
-	if (dur.durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
-		if (fmt == NULL) {
-			fmt = sexy_dflt_dur;
-			f.has_sec = 1U;
-		} else {
-			__trans_dtdurfmt(&fmt);
-		}
+	if (fmt == NULL && dur.durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
+		fmt = sexy_dflt_dur;
+		f.has_sec = 1U;
+	} else if (fmt == NULL) {
+		fmt = ddur_dflt_dur;
+		f.has_day = 1U;
+	} else if (only_d_p) {
+		__trans_ddurfmt(&fmt);
 	} else {
-		if (fmt == NULL) {
-			fmt = ddur_dflt_dur;
-			f.has_day = 1U;
-		} else {
-			__trans_ddurfmt(&fmt);
-		}
+		__trans_dtdurfmt(&fmt);
 	}
 
 	/* precompute */
@@ -622,11 +618,11 @@ out:
 }
 
 static int
-ddiff_prnt(struct dt_dtdur_s dur, const char *fmt, durfmt_t f)
+ddiff_prnt(struct dt_dtdur_s dur, const char *fmt, durfmt_t f, bool only_d_p)
 {
 /* this is mainly a better dt_strfdtdur() */
 	char buf[256];
-	size_t res = __strfdtdur(buf, sizeof(buf), fmt, dur, f);
+	size_t res = __strfdtdur(buf, sizeof(buf), fmt, dur, f, only_d_p);
 
 	if (res > 0 && buf[res - 1] != '\n') {
 		/* auto-newline */
@@ -697,6 +693,7 @@ main(int argc, char *argv[])
 			struct dt_dt_s d2;
 			struct dt_dtdur_s dur;
 			const char *inp = argi->args[i];
+			bool onlydp;
 
 			d2 = dt_io_strpdt(inp, fmt, nfmt, fromz);
 			if (dt_unk_p(d2)) {
@@ -709,6 +706,8 @@ main(int argc, char *argv[])
 				rc = 2;
 			}
 			/* guess the diff type */
+			onlydp = dt_sandwich_only_d_p(d) ||
+				dt_sandwich_only_d_p(d2);
 			if (!(dtyp = determine_durtype(d, d2, dfmt))) {
 				if (!argi->quiet_flag) {
 				        dt_io_warn_dur(refinp, inp);
@@ -718,7 +717,7 @@ main(int argc, char *argv[])
 			}
 			/* subtraction and print */
 			dur = dt_dtdiff(dtyp, d, d2);
-			ddiff_prnt(dur, ofmt, dfmt);
+			ddiff_prnt(dur, ofmt, dfmt, onlydp);
 		}
 	} else {
 		/* read from stdin */
@@ -737,6 +736,7 @@ main(int argc, char *argv[])
 			for (char *line; prchunk_haslinep(pctx); lno++) {
 				struct dt_dt_s d2;
 				struct dt_dtdur_s dur;
+				bool onlydp;
 
 				(void)prchunk_getline(pctx, &line);
 				d2 = dt_io_strpdt(line, fmt, nfmt, fromz);
@@ -756,6 +756,8 @@ main(int argc, char *argv[])
 					rc = 2;
 				}
 				/* guess the diff type */
+				onlydp = dt_sandwich_only_d_p(d) ||
+					dt_sandwich_only_d_p(d2);
 				if (!(dtyp = determine_durtype(d, d2, dfmt))) {
 					if (!argi->quiet_flag) {
 						dt_io_warn_dur(refinp, line);
@@ -765,7 +767,7 @@ main(int argc, char *argv[])
 				}
 				/* perform subtraction now */
 				dur = dt_dtdiff(dtyp, d, d2);
-				ddiff_prnt(dur, ofmt, dfmt);
+				ddiff_prnt(dur, ofmt, dfmt, onlydp);
 			}
 		}
 		/* get rid of resources */
