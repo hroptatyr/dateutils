@@ -12,7 +12,7 @@ clitosis_LDADD =
 if HAVE_PTY_H
 clitosis_LDADD += -lutil
 endif  HAVE_PTY_H
-BUILT_SOURCES += clitosis.yucc
+built_dist_sources += clitosis.yucc
 
 ## yuck rule
 clitosis.yucc: clitosis.yuck
