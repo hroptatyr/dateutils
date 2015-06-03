@@ -1606,14 +1606,25 @@ main(int argc, char *argv[])
 		cmd_diff = getenv("DIFF");
 	}
 
-	/* prepend our current directory and our argv[0] directory */
-	with (char *arg0 = argv[0]) {
-		char *dir0;
-		if ((dir0 = strrchr(arg0, '/')) != NULL) {
-			*dir0 = '\0';
+	/* Although I cannot support my claim with a hard survey, I would
+	 * say in 99.9 cases out of a hundred the cli tool in question
+	 * has not been installed at the time of testing it, so somehow
+	 * we must make sure to test the version in the build directory
+	 * rather than a globally installed one.
+	 *
+	 * On the other hand, in general we won't know where the build
+	 * directory is, we've got --builddir for that, however we can
+	 * assist our users by prepending the current working directory
+	 * and the directory we're run from to PATH.
+	 *
+	 * So let's prepend our argv[0] directory */
+	with (char *arg0 = get_argv0dir(argv[0])) {
+		if (LIKELY(arg0 != NULL)) {
 			prepend_path(arg0);
+			free_argv0dir(arg0);
 		}
 	}
+	/* ... and our current directory */
 	prepend_path(".");
 	/* also bang builddir to path */
 	with (char *blddir = getenv("builddir")) {
