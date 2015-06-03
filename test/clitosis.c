@@ -83,6 +83,17 @@
 # define PATH_MAX	256U
 #endif	/* !PATH_MAX */
 
+#if defined HAVE_SPLICE
+# ifdef __INTEL_COMPILER
+#  pragma warning(disable:1419)
+# endif	/* __INTEL_COMPILER */
+extern ssize_t splice(int fd_in, loff_t *off_in, int fd_out, loff_t *off_out,
+		      size_t len, unsigned int flags);
+# ifdef __INTEL_COMPILER
+#  pragma warning(default:1419)
+# endif	/* __INTEL_COMPILER */
+#endif	/* HAVE_SPLICE */
+
 typedef struct clitf_s clitf_t;
 typedef struct clit_buf_s clit_buf_t;
 typedef struct clit_bit_s clit_bit_t;
@@ -312,15 +323,18 @@ cmdify(char *restrict cmd)
 {
 	/* prep for about 16 params */
 	char **v = calloc(16U, sizeof(*v));
-	size_t i = 0U;
-	const char *ifs = getenv("IFS") ?: " \t\n";
 
-	v[0U] = strtok(cmd, ifs);
-	do {
-		if (UNLIKELY((i % 16U) == 15U)) {
-			v = realloc(v, (i + 1U + 16U) * sizeof(*v));
-		}
-	} while ((v[++i] = strtok(NULL, ifs)) != NULL);
+	if (LIKELY(v != NULL)) {
+		const char *ifs = getenv("IFS") ?: " \t\n";
+		size_t i = 0U;
+
+		v[0U] = strtok(cmd, ifs);
+		do {
+			if (UNLIKELY((i % 16U) == 15U)) {
+				v = realloc(v, (i + 1U + 16U) * sizeof(*v));
+			}
+		} while ((v[++i] = strtok(NULL, ifs)) != NULL);
+	}
 	return v;
 }
 
