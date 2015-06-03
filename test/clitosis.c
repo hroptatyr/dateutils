@@ -83,6 +83,17 @@
 # define PATH_MAX	256U
 #endif	/* !PATH_MAX */
 
+#if defined HAVE_SPLICE
+# ifdef __INTEL_COMPILER
+#  pragma warning(disable:1419)
+# endif	/* __INTEL_COMPILER */
+extern ssize_t splice(int fd_in, loff_t *off_in, int fd_out, loff_t *off_out,
+		      size_t len, unsigned int flags);
+# ifdef __INTEL_COMPILER
+#  pragma warning(default:1419)
+# endif	/* __INTEL_COMPILER */
+#endif	/* HAVE_SPLICE */
+
 typedef struct clitf_s clitf_t;
 typedef struct clit_buf_s clit_buf_t;
 typedef struct clit_bit_s clit_bit_t;
@@ -312,16 +323,78 @@ cmdify(char *restrict cmd)
 {
 	/* prep for about 16 params */
 	char **v = calloc(16U, sizeof(*v));
-	size_t i = 0U;
-	const char *ifs = getenv("IFS") ?: " \t\n";
 
-	v[0U] = strtok(cmd, ifs);
-	do {
-		if (UNLIKELY((i % 16U) == 15U)) {
-			v = realloc(v, (i + 1U + 16U) * sizeof(*v));
-		}
-	} while ((v[++i] = strtok(NULL, ifs)) != NULL);
+	if (LIKELY(v != NULL)) {
+		const char *ifs = getenv("IFS") ?: " \t\n";
+		size_t i = 0U;
+
+		v[0U] = strtok(cmd, ifs);
+		do {
+			if (UNLIKELY((i % 16U) == 15U)) {
+				v = realloc(v, (i + 1U + 16U) * sizeof(*v));
+			}
+		} while ((v[++i] = strtok(NULL, ifs)) != NULL);
+	}
 	return v;
+}
+
+/* takes ideas from Gregory Pakosz's whereami */
+static char*
+get_argv0dir(const char *argv0)
+{
+/* return current executable */
+	char *res;
+
+	if (0) {
+#if 0
+#elif defined __linux__
+/* don't rely on argv0 at all */
+	} else if (1) {
+		if ((res = realpath("/proc/self/exe", NULL)) == NULL) {
+			/* we've got a plan B */
+			goto planb;
+		}
+#elif defined __APPLE__
+	} else if (1) {
+		char buf[PATH_MAX];
+		uint32_t bsz = sizeof(buf) - 1U;
+
+		if (_NSGetExecutablePath(buf, &bsz) < 0) {
+			/* plan B again */
+			goto planb;
+		}
+		/* strdup BUF quickly */
+		res = strdup(buf);
+#endif	/* OS */
+	} else {
+	planb:
+		/* backup plan, massage argv0 */
+		if (argv0 == NULL) {
+			return NULL;
+		}
+		/* otherwise simply copy ARGV0 */
+		res = strdup(argv0);
+	}
+
+	/* path extraction aka dirname'ing, absolute or otherwise */
+	if (res == NULL) {
+		return NULL;
+	}
+	with (char *dir0 = strrchr(res, '/')) {
+		if (dir0 == NULL) {
+			free(res);
+			return NULL;
+		}
+		*dir0 = '\0';
+	}
+	return res;
+}
+
+static void
+free_argv0dir(char *a0)
+{
+	free(a0);
+	return;
 }
 
 
@@ -1225,6 +1298,8 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		goto wait;
 	}
 	if (ctx->options.timeo > 0 && (ctx->feed > 0 || ctx->diff > 0)) {
+		alrm_handler_closure.feed = ctx->feed;
+		alrm_handler_closure.diff = ctx->diff;
 		alrm_handler_closure.old_hdl = signal(SIGALRM, alrm_handler);
 	}
 	with (const char *p = tst->cmd.d, *const ep = tst->cmd.d + tst->cmd.z) {
