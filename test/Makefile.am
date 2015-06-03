@@ -31,9 +31,9 @@ SUFFIXES =
 
 DT_LIBS = $(top_builddir)/lib/libdut.a
 
-TEST_EXTENSIONS += .clit
-CLIT_LOG_COMPILER = $(builddir)/clitosis
-AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20
+## our friendly helper
+include clitosis.am
+AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20 --keep-going
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
@@ -892,20 +892,6 @@ batch_tests += dconv-batch.1.sh
 batch_tests += dconv-batch.2.sh
 endif  HAVE_GDATE
 
-
-check_PROGRAMS += clitosis
-clitosis_CPPFLAGS = $(AM_CPPFLAGS)
-clitosis_CPPFLAGS += -D_GNU_SOURCE
-EXTRA_DIST += clitosis.yuck
-built_dist_sources += clitosis.yucc
-
-
-## ggo rule
-SUFFIXES += .yuck
-SUFFIXES += .yucc
-.yuck.yucc:
-	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
-		yuck$(EXEEXT) gen -o $@ $<
 
 ## tzmcc rule
 SUFFIXES += .tzmap
