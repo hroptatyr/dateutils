@@ -1315,6 +1315,7 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 		 * or in case of a pty, send exit command and keep fingers
 		 * crossed the pty will close itself */
 		close(ctx->pin);
+		ctx->pin = -1;
 	}
 
 	/* wait for the beef child */
@@ -1366,7 +1367,7 @@ wait:
 	}
 
 #if defined HAVE_PTY_H
-	if (UNLIKELY(ctx->options.ptyp)) {
+	if (UNLIKELY(ctx->options.ptyp && ctx->pin >= 0)) {
 		/* also close child's stdin here */
 		close(ctx->pin);
 	}
