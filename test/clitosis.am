@@ -1,0 +1,20 @@
+## assumes TEST_EXTENSIONS, BUILT_SOURCES, check_PROGRAMS have been set
+TEST_EXTENSIONS += .clit
+CLIT_LOG_COMPILER = $(builddir)/clitoris
+
+## our friendly helper
+check_PROGRAMS += clitoris
+clitoris_SOURCES = clitoris.c clitoris.yuck
+clitoris_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
+clitoris_CPPFLAGS += -D_ALL_SOURCE -D_NETBSD_SOURCE
+clitoris_CPPFLAGS += -UHAVE_VERSION_H
+clitoris_LDADD =
+if HAVE_PTY_H
+clitoris_LDADD += -lutil
+endif  HAVE_PTY_H
+BUILT_SOURCES += clitoris.yucc
+
+## yuck rule
+clitoris.yucc: clitoris.yuck
+	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
+		yuck$(EXEEXT) gen -o $@ $<
