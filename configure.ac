@@ -37,6 +37,9 @@ SXE_CHECK_CFLAGS
 AX_YUCK_SCMVER([version.mk])
 AC_CONFIG_LINKS([GNUmakefile:GNUmakefile])
 
+## check for clitosis helper
+AX_CHECK_CLITOSIS
+
 ## check for byteorder utils
 AC_CHECK_HEADERS([endian.h sys/endian.h machine/endian.h byteorder.h])
 AC_CHECK_HEADERS([byteswap.h])
