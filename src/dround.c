@@ -400,11 +400,17 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	struct dt_spec_s s = spec_initialiser();
 	struct dt_dtdur_s payload = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	bool negp = false;
+	bool coclp = true;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
 		return 0;
 	}
 
+	/* check for co-classes */
+	if (*str == '/') {
+		coclp = true;
+		str++;
+	}
 	/* check if there's a sign + or - */
 	if (*str == '-') {
 		negp = true;
@@ -420,6 +426,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 		payload.d = (struct dt_ddur_s){
 			DT_DURYMCW,
 			.neg = negp,
+			.cocl = coclp,
 			.ymcw.w = d.w,
 		};
 		goto out;

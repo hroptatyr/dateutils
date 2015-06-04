@@ -695,6 +695,9 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 		case '<':
 			st->sign = -2;
 			break;
+		case '/':
+			st->flags = 1U;
+			break;
 		case 'p':
 		case 'P':
 		case ' ':
@@ -715,6 +718,7 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 		    (st->sign == -1 && !dt_dtdur_neg_p(d))) {
 			d = dt_neg_dtdur(d);
 		}
+		d.cocl = (bool)(st->flags & 0x1U);
 		res = __add_dur(st, d);
 	}
 out:

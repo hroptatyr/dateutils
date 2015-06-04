@@ -1063,6 +1063,11 @@ dt_strpddur(const char *str, char **ep)
 	if (str == NULL) {
 		goto out;
 	}
+	/* read off co-class indicator */
+	if (*sp == '/') {
+		res.cocl = 1U;
+		sp++;
+	}
 	/* read just one component */
 	tmp = strtol(sp, (char**)&sp, 10);
 	switch (*sp++) {
