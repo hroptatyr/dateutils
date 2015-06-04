@@ -47,6 +47,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <assert.h>
+#include <errno.h>
+#include <limits.h>
 #include "date-core.h"
 #include "date-core-private.h"
 #include "strops.h"
@@ -1068,8 +1070,16 @@ dt_strpddur(const char *str, char **ep)
 		res.cocl = 1U;
 		sp++;
 	}
-	/* read just one component */
-	tmp = strtol(sp, (char**)&sp, 10);
+	/* read just one component, use rudi's errno trick */
+	errno = 0;
+	if ((tmp = strtol(str, (char**)&sp, 10)) == 0 && str == sp) {
+		/* didn't work aye? */
+		goto out;
+	} else if (tmp > INT_MAX || errno) {
+		errno = ERANGE;
+		goto out;
+	}
+
 	switch (*sp++) {
 	case '\0':
 		/* must have been day then */
