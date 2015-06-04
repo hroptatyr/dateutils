@@ -70,7 +70,7 @@ durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 }
 
 static struct dt_t_s
-tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
+tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
 /* this will return the rounded to DUR time of T and, to encode carry
  * (which can only take values 0 or 1), we will use t's neg bit */
@@ -124,6 +124,97 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	t.hms.m = tunp % MINS_PER_HOUR;
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
+	return t;
+}
+
+static struct dt_t_s
+tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
+{
+/* this will return the rounded to DUR time of T and, to encode carry
+ * (which can only take values 0 or 1), we will use t's neg bit */
+	bool downp = false;
+	signed int dv;
+
+	/* no dur is a no-op */
+	if ((dv = dur.dv) < 0) {
+		downp = true;
+		dv = -dv;
+	} else if (dur.neg) {
+		downp = true;
+	}
+
+	switch (dur.durtyp) {
+	case DT_DURH:
+		if ((!downp && t.hms.h < dv) ||
+		    (downp && t.hms.h > dv)) {
+			/* no carry adjustments */
+			t.hms.h = dv;
+		} else if (t.hms.h == dv && !nextp) {
+			/* we're on the hour in question */
+			t.hms.h = dv;
+		} else if (!downp) {
+			t.hms.h = dv;
+		hour_oflo:
+			t.carry = 1;
+		} else {
+			t.hms.h = dv;
+		hour_uflo:
+			t.carry = -1;
+		}
+		break;
+	case DT_DURM:
+		if ((!downp && t.hms.m < dv) ||
+		    (downp && t.hms.m > dv)) {
+			/* no carry adjustments */
+			t.hms.m = dv;
+		} else if (t.hms.m == dv && !nextp) {
+			/* we're on the hour in question */
+			t.hms.m = dv;
+		} else if (!downp) {
+			t.hms.m = dv;
+		min_oflo:
+			if (LIKELY(t.hms.h < HOURS_PER_DAY)) {
+				t.hms.h++;
+			} else {
+				t.hms.h = 0;
+				goto hour_oflo;
+			}
+		} else {
+			t.hms.m = dv;
+		min_uflo:
+			if (UNLIKELY(!t.hms.h--)) {
+				t.hms.h = HOURS_PER_DAY - 1;
+				goto hour_uflo;
+			}
+		}
+		break;
+	case DT_DURS:
+		if ((!downp && t.hms.s < dv) ||
+		    (downp && t.hms.s > dv)) {
+			/* no carry adjustments */
+			t.hms.s = dv;
+		} else if (t.hms.s == dv && !nextp) {
+			/* we're on the hour in question */
+			t.hms.s = dv;
+		} else if (!downp) {
+			t.hms.s = dv;
+			if (LIKELY(t.hms.m < MINS_PER_HOUR)) {
+				t.hms.m++;
+			} else {
+				t.hms.m = 0;
+				goto min_oflo;
+			}
+		} else {
+			t.hms.s = dv;
+			if (UNLIKELY(!t.hms.m--)) {
+				t.hms.m = MINS_PER_HOUR - 1;
+				goto min_uflo;
+			}
+		}
+		break;
+	default:
+		return t;
+	}
 	return t;
 }
 
@@ -362,7 +453,11 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 	case DT_DURM:
 	case DT_DURS:
 	case DT_DURNANO:
-		d.t = tround_tdur(d.t, dur, nextp);
+		if (!dur.cocl) {
+			d.t = tround_tdur(d.t, dur, nextp);
+		} else {
+			d.t = tround_tdur_cocl(d.t, dur, nextp);
+		}
 		break;
 	}
 	/* check carry */
