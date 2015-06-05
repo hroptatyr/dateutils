@@ -67,6 +67,7 @@ struct grep_atom_soa_s {
  * 2000-03-30 +1d -> 2000-03-31 +1m -> 2000-04-30 */
 struct __strpdtdur_st_s {
 	int sign;
+	unsigned int flags;
 	const char *istr;
 	const char *cont;
 	size_t ndurs;

@@ -913,6 +913,11 @@ dt_strpdtdur(const char *str, char **ep)
 	if ((sp = str) == NULL) {
 		goto out;
 	}
+	/* read off co-class indicator */
+	if (*sp == '/') {
+		res.cocl = 1U;
+		sp++;
+	}
 	/* read just one component, use rudi's errno trick */
 	errno = 0;
 	if ((tmp = strtol(str, (char**)&sp, 10)) == 0 && str == sp) {

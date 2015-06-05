@@ -70,20 +70,27 @@ durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
 }
 
 static struct dt_t_s
-tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
+tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
 /* this will return the rounded to DUR time of T and, to encode carry
  * (which can only take values 0 or 1), we will use t's neg bit */
-	signed int tunp;
+	unsigned int tunp;
 	signed int sdur;
-	signed int diff;
+	bool downp = false;
 
-	/* no dur is a no-op */
-	if (UNLIKELY(!dur.dv)) {
+	/* we won't have carries, ever */
+	t.carry = 0;
+
+	/* get directions, no dur is a no-op */
+	if (UNLIKELY(!(sdur = dur.dv))) {
 		return t;
+	} else if (sdur < 0) {
+		downp = true;
+		sdur = -sdur;
+	} else if (dur.neg) {
+		downp = true;
 	}
 
-	sdur = dur.dv % (signed int)SECS_PER_DAY;
 	switch (dur.durtyp) {
 	case DT_DURH:
 		sdur *= MINS_PER_HOUR;
@@ -92,38 +99,130 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		sdur *= SECS_PER_MIN;
 		/*@fallthrough@*/
 	case DT_DURS:
-		/* unpack t */
-		tunp = t.hms.h * SECS_PER_HOUR +
-			t.hms.m * SECS_PER_MIN +
-			t.hms.s;
-		if (!(diff = tunp % sdur) && !t.hms.ns && !nextp) {
-			return t;
+		/* only accept values whose remainder is 0 */
+		if (LIKELY(!(SECS_PER_DAY % (unsigned int)sdur))) {
+			break;
 		}
-		break;
+		/*@fallthrough@*/
 	default:
 		return t;
 	}
+	/* unpack t */
+	tunp = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+	with (unsigned int diff = tunp % (unsigned int)sdur) {
+		if (!diff && !nextp) {
+			/* do nothing, i.e. really nothing,
+			 * in particular, don't set the slots again in the
+			 * assign section
+			 * this is not some obscure optimisation but to
+			 * support special notations like, military midnight
+			 * or leap seconds */
+			return t;
+		} else if (!downp) {
+			tunp += sdur - diff;
+		} else if (!diff/* && downp && nextp*/) {
+			tunp -= sdur;
+		} else {
+			tunp -= diff;
+		}
+	}
 
-	/* compute the result */
-	tunp -= diff;
-	if (sdur > 0 || nextp) {
-		tunp += sdur;
-	}
-	if (UNLIKELY(tunp < 0)) {
-		/* lift */
-		tunp += SECS_PER_DAY;
-		/* denote the carry */
-		t.neg = 1;
-	} else if (UNLIKELY(tunp >= (signed)SECS_PER_DAY)) {
-		t.neg = 1;
-	}
-	/* and convert back */
+	/* assign */
 	t.hms.ns = 0;
 	t.hms.s = tunp % SECS_PER_MIN;
 	tunp /= SECS_PER_MIN;
 	t.hms.m = tunp % MINS_PER_HOUR;
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
+	return t;
+}
+
+static struct dt_t_s
+tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
+{
+/* this will return the rounded to DUR time of T and, to encode carry
+ * (which can only take values 0 or 1), we will use t's neg bit */
+	bool downp = false;
+	signed int dv;
+
+	/* initialise carry */
+	t.carry = 0;
+	/* get directions */
+	if ((dv = dur.dv) < 0) {
+		downp = true;
+		dv = -dv;
+	} else if (dur.neg) {
+		downp = true;
+	}
+
+	switch (dur.durtyp) {
+	case DT_DURH:
+		if ((!downp && t.hms.h < dv) ||
+		    (downp && t.hms.h > dv)) {
+			/* no carry adjustments */
+			t.hms.h = dv;
+		} else if (t.hms.h == dv && !nextp) {
+			/* we're on the hour in question */
+			t.hms.h = dv;
+		} else if (!downp) {
+			t.hms.h = dv;
+		hour_oflo:
+			t.carry = 1;
+		} else {
+			t.hms.h = dv;
+		hour_uflo:
+			t.carry = -1;
+		}
+		break;
+	case DT_DURM:
+		if ((!downp && t.hms.m < dv) ||
+		    (downp && t.hms.m > dv)) {
+			/* no carry adjustments */
+			t.hms.m = dv;
+		} else if (t.hms.m == dv && !nextp) {
+			/* we're on the hour in question */
+			t.hms.m = dv;
+		} else if (!downp) {
+			t.hms.m = dv;
+		min_oflo:
+			if (UNLIKELY(++t.hms.h >= HOURS_PER_DAY)) {
+				t.hms.h = 0;
+				goto hour_oflo;
+			}
+		} else {
+			t.hms.m = dv;
+		min_uflo:
+			if (UNLIKELY(!t.hms.h--)) {
+				t.hms.h = HOURS_PER_DAY - 1;
+				goto hour_uflo;
+			}
+		}
+		break;
+	case DT_DURS:
+		if ((!downp && t.hms.s < dv) ||
+		    (downp && t.hms.s > dv)) {
+			/* no carry adjustments */
+			t.hms.s = dv;
+		} else if (t.hms.s == dv && !nextp) {
+			/* we're on the hour in question */
+			t.hms.s = dv;
+		} else if (!downp) {
+			t.hms.s = dv;
+			if (UNLIKELY(++t.hms.m >= MINS_PER_HOUR)) {
+				t.hms.m = 0;
+				goto min_oflo;
+			}
+		} else {
+			t.hms.s = dv;
+			if (UNLIKELY(!t.hms.m--)) {
+				t.hms.m = MINS_PER_HOUR - 1;
+				goto min_uflo;
+			}
+		}
+		break;
+	default:
+		break;
+	}
 	return t;
 }
 
@@ -362,15 +461,18 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 	case DT_DURM:
 	case DT_DURS:
 	case DT_DURNANO:
-		d.t = tround_tdur(d.t, dur, nextp);
+		if (!dur.cocl) {
+			d.t = tround_tdur(d.t, dur, nextp);
+		} else {
+			d.t = tround_tdur_cocl(d.t, dur, nextp);
+		}
 		break;
 	}
 	/* check carry */
-	if (UNLIKELY(d.t.neg == 1)) {
+	if (UNLIKELY(d.t.carry)) {
 		/* we need to add a day */
-		struct dt_ddur_s one_day =
-			dt_make_ddur(DT_DURD, 1 | -(dur.t.sdur < 0));
-		d.t.neg = 0;
+		struct dt_ddur_s one_day = dt_make_ddur(DT_DURD, d.t.carry);
+		d.t.carry = 0;
 		d.d = dt_dadd(d.d, one_day);
 	}
 	{
@@ -400,11 +502,17 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	struct dt_spec_s s = spec_initialiser();
 	struct dt_dtdur_s payload = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
 	bool negp = false;
+	bool coclp = true;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
 		return 0;
 	}
 
+	/* check for co-classes */
+	if (*str == '/') {
+		coclp = true;
+		str++;
+	}
 	/* check if there's a sign + or - */
 	if (*str == '-') {
 		negp = true;
@@ -420,6 +528,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 		payload.d = (struct dt_ddur_s){
 			DT_DURYMCW,
 			.neg = negp,
+			.cocl = coclp,
 			.ymcw.w = d.w,
 		};
 		goto out;
