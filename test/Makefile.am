@@ -520,6 +520,8 @@ dt_tests += tround.001.clit
 dt_tests += tround.002.clit
 dt_tests += tround.003.clit
 dt_tests += tround.004.clit
+dt_tests += tround.005.clit
+dt_tests += tround.006.clit
 
 
 dt_tests += dtconv.001.clit

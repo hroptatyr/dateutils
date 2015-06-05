@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dround 17:05:00 -5m
+17:05:00
+$ dround -n 17:04:00 /-5m
+17:00:00
+$
+
+## tround.005.clit ends here
