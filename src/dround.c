@@ -173,9 +173,7 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		} else if (!downp) {
 			t.hms.m = dv;
 		min_oflo:
-			if (LIKELY(t.hms.h < HOURS_PER_DAY)) {
-				t.hms.h++;
-			} else {
+			if (UNLIKELY(++t.hms.h >= HOURS_PER_DAY)) {
 				t.hms.h = 0;
 				goto hour_oflo;
 			}
@@ -198,9 +196,7 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 			t.hms.s = dv;
 		} else if (!downp) {
 			t.hms.s = dv;
-			if (LIKELY(t.hms.m < MINS_PER_HOUR)) {
-				t.hms.m++;
-			} else {
+			if (UNLIKELY(++t.hms.m >= MINS_PER_HOUR)) {
 				t.hms.m = 0;
 				goto min_oflo;
 			}
