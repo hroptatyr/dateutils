@@ -78,6 +78,9 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	signed int sdur;
 	bool downp = false;
 
+	/* we won't have carries, ever */
+	t.carry = 0;
+
 	/* get directions, no dur is a no-op */
 	if (UNLIKELY(!(sdur = dur.dv))) {
 		return t;
@@ -137,6 +140,8 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	bool downp = false;
 	signed int dv;
 
+	/* initialise carry */
+	t.carry = 0;
 	/* get directions */
 	if ((dv = dur.dv) < 0) {
 		downp = true;
@@ -211,7 +216,7 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		}
 		break;
 	default:
-		return t;
+		break;
 	}
 	return t;
 }
