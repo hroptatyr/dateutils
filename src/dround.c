@@ -74,16 +74,20 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
 /* this will return the rounded to DUR time of T and, to encode carry
  * (which can only take values 0 or 1), we will use t's neg bit */
-	signed int tunp;
+	unsigned int tunp;
 	signed int sdur;
-	signed int diff;
+	bool downp = false;
 
-	/* no dur is a no-op */
-	if (UNLIKELY(!dur.dv)) {
+	/* get directions, no dur is a no-op */
+	if (UNLIKELY(!(sdur = dur.dv))) {
 		return t;
+	} else if (sdur < 0) {
+		downp = true;
+		sdur = -sdur;
+	} else if (dur.neg) {
+		downp = true;
 	}
 
-	sdur = dur.dv % (signed int)SECS_PER_DAY;
 	switch (dur.durtyp) {
 	case DT_DURH:
 		sdur *= MINS_PER_HOUR;
@@ -92,32 +96,30 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		sdur *= SECS_PER_MIN;
 		/*@fallthrough@*/
 	case DT_DURS:
-		/* unpack t */
-		tunp = t.hms.h * SECS_PER_HOUR +
-			t.hms.m * SECS_PER_MIN +
-			t.hms.s;
-		if (!(diff = tunp % sdur) && !t.hms.ns && !nextp) {
-			return t;
+		/* only accept values whose remainder is 0 */
+		if (LIKELY(!(SECS_PER_DAY % (unsigned int)sdur))) {
+			break;
 		}
-		break;
+		/*@fallthrough@*/
 	default:
 		return t;
 	}
+	/* unpack t */
+	tunp = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
+	with (unsigned int diff = tunp % (unsigned int)sdur) {
+		if (!diff && !nextp) {
+			/* do nothing */
+			;
+		} else if (!downp) {
+			tunp += sdur - diff;
+		} else if (!diff/* && downp && nextp*/) {
+			tunp -= sdur;
+		} else {
+			tunp -= diff;
+		}
+	}
 
-	/* compute the result */
-	tunp -= diff;
-	if (sdur > 0 || nextp) {
-		tunp += sdur;
-	}
-	if (UNLIKELY(tunp < 0)) {
-		/* lift */
-		tunp += SECS_PER_DAY;
-		/* denote the carry */
-		t.carry = -1;
-	} else if (UNLIKELY(tunp >= (signed)SECS_PER_DAY)) {
-		t.carry = 1;
-	}
-	/* and convert back */
+	/* assign */
 	t.hms.ns = 0;
 	t.hms.s = tunp % SECS_PER_MIN;
 	tunp /= SECS_PER_MIN;
@@ -135,7 +137,7 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	bool downp = false;
 	signed int dv;
 
-	/* no dur is a no-op */
+	/* get directions */
 	if ((dv = dur.dv) < 0) {
 		downp = true;
 		dv = -dv;
