@@ -113,9 +113,9 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		/* lift */
 		tunp += SECS_PER_DAY;
 		/* denote the carry */
-		t.neg = 1;
+		t.carry = -1;
 	} else if (UNLIKELY(tunp >= (signed)SECS_PER_DAY)) {
-		t.neg = 1;
+		t.carry = 1;
 	}
 	/* and convert back */
 	t.hms.ns = 0;
@@ -461,11 +461,10 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 		break;
 	}
 	/* check carry */
-	if (UNLIKELY(d.t.neg == 1)) {
+	if (UNLIKELY(d.t.carry)) {
 		/* we need to add a day */
-		struct dt_ddur_s one_day =
-			dt_make_ddur(DT_DURD, 1 | -(dur.t.sdur < 0));
-		d.t.neg = 0;
+		struct dt_ddur_s one_day = dt_make_ddur(DT_DURD, d.t.carry);
+		d.t.carry = 0;
 		d.d = dt_dadd(d.d, one_day);
 	}
 	{
