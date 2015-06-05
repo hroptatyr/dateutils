@@ -111,8 +111,13 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	tunp = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
 	with (unsigned int diff = tunp % (unsigned int)sdur) {
 		if (!diff && !nextp) {
-			/* do nothing */
-			;
+			/* do nothing, i.e. really nothing,
+			 * in particular, don't set the slots again in the
+			 * assign section
+			 * this is not some obscure optimisation but to
+			 * support special notations like, military midnight
+			 * or leap seconds */
+			return t;
 		} else if (!downp) {
 			tunp += sdur - diff;
 		} else if (!diff/* && downp && nextp*/) {
