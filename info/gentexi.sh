@@ -1,12 +1,8 @@
 #!/bin/sh
 
-## usage gentexi BINARY [TOOLNAME]
+## usage gentexi BINARY
 BINARY="${1}"
-if test -z "${2}"; then
-	BINNAME=$(basename "${BINARY}")
-else
-	BINNAME="${2}"
-fi
+BINNAME=$(basename "${BINARY}")
 shift
 
 if ! test -x "${BINARY}"; then
