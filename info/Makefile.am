@@ -172,15 +172,24 @@ dist_noinst_SCRIPTS = gentexi.sh genh2m.sh texi2h2m.sh
 
 built_texis =
 built_texis += strptime.texi
-built_texis += dadd.texi
-built_texis += dconv.texi
-built_texis += ddiff.texi
-built_texis += dgrep.texi
-built_texis += dround.texi
-built_texis += dseq.texi
-built_texis += dsort.texi
-built_texis += dtest.texi
-built_texis += dzone.texi
+BUILT_SOURCES += dadd.texi
+BUILT_SOURCES += dconv.texi
+BUILT_SOURCES += ddiff.texi
+BUILT_SOURCES += dgrep.texi
+BUILT_SOURCES += dround.texi
+BUILT_SOURCES += dseq.texi
+BUILT_SOURCES += dsort.texi
+BUILT_SOURCES += dtest.texi
+BUILT_SOURCES += dzone.texi
+built_texis += dateadd.texi
+built_texis += dateconv.texi
+built_texis += datediff.texi
+built_texis += dategrep.texi
+built_texis += dateround.texi
+built_texis += dateseq.texi
+built_texis += datesort.texi
+built_texis += datetest.texi
+built_texis += datezone.texi
 
 built_mans =
 if HAVE_STRPTIME
@@ -257,6 +266,25 @@ datesort.man: dsort.man
 datetest.man: dtest.man
 	$(TRAFO) < $< > $@
 datezone.man: dzone.man
+	$(TRAFO) < $< > $@
+
+dateadd.texi: dadd.texi
+	$(TRAFO) < $< > $@
+dateconv.texi: dconv.texi
+	$(TRAFO) < $< > $@
+datediff.texi: ddiff.texi
+	$(TRAFO) < $< > $@
+dategrep.texi: dgrep.texi
+	$(TRAFO) < $< > $@
+dateround.texi: dround.texi
+	$(TRAFO) < $< > $@
+dateseq.texi: dseq.texi
+	$(TRAFO) < $< > $@
+datesort.texi: dsort.texi
+	$(TRAFO) < $< > $@
+datetest.texi: dtest.texi
+	$(TRAFO) < $< > $@
+datezone.texi: dzone.texi
 	$(TRAFO) < $< > $@
 
 
