@@ -1,6 +1,8 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dround -n 17:04:00 5m
+$ dround -n 17:05:00 -5m
+16:05:00
+$ dround -n 17:04:00 /5m
 17:05:00
 $
 

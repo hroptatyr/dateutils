@@ -24,14 +24,14 @@ unix commands for reasons of intuition.  The only exception being
 `strptime` which is analogous to the libc function of the same name.
 
 + `strptime`            Command line version of the C function
-+ `dadd`                Add durations to dates or times
-+ `dconv`               Convert dates or times between calendars
-+ `ddiff`               Compute durations between dates or times
-+ `dgrep`               Grep dates or times in input streams
-+ `dround`              Round dates or times to "fuller" values
-+ `dseq`                Generate sequences of dates or times
-+ `dtest`               Compare dates or times
-+ `dzone`               Convert date/times to timezones in bulk
++ `dateadd`             Add durations to dates or times
++ `dateconv`            Convert dates or times between calendars
++ `datediff`            Compute durations between dates or times
++ `dategrep`            Grep dates or times in input streams
++ `dateround`           Round dates or times to "fuller" values
++ `dateseq`             Generate sequences of dates or times
++ `datetest`            Compare dates or times
++ `datezone`            Convert date/times to timezones in bulk
 
 
 
@@ -41,8 +41,8 @@ Examples
 I love everything to be explained by example to get a first
 impression.  So here it comes.
 
-dseq
-----
+dateseq
+-------
   A tool mimicking seq(1) but whose inputs are from the domain of dates
   rather than integers.  Typically scripts use something like
 
@@ -52,7 +52,7 @@ dseq
 
   which now can be shortened to
 
-    $ dseq 2010-01-01 2010-01-10
+    $ dateseq 2010-01-01 2010-01-10
 
   with the additional benefit that the end date can be given directly
   instead of being computed from the start date and an interval in
@@ -60,7 +60,7 @@ dseq
   to implement using the above seq(1)/date(1) approach, like skipping
   certain weekdays:
 
-    $ dseq 2010-01-01 2010-01-10 --skip sat,sun
+    $ dateseq 2010-01-01 2010-01-10 --skip sat,sun
     =>  
       2010-01-01
       2010-01-04
@@ -69,9 +69,9 @@ dseq
       2010-01-07
       2010-01-08
 
-  dseq also works on times:
+  dateseq also works on times:
 
-    $ dseq 12:00:00 5m 12:17:00
+    $ dateseq 12:00:00 5m 12:17:00
     =>
       12:00:00
       12:05:00
@@ -80,40 +80,41 @@ dseq
 
   and also date-times:
 
-    $ dseq --compute-from-last 2012-01-02T12:00:00 5m 2012-01-02T12:17:00
+    $ dateseq --compute-from-last 2012-01-02T12:00:00 5m 2012-01-02T12:17:00
     =>
       2012-01-02T12:02:00
       2012-01-02T12:07:00
       2012-01-02T12:12:00
       2012-01-02T12:17:00
 
-dconv
------
-  A tool to convert dates between different calendric systems.  While
-  other such tools usually focus on converting Gregorian dates to, say,
-  the Chinese calendar, dconv aims at supporting calendric systems which
-  are essential in financial contexts.
+dateconv
+--------
+  A tool to convert dates between different calendric systems and/or
+  time zones.  While other such tools usually focus on converting
+  Gregorian dates to, say, the Chinese calendar, dconv aims at
+  supporting calendric systems which are essential in financial
+  contexts.
 
   To convert a (Gregorian) date into the so called ymcw representation:
 
-    $ dconv 2012-03-04 -f "%Y-%m-%c-%w"
+    $ dateconv 2012-03-04 -f "%Y-%m-%c-%w"
     =>
       2012-03-01-00
 
   and vice versa:
 
-    $ dconv 2012-03-01-Sun -i "%Y-%m-%c-%a" -f '%F'
+    $ dateconv 2012-03-01-Sun -i "%Y-%m-%c-%a" -f '%F'
     =>
       2012-03-04
 
-  where the ymcw representation means, the %c-th %w of the month in a
-  given year.  This is useful if dates are specified like, the third
+  where the ymcw representation means, the `%c`-th `%w` of the month in
+  a given year.  This is useful if dates are specified like, the third
   Thursday in May for instance.
 
-  dconv can also be used to convert occurrences of dates, times or
+  dateconv can also be used to convert occurrences of dates, times or
   date-times in an input stream on the fly
 
-    $ dconv -S -i '%b/%d %Y at %I:%M %P' <<EOF
+    $ dateconv -S -i '%b/%d %Y at %I:%M %P' <<EOF
     Remember we meet on Mar/03 2012 at 02:30 pm
     EOF
     =>
@@ -121,40 +122,40 @@ dconv
 
   and most prominently to convert between time zones:
 
-    $ dconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
+    $ dateconv --from-zone "America/Chicago" --zone "Asia/Tokyo" 2012-01-04T09:33:00
     =>
       2012-01-05T00:33:00
 
-    $ dconv --zone "America/Chicago" now -f "%d %b %Y %T"
+    $ dateconv --zone "America/Chicago" now -f "%d %b %Y %T"
     =>
       05 Apr 2012 11:11:57
 
-dtest
------
+datetest
+--------
   A tool to perform date comparison in the shell, it's modelled after
-  test(1) but with proper command line options.
+  `test(1)` but with proper command line options.
 
-    $ if dtest today --gt 2010-01-01; then
+    $ if datetest today --gt 2010-01-01; then
         echo "yes"
       fi
     =>
       yes
 
-dadd
-----
+dateadd
+-------
   A tool to perform date arithmetic (date maths) in the shell.  Given
   a date and a list of durations this will compute new dates.  Given a
   duration and a list of dates this will compute new dates.
 
-    $ dadd 2010-02-02 +4d
+    $ dateadd 2010-02-02 +4d
     =>
       2010-02-06
 
-    $ dadd 2010-02-02 +1w
+    $ dateadd 2010-02-02 +1w
     =>
       2010-02-09
 
-    $ dadd -1d <<EOF
+    $ dateadd -1d <<EOF
     2001-01-05
     2001-01-01
     EOF
@@ -164,79 +165,79 @@ dadd
 
   Adding durations to times:
 
-    $ dadd 12:05:00 +10m
+    $ dateadd 12:05:00 +10m
     =>
       12:15:00
 
   and even date-times:
 
-    $ dadd 2012-03-12T12:05:00 -1d4h
+    $ dateadd 2012-03-12T12:05:00 -1d4h
     =>
       2012-03-11T08:05:00
 
-  As of version v0.2.2 leap-second adjusted calculations are built-in.
-  Use the unit `rs` to denote "real" seconds:
+  If supported by the system's zoneinfo database leap-second adjusted
+  calculations are possible.  Use the unit `rs` to denote "real" seconds:
 
-    $ dadd '2012-06-30 23:59:30' +30rs
+    $ dateadd '2012-06-30 23:59:30' +30rs
     =>
       2012-06-30T23:59:60
 
   as opposed to:
 
-    $ dadd '2012-06-30 23:59:30' +30s
+    $ dateadd '2012-06-30 23:59:30' +30s
     =>
       2012-07-01T00:00:00
 
-ddiff
------
+datediff
+--------
   A tool to calculate the difference between two (or more) dates.  This
   is somewhat the converse of dadd.  Outputs will be durations that,
   when added to the first date, give the second date.
 
   Get the number of days between two dates:
 
-    $ ddiff 2001-02-08 2001-03-02
+    $ datediff 2001-02-08 2001-03-02
     =>
       22
 
   The duration format can be controlled through the `-f` switch:
 
-    $ ddiff 2001-02-08 2001-03-09 -f "%m month and %d day"
+    $ datediff 2001-02-08 2001-03-09 -f "%m month and %d day"
     =>
       1 month and 1 day
 
-  ddiff also accepts time stamps as input:
+  datediff also accepts time stamps as input:
 
-    $ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00
+    $ datediff 2012-03-01T12:17:00 2012-03-02T14:00:00
     =>
       92580s
 
   The `-f` switch does the right thing:
 
-    $ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Ss'
+    $ datediff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Ss'
     =>
       1d 6180s
 
   compare to:
 
-    $ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Hh %Ss'
+    $ datediff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%dd %Hh %Ss'
     =>
       1d 1h 2580s
 
-  As of version v0.2.2 leap-second adjusted calculations can be made.
-  Use the format specifier `%rS` to get the elapsed time in "real"
-  seconds:
+  If supported by the system's zoneinfo database leap-second adjusted
+  calculations can be made.  Use the format specifier `%rS` to get the
+  elapsed time in "real" seconds:
 
-    ddiff '2012-06-30 23:59:30' '2012-07-01 00:00:30' -f '%rS'
+    datediff '2012-06-30 23:59:30' '2012-07-01 00:00:30' -f '%rS'
     =>
       61
 
-dgrep
------
+dategrep
+--------
   A tool to extract lines from an input stream that match certain
   criteria, showing either the line or the match:
 
-    $ dgrep '<2012-03-01' <<EOF
+    $ dategrep '<2012-03-01' <<EOF
     Feb	2012-02-28
     Feb	2012-02-29	leap day
     Mar	2012-03-01
@@ -246,20 +247,20 @@ dgrep
       Feb	2012-02-28
       Feb	2012-02-29	leap day
 
-dround
-------
+dateround
+---------
   A tool to "round" dates or time stamps to a recurring point in time,
   like the next/previous January or the next/previous Thursday.
 
   Round (backwards) to the first of the current month:
 
-    $ dround '2011-08-22' -1
+    $ dateround '2011-08-22' -1
     =>
       2011-08-01
 
   Round a stream of dates strictly to the next month's first:
 
-    $ dround -S -n 1 <<EOF
+    $ dateround -S -n 1 <<EOF
     pay cable	2012-02-28
     pay gas	2012-02-29
     pay rent	2012-03-01
@@ -271,9 +272,25 @@ dround
       pay rent	2012-04-01
       redeem loan	2012-04-01
 
-  Round a timeseries to the next full or half hour (and convert to ISO):
+  Round a timeseries to the next minute (i.e. the seconds part is 00)
+  and then to the next half-past time (and convert to ISO):
 
-    $ dround -S 30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
+    $ dateround -S 0s30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
+    06/03/2012 14:27:12	eventA
+    06/03/2012 14:29:59	eventA
+    06/03/2012 14:30:00	eventB
+    06/03/2012 14:30:01	eventB
+    EOF
+    =>
+      2012-03-06 14:30:00	eventA
+      2012-03-06 14:30:00	eventA
+      2012-03-06 14:30:00	eventB
+      2012-03-06 15:30:00	eventB
+
+  Alternatively, if you divide the day into half-hours you can round to
+  one of those using the co-class notation:
+
+    $ dateround -S /30m -i '%d/%m/%Y %T' -f '%F %T' <<EOF
     06/03/2012 14:27:12	eventA
     06/03/2012 14:29:59	eventA
     06/03/2012 14:30:00	eventB
@@ -285,13 +302,17 @@ dround
       2012-03-06 14:30:00	eventB
       2012-03-06 15:00:00	eventB
 
+  This is largely identical to the previous example except, that a full
+  hour (being an even multiple of half-hours) is a possible rounding
+  target.
 
-dsort
+
+datesort
 -----
-  New in dateutils 0.3.0.
+  New in the 0.3 series of dateutils.
   A tool to bring the lines of a file into chronological order.
 
-    $ dsort <<EOF
+    $ datesort <<EOF
     2009-06-03 caev="DVCA" secu="VOD" exch="XLON" xdte="2009-06-03" nett/GBX="5.2"
     2011-11-16 caev="DVCA" secu="VOD" exch="XLON" xdte="2011-11-16" nett/GBX="3.05"
     2013-11-20 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-11-20" nett/GBX="3.53"
@@ -307,27 +328,27 @@ dsort
       2013-06-12 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-06-12" nett/GBX="6.92"
       2013-11-20 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-11-20" nett/GBX="3.53"
 
-  At the moment the `dsort` tool is built upon `sort(1)` and `cut(1)`.
+  At the moment the `datesort` tool is built upon `sort(1)` and `cut(1)`.
 
 
-dzone
------
-  New in dateutils 0.3.0.
+datezone
+--------
+  New in the 0.3 series of dateutils.
   A tool to quickly inspect date/time values in different timezones.
   The result will be a matrix that shows every date-time value in every
   timezone:
 
-    $ dzone Europe/Berlin Australia/Sydney now 2014-06-30T05:00:00
+    $ datezone Europe/Berlin Australia/Sydney now 2014-06-30T05:00:00
     =>
       2014-01-30T17:37:13+01:00	Europe/Berlin
       2014-01-31T03:37:13+11:00	Australia/Sydney
       2014-06-30T07:00:00+02:00	Europe/Berlin
       2014-06-30T15:00:00+10:00	Australia/Sydney
 
-  The `dzone` tool can also be used to obtain the next or previous DST
+  The `datezone` tool can also be used to obtain the next or previous DST
   transition relative to a given date/time:
 
-    $ dzone --next Europe/Berlin Australia/Sydney 2013-02-19
+    $ datezone --next Europe/Berlin Australia/Sydney 2013-02-19
     =>
       2013-03-31T02:00:00+01:00 -> 2013-03-31T03:00:00+02:00	Europe/Berlin
       2013-04-07T03:00:00+11:00 -> 2013-04-07T02:00:00+10:00	Australia/Sydney
@@ -337,7 +358,7 @@ dzone
   indicates the exact moment when the transition is about to take
   place.
 
-  In essence `dzone` is a better `zdump(1)`.
+  In essence `datezone` is a better `zdump(1)`.
 
 
 strptime

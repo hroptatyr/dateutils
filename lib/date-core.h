@@ -299,8 +299,8 @@ struct dt_ddur_s {
 	uint32_t:3;
 	/* error indicator, usually means date has been fixed up */
 	uint32_t fix:1;
-	/* was duration predicate */
-	uint32_t xxx:1;
+	/* co-class indicator */
+	uint32_t cocl:1;
 	/* negated predicate */
 	uint32_t neg:1;
 	/* fill up to next ui16 boundary */

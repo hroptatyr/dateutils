@@ -81,6 +81,7 @@ dt_tests += dseq.39.clit
 dt_tests += dseq.40.clit
 dt_tests += dseq.41.clit
 dt_tests += dseq.42.clit
+dt_tests += dseq.43.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -520,6 +521,8 @@ dt_tests += tround.001.clit
 dt_tests += tround.002.clit
 dt_tests += tround.003.clit
 dt_tests += tround.004.clit
+dt_tests += tround.005.clit
+dt_tests += tround.006.clit
 
 
 dt_tests += dtconv.001.clit

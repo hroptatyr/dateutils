@@ -10,27 +10,27 @@
 
 @dircategory Individual utilities
 @direntry
-* dadd: (dateutils)dadd.                        Add durations to dates or times.
-* dconv: (dateutils)dconv.                      Convert dates between
-                                                  calendars or time zones.
-* ddiff: (dateutils)ddiff.                      Compute durations between dates
-                                                  and times.
-* dgrep: (dateutils)dgrep.                      Find date or time matches in
-                                                  input stream.
-* dround: (dateutils)dround.                    Round dates or times to
-                                                  designated values.
-* dseq: (dateutils)dseq.                        Sequences of dates or times.
-* dsort: (dateutils)dsort.                      Sort chronologically.
-* dtest: (dateutils)dtest.                      Compare dates or times.
-* dzone: (dateutils)dzone.                      Convert date/times to
-                                                  different timezones in bulk.
-* strptime: (dateutils)strptime.                Command line version
-                                                  of the C function.
+* dateadd: (dateutils)dateadd.          Add durations to dates or times.
+* dateconv: (dateutils)dateconv.        Convert dates between
+                                          calendars or time zones.
+* datediff: (dateutils)datediff.        Compute durations between dates
+                                          and times.
+* dategrep: (dateutils)dategrep.        Find date or time matches in
+                                          input stream.
+* dateround: (dateutils)dateround.      Round dates or times to
+                                          designated values.
+* dateseq: (dateutils)dateseq.          Sequences of dates or times.
+* datesort: (dateutils)datesort.        Sort chronologically.
+* datetest: (dateutils)datetest.        Compare dates or times.
+* datezone: (dateutils)datezone.        Convert date/times to
+                                          different timezones in bulk.
+* strptime: (dateutils)strptime.        Command line version
+                                          of the C function.
 @end direntry
 
 This manual documents the dateutils package.
 
-Copyright @copyright{} 2011-2014 Sebastian Freundt.
+Copyright @copyright{} 2011-2015 Sebastian Freundt.
 
 Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License,
@@ -54,7 +54,7 @@ in the section entitled "GNU Free Documentation License".
 @center Sebastian Freundt
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2011-2014 Sebastian Freundt.
+Copyright @copyright{} 2011-2015 Sebastian Freundt.
 
 Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License,
@@ -77,15 +77,15 @@ arise when dealing with large amounts of financial data.
 * Calendars::           Calendar concepts and format specs
 * Format specifiers and units:: How to control input and output
 * Algorithms::          Some notes on the algorithms used
-* dadd::                Add durations to dates or times
-* dconv::               Convert dates between calendars or time zones
-* ddiff::               Compute durations between dates and times
-* dgrep::               Find date or time matches in input stream
-* dround::              Round dates or times to designated values
-* dseq::                Generate sequences of dates or times
-* dsort::               Sort the contents of files chronologically
-* dtest::               Compare dates or times
-* dzone::               Convert date/times to timezones in bulk
+* dateadd::             Add durations to dates or times
+* dateconv::            Convert dates between calendars or time zones
+* datediff::            Compute durations between dates and times
+* dategrep::            Find date or time matches in input stream
+* dateround::           Round dates or times to designated values
+* dateseq::             Generate sequences of dates or times
+* datesort::            Sort the contents of files chronologically
+* datetest::            Compare dates or times
+* datezone::            Convert date/times to timezones in bulk
 * strptime::            Command line version of the C function
 @end menu
 
@@ -355,15 +355,15 @@ else
 @end verbatim
 
 
-@include dadd.texi
-@include dconv.texi
-@include ddiff.texi
-@include dgrep.texi
-@include dround.texi
-@include dseq.texi
-@include dsort.texi
-@include dtest.texi
-@include dzone.texi
+@include dateadd.texi
+@include dateconv.texi
+@include datediff.texi
+@include dategrep.texi
+@include dateround.texi
+@include dateseq.texi
+@include datesort.texi
+@include datetest.texi
+@include datezone.texi
 @include strptime.texi
 
 @summarycontents
