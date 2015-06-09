@@ -1060,7 +1060,7 @@ dt_strpddur(const char *str, char **ep)
 /* at the moment we allow only one format */
 	struct dt_ddur_s res = dt_make_ddur(DT_DURUNK, 0);
 	const char *sp = str;
-	int tmp;
+	long int tmp;
 
 	if (str == NULL) {
 		goto out;
