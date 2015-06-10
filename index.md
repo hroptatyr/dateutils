@@ -3,7 +3,7 @@ title: dateutils
 layout: project
 logo: dateutils_logo_120.png
 project: dateutils
-latest: dateutils-0.3.2.tar.xz
+latest: dateutils-0.3.3.tar.xz
 snap: https://drone.io/github.com/hroptatyr/dateutils/files
 description: dateutils, command-line date calculation and conversion tools
 ---

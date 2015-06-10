@@ -8,6 +8,30 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.3.3
+------
+Summary: v0.3.3 of dateutils
+
+This is dateutils v0.3.3.
+
+This is a feature release.
+
+Features:
+
+- to clarify purpose and avoid name clashes prefix binaries with date-
+    This results in: dateadd dateconv datediff dategrep dateround
+    dateseq datesort datetest and datezone
+- provide compatibilty through configure switch --with-old-names
+- provide single digit years through %_y
+- allow rounding of ISO-week dates (ywd) to week numbers
+
+Bugfixes:
+
+- dashes behind a date do not count as tz indicator
+- UTC/TAI/GPS special coordinated zones work on systems without
+    leap second support
+
+See info page examples and/or README.
 
 v0.3.2
 ------
