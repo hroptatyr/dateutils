@@ -292,18 +292,10 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 DEFUN struct dt_t_s
 dt_time(void)
 {
-#if defined HAVE_ANON_STRUCTS_INIT
-	struct dt_t_s res = {.u = 0};
-#else
-	struct dt_t_s res;
-#endif
+	struct dt_t_s res = {0};
 	struct timeval tv;
 	unsigned int tonly;
 
-#if !defined HAVE_ANON_STRUCTS_INIT
-/* thanks gcc */
-	res.u = 0;
-#endif
 	if (gettimeofday(&tv, NULL) < 0) {
 		return res;
 	}

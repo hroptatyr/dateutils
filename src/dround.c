@@ -500,7 +500,7 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	char *sp = NULL;
 	struct strpd_s d = strpd_initialiser();
 	struct dt_spec_s s = spec_initialiser();
-	struct dt_dtdur_s payload = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s payload = {(dt_dtdurtyp_t)DT_DURUNK};
 	bool negp = false;
 	bool coclp = true;
 
@@ -525,12 +525,19 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_WDAY;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
+#if defined HAVE_ANON_STRUCTS_INIT
 		payload.d = (struct dt_ddur_s){
 			DT_DURYMCW,
 			.neg = negp,
 			.cocl = coclp,
 			.ymcw.w = d.w,
 		};
+#else
+		payload.d.durtyp = DT_DURYMCW;
+		payload.d.neg = negp;
+		payload.d.cocl = coclp;
+		payload.d.ymcw.w = d.w;
+#endif
 		goto out;
 	}
 
@@ -538,11 +545,17 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	s.spfl = DT_SPFL_S_MON;
 	s.abbr = DT_SPMOD_NORM;
 	if (__strpd_card(&d, str, s, &sp) >= 0) {
+#if defined HAVE_ANON_STRUCTS_INIT
 		payload.d = (struct dt_ddur_s){
 			DT_DURYMD,
 			.neg = negp,
 			.ymd.m = d.m,
 		};
+#else
+		payload.d.durtyp = DT_DURYMD;
+		payload.d.neg = negp;
+		payload.d.ymd.m = d.m;
+#endif
 		goto out;
 	}
 

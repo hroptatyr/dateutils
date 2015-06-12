@@ -426,29 +426,22 @@ __fixup_fst(struct dseq_clo_s *clo)
 static struct dt_dtdur_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
+	struct dt_dtdur_s res = {0};
+
 	if (beg.hms.h != end.hms.h &&
-	    beg.hms.m == 0 && end.hms.m == 0&&
+	    beg.hms.m == 0 && end.hms.m == 0 &&
 	    beg.hms.s == 0 && end.hms.s == 0) {
-		if (beg.u < end.u) {
-			return (struct dt_dtdur_s){DT_DURH, .dv = 1};
-		} else {
-			return (struct dt_dtdur_s){DT_DURH, .dv = -1};
-		}
+		res.durtyp = DT_DURH;
+		res.dv = (beg.u < end.u) ? 1 : -1;
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
-		if (beg.u < end.u) {
-			return (struct dt_dtdur_s){DT_DURM, .dv = 1};
-		} else {
-			return (struct dt_dtdur_s){DT_DURM, .dv = -1};
-		}
+		res.durtyp = DT_DURM;
+		res.dv = (beg.u < end.u) ? 1 : -1;
 	} else {
-		if (beg.u < end.u) {
-			return (struct dt_dtdur_s){DT_DURS, .dv = 1};
-		} else {
-			return (struct dt_dtdur_s){DT_DURS, .dv = -1};
-		}
+		res.durtyp = DT_DURS;
+		res.dv = (beg.u < end.u) ? 1 : -1;
 	}
-	/* no reach */
+	return res;
 }
 
 

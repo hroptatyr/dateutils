@@ -566,7 +566,13 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 static inline struct dt_ddur_s
 dt_make_ddur(dt_durtyp_t typ, dt_dur_t d)
 {
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (struct dt_ddur_s){typ, .dv = d};
+#else
+	struct dt_ddur_s res = {typ};
+	res.dv = d;
+	return res;
+#endif
 }
 
 static inline dt_bizda_param_t
