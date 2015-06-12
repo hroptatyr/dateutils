@@ -133,7 +133,15 @@ __fixup_zdiff(struct dt_dt_s dt, int32_t zdiff)
 {
 /* apply time zone difference */
 	/* reuse dt for result */
+#if defined HAVE_ANON_STRUCTS_INIT
 	dt = dt_dtadd(dt, (struct dt_dtdur_s){DT_DURS, .dv = -zdiff});
+#else
+	{
+		struct dt_dtdur_s tmp = {DT_DURS};
+		tmp.dv = -zdiff;
+		dt = dt_dtadd(dt, tmp);
+	}
+#endif
 	dt.znfxd = 1;
 	return dt;
 }

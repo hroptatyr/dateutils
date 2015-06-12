@@ -67,7 +67,7 @@ add_t_only(void)
 {
 	static const char str[] = "12:34:56";
 	struct dt_dt_s d;
-	struct dt_dtdur_s dur = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s dur = {(dt_dtdurtyp_t)DT_DURUNK};
 	int res = 0;
 
 	/* 2012-03-28 (using no format) */
@@ -166,7 +166,7 @@ dt_add_t(void)
 {
 	static const char str[] = "2012-03-28T23:12:01";
 	struct dt_dt_s d;
-	struct dt_dtdur_s dur = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s dur = {(dt_dtdurtyp_t)DT_DURUNK};
 	int res = 0;
 
 	fprintf(stderr, "testing %s +1h ...\n", str);
@@ -221,7 +221,7 @@ dt_add_dt(void)
 {
 	static const char str[] = "2012-03-28T23:55:55";
 	struct dt_dt_s d;
-	struct dt_dtdur_s dur = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s dur = {(dt_dtdurtyp_t)DT_DURUNK};
 	int res = 0;
 
 	fprintf(stderr, "testing %s +1d1h ...\n", str);

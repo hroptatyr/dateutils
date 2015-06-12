@@ -906,7 +906,7 @@ DEFUN struct dt_dtdur_s
 dt_strpdtdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
 	const char *sp;
 	long int tmp;
 
@@ -1503,7 +1503,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 DEFUN struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
-	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
 	int dt = 0;
 
 	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
