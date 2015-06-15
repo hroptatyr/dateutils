@@ -249,26 +249,29 @@ __sexy_add(dt_sexy_t sx, struct dt_dtdur_s dur)
 /* sexy add
  * only works for continuous types (DAISY, etc.)
  * we need to take leap seconds into account here */
-	signed int delta = 0;
+	dt_ssexy_t dv = dur.dv;
 
 	switch (dur.durtyp) {
 	case DT_DURH:
+		dv *= MINS_PER_HOUR;
 	case DT_DURM:
+		dv *= SECS_PER_MIN;
 	case DT_DURS:
+		break;
 	case DT_DURNANO:
-		delta = dur.dv;
+		dv /= NANOS_PER_SEC;
 		break;
 	case DT_DURD:
 	case DT_DURBD:
-		delta = dur.d.dv * SECS_PER_DAY;
+		dv = dur.d.dv * SECS_PER_DAY;
 		/*@fallthrough@*/
 	case DT_DURUNK:
-		delta += dur.t.sdur;
+		dv += dur.t.sdur;
 	default:
 		break;
 	}
 	/* just go through with it */
-	return sx + delta;
+	return sx + dv;
 }
 
 #if defined WITH_LEAP_SECONDS && defined SKIP_LEAP_ARITH
