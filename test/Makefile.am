@@ -686,6 +686,8 @@ dt_tests += dtadd.045.clit
 dt_tests += dtadd.046.clit
 dt_tests += dtadd.047.clit
 dt_tests += dtadd.048.clit
+dt_tests += dtadd.049.clit
+dt_tests += dtadd.050.clit
 
 dt_tests += dtgrep.001.clit
 dt_tests += dtgrep.002.clit
