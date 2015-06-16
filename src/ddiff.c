@@ -311,28 +311,46 @@ __strf_tot_days(struct dt_dtdur_s dur)
 /* DUR expressed solely as the number of days */
 	int d;
 
-	switch (dur.d.durtyp) {
-	case DT_DURD:
-	case DT_DURBD:
-		d = dur.d.dv;
-		break;
-	case DT_DURBIZDA:
-		d = dur.d.bizda.bd;
-		break;
-	case DT_DURYMD:
-		d = dur.d.ymd.d;
-		break;
-	case DT_DURYD:
-		d = dur.d.yd.d;
-		break;
-	case DT_DURYMCW:
-		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;;
-		break;
-	case DT_DURYWD:
-		d = dur.d.ywd.w + dur.d.ywd.c * (int)GREG_DAYS_P_WEEK;
-		break;
+	switch (dur.durtyp) {
 	default:
-		d = 0;
+		switch (dur.d.durtyp) {
+		case DT_DURD:
+		case DT_DURBD:
+			d = dur.d.dv;
+			break;
+		case DT_DURBIZDA:
+			d = dur.d.bizda.bd;
+			break;
+		case DT_DURYMD:
+			d = dur.d.ymd.d;
+			break;
+		case DT_DURYD:
+			d = dur.d.yd.d;
+			break;
+		case DT_DURYMCW:
+			d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;
+			break;
+		case DT_DURYWD:
+			d = dur.d.ywd.w + dur.d.ywd.c * (int)GREG_DAYS_P_WEEK;
+			break;
+		default:
+			d = 0;
+			break;
+		}
+		break;
+
+		/* units beyond date durations */
+	case DT_DURH:
+		d = dur.dv / HOURS_PER_DAY;
+		break;
+	case DT_DURM:
+		d = dur.dv / MINS_PER_HOUR / HOURS_PER_DAY;
+		break;
+	case DT_DURS:
+		d = dur.dv / SECS_PER_DAY;
+		break;
+	case DT_DURNANO:
+		d = dur.dv / NANOS_PER_SEC / SECS_PER_DAY;
 		break;
 	}
 	return d;
