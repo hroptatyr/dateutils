@@ -309,8 +309,8 @@ SUFFIXES += .mand
 		yuck$(EXEEXT) genman \
 			--package "$(PACKAGE_NAME)" \
 			--info-page \
-			-i "$(builddir)/format-ddiff.th2m" \
 			-i "$(builddir)/format.th2m" \
+			-i "$(builddir)/format-ddiff.th2m" \
 			-i "$(builddir)/$*.h2m" \
 			-i "$(srcdir)/author.h2m" \
 			-o $@ --version-file "$(top_builddir)/.version" $<
