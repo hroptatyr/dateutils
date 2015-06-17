@@ -428,8 +428,8 @@ static struct precalc_s {
 	/* the other units are easily converted as their factors are fixed.
 	 * we operate on clean seconds and attribute leap seconds only
 	 * to the S slot, so 59 seconds plus a leap second != 1 minute */
-	with (long long int S = __strf_tot_secs(dur)) {
-		us = __strf_tot_days(dur) * (int)SECS_PER_DAY + S;
+	with (long long int S = __strf_tot_secs(dur), d = __strf_tot_days(dur)) {
+		us = d * (int)SECS_PER_DAY + S;
 	}
 
 	if (f.has_week) {
