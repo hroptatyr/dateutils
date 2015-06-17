@@ -277,25 +277,36 @@ duration between `%s' and `%s' is not defined", d1, d2);
 	return;
 }
 
-static long int
+static __attribute__((pure)) long int
 __strf_tot_secs(struct dt_dtdur_s dur)
 {
-	long int res;
+/* return time portion of duration in UTC seconds */
+	long int s = dur.dv;
 
-	if (dur.durtyp == DT_DURS) {
-		if (!dur.tai) {
-			res = dur.dv;
-		} else {
-			res = dur.soft;
-		}
-	} else {
-		/* otherwise */
-		res = dur.t.sdur;
+	if (UNLIKELY(dur.tai) && dur.durtyp == DT_DURS) {
+		return dur.soft - dur.corr;
 	}
-	return res;
+
+	switch (dur.durtyp) {
+	default:
+		/* all the date types */
+		return dur.t.sdur;
+	case DT_DURH:
+		s *= MINS_PER_HOUR;
+		/*@fallthrough@*/
+	case DT_DURM:
+		s *= SECS_PER_MIN;
+		/*@fallthrough@*/
+	case DT_DURS:
+		break;
+	case DT_DURNANO:
+		s /= NANOS_PER_SEC;
+		break;
+	}
+	return s;
 }
 
-static long int
+static __attribute__((pure)) long int
 __strf_tot_corr(struct dt_dtdur_s dur)
 {
 	if (dur.durtyp == DT_DURS && dur.tai) {
@@ -305,10 +316,10 @@ __strf_tot_corr(struct dt_dtdur_s dur)
 	return 0;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_tot_days(struct dt_dtdur_s dur)
 {
-/* DUR expressed solely as the number of days */
+/* return date portion of DURation in days */
 	int d;
 
 	switch (dur.d.durtyp) {
@@ -326,7 +337,7 @@ __strf_tot_days(struct dt_dtdur_s dur)
 		d = dur.d.yd.d;
 		break;
 	case DT_DURYMCW:
-		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;;
+		d = dur.d.ymcw.w + dur.d.ymcw.c * (int)GREG_DAYS_P_WEEK;
 		break;
 	case DT_DURYWD:
 		d = dur.d.ywd.w + dur.d.ywd.c * (int)GREG_DAYS_P_WEEK;
@@ -338,7 +349,7 @@ __strf_tot_days(struct dt_dtdur_s dur)
 	return d;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_tot_mon(struct dt_dtdur_s dur)
 {
 /* DUR expressed as month and days */
@@ -367,13 +378,13 @@ __strf_tot_mon(struct dt_dtdur_s dur)
 	return m;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_ym_mon(struct dt_dtdur_s dur)
 {
 	return __strf_tot_mon(dur) % (int)GREG_MONTHS_P_YEAR;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_tot_years(struct dt_dtdur_s dur)
 {
 	return __strf_tot_mon(dur) / (int)GREG_MONTHS_P_YEAR;
@@ -399,6 +410,7 @@ static struct precalc_s {
 #define MINS_PER_WEEK	(MINS_PER_DAY * GREG_DAYS_P_WEEK)
 #define HOURS_PER_WEEK	(HOURS_PER_DAY * GREG_DAYS_P_WEEK)
 	struct precalc_s res = {0};
+	long long int us;
 
 	/* date specs */
 	if (f.has_year) {
@@ -412,63 +424,57 @@ static struct precalc_s {
 		/* just months */
 		res.m = __strf_tot_mon(dur);
 	}
-	if (f.has_day || f.has_week) {
-		res.d = __strf_tot_days(dur);
-		if (f.has_week) {
-			/* week shadows days in the hierarchy */
-			res.w = res.d / (int)GREG_DAYS_P_WEEK;
-			res.d %= (int)GREG_DAYS_P_WEEK;
-		}
+
+	/* the other units are easily converted as their factors are fixed.
+	 * we operate on clean seconds and attribute leap seconds only
+	 * to the S slot, so 59 seconds plus a leap second != 1 minute */
+	with (long long int S = __strf_tot_secs(dur)) {
+		us = __strf_tot_days(dur) * (int)SECS_PER_DAY + S;
 	}
 
-	/* time specs */
-	if (f.has_sec || f.has_min || f.has_hour) {
-		res.S = __strf_tot_secs(dur);
+	if (f.has_week) {
+		/* week shadows days in the hierarchy */
+		res.w = us / (int)SECS_PER_WEEK;
+		us %= (int)SECS_PER_WEEK;
+	}
+	if (f.has_day) {
+		res.d += us / (int)SECS_PER_DAY;
+		us %= (int)SECS_PER_DAY;
+	}
+	if (f.has_hour) {
+		res.H = us / (long int)SECS_PER_HOUR;
+		us %= (long int)SECS_PER_HOUR;
+	}
+	if (f.has_min) {
+		/* minutes and seconds */
+		res.M = us / (long int)SECS_PER_MIN;
+		us %= (long int)SECS_PER_MIN;
+	}
+	if (f.has_sec) {
+		res.S = us + __strf_tot_corr(dur);
+	}
 
-		/* carry from the date specs */
-		res.S += res.w * (long int)SECS_PER_WEEK;
-		res.S += res.d * (long int)SECS_PER_DAY;
-
-		if (f.has_week) {
-			res.w = res.S / (long int)SECS_PER_WEEK;
-			res.S %= (long int)SECS_PER_WEEK;
-		}
-		if (f.has_day) {
-			res.d = res.S / (long int)SECS_PER_DAY;
-			res.S %= (long int)SECS_PER_DAY;
-		}
-		if (f.has_hour) {
-			res.H = res.S / (long int)SECS_PER_HOUR;
-			res.S %= (long int)SECS_PER_HOUR;
-		}
-		if (f.has_min) {
-			/* minutes and seconds */
-			res.M = res.S / (long int)SECS_PER_MIN;
-			res.S %= (long int)SECS_PER_MIN;
-		}
-
-		/* just in case the duration iss negative jump through all
-		 * the hoops again, backwards */
-		if (res.w < 0 || res.d < 0 ||
-		    res.H < 0 || res.M < 0 || res.S < 0) {
-			if (0) {
-			fixup_d:
-				res.d = -res.d;
-			fixup_H:
-				res.H = -res.H;
-			fixup_M:
-				res.M = -res.M;
-			fixup_S:
-				res.S = -res.S;
-			} else if (f.has_week) {
-				goto fixup_d;
-			} else if (f.has_day) {
-				goto fixup_H;
-			} else if (f.has_hour) {
-				goto fixup_M;
-			} else if (f.has_min) {
-				goto fixup_S;
-			}
+	/* just in case the duration iss negative jump through all
+	 * the hoops again, backwards */
+	if (res.w < 0 || res.d < 0 ||
+	    res.H < 0 || res.M < 0 || res.S < 0) {
+		if (0) {
+		fixup_d:
+			res.d = -res.d;
+		fixup_H:
+			res.H = -res.H;
+		fixup_M:
+			res.M = -res.M;
+		fixup_S:
+			res.S = -res.S;
+		} else if (f.has_week) {
+			goto fixup_d;
+		} else if (f.has_day) {
+			goto fixup_H;
+		} else if (f.has_hour) {
+			goto fixup_M;
+		} else if (f.has_min) {
+			goto fixup_S;
 		}
 	}
 	return res;
