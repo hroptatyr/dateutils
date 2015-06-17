@@ -277,7 +277,7 @@ duration between `%s' and `%s' is not defined", d1, d2);
 	return;
 }
 
-static long int
+static __attribute__((pure)) long int
 __strf_tot_secs(struct dt_dtdur_s dur)
 {
 /* return time portion of duration in UTC seconds */
@@ -306,7 +306,7 @@ __strf_tot_secs(struct dt_dtdur_s dur)
 	return s;
 }
 
-static long int
+static __attribute__((pure)) long int
 __strf_tot_corr(struct dt_dtdur_s dur)
 {
 	if (dur.durtyp == DT_DURS && dur.tai) {
@@ -316,7 +316,7 @@ __strf_tot_corr(struct dt_dtdur_s dur)
 	return 0;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_tot_days(struct dt_dtdur_s dur)
 {
 /* return date portion of DURation in days */
@@ -349,7 +349,7 @@ __strf_tot_days(struct dt_dtdur_s dur)
 	return d;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_tot_mon(struct dt_dtdur_s dur)
 {
 /* DUR expressed as month and days */
@@ -378,13 +378,13 @@ __strf_tot_mon(struct dt_dtdur_s dur)
 	return m;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_ym_mon(struct dt_dtdur_s dur)
 {
 	return __strf_tot_mon(dur) % (int)GREG_MONTHS_P_YEAR;
 }
 
-static int
+static __attribute__((pure)) int
 __strf_tot_years(struct dt_dtdur_s dur)
 {
 	return __strf_tot_mon(dur) / (int)GREG_MONTHS_P_YEAR;
