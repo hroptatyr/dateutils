@@ -426,7 +426,7 @@ __fixup_fst(struct dseq_clo_s *clo)
 static struct dt_dtdur_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
-	struct dt_dtdur_s res = {0};
+	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
 
 	if (beg.hms.h != end.hms.h &&
 	    beg.hms.m == 0 && end.hms.m == 0 &&
