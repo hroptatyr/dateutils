@@ -223,6 +223,7 @@ htooe32(uint32_t x)
 # define htooe64(x)	le64toh(x)
 #elif BYTE_ORDER == LITTLE_ENDIAN && defined be64toh
 # define htooe64(x)	be64toh(x)
+#else
 /* do it agnostically */
 static inline __attribute__((pure, const)) uint64_t
 htooe64(uint64_t x)
