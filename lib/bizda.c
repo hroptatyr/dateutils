@@ -34,6 +34,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+#include "boops.h"
+
 /* set aspect temporarily */
 #define ASPECT_BIZDA
 /* permanent aspect, to be read as have we ever seen aspect_bizda */
@@ -509,11 +511,13 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 		};
 		for (unsigned int i = 0; i < m - 1; i++) {
 			accum += page.lu;
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 			page.u <<= 2;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 			page.u >>= 2;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 		}
 	} else if (m > 1) {
 		union {
@@ -532,18 +536,22 @@ __bizda_get_yday(dt_bizda_t that, dt_bizda_param_t param)
 		}
 		/* load a different page now, shift to the right month */
 		page.s = tbl[(j01wd < DT_SUNDAY ? j01wd : 0U) + DT_MONDAY];
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		page.u <<= 6;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		page.u >>= 6;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 		for (unsigned int i = 4; i < m; i++) {
 			accum += page.lu;
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 			page.u <<= 2;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 			page.u >>= 2;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 		}
 	}
 	return 20 * (m - 1) + accum + that.bd;
