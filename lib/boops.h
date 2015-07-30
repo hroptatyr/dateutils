@@ -103,8 +103,12 @@
 #elif BYTE_ORDER == LITTLE_ENDIAN && defined be16toh
 # define htooe16(x)	be16toh(x)
 #else
-# warning htooe16() will not convert anything
-# define htooe16(x)	(x)
+/* do it agnostically */
+static inline __attribute__((pure, const)) uint16_t
+htooe16(uint16_t x)
+{
+	return ((x >> 8U) & 0xffU) | ((x << 8U) & 0xff00U);
+}
 #endif	/* htooe16 */
 
 #if !defined be16toh
@@ -158,8 +162,15 @@
 #elif BYTE_ORDER == LITTLE_ENDIAN && defined be32toh
 # define htooe32(x)	be32toh(x)
 #else
-# warning htooe32() will not convert anything
-# define htooe32(x)	(x)
+/* do it agnostically */
+static inline __attribute__((pure, const)) uint32_t
+htooe32(uint32_t x)
+{
+	/* swap them word-wise first */
+	x = ((x >> 16U) & 0xffffU) | ((x << 16U) & 0xffff0000U);
+	/* do the byte swap */
+	return ((x >> 8U) & 0xff00ffU) | ((x << 8U) & 0xff00ff00U);
+}
 #endif
 
 /* and even now we may be out of luck */
@@ -212,9 +223,19 @@
 # define htooe64(x)	le64toh(x)
 #elif BYTE_ORDER == LITTLE_ENDIAN && defined be64toh
 # define htooe64(x)	be64toh(x)
-#else
-# warning htooe64() will not convert anything
-# define htooe64(x)	(x)
+/* do it agnostically */
+static inline __attribute__((pure, const)) uint64_t
+htooe64(uint64_t x)
+{
+	/* swap them dword-wise first */
+	x = ((x >> 32U) & 0xffffffffU) | ((x << 32U) & 0xffffffff00000000U);
+	/* word wise swap now */
+	x = ((x >> 16U) & 0xffff0000ffffU) |
+		((x << 16U) & 0xffff0000ffff0000U);
+	/* do the byte swap */
+	return ((x >> 8U) & 0xff00ff00ff00ffU) |
+		((x << 8U) & 0xff00ff00ff00ff00U);
+}
 #endif
 
 #if !defined be64toh
