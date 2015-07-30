@@ -1565,22 +1565,30 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			zidx_t i_d1 = leaps_before(d1);
 			zidx_t i_d2 = leaps_before(d2);
 
-# if defined WORDS_BIGENDIAN
+# if BYTE_ORDER == BIG_ENDIAN
 			/* not needed on little-endians
 			 * the little means just that */
 			res.soft = sxdur;
-# endif	/* WORDS_BIGENDIAN */
+# elif BYTE_ORDER == LITTLE_ENDIAN
+
+# else
+#  warning unknown byte order
+# endif	/* BYTE_ORDER */
 
 			if (UNLIKELY(i_d1 != i_d2)) {
 				int nltr = leaps_corr[i_d2] - leaps_corr[i_d1];
 
 				res.corr = nltr;
-# if defined WORDS_BIGENDIAN
+# if BYTE_ORDER == BIG_ENDIAN
 			} else {
 				/* always repack res.corr to remove clutter
 				 * from the earlier res.sexydur ass'ment */
 				res.corr = 0;
-# endif	 /* WORDS_BIGENDIAN */
+# elif BYTE_ORDER == LITTLE_ENDIAN
+
+# else
+#  warning unknown byte order
+# endif	 /* BYTE_ORDER */
 			}
 		}
 #endif	/* WITH_LEAP_SECONDS */

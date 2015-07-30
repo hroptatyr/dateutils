@@ -41,7 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
-
+#include "boops.h"
 #include "token.h"
 
 #if defined __cplusplus
@@ -61,26 +61,30 @@ typedef enum {
 typedef union {
 	uint64_t u:56;
 	struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		uint32_t u24:24;
 		uint32_t:32;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		uint32_t:32;
 		uint32_t u24:24;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	} __attribute__((packed));
 	struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		uint64_t h:8;
 		uint64_t m:8;
 		uint64_t s:8;
 		uint64_t ns:32;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		uint64_t ns:32;
 		uint64_t s:8;
 		uint64_t m:8;
 		uint64_t h:8;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	} __attribute__((packed));
 } __attribute__((packed)) dt_hms_t;
 
