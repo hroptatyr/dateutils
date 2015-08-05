@@ -53,6 +53,7 @@
 #include "time-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "boops.h"
 #include "nifty.h"
 #include "dt-core.h"
 #include "dt-core-private.h"

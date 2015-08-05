@@ -42,6 +42,12 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
+#if defined HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif	/* HAVE_SYS_PARAM_H */
+#if defined HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif	/* HAVE_SYS_TYPES_H */
 /* *bsd except for openbsd */
 #if defined HAVE_SYS_ENDIAN_H
 # include <sys/endian.h>
