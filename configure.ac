@@ -43,6 +43,8 @@ AX_CHECK_CLITOSIS
 ## check for byteorder utils
 AC_CHECK_HEADERS([endian.h sys/endian.h machine/endian.h byteorder.h])
 AC_CHECK_HEADERS([byteswap.h])
+AC_CHECK_HEADERS([sys/param.h])
+AC_CHECK_HEADERS([sys/types.h])
 
 ## to make lintian happy
 AC_SYS_LARGEFILE
