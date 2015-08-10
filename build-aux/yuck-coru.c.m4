@@ -364,8 +364,8 @@ foreachq([__CMD], yuck_umbcmds(), [dnl
 	case yuck_cmd(defn([__CMD])):
 foreachq([__IDN], yuck_idents(defn([__CMD])), [dnl
 yuck_option_action(defn([__IDN]), defn([__CMD]));
-		break;
 ])[]dnl
+		break;
 ])[]dnl
 popdef([action])dnl
 popdef([yuck_flag_action])dnl
