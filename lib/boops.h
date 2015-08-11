@@ -79,6 +79,8 @@
 #  define LITTLE_ENDIAN	__LITTLE_ENDIAN
 # elif defined __LITTLE_ENDIAN__
 #  define LITTLE_ENDIAN	__LITTLE_ENDIAN__
+# elif defined __ORDER_LITTLE_ENDIAN__
+#  define LITTLE_ENDIAN	__ORDER_LITTLE_ENDIAN__
 # else
 #  define LITTLE_ENDIAN	0
 # endif
@@ -89,6 +91,8 @@
 #  define BIG_ENDIAN	__BIG_ENDIAN
 # elif defined __BIG_ENDIAN__
 #  define BIG_ENDIAN	__BIG_ENDIAN__
+# elif defined __ORDER_BIG_ENDIAN__
+#  define BIG_ENDIAN	__ORDER_BIG_ENDIAN__
 # else
 #  define BIG_ENDIAN	0
 # endif
