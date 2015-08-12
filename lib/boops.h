@@ -98,6 +98,18 @@
 # endif
 #endif	/* !BIG_ENDIAN */
 
+#if BYTE_ORDER == LITTLE_ENDIAN
+/* do nothing */
+#elif BYTE_ORDER == BIG_ENDIAN
+/* still nothing */
+#elif LITTLE_ENDIAN && !BIG_ENDIAN
+# undef BYTE_ORDER
+# define BYTE_ORDER	LITTLE_ENDIAN
+#elif BIG_ENDIAN && !LITTLE_ENDIAN
+# undef BYTE_ORDER
+# define BYTE_ORDER	BIG_ENDIAN
+#endif
+
 
 /* start off with opposite-endianness converters */
 #if defined htooe16
