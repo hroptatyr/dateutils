@@ -75,28 +75,40 @@
 #endif	/* !BYTE_ORDER */
 
 #if !defined LITTLE_ENDIAN
-# if defined __LITTLE_ENDIAN
+# if defined __ORDER_LITTLE_ENDIAN__
+#  define LITTLE_ENDIAN	__ORDER_LITTLE_ENDIAN__
+# elif defined __LITTLE_ENDIAN
 #  define LITTLE_ENDIAN	__LITTLE_ENDIAN
 # elif defined __LITTLE_ENDIAN__
 #  define LITTLE_ENDIAN	__LITTLE_ENDIAN__
-# elif defined __ORDER_LITTLE_ENDIAN__
-#  define LITTLE_ENDIAN	__ORDER_LITTLE_ENDIAN__
 # else
 #  define LITTLE_ENDIAN	0
 # endif
 #endif	/* !LITTLE_ENDIAN */
 
 #if !defined BIG_ENDIAN
-# if defined __BIG_ENDIAN
+# if defined __ORDER_BIG_ENDIAN__
+#  define BIG_ENDIAN	__ORDER_BIG_ENDIAN__
+# elif defined __BIG_ENDIAN
 #  define BIG_ENDIAN	__BIG_ENDIAN
 # elif defined __BIG_ENDIAN__
 #  define BIG_ENDIAN	__BIG_ENDIAN__
-# elif defined __ORDER_BIG_ENDIAN__
-#  define BIG_ENDIAN	__ORDER_BIG_ENDIAN__
 # else
 #  define BIG_ENDIAN	0
 # endif
 #endif	/* !BIG_ENDIAN */
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+/* do nothing */
+#elif BYTE_ORDER == BIG_ENDIAN
+/* still nothing */
+#elif LITTLE_ENDIAN && !BIG_ENDIAN
+# undef BYTE_ORDER
+# define BYTE_ORDER	LITTLE_ENDIAN
+#elif BIG_ENDIAN && !LITTLE_ENDIAN
+# undef BYTE_ORDER
+# define BYTE_ORDER	BIG_ENDIAN
+#endif
 
 
 /* start off with opposite-endianness converters */
