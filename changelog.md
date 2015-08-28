@@ -8,6 +8,23 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.3.4
+------
+Summary: v0.3.4 of dateutils
+
+This is dateutils v0.3.4.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- bug/39, MacOSX endianness detection
+- bug/38, ddiff day-only durations on date/times
+- dadd +2m bug is fixed, regression dtadd.049.clit/dtadd.050.clit
+
+See info page examples and/or README.
+
+
 v0.3.3
 ------
 Summary: v0.3.3 of dateutils
