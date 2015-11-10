@@ -33,7 +33,7 @@ DT_LIBS = $(top_builddir)/lib/libdut.a
 
 ## our friendly helper
 include clitosis.am
-AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20 --keep-going
+AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 300 --keep-going
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
