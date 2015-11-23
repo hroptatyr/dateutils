@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris
+
+## this is don_crissti's issue
+## http://unix.stackexchange.com/questions/24626/quickly-calculate-date-differences/36193?noredirect=1#comment420193_36193
+$ dadd -i '%m%d%Y' 01012015 +1d
+2015-01-02
+$

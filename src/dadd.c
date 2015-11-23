@@ -218,7 +218,6 @@ main(int argc, char *argv[])
 	yuck_t argi[1U];
 	struct dt_dt_s d;
 	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
-	char *inp;
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
@@ -260,34 +259,37 @@ main(int argc, char *argv[])
 		dt_set_base(base);
 	}
 
+	/* sanity checks, decide whether we're a mass date adder
+	 * or a mass duration adder, or both, a date and durations are
+	 * present on the command line */
+	with (const char *inp = argi->args[0U]) {
+		/* date parsing needed postponing as we need to find out
+		 * about the durations */
+		if (!dt_unk_p(dt_io_strpdt(inp, fmt, nfmt, NULL))) {
+			dt_given_p = true;
+		}
+	}
+
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
-	for (size_t i = 0; i < argi->nargs; i++) {
-		inp = argi->args[i];
+	for (size_t i = dt_given_p; i < argi->nargs; i++) {
+		const char *inp = argi->args[i];
 		do {
 			if (dt_io_strpdtdur(&st, inp) < 0) {
-				if (UNLIKELY(i == 0)) {
-					/* that's ok, must be a date then */
-					dt_given_p = true;
-				} else {
-					serror("Error: \
+				serror("Error: \
 cannot parse duration string `%s'", st.istr);
-					rc = 1;
-					goto dur_out;
-				}
+				rc = 1;
+				goto dur_out;
 			}
 		} while (__strpdtdur_more_p(&st));
 	}
 	/* check if there's only d durations */
 	hackz = durs_only_d_p(st.durs, st.ndurs) ? NULL : fromz;
 
-	/* sanity checks, decide whether we're a mass date adder
-	 * or a mass duration adder, or both, a date and durations are
-	 * present on the command line */
+	/* read the first argument again in light of a completely parsed
+	 * duration sequence */
 	if (dt_given_p) {
-		/* date parsing needed postponing as we need to find out
-		 * about the durations */
-		inp = argi->args[0U];
+		const char *inp = argi->args[0U];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
 			error("\
 Error: cannot interpret date/time string `%s'", inp);
