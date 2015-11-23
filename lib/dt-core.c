@@ -593,8 +593,13 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		 * no format specifiers */
 
 	case DT_JDN:
+		/* we demand a float representation from start to finish */
 		res.d.jdn = (dt_jdn_t)strtod(str, &on);
 
+		if (UNLIKELY(*on < '\0' || *on > ' ')) {
+			/* nah, that's not a distinguished float */
+			goto fucked;
+		}
 		/* fix up const-ness problem */
 		sp = on;
 		/* don't worry about time slot or date/time sandwiches */
@@ -603,10 +608,8 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 
 	case DT_LDN:
 		res.d.ldn = (dt_ldn_t)strtoi(str, &sp);
-		if (*sp != '.') {
-			dt_make_d_only(&res, DT_LDN);
-		} else {
-			/* yes, big cluster fuck */
+		if (*sp == '.') {
+			/* oooh, a double it seems */
 			double tmp = strtod(sp, &on);
 
 			/* fix up const-ness problem */
@@ -620,6 +623,12 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			tmp -= (double)res.t.hms.s;
 			res.t.hms.ns = (tmp *= NANOS_PER_SEC);
 			dt_make_sandwich(&res, DT_LDN, DT_HMS);
+		} else if (UNLIKELY(*sp < '\0' || *sp > ' ')) {
+			/* not on my turf */
+			goto fucked;
+		} else {
+			/* looking good */
+			dt_make_d_only(&res, DT_LDN);
 		}
 		goto sober;
 	}
