@@ -38,8 +38,8 @@ unix commands for reasons of intuition.  The only exception being
 Examples
 ========
 
-I love everything to be explained by example to get a first
-impression.  So here it comes.
+I love everything explained by example to get a first impression.
+So here it comes.
 
 dateseq
 -------
@@ -258,6 +258,18 @@ dateround
     =>
       2011-08-01
 
+  Find the next Monday from the current date (today is 2016-01-08):
+
+    $ dateround today Mon
+    =>
+      2015-01-11
+
+  Go back to last September, then round to the end of the month:
+
+    $ dateround today -- -Sep +31d
+    =>
+      2015-09-30
+
   Round a stream of dates strictly to the next month's first:
 
     $ dateround -S -n 1 <<EOF
@@ -309,8 +321,11 @@ dateround
 
 datesort
 -----
-  New in the 0.3 series of dateutils.
   A tool to bring the lines of a file into chronological order.
+
+  At the moment the `datesort` tool depends on `sort(1)` with support
+  for fields, in particular `-t` to select a separator and `-k` to sort
+  by a particular field.
 
     $ datesort <<EOF
     2009-06-03 caev="DVCA" secu="VOD" exch="XLON" xdte="2009-06-03" nett/GBX="5.2"
@@ -328,12 +343,9 @@ datesort
       2013-06-12 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-06-12" nett/GBX="6.92"
       2013-11-20 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-11-20" nett/GBX="3.53"
 
-  At the moment the `datesort` tool is built upon `sort(1)` and `cut(1)`.
-
 
 datezone
 --------
-  New in the 0.3 series of dateutils.
   A tool to quickly inspect date/time values in different timezones.
   The result will be a matrix that shows every date-time value in every
   timezone:
@@ -363,25 +375,29 @@ datezone
 
 strptime
 --------
-  A tool that brings the flexibility of strptime(3) to the command
-  line.  While date(1) has support for output formats, it lacks any kind
-  of support to read arbitrary input from the domain of dates, in
-  particular when the input format is specifically known beforehand and
-  only matching dates/times shall be considered.
+  A tool that brings the flexibility of [`strptime(3)`][1] to the
+  command line.  While (at least GNU) [`date(1)`][2] has support for
+  output formats, it lacks any kind of support to read arbitrary input
+  from the domain of dates, in particular when the input format is
+  specifically known beforehand and only matching dates/times shall be
+  considered.
 
-  Usually, to print something like `Mon, May-01/2000` in ISO 8601,
-  people come up with the most prolific recommendations like using perl
-  or sed or awk or any two of them, or they come up with a pageful of
-  shell code full of bashisms, and when sufficiently pestered they
-  "improve" their variant to a dozen pages of portable shell code.
-
-  The strptime tool does the job just fine
+  With the `strptime` tool reading weird dates like `Mon, May-01/2000`
+  becomes a matter of
 
     strptime -i "%a, %b-%d/%Y" "Mon, May-01/2000"
     =>
       2000-05-01
 
-  just like you would have done in C.
+  just as you would have done in C.
+
+  Note that `strptime` actually uses the system libc's strptime routine,
+  and for output the system's strftime routine.  Input and output
+  modifiers will therefore vary between systems.
+
+  For a portable parser/printer combination use `dateconv` as described
+  above.  Its input and output format specifiers are independent of the
+  C runtime.
 
 
 Similar projects
@@ -395,6 +411,10 @@ In no particular order and without any claim to completeness:
 
 Use the one that best fits your purpose.  And in case you happen to like
 mine, vote: [dateutils' openhub page](https://www.openhub.net/p/dateutils)
+
+
+  [1]: http://linux.die.net/man/3/strptime
+  [2]: http://linux.die.net/man/1/date
 
 <!--
   Local variables:
