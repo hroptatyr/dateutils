@@ -303,6 +303,18 @@ dateround
     =>
       2011-08-01
 
+  Find the next Monday from the current date (today is 2016-01-08):
+
+    $ dateround today Mon
+    =>
+      2015-01-11
+
+  Go back to last September, then round to the end of the month:
+
+    $ dateround today -- -Sep +31d
+    =>
+      2015-09-30
+
   Round a stream of dates strictly to the next month's first:
 
     $ dateround -S -n 1 <<EOF
