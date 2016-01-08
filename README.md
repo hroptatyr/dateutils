@@ -38,8 +38,8 @@ unix commands for reasons of intuition.  The only exception being
 Examples
 ========
 
-I love everything to be explained by example to get a first
-impression.  So here it comes.
+I love everything explained by example to get a first impression.
+So here it comes.
 
 dateseq
 -------
