@@ -366,8 +366,11 @@ dateround
 
 datesort
 -----
-  New in the 0.3 series of dateutils.
   A tool to bring the lines of a file into chronological order.
+
+  At the moment the `datesort` tool depends on `sort(1)` with support
+  for fields, in particular `-t` to select a separator and `-k` to sort
+  by a particular field.
 
     $ datesort <<EOF
     2009-06-03 caev="DVCA" secu="VOD" exch="XLON" xdte="2009-06-03" nett/GBX="5.2"
@@ -385,12 +388,9 @@ datesort
       2013-06-12 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-06-12" nett/GBX="6.92"
       2013-11-20 caev="DVCA" secu="VOD" exch="XLON" xdte="2013-11-20" nett/GBX="3.53"
 
-  At the moment the `datesort` tool is built upon `sort(1)` and `cut(1)`.
-
 
 datezone
 --------
-  New in the 0.3 series of dateutils.
   A tool to quickly inspect date/time values in different timezones.
   The result will be a matrix that shows every date-time value in every
   timezone:
