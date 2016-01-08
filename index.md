@@ -452,8 +452,8 @@ strptime
 =======================
 
 Starting with version 0.3.0 dateutils has built-in support for
-[tzmaps][2].  We've dedicated a branch (orphan `tzmaps`) for their
-development and a [website][2] for further information.
+[tzmaps][4].  We've dedicated a branch (orphan `tzmaps`) for their
+development and a [website][4] for further information.
 
   [4]: /dateutils/tzmaps.html
 
