@@ -420,35 +420,42 @@ datezone
 
 strptime
 --------
-  A tool that brings the flexibility of strptime(3) to the command
-  line.  While date(1) has support for output formats, it lacks any kind
-  of support to read arbitrary input from the domain of dates, in
-  particular when the input format is specifically known beforehand and
-  only matching dates/times shall be considered.
+  A tool that brings the flexibility of [`strptime(3)`][2] to the
+  command line.  While (at least GNU) [`date(1)`][3] has support for
+  output formats, it lacks any kind of support to read arbitrary input
+  from the domain of dates, in particular when the input format is
+  specifically known beforehand and only matching dates/times shall be
+  considered.
 
-  Usually, to print something like `Mon, May-01/2000` in ISO 8601,
-  people come up with the most prolific recommendations like using perl
-  or sed or awk or any two of them, or they come up with a pageful of
-  shell code full of bashisms, and when sufficiently pestered they
-  "improve" their variant to a dozen pages of portable shell code.
-
-  The strptime tool does the job just fine
+  With the `strptime` tool reading weird dates like `Mon, May-01/2000`
+  becomes a matter of
 
     strptime -i "%a, %b-%d/%Y" "Mon, May-01/2000"
     =>
       2000-05-01
 
-  just like you would have done in C.
+  just as you would have done in C.
+
+  Note that `strptime` actually uses the system libc's strptime routine,
+  and for output the system's strftime routine.  Input and output
+  modifiers will therefore vary between systems.
+
+  For a portable parser/printer combination use `dateconv` as described
+  above.  Its input and output format specifiers are independent of the
+  C runtime.
+
+  [2]: http://linux.die.net/man/3/strptime
+  [3]: http://linux.die.net/man/1/date
 
 
-[Timezone map files][2]
+[Timezone map files][4]
 =======================
 
 Starting with version 0.3.0 dateutils has built-in support for
 [tzmaps][2].  We've dedicated a branch (orphan `tzmaps`) for their
 development and a [website][2] for further information.
 
-  [2]: /dateutils/tzmaps.html
+  [4]: /dateutils/tzmaps.html
 
 
 Similar projects
@@ -472,7 +479,6 @@ Yes, we're aware of social media:
 + [twitter](https://twitter.com/dateutils)
 + [Openhub](https://www.openhub.net/p/dateutils)
 + [Google Groups Mailing List](https://groups.google.com/d/forum/dateutils)
-
 
 <!--
   Local variables:
