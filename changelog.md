@@ -8,6 +8,22 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.3.5
+------
+Summary: v0.3.5 of dateutils
+
+This is dateutils v0.3.5.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- bug/40, distinguish between numerals-only dates and durations
+- tests will succeed independent of current date
+
+See info page examples and/or README.
+
+
 v0.3.4
 ------
 Summary: v0.3.4 of dateutils
