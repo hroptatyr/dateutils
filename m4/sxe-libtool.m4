@@ -1,6 +1,6 @@
 dnl sxe-libtool.m4 -- just a quick libtoolish macros
 dnl
-dnl Copyright (C) 2007-2014 Sebastian Freundt.
+dnl Copyright (C) 2007-2016 Sebastian Freundt.
 dnl
 dnl This file is part of unserding
 
