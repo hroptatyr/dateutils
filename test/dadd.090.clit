@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris
+
+## this is heehoo59's issue (issue #42)
+$ dadd -S +4mo < "${srcdir}/dadd.090.dat" | cat -A
+x^@2015-05-02$
+y^@2015-06-02$
+$
