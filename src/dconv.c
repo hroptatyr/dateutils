@@ -68,7 +68,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	int rc = 0;
 
 	do {
-		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, ctx.ndl, &sp, &ep, ctx.fromz);
 
 		/* check if line matches */
 		if (!dt_unk_p(d) && ctx.sed_mode_p) {

@@ -120,6 +120,11 @@ xstrpbrk(const char *src, const char *set);
 extern char*
 xstrpbrkp(const char *src, const char *set, size_t *set_offs);
 
+/**
+ * Like strpbrk() but consider a string of length LEN. */
+extern char*
+xmempbrk(const char *src, size_t len, const char *set);
+
 
 static inline char*
 __c2p(const char *p)
