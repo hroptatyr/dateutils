@@ -95,7 +95,8 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 
 	do {
 		/* check if line matches, */
-		d = dt_io_find_strpdt2(line, clo->gra, &sp, &ep, clo->fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, clo->gra, &sp, &ep, clo->fromz);
 
 		if (!dt_unk_p(d)) {
 			if (UNLIKELY(d.fix) && !clo->quietp) {
