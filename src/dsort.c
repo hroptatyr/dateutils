@@ -86,7 +86,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		const char *const ep = buf + sizeof(buf);
 
 		/* find first occurrence then */
-		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &tp, ctx.fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, ctx.ndl, &sp, &tp, ctx.fromz);
 		/* print line, first thing */
 		safe_write(ctx.outfd, line, llen);
 

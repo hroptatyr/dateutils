@@ -72,9 +72,11 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 
 	/* check if line matches,
 	 * there's currently no way to specify NEEDLE */
-	for (char *lp = line, *sp, *ep; ; lp = ep, osp = sp, oep = ep) {
+	for (char *lp = line, *const zp = line + llen, *sp, *ep;
+	     /*no check*/; lp = ep, osp = sp, oep = ep) {
 		struct dt_dt_s d =
-			dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, ctx.fromz);
+			dt_io_find_strpdt2(
+				lp, zp - lp, ctx.ndl, &sp, &ep, ctx.fromz);
 		bool unkp = dt_unk_p(d);
 
 		if (unkp) {

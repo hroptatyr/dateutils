@@ -591,7 +591,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 
 	do {
 		/* check if line matches, */
-		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, ctx.ndl, &sp, &ep, ctx.fromz);
 
 		if (!dt_unk_p(d)) {
 			if (UNLIKELY(d.fix) && !ctx.quietp) {
