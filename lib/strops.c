@@ -522,6 +522,16 @@ xstrpbrkp(const char *src, const char *set, size_t *set_offs)
 	return (char*)p;
 }
 
+DEFUN char*
+xmempbrk(const char *src, size_t len, const char *set)
+{
+	size_t i;
+
+	set_up_table((const unsigned char*)set, false);
+	for (i = 0U; i < len && !in_current_set((unsigned char)src[i]); i++);
+	return (char*)src + i;
+}
+
 #if defined __INTEL_COMPILER
 # pragma warning (default:2203)
 #elif defined __GNUC__
