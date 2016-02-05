@@ -37,7 +37,7 @@ AC_DEFUN([AX_CHECK_M4_BUFFERS], [dnl
 	AC_MSG_CHECKING([for m4 with sufficient capabilities])
 
 	AC_ARG_VAR([M4], [full path to the m4 tool])
-	probe_M4="${M4:-m4}"
+	probe_M4="${M4-m4}"
 	if ${probe_M4} >/dev/null 2>&1 \
 		-Dx='y y y y y y y y y y y y y y y y' \
 		-Dy='z z z z z z z z z z z z z z z z' \
@@ -50,7 +50,7 @@ EOF
 		M4="${probe_M4}"
 	else
 		## check if a little buffer massage solves the problem
-		probe_M4="${M4:-m4} -B16384"
+		probe_M4="${M4-m4} -B16384"
 		if ${probe_M4} >/dev/null 2>&1 \
 			-Dx='y y y y y y y y y y y y y y y y' \
 			-Dy='z z z z z z z z z z z z z z z z' \
@@ -63,7 +63,7 @@ EOF
 			M4="${probe_M4}"
 		else
 			AC_MSG_WARN([m4 on this machine might suffer from big buffers.])
-			M4="${M4:-m4}"
+			M4="${M4-m4}"
 		fi
 	fi
 
@@ -84,7 +84,7 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [$1])
 		if test -n "${YUCK}"; then
 			## see what m4 they used back then
 			YUCK_M4=`${YUCK} config --m4 2>/dev/null`
-			M4="${YUCK_M4:-${M4}}"
+			M4="${YUCK_M4-$M4}"
 		fi
 	fi
 	AM_CONDITIONAL([HAVE_YUCK], [dnl
@@ -149,7 +149,7 @@ they go out of date or be deleted, they don't support cross-builds.
 		## make sure it's in the builddir as well
 		cp -p "${srcdir}/[]vfile[]" "[]vfile[]" 2>/dev/null
 	elif test -f "${srcdir}/[]vfile[].in"; then
-		${M4:-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
+		${M4-m4} -DYUCK_SCMVER_VERSION="${VERSION}" \
 			"${srcdir}/[]vfile[].in" > "[]vfile[]"
 	else
 		echo "VERSION = ${VERSION}" > "[]vfile[]"

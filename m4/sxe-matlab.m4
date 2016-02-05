@@ -1,12 +1,12 @@
 ## first parameter may point to a matlab root or the matlab binary
 AC_DEFUN([SXE_CHECK_MATLAB], [dnl
-	foo=`mktemp`
+	foo=`mktemp /tmp/sxe_check_matlab.XXXXXXXXXX`
 
 	AC_ARG_VAR([MATLAB], [full path to matlab binary])
-	sxe_cv_matlab="${MATLAB:-matlab}"
+	sxe_cv_matlab="${MATLAB-matlab}"
 
 	AC_ARG_VAR([MATLABPATH], [path to matlab toolboxes])
-	sxe_cv_matlabpath="${MATLABPATH:-no}"
+	sxe_cv_matlabpath="${MATLABPATH-no}"
 
 	AC_MSG_CHECKING([for matlab root])
 	## assume no matlab
@@ -35,9 +35,9 @@ AC_DEFUN([SXE_CHECK_MATLAB], [dnl
 
 	AC_MSG_CHECKING([for matlab mex file extension])
 	sxe_cv_mexext=`"${MATLABROOT}/bin/mexext" 2>/dev/null`
-	MEXEXT="${sxe_cv_mexext:-mex}"
+	MEXEXT="${sxe_cv_mexext-mex}"
 	AC_SUBST([MEXEXT])
-	AC_MSG_RESULT([${sxe_cv_mexext:-mex (assumed)}])
+	AC_MSG_RESULT([${sxe_cv_mexext-mex (assumed)}])
 
 	## now reset *our* idea of what MATLAB should be
 	MATLAB="${sxe_cv_matlab}"
@@ -70,7 +70,7 @@ AC_DEFUN([SXE_CHECK_OCTAVE], [dnl
 	AC_ARG_VAR([octave_LIBS], [library directives for octave linking])
 
 	AC_ARG_VAR([OCTAVEPATH], [path to octave toolboxes])
-	sxe_cv_octavepath="${OCTAVEPATH:-no}"
+	sxe_cv_octavepath="${OCTAVEPATH-no}"
 
 	## prep the octave extension path, this is twofold
 	AC_PATH_PROG([OCTAVE_CONFIG], [octave-config])
