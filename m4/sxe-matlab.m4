@@ -1,6 +1,6 @@
 ## first parameter may point to a matlab root or the matlab binary
 AC_DEFUN([SXE_CHECK_MATLAB], [dnl
-	foo=`mktemp`
+	foo=`mktemp /tmp/sxe_check_matlab.XXXXXXXXXX`
 
 	AC_ARG_VAR([MATLAB], [full path to matlab binary])
 	sxe_cv_matlab="${MATLAB-matlab}"
