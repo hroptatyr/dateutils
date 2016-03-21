@@ -50,6 +50,7 @@ unix commands for reasons of intuition.  The only exception being
 + [`dategrep`](#dategrep)     Grep dates or times in input streams
 + [`dateround`](#dateround)   Round dates or times to "fuller" values
 + [`dateseq`](#dateseq)       Generate sequences of dates or times
++ [`datesort`](#datesort)     Sort chronologically.
 + [`datetest`](#datetest)     Compare dates or times
 + [`datezone`](#datezone)     Convert date/times to timezones in bulk
 
