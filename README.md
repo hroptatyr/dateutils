@@ -19,8 +19,8 @@ Below is a short list of examples that demonstrate what dateutils can
 do, for full specs refer to the info and man pages.  For installation
 instructions refer to the INSTALL file.
 
-Dateutils commands are prefixed with a `d` but otherwise resemble known
-unix commands for reasons of intuition.  The only exception being
+Dateutils commands are prefixed with a `date` but otherwise resemble
+known unix commands for reasons of intuition.  The only exception being
 `strptime` which is analogous to the libc function of the same name.
 
 + `strptime`            Command line version of the C function
