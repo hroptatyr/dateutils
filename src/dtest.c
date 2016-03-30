@@ -68,7 +68,8 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (argi->nargs != 2U) {
+
+	if (argi->nargs != 1U + !argi->isvalid_flag) {
 		yuck_auto_help(argi);
 		res = 2;
 		goto out;
@@ -84,6 +85,11 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_args;
 	nifmt = argi->input_format_nargs;
 
+	if (argi->isvalid_flag) {
+		/* check that one date */
+		res = dt_unk_p(dt_io_strpdt(*argi->args, ifmt, nifmt, fromz));
+		goto out;
+	}
 	if (dt_unk_p(d1 = dt_io_strpdt(argi->args[0U], ifmt, nifmt, fromz))) {
 		if (!argi->quiet_flag) {
 			dt_io_warn_strpdt(argi->args[0U]);

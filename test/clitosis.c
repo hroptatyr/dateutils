@@ -683,11 +683,12 @@ find_negexp(struct clit_tst_s tst[static 1])
 		case '?'/*EXP*/:;
 			char *p;
 			exp = strtoul(cmd + 1U, &p, 10);
-			cmd = cmd + (p - cmd);
+			cmd = p;
 			if (isspace(*cmd)) {
 				break;
 			}
 		default:
+			tst->exp_ret = 0U;
 			return -1;
 		}
 
@@ -775,20 +776,14 @@ find_tst(struct clit_tst_s tst[static 1], const char *bp, size_t bz)
 		}
 	}
 
-	while (
-		/* oh let's see if we should ignore things */
-		!find_ignore(tst) ||
-
-		/* check for suppress diff */
-		!find_suppdiff(tst) ||
-
-		/* check for expect and negate operators */
-		!find_negexp(tst) ||
-
-		/* check for proto-output expander */
-		!find_xpnd_proto(tst) ||
-
-		0);
+	/* oh let's see if we should ignore things */
+	(void)find_ignore(tst);
+	/* check for suppress diff */
+	(void)find_suppdiff(tst);
+	/* check for expect and negate operators */
+	(void)find_negexp(tst);
+	/* check for proto-output expander */
+	(void)find_xpnd_proto(tst);
 
 	tst->err = (clit_bit_t){0U};
 	return 0;

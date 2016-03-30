@@ -311,6 +311,7 @@ dt_tests += dtest.006.clit
 dt_tests += dtest.007.clit
 dt_tests += dtest.008.clit
 dt_tests += dtest.009.clit
+dt_tests += dtest.010.clit
 
 dt_tests += ddiff.001.clit
 dt_tests += ddiff.002.clit
