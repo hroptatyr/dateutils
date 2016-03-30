@@ -34,3 +34,5 @@ Like test(1) but for dates.
       --cmp                  compare DATE/TIME1 to DATE/TIME2, return with 0 if
                                equal, 1 if left argument was newer and 2 if
                                right argument was newer
+  --isvalid                  Return success if dates specified conform to
+                             input format.
