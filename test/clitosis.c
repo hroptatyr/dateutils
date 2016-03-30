@@ -688,6 +688,7 @@ find_negexp(struct clit_tst_s tst[static 1])
 				break;
 			}
 		default:
+			tst->exp_ret = 0U;
 			return -1;
 		}
 
