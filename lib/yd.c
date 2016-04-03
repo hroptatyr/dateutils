@@ -555,7 +555,7 @@ __get_isowk_wd(unsigned int yd, dt_dow_t f01)
 /* given the weekday the year starts with, F01, and the year-day YD
  * return the iso week number */
 	static const int_fast8_t iso[] = {2, 1, 0, -1, -2, 4, 3, 2};
-	return (yd - iso[f01]) / GREG_DAYS_P_WEEK + 1;
+	return (GREG_DAYS_P_WEEK + yd - iso[f01]) / GREG_DAYS_P_WEEK;
 }
 
 DEFUN __attribute__((const, pure)) int
@@ -565,7 +565,7 @@ __yd_get_wcnt_abs(dt_yd_t d)
  * the year started with */
 	int yd = d.d;
 	/* express yd as 7k + n relative to jan01 */
-	return (yd - 1) / 7 + 1;
+	return (GREG_DAYS_P_WEEK + yd - 1) / GREG_DAYS_P_WEEK;
 }
 
 DEFUN __attribute__((const, pure)) int
@@ -583,7 +583,8 @@ __yd_get_wcnt_iso(dt_yd_t d)
 	int wk;
 
 	/* express yd as 7k + n relative to jan01 */
-	if (UNLIKELY((wk = __get_isowk_wd(yd, (dt_dow_t)y01)) < 1)) {
+	wk = __get_isowk_wd(yd, (dt_dow_t)y01);
+	if (UNLIKELY(wk < 1)) {
 		/* get last years y01
 		 * which is basically y01 - (365|366 % 7) */
 		if (LIKELY(!__leapp(--y))) {
