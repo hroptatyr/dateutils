@@ -619,12 +619,12 @@ __strfd_card(
 		case DT_SPMOD_NORM:
 			res = arritostr(
 				buf, bsz, d->w,
-				dut_abbr_wday, dut_nabbr_wday);
+				__abbr_wday, countof(__abbr_wday));
 			break;
 		case DT_SPMOD_LONG:
 			res = arritostr(
 				buf, bsz, d->w,
-				dut_long_wday, dut_nlong_wday);
+				__long_wday, countof(__long_wday));
 			break;
 		case DT_SPMOD_ABBR:
 			/* super abbrev'd wday */
@@ -642,12 +642,12 @@ __strfd_card(
 		case DT_SPMOD_NORM:
 			res = arritostr(
 				buf, bsz, d->m,
-				dut_abbr_mon, dut_nabbr_mon);
+				__abbr_mon, countof(__abbr_mon));
 			break;
 		case DT_SPMOD_LONG:
 			res = arritostr(
 				buf, bsz, d->m,
-				dut_long_mon, dut_nlong_mon);
+				__long_mon, countof(__long_mon));
 			break;
 		case DT_SPMOD_ABBR:
 			/* super abbrev'd month */
