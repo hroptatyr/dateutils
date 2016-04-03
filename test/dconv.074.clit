@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dconv 2007-W01-01 -i '%Y-W%U-%w' -f ymd
+$ dconv 2007-W01-1 -i '%Y-W%U-%w' -f ymd
 2007-01-08
 $
 
