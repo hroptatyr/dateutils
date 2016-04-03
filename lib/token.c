@@ -188,9 +188,10 @@ next:
 		goto next;
 	case 'G':
 		/* for compatibility with posix */
+		res.abbr = DT_SPMOD_LONG;
+	case 'g':
 		res.tai = 1U;
 		res.spfl = DT_SPFL_N_YEAR;
-		res.abbr = DT_SPMOD_LONG;
 		break;
 	}
 	/* check for ordinals */
