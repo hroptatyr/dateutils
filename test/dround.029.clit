@@ -1,14 +1,14 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
 ## round ywd dates
-$ dround 2012-W02-05 Thu
-2012-W03-04
-$ dround 2012-W02-05 -- -Thu
-2012-W02-04
-$ dround 2012-W02-05 Mon
-2012-W03-01
-$ dround 2012-W02-05 -- -Sun
-2012-W01-07
+$ dround 2012-W02-5 Thu
+2012-W03-4
+$ dround 2012-W02-5 -- -Thu
+2012-W02-4
+$ dround 2012-W02-5 Mon
+2012-W03-1
+$ dround 2012-W02-5 -- -Sun
+2012-W01-7
 $
 
 ## dround.029.clit ends here

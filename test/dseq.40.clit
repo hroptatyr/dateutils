@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dseq 2015-W53-05 2016-W52-07 | dconv -f ymd > "dseq.40.ref"
+$ dseq 2015-W53-5 2016-W52-07 | dconv -f ymd > "dseq.40.ref"
 $ dseq 2016-01-01 2017-01-01
 < dseq.40.ref
 $ rm -f -- "dseq.40.ref"
