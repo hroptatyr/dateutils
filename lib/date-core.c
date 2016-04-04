@@ -645,7 +645,7 @@ dt_conv_to_yd(struct dt_d_s this)
 
 DEFVAR const char ymd_dflt[] = "%F";
 DEFVAR const char ymcw_dflt[] = "%Y-%m-%c-%w";
-DEFVAR const char ywd_dflt[] = "%rY-W%V-%u";
+DEFVAR const char ywd_dflt[] = "%G-W%V-%u";
 DEFVAR const char yd_dflt[] = "%Y-%D";
 DEFVAR const char daisy_dflt[] = "%d";
 DEFVAR const char bizsi_dflt[] = "%db";
@@ -653,7 +653,7 @@ DEFVAR const char bizda_dflt[] = "%Y-%m-%db";
 
 DEFVAR const char ymddur_dflt[] = "%Y-%0m-%0d";
 DEFVAR const char ymcwdur_dflt[] = "%Y-%0m-%0w-%0d";
-DEFVAR const char ywddur_dflt[] = "%rY-W%0w-%d";
+DEFVAR const char ywddur_dflt[] = "%G-W%0w-%d";
 DEFVAR const char yddur_dflt[] = "%Y-%0d";
 DEFVAR const char daisydur_dflt[] = "%d";
 DEFVAR const char bizsidur_dflt[] = "%db";

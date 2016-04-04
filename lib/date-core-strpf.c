@@ -546,6 +546,9 @@ __strfd_card(
 
 		if (UNLIKELY(s.tai && d->flags.real_y_in_q)) {
 			y = d->q;
+		} else if (s.tai) {
+			/* oh we want ISO week dates */
+			y = dt_dconv(DT_YWD, that).ywd.y;
 		}
 		switch (s.abbr) {
 		case DT_SPMOD_LONG:

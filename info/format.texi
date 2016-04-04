@@ -18,6 +18,8 @@ Date specs:
   %d  The day of the month, 2 digits (range 00 to 31)
   %D  The day of the year, 3 digits (range 000 to 366)
   %F  Equivalent to %Y-%m-%d (ymd's canonical format)
+  %g  ISO week date year without the century (range 00 to 99)
+  %G  ISO week date year including the century
   %j  Equivalent to %D
   %m  The month in the current calendar (range 00 to 19)
   %Q  The quarter of the year (range Q1 to Q4)

@@ -935,12 +935,13 @@ DEFUN void
 __prep_strfd_ywd(struct strpd_s *tgt, dt_ywd_t d)
 {
 /* place ywd data of THIS into D for printing with FMT. */
-	if (d.c == 1 && d.w < __ywd_get_jan01_wday(d) && d.w) {
+	if (d.c == 1 && d.hang < 0 && d.w < __ywd_get_jan01_wday(d)) {
 		/* put gregorian year into y and real year into q */
 		tgt->y = d.y - 1;
 		tgt->q = d.y;
-	} else if (d.c >= 53) {
-		/* bit of service for the %Y printer */
+	} else if (d.c >= 53 && d.w >= __ywd_get_jan01_wday(d) +
+		   1U/*coz 365 = 1 mod 7*/ + __leapp(d.y)) {
+		/* put gregorian year into y and real year into q */
 		tgt->y = d.y + 1;
 		tgt->q = d.y;
 	} else {
