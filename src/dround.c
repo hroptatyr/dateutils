@@ -449,36 +449,106 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 	return d;
 }
 
+static dt_sexy_t
+sxround_dur_cocl(dt_sexy_t t, struct dt_dtdur_s dur, bool nextp)
+{
+/* this will return the rounded to DUR time of T and, to encode carry
+ * (which can only take values 0 or 1), we will use t's neg bit */
+	dt_ssexy_t sdur;
+	bool downp = false;
+
+	/* get directions, no dur is a no-op */
+	if (UNLIKELY(!(sdur = dur.dv))) {
+		return t;
+	} else if (sdur < 0) {
+		downp = true;
+		sdur = -sdur;
+	} else if (dur.neg) {
+		downp = true;
+	}
+
+	switch (dur.durtyp) {
+	case DT_DURH:
+		sdur *= MINS_PER_HOUR;
+		/*@fallthrough@*/
+	case DT_DURM:
+		sdur *= SECS_PER_MIN;
+		/*@fallthrough@*/
+	case DT_DURS:
+		/* only accept values whose remainder is 0 */
+		if (LIKELY(!(SECS_PER_DAY % (unsigned int)sdur))) {
+			break;
+		}
+		/*@fallthrough@*/
+	default:
+		return t;
+	}
+	/* unpack t */
+	with (unsigned int diff = t % (dt_sexy_t)sdur) {
+		if (!diff && !nextp) {
+			/* do nothing, i.e. really nothing,
+			 * in particular, don't set the slots again in the
+			 * assign section
+			 * this is not some obscure optimisation but to
+			 * support special notations like, military midnight
+			 * or leap seconds */
+			return t;
+		} else if (!downp) {
+			t += sdur - diff;
+		} else if (!diff/* && downp && nextp*/) {
+			t -= sdur;
+		} else {
+			t -= diff;
+		}
+	}
+	return t;
+}
+
+
 static struct dt_dt_s
 dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 {
-	switch (dur.durtyp) {
+	switch (d.typ) {
 	default:
-		/* all the date durs */
-		break;
+		switch (dur.durtyp) {
+		default:
+			/* all the date durs */
+			break;
 
-	case DT_DURH:
-	case DT_DURM:
-	case DT_DURS:
-	case DT_DURNANO:
-		if (!dur.cocl) {
-			d.t = tround_tdur(d.t, dur, nextp);
-		} else {
-			d.t = tround_tdur_cocl(d.t, dur, nextp);
+		case DT_DURH:
+		case DT_DURM:
+		case DT_DURS:
+		case DT_DURNANO:
+			if (!dur.cocl) {
+				d.t = tround_tdur(d.t, dur, nextp);
+			} else {
+				d.t = tround_tdur_cocl(d.t, dur, nextp);
+			}
+			break;
+		}
+		/* check carry */
+		if (UNLIKELY(d.t.carry)) {
+			/* we need to add a day */
+			struct dt_ddur_s one_day =
+				dt_make_ddur(DT_DURD, d.t.carry);
+			d.t.carry = 0;
+			d.d = dt_dadd(d.d, one_day);
+		}
+		with (unsigned int sw = d.sandwich) {
+			d.d = dround_ddur(d.d, dur.d, nextp);
+			d.sandwich = (uint8_t)sw;
 		}
 		break;
-	}
-	/* check carry */
-	if (UNLIKELY(d.t.carry)) {
-		/* we need to add a day */
-		struct dt_ddur_s one_day = dt_make_ddur(DT_DURD, d.t.carry);
-		d.t.carry = 0;
-		d.d = dt_dadd(d.d, one_day);
-	}
-	{
-		unsigned int sw = d.sandwich;
-		d.d = dround_ddur(d.d, dur.d, nextp);
-		d.sandwich = (uint8_t)sw;
+	case DT_SEXY:
+	case DT_SEXYTAI:
+		if (UNLIKELY(!dur.cocl)) {
+			error("Error: \
+Epoch date/times have no divisions to round to.");
+			break;
+		}
+		/* just keep it sexy */
+		d.sexy = sxround_dur_cocl(d.sexy, dur, nextp);
+		break;
 	}
 	return d;
 }
