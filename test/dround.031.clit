@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ echo '2016-01-01 12:12:12' | dround -i '%F %T' /15s
+2016-01-01T12:12:15
+$ echo '2016-01-01 12:12:12' | dconv -f '%s' | dround -i %s /15s
+2016-01-01T12:12:15
+$
+
+## dround.031.clit ends here
