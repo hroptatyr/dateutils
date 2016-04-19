@@ -811,6 +811,7 @@ EXTRA_DIST += caev_02.txt
 
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
+dt_tests += strptime.003.clit
 
 ## testing the prchunker
 dt_tests += prchunk.001.clit
