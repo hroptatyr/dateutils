@@ -12,6 +12,7 @@ CLEANFILES =
 doc_DATA =
 
 SUBDIRS += build-aux
+SUBDIRS += data
 SUBDIRS += lib
 SUBDIRS += src
 SUBDIRS += info
