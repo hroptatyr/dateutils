@@ -400,12 +400,12 @@ __ordtostr(char *buf, size_t bsz)
 
 
 /* string array funs */
-DEFUN int32_t
+DEFUN size_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 /* take a string, compare it to an array of string (case-insensitively) and
- * return its index if found or -1 if not */
-	for (size_t i = 0; i < narr; i++) {
+ * return its index if found or 0 if not */
+	for (size_t i = 1U; i < narr; i++) {
 		const char *chk = arr[i];
 		size_t len = strlen(chk);
 
@@ -420,7 +420,7 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 	if (ep != NULL) {
 		*ep = buf;
 	}
-	return -1;
+	return 0U;
 }
 
 DEFUN size_t

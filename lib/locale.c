@@ -143,11 +143,11 @@ tokenise(const char *ln, size_t lz)
 	if (UNLIKELY((r = malloc(sizeof(*r) + lz)) == NULL)) {
 		return NULL;
 	}
-	/* no replacement for miraclemonth and miracleday here */
-	r->s[0U] = r->str + lz - 1U;
+	/* just have him point to something */
+	r->s[0U] = "Miracleinput";
 	r->s[1U] = r->str;
 	memcpy(r->str, ln, lz);
-	for (size_t i = 0U, j = 1U; i < lz && j < countof(r->s); i++) {
+	for (size_t i = 0U, j = 2U; i < lz && j < countof(r->s); i++) {
 		/* just map all ascii ctrl characters to NUL */
 		r->str[i] &= (char)(((unsigned char)r->str[i] < ' ') - 1U);
 		if (UNLIKELY(!r->str[i])) {
