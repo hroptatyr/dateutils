@@ -819,6 +819,7 @@ dt_tests += prchunk.006.clit
 EXTRA_DIST += dummy.tzmap
 built_nodist_sources += dummy.tzmcc
 TESTS_ENVIRONMENT += TZMAP_DIR=$(builddir)
+TESTS_ENVIRONMENT += LOCALE_FILE=$(top_srcdir)/data/locale
 dt_tests += tzmap.001.clit
 dt_tests += tzmap.002.clit
 dt_tests += tzmap.003.clit
