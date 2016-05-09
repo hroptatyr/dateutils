@@ -75,6 +75,11 @@ struct strpdi_s {
 	signed int b;
 };
 
+struct strprng_s {
+	size_t min;
+	size_t max;
+};
+
 
 /* helpers */
 static inline __attribute__((pure, const)) struct strpd_s
@@ -105,12 +110,14 @@ strpdi_initialiser(void)
  * Monday, Tuesday, ... */
 extern const char **dut_long_wday;
 extern const ssize_t dut_nlong_wday;
+extern struct strprng_s dut_rlong_wday;
 
 /**
  * Abbrev'd weekday names, english only.
  * Mon, Tue, ... */
 extern const char **dut_abbr_wday;
 extern const ssize_t dut_nabbr_wday;
+extern struct strprng_s dut_rabbr_wday;
 
 /**
  * Even-more-abbrev'd weekday names, english only.
@@ -123,12 +130,14 @@ extern const ssize_t dut_nabab_wday;
  * January, February, ... */
 extern const char **dut_long_mon;
 extern const ssize_t dut_nlong_mon;
+extern struct strprng_s dut_rlong_mon;
 
 /**
  * Abbrev'd month names, english only.
  * Jan, Feb, ... */
 extern const char **dut_abbr_mon;
 extern const ssize_t dut_nabbr_mon;
+extern struct strprng_s dut_rabbr_mon;
 
 /**
  * Even-more-abbrev'd month names.
@@ -180,10 +189,10 @@ extern void
 __prep_strfd_bizda(struct strpd_s *tgt, dt_bizda_t d, dt_bizda_param_t bp);
 
 /* locale setters */
-extern const char **__strp_set_long_wday(const char **ln);
-extern const char **__strp_set_abbr_wday(const char **ln);
-extern const char ** __strp_set_long_mon(const char **ln);
-extern const char **__strp_set_abbr_mon(const char **ln);
+extern const char **__strp_set_long_wday(const char **ln, struct strprng_s);
+extern const char **__strp_set_abbr_wday(const char **ln, struct strprng_s);
+extern const char **__strp_set_long_mon(const char **ln, struct strprng_s);
+extern const char **__strp_set_abbr_mon(const char **ln, struct strprng_s);
 
 #if defined __cplusplus
 }

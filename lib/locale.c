@@ -63,6 +63,8 @@ static const char ldir[] = "locale";
 
 struct lst_s {
 	const char *s[GREG_MONTHS_P_YEAR + 1U];
+	size_t min;
+	size_t max;
 	char str[];
 };
 
@@ -146,12 +148,21 @@ tokenise(const char *ln, size_t lz)
 	/* just have him point to something */
 	r->s[0U] = "Miracleinput";
 	r->s[1U] = r->str;
+	r->min = -1ULL;
+	r->max = 0ULL;
 	memcpy(r->str, ln, lz);
-	for (size_t i = 0U, j = 2U; i < lz && j < countof(r->s); i++) {
+	for (size_t i = 0U, j = 2U, o = 0U; i < lz && j < countof(r->s); i++) {
 		/* just map all ascii ctrl characters to NUL */
 		r->str[i] &= (char)(((unsigned char)r->str[i] < ' ') - 1U);
 		if (UNLIKELY(!r->str[i])) {
-			r->s[j++] = r->str + i + 1U;
+			const size_t len = i - o;
+			r->s[j++] = r->str + (o = i + 1U);
+			if (len > r->max) {
+				r->max = len;
+			}
+			if (len < r->min) {
+				r->min = len;
+			}
 		}
 	}
 	return r;
@@ -173,7 +184,7 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_abbr_wday(x->s);
+	old = __strp_set_abbr_wday(x->s, (struct strprng_s){x->min, x->max});
 	if (old) {
 		free(deconst(old));
 	}
@@ -186,7 +197,7 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_long_wday(x->s);
+	old = __strp_set_long_wday(x->s, (struct strprng_s){x->min, x->max});
 	if (old) {
 		free(deconst(old));
 	}
@@ -199,7 +210,7 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_abbr_mon(x->s);
+	old = __strp_set_abbr_mon(x->s, (struct strprng_s){x->min, x->max});
 	if (old) {
 		free(deconst(old));
 	}
@@ -212,8 +223,29 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_long_mon(x->s);
+	old = __strp_set_long_mon(x->s, (struct strprng_s){x->min, x->max});
 	if (old) {
+		free(deconst(old));
+	}
+	return;
+}
+
+static void
+reset_ln(void)
+{
+	/* reset to defaults */
+	const char **old;
+
+	if ((old = __strp_set_abbr_wday(NULL, (struct strprng_s){}))) {
+		free(deconst(old));
+	}
+	if ((old = __strp_set_long_wday(NULL, (struct strprng_s){}))) {
+		free(deconst(old));
+	}
+	if ((old = __strp_set_abbr_mon(NULL, (struct strprng_s){}))) {
+		free(deconst(old));
+	}
+	if ((old = __strp_set_long_mon(NULL, (struct strprng_s){}))) {
 		free(deconst(old));
 	}
 	return;
@@ -231,21 +263,7 @@ setilocale(const char *ln)
 	int rc = 0;
 
 	if (UNLIKELY(ln == NULL)) {
-		/* reset to defaults */
-		const char **old;
-
-		if ((old = __strp_set_abbr_wday(NULL))) {
-			free(deconst(old));
-		}
-		if ((old = __strp_set_long_wday(NULL))) {
-			free(deconst(old));
-		}
-		if ((old = __strp_set_abbr_mon(NULL))) {
-			free(deconst(old));
-		}
-		if ((old = __strp_set_long_mon(NULL))) {
-			free(deconst(old));
-		}
+		reset_ln();
 		return 0;
 	}
 	/* otherwise obtain length */

@@ -70,14 +70,18 @@ static const char *__long_wday[] = {
 	"Saturday",
 	"Sunday",
 };
+static const struct strprng_s __rlong_wday = {6, 9};
 DEFVAR const char **dut_long_wday = __long_wday;
 DEFVAR const ssize_t dut_nlong_wday = countof(__long_wday);
+DEFVAR struct strprng_s dut_rlong_wday = {6, 9};
 
 static const char *__abbr_wday[] = {
 	"Mir", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
 };
+static const struct strprng_s __rabbr_wday = {3, 3};
 DEFVAR const char **dut_abbr_wday = __abbr_wday;
 DEFVAR const ssize_t dut_nabbr_wday = countof(__abbr_wday);
+DEFVAR struct strprng_s dut_rabbr_wday = {3, 3};
 
 static const char __abab_wday[] = "XMTWRFAS";
 DEFVAR const char *dut_abab_wday = __abab_wday;
@@ -98,8 +102,10 @@ static const char *__long_mon[] = {
 	"November",
 	"December",
 };
+static const struct strprng_s __rlong_mon = {3, 9};
 DEFVAR const char **dut_long_mon = __long_mon;
 DEFVAR const ssize_t dut_nlong_mon = countof(__long_mon);
+DEFVAR struct strprng_s dut_rlong_mon = {3, 9};
 
 static const char *__abbr_mon[] = {
 	"Mir",
@@ -116,8 +122,10 @@ static const char *__abbr_mon[] = {
 	"Nov",
 	"Dec",
 };
+static const struct strprng_s __rabbr_mon = {3, 3};
 DEFVAR const char **dut_abbr_mon = __abbr_mon;
 DEFVAR const ssize_t dut_nabbr_mon = countof(__abbr_mon);
+DEFVAR struct strprng_s dut_rabbr_mon = {3, 3};
 
 /* futures expiry codes, how convenient */
 static const char __abab_mon[] = "_FGHJKMNQUVXZ";
@@ -840,38 +848,42 @@ __strfd_dur(
 
 /* locale business */
 DEFUN const char**
-__strp_set_long_wday(const char **ln)
+__strp_set_long_wday(const char **ln, struct strprng_s r)
 {
 	const char **old = dut_long_wday != __long_wday ? dut_long_wday : NULL;
 
 	dut_long_wday = ln ?: __long_wday;
+	dut_rlong_wday = ln ? r : __rlong_wday;
 	return old;
 }
 
 DEFUN const char**
-__strp_set_abbr_wday(const char **ln)
+__strp_set_abbr_wday(const char **ln, struct strprng_s r)
 {
 	const char **old = dut_abbr_wday != __abbr_wday ? dut_abbr_wday : NULL;
 
 	dut_abbr_wday = ln ?: __abbr_wday;
+	dut_rabbr_wday = ln ? r : __rabbr_wday;
 	return old;
 }
 
 DEFUN const char**
-__strp_set_long_mon(const char **ln)
+__strp_set_long_mon(const char **ln, struct strprng_s r)
 {
 	const char **old = dut_long_mon != __long_mon ? dut_long_mon : NULL;
 
 	dut_long_mon = ln ?: __long_mon;
+	dut_rlong_mon = ln ? r : __rlong_mon;
 	return old;
 }
 
 DEFUN const char**
-__strp_set_abbr_mon(const char **ln)
+__strp_set_abbr_mon(const char **ln, struct strprng_s r)
 {
 	const char **old = dut_abbr_mon != __abbr_mon ? dut_abbr_mon : NULL;
 
 	dut_abbr_mon = ln ?: __abbr_mon;
+	dut_rabbr_mon = ln ? r : __rabbr_mon;
 	return old;
 }
 
