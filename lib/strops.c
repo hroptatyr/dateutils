@@ -400,7 +400,7 @@ __ordtostr(char *buf, size_t bsz)
 
 
 /* string array funs */
-DEFUN size_t
+DEFUN int32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 /* take a string, compare it to an array of string (case-insensitively) and
@@ -420,7 +420,7 @@ strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 	if (ep != NULL) {
 		*ep = buf;
 	}
-	return 0U;
+	return -1;
 }
 
 DEFUN size_t
