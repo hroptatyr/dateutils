@@ -180,10 +180,10 @@ extern void
 __prep_strfd_bizda(struct strpd_s *tgt, dt_bizda_t d, dt_bizda_param_t bp);
 
 /* locale setters */
-extern const char **__strp_set_long_wday(const char *ln[static 7U]);
-extern const char **__strp_set_abbr_wday(const char *ln[static 7U]);
-extern const char ** __strp_set_long_mon(const char *ln[static 12U]);
-extern const char **__strp_set_abbr_mon(const char *ln[static 12U]);
+extern const char **__strp_set_long_wday(const char **ln);
+extern const char **__strp_set_abbr_wday(const char **ln);
+extern const char ** __strp_set_long_mon(const char **ln);
+extern const char **__strp_set_abbr_mon(const char **ln);
 
 #if defined __cplusplus
 }

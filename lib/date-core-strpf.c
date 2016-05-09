@@ -837,4 +837,42 @@ __strfd_dur(
 	return res;
 }
 
+
+/* locale business */
+DEFUN const char**
+__strp_set_long_wday(const char **ln)
+{
+	const char **old = dut_long_wday != __long_wday ? dut_long_wday : NULL;
+
+	dut_long_wday = ln ?: __long_wday;
+	return old;
+}
+
+DEFUN const char**
+__strp_set_abbr_wday(const char *ln[static 7U])
+{
+	const char **old = dut_abbr_wday != __abbr_wday ? dut_abbr_wday : NULL;
+
+	dut_abbr_wday = ln ?: __abbr_wday;
+	return old;
+}
+
+DEFUN const char**
+__strp_set_long_mon(const char *ln[static 12U])
+{
+	const char **old = dut_long_mon != __long_mon ? dut_long_mon : NULL;
+
+	dut_long_mon = ln ?: __long_mon;
+	return old;
+}
+
+DEFUN const char**
+__strp_set_abbr_mon(const char *ln[static 12U])
+{
+	const char **old = dut_abbr_mon != __abbr_mon ? dut_abbr_mon : NULL;
+
+	dut_abbr_mon = ln ?: __abbr_mon;
+	return old;
+}
+
 #endif	/* INCLUDED_date_core_strpf_c_ */
