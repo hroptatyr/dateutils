@@ -62,7 +62,7 @@ static const char ldir[] = "locale";
 #endif	/* LOCALE_FILE */
 
 struct lst_s {
-	const char *s[GREG_MONTHS_P_YEAR];
+	const char *s[GREG_MONTHS_P_YEAR + 1U];
 	char str[];
 };
 
@@ -143,7 +143,9 @@ tokenise(const char *ln, size_t lz)
 	if (UNLIKELY((r = malloc(sizeof(*r) + lz)) == NULL)) {
 		return NULL;
 	}
-	r->s[0U] = r->str;
+	/* no replacement for miraclemonth and miracleday here */
+	r->s[0U] = r->str + lz - 1U;
+	r->s[1U] = r->str;
 	memcpy(r->str, ln, lz);
 	for (size_t i = 0U, j = 1U; i < lz && j < countof(r->s); i++) {
 		/* just map all ascii ctrl characters to NUL */
