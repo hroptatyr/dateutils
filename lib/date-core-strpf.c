@@ -849,7 +849,7 @@ __strp_set_long_wday(const char **ln)
 }
 
 DEFUN const char**
-__strp_set_abbr_wday(const char *ln[static 7U])
+__strp_set_abbr_wday(const char **ln)
 {
 	const char **old = dut_abbr_wday != __abbr_wday ? dut_abbr_wday : NULL;
 
@@ -858,7 +858,7 @@ __strp_set_abbr_wday(const char *ln[static 7U])
 }
 
 DEFUN const char**
-__strp_set_long_mon(const char *ln[static 12U])
+__strp_set_long_mon(const char **ln)
 {
 	const char **old = dut_long_mon != __long_mon ? dut_long_mon : NULL;
 
@@ -867,7 +867,7 @@ __strp_set_long_mon(const char *ln[static 12U])
 }
 
 DEFUN const char**
-__strp_set_abbr_mon(const char *ln[static 12U])
+__strp_set_abbr_mon(const char **ln)
 {
 	const char **old = dut_abbr_mon != __abbr_mon ? dut_abbr_mon : NULL;
 
