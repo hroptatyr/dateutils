@@ -480,6 +480,10 @@ main(int argc, char *argv[])
 	nifmt = argi->input_format_nargs;
 	ifmt = argi->input_format_args;
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
 		dt_set_base(base);
@@ -698,6 +702,9 @@ out:
 	}
 	if (clo.altite != NULL) {
 		free(clo.altite);
+	}
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
 	}
 	yuck_free(argi);
 	return rc;
