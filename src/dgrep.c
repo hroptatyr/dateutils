@@ -47,7 +47,7 @@
 #include "dt-core-tz-glue.h"
 #include "dt-io.h"
 #include "dexpr.h"
-#include "locale.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 const char *prog = "dgrep";

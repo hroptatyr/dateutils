@@ -50,7 +50,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include "locale.h"
+#include "dt-locale.h"
 #include "date-core.h"
 #include "date-core-strpf.h"
 #include "nifty.h"

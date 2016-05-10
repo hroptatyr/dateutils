@@ -45,7 +45,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
-#include "locale.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 

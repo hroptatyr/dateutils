@@ -47,7 +47,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
-#include "locale.h"
+#include "dt-locale.h"
 
 const char *prog = "dtest";
 

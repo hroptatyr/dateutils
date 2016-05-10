@@ -46,7 +46,7 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
-#include "locale.h"
+#include "dt-locale.h"
 #include "tzraw.h"
 
 struct ztr_s {

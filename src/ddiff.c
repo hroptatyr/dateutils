@@ -46,7 +46,7 @@
 #include "date-core-private.h"
 #include "dt-core-private.h"
 #include "dt-io.h"
-#include "locale.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 #if !defined UNUSED
