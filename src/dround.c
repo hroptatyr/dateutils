@@ -46,6 +46,7 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
+#include "locale.h"
 #include "prchunk.h"
 /* parsers and formatters */
 #include "date-core-strpf.h"

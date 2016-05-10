@@ -47,6 +47,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
+#include "locale.h"
 #include "tzraw.h"
 
 typedef uint8_t __skipspec_t;
