@@ -28,6 +28,10 @@ DATE/TIME can also be one of the following specials
                                input format specifier string, that value will
                                be used.
 
+      --from-locale=LOCALE   Interpret dates on stdin or the command line as
+                             coming from the locale LOCALE, this would only
+                             affect month and weekday names as input formats
+                             have to be specified explicitly.
      --from-zone=ZONE       Interpret dates on stdin or the command line as
                                coming from the time zone ZONE.
   --next                    Show next transition from/to DST.
