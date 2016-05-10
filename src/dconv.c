@@ -129,6 +129,9 @@ main(int argc, char *argv[])
 		}
 	}
 
+	if (argi->locale_arg) {
+		setflocale(argi->locale_arg);
+	}
 	if (argi->from_locale_arg) {
 		setilocale(argi->from_locale_arg);
 	}
@@ -211,6 +214,9 @@ main(int argc, char *argv[])
 	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);
+	}
+	if (argi->locale_arg) {
+		setflocale(NULL);
 	}
 
 out:
