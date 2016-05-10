@@ -84,6 +84,7 @@ dt_tests += dseq.42.clit
 dt_tests += dseq.43.clit
 dt_tests += dseq.44.clit
 dt_tests += dseq.45.clit
+dt_tests += dseq.46.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -213,6 +214,7 @@ dt_tests += dconv.125.clit
 dt_tests += dconv.126.clit
 dt_tests += dconv.127.clit
 dt_tests += dconv.128.clit
+dt_tests += dconv.129.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -305,6 +307,7 @@ dt_tests += dadd.088.clit
 dt_tests += dadd.089.clit
 dt_tests += dadd.090.clit
 EXTRA_DIST += dadd.090.dat
+dt_tests += dadd.091.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
@@ -316,6 +319,7 @@ dt_tests += dtest.007.clit
 dt_tests += dtest.008.clit
 dt_tests += dtest.009.clit
 dt_tests += dtest.010.clit
+dt_tests += dtest.011.clit
 
 dt_tests += ddiff.001.clit
 dt_tests += ddiff.002.clit
@@ -387,6 +391,7 @@ dt_tests += ddiff.067.clit
 dt_tests += ddiff.068.clit
 dt_tests += ddiff.069.clit
 dt_tests += ddiff.070.clit
+dt_tests += ddiff.071.clit
 EXTRA_DIST += some-dates-and-other-stuff.csv
 
 dt_tests += dgrep.001.clit
@@ -429,6 +434,7 @@ dt_tests += dgrep.037.clit
 dt_tests += dgrep.038.clit
 dt_tests += dgrep.039.clit
 dt_tests += dgrep.040.clit
+dt_tests += dgrep.041.clit
 
 dt_tests += dround.001.clit
 dt_tests += dround.002.clit
@@ -461,6 +467,7 @@ dt_tests += dround.028.clit
 dt_tests += dround.029.clit
 dt_tests += dround.030.clit
 dt_tests += dround.031.clit
+dt_tests += dround.032.clit
 
 dt_tests += tseq.01.clit
 dt_tests += tseq.02.clit
@@ -799,6 +806,7 @@ dt_tests += dzone.007.clit
 dt_tests += dzone.008.clit
 dt_tests += dzone.009.clit
 dt_tests += dzone.010.clit
+dt_tests += dzone.011.clit
 
 dt_tests += dsort.001.clit
 dt_tests += dsort.002.clit
@@ -806,6 +814,7 @@ dt_tests += dsort.003.clit
 dt_tests += dsort.004.clit
 dt_tests += dsort.005.clit
 dt_tests += dsort.006.clit
+dt_tests += dsort.007.clit
 EXTRA_DIST += caev_01.txt
 EXTRA_DIST += caev_02.txt
 
@@ -825,6 +834,7 @@ dt_tests += prchunk.006.clit
 EXTRA_DIST += dummy.tzmap
 built_nodist_sources += dummy.tzmcc
 TESTS_ENVIRONMENT += TZMAP_DIR=$(builddir)
+TESTS_ENVIRONMENT += LOCALE_FILE=$(top_srcdir)/data/locale
 dt_tests += tzmap.001.clit
 dt_tests += tzmap.002.clit
 dt_tests += tzmap.003.clit

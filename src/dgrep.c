@@ -47,6 +47,7 @@
 #include "dt-core-tz-glue.h"
 #include "dt-io.h"
 #include "dexpr.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 const char *prog = "dgrep";
@@ -181,6 +182,10 @@ with complex expressions");
 		root->kv->op = o;
 	}
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+
 	/* otherwise bring dexpr to normal form */
 	dexpr_simplify(root);
 	/* beef */
@@ -234,6 +239,9 @@ with complex expressions");
 	/* resource freeing */
 	free_dexpr(root);
 	dt_io_clear_zones();
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
 out:
 	yuck_free(argi);
 	return res;

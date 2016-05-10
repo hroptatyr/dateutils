@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dzone --next Europe/Berlin -i '%Y-%b-%dT%T' --from-locale fi_FI '2012-maalis-04T12:04:11'
+2012-03-25T02:00:00+01:00 -> 2012-03-25T03:00:00+02:00	Europe/Berlin
+$
+
+## dzone.011.clit ends here

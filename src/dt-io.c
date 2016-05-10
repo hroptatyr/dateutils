@@ -16,6 +16,8 @@
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
 #include "date-core-private.h"
+#include "date-core-strpf.h"
+#include "dt-locale.h"
 #include "tzraw.h"
 #include "tzmap.h"
 #include "strops.h"
@@ -457,30 +459,38 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case DT_SPFL_S_WDAY:
-			if (spec.abbr == DT_SPMOD_LONG) {
-				/* Wednesday */
-				res.pl.off_min += -9;
-				/* Friday */
-				res.pl.off_max += -6;
-				break;
-			}
-		case DT_SPFL_S_MON:
-			if (spec.abbr == DT_SPMOD_LONG) {
-				/* September */
-				res.pl.off_min += -9;
-				/* May */
-				res.pl.off_max += -3;
-				break;
-			}
 			switch (spec.abbr) {
 			case DT_SPMOD_NORM:
-				res.pl.off_min += -3;
-				res.pl.off_max += -3;
+				res.pl.off_min -= dut_rabbr_wday.max;
+				res.pl.off_max -= dut_rabbr_wday.min;
 				break;
 			case DT_SPMOD_ABBR:
-				res.pl.off_min += -1;
-				res.pl.off_max += -1;
+				res.pl.off_min -= 1;
+				res.pl.off_max -= 1;
 				res.pl.flags |= GRPATM_T_FLAG;
+				break;
+			case DT_SPMOD_LONG:
+				res.pl.off_min -= dut_rlong_wday.max;
+				res.pl.off_max -= dut_rlong_wday.min;
+				break;
+			default:
+				break;
+			}
+			break;
+		case DT_SPFL_S_MON:
+			switch (spec.abbr) {
+			case DT_SPMOD_NORM:
+				res.pl.off_min -= dut_rabbr_mon.max;
+				res.pl.off_max -= dut_rabbr_mon.min;
+				break;
+			case DT_SPMOD_ABBR:
+				res.pl.off_min -= 1;
+				res.pl.off_max -= 1;
+				res.pl.flags |= GRPATM_T_FLAG;
+				break;
+			case DT_SPMOD_LONG:
+				res.pl.off_min -= dut_rlong_mon.max;
+				res.pl.off_max -= dut_rlong_mon.min;
 				break;
 			default:
 				break;

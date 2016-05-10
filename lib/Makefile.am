@@ -35,6 +35,7 @@ ltrcc_SOURCES += strops.c strops.h
 ltrcc_SOURCES += date-core.c date-core.h
 ltrcc_SOURCES += time-core.c time-core.h
 ltrcc_SOURCES += dt-core.c dt-core.h
+ltrcc_SOURCES += dt-locale.c dt-locale.h
 EXTRA_ltrcc_SOURCES =
 EXTRA_ltrcc_SOURCES += fmt-special.gperf
 endif  ## BUILD_LTRCC
@@ -45,6 +46,7 @@ libdut_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdut_a_CPPFLAGS += -DDECLF=extern
 libdut_a_CPPFLAGS += -DLIBDUT
 libdut_a_CPPFLAGS += -I$(builddir)
+libdut_a_CPPFLAGS += -DLOCALE_FILE='"$(pkgdatadir)/locale"'
 libdut_a_SOURCES =
 libdut_a_SOURCES += version.c version.h version.c.in
 libdut_a_SOURCES += date-core.c date-core.h date-core-private.h
@@ -58,6 +60,7 @@ libdut_a_SOURCES += token.h token.c
 libdut_a_SOURCES += tzraw.h tzraw.c
 libdut_a_SOURCES += tzmap.h tzmap.c
 libdut_a_SOURCES += leaps.h leaps.c
+libdut_a_SOURCES += dt-locale.h dt-locale.c
 libdut_a_SOURCES += boops.h
 libdut_a_SOURCES += nifty.h
 libdut_a_SOURCES += gmtime.h

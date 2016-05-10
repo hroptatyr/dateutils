@@ -46,6 +46,7 @@
 #include "date-core-private.h"
 #include "dt-core-private.h"
 #include "dt-io.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 #if !defined UNUSED
@@ -666,6 +667,10 @@ main(int argc, char *argv[])
 		dt_io_unescape(argi->format_arg);
 	}
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
@@ -781,6 +786,9 @@ main(int argc, char *argv[])
 	}
 
 	dt_io_clear_zones();
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
 
 out:
 	yuck_free(argi);

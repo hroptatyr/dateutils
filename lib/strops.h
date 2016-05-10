@@ -87,7 +87,8 @@ extern size_t __ordtostr(char *buf, size_t bsz);
 /**
  * Take a string S, (case-insensitively) compare it to an array of strings ARR
  * of size NARR and return its index if found or -1 if not.
- * If S could be found in the array, point to the end of the string S in EP. */
+ * If S could be found in the array, point to the end of the string S in EP.
+ * The 0-th index will not be checked. */
 extern int32_t
 strtoarri(const char *s, const char **ep, const char *const *arr, size_t narr);
 

@@ -1,0 +1,17 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dsort -i '%B %Y' --from-locale yo_NG <<EOF
+Júùnù 2015
+Fẹ́búárì 2015
+Ọ́ọ́gọsì 2015
+Máàṣì 2015
+Ọtóbà 2015
+EOF
+Fẹ́búárì 2015
+Máàṣì 2015
+Júùnù 2015
+Ọ́ọ́gọsì 2015
+Ọtóbà 2015
+$
+
+## dsort.007.clit ends here
