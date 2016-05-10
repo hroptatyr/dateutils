@@ -47,6 +47,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
+#include "locale.h"
 
 const char *prog = "dtest";
 
@@ -73,6 +74,9 @@ main(int argc, char *argv[])
 		yuck_auto_help(argi);
 		res = 2;
 		goto out;
+	}
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
 	}
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
@@ -138,6 +142,13 @@ main(int argc, char *argv[])
 		res = res == 1 || res == 0 ? 0 : 1;
 	}
 out:
+	if (fromz != NULL) {
+		zif_close(fromz);
+	}
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
+
 	yuck_free(argi);
 	return res;
 }

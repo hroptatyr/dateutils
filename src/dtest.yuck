@@ -18,6 +18,10 @@ Like test(1) but for dates.
                              absolute time line.
                              Must be a date/time in ISO8601 format.
                              If omitted defaults to the current date/time.
+      --from-locale=LOCALE   Interpret dates on stdin or the command line as
+                             coming from the locale LOCALE, this would only
+                             affect month and weekday names as input formats
+                             have to be specified explicitly.
       --from-zone=ZONE       Interpret dates on stdin or the command line as
                              coming from the time zone ZONE.
   -e, --backslash-escapes    Enable interpretation of backslash escapes in the
