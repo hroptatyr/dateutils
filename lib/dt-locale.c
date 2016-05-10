@@ -221,44 +221,84 @@ xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
 
 
 /* locale business */
-static const char**
-__strp_set_long_wday(const char **ln, struct strprng_s r)
+static inline void
+__strp_reset_long_wday(void)
 {
-	const char **old = dut_long_wday != __long_wday ? dut_long_wday : NULL;
-
-	dut_long_wday = ln ?: __long_wday;
-	dut_rlong_wday = ln ? r : __rlong_wday;
-	return old;
+	if (dut_long_wday != __long_wday) {
+		free(deconst(dut_long_wday));
+	}
+	dut_long_wday = __long_wday;
+	dut_rlong_wday = __rlong_wday;
+	return;
 }
 
-static const char**
-__strp_set_abbr_wday(const char **ln, struct strprng_s r)
+static inline void
+__strp_reset_abbr_wday(void)
 {
-	const char **old = dut_abbr_wday != __abbr_wday ? dut_abbr_wday : NULL;
-
-	dut_abbr_wday = ln ?: __abbr_wday;
-	dut_rabbr_wday = ln ? r : __rabbr_wday;
-	return old;
+	if (dut_abbr_wday != __abbr_wday) {
+		free(deconst(dut_abbr_wday));
+	}
+	dut_abbr_wday = __abbr_wday;
+	dut_rabbr_wday = __rabbr_wday;
+	return;
 }
 
-static const char**
-__strp_set_long_mon(const char **ln, struct strprng_s r)
+static inline void
+__strp_reset_long_mon(void)
 {
-	const char **old = dut_long_mon != __long_mon ? dut_long_mon : NULL;
-
-	dut_long_mon = ln ?: __long_mon;
-	dut_rlong_mon = ln ? r : __rlong_mon;
-	return old;
+	if (dut_long_mon != __long_mon) {
+		free(deconst(dut_long_mon));
+	}
+	dut_long_mon = __long_mon;
+	dut_rlong_mon = __rlong_mon;
+	return;
 }
 
-static const char**
-__strp_set_abbr_mon(const char **ln, struct strprng_s r)
+static inline void
+__strp_reset_abbr_mon(void)
 {
-	const char **old = dut_abbr_mon != __abbr_mon ? dut_abbr_mon : NULL;
+	if (dut_abbr_mon != __abbr_mon) {
+		free(deconst(dut_abbr_mon));
+	}
+	dut_abbr_mon = __abbr_mon;
+	dut_rabbr_mon = __rabbr_mon;
+	return;
+}
 
-	dut_abbr_mon = ln ?: __abbr_mon;
-	dut_rabbr_mon = ln ? r : __rabbr_mon;
-	return old;
+static void
+__strp_set_long_wday(struct lst_s *new)
+{
+	__strp_reset_long_wday();
+	dut_long_wday = new->s;
+	dut_rlong_wday = (struct strprng_s){new->min, new->max};
+	return;
+}
+
+static void
+__strp_set_abbr_wday(struct lst_s *new)
+{
+	__strp_reset_abbr_wday();
+	dut_abbr_wday = new->s;
+	dut_rabbr_wday = (struct strprng_s){new->min, new->max};
+	return;
+}
+
+static void
+__strp_set_long_mon(struct lst_s *new)
+{
+	__strp_reset_long_mon();
+	dut_long_mon = new->s;
+	dut_rlong_mon = (struct strprng_s){new->min, new->max};
+	return;
+}
+
+static void
+__strp_set_abbr_mon(struct lst_s *new)
+{
+	__strp_reset_abbr_mon();
+	dut_abbr_mon = new->s;
+	dut_rabbr_mon = (struct strprng_s){new->min, new->max};
+	return;
 }
 
 
@@ -300,7 +340,6 @@ snarf_ln(const char *buf, size_t bsz)
 	const char *bp;
 	const char *ep;
 	struct lst_s *x;
-	const char **old;
 
 	/* first one */
 	bp = buf;
@@ -310,10 +349,7 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_abbr_wday(x->s, (struct strprng_s){x->min, x->max});
-	if (old) {
-		free(deconst(old));
-	}
+	__strp_set_abbr_wday(x);
 
 	/* and again */
 	bp = ep;
@@ -323,10 +359,7 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_long_wday(x->s, (struct strprng_s){x->min, x->max});
-	if (old) {
-		free(deconst(old));
-	}
+	__strp_set_long_wday(x);
 
 	/* two to go */
 	bp = ep;
@@ -336,10 +369,7 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_abbr_mon(x->s, (struct strprng_s){x->min, x->max});
-	if (old) {
-		free(deconst(old));
-	}
+	__strp_set_abbr_mon(x);
 
 	/* just one more */
 	bp = ep;
@@ -349,31 +379,17 @@ snarf_ln(const char *buf, size_t bsz)
 		return;
 	}
 	/* got him */
-	old = __strp_set_long_mon(x->s, (struct strprng_s){x->min, x->max});
-	if (old) {
-		free(deconst(old));
-	}
+	__strp_set_long_mon(x);
 	return;
 }
 
 static void
 reset_ln(void)
 {
-	/* reset to defaults */
-	const char **old;
-
-	if ((old = __strp_set_abbr_wday(NULL, (struct strprng_s){}))) {
-		free(deconst(old));
-	}
-	if ((old = __strp_set_long_wday(NULL, (struct strprng_s){}))) {
-		free(deconst(old));
-	}
-	if ((old = __strp_set_abbr_mon(NULL, (struct strprng_s){}))) {
-		free(deconst(old));
-	}
-	if ((old = __strp_set_long_mon(NULL, (struct strprng_s){}))) {
-		free(deconst(old));
-	}
+	__strp_reset_long_wday();
+	__strp_reset_abbr_wday();
+	__strp_reset_long_mon();
+	__strp_reset_abbr_mon();
 	return;
 }
 
