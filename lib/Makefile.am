@@ -35,6 +35,7 @@ ltrcc_SOURCES += strops.c strops.h
 ltrcc_SOURCES += date-core.c date-core.h
 ltrcc_SOURCES += time-core.c time-core.h
 ltrcc_SOURCES += dt-core.c dt-core.h
+ltrcc_SOURCES += dt-locale.c dt-locale.h
 EXTRA_ltrcc_SOURCES =
 EXTRA_ltrcc_SOURCES += fmt-special.gperf
 endif  ## BUILD_LTRCC

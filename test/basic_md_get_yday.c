@@ -7,6 +7,8 @@
 #include "token.c"
 #include "date-core.h"
 #include "date-core.c"
+#include "dt-locale.h"
+#include "dt-locale.c"
 
 static unsigned int
 super(unsigned int res)
