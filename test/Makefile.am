@@ -428,6 +428,7 @@ dt_tests += dgrep.037.clit
 dt_tests += dgrep.038.clit
 dt_tests += dgrep.039.clit
 dt_tests += dgrep.040.clit
+dt_tests += dgrep.041.clit
 
 dt_tests += dround.001.clit
 dt_tests += dround.002.clit

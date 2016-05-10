@@ -38,6 +38,10 @@ criteria then the line is considered a match and will be output.
                                output and input format specifier strings.
   -o, --only-matching        Show only the part of a line matching DATE.
   -v, --invert-match         Select non-matching lines.
+      --from-locale=LOCALE   Interpret dates on stdin or the command line as
+                             coming from the locale LOCALE, this would only
+                             affect month and weekday names as input formats
+                             have to be specified explicitly.
       --from-zone=ZONE  Consider date/times on stdin as coming from the
                         zone ZONE, default: UTC.
   -z, --zone=ZONE       Consider date/times in EXPRESSION as coming from
