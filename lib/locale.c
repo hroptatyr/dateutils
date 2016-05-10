@@ -62,7 +62,7 @@ static const char ldir[] = "locale";
 #endif	/* LOCALE_FILE */
 
 struct lst_s {
-	const char *s[GREG_MONTHS_P_YEAR + 1U];
+	const char *s[GREG_MONTHS_P_YEAR + 2U];
 	size_t min;
 	size_t max;
 	char str[];
@@ -146,7 +146,6 @@ tokenise(const char *ln, size_t lz)
 		return NULL;
 	}
 	/* just have him point to something */
-	r->s[0U] = "Miracleinput";
 	r->s[1U] = r->str;
 	r->min = -1ULL;
 	r->max = 0ULL;
@@ -165,6 +164,7 @@ tokenise(const char *ln, size_t lz)
 			}
 		}
 	}
+	r->s[0U] = r->s[13U];
 	return r;
 }
 
