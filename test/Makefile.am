@@ -809,6 +809,7 @@ dt_tests += dsort.003.clit
 dt_tests += dsort.004.clit
 dt_tests += dsort.005.clit
 dt_tests += dsort.006.clit
+dt_tests += dsort.007.clit
 EXTRA_DIST += caev_01.txt
 EXTRA_DIST += caev_02.txt
 
