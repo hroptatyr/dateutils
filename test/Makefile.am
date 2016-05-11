@@ -305,6 +305,7 @@ dt_tests += dadd.089.clit
 dt_tests += dadd.090.clit
 EXTRA_DIST += dadd.090.dat
 dt_tests += dadd.091.clit
+dt_tests += dadd.092.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit

@@ -1,6 +1,5 @@
 #!/usr/bin/clitoris
 
-## this is heehoo59's issue (issue #42)
 $ dadd --from-locale de_AT +4mo -i '%b %Y' <<EOF
 Jän 2016
 Mär 2016
