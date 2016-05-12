@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ ddiff 2008-W52-04 2010-W01-04 -f '%Y %w %d'
+$ ddiff 2008-W52-4 2010-W01-04 -f '%Y %w %d'
 1 2 0
 $
 

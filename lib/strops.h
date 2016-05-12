@@ -1,6 +1,6 @@
 /*** strops.h -- useful string operations
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -87,7 +87,8 @@ extern size_t __ordtostr(char *buf, size_t bsz);
 /**
  * Take a string S, (case-insensitively) compare it to an array of strings ARR
  * of size NARR and return its index if found or -1 if not.
- * If S could be found in the array, point to the end of the string S in EP. */
+ * If S could be found in the array, point to the end of the string S in EP.
+ * The 0-th index will not be checked. */
 extern int32_t
 strtoarri(const char *s, const char **ep, const char *const *arr, size_t narr);
 
@@ -119,6 +120,11 @@ xstrpbrk(const char *src, const char *set);
  * that caused the match. */
 extern char*
 xstrpbrkp(const char *src, const char *set, size_t *set_offs);
+
+/**
+ * Like strpbrk() but consider a string of length LEN. */
+extern char*
+xmempbrk(const char *src, size_t len, const char *set);
 
 
 static inline char*

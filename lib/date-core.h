@@ -1,6 +1,6 @@
 /*** date-core.h -- our universe of dates
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -42,7 +42,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <stdbool.h>
-
+#include "boops.h"
 #include "token.h"
 
 #if defined __cplusplus
@@ -100,19 +100,21 @@ typedef enum {
 typedef union {
 	uint32_t u;
 	struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		/* 11 bits left */
 		unsigned int:11;
 		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int d:5;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		unsigned int d:5;
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 11 bits left */
 		unsigned int:11;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	};
 } dt_ymd_t;
 
@@ -121,21 +123,23 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		/* 10 bits left */
 		unsigned int:10;
 		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int c:3;
 		unsigned int w:3;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		unsigned int w:3;
 		unsigned int c:3;
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 10 bits left */
 		unsigned int:10;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	};
 } dt_ymcw_t;
 
@@ -155,21 +159,23 @@ typedef union {
 #define YWD_MONWK_CNT	(1)
 #define YWD_ISOWK_CNT	(2)
 #define YWD_ABSWK_CNT	(3)
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		/* 8 bits left */
 		unsigned int:7;
 		unsigned int y:12;
 		unsigned int c:7;
 		unsigned int w:3;
 		signed int hang:3;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		signed int hang:3;
 		unsigned int w:3;
 		unsigned int c:7;
 		unsigned int y:12;
 		/* 8 bits left */
 		unsigned int:7;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	};
 } dt_ywd_t;
 
@@ -188,13 +194,15 @@ typedef union {
 typedef union {
 	uint32_t u;
 	struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		unsigned int y:16U;
 		signed int d:16U;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		signed int d:16U;
 		unsigned int y:16U;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	};
 } dt_yd_t;
 
@@ -225,21 +233,23 @@ typedef union {
 #define BIZDA_AFTER	(0U)/*>*/
 #define BIZDA_BEFORE	(1U)/*<*/
 #define BIZDA_ULTIMO	(0U)
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 		/* 5 bits left */
 		unsigned int:5;
 		/* business day */
 		unsigned int y:12;
 		unsigned int m:4;
 		unsigned int bd:5;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		/* business day */
 		unsigned int bd:5;
 		unsigned int m:4;
 		unsigned int y:12;
 		/* 5 bits left */
 		unsigned int:5;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	};
 } dt_bizda_t;
 
@@ -566,7 +576,13 @@ dt_make_ymcw(unsigned int y, unsigned int m, unsigned int c, unsigned int w)
 static inline struct dt_ddur_s
 dt_make_ddur(dt_durtyp_t typ, dt_dur_t d)
 {
+#if defined HAVE_ANON_STRUCTS_INIT
 	return (struct dt_ddur_s){typ, .dv = d};
+#else
+	struct dt_ddur_s res = {typ};
+	res.dv = d;
+	return res;
+#endif
 }
 
 static inline dt_bizda_param_t

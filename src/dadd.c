@@ -1,6 +1,6 @@
 /*** dadd.c -- perform simple date arithmetic, date plus duration
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -46,6 +46,7 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 const char *prog = "dadd";
@@ -95,7 +96,8 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 
 	do {
 		/* check if line matches, */
-		d = dt_io_find_strpdt2(line, clo->gra, &sp, &ep, clo->fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, clo->gra, &sp, &ep, clo->fromz);
 
 		if (!dt_unk_p(d)) {
 			if (UNLIKELY(d.fix) && !clo->quietp) {
@@ -218,7 +220,6 @@ main(int argc, char *argv[])
 	yuck_t argi[1U];
 	struct dt_dt_s d;
 	struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
-	char *inp;
 	const char *ofmt;
 	char **fmt;
 	size_t nfmt;
@@ -248,6 +249,13 @@ main(int argc, char *argv[])
 		}
 	}
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+	if (argi->locale_arg) {
+		setflocale(argi->locale_arg);
+	}
+
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
@@ -260,34 +268,37 @@ main(int argc, char *argv[])
 		dt_set_base(base);
 	}
 
+	/* sanity checks, decide whether we're a mass date adder
+	 * or a mass duration adder, or both, a date and durations are
+	 * present on the command line */
+	with (const char *inp = argi->args[0U]) {
+		/* date parsing needed postponing as we need to find out
+		 * about the durations */
+		if (!dt_unk_p(dt_io_strpdt(inp, fmt, nfmt, NULL))) {
+			dt_given_p = true;
+		}
+	}
+
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
-	for (size_t i = 0; i < argi->nargs; i++) {
-		inp = argi->args[i];
+	for (size_t i = dt_given_p; i < argi->nargs; i++) {
+		const char *inp = argi->args[i];
 		do {
 			if (dt_io_strpdtdur(&st, inp) < 0) {
-				if (UNLIKELY(i == 0)) {
-					/* that's ok, must be a date then */
-					dt_given_p = true;
-				} else {
-					serror("Error: \
+				serror("Error: \
 cannot parse duration string `%s'", st.istr);
-					rc = 1;
-					goto dur_out;
-				}
+				rc = 1;
+				goto dur_out;
 			}
 		} while (__strpdtdur_more_p(&st));
 	}
 	/* check if there's only d durations */
 	hackz = durs_only_d_p(st.durs, st.ndurs) ? NULL : fromz;
 
-	/* sanity checks, decide whether we're a mass date adder
-	 * or a mass duration adder, or both, a date and durations are
-	 * present on the command line */
+	/* read the first argument again in light of a completely parsed
+	 * duration sequence */
 	if (dt_given_p) {
-		/* date parsing needed postponing as we need to find out
-		 * about the durations */
-		inp = argi->args[0U];
+		const char *inp = argi->args[0U];
 		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
 			error("\
 Error: cannot interpret date/time string `%s'", inp);
@@ -391,6 +402,12 @@ dur_out:
 	__strpdtdur_free(&st);
 
 	dt_io_clear_zones();
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
+	if (argi->locale_arg) {
+		setflocale(NULL);
+	}
 
 out:
 	yuck_free(argi);

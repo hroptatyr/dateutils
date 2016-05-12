@@ -34,6 +34,12 @@ Negative INCREMENTs must be given, i.e. if FIRST is newer than LAST.
                              If omitted defaults to the current date/time.
   -e, --backslash-escapes    Enable interpretation of backslash escapes in the
                                output and input format specifier strings.
+      --locale=LOCALE        Format results according to LOCALE, this would only
+                             affect month and weekday names.
+      --from-locale=LOCALE   Interpret dates on stdin or the command line as
+                             coming from the locale LOCALE, this would only
+                             affect month and weekday names as input formats
+                             have to be specified explicitly.
   -s, --skip=STRING...          Skip weekdays specified by STRING.
                                STRING can be a single weekday (Mon, Tue, etc.),
                                and to skip several days the --skip option can

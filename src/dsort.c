@@ -1,6 +1,6 @@
 /*** dsort.c -- sort FILEs or stdin chronologically
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -48,6 +48,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 const char *prog = "dsort";
@@ -86,7 +87,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		const char *const ep = buf + sizeof(buf);
 
 		/* find first occurrence then */
-		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &tp, ctx.fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, ctx.ndl, &sp, &tp, ctx.fromz);
 		/* print line, first thing */
 		safe_write(ctx.outfd, line, llen);
 
@@ -262,6 +264,9 @@ main(int argc, char *argv[])
 		}
 	}
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
@@ -341,6 +346,9 @@ main(int argc, char *argv[])
 	}
 
 	dt_io_clear_zones();
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
 
 out:
 	yuck_free(argi);

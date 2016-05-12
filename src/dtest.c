@@ -1,6 +1,6 @@
 /*** dtest.c -- like test(1) but for dates
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -47,6 +47,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
+#include "dt-locale.h"
 
 const char *prog = "dtest";
 
@@ -68,10 +69,14 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (argi->nargs != 2U) {
+
+	if (argi->nargs != 1U + !argi->isvalid_flag) {
 		yuck_auto_help(argi);
 		res = 2;
 		goto out;
+	}
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
 	}
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
@@ -84,6 +89,11 @@ main(int argc, char *argv[])
 	ifmt = argi->input_format_args;
 	nifmt = argi->input_format_nargs;
 
+	if (argi->isvalid_flag) {
+		/* check that one date */
+		res = dt_unk_p(dt_io_strpdt(*argi->args, ifmt, nifmt, fromz));
+		goto out;
+	}
 	if (dt_unk_p(d1 = dt_io_strpdt(argi->args[0U], ifmt, nifmt, fromz))) {
 		if (!argi->quiet_flag) {
 			dt_io_warn_strpdt(argi->args[0U]);
@@ -132,6 +142,13 @@ main(int argc, char *argv[])
 		res = res == 1 || res == 0 ? 0 : 1;
 	}
 out:
+	if (fromz != NULL) {
+		zif_close(fromz);
+	}
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
+
 	yuck_free(argi);
 	return res;
 }

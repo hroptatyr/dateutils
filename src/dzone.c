@@ -1,6 +1,6 @@
 /*** dzone.c -- convert date/times between timezones
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -46,6 +46,7 @@
 #include "dt-core.h"
 #include "dt-io.h"
 #include "dt-core-tz-glue.h"
+#include "dt-locale.h"
 #include "tzraw.h"
 
 struct ztr_s {
@@ -214,6 +215,10 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
@@ -321,6 +326,9 @@ out:
 
 	if (fromz != NULL) {
 		zif_close(fromz);
+	}
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
 	}
 
 	yuck_free(argi);

@@ -1,0 +1,14 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dgrep -v '<2012-11-01' -i "%B/%d/%y" --from-locale xh_ZA <<EOF
+fileF,eyoMsintsi/28/12,eyeDwarha/12/12
+fileF,eyoMsintsi/29/12,eyeNkanga/01/12
+fileM,eyeDwarha/01/12,eyeDwarha/31/12
+fileM,eyeDwarha/02/12,eyeNkanga/30/12
+fileX,eyeNkanga/01/12,eyeNkanga/30/12
+fileX,eyeNkanga/02/12,eyeDwarha/31/12
+EOF
+fileX,eyeNkanga/01/12,eyeNkanga/30/12
+$
+
+## dgrep.041.clit ends here

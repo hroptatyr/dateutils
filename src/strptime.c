@@ -1,6 +1,6 @@
 /*** strptime.c -- a shell interface to strptime(3)
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -57,7 +57,7 @@ static int
 pars_line(struct tm *tm, const char *const *fmt, size_t nfmt, const char *line)
 {
 	for (size_t i = 0; i < nfmt; i++) {
-		if (strptime(line, fmt[i], tm) != NULL) {
+		if (fmt[i] && strptime(line, fmt[i], tm) != NULL) {
 			return 0;
 		}
 	}

@@ -47,6 +47,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
+#include "dt-locale.h"
 #include "tzraw.h"
 
 typedef uint8_t __skipspec_t;
@@ -426,29 +427,22 @@ __fixup_fst(struct dseq_clo_s *clo)
 static struct dt_dtdur_s
 tseq_guess_ite(struct dt_t_s beg, struct dt_t_s end)
 {
+	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
+
 	if (beg.hms.h != end.hms.h &&
-	    beg.hms.m == 0 && end.hms.m == 0&&
+	    beg.hms.m == 0 && end.hms.m == 0 &&
 	    beg.hms.s == 0 && end.hms.s == 0) {
-		if (beg.u < end.u) {
-			return (struct dt_dtdur_s){DT_DURH, .dv = 1};
-		} else {
-			return (struct dt_dtdur_s){DT_DURH, .dv = -1};
-		}
+		res.durtyp = DT_DURH;
+		res.dv = (beg.u < end.u) ? 1 : -1;
 	} else if (beg.hms.m != end.hms.m &&
 		   beg.hms.s == 0 && end.hms.s == 0) {
-		if (beg.u < end.u) {
-			return (struct dt_dtdur_s){DT_DURM, .dv = 1};
-		} else {
-			return (struct dt_dtdur_s){DT_DURM, .dv = -1};
-		}
+		res.durtyp = DT_DURM;
+		res.dv = (beg.u < end.u) ? 1 : -1;
 	} else {
-		if (beg.u < end.u) {
-			return (struct dt_dtdur_s){DT_DURS, .dv = 1};
-		} else {
-			return (struct dt_dtdur_s){DT_DURS, .dv = -1};
-		}
+		res.durtyp = DT_DURS;
+		res.dv = (beg.u < end.u) ? 1 : -1;
 	}
-	/* no reach */
+	return res;
 }
 
 
@@ -486,6 +480,13 @@ main(int argc, char *argv[])
 	}
 	nifmt = argi->input_format_nargs;
 	ifmt = argi->input_format_args;
+
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+	if (argi->locale_arg) {
+		setflocale(argi->locale_arg);
+	}
 
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
@@ -705,6 +706,12 @@ out:
 	}
 	if (clo.altite != NULL) {
 		free(clo.altite);
+	}
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
+	if (argi->locale_arg) {
+		setflocale(NULL);
 	}
 	yuck_free(argi);
 	return rc;

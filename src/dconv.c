@@ -1,6 +1,6 @@
 /*** dconv.c -- convert calendrical and time stamp systems
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -45,6 +45,7 @@
 
 #include "dt-core.h"
 #include "dt-io.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 
@@ -68,7 +69,8 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	int rc = 0;
 
 	do {
-		d = dt_io_find_strpdt2(line, ctx.ndl, &sp, &ep, ctx.fromz);
+		d = dt_io_find_strpdt2(
+			line, llen, ctx.ndl, &sp, &ep, ctx.fromz);
 
 		/* check if line matches */
 		if (!dt_unk_p(d) && ctx.sed_mode_p) {
@@ -125,6 +127,13 @@ main(int argc, char *argv[])
 		for (size_t i = 0; i < nfmt; i++) {
 			dt_io_unescape(fmt[i]);
 		}
+	}
+
+	if (argi->locale_arg) {
+		setflocale(argi->locale_arg);
+	}
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
 	}
 
 	/* try and read the from and to time zones */
@@ -203,6 +212,12 @@ main(int argc, char *argv[])
 	}
 
 	dt_io_clear_zones();
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
+	if (argi->locale_arg) {
+		setflocale(NULL);
+	}
 
 out:
 	yuck_free(argi);

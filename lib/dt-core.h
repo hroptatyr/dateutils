@@ -1,6 +1,6 @@
 /*** dt-core.h -- our universe of datetimes
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -42,11 +42,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <stdbool.h>
-
-#if defined __cplusplus
-extern "C" {
-#endif	/* __cplusplus */
-
+#include "boops.h"
 #include "date-core.h"
 #include "time-core.h"
 
@@ -76,7 +72,7 @@ typedef enum {
 typedef union {
 	uint64_t u:53;
 	struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 #define DT_YEAR_OFFS	(1900)
 		/* offset by the year 1900 */
 		unsigned int y:12;
@@ -89,7 +85,7 @@ typedef union {
 		unsigned int H:5;
 		unsigned int M:8;
 		unsigned int S:8;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 		unsigned int d:5;
 		unsigned int m:4;
 		/* offset by the year 1900 */
@@ -102,7 +98,9 @@ typedef union {
 		unsigned int S:8;
 		unsigned int M:8;
 		unsigned int H:5;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 	};
 } dt_ymdhms_t;
 
@@ -145,13 +143,15 @@ struct dt_dt_s {
 				dt_sexy_t sexy:48;
 				dt_ssexy_t sxepoch:48;
 				struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 					int32_t corr:16;
 					int32_t soft:32;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 					int32_t soft:32;
 					int32_t corr:16;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 				};
 			};
 		} __attribute__((packed));
@@ -196,13 +196,15 @@ struct dt_dtdur_s {
 				/* for value+unit durations */
 				dt_ssexy_t dv:48;
 				struct {
-#if defined WORDS_BIGENDIAN
+#if BYTE_ORDER == BIG_ENDIAN
 					int32_t corr:16;
 					int32_t soft:32;
-#else  /* !WORDS_BIGENDIAN */
+#elif BYTE_ORDER == LITTLE_ENDIAN
 					int32_t soft:32;
 					int32_t corr:16;
-#endif	/* WORDS_BIGENDIAN */
+#else
+# warning unknown byte order
+#endif	/* BYTE_ORDER */
 				};
 			};
 		} __attribute__((packed));
@@ -392,9 +394,5 @@ dt_make_t_only(struct dt_dt_s *d, dt_ttyp_t tty)
 	d->sandwich = 1;
 	return;
 }
-
-#if defined __cplusplus
-}
-#endif	/* __cplusplus */
 
 #endif	/* INCLUDED_dt_core_h_ */

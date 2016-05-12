@@ -1,6 +1,6 @@
 /*** dt-core.c -- our universe of datetimes
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -53,6 +53,7 @@
 #include "time-core.h"
 #include "strops.h"
 #include "leaps.h"
+#include "boops.h"
 #include "nifty.h"
 #include "dt-core.h"
 #include "dt-core-private.h"
@@ -249,26 +250,29 @@ __sexy_add(dt_sexy_t sx, struct dt_dtdur_s dur)
 /* sexy add
  * only works for continuous types (DAISY, etc.)
  * we need to take leap seconds into account here */
-	signed int delta = 0;
+	dt_ssexy_t dv = dur.dv;
 
 	switch (dur.durtyp) {
 	case DT_DURH:
+		dv *= MINS_PER_HOUR;
 	case DT_DURM:
+		dv *= SECS_PER_MIN;
 	case DT_DURS:
+		break;
 	case DT_DURNANO:
-		delta = dur.dv;
+		dv /= NANOS_PER_SEC;
 		break;
 	case DT_DURD:
 	case DT_DURBD:
-		delta = dur.d.dv * SECS_PER_DAY;
+		dv = dur.d.dv * SECS_PER_DAY;
 		/*@fallthrough@*/
 	case DT_DURUNK:
-		delta += dur.t.sdur;
+		dv += dur.t.sdur;
 	default:
 		break;
 	}
 	/* just go through with it */
-	return sx + delta;
+	return sx + dv;
 }
 
 #if defined WITH_LEAP_SECONDS && defined SKIP_LEAP_ARITH
@@ -589,8 +593,13 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		 * no format specifiers */
 
 	case DT_JDN:
+		/* we demand a float representation from start to finish */
 		res.d.jdn = (dt_jdn_t)strtod(str, &on);
 
+		if (UNLIKELY(*on < '\0' || *on > ' ')) {
+			/* nah, that's not a distinguished float */
+			goto fucked;
+		}
 		/* fix up const-ness problem */
 		sp = on;
 		/* don't worry about time slot or date/time sandwiches */
@@ -599,10 +608,8 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 
 	case DT_LDN:
 		res.d.ldn = (dt_ldn_t)strtoi(str, &sp);
-		if (*sp != '.') {
-			dt_make_d_only(&res, DT_LDN);
-		} else {
-			/* yes, big cluster fuck */
+		if (*sp == '.') {
+			/* oooh, a double it seems */
 			double tmp = strtod(sp, &on);
 
 			/* fix up const-ness problem */
@@ -616,6 +623,12 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			tmp -= (double)res.t.hms.s;
 			res.t.hms.ns = (tmp *= NANOS_PER_SEC);
 			dt_make_sandwich(&res, DT_LDN, DT_HMS);
+		} else if (UNLIKELY(*sp < '\0' || *sp > ' ')) {
+			/* not on my turf */
+			goto fucked;
+		} else {
+			/* looking good */
+			dt_make_d_only(&res, DT_LDN);
 		}
 		goto sober;
 	}
@@ -906,7 +919,7 @@ DEFUN struct dt_dtdur_s
 dt_strpdtdur(const char *str, char **ep)
 {
 /* at the moment we allow only one format */
-	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
 	const char *sp;
 	long int tmp;
 
@@ -1503,7 +1516,7 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 DEFUN struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
-	struct dt_dtdur_s res = {.durtyp = (dt_dtdurtyp_t)DT_DURUNK};
+	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
 	int dt = 0;
 
 	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
@@ -1562,22 +1575,30 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			zidx_t i_d1 = leaps_before(d1);
 			zidx_t i_d2 = leaps_before(d2);
 
-# if defined WORDS_BIGENDIAN
+# if BYTE_ORDER == BIG_ENDIAN
 			/* not needed on little-endians
 			 * the little means just that */
 			res.soft = sxdur;
-# endif	/* WORDS_BIGENDIAN */
+# elif BYTE_ORDER == LITTLE_ENDIAN
+
+# else
+#  warning unknown byte order
+# endif	/* BYTE_ORDER */
 
 			if (UNLIKELY(i_d1 != i_d2)) {
 				int nltr = leaps_corr[i_d2] - leaps_corr[i_d1];
 
 				res.corr = nltr;
-# if defined WORDS_BIGENDIAN
+# if BYTE_ORDER == BIG_ENDIAN
 			} else {
 				/* always repack res.corr to remove clutter
 				 * from the earlier res.sexydur ass'ment */
 				res.corr = 0;
-# endif	 /* WORDS_BIGENDIAN */
+# elif BYTE_ORDER == LITTLE_ENDIAN
+
+# else
+#  warning unknown byte order
+# endif	 /* BYTE_ORDER */
 			}
 		}
 #endif	/* WITH_LEAP_SECONDS */

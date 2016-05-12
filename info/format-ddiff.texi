@@ -13,12 +13,12 @@ unit for duration, as follows:
 Date specs:
 @verbatim
   %c  Equivalent to %w
-  %d  Durations in days
+  %d  Duration in days
   %F  Equivalent to %dd with no resorting to bigger units
-  %m  Durations in months
-  %w  Durations in weeks
+  %m  Duration in months
+  %w  Duration in weeks
   %y  Equivalent to %Y
-  %Y  Durations in years
+  %Y  Duration in years
 
   %db Duration in business days
   %dB Equivalent to %db
@@ -26,13 +26,13 @@ Date specs:
 
 Time specs:
 @verbatim
-  %H  Durations in hours
+  %H  Duration in hours
   %I  Equivalent to %H
-  %M  Durations in minutes
-  %S  Durations in seconds
+  %M  Duration in minutes
+  %S  Duration in seconds
   %T  Equivalent to %Ss without resorting to bigger units
 
-  %rS Durations in real-life seconds, as in including leap seconds
+  %rS Duration in real-life seconds, as in including leap seconds
   %rT Equivalent to %rSs without resoring to bigger units
 @end verbatim
 

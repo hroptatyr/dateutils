@@ -33,7 +33,7 @@ DT_LIBS = $(top_builddir)/lib/libdut.a
 
 ## our friendly helper
 include clitosis.am
-AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 20 --keep-going
+AM_CLIT_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 300 --keep-going
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
 TESTS_ENVIRONMENT += GDATE=$(GDATE)
@@ -82,6 +82,10 @@ dt_tests += dseq.40.clit
 dt_tests += dseq.41.clit
 dt_tests += dseq.42.clit
 dt_tests += dseq.43.clit
+dt_tests += dseq.44.clit
+dt_tests += dseq.45.clit
+dt_tests += dseq.46.clit
+dt_tests += dseq.47.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -209,6 +213,10 @@ dt_tests += dconv.123.clit
 dt_tests += dconv.124.clit
 dt_tests += dconv.125.clit
 dt_tests += dconv.126.clit
+dt_tests += dconv.127.clit
+dt_tests += dconv.128.clit
+dt_tests += dconv.129.clit
+dt_tests += dconv.130.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -298,6 +306,11 @@ dt_tests += dadd.085.clit
 dt_tests += dadd.086.clit
 dt_tests += dadd.087.clit
 dt_tests += dadd.088.clit
+dt_tests += dadd.089.clit
+dt_tests += dadd.090.clit
+EXTRA_DIST += dadd.090.dat
+dt_tests += dadd.091.clit
+dt_tests += dadd.092.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
@@ -308,6 +321,8 @@ dt_tests += dtest.006.clit
 dt_tests += dtest.007.clit
 dt_tests += dtest.008.clit
 dt_tests += dtest.009.clit
+dt_tests += dtest.010.clit
+dt_tests += dtest.011.clit
 
 dt_tests += ddiff.001.clit
 dt_tests += ddiff.002.clit
@@ -379,6 +394,7 @@ dt_tests += ddiff.067.clit
 dt_tests += ddiff.068.clit
 dt_tests += ddiff.069.clit
 dt_tests += ddiff.070.clit
+dt_tests += ddiff.071.clit
 EXTRA_DIST += some-dates-and-other-stuff.csv
 
 dt_tests += dgrep.001.clit
@@ -421,6 +437,7 @@ dt_tests += dgrep.037.clit
 dt_tests += dgrep.038.clit
 dt_tests += dgrep.039.clit
 dt_tests += dgrep.040.clit
+dt_tests += dgrep.041.clit
 
 dt_tests += dround.001.clit
 dt_tests += dround.002.clit
@@ -452,6 +469,9 @@ dt_tests += dround.027.clit
 dt_tests += dround.028.clit
 dt_tests += dround.029.clit
 dt_tests += dround.030.clit
+dt_tests += dround.031.clit
+dt_tests += dround.032.clit
+dt_tests += dround.033.clit
 
 dt_tests += tseq.01.clit
 dt_tests += tseq.02.clit
@@ -686,6 +706,8 @@ dt_tests += dtadd.045.clit
 dt_tests += dtadd.046.clit
 dt_tests += dtadd.047.clit
 dt_tests += dtadd.048.clit
+dt_tests += dtadd.049.clit
+dt_tests += dtadd.050.clit
 
 dt_tests += dtgrep.001.clit
 dt_tests += dtgrep.002.clit
@@ -761,6 +783,7 @@ dt_tests += dtdiff.043.clit
 dt_tests += dtdiff.044.clit
 dt_tests += dtdiff.045.clit
 dt_tests += dtdiff.046.clit
+dt_tests += dtdiff.047.clit
 
 dt_tests += dtround.001.clit
 dt_tests += dtround.002.clit
@@ -787,6 +810,7 @@ dt_tests += dzone.007.clit
 dt_tests += dzone.008.clit
 dt_tests += dzone.009.clit
 dt_tests += dzone.010.clit
+dt_tests += dzone.011.clit
 
 dt_tests += dsort.001.clit
 dt_tests += dsort.002.clit
@@ -794,11 +818,13 @@ dt_tests += dsort.003.clit
 dt_tests += dsort.004.clit
 dt_tests += dsort.005.clit
 dt_tests += dsort.006.clit
+dt_tests += dsort.007.clit
 EXTRA_DIST += caev_01.txt
 EXTRA_DIST += caev_02.txt
 
 dt_tests += strptime.001.clit
 dt_tests += strptime.002.clit
+dt_tests += strptime.003.clit
 
 ## testing the prchunker
 dt_tests += prchunk.001.clit
@@ -812,6 +838,7 @@ dt_tests += prchunk.006.clit
 EXTRA_DIST += dummy.tzmap
 built_nodist_sources += dummy.tzmcc
 TESTS_ENVIRONMENT += TZMAP_DIR=$(builddir)
+TESTS_ENVIRONMENT += LOCALE_FILE=$(top_srcdir)/data/locale
 dt_tests += tzmap.001.clit
 dt_tests += tzmap.002.clit
 dt_tests += tzmap.003.clit

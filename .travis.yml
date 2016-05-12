@@ -1,40 +1,73 @@
 language: c
 
+sudo: false
+
+os:
+  - linux
+
 compiler:
   - gcc
 
 env:
   global:
     - secure: "GFjrqOUyqNLrPGtxNW4r9JxJBudjddBJFzEEcpPkfEbMHJ+kk4zOYsSLV1f1cAK+X8TWLsCq5Yjt/2Rzhu7Csjiy34RReZ9KwsmcwX78T8MkQQz4yv8by9J9a5mbHQ3S6mtF7PH1t38PKVcJi51icEqUjvi4FnfME5+VrdueE+c="
+  matrix:
+    - CHECK="normal"
 
-before_install:
-  - sudo apt-get -qq update
-
-install:
-  - sudo apt-get install -qq gperf
-  - sudo apt-get install -qq texinfo
-  - sudo apt-get install -qq bison
-  - sudo apt-get install -qq flex
-  - sudo apt-get install -qq texlive
-  - sudo apt-get install -qq octave3.2-headers
+matrix:
+  include:
+    ## distcheck
+    - os: linux
+      compiler: gcc
+      env: CHECK="distcheck"
+    ## Ubuntu 14.04 Trusty (beta), sudo required!
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: gcc
+      env: TRUSTY="yes" CHECK="normal"
+    ## OSX
+    - os: osx
+      compiler: clang
+      env: CHECK="normal"
 
 before_script:
   - autoreconf -vfi
   - ./configure --enable-contrib
 
 script:
- - make all check
+  - if [ "$CHECK" = "normal" ]; then
+      ./configure --enable-contrib || { cat config.log; false; } &&
+      make -j2 clean && make -j2 check;
+    fi
+  - if [ "$CHECK" = "distcheck" ]; then
+      ./configure || { cat config.log; false; } &&
+      make -j2 all && make -j2 distcheck;
+    fi
+
+after_script:
+  # find test log from check as well as from distcheck
+  - log=$(find -name test-suite.log) && test -f "$log" && cat "$log" || true
 
 ## whitelist
 branches:
   only:
     - coverity-scan
+    - /^travis.*/
+    - /^tmp.*/
 
 notifications:
   email:
     - devel@fresse.org
 
 addons:
+  apt:
+    packages:
+      - gperf
+      - texinfo
+      - bison
+      - flex
+      - texlive
   coverity_scan:
     project:
       name: "hroptatyr/dateutils"

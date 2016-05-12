@@ -1,6 +1,6 @@
 /*** date-core-strpf.c -- parser and formatter funs for date-core
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -45,6 +45,7 @@
 #include "token.h"
 #include "date-core.h"
 #include "date-core-strpf.h"
+#include "dt-locale.h"
 
 #if defined __INTEL_COMPILER
 /* we MUST return a char* */
@@ -59,70 +60,6 @@
 #if !defined DEFVAR
 # define DEFVAR
 #endif	/* !DEFVAR */
-
-static const char *__long_wday[] = {
-	"Miracleday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-	"Sunday",
-};
-DEFVAR const char **dut_long_wday = __long_wday;
-DEFVAR const ssize_t dut_nlong_wday = countof(__long_wday);
-
-static const char *__abbr_wday[] = {
-	"Mir", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
-};
-DEFVAR const char **dut_abbr_wday = __abbr_wday;
-DEFVAR const ssize_t dut_nabbr_wday = countof(__abbr_wday);
-
-static const char __abab_wday[] = "XMTWRFAS";
-DEFVAR const char *dut_abab_wday = __abab_wday;
-DEFVAR const ssize_t dut_nabab_wday = countof(__abab_wday);
-
-static const char *__long_mon[] = {
-	"Miraculary",
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December",
-};
-DEFVAR const char **dut_long_mon = __long_mon;
-DEFVAR const ssize_t dut_nlong_mon = countof(__long_mon);
-
-static const char *__abbr_mon[] = {
-	"Mir",
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec",
-};
-DEFVAR const char **dut_abbr_mon = __abbr_mon;
-DEFVAR const ssize_t dut_nabbr_mon = countof(__abbr_mon);
-
-/* futures expiry codes, how convenient */
-static const char __abab_mon[] = "_FGHJKMNQUVXZ";
-DEFVAR const char *dut_abab_mon = __abab_mon;
-DEFVAR const ssize_t dut_nabab_mon = countof(__abab_mon);
 
 
 DEFUN struct dt_d_s
@@ -546,6 +483,9 @@ __strfd_card(
 
 		if (UNLIKELY(s.tai && d->flags.real_y_in_q)) {
 			y = d->q;
+		} else if (s.tai) {
+			/* oh we want ISO week dates */
+			y = dt_dconv(DT_YWD, that).ywd.y;
 		}
 		switch (s.abbr) {
 		case DT_SPMOD_LONG:
@@ -594,11 +534,13 @@ __strfd_card(
 	case DT_SPFL_N_DCNT_WEEK:
 		/* ymcw mode check */
 		with (unsigned int w = (unsigned)d->w ?: dt_get_wday(that)) {
-			if (w == DT_SUNDAY && s.wk_cnt != YWD_MONWK_CNT) {
+			const unsigned int ymcwp = s.wk_cnt != YWD_MONWK_CNT;
+
+			if (w == DT_SUNDAY && ymcwp) {
 				/* turn Sun 07 to Sun 00 */
 				w = 0;
 			}
-			res = ui32tostr(buf, bsz, w, 2);
+			res = ui32tostr(buf, bsz, w, 1 + ymcwp);
 		}
 		break;
 	case DT_SPFL_N_WCNT_MON: {
@@ -619,12 +561,12 @@ __strfd_card(
 		case DT_SPMOD_NORM:
 			res = arritostr(
 				buf, bsz, d->w,
-				dut_abbr_wday, dut_nabbr_wday);
+				duf_abbr_wday, dut_nabbr_wday);
 			break;
 		case DT_SPMOD_LONG:
 			res = arritostr(
 				buf, bsz, d->w,
-				dut_long_wday, dut_nlong_wday);
+				duf_long_wday, dut_nlong_wday);
 			break;
 		case DT_SPMOD_ABBR:
 			/* super abbrev'd wday */
@@ -642,12 +584,12 @@ __strfd_card(
 		case DT_SPMOD_NORM:
 			res = arritostr(
 				buf, bsz, d->m,
-				dut_abbr_mon, dut_nabbr_mon);
+				duf_abbr_mon, dut_nabbr_mon);
 			break;
 		case DT_SPMOD_LONG:
 			res = arritostr(
 				buf, bsz, d->m,
-				dut_long_mon, dut_nlong_mon);
+				duf_long_mon, dut_nlong_mon);
 			break;
 		case DT_SPMOD_ABBR:
 			/* super abbrev'd month */

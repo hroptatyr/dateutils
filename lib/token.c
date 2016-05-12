@@ -1,6 +1,6 @@
 /*** token.c -- tokeniser specs and stuff
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -188,9 +188,10 @@ next:
 		goto next;
 	case 'G':
 		/* for compatibility with posix */
+		res.abbr = DT_SPMOD_LONG;
+	case 'g':
 		res.tai = 1U;
 		res.spfl = DT_SPFL_N_YEAR;
-		res.abbr = DT_SPMOD_LONG;
 		break;
 	}
 	/* check for ordinals */

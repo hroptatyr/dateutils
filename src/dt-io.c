@@ -16,6 +16,8 @@
 #include "dt-core.h"
 #include "dt-core-tz-glue.h"
 #include "date-core-private.h"
+#include "date-core-strpf.h"
+#include "dt-locale.h"
 #include "tzraw.h"
 #include "tzmap.h"
 #include "strops.h"
@@ -163,7 +165,7 @@ dt_io_find_strpdt(
 
 struct dt_dt_s
 dt_io_find_strpdt2(
-	const char *str,
+	const char *str, size_t len,
 	const struct grep_atom_soa_s *needles,
 	char **sp, char **ep,
 	zif_t zone)
@@ -171,8 +173,9 @@ dt_io_find_strpdt2(
 	struct dt_dt_s d = dt_dt_initialiser();
 	const char *needle = needles->needle;
 	const char *p = str;
+	const char *const zp = str + len;
 
-	for (; *(p = xstrpbrk(p, needle)); p++) {
+	for (; *(p = xmempbrk(p, zp - p, needle)); p++) {
 		/* find the offset */
 		const struct grpatm_payload_s *fp;
 		const char *np;
@@ -191,7 +194,7 @@ dt_io_find_strpdt2(
 				q = str;
 			}
 
-			for (; *q && q <= r; q++) {
+			for (; q < zp && q <= r; q++) {
 				if (!dt_unk_p(d = dt_strpdt(q, fmt, ep))) {
 					p = q;
 					goto found;
@@ -214,6 +217,7 @@ dt_io_find_strpdt2(
 			static const char b_needle[] = "ADFJMNOSadfjmnos";
 			static const char tb_needle[] = "FGHJKMNQUVXZ";
 			static const char o_needle[] = "CDILMVXcdilmvx";
+
 		case GRPATM_A_SPEC:
 			ndl = a_needle;
 			break;
@@ -232,9 +236,9 @@ dt_io_find_strpdt2(
 
 		case GRPATM_DIGITS:
 			/* yay, look for all digits */
-			for (p = str; *p && !(*p >= '0' && *p <= '9'); p++);
+			for (p = str; p < zp && !(*p >= '0' && *p <= '9'); p++);
 			for (const char *q = p;
-			     *q && *q >= '0' && *q <= '9'; q++) {
+			     q < zp && *q >= '0' && *q <= '9'; q++) {
 				if ((--f.off_min <= 0) &&
 				    !dt_unk_p(d = dt_strpdt(p, fmt, ep))) {
 					goto found;
@@ -244,8 +248,8 @@ dt_io_find_strpdt2(
 
 		case GRPATM_DIGITS | GRPATM_ORDINALS:
 			/* yay, look for all digits and ordinals */
-			for (p = str; *p && !(*p >= '0' && *p <= '9'); p++);
-			for (const char *q = p; *q; q++) {
+			for (p = str; p < zp && !(*p >= '0' && *p <= '9'); p++);
+			for (const char *q = p; q < zp; q++) {
 				switch (*q) {
 				case '0' ... '9':
 					break;
@@ -278,8 +282,8 @@ dt_io_find_strpdt2(
 			continue;
 		}
 		/* not reached unless ndl is set */
-		for (p = str; *(p = xstrpbrk(p, ndl)); p++) {
-			if (p + f.off_min < str /*|| p + f.off_max > ?*/) {
+		for (p = str; *(p = xmempbrk(p, zp - p, ndl)); p++) {
+			if (p + f.off_min < str || p + f.off_max > zp) {
 				continue;
 			}
 			for (int8_t j = f.off_min; j <= f.off_max; j++) {
@@ -455,30 +459,38 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case DT_SPFL_S_WDAY:
-			if (spec.abbr == DT_SPMOD_LONG) {
-				/* Wednesday */
-				res.pl.off_min += -9;
-				/* Friday */
-				res.pl.off_max += -6;
-				break;
-			}
-		case DT_SPFL_S_MON:
-			if (spec.abbr == DT_SPMOD_LONG) {
-				/* September */
-				res.pl.off_min += -9;
-				/* May */
-				res.pl.off_max += -3;
-				break;
-			}
 			switch (spec.abbr) {
 			case DT_SPMOD_NORM:
-				res.pl.off_min += -3;
-				res.pl.off_max += -3;
+				res.pl.off_min -= dut_rabbr_wday.max;
+				res.pl.off_max -= dut_rabbr_wday.min;
 				break;
 			case DT_SPMOD_ABBR:
-				res.pl.off_min += -1;
-				res.pl.off_max += -1;
+				res.pl.off_min -= 1;
+				res.pl.off_max -= 1;
 				res.pl.flags |= GRPATM_T_FLAG;
+				break;
+			case DT_SPMOD_LONG:
+				res.pl.off_min -= dut_rlong_wday.max;
+				res.pl.off_max -= dut_rlong_wday.min;
+				break;
+			default:
+				break;
+			}
+			break;
+		case DT_SPFL_S_MON:
+			switch (spec.abbr) {
+			case DT_SPMOD_NORM:
+				res.pl.off_min -= dut_rabbr_mon.max;
+				res.pl.off_max -= dut_rabbr_mon.min;
+				break;
+			case DT_SPMOD_ABBR:
+				res.pl.off_min -= 1;
+				res.pl.off_max -= 1;
+				res.pl.flags |= GRPATM_T_FLAG;
+				break;
+			case DT_SPMOD_LONG:
+				res.pl.off_min -= dut_rlong_mon.max;
+				res.pl.off_max -= dut_rlong_mon.min;
 				break;
 			default:
 				break;

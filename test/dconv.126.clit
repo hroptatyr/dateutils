@@ -1,8 +1,8 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dconv -i '%_b%_y' K5 -f '%Y-%m'
-2015-05
-$ dconv -i '%_b%_y' Z2 -f '%Y-%m'
+$ dconv -i '%_b%_y' K7 -f '%Y-%m' -b 2016-01-01
+2017-05
+$ dconv -i '%_b%_y' Z2 -f '%Y-%m' -b 2016-01-01
 2022-12
 $
 

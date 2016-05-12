@@ -1,0 +1,17 @@
+before_script:
+  - apt-get -q -m update || true
+  - apt-get install -qq gperf
+  - apt-get install -qq flex
+  - apt-get install -qq bison
+  - apt-get install -qq texinfo
+  - apt-get install -qq texlive
+  - autoreconf -vfi
+
+bld:
+  script:
+    - ./configure --enable-tzmap-fetch --enable-contrib || { cat config.log; false; }
+    - make
+    - make check || { cat test/test-suite.log; false; }
+    - make V=1 distcheck
+  only:
+    - master

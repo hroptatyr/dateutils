@@ -1,6 +1,6 @@
 /*** dgrep.c -- grep for lines with dates
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -47,6 +47,7 @@
 #include "dt-core-tz-glue.h"
 #include "dt-io.h"
 #include "dexpr.h"
+#include "dt-locale.h"
 #include "prchunk.h"
 
 const char *prog = "dgrep";
@@ -72,9 +73,11 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 
 	/* check if line matches,
 	 * there's currently no way to specify NEEDLE */
-	for (char *lp = line, *sp, *ep; ; lp = ep, osp = sp, oep = ep) {
+	for (char *lp = line, *const zp = line + llen, *sp, *ep;
+	     /*no check*/; lp = ep, osp = sp, oep = ep) {
 		struct dt_dt_s d =
-			dt_io_find_strpdt2(lp, ctx.ndl, &sp, &ep, ctx.fromz);
+			dt_io_find_strpdt2(
+				lp, zp - lp, ctx.ndl, &sp, &ep, ctx.fromz);
 		bool unkp = dt_unk_p(d);
 
 		if (unkp) {
@@ -179,6 +182,10 @@ with complex expressions");
 		root->kv->op = o;
 	}
 
+	if (argi->from_locale_arg) {
+		setilocale(argi->from_locale_arg);
+	}
+
 	/* otherwise bring dexpr to normal form */
 	dexpr_simplify(root);
 	/* beef */
@@ -232,6 +239,9 @@ with complex expressions");
 	/* resource freeing */
 	free_dexpr(root);
 	dt_io_clear_zones();
+	if (argi->from_locale_arg) {
+		setilocale(NULL);
+	}
 out:
 	yuck_free(argi);
 	return res;

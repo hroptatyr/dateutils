@@ -1,6 +1,6 @@
 /*** strops.c -- useful string operations
  *
- * Copyright (C) 2011-2015 Sebastian Freundt
+ * Copyright (C) 2011-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -404,8 +404,8 @@ DEFUN int32_t
 strtoarri(const char *buf, const char **ep, const char *const *arr, size_t narr)
 {
 /* take a string, compare it to an array of string (case-insensitively) and
- * return its index if found or -1 if not */
-	for (size_t i = 0; i < narr; i++) {
+ * return its index if found or 0 if not */
+	for (size_t i = 1U; i < narr; i++) {
 		const char *chk = arr[i];
 		size_t len = strlen(chk);
 
@@ -520,6 +520,16 @@ xstrpbrkp(const char *src, const char *set, size_t *set_offs)
 		*set_offs = idx;
 	}
 	return (char*)p;
+}
+
+DEFUN char*
+xmempbrk(const char *src, size_t len, const char *set)
+{
+	size_t i;
+
+	set_up_table((const unsigned char*)set, false);
+	for (i = 0U; i < len && !in_current_set((unsigned char)src[i]); i++);
+	return (char*)src + i;
 }
 
 #if defined __INTEL_COMPILER

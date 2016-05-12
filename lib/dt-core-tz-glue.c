@@ -1,6 +1,6 @@
 /*** dt-core-tz-glue.c -- gluing date/times and tzs
  *
- * Copyright (C) 2012-2015 Sebastian Freundt
+ * Copyright (C) 2012-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -74,7 +74,15 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	d_unix = zif_utc_time(zone, d_locl);
 	if (LIKELY((zdiff = d_unix - d_locl))) {
 		/* let dt_dtadd() do the magic */
+#if defined HAVE_ANON_STRUCTS_INIT
 		d = dt_dtadd(d, (struct dt_dtdur_s){DT_DURS, .dv = zdiff});
+#else
+		{
+			struct dt_dtdur_s tmp = {DT_DURS};
+			tmp.dv = zdiff;
+			d = dt_dtadd(d, tmp);
+		}
+#endif
 		d.znfxd = 1;
 		if (zdiff > 0) {
 			d.neg = 1;
@@ -108,7 +116,15 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	d_locl = zif_local_time(zone, d_unix);
 	if (LIKELY((zdiff = d_locl - d_unix))) {
 		/* let dt_dtadd() do the magic */
+#if defined HAVE_ANON_STRUCTS_INIT
 		d = dt_dtadd(d, (struct dt_dtdur_s){DT_DURS, .dv = zdiff});
+#else
+		{
+			struct dt_dtdur_s tmp = {DT_DURS};
+			tmp.dv = zdiff;
+			d = dt_dtadd(d, tmp);
+		}
+#endif
 		if (zdiff > 0) {
 			d.zdiff = (uint16_t)(zdiff / ZDIFF_RES);
 		} else if (zdiff < 0) {

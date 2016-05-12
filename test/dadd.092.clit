@@ -1,0 +1,11 @@
+#!/usr/bin/clitoris
+
+$ dadd --locale de_AT -4mo -f '%b %Y' <<EOF
+2016-05-00
+2016-07-00
+2017-02-00
+EOF
+Jän 2016
+Mär 2016
+Okt 2016
+$

@@ -91,7 +91,7 @@ dt_io_find_strpdt(
 
 extern struct dt_dt_s
 dt_io_find_strpdt2(
-	const char *str,
+	const char *str, size_t llen,
 	const struct grep_atom_soa_s *needles,
 	char **sp, char **ep,
 	zif_t zone);

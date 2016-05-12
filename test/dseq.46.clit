@@ -1,0 +1,15 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dseq Dzi +1mo N\'w --from-locale ts_ZA -i '%b' -f '%b'
+Apr
+May
+Jun
+Jul
+Aug
+Sep
+Oct
+Nov
+Dec
+$
+
+## dseq.46.clit ends here
