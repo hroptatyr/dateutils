@@ -571,7 +571,7 @@ yield:
 			sp++;
 		}
 		if (!isspace(*sp)) {
-			/* dont know -x.SOMETHING? */
+			/* don't know -x.SOMETHING? */
 			return 0;
 		}
 		/* start over with the new option */
@@ -616,7 +616,7 @@ yield:
 		/* --option */
 		;
 	} else {
-		/* dont know what this is */
+		/* don't know what this is */
 		return 0;
 	}
 
@@ -660,7 +660,7 @@ yield:
 	;
 	/* space eater */
 	for (; sp < ep && isspace(*sp); sp++);
-	/* dont free but reset the old guy */
+	/* don't free but reset the old guy */
 	desc->n = 0U;
 desc:
 	with (size_t sz = llen - (sp - line)) {
@@ -1126,9 +1126,54 @@ get_myself(char *restrict buf, size_t bsz)
 	ssize_t off;
 	char *mp;
 
-	if ((off = readlink("/proc/self/exe", buf, bsz)) < 0) {
+#if defined __linux__
+	static const char myself[] = "/proc/self/exe";
+
+	if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
+		/* shame */
 		return -1;
 	}
+#elif defined __NetBSD__
+	static const char myself[] = "/proc/curproc/exe";
+
+	if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
+		/* nawww */
+		return -1;
+	}
+#elif defined __DragonFly__
+	static const char myself[] = "/proc/curproc/file";
+
+	if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
+		/* blimey */
+		return -1;
+	}
+#elif defined __FreeBSD__
+	int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+
+	/* make sure that \0 terminator fits */
+	buf[--bsz] = '\0';
+	if (UNLIKELY(sysctl(mib, countof(mib), buf, &bsz, NULL, 0) < 0)) {
+		return -1;
+	}
+	/* we can be grateful they gave us the path, counting is our job */
+	off = strlen(buf);
+#elif defined __sun || defined sun
+
+	snprintf(buf, bsz, "/proc/%d/path/a.out", getpid());
+	if (UNLIKELY((off = readlink(buf, buf, bsz)) < 0)) {
+		return -1;
+	}
+#elif defined __APPLE__ && defined __MACH__
+	uint32_t z = --bsz;
+	if (_NSGetExecutablePath(buf, &z) != 0) {
+		return -1;
+	}
+	/* good, do the counting */
+	off = strlen(buf);
+#else
+	return -1;
+#endif
+
 	/* go back to the dir bit */
 	for (mp = buf + off - 1U; mp > buf && *mp != '/'; mp--);
 	/* should be bin/, go up one level */
