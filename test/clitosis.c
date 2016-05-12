@@ -388,7 +388,7 @@ get_argv0dir(const char *argv0)
 			goto planb;
 		}
 		/* strndup him */
-		res = strndup(buf, z);
+		res = xstrndup(buf, z);
 #elif defined __DragonFly__
 	} else if (1) {
 		static const char myself[] = "/proc/curproc/file";
@@ -400,7 +400,7 @@ get_argv0dir(const char *argv0)
 			goto planb;
 		}
 		/* strndup him */
-		res = strndup(buf, z);
+		res = xstrndup(buf, z);
 #elif defined __FreeBSD__
 	} else if (1) {
 		int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
@@ -425,7 +425,7 @@ get_argv0dir(const char *argv0)
 			/* nope, plan A failed */
 			goto planb;
 		}
-		res = strndup(buf, z);
+		res = xstrndup(buf, z);
 #endif	/* OS */
 	} else {
 		size_t argz0;
@@ -437,7 +437,7 @@ get_argv0dir(const char *argv0)
 		}
 		/* otherwise copy ARGV0, or rather the first PATH_MAX chars */
 		for (argz0 = 0U; argz0 < PATH_MAX && argv0[argz0]; argz0++);
-		res = strndup(argv0, argz0);
+		res = xstrndup(argv0, argz0);
 	}
 
 	/* path extraction aka dirname'ing, absolute or otherwise */
