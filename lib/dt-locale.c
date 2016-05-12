@@ -75,6 +75,13 @@ struct lst_s {
 	char str[];
 };
 
+struct loc_s {
+	struct lst_s *long_wday;
+	struct lst_s *abbr_wday;
+	struct lst_s *long_mon;
+	struct lst_s *abbr_mon;
+};
+
 static const char *__long_wday[] = {
 	"Miracleday",
 	"Monday",
@@ -301,6 +308,118 @@ __strp_set_abbr_mon(struct lst_s *new)
 	return;
 }
 
+static inline void
+__strf_reset_long_wday(void)
+{
+	if (duf_long_wday != __long_wday) {
+		free(deconst(duf_long_wday));
+	}
+	duf_long_wday = __long_wday;
+	return;
+}
+
+static inline void
+__strf_reset_abbr_wday(void)
+{
+	if (duf_abbr_wday != __abbr_wday) {
+		free(deconst(duf_abbr_wday));
+	}
+	duf_abbr_wday = __abbr_wday;
+	return;
+}
+
+static inline void
+__strf_reset_long_mon(void)
+{
+	if (duf_long_mon != __long_mon) {
+		free(deconst(duf_long_mon));
+	}
+	duf_long_mon = __long_mon;
+	return;
+}
+
+static inline void
+__strf_reset_abbr_mon(void)
+{
+	if (dut_abbr_mon != __abbr_mon) {
+		free(deconst(duf_abbr_mon));
+	}
+	duf_abbr_mon = __abbr_mon;
+	return;
+}
+
+static void
+__strf_set_long_wday(struct lst_s *new)
+{
+	__strf_reset_long_wday();
+	duf_long_wday = new->s;
+	return;
+}
+
+static void
+__strf_set_abbr_wday(struct lst_s *new)
+{
+	__strp_reset_abbr_wday();
+	duf_abbr_wday = new->s;
+	return;
+}
+
+static void
+__strf_set_long_mon(struct lst_s *new)
+{
+	__strp_reset_long_mon();
+	duf_long_mon = new->s;
+	return;
+}
+
+static void
+__strf_set_abbr_mon(struct lst_s *new)
+{
+	__strp_reset_abbr_mon();
+	duf_abbr_mon = new->s;
+	return;
+}
+
+static void
+reset_il(void)
+{
+	__strp_reset_long_wday();
+	__strp_reset_abbr_wday();
+	__strp_reset_long_mon();
+	__strp_reset_abbr_mon();
+	return;
+}
+
+static void
+reset_fl(void)
+{
+	__strf_reset_long_wday();
+	__strf_reset_abbr_wday();
+	__strf_reset_long_mon();
+	__strf_reset_abbr_mon();
+	return;
+}
+
+static void
+set_il(struct loc_s l)
+{
+	__strp_set_long_wday(l.long_wday);
+	__strp_set_abbr_wday(l.abbr_wday);
+	__strp_set_long_mon(l.long_mon);
+	__strp_set_abbr_mon(l.abbr_mon);
+	return;
+}
+
+static void
+set_fl(struct loc_s l)
+{
+	__strf_set_long_wday(l.long_wday);
+	__strf_set_abbr_wday(l.abbr_wday);
+	__strf_set_long_mon(l.long_mon);
+	__strf_set_abbr_mon(l.abbr_mon);
+	return;
+}
+
 
 static struct lst_s*
 tokenise(const char *ln, size_t lz)
@@ -334,82 +453,80 @@ tokenise(const char *ln, size_t lz)
 	return r;
 }
 
-static void
-snarf_ln(const char *buf, size_t bsz)
+static int
+snarf_ln(struct loc_s *restrict tgt, const char *buf, size_t bsz)
 {
 	const char *bp;
 	const char *ep;
 	struct lst_s *x;
+	struct loc_s r;
 
 	/* first one */
 	bp = buf;
 	if (UNLIKELY(!(ep = memchr(bp, '\n', bsz - (bp - buf))))) {
-		return;
+		goto uhoh;
 	} else if (UNLIKELY((x = tokenise(bp, ++ep - bp)) == NULL)) {
-		return;
+		goto uhoh;
 	}
 	/* got him */
-	__strp_set_abbr_wday(x);
+	r.abbr_wday = x;
 
 	/* and again */
 	bp = ep;
 	if (UNLIKELY(!(ep = memchr(bp, '\n', bsz - (bp - buf))))) {
-		return;
+		goto uhoh;
 	} else if (UNLIKELY((x = tokenise(bp, ++ep - bp)) == NULL)) {
-		return;
+		goto uhoh;
 	}
 	/* got him */
-	__strp_set_long_wday(x);
+	r.long_wday = x;
 
 	/* two to go */
 	bp = ep;
 	if (UNLIKELY(!(ep = memchr(bp, '\n', bsz - (bp - buf))))) {
-		return;
+		goto uhoh;
 	} else if (UNLIKELY((x = tokenise(bp, ++ep - bp)) == NULL)) {
-		return;
+		goto uhoh;
 	}
 	/* got him */
-	__strp_set_abbr_mon(x);
+	r.abbr_mon = x;
 
 	/* just one more */
 	bp = ep;
 	if (UNLIKELY(!(ep = memchr(bp, '\n', bsz - (bp - buf))))) {
-		return;
+		goto uhoh;
 	} else if (UNLIKELY((x = tokenise(bp, ++ep - bp)) == NULL)) {
-		return;
+		goto uhoh;
 	}
 	/* got him */
-	__strp_set_long_mon(x);
-	return;
+	r.long_mon = x;
+	*tgt = r;
+	return 0;
+
+uhoh:
+	if (r.long_wday) {
+		free(r.long_wday);
+	}
+	if (r.abbr_wday) {
+		free(r.abbr_wday);
+	}
+	if (r.long_mon) {
+		free(r.long_mon);
+	}
+	if (r.abbr_mon) {
+		free(r.abbr_mon);
+	}
+	return -1;
 }
 
-static void
-reset_ln(void)
-{
-	__strp_reset_long_wday();
-	__strp_reset_abbr_wday();
-	__strp_reset_long_mon();
-	__strp_reset_abbr_mon();
-	return;
-}
-
-
-int
-setilocale(const char *ln)
+static int
+__setlocale(const char *ln, size_t lz, void(*setf)(struct loc_s))
 {
 	struct stat st[1U];
 	const char *fn;
-	size_t lz;
 	ssize_t fz;
 	int fd;
 	int rc = 0;
-
-	if (UNLIKELY(ln == NULL)) {
-		reset_ln();
-		return 0;
-	}
-	/* otherwise obtain length */
-	lz = strlen(ln);
 
 	/* we shall assume locale file is LOCALE_FILE */
 	fn = getenv("LOCALE_FILE") ?: locfn;
@@ -429,6 +546,7 @@ setilocale(const char *ln)
 	/* map him entirely */
 	with (const char *m = mmap(NULL, fz, PROT_READ, MAP_SHARED, fd, 0)) {
 		const char *l;
+		struct loc_s loc;
 
 		if (UNLIKELY(m == MAP_FAILED)) {
 			/* good one */
@@ -437,14 +555,17 @@ setilocale(const char *ln)
 		}
 
 		/* none of the locales should be a prefix to another */
-		if (LIKELY((l = xmemmem(m, fz, ln, lz)) != NULL &&
-			   l[lz++] == '\n')) {
+		if (UNLIKELY((l = xmemmem(m, fz, ln, lz)) == NULL)) {
+			;
+		} else if (UNLIKELY(l[lz++] != '\n')) {
+			;
+		} else if (snarf_ln(&loc, l + lz, fz - (l + lz - m)) < 0) {
 			/* ... so we've found the one match
-			 * first line is abday
-			 * second is day
-			 * third is abmon
-			 * fourth is mon */
-			snarf_ln(l + lz, fz - (l + lz - m));
+			 * but reading the locale lines went pearshaped */
+			;
+		} else {
+			/* finally set them */
+			setf(loc);
 		}
 
 		munmap(deconst(m), fz);
@@ -452,6 +573,33 @@ setilocale(const char *ln)
 clo:
 	close(fd);
 	return rc;
+}
+
+
+int
+setilocale(const char *ln)
+{
+	size_t lz;
+
+	if (UNLIKELY(ln == NULL || !(lz = strlen(ln)))) {
+		reset_il();
+		return 0;
+	}
+
+	return __setlocale(ln, lz, set_il);
+}
+
+int
+setflocale(const char *ln)
+{
+	size_t lz;
+
+	if (UNLIKELY(ln == NULL || !(lz = strlen(ln)))) {
+		reset_fl();
+		return 0;
+	}
+
+	return __setlocale(ln, lz, set_fl);
 }
 
 /* locale.c ends here */

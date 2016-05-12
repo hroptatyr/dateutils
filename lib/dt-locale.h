@@ -95,4 +95,9 @@ extern const ssize_t dut_nabab_mon;
  * Just as stupid as setlocale(3). */
 extern int setilocale(const char *locale);
 
+/**
+ * Set formatting locale (only LC_TIME values) to LOCALE.
+ * Just as stupid as setlocale(3). */
+extern int setflocale(const char *locale);
+
 #endif	/* INCLUDED_locale_h_ */

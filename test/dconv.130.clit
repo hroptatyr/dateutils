@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv --locale it_IT -f '%b %Y' 2016-01-00
+gen 2016
+$ dconv --locale it_IT -f '%a %d %B %Y' 2016-05-05
+gio 05 maggio 2016
+$
+
+## dconv.130.clit ends here
