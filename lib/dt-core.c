@@ -264,7 +264,7 @@ __sexy_add(dt_sexy_t sx, struct dt_dtdur_s dur)
 		break;
 	case DT_DURD:
 	case DT_DURBD:
-		dv = dur.d.dv * SECS_PER_DAY;
+		dv = (dt_ssexy_t)dur.d.dv * SECS_PER_DAY;
 		/*@fallthrough@*/
 	case DT_DURUNK:
 		dv += dur.t.sdur;
