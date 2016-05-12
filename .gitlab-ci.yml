@@ -1,0 +1,25 @@
+before_script:
+  - sudo apt-get install -qq gperf
+  - sudo apt-get install -qq flex
+  - sudo apt-get install -qq bison
+  - sudo apt-get install -qq texinfo
+  - sudo apt-get install -qq texlive
+  - autoreconf -vfi
+
+stages:
+  - build
+  - test
+
+bld:
+  stage build
+  script:
+    - ./configure --enable-tzmap-fetch --enable-contrib || { cat config.log; false; }
+    - make
+  only
+    - master
+
+tst:
+  stage test
+  script:
+    - make check || { cat test/test-suite.log; false; }
+    - make V=1 distcheck
