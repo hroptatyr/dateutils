@@ -313,9 +313,11 @@ xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
 static char*
 xstrndup(const char *s, size_t z)
 {
-	char *res = malloc(z + 1U);
-	memcpy(res, s, z);
-	res[z] = '\0';
+	char *res;
+	if ((res = malloc(z + 1U))) {
+		memcpy(res, s, z);
+		res[z] = '\0';
+	}
 	return res;
 }
 
