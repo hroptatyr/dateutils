@@ -484,6 +484,9 @@ main(int argc, char *argv[])
 	if (argi->from_locale_arg) {
 		setilocale(argi->from_locale_arg);
 	}
+	if (argi->locale_arg) {
+		setflocale(argi->locale_arg);
+	}
 
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
@@ -706,6 +709,9 @@ out:
 	}
 	if (argi->from_locale_arg) {
 		setilocale(NULL);
+	}
+	if (argi->locale_arg) {
+		setflocale(NULL);
 	}
 	yuck_free(argi);
 	return rc;
