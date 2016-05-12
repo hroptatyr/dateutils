@@ -357,6 +357,55 @@ get_argv0dir(const char *argv0)
 			/* we've got a plan B */
 			goto planb;
 		}
+#elif defined __NetBSD__
+	} else if (1) {
+		static const char myself[] = "/proc/curproc/exe";
+		char buf[PATH_MAX];
+		ssize_t off;
+
+		if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
+			/* nawww */
+			goto planb;
+		}
+		/* strdup BUF quickly */
+		res = strndup(buf, off);
+#elif defined __DragonFly__
+	} else if (1) {
+		static const char myself[] = "/proc/curproc/file";
+		char buf[PATH_MAX];
+		ssize_t off;
+
+		if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
+			/* nawww */
+			goto planb;
+		}
+		/* strdup BUF quickly */
+		res = strndup(buf, off);
+#elif defined __FreeBSD__
+	} else if (1) {
+		int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+		char buf[PATH_MAX];
+		size_t bsz = sizeof(buf);
+
+		/* make sure that \0 terminator fits */
+		buf[--bsz] = '\0';
+		if (UNLIKELY(sysctl(mib, countof(mib), buf, &bsz, 0, 0) < 0)) {
+			goto planb;
+		}
+		/* we can be grateful they gave us the path,
+		 * counting is our job */
+		res = strdup(buf);
+#elif defined __sun || defined sun
+	} else if (1) {
+		char buf[PATH_MAX];
+		ssize_t off;
+
+		snprintf(buf, sizeof(buf), "/proc/%d/path/a.out", getpid());
+		if (UNLIKELY((off = readlink(buf, buf, bsz)) < 0)) {
+			goto planb;
+		}
+		/* strdup BUF quickly */
+		res = strndup(buf, off);
 #elif defined __APPLE__
 	} else if (1) {
 		char buf[PATH_MAX];
@@ -370,13 +419,16 @@ get_argv0dir(const char *argv0)
 		res = strdup(buf);
 #endif	/* OS */
 	} else {
+		size_t argz0;
+
 	planb:
 		/* backup plan, massage argv0 */
 		if (argv0 == NULL) {
 			return NULL;
 		}
-		/* otherwise simply copy ARGV0 */
-		res = strdup(argv0);
+		/* otherwise copy ARGV0, or rather the first PATH_MAX chars */
+		for (argz0 = 0U; argz0 < PATH_MAX && argv0[argz0]; argz0++);
+		res = strndup(argv0, argz0);
 	}
 
 	/* path extraction aka dirname'ing, absolute or otherwise */
