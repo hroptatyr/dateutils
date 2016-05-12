@@ -4,7 +4,7 @@
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
- * This file is part of clitoris.
+ * This file is part of clitosis.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -76,6 +76,10 @@
 # define countof(x)	(sizeof(x) / sizeof(*x))
 #endif	/* !countof */
 
+#if !defined strlenof
+# define strlenof(x)	(sizeof(x) - 1U)
+#endif	/* !strlenof */
+
 #if !defined with
 # define with(args...)	for (args, *__ep__ = (void*)1; __ep__; __ep__ = 0)
 #endif	/* !with */
@@ -125,6 +129,9 @@ struct clit_opt_s {
 	unsigned int ptyp:1;
 	unsigned int keep_going_p:1;
 	unsigned int shcmdp:1;
+	/* just some padding to start afresh on an 8-bit boundary */
+	unsigned int:4;
+	unsigned int xcod:8;
 
 	/* use this instead of /bin/sh */
 	char *shcmd;
@@ -146,7 +153,7 @@ struct clit_chld_s {
 	char **huskv;
 };
 
-/* a test is the command (inlcuding stdin), stdout result, and stderr result */
+/* a test is the command (including stdin), stdout result, and stderr result */
 struct clit_tst_s {
 	clit_bit_t cmd;
 	clit_bit_t out;
@@ -350,6 +357,7 @@ get_argv0dir(const char *argv0)
 
 	if (0) {
 #if 0
+
 #elif defined __linux__
 /* don't rely on argv0 at all */
 	} else if (1) {
@@ -357,66 +365,67 @@ get_argv0dir(const char *argv0)
 			/* we've got a plan B */
 			goto planb;
 		}
-#elif defined __NetBSD__
-	} else if (1) {
-		static const char myself[] = "/proc/curproc/exe";
-		char buf[PATH_MAX];
-		ssize_t off;
-
-		if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
-			/* nawww */
-			goto planb;
-		}
-		/* strdup BUF quickly */
-		res = strndup(buf, off);
-#elif defined __DragonFly__
-	} else if (1) {
-		static const char myself[] = "/proc/curproc/file";
-		char buf[PATH_MAX];
-		ssize_t off;
-
-		if (UNLIKELY((off = readlink(myself, buf, bsz)) < 0)) {
-			/* nawww */
-			goto planb;
-		}
-		/* strdup BUF quickly */
-		res = strndup(buf, off);
-#elif defined __FreeBSD__
-	} else if (1) {
-		int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
-		char buf[PATH_MAX];
-		size_t bsz = sizeof(buf);
-
-		/* make sure that \0 terminator fits */
-		buf[--bsz] = '\0';
-		if (UNLIKELY(sysctl(mib, countof(mib), buf, &bsz, 0, 0) < 0)) {
-			goto planb;
-		}
-		/* we can be grateful they gave us the path,
-		 * counting is our job */
-		res = strdup(buf);
-#elif defined __sun || defined sun
+#elif defined __APPLE__ && defined __MACH__
 	} else if (1) {
 		char buf[PATH_MAX];
-		ssize_t off;
+		uint32_t bsz = strlenof(buf);
 
-		snprintf(buf, sizeof(buf), "/proc/%d/path/a.out", getpid());
-		if (UNLIKELY((off = readlink(buf, buf, bsz)) < 0)) {
-			goto planb;
-		}
-		/* strdup BUF quickly */
-		res = strndup(buf, off);
-#elif defined __APPLE__
-	} else if (1) {
-		char buf[PATH_MAX];
-		uint32_t bsz = sizeof(buf) - 1U;
-
+		buf[bsz] = '\0';
 		if (_NSGetExecutablePath(buf, &bsz) < 0) {
 			/* plan B again */
 			goto planb;
 		}
 		/* strdup BUF quickly */
 		res = strdup(buf);
+#elif defined __NetBSD__
+	} else if (1) {
+		static const char myself[] = "/proc/curproc/exe";
+		char buf[PATH_MAX];
+		ssize_t z;
+
+		if (UNLIKELY((z = readlink(myself, buf, bsz)) < 0)) {
+			/* plan B */
+			goto planb;
+		}
+		/* strndup him */
+		res = strndup(buf, z);
+#elif defined __DragonFly__
+	} else if (1) {
+		static const char myself[] = "/proc/curproc/file";
+		char buf[PATH_MAX];
+		ssize_t z;
+
+		if (UNLIKELY((z = readlink(myself, buf, bsz)) < 0)) {
+			/* blimey, proceed with plan B */
+			goto planb;
+		}
+		/* strndup him */
+		res = strndup(buf, z);
+#elif defined __FreeBSD__
+	} else if (1) {
+		int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+		char buf[PATH_MAX];
+		size_t z = strlenof(buf);
+
+		/* make sure that \0 terminator fits */
+		buf[z] = '\0';
+		if (UNLIKELY(sysctl(mib, countof(mib), buf, &z, NULL, 0) < 0)) {
+			/* no luck today */
+			goto planb;
+		}
+		/* make the result our own */
+		res = strdup(buf);
+#elif defined __sun || defined sun
+	} else if (1) {
+		char buf[PATH_MAX];
+		ssize_t z;
+
+		snprintf(buf, sizeof(buf), "/proc/%d/path/a.out", getpid());
+		if (UNLIKELY((z = readlink(buf, buf, sizeof(buf))) < 0)) {
+			/* nope, plan A failed */
+			goto planb;
+		}
+		res = strndup(buf, z);
 #endif	/* OS */
 	} else {
 		size_t argz0;
@@ -689,12 +698,12 @@ find_ignore(struct clit_tst_s tst[static 1])
 		static char tok_out[] = "output";
 		static char tok_ret[] = "return";
 
-		if (strncmp(cmd, tok_ign, sizeof(tok_ign) - 1U)) {
+		if (strncmp(cmd, tok_ign, strlenof(tok_ign))) {
 			/* don't bother */
 			break;
 		}
 		/* fast-forward a little */
-		cmd += sizeof(tok_ign) - 1U;
+		cmd += strlenof(tok_ign);
 
 		if (isspace(*cmd)) {
 			/* it's our famous ignore token it seems */
@@ -702,14 +711,14 @@ find_ignore(struct clit_tst_s tst[static 1])
 		} else if (*cmd++ != '-') {
 			/* unknown token then */
 			break;
-		} else if (!strncmp(cmd, tok_out, sizeof(tok_out) - 1U)) {
+		} else if (!strncmp(cmd, tok_out, strlenof(tok_out))) {
 			/* ignore-output it is */
 			tst->ign_out = 1U;
-			cmd += sizeof(tok_out) - 1U;
-		} else if (!strncmp(cmd, tok_ret, sizeof(tok_ret) - 1U)) {
+			cmd += strlenof(tok_out);
+		} else if (!strncmp(cmd, tok_ret, strlenof(tok_ret))) {
 			/* ignore-return it is */
 			tst->ign_ret = 1U;
-			cmd += sizeof(tok_ret) - 1U;
+			cmd += strlenof(tok_ret);
 		} else {
 			/* don't know what's going on */
 			break;
@@ -852,7 +861,7 @@ find_opt(struct clit_opt_s options, const char *bp, size_t bz)
 	static const char magic[] = "setopt ";
 
 	for (const char *mp;
-	     (mp = xmemmem(bp, bz, magic, sizeof(magic) - 1U)) != NULL;
+	     (mp = xmemmem(bp, bz, magic, strlenof(magic))) != NULL;
 	     bz -= (mp + 1U) - bp, bp = mp + 1U) {
 		unsigned int opt;
 
@@ -866,12 +875,14 @@ find_opt(struct clit_opt_s options, const char *bp, size_t bz)
 			opt = 0U;
 		} else {
 			/* found rubbish then */
-			mp += sizeof(magic) - 1U;
+			mp += strlenof(magic);
 			continue;
 		}
-#define CMP(x, lit)	(strncmp((x), (lit), sizeof(lit) - 1))
+#define CMP(x, lit)	(strncmp((x), (lit), strlenof(lit)))
 		/* parse the option value */
-		if ((mp += sizeof(magic) - 1U) == NULL) {
+		mp += strlenof(magic);
+		if (NULL) {
+			/* not reached */
 			;
 		} else if (CMP(mp, "verbose\n") == 0) {
 			options.verbosep = opt;
@@ -897,6 +908,14 @@ find_opt(struct clit_opt_s options, const char *bp, size_t bz)
 			}
 			options.shcmd = xstrndup(arg, eol - arg);
 			options.shcmdp = 1U;
+		} else if (CMP(mp, "exit-code") == 0) {
+			const char *arg = mp + sizeof("exit-code");
+			char *p;
+			long unsigned int xc;
+
+			if ((xc = strtoul(arg, &p, 0), *p == '\n')) {
+				options.xcod = (unsigned int)xc;
+			}
 		}
 #undef CMP
 	}
@@ -1192,9 +1211,6 @@ differ(struct clit_chld_s ctx[static 1], clit_bit_t exp, bool xpnd_proto_p)
 		if (expfd >= 0) {
 			close(expfd);
 		}
-		if (actfd >= 0) {
-			close(actfd);
-		}
 		kill(difftool, SIGTERM);
 		difftool = -1;
 		break;
@@ -1377,8 +1393,8 @@ run_tst(struct clit_chld_s ctx[static 1], struct clit_tst_s tst[static 1])
 			rc = 0;
 		} else if (tst->exp_ret == 255U && rc) {
 			rc = 0;
-		} else {
-			rc = 1;
+		} else if (ctx->options.xcod) {
+			rc = ctx->options.xcod;
 		}
 	} else {
 		rc = 1;
@@ -1655,6 +1671,13 @@ main(int argc, char *argv[])
 	} else if (getenv("DIFF") != NULL) {
 		cmd_diff = getenv("DIFF");
 	}
+	if (argi->exit_code_arg == (const char*)0x1U) {
+		options.xcod = 0U;
+	} else if (argi->exit_code_arg) {
+		options.xcod = strtoul(argi->exit_code_arg, NULL, 0);
+	} else {
+		options.xcod = 1U;
+	}
 
 	/* Although I cannot support my claim with a hard survey, I would
 	 * say in 99.9 cases out of a hundred the cli tool in question
@@ -1682,8 +1705,8 @@ main(int argc, char *argv[])
 			/* use at most 256U bytes for blddir */
 			char _blddir[256U];
 
-			memccpy(_blddir, blddir, '\0', sizeof(_blddir) - 1U);
-			_blddir[sizeof(_blddir) - 1U] = '\0';
+			memccpy(_blddir, blddir, '\0', strlenof(_blddir));
+			_blddir[strlenof(_blddir)] = '\0';
 			prepend_path(_blddir);
 		}
 	}
