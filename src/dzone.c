@@ -239,12 +239,15 @@ main(int argc, char *argv[])
 	 * we'll then sort them by traversing the input args and ass'ing
 	 * to the one or the other */
 	nz = 0U;
-	if ((z = malloc(argi->nargs * sizeof(*z))) == NULL) {
+	if (UNLIKELY((z = malloc(argi->nargs * sizeof(*z))) == NULL)) {
 		error("failed to allocate space for zone info");
 		goto out;
 	}
 	nd = 0U;
-	d = malloc(argi->nargs * sizeof(*d));
+	if (UNLIKELY((d = malloc(argi->nargs * sizeof(*d))) == NULL)) {
+		error("failed to allocate space for date/times");
+		goto out;
+	}
 
 	for (size_t i = 0U; i < argi->nargs; i++) {
 		const char *inp = argi->args[i];
