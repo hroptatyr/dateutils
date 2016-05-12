@@ -14,3 +14,6 @@ Run .clit regression test files.
   -k, --keep-going  Don't break on the first failure or differing output
 
   --diff=CMD  Use specified diff command instead of the one in PATH.
+  -x, --exit-code[=N]   Map any non-0 exit code from the commands to N,
+                        (default: 1), or, if N is omitted, pass the exit
+                        code through as is.
