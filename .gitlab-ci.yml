@@ -1,4 +1,5 @@
 before_script:
+  - apt-get -q -m update || true
   - apt-get install -qq gperf
   - apt-get install -qq flex
   - apt-get install -qq bison
