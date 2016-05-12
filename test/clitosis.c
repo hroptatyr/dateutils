@@ -370,13 +370,16 @@ get_argv0dir(const char *argv0)
 		res = strdup(buf);
 #endif	/* OS */
 	} else {
+		size_t argz0;
+
 	planb:
 		/* backup plan, massage argv0 */
 		if (argv0 == NULL) {
 			return NULL;
 		}
-		/* otherwise simply copy ARGV0 */
-		res = strdup(argv0);
+		/* otherwise copy ARGV0, or rather the first PATH_MAX chars */
+		for (argz0 = 0U; argz0 < PATH_MAX && argv0[argz0]; argz0++);
+		res = strndup(argv0, argz0);
 	}
 
 	/* path extraction aka dirname'ing, absolute or otherwise */
