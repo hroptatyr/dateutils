@@ -675,6 +675,9 @@ main(int argc, char *argv[])
 	if (argi->from_locale_arg) {
 		setilocale(argi->from_locale_arg);
 	}
+	if (argi->locale_arg) {
+		setflocale(argi->locale_arg);
+	}
 
 	/* try and read the from and to time zones */
 	if (argi->from_zone_arg) {
@@ -800,6 +803,9 @@ no durations given");
 	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);
+	}
+	if (argi->locale_arg) {
+		setflocale(NULL);
 	}
 
 out:
