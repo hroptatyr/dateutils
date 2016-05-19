@@ -224,10 +224,10 @@ dt_io_find_strpdt2(
 		case GRPATM_B_SPEC:
 			ndl = b_needle;
 			break;
-		case GRPATM_TINY_A_SPEC:
+		case GRPATM_TA_SPEC:
 			ndl = ta_needle;
 			break;
-		case GRPATM_TINY_B_SPEC:
+		case GRPATM_TB_SPEC:
 			ndl = tb_needle;
 			break;
 		case GRPATM_O_SPEC:
@@ -367,28 +367,6 @@ calc_grep_atom(const char *fmt)
 		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
 
 		/* pre checks */
-		switch (spec.spfl) {
-		case DT_SPFL_S_WDAY:
-			res.pl.flags |= GRPATM_A_SPEC;
-			if (res.pl.off_min == res.pl.off_max) {
-				andl_idx = res.pl.off_min;
-			}
-			break;
-		case DT_SPFL_S_MON:
-			res.pl.flags |= GRPATM_B_SPEC;
-			if (res.pl.off_min == res.pl.off_max) {
-				bndl_idx = res.pl.off_min;
-			}
-			break;
-		case DT_SPFL_S_AMPM:
-			res.pl.flags |= GRPATM_P_SPEC;
-			if (res.pl.off_min == res.pl.off_max) {
-				pndl_idx = res.pl.off_min;
-			}
-			break;
-		default:
-			break;
-		}
 		if (spec.ord) {
 			/* account for the extra 2 letters, but they're
 			 * optional now, so don't fiddle with the max bit */
@@ -459,38 +437,48 @@ calc_grep_atom(const char *fmt)
 			res.pl.flags |= GRPATM_DIGITS;
 			break;
 		case DT_SPFL_S_WDAY:
+			if (res.pl.off_min == res.pl.off_max) {
+				andl_idx = res.pl.off_min;
+			}
 			switch (spec.abbr) {
 			case DT_SPMOD_NORM:
 				res.pl.off_min -= dut_rabbr_wday.max;
 				res.pl.off_max -= dut_rabbr_wday.min;
+				res.pl.flags |= GRPATM_A_SPEC;
 				break;
 			case DT_SPMOD_ABBR:
 				res.pl.off_min -= 1;
 				res.pl.off_max -= 1;
-				res.pl.flags |= GRPATM_T_FLAG;
+				res.pl.flags |= GRPATM_TA_SPEC;
 				break;
 			case DT_SPMOD_LONG:
 				res.pl.off_min -= dut_rlong_wday.max;
 				res.pl.off_max -= dut_rlong_wday.min;
+				res.pl.flags |= GRPATM_A_SPEC;
 				break;
 			default:
 				break;
 			}
 			break;
 		case DT_SPFL_S_MON:
+			if (res.pl.off_min == res.pl.off_max) {
+				bndl_idx = res.pl.off_min;
+			}
 			switch (spec.abbr) {
 			case DT_SPMOD_NORM:
 				res.pl.off_min -= dut_rabbr_mon.max;
 				res.pl.off_max -= dut_rabbr_mon.min;
+				res.pl.flags |= GRPATM_B_SPEC;
 				break;
 			case DT_SPMOD_ABBR:
 				res.pl.off_min -= 1;
 				res.pl.off_max -= 1;
-				res.pl.flags |= GRPATM_T_FLAG;
+				res.pl.flags |= GRPATM_TB_SPEC;
 				break;
 			case DT_SPMOD_LONG:
 				res.pl.off_min -= dut_rlong_mon.max;
 				res.pl.off_max -= dut_rlong_mon.min;
+				res.pl.flags |= GRPATM_B_SPEC;
 				break;
 			default:
 				break;
@@ -505,6 +493,10 @@ calc_grep_atom(const char *fmt)
 			res.needle = 'Q';
 			goto out;
 		case DT_SPFL_S_AMPM:
+			res.pl.flags |= GRPATM_P_SPEC;
+			if (res.pl.off_min == res.pl.off_max) {
+				pndl_idx = res.pl.off_min;
+			}
 			res.pl.off_min += -2;
 			res.pl.off_max += -2;
 			break;
@@ -548,6 +540,17 @@ post_snarf:
 			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
 			res.pl.off_min = res.pl.off_max = pndl_idx;
 			res.pl.flags = GRPATM_P_SPEC;
+			goto out;
+		} else if (res.pl.flags & GRPATM_TA_SPEC) {
+			/* very short but better than going for digits aye? */
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
+			res.pl.off_min = res.pl.off_max = andl_idx;
+			res.pl.flags = GRPATM_TA_SPEC;
+			goto out;
+		} else if (res.pl.flags & GRPATM_TB_SPEC) {
+			res.needle = GRPATM_NEEDLELESS_MODE_CHAR;
+			res.pl.off_min = res.pl.off_max = bndl_idx;
+			res.pl.flags = GRPATM_TB_SPEC;
 			goto out;
 		}
 	}

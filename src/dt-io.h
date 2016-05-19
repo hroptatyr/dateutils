@@ -30,22 +30,20 @@ typedef struct grep_atom_s *grep_atom_t;
 typedef const struct gep_atom_s *const_grep_atom_t;
 
 struct grpatm_payload_s {
-	uint8_t flags;
-#define GRPATM_DIGITS	(1)
-#define GRPATM_ORDINALS	(2)
-#define GRPATM_SUFFIX	(4)
-#define GRPATM_A_SPEC	(8)
-#define GRPATM_B_SPEC	(16)
-#define GRPATM_O_SPEC	(32)
-#define GRPATM_T_FLAG	(64)
-#define GRPATM_P_SPEC	(128)
+	uint16_t flags;
+#define GRPATM_DIGITS	(1U)
+#define GRPATM_ORDINALS	(2U)
+#define GRPATM_SUFFIX	(4U)
+#define GRPATM_A_SPEC	(8U)
+#define GRPATM_TA_SPEC	(16U)
+#define GRPATM_B_SPEC	(32U)
+#define GRPATM_TB_SPEC	(64U)
+#define GRPATM_O_SPEC	(128U)
+#define GRPATM_P_SPEC	(256U)
 	int8_t off_min;
 	int8_t off_max;
 	const char *fmt;
 };
-/* combos */
-#define GRPATM_TINY_A_SPEC	(GRPATM_T_FLAG | GRPATM_A_SPEC)
-#define GRPATM_TINY_B_SPEC	(GRPATM_T_FLAG | GRPATM_B_SPEC)
 
 /* atoms are maps needle-character -> payload */
 struct grep_atom_s {
