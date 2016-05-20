@@ -34,6 +34,7 @@ libdutio_a_SOURCES =
 libdutio_a_SOURCES += dt-io.c dt-io.h
 libdutio_a_SOURCES += dt-io-zone.c dt-io-zone.h
 libdutio_a_SOURCES += alist.c alist.h
+libdutio_a_SOURCES += prchunk.c prchunk.h
 libdutio_a_SOURCES += dexpr.h
 libdutio_a_CPPFLAGS = $(AM_CPPFLAGS)
 libdutio_a_CPPFLAGS += $(DT_INCLUDES)
@@ -81,7 +82,6 @@ BUILT_SOURCES += dseq.yucc
 if HAVE_STRPTIME
 bin_PROGRAMS += strptime
 strptime_SOURCES = strptime.c strptime.yuck
-strptime_SOURCES += prchunk.c prchunk.h
 strptime_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 strptime_LDFLAGS = $(AM_LDFLAGS)
 strptime_LDADD = libdutio.a
@@ -90,7 +90,6 @@ endif
 BUILT_SOURCES += strptime.yucc
 
 dconv_SOURCES = dconv.c dconv.yuck
-dconv_SOURCES += prchunk.c prchunk.h
 dconv_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dconv_LDFLAGS = $(AM_LDFLAGS)
 dconv_LDADD = libdutio.a
@@ -105,7 +104,6 @@ dtest_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dtest.yucc
 
 dadd_SOURCES = dadd.c dadd.yuck
-dadd_SOURCES += prchunk.c prchunk.h
 dadd_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dadd_LDFLAGS = $(AM_LDFLAGS)
 dadd_LDADD = libdutio.a
@@ -113,7 +111,6 @@ dadd_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dadd.yucc
 
 ddiff_SOURCES = ddiff.c ddiff.yuck
-ddiff_SOURCES += prchunk.c prchunk.h
 ddiff_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 ddiff_LDFLAGS = $(AM_LDFLAGS)
 ddiff_LDADD = libdutio.a
@@ -121,7 +118,6 @@ ddiff_LDADD += $(DT_LIBS)
 BUILT_SOURCES += ddiff.yucc
 
 dgrep_SOURCES = dgrep.c dgrep.yuck
-dgrep_SOURCES += prchunk.c prchunk.h
 dgrep_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dgrep_LDFLAGS = $(AM_LDFLAGS)
 dgrep_LDADD = libdutio.a
@@ -129,7 +125,6 @@ dgrep_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dgrep.yucc
 
 dround_SOURCES = dround.c dround.yuck
-dround_SOURCES += prchunk.c prchunk.h
 dround_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dround_LDFLAGS = $(AM_LDFLAGS)
 dround_LDADD = libdutio.a
@@ -144,7 +139,6 @@ dzone_LDADD += $(DT_LIBS)
 BUILT_SOURCES += dzone.yucc
 
 dsort_SOURCES = dsort.c dsort.yuck
-dsort_SOURCES += prchunk.c prchunk.h
 dsort_CPPFLAGS = $(AM_CPPFLAGS) $(DT_INCLUDES)
 dsort_LDFLAGS = $(AM_LDFLAGS)
 dsort_LDADD = libdutio.a
