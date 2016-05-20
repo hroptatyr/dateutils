@@ -8,6 +8,33 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.0
+------
+Summary: v0.4.0 of dateutils
+
+This is dateutils v0.4.0.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- document %g/%G format specifiers
+- bug/42, accept NUL characters in input
+- bug/45, correctly display Gregorian and ISO week dates in one line
+- bug/46, adhere to ISO group's official formatting of week dates
+- bug/47, allow rounding of Epoch based timestamps
+- bug/48, avoid crash for void input to strptime(3)
+
+Features:
+
+- datetest supports `--isvalid` to conditionalise on date/time parsing
+- all tools support `--from-locale` to parse localised input
+- tools with output formatting support `--locale` to format output
+  according to locale
+
+See info page examples and/or README.
+
+
 v0.3.5
 ------
 Summary: v0.3.5 of dateutils
