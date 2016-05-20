@@ -35,7 +35,6 @@
  *
  ***/
 
-%defines
 %pure-parser
 %parse-param{dexpr_t *cur}
 
