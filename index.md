@@ -416,7 +416,9 @@ datezone
   indicates the exact moment when the transition is about to take
   place.
 
-  In essence `datezone` is a better `zdump(1)`.
+  In essence `datezone` is a better [`zdump(8)`][5].
+
+  [5]: http://linux.die.net/man/8/zdump
 
 
 strptime
