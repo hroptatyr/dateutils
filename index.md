@@ -461,6 +461,40 @@ development and a [website][4] for further information.
   [4]: /dateutils/tzmaps.html
 
 
+Locale support
+==============
+
+Since version 0.4.0 dateutils allows for reading and printing localised
+dates: Seeing as input had to be specified explicitly from day 1, this
+feature covers weekday and month names only.
+
+As is generally the philosophy of dateutils, locale support does not
+depend on system infrastructure (libc in this case) nor does it follow
+the usual semantics of setting `LC_TIME`, so different locales can be
+used for input and output independent of the user's environment.
+
+All tools support the `--from-locale` parameter while tools that output
+date/times also support `--locale`.
+
+    $ dateconv --from-locale it_IT -i '%d %B %Y' '19 maggio 2016'
+    2016-05-19
+    $ dateconv --locale fr_FR -f '%d %B %Y' 2016-05-19
+    19 mai 2016
+    $
+
+The [locale file][6] is a simple tab separated text, following the
+locale identifier line (`xx_XX`) is the line of abbreviated weekday
+names (`%a`) of which there must be 7 corresponding to Mon, Tue, ...,
+followed by long weekday names (`%A`), followed by abbreviated month
+names (`%b`) of which there must be 12 corresponding to Jan, Feb, ...,
+followed last by the long month names (`%B`).
+
+Extending the file is thus a matter of adding 5 lines.  The environment
+variable `LOCALE_FILE` can be used to override the default location.
+
+  [6]: https://github.com/hroptatyr/dateutils/blob/master/data/locale
+
+
 Similar projects
 ================
 
