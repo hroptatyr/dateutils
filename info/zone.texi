@@ -1,0 +1,14 @@
+@section Time zones and mappings
+
+All tools of the dateutils suite support @samp{--from-zone=ZONE} to
+globally declare that date/time input is expressed in ZONE.
+
+Tools that output absolute date/times also allow @samp{--zone=ZONE} to
+globally declare that date/time output is to be converted into ZONE.
+
+Due to the complexity in setting up and maintaining timezone reference
+data, we decided to depart from our usual course and depend on the
+system's zoneinfo database.  As a consequence, @samp{ZONE} can point to
+anything in the system's zoneinfo directory.
+
+Additionally, and true to our motto not to depend on system facilities,

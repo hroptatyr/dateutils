@@ -76,6 +76,7 @@ arise when dealing with large amounts of financial data.
 * Introduction::        Motivation, background, etc.
 * Calendars::           Calendar concepts and format specs
 * Format specifiers and units:: How to control input and output
+* Localised input and output::  Date/times specific to regions
 * Algorithms::          Some notes on the algorithms used
 * dateadd::             Add durations to dates or times
 * dateconv::            Convert dates between calendars or time zones
@@ -257,6 +258,21 @@ be input.  Their syntax is covered in the final section.
 @include format.texi
 @include format-ddiff.texi
 @include units.texi
+
+@node Localised input and output
+@chapter Localised input and output
+
+Input and output may need to be refined even beyond what simple format
+specifiers can accomplish, for example time zone information might not
+be present in the input (or must not be present in the output); or using
+named weekdays (@samp{%a}, @samp{%A}) or months (@samp{%b}, @samp{%B})
+depending on region and language.
+
+We present dateutils' solution in the next 2 sections.
+
+@include zone.texi
+@include locale.texi
+
 
 @node Algorithms
 @chapter Algorithms
