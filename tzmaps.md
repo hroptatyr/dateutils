@@ -39,7 +39,8 @@ tzmap files are simply tab-separated lists of the format:
     SPECIFIER \t ZONENAME [\t ZONENAME]...
 
 sorted by `SPECIFIER`.  On this site we provide mappings from IATA and
-ICAO airport codes.
+ICAO airport codes, as well as mappings from Market Identification Codes
+(MIC).
 
 [iata.tzmap][5]
 ---------------
