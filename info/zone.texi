@@ -1,0 +1,28 @@
+@section Time zones and mappings
+
+All tools of the dateutils suite support @samp{--from-zone=ZONE} to
+globally declare that date/time input is expressed in ZONE.
+
+Tools that output absolute date/times also allow @samp{--zone=ZONE} to
+globally declare that date/time output is to be converted into ZONE.
+
+Due to the complexity in setting up and maintaining timezone reference
+data, we decided to depart from our usual course and depend on the
+system's zoneinfo database.  As a consequence, @samp{ZONE} can point to
+anything in the system's zoneinfo directory which is assumed to be in
+IANA format.
+
+@heading Timezone maps
+
+Additionally, and true to our motto not to depend on system facilities,
+dateutils ships with timezone map files to map domain specific
+identifiers to their IANA zoneinfo name.
+
+Mapped timezone identifiers generally look like @samp{DOMAIN:IDENTIFIER}
+where @samp{DOMAIN.tzmap} is a file in the tzmap search path and
+@samp{IDENTIFIER} is a valid entry therein.  In-lieu of @samp{ZONE}
+specifiers of the above form are accepted by all tools of the dateutils
+suite as well.
+
+For more information on timezone map files, covered domains and licence
+information visit @url{http://www.fresse.org/dateutils/tzmaps.html}.
