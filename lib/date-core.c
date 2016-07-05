@@ -1332,6 +1332,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 {
 	struct dt_d_s res = dt_d_initialiser();
 
+	/* fix up before conversion */
+	d = dt_dfixup(d);
+
 	switch ((res.typ = tgttyp)) {
 	case DT_YMD:
 		res.ymd = dt_conv_to_ymd(d);
@@ -1788,6 +1791,36 @@ DEFUN int
 dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 {
 	return dt_dcmp(d, d1) >= 0 && dt_dcmp(d, d2) <= 0;
+}
+
+DEFUN __attribute__((pure)) struct dt_d_s
+dt_dfixup(struct dt_d_s d)
+{
+	switch (d.typ) {
+	case DT_YMD:
+		d.ymd = __ymd_fixup(d.ymd);
+		break;
+	case DT_YMCW:
+		d.ymcw = __ymcw_fixup(d.ymcw);
+		break;
+	case DT_YWD:
+		d.ywd = __ywd_fixup(d.ywd);
+		break;
+	case DT_YD:
+		d.yd = __yd_fixup(d.yd);
+		break;
+	case DT_BIZDA:
+		d.bizda = __bizda_fixup(d.bizda);
+		break;
+
+		/* these can't be buggered */
+	case DT_DAISY:
+	case DT_JDN:
+	case DT_LDN:
+	default:
+		break;
+	}
+	return d;
 }
 
 #endif	/* INCLUDED_date_core_c_ */

@@ -528,6 +528,10 @@ extern int dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2);
 extern struct dt_d_s dt_get_dbase(void);
 #endif	/* LIBDUT */
 
+/**
+ * Crop dates with days beyond ultimo. */
+extern __attribute__((pure)) struct dt_d_s dt_dfixup(struct dt_d_s);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_d_s

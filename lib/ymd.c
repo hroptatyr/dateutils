@@ -76,7 +76,7 @@ __get_mdays(unsigned int y, unsigned int m)
 	return res - __md_get_yday(y, m, 0);
 }
 
-static __attribute__((pure)) dt_ymd_t
+DEFUN __attribute__((pure)) dt_ymd_t
 __ymd_fixup(dt_ymd_t d)
 {
 /* given dates like 2012-02-32 this returns 2012-02-29 */
@@ -629,7 +629,7 @@ __ymd_add_m(dt_ymd_t d, int n)
 	}
 	/* final assignment */
 	d.m = tgtm;
-	return __ymd_fixup(d);
+	return d;
 }
 
 static dt_ymd_t
@@ -637,7 +637,7 @@ __ymd_add_y(dt_ymd_t d, int n)
 {
 /* add N years to D */
 	d.y += n;
-	return __ymd_fixup(d);
+	return d;
 }
 #endif	/* ASPECT_ADD */
 
