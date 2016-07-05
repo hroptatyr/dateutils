@@ -67,7 +67,7 @@ __get_mcnt(unsigned int y, unsigned int m, dt_dow_t w)
 	}
 }
 
-static dt_ymcw_t
+DEFUN dt_ymcw_t
 __ymcw_fixup(dt_ymcw_t d)
 {
 /* given dates like 2012-02-05-01 this returns 2012-02-04-01 */
@@ -475,7 +475,7 @@ __ymcw_add_m(dt_ymcw_t d, int n)
 	}
 	/* final assignment */
 	d.m = tgtm;
-	return __ymcw_fixup(d);
+	return d;
 }
 
 static dt_ymcw_t
@@ -483,7 +483,7 @@ __ymcw_add_y(dt_ymcw_t d, int n)
 {
 /* add N years to D */
 	d.y += n;
-	return __ymcw_fixup(d);
+	return d;
 }
 #endif	/* ASPECT_ADD */
 

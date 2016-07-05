@@ -814,6 +814,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		__trans_tfmt(&fmt);
 	}
 
+	/* fix up before printing */
+	if (LIKELY(dt_sandwich_p(that) || dt_sandwich_only_d_p(that))) {
+		that.d = dt_dfixup(that.d);
+	}
 	/* make sure we always snarf the zdiff info */
 	d.zdiff = zdiff_sec(that);
 
@@ -1626,6 +1630,7 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 	case DT_DAISY:
 	case DT_BIZDA:
 	case DT_YWD:
+	case DT_YD:
 		/* use arithmetic comparison */
 		if (d1.d.u < d2.d.u) {
 			return -1;

@@ -316,7 +316,7 @@ __durstack_naught_p(struct dt_dtdur_s dur[], size_t ndur)
 }
 
 static bool
-__in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
+__in_range_p(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(now)) {
 		if (clo->dir > 0) {
@@ -351,7 +351,7 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static struct dt_dt_s
-__seq_altnext(struct dt_dt_s now, struct dseq_clo_s *clo)
+__seq_altnext(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 	do {
 		now = date_add(now, clo->altite, clo->naltite);
@@ -360,7 +360,7 @@ __seq_altnext(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static struct dt_dt_s
-__seq_this(struct dt_dt_s now, struct dseq_clo_s *clo)
+__seq_this(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 /* if NOW is on a skip date, find the next date according to ALTITE, then ITE */
 	if (!skipp(clo->ss, now) && __in_range_p(now, clo)) {
@@ -380,7 +380,7 @@ __seq_this(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static struct dt_dt_s
-__seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
+__seq_next(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 /* advance NOW, then fix it */
 	struct dt_dt_s tmp = date_add(now, clo->ite, clo->nite);
@@ -388,7 +388,7 @@ __seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static int
-__get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
+__get_dir(struct dt_dt_s d, const struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(d)) {
 		/* trial addition to to see where it goes */
@@ -677,7 +677,7 @@ cannot convert calendric system internally");
 	}
 
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
-	    (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
+	    !(clo.dir = __get_dir(clo.fst, &clo))) {
 		if (!argi->quiet_flag) {
 			error("\
 increment must not be naught");
