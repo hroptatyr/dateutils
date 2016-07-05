@@ -92,6 +92,9 @@ dt_tests += dseq.50.clit
 dt_tests += dseq.51.clit
 dt_tests += dseq.52.clit
 dt_tests += dseq.53.clit
+dt_tests += dseq.54.clit
+dt_tests += dseq.55.clit
+dt_tests += dseq.56.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit

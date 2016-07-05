@@ -1238,6 +1238,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	switch (outdtyp) {
 	case DT_YMD:
 	case DT_YMCW:
+	case DT_YD:
 		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
@@ -1263,6 +1264,10 @@ dt_datetime(dt_dttyp_t outtyp)
 			res.d.ymcw.w = tm.tm_wday;
 			break;
 		}
+		case DT_YD:
+			res.d.yd.y = tm.tm_year;
+			res.d.yd.d = tm.tm_yday;
+			break;
 		default:
 			/* grrrr */
 			;
@@ -1271,7 +1276,8 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY + DAISY_UNIX_BASE;
+		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY
+			+ DAISY_UNIX_BASE;
 		break;
 
 	case DT_BIZDA:
@@ -1660,7 +1666,19 @@ try_time:
 DEFUN int
 dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
 {
-	return dt_dtcmp(d, d1) >= 0 && dt_dtcmp(d, d2) <= 0;
+/* use the following multiplication table
+ *
+ * |d,d2|v |d,d1|>  -2 -1  0  1
+ *      -2          -1 -1 -1 -1
+ *      -1          -1  0  1  1
+ *       0          -1  0  1  1
+ *       1          -1  0  0  0
+ *
+ * encoded in a 32bit uint */
+	static const uint32_t m = 0b10010111100101111010101111111111U;
+	const unsigned int i = (dt_dtcmp(d, d1) + 2) & 0b11U;
+	const unsigned int j = (dt_dtcmp(d, d2) + 2) & 0b11U;
+	return 2 - ((m >> (i * 8U + j * 2U)) & 0b11U);
 }
 
 #if defined __INTEL_COMPILER
@@ -1712,6 +1730,15 @@ dt_get_tbase(void)
 }
 # endif	/* INCLUDED_time_core_h_ */
 #endif	/* LIBDUT */
+
+DEFUN __attribute__((pure)) struct dt_dt_s
+dt_fixup(struct dt_dt_s d)
+{
+	if (LIKELY(dt_sandwich_only_d_p(d) || dt_sandwich_p(d))) {
+		d.d = dt_dfixup(d.d);
+	}
+	return d;
+}
 
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */

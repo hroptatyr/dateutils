@@ -1790,7 +1790,19 @@ dt_dcmp(struct dt_d_s d1, struct dt_d_s d2)
 DEFUN int
 dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 {
-	return dt_dcmp(d, d1) >= 0 && dt_dcmp(d, d2) <= 0;
+/* use the following multiplication table
+ *
+ * |d,d2|v |d,d1|>  -2 -1  0  1
+ *      -2          -1 -1 -1 -1
+ *      -1          -1  0  1  1
+ *       0          -1  0  1  1
+ *       1          -1  0  0  0
+ *
+ * encoded in a 32bit uint */
+	static const uint32_t m = 0b10010111100101111010101111111111U;
+	const unsigned int i = (dt_dcmp(d, d1) + 2) & 0b11U;
+	const unsigned int j = (dt_dcmp(d, d2) + 2) & 0b11U;
+	return 2 - ((m >> (i * 8U + j * 2U)) & 0b11U);
 }
 
 DEFUN __attribute__((pure)) struct dt_d_s

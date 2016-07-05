@@ -320,9 +320,9 @@ __in_range_p(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(now)) {
 		if (clo->dir > 0) {
-			return dt_dt_in_range_p(now, clo->fst, clo->lst);
+			return dt_dt_in_range_p(now, clo->fst, clo->lst) == 1;
 		} else if (clo->dir < 0) {
-			return dt_dt_in_range_p(now, clo->lst, clo->fst);
+			return dt_dt_in_range_p(now, clo->lst, clo->fst) == 1;
 		}
 	}
 	/* otherwise perform a simple range check */
@@ -553,8 +553,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		if (dt_sandwich_only_d_p(fst)) {
 			/* emulates old dseq(1) */
 			if (argi->nargs == 1U) {
-				lst.d = dt_date(DT_YMD);
-				dt_make_d_only(&lst, DT_YMD);
+				lst.d = dt_date(fst.d.typ);
+				dt_make_d_only(&lst, fst.d.typ);
 			}
 			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else if (dt_sandwich_only_t_p(fst)) {
@@ -565,8 +565,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->nargs == 1U) {
-				lst = dt_datetime((dt_dttyp_t)DT_YMD);
-				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
+				lst = dt_datetime(fst.typ);
+				dt_make_sandwich(&lst, fst.d.typ, DT_HMS);
 			}
 			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else {
@@ -575,10 +575,8 @@ don't know how to handle single argument case");
 			rc = 1;
 			goto out;
 		}
+		goto make_compat;
 
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
 	case 3: {
 		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
@@ -619,10 +617,18 @@ cannot parse duration string `%s'", argi->args[1U]);
 		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
 			rc = 2;
 		}
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
+		goto make_compat;
 	}
+
+	make_compat:
+		if (LIKELY(fst.typ == lst.typ)) {
+			clo.fst = fst;
+			clo.lst = lst;
+		} else {
+			clo.fst = fst;
+			clo.lst = dt_dtconv(fst.typ, lst);
+		}
+		break;
 	}
 
 	/* promote the args maybe */
@@ -693,7 +699,7 @@ increment must not be naught");
 	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
 		struct dt_dt_s tgt = tmp;
 
-		if (UNLIKELY(ofmt == NULL)) {
+		if (LIKELY(ofmt == NULL)) {
 			tgt = dt_dtconv(tgttyp, tmp);
 		}
 		dt_io_write(tgt, ofmt, NULL, '\n');
