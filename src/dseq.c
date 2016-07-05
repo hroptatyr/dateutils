@@ -696,7 +696,7 @@ increment must not be naught");
 		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
+	for (; __in_range_p(dt_fixup(tmp), &clo); tmp = __seq_next(tmp, &clo)) {
 		struct dt_dt_s tgt = tmp;
 
 		if (LIKELY(ofmt == NULL)) {
