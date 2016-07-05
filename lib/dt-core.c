@@ -1630,6 +1630,7 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 	case DT_DAISY:
 	case DT_BIZDA:
 	case DT_YWD:
+	case DT_YD:
 		/* use arithmetic comparison */
 		if (d1.d.u < d2.d.u) {
 			return -1;
