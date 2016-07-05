@@ -1238,6 +1238,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	switch (outdtyp) {
 	case DT_YMD:
 	case DT_YMCW:
+	case DT_YD:
 		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
@@ -1263,6 +1264,10 @@ dt_datetime(dt_dttyp_t outtyp)
 			res.d.ymcw.w = tm.tm_wday;
 			break;
 		}
+		case DT_YD:
+			res.d.yd.y = tm.tm_year;
+			res.d.yd.d = tm.tm_yday;
+			break;
 		default:
 			/* grrrr */
 			;
