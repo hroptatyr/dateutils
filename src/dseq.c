@@ -553,8 +553,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		if (dt_sandwich_only_d_p(fst)) {
 			/* emulates old dseq(1) */
 			if (argi->nargs == 1U) {
-				lst.d = dt_date(DT_YMD);
-				dt_make_d_only(&lst, DT_YMD);
+				lst.d = dt_date(fst.d.typ);
+				dt_make_d_only(&lst, fst.d.typ);
 			}
 			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else if (dt_sandwich_only_t_p(fst)) {
@@ -565,8 +565,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->nargs == 1U) {
-				lst = dt_datetime((dt_dttyp_t)DT_YMD);
-				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
+				lst = dt_datetime(fst.typ);
+				dt_make_sandwich(&lst, fst.d.typ, DT_HMS);
 			}
 			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else {
