@@ -575,10 +575,8 @@ don't know how to handle single argument case");
 			rc = 1;
 			goto out;
 		}
+		goto make_compat;
 
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
 	case 3: {
 		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
@@ -619,10 +617,18 @@ cannot parse duration string `%s'", argi->args[1U]);
 		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
 			rc = 2;
 		}
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
+		goto make_compat;
 	}
+
+	make_compat:
+		if (LIKELY(fst.typ == lst.typ)) {
+			clo.fst = fst;
+			clo.lst = lst;
+		} else {
+			clo.fst = fst;
+			clo.lst = dt_dtconv(fst.typ, lst);
+		}
+		break;
 	}
 
 	/* promote the args maybe */
