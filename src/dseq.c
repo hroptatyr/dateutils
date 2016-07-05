@@ -320,9 +320,9 @@ __in_range_p(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(now)) {
 		if (clo->dir > 0) {
-			return dt_dt_in_range_p(now, clo->fst, clo->lst);
+			return dt_dt_in_range_p(now, clo->fst, clo->lst) == 1;
 		} else if (clo->dir < 0) {
-			return dt_dt_in_range_p(now, clo->lst, clo->fst);
+			return dt_dt_in_range_p(now, clo->lst, clo->fst) == 1;
 		}
 	}
 	/* otherwise perform a simple range check */
