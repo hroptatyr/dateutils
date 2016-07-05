@@ -1276,7 +1276,8 @@ dt_datetime(dt_dttyp_t outtyp)
 
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY + DAISY_UNIX_BASE;
+		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY
+			+ DAISY_UNIX_BASE;
 		break;
 
 	case DT_BIZDA:
