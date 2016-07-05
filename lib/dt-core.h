@@ -316,6 +316,10 @@ extern void dt_set_base(struct dt_dt_s);
 extern struct dt_dt_s dt_get_base(void);
 #define HAVE_DT_GET_BASE	1
 
+/**
+ * Crop datetimess with days beyond ultimo. */
+extern __attribute__((pure)) struct dt_dt_s dt_fixup(struct dt_dt_s);
+
 
 /* some useful gimmicks, sort of */
 static inline __attribute__((pure, const)) struct dt_dt_s

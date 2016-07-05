@@ -1731,5 +1731,14 @@ dt_get_tbase(void)
 # endif	/* INCLUDED_time_core_h_ */
 #endif	/* LIBDUT */
 
+DEFUN __attribute__((pure)) struct dt_dt_s
+dt_fixup(struct dt_dt_s d)
+{
+	if (LIKELY(dt_sandwich_only_d_p(d) || dt_sandwich_p(d))) {
+		d.d = dt_dfixup(d.d);
+	}
+	return d;
+}
+
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */
