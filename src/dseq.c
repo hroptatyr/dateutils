@@ -699,7 +699,7 @@ increment must not be naught");
 	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
 		struct dt_dt_s tgt = tmp;
 
-		if (UNLIKELY(ofmt == NULL)) {
+		if (LIKELY(ofmt == NULL)) {
 			tgt = dt_dtconv(tgttyp, tmp);
 		}
 		dt_io_write(tgt, ofmt, NULL, '\n');
