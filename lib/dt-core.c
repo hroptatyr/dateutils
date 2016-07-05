@@ -1274,6 +1274,15 @@ dt_datetime(dt_dttyp_t outtyp)
 		}
 		break;
 
+	case DT_YWD:
+		/* use ordinary conversion to ywd */
+		res.d.typ = DT_YMD;
+		res.d.ymd.y = tm.tm_year;
+		res.d.ymd.m = tm.tm_mon;
+		res.d.ymd.d = tm.tm_mday;
+		res.d = dt_dconv(DT_YWD, res.d);
+		break;
+
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY

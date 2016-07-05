@@ -1277,6 +1277,7 @@ dt_date(dt_dtyp_t outtyp)
 	switch ((res.typ = outtyp)) {
 	case DT_YMD:
 	case DT_YMCW:
+	case DT_YWD:
 	case DT_YD: {
 		struct tm tm;
 		ffff_gmtime(&tm, t);
@@ -1309,11 +1310,21 @@ dt_date(dt_dtyp_t outtyp)
 			res.yd.y = tm.tm_year;
 			res.yd.d = tm.tm_yday;
 			break;
+		case DT_YWD:
+			/* use ordinary conversion to ywd */
+			res.typ = DT_YMD;
+			res.ymd.y = tm.tm_year;
+			res.ymd.m = tm.tm_mon;
+			res.ymd.d = tm.tm_mday;
+			res = dt_dconv(DT_YWD, res);
+			break;
+
 		default:
 			break;
 		}
 		break;
 	}
+
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
 		res.daisy = t / 86400 + 19359;
