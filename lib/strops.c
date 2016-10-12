@@ -67,13 +67,17 @@
 DEFUN int32_t
 strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
-	int32_t res = 0;
 	const char *sp;
 	/* we keep track of the number of digits via rulim */
-	int32_t rulim;
+	int32_t rulim = ulim > 10 ? ulim : 10;
+	int32_t res = 0;
 
-	/* read over leading 0s */
-	for (sp = str, rulim = ulim > 10 ? ulim : 10;
+	/* read over one leading space */
+	if (*str == ' ') {
+		rulim /= 10;
+		str++;
+	}
+	for (sp = str;
 	     rulim && (unsigned char)(*sp ^ '0') < 10U &&
 		     (res *= 10, res += (unsigned char)(*sp++ ^ '0')) <= ulim;
 	     rulim /= 10);
