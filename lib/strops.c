@@ -67,13 +67,35 @@
 DEFUN int32_t
 strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 {
+	const char *sp = str;
 	int32_t res = 0;
-	const char *sp;
-	/* we keep track of the number of digits via rulim */
-	int32_t rulim;
 
-	/* read over leading 0s */
-	for (sp = str, rulim = ulim > 10 ? ulim : 10;
+	/* we keep track of the number of digits via rulim */
+	for (int32_t rulim = ulim > 10 ? ulim : 10;
+	     rulim && (unsigned char)(*sp ^ '0') < 10U &&
+		     (res *= 10, res += (unsigned char)(*sp++ ^ '0')) <= ulim;
+	     rulim /= 10);
+	if (UNLIKELY(sp == str)) {
+		res = -1;
+	} else if (UNLIKELY(res < llim || res > ulim)) {
+		res = -2;
+	}
+	*ep = (char*)sp;
+	return res;
+}
+
+DEFUN int32_t
+padstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
+{
+	const char *sp;
+	int32_t rulim = ulim > 10 ? ulim : 10;
+	int32_t res = 0;
+
+	/* overread whitespace */
+	for (; *str == ' '; str++, rulim /= 10);
+
+	/* we keep track of the number of digits via rulim */
+	for (sp = str;
 	     rulim && (unsigned char)(*sp ^ '0') < 10U &&
 		     (res *= 10, res += (unsigned char)(*sp++ ^ '0')) <= ulim;
 	     rulim /= 10);

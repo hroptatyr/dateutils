@@ -240,7 +240,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode? */
 		if (LIKELY(!s.bizda)) {
-			d->d = strtoi_lim(sp, &sp, 0, 31);
+			d->d = padstrtoi_lim(sp, &sp, 0, 31);
 			res = 0 - (d->d < 0);
 		} else {
 			d->b = strtoi_lim(sp, &sp, 0, 23);
