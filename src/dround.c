@@ -59,17 +59,6 @@
 const char *prog = "dround";
 
 
-static bool
-durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
-{
-	for (size_t i = 0; i < ndur; i++) {
-		if (dur[i].durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
-			return false;
-		}
-	}
-	return true;
-}
-
 static struct dt_t_s
 tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
