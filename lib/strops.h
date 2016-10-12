@@ -51,6 +51,11 @@ extern __attribute__((nonnull(1, 2))) int32_t
 strtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
 
 /**
+ * Convert possibly padded STR to i32 and point to the end in EP. */
+extern __attribute__((nonnull(1, 2))) int32_t
+padstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
+
+/**
  * Convert STR to i32 and point to the end of the string in EP. */
 extern __attribute__((nonnull(1, 2))) int32_t
 strtoi(const char *str, const char **ep);
