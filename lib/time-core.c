@@ -118,7 +118,7 @@ __trans_tfmt(const char **fmt)
 	if (UNLIKELY(*fmt == NULL)) {
 		/* don't worry about it */
 		*fmt = hms_dflt;
-	} if (LIKELY(**fmt == '%')) {
+	} else if (LIKELY(**fmt == '%')) {
 		/* don't worry about it */
 		;
 	} else if (strcasecmp(*fmt, "hms") == 0) {
