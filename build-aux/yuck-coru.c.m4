@@ -47,10 +47,13 @@ yuck_append(char **array, size_t n, char *val)
 {
 	if (!(n % 16U)) {
 		/* resize */
-		array = realloc(array, (n + 16U) * sizeof(*array));
-		if (array == NULL) {
+		void *tmp = realloc(array, (n + 16U) * sizeof(*array));
+		if (tmp == NULL) {
+			free(array);
 			return NULL;
 		}
+		/* otherwise make it persistent */
+		array = tmp;
 	}
 	array[[n]] = val;
 	return array;
@@ -317,7 +320,7 @@ popdef([yuck_auto_action])dnl
 
 	coroutine(arg)
 	{
-		if (tgt->cmd || !YUCK_NCMDS) {
+		if (tgt->cmd || YUCK_NCMDS == 0U) {
 			tgt->args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
@@ -377,7 +380,6 @@ popdef([yuck_arg_opt_action])dnl
 popdef([yuck_arg_mul_action])dnl
 popdef([yuck_arg_mul_opt_action])dnl
 popdef([yuck_auto_opt_action])dnl
-		break;
 	}
 	return;
 }
