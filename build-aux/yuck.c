@@ -79,6 +79,9 @@
 #if !defined countof
 # define countof(x)	(sizeof(x) / sizeof(*x))
 #endif	/* !countof */
+#if !defined strlenof
+# define strlenof(x)	(sizeof(x) - 1ULL)
+#endif	/* !strlenof */
 
 #define _paste(x, y)	x ## y
 #define paste(x, y)	_paste(x, y)
@@ -368,16 +371,21 @@ bbuf_cat(bbuf_t *restrict b, const char *str, size_t ssz)
 {
 	if (UNLIKELY(b->n + ssz + 1U/*\nul*/ > b->z)) {
 		const size_t nu = max_zu(yfls(b->n + ssz + 1U) + 1U, 6U);
+		char *tmp;
 
-		b->s = realloc(b->s, (b->z = (1ULL << nu) * sizeof(*b->s)));
-		if (UNLIKELY(b->s == NULL)) {
+		tmp = realloc(b->s, (b->z = (1ULL << nu) * sizeof(*b->s)));
+		if (UNLIKELY(tmp == NULL)) {
 			goto free;
 		}
+		/* all's good then? */
+		b->s = tmp;
 	}
 	xstrncpy(b->s + b->n, str, ssz);
 	b->n += ssz;
 	return b->s;
 free:
+	free(b->s);
+	b->s = NULL;
 	b->n = 0U;
 	b->z = 0U;
 	return NULL;
@@ -496,8 +504,9 @@ overread:
 	if (cur_usg.cmd && !strncasecmp(cur_usg.cmd, cp, sp - cp)) {
 		/* nothing new and fresh */
 		;
-	} else if ((*cp != '<' || (cp++, *--sp == '>')) &&
-		   !strncasecmp(cp, "command", sp - cp)) {
+	} else if (!strncasecmp(cp, "command", sp - cp) ||
+		   (cp[0] == '<' && sp[-1] == '>' &&
+		    !strncasecmp(cp + 1U, "command", sp - cp - 2))) {
 		/* special command COMMAND or <command> */
 		cur_usg.cmd = NULL;
 	} else if (*cp >= 'a' && *cp <= 'z' && umb_yldd_p) {
@@ -1236,8 +1245,8 @@ find_aux(char *restrict buf, size_t bsz, const char *aux)
 	}
 #if defined YUCK_TEMPLATE_PATH
 	path = YUCK_TEMPLATE_PATH;
-	plen = sizeof(YUCK_TEMPLATE_PATH);
-	if (plen-- > 0U && aux_in_path_p(aux, path, plen)) {
+	plen = strlenof(YUCK_TEMPLATE_PATH);
+	if (aux_in_path_p(aux, path, plen)) {
 		goto bang;
 	}
 #endif	/* YUCK_TEMPLATE_PATH */

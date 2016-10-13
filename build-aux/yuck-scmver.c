@@ -686,6 +686,7 @@ hg_version(struct yuck_version_s v[static 1U])
 
 		if ((nrd = read(*fd, buf, sizeof(buf))) <= 0) {
 			/* no version then aye */
+			rc = -1;
 			break;
 		}
 		buf[nrd - 1U/* for \n*/] = '\0';
