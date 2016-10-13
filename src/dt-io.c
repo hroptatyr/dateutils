@@ -420,6 +420,10 @@ calc_grep_atom(const char *fmt)
 				res.pl.off_min += -1;
 				res.pl.off_max += -1;
 				break;
+			case DT_SPMOD_ILL:
+			default:
+				/* should be impossible */
+				break;
 			}
 			res.pl.flags |= GRPATM_DIGITS;
 			break;

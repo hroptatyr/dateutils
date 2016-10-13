@@ -694,6 +694,10 @@ __strfd_rom(
 		case DT_SPMOD_ABBR:
 			res = ui32tostrrom(buf, bsz, d->y % 10);
 			break;
+		case DT_SPMOD_ILL:
+		default:
+			/* should be impossible */
+			break;
 		}
 		break;
 	case DT_SPFL_N_MON:
