@@ -1336,8 +1336,10 @@ static __attribute__((noinline)) int
 run_m4(const char *outfn, ...)
 {
 	pid_t m4p;
-	/* to snarf off traffic from the child */
+	/* we need a bidirectional pipe (for the unmassaging) */
 	int intfd[2];
+	int outfd = STDOUT_FILENO;
+	int rc;
 
 	if (pipe(intfd) < 0) {
 		error("pipe setup to/from m4 failed");
@@ -1347,51 +1349,7 @@ run_m4(const char *outfn, ...)
 		return -1;
 	}
 
-	switch ((m4p = vfork())) {
-	case -1:
-		/* i am an error */
-		error("vfork for m4 failed");
-		return -1;
-
-	default:;
-		/* i am the parent */
-		int rc;
-		int st;
-
-		if (outfn != NULL) {
-			/* --output given */
-			const int outfl = O_RDWR | O_CREAT | O_TRUNC;
-			int outfd;
-
-			if ((outfd = open(outfn, outfl, 0666)) < 0) {
-				/* bollocks */
-				error("cannot open outfile `%s'", outfn);
-				goto bollocks;
-			}
-
-			/* really redir now */
-			dup2(outfd, STDOUT_FILENO);
-			close(outfd);
-		}
-
-		close(intfd[1]);
-		unmassage_fd(STDOUT_FILENO, intfd[0]);
-
-		rc = 2;
-		while (waitpid(m4p, &st, 0) != m4p);
-		if (WIFEXITED(st)) {
-			rc = WEXITSTATUS(st);
-		}
-		/* clean up the rest of the pipe */
-		close(intfd[0]);
-		return rc;
-
-	case 0:;
-		/* i am the child */
-		break;
-	}
-
-	/* child code here */
+	/* command-line prepping */
 	with (va_list vap) {
 		va_start(vap, outfn);
 		for (size_t i = cmdln_idx;
@@ -1400,13 +1358,55 @@ run_m4(const char *outfn, ...)
 		va_end(vap);
 	}
 
-	dup2(intfd[1], STDOUT_FILENO);
-	close(intfd[0]);
+	switch ((m4p = vfork())) {
+	case -1:
+		/* i am an error */
+		error("vfork for m4 failed");
+		return -1;
 
-	execvp(m4_cmdline[0U], m4_cmdline);
-	error("execvp(m4) failed");
-bollocks:
-	_exit(EXIT_FAILURE);
+	default:
+		break;
+
+	case 0:
+		/* redirect stdout -> intfd[1] */
+		dup2(intfd[1], STDOUT_FILENO);
+		close(intfd[1]);
+		close(intfd[0]);
+		/* i am the child */
+		execvp(m4_cmdline[0U], m4_cmdline);
+		error("execvp(m4) failed");
+		_exit(EXIT_FAILURE);
+	}
+
+	/* i am the parent */
+	close(intfd[1]);
+
+	/* prep redirection */
+	if (outfn != NULL) {
+		/* --output given */
+		const int outfl = O_RDWR | O_CREAT | O_TRUNC;
+
+		if ((outfd = open(outfn, outfl, 0666)) < 0) {
+			/* bollocks */
+			error("cannot open outfile `%s'", outfn);
+			return -1;
+		}
+	}
+
+	/* reroute m4's output */
+	unmassage_fd(outfd, intfd[0]);
+
+	rc = 2;
+	with (int st) {
+		while (waitpid(m4p, &st, 0) != m4p);
+		if (WIFEXITED(st)) {
+			rc = WEXITSTATUS(st);
+		}
+	}
+	if (outfn != NULL) {
+		close(outfd);
+	}
+	return rc;
 }
 
 
