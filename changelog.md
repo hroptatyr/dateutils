@@ -8,8 +8,26 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.1
+=======
+Summary: v0.4.1 of dateutils
+
+This is dateutils v0.4.1.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- bug/50, keep end-of-term (ultimo) property in dateseq(1)
+- allow today/now for ywd dates in 1 parameter dateseq(1)
+- allow different calendars for start and end date in dateseq(1)
+- round time in dateround(1) in zone then convert --from-zone
+- allow SPC padded numerals in %d input format
+
+See info page examples and/or README.
+
 v0.4.0
-------
+=======
 Summary: v0.4.0 of dateutils
 
 This is dateutils v0.4.0.
