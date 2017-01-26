@@ -22,3 +22,8 @@ build:
       - public
   only:
     - master
+
+pages:
+  artifacts:
+    paths:
+      - public
