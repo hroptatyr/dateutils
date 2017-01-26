@@ -24,6 +24,8 @@ build:
     - master
 
 pages:
+  script:
+    - mkdir -p ./public
   artifacts:
     paths:
       - public
