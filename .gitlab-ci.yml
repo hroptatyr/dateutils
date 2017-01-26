@@ -21,6 +21,8 @@ bld:
 pages:
   script:
     - mkdir -p public
+    - ./configure --enable-tzmap-fetch --enable-contrib || { cat config.log; false; }
+    - make dist
     - cp dateutils-*.tar.* public/
   artifacts:
     paths:
