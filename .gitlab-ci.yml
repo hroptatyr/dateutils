@@ -1,3 +1,5 @@
+image: gcc:6.3
+
 before_script:
   - apt-get -q -m update || true
   - apt-get install -qq gperf
@@ -17,7 +19,6 @@ bld:
     - master
 
 pages:
-  image: alpine:latest
   script:
     - mkdir -p public
     - cp dateutils-*.tar.* public/
