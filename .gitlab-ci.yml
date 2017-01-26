@@ -9,7 +9,7 @@ before_script:
   - apt-get install -qq texlive
   - autoreconf -vfi
 
-build:
+pages:
   script:
     - ./configure --enable-tzmap-fetch --enable-contrib || { cat config.log; false; }
     - make
@@ -22,10 +22,3 @@ build:
       - public
   only:
     - master
-
-pages:
-  script:
-    - mkdir -p ./public
-  artifacts:
-    paths:
-      - public
