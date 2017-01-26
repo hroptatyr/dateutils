@@ -15,3 +15,12 @@ bld:
     - make V=1 distcheck
   only:
     - master
+
+pages:
+  image: alpine:latest
+  script:
+    - mkdir -p public
+    - cp dateutils-*.tar.* public/
+  artifacts:
+    paths:
+      - public
