@@ -900,6 +900,10 @@ check_PROGRAMS += basic_md_get_yday
 check_PROGRAMS += basic_get_dom_wday
 check_PROGRAMS += strtoi-bench
 check_PROGRAMS += strtoi-1
+check_PROGRAMS += itostr-1
+check_PROGRAMS += itostr-2
+check_PROGRAMS += itostr-3
+check_PROGRAMS += itostr-4
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -926,6 +930,10 @@ dtcore_add_LDADD = $(DT_LIBS)
 time_core_add_LDADD = $(DT_LIBS)
 
 dt_tests += strtoi.001.clit
+dt_tests += itostr.001.clit
+dt_tests += itostr.002.clit
+dt_tests += itostr.003.clit
+dt_tests += itostr.004.clit
 
 ## batch checks
 batch_tests += dseq-cnt.1.sh

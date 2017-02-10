@@ -40,10 +40,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#if defined __cplusplus
-extern "C" {
-#endif	/* __cplusplus */
-
 /* stolen from Klaus Klein/David Laight's strptime() */
 /**
  * Convert STR to i32 and point to the end of the string in EP. */
@@ -132,18 +128,124 @@ extern char*
 xmempbrk(const char *src, size_t len, const char *set);
 
 
-static inline char*
-__c2p(const char *p)
+static inline char
+ui2c(uint32_t x, char pad)
 {
-	union {
-		char *p;
-		const char *c;
-	} res = {.c = p};
-	return res.p;
+	return (char)((pad > 0 || x > 0) << 5U | ((x > 0) << 4U) | (x ^ pad));
 }
 
-#if defined __cplusplus
+static inline size_t
+ui99topstr(char *restrict b, size_t z, uint32_t d, size_t width, char pad)
+{
+/* specifically for numbers 00-99, signature like ui32topstr() */
+	if (z) {
+		uint32_t d10 = d / 10U, drem = d % 10U;
+		size_t i;
+
+		i = 0U;
+		b[i] = ui2c(d10, pad);
+		i += (d10 > 0U || width > 1U && pad) && z > 1U;
+		b[i++] = ui2c(drem, '0');
+		return i;
+	}
+	return 0U;
 }
-#endif	/* __cplusplus */
+
+static inline size_t
+ui999topstr(char *restrict b, size_t z, uint32_t d, size_t width, char pad)
+{
+/* specifically for numbers 000-999, signature like ui32topstr() */
+	if (z) {
+		uint32_t d100 = d / 100U, drem = d % 100U;
+		size_t i;
+
+		i = 0U;
+		b[i] = ui2c(d100, pad);
+		i += (d100 > 0U || width > 2U && pad) && z > 2U;
+		d100 = drem / 10U, drem = drem % 10U;
+		b[i] = ui2c(d100, pad);
+		i += (d100 > 0U || width > 1U && pad) && z > 1U;
+		b[i++] = ui2c(drem, '0');
+		return i;
+	}
+	return 0U;
+}
+
+static inline size_t
+ui9999topstr(char *restrict b, size_t z, uint32_t d, size_t width, char pad)
+{
+/* specifically for numbers 0000-9999, signature like ui32topstr() */
+	if (z) {
+		uint32_t d1000 = d / 1000U, drem = d % 1000U;
+		size_t i;
+
+		i = 0U;
+		b[i] = ui2c(d1000, pad);
+		i += (d1000 > 0U || width > 3U && pad) && z > 3U;
+		d1000 = drem / 100U, drem = drem % 100U;
+		b[i] = ui2c(d1000, pad);
+		i += (d1000 > 0U || width > 2U && pad) && z > 2U;
+		d1000 = drem / 10U, drem = drem % 10U;
+		b[i] = ui2c(d1000, pad);
+		i += (d1000 > 0U || width > 1U && pad) && z > 1U;
+		b[i++] = ui2c(drem, '0');
+		return i;
+	}
+	return 0U;
+}
+
+static inline size_t
+ui999999999tostr(char *restrict b, size_t z, uint32_t d)
+{
+/* specifically for nanoseconds, this one fills the buffer from
+ * most significant to least significant */
+	if (z) {
+		uint32_t dx = d / 100000000U, dr = d % 100000000U;
+		size_t i = 0U;
+
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 10000000U, dr = dr % 10000000U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 1000000U, dr = dr % 1000000U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 100000U, dr = dr % 100000U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 10000U, dr = dr % 10000U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 1000U, dr = dr % 1000U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 100U, dr = dr % 100U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		dx = dr / 10U, dr = dr % 10U;
+		b[i++] = ui2c(dx, '0');
+		if (!--z) {
+			return i;
+		}
+		b[i++] = ui2c(dr, '0');
+		return i;
+	}
+	return 0U;
+}
 
 #endif	/* INCLUDED_strops_h_ */
