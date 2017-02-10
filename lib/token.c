@@ -182,6 +182,10 @@ next:
 		/* SPC padding modifier */
 		res.pad = DT_SPPAD_SPC;
 		goto next;
+	case '-':
+		/* OMIT padding modifier */
+		res.pad = DT_SPPAD_OMIT;
+		goto next;
 	case 'r':
 		/* real modifier */
 		res.tai = 1;

@@ -37,10 +37,6 @@
 #if !defined INCLUDED_token_h_
 #define INCLUDED_token_h_
 
-#if defined __cplusplus
-extern "C" {
-#endif	/* __cplusplus */
-
 /* spec tokeniser, spec flags plus modifiers and stuff */
 typedef enum {
 	DT_SPFL_UNK,
@@ -132,6 +128,7 @@ struct dt_spec_s {
 			DT_SPPAD_NONE,
 			DT_SPPAD_ZERO,
 			DT_SPPAD_SPC,
+			DT_SPPAD_OMIT,
 		} pad:2U;
 
 		/** time specs */
@@ -169,8 +166,10 @@ spec_initialiser(void)
 	return res;
 }
 
-#if defined __cplusplus
+static inline __attribute__((pure, const)) char
+padchar(struct dt_spec_s s)
+{
+	return (char)(0x20U ^ ((s.pad < DT_SPPAD_SPC) << 4U));
 }
-#endif	/* __cplusplus */
 
 #endif	/* INCLUDED_token_h_ */
