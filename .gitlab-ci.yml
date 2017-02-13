@@ -17,7 +17,7 @@ pages:
     - make V=1 distcheck
     - mkdir -p public
     - cp dateutils-*.tar.* public/
-    - ln -sf dateutils-*.tar.xz public/dateutils-latest.tar,xz
+    - ln -sf dateutils-*.tar.xz public/dateutils-latest.tar.xz
     - ln -sf dateutils-*.tar.gz public/dateutils-latest.tar.gz
   artifacts:
     paths:
