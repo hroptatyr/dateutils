@@ -497,6 +497,12 @@ __strfdt_xdn(char *buf, size_t bsz, struct dt_dt_s that)
 			return snprintf(buf, bsz, "%.0f", dn);
 		}
 		break;
+	case DT_MDN:
+		dn = (double)that.d.mdn;
+		if (dt_sandwich_only_d_p(that)) {
+			return snprintf(buf, bsz, "%.0f", dn);
+		}
+		break;
 	default:
 		return 0;
 	}

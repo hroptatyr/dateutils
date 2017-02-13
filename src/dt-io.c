@@ -353,6 +353,7 @@ calc_grep_atom(const char *fmt)
 			break;
 		case DT_LDN:
 		case DT_JDN:
+		case DT_MDN:
 			/* there's no format specifiers for lilian/julian */
 			res.pl.off_min += -10;
 			res.pl.off_max += -1;

@@ -63,6 +63,7 @@ typedef enum {
 	DT_BIZSI,
 	DT_JDN,
 	DT_LDN,
+	DT_MDN,
 	DT_NDTYP,
 } dt_dtyp_t;
 
@@ -224,6 +225,11 @@ typedef float dt_jdn_t;
  * We will mostly use the daisy type for this. */
 typedef dt_daisy_t dt_ldn_t;
 
+/** mdn (matlab day number)
+ * matlab days are whole proleptic solar days since 01 Jan 0.
+ * We will mostly use the daisy type for this. */
+typedef dt_daisy_t dt_mdn_t;
+
 /** bizda
  * bizdas is a calendar that counts business days before or after a
  * certain day in the month, mostly ultimo. */
@@ -295,6 +301,7 @@ struct dt_d_s {
 		dt_daisy_t bizsi;
 		dt_jdn_t jdn;
 		dt_ldn_t ldn;
+		dt_mdn_t mdn;
 		/* all bizdas mixed into this */
 		dt_bizda_t bizda;
 		/* for helper purposes only */

@@ -631,6 +631,32 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			dt_make_d_only(&res, DT_LDN);
 		}
 		goto sober;
+
+	case DT_MDN:
+		res.d.mdn = (dt_ldn_t)strtoi(str, &sp);
+		if (*sp == '.') {
+			/* oooh, a double it seems */
+			double tmp = strtod(sp, &on);
+
+			/* fix up const-ness problem */
+			sp = on;
+			/* convert to HMS */
+			res.t.hms.h = (tmp *= HOURS_PER_DAY);
+			tmp -= (double)res.t.hms.h;
+			res.t.hms.m = (tmp *= MINS_PER_HOUR);
+			tmp -= (double)res.t.hms.m;
+			res.t.hms.s = (tmp *= SECS_PER_MIN);
+			tmp -= (double)res.t.hms.s;
+			res.t.hms.ns = (tmp *= NANOS_PER_SEC);
+			dt_make_sandwich(&res, DT_MDN, DT_HMS);
+		} else if (UNLIKELY(*sp < '\0' || *sp > ' ')) {
+			/* not on my turf */
+			goto fucked;
+		} else {
+			/* looking good */
+			dt_make_d_only(&res, DT_MDN);
+		}
+		goto sober;
 	}
 
 	fp = fmt;
@@ -761,6 +787,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
+		case DT_MDN:
 		strf_xian:
 			/* short cut, just print the guy here */
 			bp = buf + __strfdt_xdn(buf, bsz, that);
@@ -800,6 +827,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
+		case DT_MDN:
 			goto strf_xian;
 		default:
 			/* fuck */
@@ -847,7 +875,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto daisy_prep;
 	case DT_LDN:
 		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
-		/* FALLTHROUGH */
+		goto daisy_prep;
+	case DT_MDN:
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
+		goto daisy_prep;
 	case DT_DAISY:
 	daisy_prep:
 		__prep_strfd_daisy(&d.sd, that.d.daisy);
@@ -1328,6 +1359,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 		case DT_YD:
 		case DT_JDN:
 		case DT_LDN:
+		case DT_MDN:
 			/* backup sandwich state */
 			sw = d.sandwich;
 			/* convert */
