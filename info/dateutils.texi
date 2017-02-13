@@ -229,6 +229,15 @@ reference date is the first day of the Gregorian calendar, 15 Oct 1582.
 The input and output format string is @code{ldn} or @code{lilian}, there
 is no format specifier.
 
+@subsection matlab, mdn
+
+Taking the Lilian day number further (in a proleptic sense) to the
+beginning of time, the First of January in year 0, you get the Matlab
+day number.
+
+The input and output format string is @code{mdn} or @code{matlab}, there
+is no format specifier.
+
 @section bizda
 
 This calendric system is actually a whole tribe of calendars, in its
