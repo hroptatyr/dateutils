@@ -230,6 +230,10 @@ dt_tests += dconv.131.clit
 dt_tests += dconv.132.clit
 dt_tests += dconv.133.clit
 dt_tests += dconv.134.clit
+dt_tests += dconv.135.clit
+dt_tests += dconv.136.clit
+dt_tests += dconv.137.clit
+dt_tests += dconv.138.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit

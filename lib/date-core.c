@@ -456,6 +456,8 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return __ldn_to_daisy(that.ldn);
 	case DT_JDN:
 		return __jdn_to_daisy(that.jdn);
+	case DT_MDN:
+		return __mdn_to_daisy(that.mdn);
 	case DT_YD:
 		return __yd_to_daisy(that.yd);
 	case DT_DUNK:
@@ -478,6 +480,10 @@ dt_conv_to_ymd(struct dt_d_s that)
 		goto daisy;
 	case DT_LDN:
 		that.daisy = __ldn_to_daisy(that.ldn);
+		goto daisy;
+	case DT_MDN:
+		that.daisy = __mdn_to_daisy(that.mdn);
+		goto daisy;
 	case DT_DAISY:
 	daisy:
 		return __daisy_to_ymd(that.daisy);
@@ -507,6 +513,10 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		goto daisy;
 	case DT_LDN:
 		that.daisy = __ldn_to_daisy(that.ldn);
+		goto daisy;
+	case DT_MDN:
+		that.daisy = __mdn_to_daisy(that.mdn);
+		goto daisy;
 	case DT_DAISY:
 	daisy:
 		return __daisy_to_ymcw(that.daisy);
@@ -563,6 +573,10 @@ dt_conv_to_ywd(struct dt_d_s this)
 		goto daisy;
 	case DT_LDN:
 		this.daisy = __ldn_to_daisy(this.ldn);
+		goto daisy;
+	case DT_MDN:
+		this.daisy = __mdn_to_daisy(this.mdn);
+		goto daisy;
 	case DT_DAISY:
 	daisy:
 		return __daisy_to_ywd(this.daisy);
@@ -591,6 +605,10 @@ dt_conv_to_yd(struct dt_d_s this)
 		goto daisy;
 	case DT_LDN:
 		this.daisy = __ldn_to_daisy(this.ldn);
+		goto daisy;
+	case DT_MDN:
+		this.daisy = __mdn_to_daisy(this.mdn);
+		goto daisy;
 	case DT_DAISY:
 	daisy:
 		return __daisy_to_yd(this.daisy);
@@ -1004,7 +1022,11 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 	case DT_LDN:
 		that.typ = DT_DAISY;
 		that.daisy = __ldn_to_daisy(that.ldn);
-		/* FALLTHROUGH */
+		goto daisy_prep;
+	case DT_MDN:
+		that.typ = DT_DAISY;
+		that.daisy = __mdn_to_daisy(that.mdn);
+		goto daisy_prep;
 	case DT_DAISY:
 	daisy_prep:
 		__prep_strfd_daisy(&d, that.daisy);
@@ -1355,7 +1377,8 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		break;
 	case DT_DAISY:
 	case DT_JDN:
-	case DT_LDN: {
+	case DT_LDN:
+	case DT_MDN: {
 		dt_daisy_t tmp = dt_conv_to_daisy(d);
 		switch (tgttyp) {
 		case DT_DAISY:
@@ -1366,6 +1389,9 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 			break;
 		case DT_JDN:
 			res.jdn = __daisy_to_jdn(tmp);
+			break;
+		case DT_MDN:
+			res.mdn = __daisy_to_mdn(tmp);
 			break;
 		default:
 			/* nice one gcc */
@@ -1404,6 +1430,10 @@ dt_dadd_d(struct dt_d_s d, int n)
 		d.daisy = __ldn_to_daisy(d.ldn);
 		goto daisy_add_d;
 
+	case DT_MDN:
+		d.daisy = __mdn_to_daisy(d.mdn);
+		goto daisy_add_d;
+
 	case DT_DAISY:
 	daisy_add_d:
 		d.daisy = __daisy_add_d(d.daisy, n);
@@ -1418,6 +1448,9 @@ dt_dadd_d(struct dt_d_s d, int n)
 			break;
 		case DT_JDN:
 			d.jdn = __daisy_to_jdn(d.daisy);
+			break;
+		case DT_MDN:
+			d.mdn = __daisy_to_mdn(d.daisy);
 			break;
 		}
 		break;
@@ -1464,6 +1497,10 @@ dt_dadd_b(struct dt_d_s d, int n)
 		d.daisy = __ldn_to_daisy(d.ldn);
 		goto daisy_add_b;
 
+	case DT_MDN:
+		d.daisy = __mdn_to_daisy(d.mdn);
+		goto daisy_add_b;
+
 	case DT_DAISY:
 	daisy_add_b:
 		d.daisy = __daisy_add_b(d.daisy, n);
@@ -1478,6 +1515,9 @@ dt_dadd_b(struct dt_d_s d, int n)
 			break;
 		case DT_JDN:
 			d.jdn = __daisy_to_jdn(d.daisy);
+			break;
+		case DT_MDN:
+			d.mdn = __daisy_to_mdn(d.daisy);
 			break;
 		}
 		break;
@@ -1524,6 +1564,10 @@ dt_dadd_w(struct dt_d_s d, int n)
 		d.daisy = __ldn_to_daisy(d.ldn);
 		goto daisy_add_w;
 
+	case DT_MDN:
+		d.daisy = __mdn_to_daisy(d.mdn);
+		goto daisy_add_w;
+
 	case DT_DAISY:
 	daisy_add_w:
 		d.daisy = __daisy_add_w(d.daisy, n);
@@ -1538,6 +1582,9 @@ dt_dadd_w(struct dt_d_s d, int n)
 			break;
 		case DT_JDN:
 			d.jdn = __daisy_to_jdn(d.daisy);
+			break;
+		case DT_MDN:
+			d.mdn = __daisy_to_mdn(d.daisy);
 			break;
 		}
 		break;
@@ -1578,6 +1625,7 @@ dt_dadd_m(struct dt_d_s d, int n)
 	switch (d.typ) {
 	case DT_LDN:
 	case DT_JDN:
+	case DT_MDN:
 	case DT_DAISY:
 		/* daisy objects have no notion of months */
 		break;
@@ -1618,6 +1666,7 @@ dt_dadd_y(struct dt_d_s d, int n)
 	switch (d.typ) {
 	case DT_LDN:
 	case DT_JDN:
+	case DT_MDN:
 	case DT_DAISY:
 		/* daisy objects have no notion of years */
 		break;
@@ -1840,6 +1889,7 @@ dt_dfixup(struct dt_d_s d)
 	case DT_DAISY:
 	case DT_JDN:
 	case DT_LDN:
+	case DT_MDN:
 	default:
 		break;
 	}

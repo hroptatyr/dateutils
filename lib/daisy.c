@@ -135,12 +135,15 @@ __daisy_get_yday(dt_daisy_t d)
 #if DT_DAISY_BASE_YEAR == 1917
 # define DT_LDN_BASE	(122068U/*lilian's 1917-01-00*/)
 # define DT_JDN_BASE	(2421228.5f/*julian's 1917-01-00*/)
+# define DT_MDN_BASE	(700170/*matlab's 1917-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1753
 # define DT_LDN_BASE	(62169U/*lilian's 1753-01-00*/)
 # define DT_JDN_BASE	(2361329.5f/*julian's 1753-01-00*/)
+# define DT_MDN_BASE	(640271/*matlab's 1753-01-00*/)
 #elif DT_DAISY_BASE_YEAR == 1601
 # define DT_LDN_BASE	(6652U/*lilian's 1601-01-00*/)
 # define DT_JDN_BASE	(2305812.5f/*julian's 1601-01-00*/)
+# define DT_MDN_BASE	(584754/*matlab's 1601-01-00*/)
 #else
 # error cannot convert to ldn, unknown base year
 #endif
@@ -155,6 +158,12 @@ static __attribute__((const, pure)) dt_jdn_t
 __daisy_to_jdn(dt_daisy_t d)
 {
 	return (dt_jdn_t)d + DT_JDN_BASE;
+}
+
+static __attribute__((const, pure)) dt_mdn_t
+__daisy_to_mdn(dt_daisy_t d)
+{
+	return (dt_mdn_t)d + DT_MDN_BASE;
 }
 
 static __attribute__((const, pure)) dt_daisy_t
@@ -173,6 +182,17 @@ __jdn_to_daisy(dt_jdn_t d)
 {
 	float tmp;
 	if ((tmp = d - DT_JDN_BASE) > 0.0f) {
+		return (dt_daisy_t)tmp;
+	}
+	return 0U;
+}
+
+static __attribute__((const, pure)) dt_daisy_t
+__mdn_to_daisy(dt_mdn_t d)
+{
+	dt_sdaisy_t tmp;
+
+	if ((tmp = d - DT_MDN_BASE) > 0) {
 		return (dt_daisy_t)tmp;
 	}
 	return 0U;

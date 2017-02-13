@@ -32,3 +32,5 @@ julian, DT_JDN
 jdn, DT_JDN
 lilian, DT_LDN
 ldn, DT_LDN
+matlab, DT_MDN
+mdn, DT_MDN

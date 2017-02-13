@@ -97,6 +97,8 @@ corresponding format string:
   ldn        n/a
   julian     n/a
   jdn        n/a
+  matlab     n/a
+  mdn        n/a
 @end verbatim
 
 These designators can be used as output format string, moreover,
