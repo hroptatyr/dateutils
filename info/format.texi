@@ -77,6 +77,9 @@ Modifiers:
 @verbatim
   %O  Modifier to turn decimal numbers into Roman numerals
   %r  Modifier to turn units into real units
+  %0  Modifier to turn on zero prefixes
+  %SPC  Modifier to turn on space prefixes
+  %-  Modifier to turn off prefixes altogether
   th  Suffix, read and print ordinal numbers
   b   Suffix, treat days as business days
 @end verbatim
