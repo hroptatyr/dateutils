@@ -32,6 +32,11 @@ matrix:
       compiler: clang
       env: CHECK="normal"
 
+before_install:
+  - if test "$TRUSTY" = "yes"; then
+      echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt;
+    fi
+
 before_script:
   - autoreconf -vfi
 
