@@ -52,7 +52,7 @@ script:
 
 after_script:
   # find test log from check as well as from distcheck
-  - log=$(find -name test-suite.log) && test -f "$log" && cat "$log" || true
+  - find -name test-suite.log | xargs -r cat
 
 ## whitelist
 branches:
