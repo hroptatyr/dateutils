@@ -5,6 +5,9 @@ Requisites:
 - compiler gcc >= 4.6.0 or compatible (icc, clang, ...)
 - autotools
 - texinfo
+- gperf
+- flex
+- bison
 
 Build and install:
 ------------------
