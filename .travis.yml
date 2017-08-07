@@ -83,3 +83,13 @@ addons:
     build_command_prepend: "./configure"
     build_command: "make all check"
     branch_pattern: coverity-scan
+
+deploy:
+  provider: releases
+  api_key:
+    secure: WRTz8MTXtkK69Hk/E1iXj4wXxko60vXgmcuW0RaLeRpmphUN9emVUu791W7fQeqx4j/GM32vwGPDa0jdm4dQ2s4ptNpEliisOpx/sGwJsugmeQm/5lSwTMuDwSWoIdWV7HRwsaWodXSzrxFBbZ9g+peTjz28geXp7lDtUCQbWC0=
+  file_glob: true
+  file: dateutils-*.tar.xz
+  skip_cleanup: true
+  on:
+    tags: true
