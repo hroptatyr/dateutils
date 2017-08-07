@@ -342,7 +342,14 @@ cmdify(char *restrict cmd)
 		v[0U] = strtok(cmd, ifs);
 		do {
 			if (UNLIKELY((i % 16U) == 15U)) {
-				v = realloc(v, (i + 1U + 16U) * sizeof(*v));
+				void *nuv;
+
+				nuv = realloc(v, (i + 1U + 16U) * sizeof(*v));
+				if (UNLIKELY(nuv == NULL)) {
+					free(v);
+					return NULL;
+				}
+				v = nuv;
 			}
 		} while ((v[++i] = strtok(NULL, ifs)) != NULL);
 	}
