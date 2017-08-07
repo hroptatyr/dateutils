@@ -46,7 +46,7 @@ script:
       make -j2 clean && make -j2 check;
     fi
   - if [ "$CHECK" = "distcheck" ]; then
-      ./configure || { cat config.log; false; } &&
+      ./configure --enable-tzmap-fetch || { cat config.log; false; } &&
       make -j2 all && make -j2 distcheck;
     fi
 
