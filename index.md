@@ -61,7 +61,6 @@ Distributions
 Following Linux distros and BSD flavours provide native packages
 (in alphabetical order):
 
-+ ArchLinux <https://aur.archlinux.org/packages/dateutils/>
 + Debian <http://packages.debian.org/sid/dateutils>
 + Fedora <https://admin.fedoraproject.org/pkgdb/package/dateutils/>
 + FreeBSD <http://svnweb.freebsd.org/ports/head/sysutils/dateutils/>
