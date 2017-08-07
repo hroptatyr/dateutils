@@ -1,3 +1,5 @@
+image: gcc:6.3
+
 before_script:
   - apt-get -q -m update || true
   - apt-get install -qq gperf
@@ -7,11 +9,18 @@ before_script:
   - apt-get install -qq texlive
   - autoreconf -vfi
 
-bld:
+pages:
   script:
     - ./configure --enable-tzmap-fetch --enable-contrib || { cat config.log; false; }
     - make
     - make check || { cat test/test-suite.log; false; }
     - make V=1 distcheck
+    - mkdir -p public
+    - cp dateutils-*.tar.* public/
+    - ln -sf dateutils-*.tar.xz public/dateutils-latest.tar.xz
+    - ln -sf dateutils-*.tar.gz public/dateutils-latest.tar.gz
+  artifacts:
+    paths:
+      - public
   only:
     - master

@@ -79,16 +79,22 @@ __fitsp(alist_t al, size_t keylen)
 	return al->dend + keylen + 2 * sizeof(void**) < al->allz;
 }
 
-static void
+static int
 __chk_resz(alist_t al, size_t keylen)
 {
 	if (UNLIKELY(!__fitsp(al, keylen))) {
 		size_t ol = al->allz;
+		void *tmp;
+
 		al->allz = (al->allz * 2U) ?: 64U;
-		al->data = realloc(al->data, al->allz);
+		if (UNLIKELY((tmp = realloc(al->data, al->allz)) == NULL)) {
+			free_alist(al);
+			return -1;
+		}
+		al->data = tmp;
 		memset(al->data + ol, 0, al->allz - ol);
 	}
-	return;
+	return 0;
 }
 
 

@@ -19,7 +19,7 @@ popdef([alt_desc])dnl
 .SH SYNOPSIS
 .B YUCK_UMB_STR
 [[\fIOPTION\fR]]...[ ]dnl
-ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR])dnl
+ifelse(yuck_cmds(), [], [], [\fICOMMAND\fR])
 []dnl
 yuck_esc(dnl
 yuck_esc(dnl

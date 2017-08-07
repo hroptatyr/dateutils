@@ -47,10 +47,13 @@ yuck_append(char **array, size_t n, char *val)
 {
 	if (!(n % 16U)) {
 		/* resize */
-		array = realloc(array, (n + 16U) * sizeof(*array));
-		if (array == NULL) {
+		void *tmp = realloc(array, (n + 16U) * sizeof(*array));
+		if (tmp == NULL) {
+			free(array);
 			return NULL;
 		}
+		/* otherwise make it persistent */
+		array = tmp;
 	}
 	array[[n]] = val;
 	return array;
@@ -154,7 +157,7 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		resume;
 
 dnl TYPE actions
-pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++])dnl
+pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++; goto xtra_chk])dnl
 pushdef([yuck_arg_action], [tgt->yuck_slot([$1], [$2]) = arg ?: argv[[++i]]])dnl
 pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_NONE])dnl
 pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
@@ -198,10 +201,19 @@ ifdef([YOPT_ALLOW_UNKNOWN_DASHDASH], [dnl
 				/* grml */
 				fprintf(stderr, "YUCK_UMB_STR: unrecognized option `--%s'\n", op);
 				resume_at(failure);
+			xtra_chk:
+				if (arg != NULL) {
+					fprintf(stderr, "YUCK_UMB_STR: option `--%s' doesn't allow an argument\n", op);
+					resume_at(failure);
+				}
 ])dnl
 ], [dnl
 				resume_at(yuck_cmd()[_longopt]);
 ])dnl
+			}
+			if (i >= argc) {
+				fprintf(stderr, "YUCK_UMB_STR: option `--%s' requires an argument\n", op);
+				resume_at(failure);
 			}
 			resume;
 		}
@@ -259,6 +271,21 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 		foreachq([__CMD], yuck_umbcmds(), [coroutine(yuck_cmd(defn([__CMD]))[_shortopt])
 		{
 			switch (*op) {
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				if (op[[-1]] == '-') {
+					/* literal treatment of numeral */
+					resume_at(arg);
+				}
+				/*@fallthrough@*/
 			default:
 				divert(1);
 ifdef([YOPT_ALLOW_UNKNOWN_DASH], [dnl
@@ -272,18 +299,6 @@ ifdef([YUCK_SHORTS_HAVE_NUMERALS], [
 				/* [yuck_shorts()] (= yuck_shorts())
 				 * has numerals as shortopts
 				 * don't allow literal treatment of numerals */divert(-1)])
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				/* literal treatment of numeral */
-				resume_at(arg);
 
 				divert(2);
 				resume_at(yuck_cmd()[_shortopt]);
@@ -304,6 +319,10 @@ dnl now simply expand yuck_foo_action:
 divert[]dnl
 ])dnl
 			}
+			if (i >= argc) {
+				fprintf(stderr, "YUCK_UMB_STR: option `--%s' requires an argument\n", op);
+				resume_at(failure);
+			}
 			resume;
 		}
 		])
@@ -317,7 +336,7 @@ popdef([yuck_auto_action])dnl
 
 	coroutine(arg)
 	{
-		if (tgt->cmd || !YUCK_NCMDS) {
+		if (tgt->cmd || YUCK_NCMDS == 0U) {
 			tgt->args[[tgt->nargs++]] = argv[[i]];
 		} else {
 			/* ah, might be an arg then */
@@ -377,7 +396,6 @@ popdef([yuck_arg_opt_action])dnl
 popdef([yuck_arg_mul_action])dnl
 popdef([yuck_arg_mul_opt_action])dnl
 popdef([yuck_auto_opt_action])dnl
-		break;
 	}
 	return;
 }

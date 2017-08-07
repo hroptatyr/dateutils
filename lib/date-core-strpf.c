@@ -240,7 +240,7 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 	case DT_SPFL_N_DCNT_MON:
 		/* ymd mode? */
 		if (LIKELY(!s.bizda)) {
-			d->d = strtoi_lim(sp, &sp, 0, 31);
+			d->d = padstrtoi_lim(sp, &sp, 0, 31);
 			res = 0 - (d->d < 0);
 		} else {
 			d->b = strtoi_lim(sp, &sp, 0, 23);
@@ -469,11 +469,11 @@ __strfd_card(
 			__strfd_get_d(d, that);
 		}
 		if (LIKELY(bsz >= 10)) {
-			ui32tostr(buf + 0, bsz, d->y, 4);
+			ui9999topstr(buf + 0, bsz, d->y, 4, '0');
 			buf[4] = '-';
-			ui32tostr(buf + 5, bsz, d->m, 2);
+			ui99topstr(buf + 5, bsz, d->m, 2, '0');
 			buf[7] = '-';
-			ui32tostr(buf + 8, bsz, d->d, 2);
+			ui99topstr(buf + 8, bsz, d->d, 2, '0');
 			res = 10;
 		}
 		break;
@@ -501,7 +501,7 @@ __strfd_card(
 			/* it's just bollocks */
 			return 0U;
 		}
-		res = ui32tostr(buf, bsz, y, prec);
+		res = ui9999topstr(buf, prec, y, 4U, padchar(s));
 		break;
 	}
 	case DT_SPFL_N_MON:
@@ -510,7 +510,9 @@ __strfd_card(
 		} else if (UNLIKELY(!d->m)) {
 			__strfd_get_m(d, that);
 		}
-		res = ui32tostr(buf, bsz, d->m, 2);
+		res = ui99topstr(
+			buf, bsz, d->m,
+			2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		break;
 	case DT_SPFL_N_DCNT_MON: {
 		/* ymd mode check? */
@@ -528,7 +530,8 @@ __strfd_card(
 			pd = dt_get_bday_q(
 				that, __make_bizda_param(s.ab, BIZDA_ULTIMO));
 		}
-		res = ui32tostr(buf, bsz, pd, 2);
+		res = ui99topstr(
+			buf, bsz, pd, 2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		break;
 	}
 	case DT_SPFL_N_DCNT_WEEK:
@@ -540,7 +543,7 @@ __strfd_card(
 				/* turn Sun 07 to Sun 00 */
 				w = 0;
 			}
-			res = ui32tostr(buf, bsz, w, 1 + ymcwp);
+			res = ui99topstr(buf, bsz, w, 1 + ymcwp, padchar(s));
 		}
 		break;
 	case DT_SPFL_N_WCNT_MON: {
@@ -551,7 +554,8 @@ __strfd_card(
 			/* don't store it */
 			c = (unsigned int)dt_get_wcnt_mon(that);
 		}
-		res = ui32tostr(buf, bsz, c, 2);
+		res = ui99topstr(
+			buf, bsz, c, 2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		break;
 	}
 	case DT_SPFL_S_WDAY:
@@ -637,7 +641,10 @@ __strfd_card(
 					that.bizda, __get_bizda_param(that));
 			}
 			if (yd >= 0) {
-				res = ui32tostr(buf, bsz, yd, 3);
+				res = ui999topstr(
+					buf, bsz, yd,
+					3 - (s.pad == DT_SPPAD_OMIT) << 1U,
+					padchar(s));
 			} else {
 				buf[res++] = '0';
 				buf[res++] = '0';
@@ -646,7 +653,9 @@ __strfd_card(
 			break;
 		}
 		case DT_YD:
-			res = ui32tostr(buf, bsz, d->d, 3);
+			res = ui999topstr(
+				buf, bsz, d->d,
+				3 - (s.pad == DT_SPPAD_OMIT) << 1U, padchar(s));
 			break;
 		case DT_LDN:
 			res = snprintf(buf, bsz, "%u", that.ldn);
@@ -660,7 +669,8 @@ __strfd_card(
 		break;
 	case DT_SPFL_N_WCNT_YEAR: {
 		int yw = dt_get_wcnt_year(that, s.wk_cnt);
-		res = ui32tostr(buf, bsz, yw, 2);
+		res = ui99topstr(
+			buf, bsz, yw, 2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		break;
 	}
 	}
@@ -693,6 +703,10 @@ __strfd_rom(
 			break;
 		case DT_SPMOD_ABBR:
 			res = ui32tostrrom(buf, bsz, d->y % 10);
+			break;
+		case DT_SPMOD_ILL:
+		default:
+			/* should be impossible */
 			break;
 		}
 		break;

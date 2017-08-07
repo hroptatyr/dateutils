@@ -531,7 +531,7 @@ __get_ydays(unsigned int y)
 	return LIKELY(!__leapp(y)) ? 365U : 366U;
 }
 
-static __attribute__((pure)) dt_yd_t
+DEFUN __attribute__((pure)) dt_yd_t
 __yd_fixup(dt_yd_t d)
 {
 	int ydays;
@@ -785,7 +785,7 @@ __yd_add_y(dt_yd_t d, int n)
 {
 /* add N years to D */
 	d.y += n;
-	return __yd_fixup(d);
+	return d;
 }
 #endif	/* ASPECT_ADD */
 

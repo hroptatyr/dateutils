@@ -416,7 +416,7 @@ __get_z31wk(unsigned int y)
 
 #endif	/* GET_ISOWK_* */
 
-static __attribute__((pure)) dt_ywd_t
+DEFUN __attribute__((pure)) dt_ywd_t
 __ywd_fixup(dt_ywd_t d)
 {
 /* given dates like 2012-W53-01 this returns 2013-W01-01 */
@@ -521,11 +521,7 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 	res.c = c;
 	res.w = w;
 	res.hang = hang;
-#if defined WITH_FAST_ARITH
 	return res;
-#else  /* !WITH_FAST_ARITH */
-	return __ywd_fixup(res);
-#endif	/* WITH_FAST_ARITH */
 }
 
 static dt_ywd_t
@@ -878,7 +874,7 @@ __ywd_add_y(dt_ywd_t d, int n)
 	/* recompute hang */
 	j01 = __get_jan01_wday(d.y);
 	d.hang = __ywd_get_jan01_hang(j01);
-	return __ywd_fixup(d);
+	return d;
 }
 #endif	/* ASPECT_ADD */
 

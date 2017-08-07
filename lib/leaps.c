@@ -76,7 +76,7 @@ find_before_##N(						\
 			max = i - 1;				\
 			i = (i + min) / 2;			\
 		}						\
-	} while (max - min > 0 && i < nv);			\
+	} while (max > min && i < nv);				\
 	return i;						\
 }								\
 static const int UNUSED(defined_find_before_##name##_p)

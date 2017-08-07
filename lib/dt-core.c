@@ -631,6 +631,32 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			dt_make_d_only(&res, DT_LDN);
 		}
 		goto sober;
+
+	case DT_MDN:
+		res.d.mdn = (dt_ldn_t)strtoi(str, &sp);
+		if (*sp == '.') {
+			/* oooh, a double it seems */
+			double tmp = strtod(sp, &on);
+
+			/* fix up const-ness problem */
+			sp = on;
+			/* convert to HMS */
+			res.t.hms.h = (tmp *= HOURS_PER_DAY);
+			tmp -= (double)res.t.hms.h;
+			res.t.hms.m = (tmp *= MINS_PER_HOUR);
+			tmp -= (double)res.t.hms.m;
+			res.t.hms.s = (tmp *= SECS_PER_MIN);
+			tmp -= (double)res.t.hms.s;
+			res.t.hms.ns = (tmp *= NANOS_PER_SEC);
+			dt_make_sandwich(&res, DT_MDN, DT_HMS);
+		} else if (UNLIKELY(*sp < '\0' || *sp > ' ')) {
+			/* not on my turf */
+			goto fucked;
+		} else {
+			/* looking good */
+			dt_make_d_only(&res, DT_MDN);
+		}
+		goto sober;
 	}
 
 	fp = fmt;
@@ -761,6 +787,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
+		case DT_MDN:
 		strf_xian:
 			/* short cut, just print the guy here */
 			bp = buf + __strfdt_xdn(buf, bsz, that);
@@ -800,6 +827,7 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 			break;
 		case DT_JDN:
 		case DT_LDN:
+		case DT_MDN:
 			goto strf_xian;
 		default:
 			/* fuck */
@@ -814,6 +842,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		__trans_tfmt(&fmt);
 	}
 
+	/* fix up before printing */
+	if (LIKELY(dt_sandwich_p(that) || dt_sandwich_only_d_p(that))) {
+		that.d = dt_dfixup(that.d);
+	}
 	/* make sure we always snarf the zdiff info */
 	d.zdiff = zdiff_sec(that);
 
@@ -843,7 +875,10 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		goto daisy_prep;
 	case DT_LDN:
 		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
-		/* FALLTHROUGH */
+		goto daisy_prep;
+	case DT_MDN:
+		that = dt_dtconv((dt_dttyp_t)DT_DAISY, that);
+		goto daisy_prep;
 	case DT_DAISY:
 	daisy_prep:
 		__prep_strfd_daisy(&d.sd, that.d.daisy);
@@ -1234,6 +1269,7 @@ dt_datetime(dt_dttyp_t outtyp)
 	switch (outdtyp) {
 	case DT_YMD:
 	case DT_YMCW:
+	case DT_YD:
 		switch (outdtyp) {
 		case DT_YMD:
 			res.d.ymd.y = tm.tm_year;
@@ -1259,15 +1295,29 @@ dt_datetime(dt_dttyp_t outtyp)
 			res.d.ymcw.w = tm.tm_wday;
 			break;
 		}
+		case DT_YD:
+			res.d.yd.y = tm.tm_year;
+			res.d.yd.d = tm.tm_yday;
+			break;
 		default:
 			/* grrrr */
 			;
 		}
 		break;
 
+	case DT_YWD:
+		/* use ordinary conversion to ywd */
+		res.d.typ = DT_YMD;
+		res.d.ymd.y = tm.tm_year;
+		res.d.ymd.m = tm.tm_mon;
+		res.d.ymd.d = tm.tm_mday;
+		res.d = dt_dconv(DT_YWD, res.d);
+		break;
+
 	case DT_DAISY:
 		/* time_t's base is 1970-01-01, which is daisy 19359 */
-		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY + DAISY_UNIX_BASE;
+		res.d.daisy = tv.tv_sec / (unsigned int)SECS_PER_DAY
+			+ DAISY_UNIX_BASE;
 		break;
 
 	case DT_BIZDA:
@@ -1309,6 +1359,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 		case DT_YD:
 		case DT_JDN:
 		case DT_LDN:
+		case DT_MDN:
 			/* backup sandwich state */
 			sw = d.sandwich;
 			/* convert */
@@ -1626,6 +1677,7 @@ dt_dtcmp(struct dt_dt_s d1, struct dt_dt_s d2)
 	case DT_DAISY:
 	case DT_BIZDA:
 	case DT_YWD:
+	case DT_YD:
 		/* use arithmetic comparison */
 		if (d1.d.u < d2.d.u) {
 			return -1;
@@ -1655,7 +1707,19 @@ try_time:
 DEFUN int
 dt_dt_in_range_p(struct dt_dt_s d, struct dt_dt_s d1, struct dt_dt_s d2)
 {
-	return dt_dtcmp(d, d1) >= 0 && dt_dtcmp(d, d2) <= 0;
+/* use the following multiplication table
+ *
+ * |d,d2|v |d,d1|>  -2 -1  0  1
+ *      -2          -1 -1 -1 -1
+ *      -1          -1  0  1  1
+ *       0          -1  0  1  1
+ *       1          -1  0  0  0
+ *
+ * encoded in a 32bit uint */
+	static const uint32_t m = 0b10010111100101111010101111111111U;
+	const unsigned int i = (dt_dtcmp(d, d1) + 2) & 0b11U;
+	const unsigned int j = (dt_dtcmp(d, d2) + 2) & 0b11U;
+	return 2 - ((m >> (i * 8U + j * 2U)) & 0b11U);
 }
 
 #if defined __INTEL_COMPILER
@@ -1707,6 +1771,15 @@ dt_get_tbase(void)
 }
 # endif	/* INCLUDED_time_core_h_ */
 #endif	/* LIBDUT */
+
+DEFUN __attribute__((pure)) struct dt_dt_s
+dt_fixup(struct dt_dt_s d)
+{
+	if (LIKELY(dt_sandwich_only_d_p(d) || dt_sandwich_p(d))) {
+		d.d = dt_dfixup(d.d);
+	}
+	return d;
+}
 
 #endif	/* INCLUDED_date_core_c_ */
 /* dt-core.c ends here */

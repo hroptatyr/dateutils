@@ -210,27 +210,35 @@ __strft_card(
 		break;
 	case DT_SPFL_N_TSTD:
 		if (LIKELY(bsz >= 8)) {
-			ui32tostr(buf + 0, bsz, d->h, 2);
+			ui99topstr(buf + 0, bsz, d->h, 2, '0');
 			buf[2] = ':';
-			ui32tostr(buf + 3, bsz, d->m, 2);
+			ui99topstr(buf + 3, bsz, d->m, 2, '0');
 			buf[5] = ':';
-			ui32tostr(buf + 6, bsz, d->s, 2);
+			ui99topstr(buf + 6, bsz, d->s, 2, '0');
 			res = 8;
 		}
 		break;
 	case DT_SPFL_N_HOUR:
 		if (!s.sc12 || (d->h >= 1 && d->h <= 12)) {
-			res = ui32tostr(buf, bsz, d->h, 2);
+			res = ui99topstr(
+				buf, bsz, d->h,
+				2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		} else {
 			unsigned int h = d->h ? d->h - 12 : 12;
-			res = ui32tostr(buf, bsz, h, 2);
+			res = ui99topstr(
+				buf, bsz, h,
+				2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		}
 		break;
 	case DT_SPFL_N_MIN:
-		res = ui32tostr(buf, bsz, d->m, 2);
+		res = ui99topstr(
+			buf, bsz, d->m,
+			2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		break;
 	case DT_SPFL_N_SEC:
-		res = ui32tostr(buf, bsz, d->s, 2);
+		res = ui99topstr(
+			buf, bsz, d->s,
+			2 - (s.pad == DT_SPPAD_OMIT), padchar(s));
 		break;
 	case DT_SPFL_S_AMPM: {
 		unsigned int casebit = 0;
@@ -248,7 +256,7 @@ __strft_card(
 		break;
 	}
 	case DT_SPFL_N_NANO:
-		res = ui32tostr(buf, bsz, d->ns, 9);
+		res = ui999999999tostr(buf, bsz, d->ns);
 		break;
 
 	case DT_SPFL_LIT_PERCENT:

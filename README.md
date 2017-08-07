@@ -2,7 +2,7 @@ Dateutils
 =========
 
 [![Build Status](https://secure.travis-ci.org/hroptatyr/dateutils.png?branch=master)](http://travis-ci.org/hroptatyr/dateutils)
-[![Build Status](https://drone.io/github.com/hroptatyr/dateutils/status.png)](https://drone.io/github.com/hroptatyr/dateutils/latest)
+[![build status](https://gitlab.com/hroptatyr/dateutils/badges/master/build.svg)](https://gitlab.com/hroptatyr/dateutils/commits/master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2197/badge.svg)](https://scan.coverity.com/projects/2197)
 
 Dateutils are a bunch of tools that revolve around fiddling with dates
@@ -371,7 +371,7 @@ datezone
   indicates the exact moment when the transition is about to take
   place.
 
-  In essence `datezone` is a better `zdump(1)`.
+  In essence `datezone` is a better [`zdump(8)`][3].
 
 
 strptime
@@ -416,6 +416,7 @@ mine, vote: [dateutils' openhub page](https://www.openhub.net/p/dateutils)
 
   [1]: http://linux.die.net/man/3/strptime
   [2]: http://linux.die.net/man/1/date
+  [3]: http://linux.die.net/man/8/zdump
 
 <!--
   Local variables:

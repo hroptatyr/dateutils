@@ -353,6 +353,7 @@ calc_grep_atom(const char *fmt)
 			break;
 		case DT_LDN:
 		case DT_JDN:
+		case DT_MDN:
 			/* there's no format specifiers for lilian/julian */
 			res.pl.off_min += -10;
 			res.pl.off_max += -1;
@@ -419,6 +420,10 @@ calc_grep_atom(const char *fmt)
 			case DT_SPMOD_ABBR:
 				res.pl.off_min += -1;
 				res.pl.off_max += -1;
+				break;
+			case DT_SPMOD_ILL:
+			default:
+				/* should be impossible */
 				break;
 			}
 			res.pl.flags |= GRPATM_DIGITS;
@@ -655,9 +660,13 @@ __add_dur(struct __strpdtdur_st_s *st, struct dt_dtdur_s dur)
 	if (st->durs == NULL) {
 		st->durs = calloc(16, sizeof(*st->durs));
 	} else if ((st->ndurs % 16) == 0) {
-		st->durs = realloc(
-			st->durs,
-			(16 + st->ndurs) * sizeof(*st->durs));
+		void *tmp;
+		tmp = realloc(st->durs, (16 + st->ndurs) * sizeof(*st->durs));
+		if (UNLIKELY(tmp == NULL)) {
+			return -1;
+		}
+		/* otherwise proceed as usual */
+		st->durs = tmp;
 		memset(st->durs + st->ndurs, 0, 16 * sizeof(*st->durs));
 	}
 	st->durs[st->ndurs++] = dur;

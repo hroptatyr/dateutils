@@ -37,8 +37,6 @@
 #if defined HAVE_CONFIG_H
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
-#define _ALL_SOURCE
-#define _NETBSD_SOURCE
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -88,16 +86,19 @@
 # define PATH_MAX	256U
 #endif	/* !PATH_MAX */
 
-#if defined HAVE_SPLICE
-# ifdef __INTEL_COMPILER
+#if defined HAVE_SPLICE && !defined SPLICE_F_MOVE && !defined _AIX
+/* just so we don't have to use _GNU_SOURCE declare prototype of splice() */
+# if defined __INTEL_COMPILER
 #  pragma warning(disable:1419)
 # endif	/* __INTEL_COMPILER */
-extern ssize_t splice(int fd_in, loff_t *off_in, int fd_out, loff_t *off_out,
-		      size_t len, unsigned int flags);
-# ifdef __INTEL_COMPILER
+extern ssize_t splice(int, loff_t*, int, loff_t*, size_t, unsigned int);
+# define SPLICE_F_MOVE	(0U)
+# if defined __INTEL_COMPILER
 #  pragma warning(default:1419)
 # endif	/* __INTEL_COMPILER */
-#endif	/* HAVE_SPLICE */
+#elif !defined SPLICE_F_MOVE
+# define SPLICE_F_MOVE	(0)
+#endif	/* !SPLICE_F_MOVE */
 
 typedef struct clitf_s clitf_t;
 typedef struct clit_buf_s clit_buf_t;
@@ -606,6 +607,32 @@ pfork(int *pty)
 	return *pty = -1;
 }
 #endif	/* HAVE_PTY_H */
+
+static inline int
+xsplice(int tgtfd, int srcfd, unsigned int flags)
+{
+#if defined HAVE_SPLICE && defined __linux__
+	for (ssize_t nsp;
+	     (nsp = splice(
+		      srcfd, NULL, tgtfd, NULL,
+		      4096U, flags)) == 4096U;);
+#else  /* !HAVE_SPLICE || !__linux__ */
+/* in particular, AIX's splice works on tcp sockets only */
+	with (char *buf[16U * 4096U]) {
+		ssize_t nrd;
+
+		while ((nrd = read(srcfd, buf, sizeof(buf))) > 0) {
+			for (ssize_t nwr, totw = 0;
+			     totw < nrd &&
+				     (nwr = write(
+					      tgtfd,
+					      buf + totw, nrd - totw)) >= 0;
+			     totw += nwr);
+		}
+	}
+#endif	/* HAVE_SPLICE && __linux__ */
+	return 0;
+}
 
 
 static const char *
@@ -1440,15 +1467,7 @@ wait:
 
 	/* also connect per's out end with stderr */
 	if (UNLIKELY(ctx->options.ptyp)) {
-# if defined HAVE_SPLICE
-#  if !defined SPLICE_F_MOVE
-#   define SPLICE_F_MOVE		(0)
-#  endif  /* SPLICE_F_MOVE */
-		for (ssize_t nsp;
-		     (nsp = splice(
-			      ctx->per, NULL, STDERR_FILENO, NULL,
-			      4096U, SPLICE_F_MOVE)) == 4096U;);
-# endif	/* HAVE_SPLICE */
+		xsplice(ctx->per, STDERR_FILENO, SPLICE_F_MOVE);
 		close(ctx->per);
 	}
 #endif	/* HAVE_PTY_H */

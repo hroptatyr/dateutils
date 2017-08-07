@@ -1,0 +1,24 @@
+@section Localised month and weekday names
+
+All tools of the dateutils suite support @samp{--from-locale=LOC} to
+globally declare that input with named specifiers uses names from LOC.
+
+Tools that output absolute date/times also allow @samp{--locale=LOC} to
+globally declare that output with named specifiers is to be expressed
+using names from LOC.
+
+Inspired by ISO 15897, we use the @samp{language_TERRITORY} notation for
+@samp{LOC}, the encoding is always UTF-8 and hence the encoding part in
+the @samp{LOC} notation is omitted.
+
+To be independent of system support locales in dateutils are provided by
+the @samp{locale} file (shipped), a simple tab separated text file:
+following the locale identifier line (@samp{xx_XX}) is the line of
+abbreviated weekday names (@samp{%a}) of which there must be 7
+corresponding to Mon, Tue, ..., followed by long weekday names
+(@samp{%A}), followed by abbreviated month names (@samp{%b}) of which
+there must be 12 corresponding to Jan, Feb, ..., followed last by the
+long month names (@samp{%B}).
+
+The environment variable @samp{LOCALE_FILE} can be used to override the
+default location.

@@ -137,8 +137,12 @@ dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 		/* thank god there's another one */
 		struct ztrdtl_s zd = zif_trdtl(z, r.trno + 1);
 
+		if (r.next == INT_MAX) {
+			goto never;
+		}
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, zd.offs});
 	} else {
+	never:
 		bp += xstrlcpy(bp, never, bp - ep);
 	}
 

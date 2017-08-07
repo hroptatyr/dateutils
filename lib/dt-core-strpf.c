@@ -199,16 +199,16 @@ try_time:
 	    *sp != ':') {
 		sp = str;
 		goto out;
-	} else if ((d.st.m = strtoi_lim(++sp, &sp, 0, 59)) < 0) {
+	} else if ((sp++, d.st.m = strtoi_lim(sp, &sp, 0, 59)) < 0) {
 		d.st.m = 0;
 		goto out;
 	} else if (*sp != ':') {
 		goto eval_time;
-	} else if ((d.st.s = strtoi_lim(++sp, &sp, 0, 60)) < 0) {
+	} else if ((sp++, d.st.s = strtoi_lim(sp, &sp, 0, 60)) < 0) {
 		d.st.s = 0;
 	} else if (*sp != '.') {
 		goto eval_time;
-	} else if ((d.st.ns = strtoi_lim(++sp, &sp, 0, 999999999)) < 0) {
+	} else if ((sp++, d.st.ns = strtoi_lim(sp, &sp, 0, 999999999)) < 0) {
 		d.st.ns = 0;
 		goto eval_time;
 	}
@@ -493,6 +493,12 @@ __strfdt_xdn(char *buf, size_t bsz, struct dt_dt_s that)
 		break;
 	case DT_LDN:
 		dn = (double)that.d.ldn;
+		if (dt_sandwich_only_d_p(that)) {
+			return snprintf(buf, bsz, "%.0f", dn);
+		}
+		break;
+	case DT_MDN:
+		dn = (double)that.d.mdn;
 		if (dt_sandwich_only_d_p(that)) {
 			return snprintf(buf, bsz, "%.0f", dn);
 		}

@@ -316,13 +316,13 @@ __durstack_naught_p(struct dt_dtdur_s dur[], size_t ndur)
 }
 
 static bool
-__in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
+__in_range_p(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(now)) {
 		if (clo->dir > 0) {
-			return dt_dt_in_range_p(now, clo->fst, clo->lst);
+			return dt_dt_in_range_p(now, clo->fst, clo->lst) == 1;
 		} else if (clo->dir < 0) {
-			return dt_dt_in_range_p(now, clo->lst, clo->fst);
+			return dt_dt_in_range_p(now, clo->lst, clo->fst) == 1;
 		}
 	}
 	/* otherwise perform a simple range check */
@@ -351,7 +351,7 @@ __in_range_p(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static struct dt_dt_s
-__seq_altnext(struct dt_dt_s now, struct dseq_clo_s *clo)
+__seq_altnext(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 	do {
 		now = date_add(now, clo->altite, clo->naltite);
@@ -360,7 +360,7 @@ __seq_altnext(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static struct dt_dt_s
-__seq_this(struct dt_dt_s now, struct dseq_clo_s *clo)
+__seq_this(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 /* if NOW is on a skip date, find the next date according to ALTITE, then ITE */
 	if (!skipp(clo->ss, now) && __in_range_p(now, clo)) {
@@ -380,7 +380,7 @@ __seq_this(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static struct dt_dt_s
-__seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
+__seq_next(struct dt_dt_s now, const struct dseq_clo_s *clo)
 {
 /* advance NOW, then fix it */
 	struct dt_dt_s tmp = date_add(now, clo->ite, clo->nite);
@@ -388,7 +388,7 @@ __seq_next(struct dt_dt_s now, struct dseq_clo_s *clo)
 }
 
 static int
-__get_dir(struct dt_dt_s d, struct dseq_clo_s *clo)
+__get_dir(struct dt_dt_s d, const struct dseq_clo_s *clo)
 {
 	if (!dt_sandwich_only_t_p(d)) {
 		/* trial addition to to see where it goes */
@@ -553,8 +553,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 		if (dt_sandwich_only_d_p(fst)) {
 			/* emulates old dseq(1) */
 			if (argi->nargs == 1U) {
-				lst.d = dt_date(DT_YMD);
-				dt_make_d_only(&lst, DT_YMD);
+				lst.d = dt_date(fst.d.typ);
+				dt_make_d_only(&lst, fst.d.typ);
 			}
 			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else if (dt_sandwich_only_t_p(fst)) {
@@ -565,8 +565,8 @@ cannot parse duration string `%s'", argi->alt_inc_arg);
 			}
 		} else if (dt_sandwich_p(fst)) {
 			if (argi->nargs == 1U) {
-				lst = dt_datetime((dt_dttyp_t)DT_YMD);
-				dt_make_sandwich(&lst, DT_YMD, DT_HMS);
+				lst = dt_datetime(fst.typ);
+				dt_make_sandwich(&lst, fst.d.typ, DT_HMS);
 			}
 			clo.ite->d = dt_make_ddur(DT_DURD, 1);
 		} else {
@@ -575,10 +575,8 @@ don't know how to handle single argument case");
 			rc = 1;
 			goto out;
 		}
+		goto make_compat;
 
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
 	case 3: {
 		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
 
@@ -619,10 +617,18 @@ cannot parse duration string `%s'", argi->args[1U]);
 		} else if (UNLIKELY(lst.fix) && !argi->quiet_flag) {
 			rc = 2;
 		}
-		clo.fst = fst;
-		clo.lst = lst;
-		break;
+		goto make_compat;
 	}
+
+	make_compat:
+		if (LIKELY(fst.typ == lst.typ)) {
+			clo.fst = fst;
+			clo.lst = lst;
+		} else {
+			clo.fst = fst;
+			clo.lst = dt_dtconv(fst.typ, lst);
+		}
+		break;
 	}
 
 	/* promote the args maybe */
@@ -677,7 +683,7 @@ cannot convert calendric system internally");
 	}
 
 	if (__durstack_naught_p(clo.ite, clo.nite) ||
-	    (clo.dir = __get_dir(clo.fst, &clo)) == 0) {
+	    !(clo.dir = __get_dir(clo.fst, &clo))) {
 		if (!argi->quiet_flag) {
 			error("\
 increment must not be naught");
@@ -690,10 +696,10 @@ increment must not be naught");
 		tmp = __seq_this(clo.fst, &clo);
 	}
 
-	for (; __in_range_p(tmp, &clo); tmp = __seq_next(tmp, &clo)) {
+	for (; __in_range_p(dt_fixup(tmp), &clo); tmp = __seq_next(tmp, &clo)) {
 		struct dt_dt_s tgt = tmp;
 
-		if (UNLIKELY(ofmt == NULL)) {
+		if (LIKELY(ofmt == NULL)) {
 			tgt = dt_dtconv(tgttyp, tmp);
 		}
 		dt_io_write(tgt, ofmt, NULL, '\n');

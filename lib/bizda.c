@@ -188,7 +188,7 @@ __get_b_equiv(dt_dow_t dow, int d)
 	return res;
 }
 
-static __attribute__((pure)) dt_bizda_t
+DEFUN __attribute__((pure)) dt_bizda_t
 __bizda_fixup(dt_bizda_t d)
 {
 /* given dates like 2013-08-23b this returns 2013-08-22b */
@@ -701,7 +701,7 @@ __bizda_add_m(dt_bizda_t d, int n)
 	}
 	/* final assignment */
 	d.m = tgtm;
-	return __bizda_fixup(d);
+	return d;
 }
 
 static dt_bizda_t
@@ -709,7 +709,7 @@ __bizda_add_y(dt_bizda_t d, int n)
 {
 /* add N years to D */
 	d.y += n;
-	return __bizda_fixup(d);
+	return d;
 }
 
 #endif	/* ASPECT_ADD */

@@ -33,7 +33,7 @@ Time specs:
   %T  Equivalent to %Ss without resorting to bigger units
 
   %rS Duration in real-life seconds, as in including leap seconds
-  %rT Equivalent to %rSs without resoring to bigger units
+  %rT Equivalent to %rSs without resorting to bigger units
 @end verbatim
 
 General specs:

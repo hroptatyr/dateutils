@@ -59,17 +59,6 @@
 const char *prog = "dround";
 
 
-static bool
-durs_only_d_p(struct dt_dtdur_s dur[], size_t ndur)
-{
-	for (size_t i = 0; i < ndur; i++) {
-		if (dur[i].durtyp >= (dt_dtdurtyp_t)DT_NDURTYP) {
-			return false;
-		}
-	}
-	return true;
-}
-
 static struct dt_t_s
 tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
@@ -644,7 +633,6 @@ struct prln_ctx_s {
 	const char *ofmt;
 	zif_t fromz;
 	zif_t outz;
-	zif_t hackz;
 	int sed_mode_p;
 	int quietp;
 
@@ -672,7 +660,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			/* perform addition now */
 			d = dround(d, ctx.st->durs, ctx.st->ndurs, ctx.nextp);
 
-			if (ctx.hackz == NULL && ctx.fromz != NULL) {
+			if (ctx.fromz != NULL) {
 				/* fixup zone */
 				d = dtz_forgetz(d, ctx.fromz);
 			}
@@ -720,7 +708,6 @@ main(int argc, char *argv[])
 	bool nextp = false;
 	zif_t fromz = NULL;
 	zif_t z = NULL;
-	zif_t hackz = NULL;
 
 	if (yuck_parse(argi, argc, argv)) {
 		rc = 1;
@@ -780,15 +767,15 @@ cannot parse duration/rounding string `%s'", st.istr);
 			}
 		} while (__strpdtdur_more_p(&st));
 	}
-	/* check if there's only d durations */
-	hackz = durs_only_d_p(st.durs, st.ndurs) ? NULL : fromz;
 
 	/* sanity checks */
 	if (dt_given_p) {
 		/* date parsing needed postponing as we need to find out
-		 * about the durations */
+		 * about the durations
+		 * Also from-zone conversion needs postponing as we define
+		 * the conversion to take place on the rounded date */
 		inp = argi->args[0U];
-		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, hackz))) {
+		if (dt_unk_p(d = dt_io_strpdt(inp, fmt, nfmt, NULL))) {
 			error("Error: \
 cannot interpret date/time string `%s'", argi->args[0U]);
 			rc = 1;
@@ -807,7 +794,7 @@ no durations given");
 			rc = 2;
 		}
 		if (!dt_unk_p(d = dround(d, st.durs, st.ndurs, nextp))) {
-			if (hackz == NULL && fromz != NULL) {
+			if (fromz != NULL) {
 				/* fixup zone */
 				d = dtz_forgetz(d, fromz);
 			}
@@ -827,7 +814,6 @@ no durations given");
 			.ofmt = ofmt,
 			.fromz = fromz,
 			.outz = z,
-			.hackz = hackz,
 			.sed_mode_p = argi->sed_mode_flag,
 			.quietp = argi->quiet_flag,
 			.st = &st,

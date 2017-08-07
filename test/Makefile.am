@@ -86,6 +86,15 @@ dt_tests += dseq.44.clit
 dt_tests += dseq.45.clit
 dt_tests += dseq.46.clit
 dt_tests += dseq.47.clit
+dt_tests += dseq.48.clit
+dt_tests += dseq.49.clit
+dt_tests += dseq.50.clit
+dt_tests += dseq.51.clit
+dt_tests += dseq.52.clit
+dt_tests += dseq.53.clit
+dt_tests += dseq.54.clit
+dt_tests += dseq.55.clit
+dt_tests += dseq.56.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -219,6 +228,12 @@ dt_tests += dconv.129.clit
 dt_tests += dconv.130.clit
 dt_tests += dconv.131.clit
 dt_tests += dconv.132.clit
+dt_tests += dconv.133.clit
+dt_tests += dconv.134.clit
+dt_tests += dconv.135.clit
+dt_tests += dconv.136.clit
+dt_tests += dconv.137.clit
+dt_tests += dconv.138.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -474,6 +489,8 @@ dt_tests += dround.030.clit
 dt_tests += dround.031.clit
 dt_tests += dround.032.clit
 dt_tests += dround.033.clit
+dt_tests += dround.034.clit
+dt_tests += dround.035.clit
 
 dt_tests += tseq.01.clit
 dt_tests += tseq.02.clit
@@ -887,6 +904,10 @@ check_PROGRAMS += basic_md_get_yday
 check_PROGRAMS += basic_get_dom_wday
 check_PROGRAMS += strtoi-bench
 check_PROGRAMS += strtoi-1
+check_PROGRAMS += itostr-1
+check_PROGRAMS += itostr-2
+check_PROGRAMS += itostr-3
+check_PROGRAMS += itostr-4
 
 bin_tests += struct-1
 bin_tests += struct-2
@@ -913,6 +934,10 @@ dtcore_add_LDADD = $(DT_LIBS)
 time_core_add_LDADD = $(DT_LIBS)
 
 dt_tests += strtoi.001.clit
+dt_tests += itostr.001.clit
+dt_tests += itostr.002.clit
+dt_tests += itostr.003.clit
+dt_tests += itostr.004.clit
 
 ## batch checks
 batch_tests += dseq-cnt.1.sh

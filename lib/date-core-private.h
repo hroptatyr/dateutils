@@ -100,4 +100,12 @@ extern int __ymcw_cmp(dt_ymcw_t d1, dt_ymcw_t d2);
  * Get N where N is the N-th occurrence of wday in the month of that year */
 extern unsigned int __ymd_get_count(dt_ymd_t that);
 
+/**
+ * Crop dates with days beyond ultimo. */
+extern __attribute__((pure)) dt_ymd_t __ymd_fixup(dt_ymd_t);
+extern __attribute__((pure)) dt_ywd_t __ywd_fixup(dt_ywd_t);
+extern __attribute__((pure)) dt_yd_t __yd_fixup(dt_yd_t);
+extern __attribute__((pure)) dt_ymcw_t __ymcw_fixup(dt_ymcw_t);
+extern __attribute__((pure)) dt_bizda_t __bizda_fixup(dt_bizda_t);
+
 #endif	/* INCLUDED_date_core_private_h_ */
