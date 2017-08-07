@@ -69,7 +69,7 @@ Following Linux distros and BSD flavours provide native packages
 + OpenSuSE <http://software.opensuse.org/download.html?project=utilities&package=dateutils>
 + OS X Homebrew <http://brewformulas.org/Dateutils>
 + Slackware <http://slackbuilds.org/repository/14.1/system/dateutils/>
-+ Ubuntu <http://packages.ubuntu.com/vivid/dateutils>
++ Ubuntu <http://packages.ubuntu.com/xenial/dateutils>
 
 
 [Changelog][1]
