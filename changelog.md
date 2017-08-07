@@ -8,8 +8,28 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.2
+------
+Summary: v0.4.2 of dateutils
+
+This is dateutils v0.4.2.
+
+This is a feature release.
+
+Features:
+
+- allow `%-` specifiers to turn off padding (as GNU date does)
+- support matlab day numbers, as `mdn` or `matlab`
+
+Bugfixes:
+
+- fix build issue on FBSD 11
+- allow zones to transition at INT_MAX (mapped to `never`)
+
+See info page examples and/or README.
+
 v0.4.1
-=======
+------
 Summary: v0.4.1 of dateutils
 
 This is dateutils v0.4.1.
@@ -27,7 +47,7 @@ Bugfixes:
 See info page examples and/or README.
 
 v0.4.0
-=======
+------
 Summary: v0.4.0 of dateutils
 
 This is dateutils v0.4.0.
