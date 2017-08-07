@@ -62,6 +62,7 @@ Following Linux distros and BSD flavours provide native packages
 (in alphabetical order):
 
 + Debian <http://packages.debian.org/sid/dateutils>
++ DragonFly BSD <http://gitweb.dragonflybsd.org/dports.git/tree/HEAD:/sysutils/dateutils>
 + Fedora <https://admin.fedoraproject.org/pkgdb/package/dateutils/>
 + FreeBSD <http://svnweb.freebsd.org/ports/head/sysutils/dateutils/>
 + Gentoo <https://packages.gentoo.org/package/app-misc/dateutils>
