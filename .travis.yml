@@ -62,6 +62,7 @@ branches:
     - coverity-scan
     - /^travis.*/
     - /^tmp.*/
+    - /^v\d+\..*/
 
 notifications:
   email:
