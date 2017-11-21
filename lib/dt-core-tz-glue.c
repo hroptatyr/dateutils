@@ -58,7 +58,7 @@ dtz_forgetz(struct dt_dt_s d, zif_t zone)
 	dt_ssexy_t d_locl;
 	int32_t zdiff;
 
-	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+	if (dt_unk_p(d) || dt_sandwich_only_d_p(d)) {
 		/* we need date/times to do the conversion */
 		return d;
 	} else if (d.znfxd) {
@@ -103,7 +103,7 @@ dtz_enrichz(struct dt_dt_s d, zif_t zone)
 	dt_ssexy_t d_locl;
 	int32_t zdiff;
 
-	if (dt_sandwich_only_d_p(d) || dt_sandwich_only_t_p(d)) {
+	if (dt_sandwich_only_d_p(d)) {
 		/* nah, we need a date/time for this */
 		return d;
 	} else if (zone == NULL) {
