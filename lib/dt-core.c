@@ -136,6 +136,12 @@ __to_unix_epoch(struct dt_dt_s dt)
 			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
 		}
 		return res;
+	} else if (dt_sandwich_only_t_p(dt)) {
+		/* bug/65, fill in with base */
+		dt_daisy_t d = dt_conv_to_daisy(dt_get_base().d);
+		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
+		res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		return res;
 	}
 	return 0;
 }

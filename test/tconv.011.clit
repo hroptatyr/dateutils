@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv --zone 'Asia/Singapore' '12:00'
+20:00:00
+$
+
+## tconv.011.clit ends here

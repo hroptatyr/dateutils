@@ -555,6 +555,12 @@ dt_tests += tconv.003.clit
 dt_tests += tconv.004.clit
 dt_tests += tconv.005.clit
 dt_tests += tconv.006.clit
+dt_tests += tconv.007.clit
+dt_tests += tconv.008.clit
+dt_tests += tconv.009.clit
+dt_tests += tconv.010.clit
+dt_tests += tconv.011.clit
+dt_tests += tconv.012.clit
 
 dt_tests += tround.001.clit
 dt_tests += tround.002.clit

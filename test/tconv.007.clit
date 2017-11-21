@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv --from-zone 'Europe/London' --zone 'Europe/Berlin' '12:00'
+13:00:00
+$
+
+## tconv.007.clit ends here
