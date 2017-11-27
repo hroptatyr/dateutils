@@ -333,7 +333,7 @@ and end in another.  But the ending always coincides with the
 traditional months.
 
 Another nice thing about this year is that all months end on a
-@emph{different} day; this is nice because you can deduce the month just
+different day; this is nice because you can deduce the month just
 by naming its ending (or the beginning respectively, as all months as a
 consequence also start on a different day).
 
