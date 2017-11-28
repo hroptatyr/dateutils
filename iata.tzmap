@@ -184,6 +184,7 @@ AIL	America/Panama
 AIM	Pacific/Kwajalein
 AIN	America/Anchorage
 AIO	America/Chicago
+AIP	Asia/Kolkata
 AIR	America/Cuiaba
 AIS	Pacific/Tarawa
 AIT	Pacific/Rarotonga
@@ -1753,6 +1754,7 @@ DGX	Europe/London
 DHA	Asia/Riyadh
 DHD	Australia/Brisbane
 DHF	Asia/Dubai
+DHG	Asia/Vladivostok
 DHI	Asia/Kathmandu
 DHL	Asia/Aden
 DHM	Asia/Kolkata
@@ -1806,6 +1808,7 @@ DLL	America/New_York
 DLM	Europe/Istanbul
 DLN	America/Denver
 DLO	America/Juneau
+DLR	Asia/Vladivostok
 DLS	America/Los_Angeles
 DLU	Asia/Chongqing
 DLV	Australia/Darwin
@@ -1899,6 +1902,7 @@ DSK	Asia/Karachi
 DSM	America/Chicago
 DSN	Asia/Chongqing
 DSO	Asia/Pyongyang
+DSS	Africa/Dakar
 DSV	America/New_York
 DSX	Asia/Shanghai
 DTA	America/Denver
@@ -2949,6 +2953,7 @@ HKG	Asia/Hong_Kong
 HKK	Pacific/Auckland
 HKN	Pacific/Port_Moresby
 HKP	Pacific/Honolulu
+HKR	Africa/Nairobi
 HKS	America/Chicago
 HKT	Asia/Bangkok
 HKV	Europe/Sofia
@@ -3771,6 +3776,7 @@ KJH	Asia/Chongqing
 KJI	Asia/Urumqi
 KJK	Europe/Brussels
 KJP	Asia/Tokyo
+KJT	Asia/Jakarta
 KJU	Pacific/Port_Moresby
 KKA	America/Nome
 KKB	America/Anchorage
@@ -3911,6 +3917,7 @@ KPW	Asia/Anadyr
 KPY	America/Anchorage
 KQA	America/Nome
 KQB	Australia/Adelaide
+KQH	Asia/Kolkata
 KQR	Australia/Perth
 KQT	Asia/Dushanbe
 KRA	Australia/Melbourne
@@ -4324,6 +4331,7 @@ LNH	Australia/Darwin
 LNI	America/Anchorage
 LNJ	Asia/Chongqing
 LNK	America/Chicago
+LNL	Asia/Shanghai
 LNM	Pacific/Port_Moresby
 LNN	America/New_York
 LNO	Australia/Perth
@@ -5216,6 +5224,7 @@ NDZ	Europe/Berlin
 NEC	America/Argentina/Buenos_Aires
 NEF	Asia/Yekaterinburg
 NEG	America/Jamaica
+NEI	Asia/Vladivostok
 NEJ	Africa/Addis_Ababa
 NEK	Africa/Addis_Ababa
 NEL	America/New_York
@@ -6348,6 +6357,7 @@ QSI	Africa/Dar_es_Salaam
 QSN	America/Havana
 QSR	Europe/Rome
 QSX	America/Guyana
+QSZ	Asia/Kashgar
 QTJ	Europe/Paris
 QUB	Africa/Tripoli
 QUG	Europe/London
