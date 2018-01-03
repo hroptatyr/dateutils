@@ -70,6 +70,7 @@ extern int yyparse();
 	} while (0)
 %}
 
+ws	[ \t\v\n\f]
 string	\"(\\.|[^\\\"])*\"|'(\\.|[^\\\'])*'
 /* only canonical dates are allowed */
 int	[0-9]+
@@ -106,13 +107,13 @@ int	[0-9]+
 	RETURN_TOKEN(TOK_INT);
 }
 
-[^\v\n\f()!&|<>=]*	{
+[^\v\n\f()!&|<>= ][^\v\n\f()!&|<>=]*	{
 	/* return for parsing with our strpdt reader */
 	yylval->sval = yytext;
 	RETURN_TOKEN(TOK_DATETIME);
 }
 
-[ \t\v\n\f]	{ /* ignore whitespace */ }
+{ws}	{ /* ignore whitespace */ }
 .	{ /* ignore */ }
 
 %%
