@@ -105,6 +105,7 @@ AEH	Africa/Ndjamena
 AEI	Europe/Madrid
 AEK	Pacific/Port_Moresby
 AEL	America/Chicago
+AEM	Asia/Vladivostok
 AEO	Africa/Nouakchott
 AEP	America/Argentina/Buenos_Aires
 AER	Europe/Moscow
@@ -1474,6 +1475,7 @@ CPL	America/Bogota
 CPM	America/Los_Angeles
 CPN	Pacific/Port_Moresby
 CPO	America/Santiago
+CPP	America/Santiago
 CPQ	America/Sao_Paulo
 CPR	America/Denver
 CPS	America/Chicago
@@ -1865,6 +1867,7 @@ DOU	America/Campo_Grande
 DOV	America/Indiana/Indianapolis
 DOY	Asia/Shanghai
 DPA	America/Chicago
+DPB	America/Santiago
 DPG	America/Denver
 DPK	America/New_York
 DPL	Asia/Manila
@@ -2012,6 +2015,7 @@ EDI	Europe/London
 EDK	America/Chicago
 EDL	Africa/Nairobi
 EDM	Europe/Paris
+EDN	Asia/Vladivostok
 EDO	Europe/Istanbul
 EDQ	America/Tegucigalpa
 EDR	Australia/Brisbane
@@ -2182,6 +2186,7 @@ ESW	America/Los_Angeles
 ETB	America/Chicago
 ETD	Australia/Adelaide
 ETH	Asia/Jerusalem
+ETL	Asia/Vladivostok
 ETR	America/Guayaquil
 ETS	America/Chicago
 ETZ	Europe/Paris
@@ -6678,6 +6683,7 @@ RVA	Indian/Antananarivo
 RVD	America/Sao_Paulo
 RVE	America/Bogota
 RVH	Europe/Moscow
+RVI	Europe/Moscow
 RVK	Europe/Oslo
 RVN	Europe/Helsinki
 RVO	Africa/Johannesburg
@@ -8349,6 +8355,7 @@ WNA	America/Anchorage
 WND	Australia/Perth
 WNE	Africa/Libreville
 WNH	Asia/Chongqing
+WNI	Asia/Makassar
 WNN	America/Winnipeg
 WNP	Asia/Manila
 WNR	Australia/Brisbane
