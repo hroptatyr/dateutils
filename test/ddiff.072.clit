@@ -1,0 +1,10 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## regression case corresponding to bug/70
+$ ddiff 2018-01-01T17:20:00 2018-02-03T18:20:00 -f "%m months, %w weeks & %d days"
+1 months, 0 weeks & 2 days
+$ ddiff 2018-01-01T17:20:00 2018-02-03T18:20:00 -f "%m months, %d days"       
+1 months, 2 days
+$
+
+## ddiff.072.clit ends here
