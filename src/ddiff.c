@@ -201,7 +201,7 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		/* isn't defined */
 		return (dt_dtdurtyp_t)DT_DURUNK;
 	} else if (f.has_week && f.has_mon) {
-		return (dt_dtdurtyp_t)DT_DURYMCW;
+		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (f.has_week && f.has_year) {
 		return (dt_dtdurtyp_t)DT_DURYWD;
 	} else if (f.has_mon) {
