@@ -50,8 +50,10 @@ struct strpt_s {
 	union {
 		unsigned int u;
 		struct {
-			/* 0 for am, 1 for pm */
+			/* whether am/pm indicator was given */
 			unsigned int am_pm_bit:1;
+			/* 0 for am, 1 for pm */
+			unsigned int pm_p:1;
 
 			unsigned int h_set:1;
 			unsigned int m_set:1;

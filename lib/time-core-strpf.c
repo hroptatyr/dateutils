@@ -133,12 +133,13 @@ __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep)
 	case DT_SPFL_S_AMPM: {
 		const unsigned int casebit = 0x20;
 
+		d->flags.am_pm_bit = 1;
 		if ((sp[0] | casebit) == 'a' &&
 		    (sp[1] | casebit) == 'm') {
-			;
+			d->flags.pm_p = 0;
 		} else if ((sp[0] | casebit) == 'p' &&
 			   (sp[1] | casebit) == 'm') {
-			d->flags.am_pm_bit = 1;
+			d->flags.pm_p = 1;
 		} else {
 			goto fucked;
 		}

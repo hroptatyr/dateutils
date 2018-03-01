@@ -104,8 +104,8 @@ __guess_ttyp(struct strpt_s t)
 
 	if (t.flags.am_pm_bit) {
 		/* pm */
-		res.hms.h += 12;
-		res.hms.h %= HOURS_PER_DAY;
+		res.hms.h %= HOURS_PER_DAY / 2U;
+		res.hms.h += t.flags.pm_p ? 12U : 0U;
 	}
 	return res;
 fucked:
