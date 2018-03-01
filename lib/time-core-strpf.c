@@ -1,6 +1,6 @@
 /*** time-core-strpf.c -- parser and formatter funs for time-core
  *
- * Copyright (C) 2011-2016 Sebastian Freundt
+ * Copyright (C) 2011-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -247,13 +247,12 @@ __strft_card(
 		if (UNLIKELY(!s.cap)) {
 			casebit = 0x20;
 		}
-		if (d->h >= 12) {
+		if (d->h >= 12 && d->h < 24) {
 			buf[res++] = (char)('P' | casebit);
-			buf[res++] = (char)('M' | casebit);
 		} else {
 			buf[res++] = (char)('A' | casebit);
-			buf[res++] = (char)('M' | casebit);
 		}
+		buf[res++] = (char)('M' | casebit);
 		break;
 	}
 	case DT_SPFL_N_NANO:
