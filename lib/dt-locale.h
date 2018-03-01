@@ -1,6 +1,6 @@
 /*** locale.h -- locale light
  *
- * Copyright (C) 2015-2016 Sebastian Freundt
+ * Copyright (C) 2015-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
