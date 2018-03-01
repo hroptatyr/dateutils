@@ -562,6 +562,8 @@ dt_tests += tconv.009.clit
 dt_tests += tconv.010.clit
 dt_tests += tconv.011.clit
 dt_tests += tconv.012.clit
+dt_tests += tconv.013.clit
+dt_tests += tconv.014.clit
 
 dt_tests += tround.001.clit
 dt_tests += tround.002.clit
