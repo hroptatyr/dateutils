@@ -1,6 +1,6 @@
 /*** dt-core.h -- our universe of datetimes
  *
- * Copyright (C) 2011-2016 Sebastian Freundt
+ * Copyright (C) 2011-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -319,6 +319,10 @@ extern struct dt_dt_s dt_get_base(void);
 /**
  * Crop datetimess with days beyond ultimo. */
 extern __attribute__((pure)) struct dt_dt_s dt_fixup(struct dt_dt_s);
+
+/**
+ * Decay military midnigths to the following day 00:00:00 */
+extern __attribute__((pure)) struct dt_dt_s dt_milfup(struct dt_dt_s);
 
 
 /* some useful gimmicks, sort of */

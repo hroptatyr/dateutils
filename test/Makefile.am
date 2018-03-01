@@ -412,6 +412,7 @@ dt_tests += ddiff.068.clit
 dt_tests += ddiff.069.clit
 dt_tests += ddiff.070.clit
 dt_tests += ddiff.071.clit
+dt_tests += ddiff.072.clit
 EXTRA_DIST += some-dates-and-other-stuff.csv
 
 dt_tests += dgrep.001.clit
@@ -555,6 +556,14 @@ dt_tests += tconv.003.clit
 dt_tests += tconv.004.clit
 dt_tests += tconv.005.clit
 dt_tests += tconv.006.clit
+dt_tests += tconv.007.clit
+dt_tests += tconv.008.clit
+dt_tests += tconv.009.clit
+dt_tests += tconv.010.clit
+dt_tests += tconv.011.clit
+dt_tests += tconv.012.clit
+dt_tests += tconv.013.clit
+dt_tests += tconv.014.clit
 
 dt_tests += tround.001.clit
 dt_tests += tround.002.clit
@@ -877,6 +886,8 @@ dt_tests += mil-midnight.005.clit
 dt_tests += mil-midnight.006.clit
 dt_tests += mil-midnight.007.clit
 dt_tests += mil-midnight.008.clit
+dt_tests += mil-midnight.009.clit
+dt_tests += mil-midnight.010.clit
 
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could

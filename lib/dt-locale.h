@@ -34,8 +34,8 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***/
-#if !defined INCLUDED_locale_h_
-#define INCLUDED_locale_h_
+#if !defined INCLUDED_dt_locale_h_
+#define INCLUDED_dt_locale_h_
 
 /* textual representations of parts of the date */
 /**
@@ -100,4 +100,4 @@ extern int setilocale(const char *locale);
  * Just as stupid as setlocale(3). */
 extern int setflocale(const char *locale);
 
-#endif	/* INCLUDED_locale_h_ */
+#endif	/* INCLUDED_dt_locale_h_ */

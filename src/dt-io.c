@@ -136,10 +136,7 @@ dt_io_strpdt_ep(
 			}
 		}
 	}
-	if (LIKELY(!dt_unk_p(res)) && zone != NULL && !res.znfxd) {
-		return dtz_forgetz(res, zone);
-	}
-	return res;
+	return dtz_forgetz(res, zone);
 }
 
 struct dt_dt_s
@@ -298,10 +295,7 @@ dt_io_find_strpdt2(
 	*ep = (char*)(p = str);
 found:
 	*sp = (char*)p;
-	if (LIKELY(!dt_unk_p(d)) && zone != NULL) {
-		return dtz_forgetz(d, zone);
-	}
-	return d;
+	return dtz_forgetz(d, zone);
 }
 
 int

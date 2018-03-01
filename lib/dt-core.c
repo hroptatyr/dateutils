@@ -136,6 +136,12 @@ __to_unix_epoch(struct dt_dt_s dt)
 			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
 		}
 		return res;
+	} else if (dt_sandwich_only_t_p(dt)) {
+		/* bug/65, fill in with base */
+		dt_daisy_t d = dt_conv_to_daisy(dt_get_base().d);
+		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
+		res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+		return res;
 	}
 	return 0;
 }
@@ -570,6 +576,28 @@ dt_dur_only_d_p(struct dt_dtdur_s d)
 	return d.durtyp && d.d.durtyp < DT_NDURTYP && !d.t.sdur;
 }
 
+static bool
+need_milfup_p(const char *fmt)
+{
+/* military midnights don't need decaying if %T or %H is present */
+	for (const char *fp = fmt; *fp;) {
+		const char *fp_sav = fp;
+		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
+
+		switch (spec.spfl) {
+		case DT_SPFL_N_TSTD:
+			return false;
+		case DT_SPFL_N_HOUR:
+			if (!spec.sc12) {
+				return false;
+			}
+		default:
+			break;
+		}
+	}
+	return true;
+}
+
 
 /* parser implementations */
 DEFUN struct dt_dt_s
@@ -848,6 +876,14 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 	}
 	/* make sure we always snarf the zdiff info */
 	d.zdiff = zdiff_sec(that);
+
+	if (dt_sandwich_p(that) && UNLIKELY(that.t.hms.h == 24U)) {
+		/* military midnight fixup
+		 * only when there's %H or %T in the flags, don't decay*/
+		if (need_milfup_p(fmt)) {
+			that = dt_milfup(that);
+		}
+	}
 
 	switch (that.typ) {
 	case DT_YMD:
@@ -1779,6 +1815,15 @@ dt_fixup(struct dt_dt_s d)
 		d.d = dt_dfixup(d.d);
 	}
 	return d;
+}
+
+DEFUN __attribute__((pure)) struct dt_dt_s
+dt_milfup(struct dt_dt_s dt)
+{
+	if (dt_sandwich_p(dt) && UNLIKELY(dt.t.hms.h == 24)) {
+		dt = dt_dtadd(dt, (struct dt_dtdur_s){DT_DURS});
+	}
+	return dt;
 }
 
 #endif	/* INCLUDED_date_core_c_ */

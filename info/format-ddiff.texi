@@ -65,9 +65,9 @@ So for instance a duration of 128 seconds might be presented through
 There are several approaches to deal with this ambiguity.  The ddiff
 tool will follow, what we call, the refinement rule.  That is,
 regardless of the position of a format specifier, if it is a valid
-@emph{refinement} of another specifier in the format string, then it
+/refinement/ of another specifier in the format string, then it
 will only show the fractional value, i.e. the value in its natural range
-with respect to the @emph{refined} specifier.
+with respect to the /refined/ specifier.
 
 @verbatim
   %Y  possible refinements: %m, %w, %d
@@ -86,7 +86,7 @@ i.e. you can express a duration in weeks and hours because every day has
 24 hours and hence there are 168 hours in a week.
 
 In case of negative durations (the minuend is in the future relative to
-the subtrahend) @emph{only} the largest unit will carry the minus sign.
+the subtrahend) only the largest unit will carry the minus sign.
 
 Using the refinement rule keeps the format string dead simple, there's
 no need for operators or a full-blown language to distinguish the range
@@ -96,5 +96,5 @@ resulting more often than not in command lines that are hard to craft
 and even harder to understand later on (e.g. if used in shell scripts).
 
 The refinement rule ingeniously covers the 99% case but, unlike other
-approaches, there's @emph{no} way to display two unrefined values in the
+approaches, there's no way to display two unrefined values in the
 same format string, e.g. @samp{'%w weeks (which is %d days)'}.
