@@ -3,7 +3,7 @@ title: dateutils
 layout: project
 logo: dateutils_logo_120.png
 project: dateutils
-latest: dateutils-0.4.2.tar.xz
+latest: dateutils-0.4.3.tar.xz
 snap: https://hroptatyr.gitlab.io/dateutils/dateutils-latest.tar.xz
 description: dateutils, command-line date calculation and conversion tools
 ---
