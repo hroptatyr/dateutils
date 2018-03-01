@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dconv 24:00:00 -f '%I:%M:%S %P'
+12:00:00 am
+$ dconv 2014-10-01T24:00:00 -f '%F %I:%M:%S %p'
+2014-10-02 12:00:00 AM
+$

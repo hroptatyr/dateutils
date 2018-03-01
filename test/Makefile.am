@@ -886,6 +886,8 @@ dt_tests += mil-midnight.005.clit
 dt_tests += mil-midnight.006.clit
 dt_tests += mil-midnight.007.clit
 dt_tests += mil-midnight.008.clit
+dt_tests += mil-midnight.009.clit
+dt_tests += mil-midnight.010.clit
 
 ## we should check if the zones in these tests actually exist
 ## also failing tests here should be soft-fails because that could
