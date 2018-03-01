@@ -8,6 +8,27 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.3
+------
+Summary: v0.4.3 of dateutils
+
+This is dateutils v0.4.3.
+
+This is a feature release.
+
+Features:
+
+- base expansion works for times now
+
+Bugfixes:
+
+- durations in months weeks and days are calculated
+    like durations in months and days, consistency
+- am and pm indicators in inputs are handled properly
+- military midnights decay when not printed in full
+
+See info page examples and/or README.
+
 v0.4.2
 ------
 Summary: v0.4.2 of dateutils
