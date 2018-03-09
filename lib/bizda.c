@@ -253,24 +253,15 @@ __get_nwedays(int dur, dt_dow_t wd)
  * (mod7 + wd >= 6) -> 1  */
 	int nss = (dur / (signed)GREG_DAYS_P_WEEK) * 2;
 	int mod = (dur % (signed)GREG_DAYS_P_WEEK);
-	/* this algo still works with SUNDAY == 0 */
-	int xwd = wd < DT_SUNDAY ? wd : 0;
+	int xwd = (wd % GREG_DAYS_P_WEEK) + 1;
 
-	if (mod == 0) {
-		return nss;
-	} else if (UNLIKELY(wd == DT_SATURDAY && dur > 0)) {
-		return nss + 1;
-	} else if (UNLIKELY(wd == DT_SATURDAY && dur < 0)) {
-		return nss - 1;
-	} else if (mod > xwd + 1) {
-		return nss + 2;
-	} else if (mod > xwd) {
-		return nss + 1;
-	} else if (mod + 7 <= xwd) {
-		return nss - 2;
-	} else if (mod + 6 <= xwd) {
-		return nss - 1;
-	}
+	/* saturday fix-up */
+	nss += wd == DT_SATURDAY;
+
+	nss += mod + 0 > xwd;
+	nss += mod + 1 > xwd;
+	nss -= mod + 7 < xwd;
+	nss -= mod + 6 < xwd;
 	return nss;
 }
 
