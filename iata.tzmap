@@ -3550,6 +3550,7 @@ JSG	America/Los_Angeles
 JSH	Europe/Athens
 JSI	Europe/Athens
 JSJ	Asia/Harbin
+JSK	Asia/Tehran
 JSM	America/Argentina/Catamarca
 JSO	Europe/Stockholm
 JSP	Asia/Seoul
@@ -8452,6 +8453,7 @@ WYS	America/Denver
 WZQ	Asia/Kashgar
 XAB	Europe/Paris
 XAC	Europe/Paris
+XAI	Asia/Shanghai
 XAL	America/Hermosillo
 XAN	Europe/Paris
 XAP	America/Sao_Paulo
