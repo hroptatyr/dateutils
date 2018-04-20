@@ -38,6 +38,9 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 /* for fgetln() */
+#if !defined __BSD_VISIBLE
+# define __BSD_VISIBLE 1
+#endif /* !__BSD_VISIBLE */
 #if !defined _NETBSD_SOURCE
 # define _NETBSD_SOURCE
 #endif	/* !_NETBSD_SOURCE */
