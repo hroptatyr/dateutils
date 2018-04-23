@@ -291,7 +291,7 @@ datezone.texi: dzone.texi
 
 
 SUFFIXES += .yuck
-VPATH += @top_srcdir@/src
+VPATH = $(srcdir):@top_srcdir@/src
 
 SUFFIXES += .man
 .yuck.man:
