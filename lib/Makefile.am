@@ -136,13 +136,14 @@ am__v_DL_0 = @echo "  D/L'ING " $@;
 
 leapseconds.def: leapseconds
 	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
-	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
+	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $(srcdir)/leapseconds > $@ || rm -f $@
 
 ## version rules
 version.c: version.c.in $(top_builddir)/.version
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
 		yuck$(EXEEXT) scmver --ignore-noscm --force -o $@ \
-			--use-reference --reference $(top_builddir)/.version $<
+			--use-reference --reference $(top_builddir)/.version \
+			$(srcdir)/version.c.in
 
 ## yuck rule
 SUFFIXES += .yuck
