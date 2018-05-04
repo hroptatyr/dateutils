@@ -753,7 +753,8 @@ main(int argc, char *argv[])
 
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
-	for (size_t i = 0U; i < argi->nargs; i++) {
+	dt_given_p = !dt_unk_p(d = dt_io_strpdt(*argi->args, fmt, nfmt, NULL));
+	for (size_t i = dt_given_p; i < argi->nargs; i++) {
 		inp = argi->args[i];
 		do {
 			if (dt_io_strpdtrnd(&st, inp) < 0) {
