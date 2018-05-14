@@ -19,3 +19,7 @@ Units:
   mo months
   y  years
 @end verbatim
+
+For historical reasons, we used to accept @samp{m} in the context of
+date-only input as a qualifier for months.  As of 0.4.4, this is no
+longer the case.

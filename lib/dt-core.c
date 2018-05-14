@@ -1497,12 +1497,6 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 	}
 #endif	/* WITH_LEAP_SECONDS */
 
-	if (UNLIKELY(dur.durtyp == DT_DURM && dt_sandwich_only_d_p(d))) {
-		/* probably +/-[n]m where `m' was meant to be `mo' */
-		dur.d.durtyp = DT_DURMO;
-		dur.d.dv = dur.dv;
-	}
-
 	if (d.typ == DT_SEXY) {
 		d.sexy = __sexy_add(d.sexy, dur);
 		return d;
