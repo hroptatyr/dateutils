@@ -659,11 +659,13 @@ cannot mix dates and times as arguments");
 #define _DAISY	((dt_dttyp_t)DT_DAISY)
 	tgttyp = clo.fst.typ;
 	if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
-	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0) {
+	    clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.m == 0 &&
+	    argi->nargs < 3U) {
 		/* iterate year-wise */
 		clo.ite->d = dt_make_ddur(DT_DURYR, 1);
 	} else if ((dt_sandwich_p(clo.fst) || dt_sandwich_only_d_p(clo.fst)) &&
-		   clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.d == 0) {
+		   clo.fst.d.typ == DT_YMD && clo.fst.d.ymd.d == 0 &&
+		   argi->nargs < 3U) {
 		/* iterate month-wise */
 		clo.ite->d = dt_make_ddur(DT_DURMO, 1);
 	} else if (dt_sandwich_only_d_p(clo.fst) &&
