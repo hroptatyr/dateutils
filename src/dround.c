@@ -509,6 +509,10 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 		case DT_DURM:
 		case DT_DURS:
 		case DT_DURNANO:
+			if (UNLIKELY(dt_sandwich_only_d_p(d))) {
+				/* this doesn't make sense */
+				break;
+			}
 			if (!dur.cocl) {
 				d.t = tround_tdur(d.t, dur, nextp);
 			} else {
