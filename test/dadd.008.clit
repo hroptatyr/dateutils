@@ -1,6 +1,6 @@
 #!/usr/bin/clitoris  ## -*- shell-script -*-
 
-$ dadd -1m1d <<EOF
+$ dadd -1mo1d <<EOF
 2000-01-01
 2000-01-02
 2000-01-03
