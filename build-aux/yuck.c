@@ -146,16 +146,6 @@ error(const char *fmt, ...)
 	return;
 }
 
-static inline __attribute__((unused)) void*
-deconst(const void *cp)
-{
-	union {
-		const void *c;
-		void *p;
-	} tmp = {cp};
-	return tmp.p;
-}
-
 static inline __attribute__((always_inline)) unsigned int
 yfls(unsigned int x)
 {
