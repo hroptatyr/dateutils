@@ -299,12 +299,13 @@ __get_bdays(unsigned int y, unsigned int m)
  * Mir  0  0  0  0
  */
 	unsigned int md = __get_mdays(y, m);
-	unsigned int rd = (unsigned int)(md - 28U);
-	dt_dow_t m01wd;
-	dt_dow_t m28wd;
 
 	/* rd should not overflow */
 	assert((signed int)md - 28 >= 0);
+	
+	unsigned int rd = (unsigned int)(md - 28U);
+	dt_dow_t m01wd;
+	dt_dow_t m28wd;
 
 	/* wday of the 1st and 28th */
 	m01wd = __get_m01_wday(y, m);
