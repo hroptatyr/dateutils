@@ -2187,6 +2187,7 @@ ETB	America/Chicago
 ETD	Australia/Adelaide
 ETH	Asia/Jerusalem
 ETL	Asia/Vladivostok
+ETM	Asia/Jerusalem
 ETR	America/Guayaquil
 ETS	America/Chicago
 ETZ	Europe/Paris
@@ -2858,6 +2859,7 @@ HBE	Africa/Cairo
 HBG	America/Chicago
 HBK	America/Phoenix
 HBO	America/Chicago
+HBQ	Asia/Shanghai
 HBR	America/Chicago
 HBT	Asia/Riyadh
 HBU	Asia/Hovd
@@ -4325,6 +4327,7 @@ LMQ	Africa/Tripoli
 LMR	Africa/Johannesburg
 LMS	America/Chicago
 LMT	America/Los_Angeles
+LMU	Asia/Jakarta
 LMX	America/Bogota
 LMY	Pacific/Port_Moresby
 LNA	America/New_York
