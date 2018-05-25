@@ -333,6 +333,9 @@ dt_tests += dadd.090.clit
 EXTRA_DIST += dadd.090.dat
 dt_tests += dadd.091.clit
 dt_tests += dadd.092.clit
+dt_tests += dadd.093.clit
+dt_tests += dadd.094.clit
+dt_tests += dadd.095.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
@@ -543,6 +546,7 @@ dt_tests += tadd.007.clit
 dt_tests += tadd.008.clit
 dt_tests += tadd.009.clit
 dt_tests += tadd.010.clit
+dt_tests += tadd.011.clit
 
 dt_tests += tgrep.001.clit
 dt_tests += tgrep.002.clit
@@ -752,6 +756,7 @@ dt_tests += dtadd.051.clit
 dt_tests += dtadd.052.clit
 dt_tests += dtadd.053.clit
 dt_tests += dtadd.054.clit
+dt_tests += dtadd.055.clit
 
 dt_tests += dtgrep.001.clit
 dt_tests += dtgrep.002.clit
