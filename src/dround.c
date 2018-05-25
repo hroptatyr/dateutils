@@ -73,7 +73,8 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 
 	/* get directions, no dur is a no-op */
 	if (UNLIKELY(!(sdur = dur.dv))) {
-		return t;
+		/* IPO/LTO hack */
+		goto out;
 	} else if (sdur < 0) {
 		downp = true;
 		sdur = -sdur;
@@ -95,7 +96,8 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		}
 		/*@fallthrough@*/
 	default:
-		return t;
+		/* IPO/LTO hack */
+		goto out;
 	}
 	/* unpack t */
 	tunp = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
@@ -107,7 +109,7 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 			 * this is not some obscure optimisation but to
 			 * support special notations like, military midnight
 			 * or leap seconds */
-			return t;
+			goto out;
 		} else if (!downp) {
 			tunp += sdur - diff;
 		} else if (!diff/* && downp && nextp*/) {
@@ -124,6 +126,7 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	t.hms.m = tunp % MINS_PER_HOUR;
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
+out:
 	return t;
 }
 
