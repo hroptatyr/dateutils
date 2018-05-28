@@ -1,6 +1,6 @@
 /*** bizda.c -- guts for bizda dates
  *
- * Copyright (C) 2010-2016 Sebastian Freundt
+ * Copyright (C) 2010-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -253,24 +253,15 @@ __get_nwedays(int dur, dt_dow_t wd)
  * (mod7 + wd >= 6) -> 1  */
 	int nss = (dur / (signed)GREG_DAYS_P_WEEK) * 2;
 	int mod = (dur % (signed)GREG_DAYS_P_WEEK);
-	/* this algo still works with SUNDAY == 0 */
-	int xwd = wd < DT_SUNDAY ? wd : 0;
+	int xwd = (wd % GREG_DAYS_P_WEEK) + 1;
 
-	if (mod == 0) {
-		return nss;
-	} else if (UNLIKELY(wd == DT_SATURDAY && dur > 0)) {
-		return nss + 1;
-	} else if (UNLIKELY(wd == DT_SATURDAY && dur < 0)) {
-		return nss - 1;
-	} else if (mod > xwd + 1) {
-		return nss + 2;
-	} else if (mod > xwd) {
-		return nss + 1;
-	} else if (mod + 7 <= xwd) {
-		return nss - 2;
-	} else if (mod + 6 <= xwd) {
-		return nss - 1;
-	}
+	/* saturday fix-up */
+	nss += wd == DT_SATURDAY;
+
+	nss += mod + 0 > xwd;
+	nss += mod + 1 > xwd;
+	nss -= mod + 7 < xwd;
+	nss -= mod + 6 < xwd;
 	return nss;
 }
 
@@ -308,12 +299,13 @@ __get_bdays(unsigned int y, unsigned int m)
  * Mir  0  0  0  0
  */
 	unsigned int md = __get_mdays(y, m);
-	unsigned int rd = (unsigned int)(md - 28U);
-	dt_dow_t m01wd;
-	dt_dow_t m28wd;
 
 	/* rd should not overflow */
 	assert((signed int)md - 28 >= 0);
+	
+	unsigned int rd = (unsigned int)(md - 28U);
+	dt_dow_t m01wd;
+	dt_dow_t m28wd;
 
 	/* wday of the 1st and 28th */
 	m01wd = __get_m01_wday(y, m);

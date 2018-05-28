@@ -252,46 +252,46 @@ dzone.man: dzone.h2m
 TRAFO = sed 's/dadd/dateadd/g; s/dconv/dateconv/g; s/ddiff/datediff/g; s/dgrep/dategrep/g; s/dround/dateround/g; s/dseq/dateseq/g; s/dsort/datesort/g; s/dtest/datetest/g; s/dzone/datezone/g'
 
 dateadd.manu: dadd.manu
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dadd.manu > $@
 dateconv.man: dconv.man
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dconv.man > $@
 datediff.mand: ddiff.mand
-	$(TRAFO) < $< > $@
+	$(TRAFO) < ddiff.mand > $@
 dategrep.man: dgrep.man
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dgrep.man > $@
 dateround.manu: dround.manu
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dround.manu > $@
 dateseq.manu: dseq.manu
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dseq.manu > $@
 datesort.man: dsort.man
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dsort.man > $@
 datetest.man: dtest.man
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dtest.man > $@
 datezone.man: dzone.man
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dzone.man > $@
 
 dateadd.texi: dadd.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dadd.texi > $@
 dateconv.texi: dconv.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dconv.texi > $@
 datediff.texi: ddiff.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < ddiff.texi > $@
 dategrep.texi: dgrep.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dgrep.texi > $@
 dateround.texi: dround.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dround.texi > $@
 dateseq.texi: dseq.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dseq.texi > $@
 datesort.texi: dsort.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dsort.texi > $@
 datetest.texi: dtest.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dtest.texi > $@
 datezone.texi: dzone.texi
-	$(TRAFO) < $< > $@
+	$(TRAFO) < dzone.texi > $@
 
 
 SUFFIXES += .yuck
-VPATH += @top_srcdir@/src
+VPATH = $(srcdir):@top_srcdir@/src
 
 SUFFIXES += .man
 .yuck.man:

@@ -1,6 +1,6 @@
 /*** date-core.c -- our universe of dates
  *
- * Copyright (C) 2011-2016 Sebastian Freundt
+ * Copyright (C) 2011-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -1421,6 +1421,10 @@ DEFUN struct dt_d_s
 dt_dadd_d(struct dt_d_s d, int n)
 {
 /* add N (gregorian) days to D */
+	if (UNLIKELY(!n)) {
+		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		goto out;
+	}
 	switch (d.typ) {
 	case DT_JDN:
 		d.daisy = __jdn_to_daisy(d.jdn);
@@ -1481,6 +1485,7 @@ dt_dadd_d(struct dt_d_s d, int n)
 		d.u = 0;
 		break;
 	}
+out:
 	return d;
 }
 
@@ -1488,6 +1493,10 @@ DEFUN struct dt_d_s
 dt_dadd_b(struct dt_d_s d, int n)
 {
 /* add N business days to D */
+	if (UNLIKELY(!n)) {
+		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		goto out;
+	}
 	switch (d.typ) {
 	case DT_JDN:
 		d.daisy = __jdn_to_daisy(d.jdn);
@@ -1548,6 +1557,7 @@ dt_dadd_b(struct dt_d_s d, int n)
 		d.u = 0;
 		break;
 	}
+out:
 	return d;
 }
 
@@ -1555,6 +1565,10 @@ DEFUN struct dt_d_s
 dt_dadd_w(struct dt_d_s d, int n)
 {
 /* add N weeks to D */
+	if (UNLIKELY(!n)) {
+		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		goto out;
+	}
 	switch (d.typ) {
 	case DT_JDN:
 		d.daisy = __jdn_to_daisy(d.jdn);
@@ -1615,6 +1629,7 @@ dt_dadd_w(struct dt_d_s d, int n)
 		d.u = 0;
 		break;
 	}
+out:
 	return d;
 }
 
@@ -1622,6 +1637,9 @@ DEFUN struct dt_d_s
 dt_dadd_m(struct dt_d_s d, int n)
 {
 /* add N months to D */
+	if (UNLIKELY(!n)) {
+		goto out;
+	}
 	switch (d.typ) {
 	case DT_LDN:
 	case DT_JDN:
@@ -1656,6 +1674,7 @@ dt_dadd_m(struct dt_d_s d, int n)
 		d.u = 0;
 		break;
 	}
+out:
 	return d;
 }
 
@@ -1663,6 +1682,10 @@ DEFUN struct dt_d_s
 dt_dadd_y(struct dt_d_s d, int n)
 {
 /* add N years to D */
+	if (UNLIKELY(!n)) {
+		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		goto out;
+	}
 	switch (d.typ) {
 	case DT_LDN:
 	case DT_JDN:
@@ -1697,12 +1720,17 @@ dt_dadd_y(struct dt_d_s d, int n)
 		d.u = 0;
 		break;
 	}
+out:
 	return d;
 }
 
 DEFUN struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 {
+	if (UNLIKELY(!dur.dv)) {
+		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		goto out;
+	}
 	switch (dur.durtyp) {
 	case DT_DURD:
 		d = dt_dadd_d(d, dur.dv);
@@ -1724,6 +1752,7 @@ dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 		/* huh? */
 		break;
 	}
+out:
 	return d;
 }
 

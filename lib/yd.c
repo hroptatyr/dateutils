@@ -1,6 +1,6 @@
 /*** yd.c -- guts for yd dates that consist of a year and a year-day
  *
- * Copyright (C) 2010-2016 Sebastian Freundt
+ * Copyright (C) 2010-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

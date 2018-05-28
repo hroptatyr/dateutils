@@ -1,6 +1,6 @@
 /*** dround.c -- perform simple date arithmetic, round to duration
  *
- * Copyright (C) 2012-2016 Sebastian Freundt
+ * Copyright (C) 2012-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -73,7 +73,8 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 
 	/* get directions, no dur is a no-op */
 	if (UNLIKELY(!(sdur = dur.dv))) {
-		return t;
+		/* IPO/LTO hack */
+		goto out;
 	} else if (sdur < 0) {
 		downp = true;
 		sdur = -sdur;
@@ -95,7 +96,8 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		}
 		/*@fallthrough@*/
 	default:
-		return t;
+		/* IPO/LTO hack */
+		goto out;
 	}
 	/* unpack t */
 	tunp = (t.hms.h * MINS_PER_HOUR + t.hms.m) * SECS_PER_MIN + t.hms.s;
@@ -107,7 +109,7 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 			 * this is not some obscure optimisation but to
 			 * support special notations like, military midnight
 			 * or leap seconds */
-			return t;
+			goto out;
 		} else if (!downp) {
 			tunp += sdur - diff;
 		} else if (!diff/* && downp && nextp*/) {
@@ -124,6 +126,7 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	t.hms.m = tunp % MINS_PER_HOUR;
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
+out:
 	return t;
 }
 
@@ -509,6 +512,10 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 		case DT_DURM:
 		case DT_DURS:
 		case DT_DURNANO:
+			if (UNLIKELY(dt_sandwich_only_d_p(d))) {
+				/* this doesn't make sense */
+				break;
+			}
 			if (!dur.cocl) {
 				d.t = tround_tdur(d.t, dur, nextp);
 			} else {
@@ -753,7 +760,8 @@ main(int argc, char *argv[])
 
 	/* check first arg, if it's a date the rest of the arguments are
 	 * durations, if not, dates must be read from stdin */
-	for (size_t i = 0U; i < argi->nargs; i++) {
+	dt_given_p = !dt_unk_p(d = dt_io_strpdt(*argi->args, fmt, nfmt, NULL));
+	for (size_t i = dt_given_p; i < argi->nargs; i++) {
 		inp = argi->args[i];
 		do {
 			if (dt_io_strpdtrnd(&st, inp) < 0) {

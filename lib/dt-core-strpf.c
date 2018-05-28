@@ -1,6 +1,6 @@
 /*** dt-core-strpf.c -- parser and formatter funs for dt-core
  *
- * Copyright (C) 2011-2016 Sebastian Freundt
+ * Copyright (C) 2011-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -277,13 +277,18 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = __strpt_card(&d->st, sp, s, ep);
 		goto out_direct;
 
-	case DT_SPFL_N_EPOCH:
+	case DT_SPFL_N_EPOCH: {
 		/* read over @ */
-		if (UNLIKELY(*sp == '@')) {
-			sp++;
+		const char *tp = sp;
+		tp += *tp == '@';
+		d->i = strtoi(tp, &tp);
+		if (UNLIKELY(d->i < 0 || tp == sp)) {
+			res = -1;
+		} else {
+			sp = tp;
 		}
-		d->i = strtoi(sp, &sp);
 		break;
+	}
 
 	case DT_SPFL_N_ZDIFF: {
 		const char *tp;

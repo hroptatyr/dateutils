@@ -1,6 +1,6 @@
 /*** boops.h -- byte-order operations
  *
- * Copyright (C) 2012-2016 Sebastian Freundt
+ * Copyright (C) 2012-2018 Sebastian Freundt
  * Copyright (C) 2012 Ruediger Meier
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>

@@ -95,6 +95,11 @@ dt_tests += dseq.53.clit
 dt_tests += dseq.54.clit
 dt_tests += dseq.55.clit
 dt_tests += dseq.56.clit
+dt_tests += dseq.57.clit
+dt_tests += dseq.58.clit
+dt_tests += dseq.59.clit
+dt_tests += dseq.60.clit
+dt_tests += dseq.61.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -328,6 +333,9 @@ dt_tests += dadd.090.clit
 EXTRA_DIST += dadd.090.dat
 dt_tests += dadd.091.clit
 dt_tests += dadd.092.clit
+dt_tests += dadd.093.clit
+dt_tests += dadd.094.clit
+dt_tests += dadd.095.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
@@ -492,6 +500,7 @@ dt_tests += dround.032.clit
 dt_tests += dround.033.clit
 dt_tests += dround.034.clit
 dt_tests += dround.035.clit
+dt_tests += dround.036.clit
 
 dt_tests += tseq.01.clit
 dt_tests += tseq.02.clit
@@ -537,6 +546,7 @@ dt_tests += tadd.007.clit
 dt_tests += tadd.008.clit
 dt_tests += tadd.009.clit
 dt_tests += tadd.010.clit
+dt_tests += tadd.011.clit
 
 dt_tests += tgrep.001.clit
 dt_tests += tgrep.002.clit
@@ -645,6 +655,8 @@ dt_tests += dtconv.067.clit
 dt_tests += dtconv.068.clit
 dt_tests += dtconv.069.clit
 dt_tests += dtconv.070.clit
+dt_tests += dtconv.071.clit
+dt_tests += dtconv.072.clit
 
 dt_tests += convt.ymcw-ymd.clit
 dt_tests += convt.ymcw-ywd.clit
@@ -680,6 +692,10 @@ dt_tests += dtseq.05.clit
 dt_tests += dtseq.06.clit
 dt_tests += dtseq.07.clit
 dt_tests += dtseq.08.clit
+dt_tests += dtseq.09.clit
+dt_tests += dtseq.10.clit
+dt_tests += dtseq.11.clit
+dt_tests += dtseq.12.clit
 
 dt_tests += dtadd.001.clit
 dt_tests += dtadd.002.clit
@@ -736,6 +752,11 @@ dt_tests += dtadd.047.clit
 dt_tests += dtadd.048.clit
 dt_tests += dtadd.049.clit
 dt_tests += dtadd.050.clit
+dt_tests += dtadd.051.clit
+dt_tests += dtadd.052.clit
+dt_tests += dtadd.053.clit
+dt_tests += dtadd.054.clit
+dt_tests += dtadd.055.clit
 
 dt_tests += dtgrep.001.clit
 dt_tests += dtgrep.002.clit
@@ -827,6 +848,8 @@ dt_tests += dtround.011.clit
 dt_tests += dtround.012.clit
 dt_tests += dtround.013.clit
 dt_tests += dtround.014.clit
+dt_tests += dtround.015.clit
+dt_tests += dtround.016.clit
 
 dt_tests += dzone.001.clit
 dt_tests += dzone.002.clit

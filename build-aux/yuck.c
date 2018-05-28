@@ -1,6 +1,6 @@
 /*** yuck.c -- generate umbrella commands
  *
- * Copyright (C) 2013-2016 Sebastian Freundt
+ * Copyright (C) 2013-2018 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -38,6 +38,9 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 /* for fgetln() */
+#if !defined __BSD_VISIBLE
+# define __BSD_VISIBLE 1
+#endif /* !__BSD_VISIBLE */
 #if !defined _NETBSD_SOURCE
 # define _NETBSD_SOURCE
 #endif	/* !_NETBSD_SOURCE */
@@ -141,16 +144,6 @@ error(const char *fmt, ...)
 	}
 	fputc('\n', stderr);
 	return;
-}
-
-static inline __attribute__((unused)) void*
-deconst(const void *cp)
-{
-	union {
-		const void *c;
-		void *p;
-	} tmp = {cp};
-	return tmp.p;
 }
 
 static inline __attribute__((always_inline)) unsigned int
