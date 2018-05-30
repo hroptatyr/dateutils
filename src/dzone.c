@@ -84,14 +84,16 @@ xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 static int
 dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 {
-	static const char *fmt[] = {"%FT%T%Z", "%T%Z"};
+	static const char fmt[] = "%FT%T%Z";
 	char *restrict bp = gbuf;
 	const char *const ep = gbuf + sizeof(gbuf);
+	size_t fof = 0U;
 
 	if (LIKELY(zone != NULL)) {
 		d = dtz_enrichz(d, zone);
 	}
-	bp += dt_strfdt(bp, ep - bp, fmt[dt_sandwich_only_t_p(d)], d);
+	fof = dt_sandwich_only_t_p(d) * 3U;
+	bp += dt_strfdt(bp, ep - bp, fmt + fof, d);
 	/* append name */
 	if (LIKELY(name != NULL)) {
 		*bp++ = '\t';
