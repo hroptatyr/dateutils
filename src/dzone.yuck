@@ -13,6 +13,10 @@ DATE/TIME can also be one of the following specials
 When DATE/TIME is a date (i.e. the time component is omitted)
 the result will show the timezone offset at the end of that day.
 
+When DATE/TIME is a time (i.e. the date component is omitted)
+the conversion takes place on the date as specified by --base|-b,
+by default the current date.
+
   -q, --quiet                Suppress message about date/time or zonename
                              parser errors and fix-ups.
                              The default is to print a warning or the
