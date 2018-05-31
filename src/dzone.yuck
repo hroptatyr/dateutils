@@ -10,6 +10,9 @@ DATE/TIME can also be one of the following specials
   - `tomo[rrow]'    tomorrow's date (according to UTC)
   - `y[ester]day'   yesterday's date (according to UTC)
 
+When DATE/TIME is a date (i.e. the time component is omitted)
+the result will show the timezone offset at the end of that day.
+
   -q, --quiet                Suppress message about date/time or zonename
                              parser errors and fix-ups.
                              The default is to print a warning or the
@@ -32,7 +35,7 @@ DATE/TIME can also be one of the following specials
                              coming from the locale LOCALE, this would only
                              affect month and weekday names as input formats
                              have to be specified explicitly.
-     --from-zone=ZONE       Interpret dates on stdin or the command line as
+      --from-zone=ZONE       Interpret dates on stdin or the command line as
                                coming from the time zone ZONE.
   --next                    Show next transition from/to DST.
   --prev                    Show previous transition from/to DST.
