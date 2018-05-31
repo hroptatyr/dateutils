@@ -126,24 +126,22 @@ static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
 {
 /* daisy is competing with the prevalent unix epoch, this is the offset */
+	struct dt_d_s dd;
+	dt_ssexy_t res;
+
 	if (dt.typ == DT_SEXY) {
 		/* no way to find out, is there */
 		return dt.sexy;
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
-		dt_daisy_t d = dt_conv_to_daisy(dt.d);
-		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
-		if (dt_sandwich_p(dt)) {
-			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-		}
-		return res;
+		dd = dt.d;
 	} else if (dt_sandwich_only_t_p(dt)) {
-		/* bug/65, fill in with base */
-		dt_daisy_t d = dt_conv_to_daisy(dt_get_base().d);
-		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
-		res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-		return res;
+		dd = dt_get_base().d;
+	} else {
+		return 0;
 	}
-	return 0;
+	res = (dt_conv_to_daisy(dd) - DAISY_UNIX_BASE) * SECS_PER_DAY;
+	res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	return res;
 }
 
 /* public version */

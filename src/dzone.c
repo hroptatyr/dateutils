@@ -81,18 +81,47 @@ xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 	return ssz;
 }
 
+static struct dt_dt_s
+dz_enrichz(struct dt_dt_s d, zif_t zone)
+{
+/* like dtz_enrichz() but with fix-up for date-only dt's */
+	struct dt_dt_s x = d;
+
+	if (UNLIKELY(zone == NULL)) {
+		goto out;
+	} else if (d.typ == DT_SEXY) {
+		goto out;
+	} else if (dt_sandwich_only_d_p(d)) {
+		static struct dt_t_s mid = {.hms = {.h = 24}};
+		dt_make_sandwich(&x, d.d.typ, DT_HMS);
+		x.t = mid;
+	}
+	x = dtz_enrichz(x, zone);
+
+	if (dt_sandwich_only_d_p(d)) {
+		/* keep .zdiff and .neg */
+		d.neg = x.neg;
+		d.zdiff = x.zdiff;
+		x = d;
+	}
+out:
+	return x;
+}
+
 static int
 dz_io_write(struct dt_dt_s d, zif_t zone, const char *name)
 {
-	static const char fmt[] = "%FT%T%Z";
+	static const char fmt[] = "%FT%T%Z\0%F%Z";
 	char *restrict bp = gbuf;
 	const char *const ep = gbuf + sizeof(gbuf);
 	size_t fof = 0U;
 
-	if (LIKELY(zone != NULL)) {
-		d = dtz_enrichz(d, zone);
-	}
-	fof = dt_sandwich_only_t_p(d) * 3U;
+	/* pick a format */
+	fof += dt_sandwich_only_t_p(d) * 3U;
+	fof += dt_sandwich_only_d_p(d) * 8U;
+
+	/* let's go */
+	d = dz_enrichz(d, zone);
 	bp += dt_strfdt(bp, ep - bp, fmt + fof, d);
 	/* append name */
 	if (LIKELY(name != NULL)) {
