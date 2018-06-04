@@ -60,20 +60,20 @@
 static int
 pr_line_corr(const char *line, size_t llen, va_list UNUSED(vap))
 {
-	static int32_t corr = 0;
+	static int32_t corr = 10;
 	char *ep;
 
 	if (llen == PROLOGUE) {
 		/* prologue */
-		corr = 0;
 		fprintf(stdout, "\
 const int32_t %s[] = {\n\
-	0,\n", line);
+	%i,\n", line, corr);
 		return 0;
 	} else if (llen == EPILOGUE) {
 		fprintf(stdout, "\
 	%i\n\
 };\n", corr);
+		corr = 10;
 		return 0;
 	} else if (line == NULL) {
 		/* grrrr */

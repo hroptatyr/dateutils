@@ -648,10 +648,9 @@ static int32_t
 __tai_offs(int32_t t)
 {
 	/* difference of TAI and UTC at epoch instant */
-	const int32_t tai_offs_epoch = 10;
 	zidx_t zi = leaps_before_si32(leaps_s, nleaps_corr, t);
 
-	return tai_offs_epoch + leaps_corr[zi];
+	return leaps_corr[zi];
 }
 
 static int32_t
