@@ -45,13 +45,21 @@
 #endif	/* HAVE_SYS_STDINT_H */
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "leaps.h"
 #include "date-core.h"
-#include "dt-core.h"
+#include "time-core.h"
 #include "nifty.h"
 
 #include "version.c"
+
+
+static __attribute__((pure, const)) long int
+ntp_to_unix_epoch(long int x)
+{
+	return x - 25567L * 86400L;
+}
 
 
 #define PROLOGUE	(-1UL)
@@ -60,20 +68,20 @@
 static int
 pr_line_corr(const char *line, size_t llen, va_list UNUSED(vap))
 {
-	static int32_t corr = 10;
-	char *ep;
+	static long int cor;
+	char *sp, *ep;
 
 	if (llen == PROLOGUE) {
 		/* prologue */
 		fprintf(stdout, "\
 const int32_t %s[] = {\n\
-	%i,\n", line, corr);
+	10,\n", line);
 		return 0;
 	} else if (llen == EPILOGUE) {
 		fprintf(stdout, "\
-	%i\n\
-};\n", corr);
-		corr = 10;
+	%ld\n\
+};\n", cor);
+		cor = 0;
 		return 0;
 	} else if (line == NULL) {
 		/* grrrr */
@@ -86,36 +94,24 @@ const int32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((dt_strpd(line, "Leap\t%Y\t%b\t%d\t", &ep), ep) == NULL) {
+	if ((sp = memchr(line, '\t', llen)) == NULL) {
 		return -1;
-	} else if (llen - (ep - line) < 9) {
-		return -1;
-	} else if (ep[8] != '\t') {
+	} else if ((ep = NULL, cor = strtol(++sp, &ep, 10), ep == NULL)) {
 		return -1;
 	}
 
-	switch (ep[9]) {
-	case '+':
-		++corr;
-		break;
-	case '-':
-		--corr;
-		break;
-	default:
-		/* still buggered */
-		return -1;
-	}
 	/* output the correction then */
-	fprintf(stdout, "\t%i,\n", corr);
+	fprintf(stdout, "\t%ld,\n", cor);
 	return 0;
 }
 
 static int
 pr_line_d(const char *line, size_t llen, va_list vap)
 {
-	static int32_t corr = 0;
+	static long int cor;
 	struct dt_d_s d;
 	dt_dtyp_t typ;
+	long int val;
 	int colp;
 	char *ep;
 
@@ -125,7 +121,6 @@ pr_line_d(const char *line, size_t llen, va_list vap)
 
 	if (llen == PROLOGUE) {
 		/* prologue */
-		corr = 0;
 		if (!colp) {
 			fprintf(stdout, "\
 const struct zleap_s %s[] = {\n\
@@ -140,13 +135,14 @@ const uint32_t %s[] = {\n\
 		/* epilogue */
 		if (!colp) {
 			fprintf(stdout, "\
-	{UINT32_MAX, %i}\n\
-};\n", corr);
+	{UINT32_MAX, %li}\n\
+};\n", cor);
 		} else {
 			fputs("\
 	UINT32_MAX\n\
 };\n", stdout);
 		}
+		cor = 0;
 		return 0;
 	} else if (line == NULL) {
 		/* something's fucked */
@@ -159,32 +155,21 @@ const uint32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((d = dt_strpd(line, "Leap\t%Y\t%b\t%d\t", &ep), ep) == NULL) {
-		return -1;
-	} else if (llen - (ep - line) < 9) {
-		return -1;
-	} else if (ep[8] != '\t') {
+	if ((ep = NULL, val = strtol(line, &ep, 10), ep == NULL)) {
 		return -1;
 	}
 
-	/* convert to target type */
+	/* fix up and convert to target type */
+	d = (struct dt_d_s){DT_DAISY, .daisy = val / 86400 + 109207};
 	d = dt_dconv(typ, d);
 
 	if (!colp) {
-		switch (ep[9]) {
-		case '+':
-			++corr;
-			break;
-		case '-':
-			--corr;
-			break;
-		default:
-			/* still buggered */
+		if ((cor = strtol(ep, &ep, 10), ep == NULL)) {
 			return -1;
 		}
 		/* just output the line then */
-		fprintf(stdout, "\t{0x%xU/* %i */, %i},\n",
-			d.u, (int32_t)d.u, corr);
+		fprintf(stdout, "\t{0x%xU/* %i */, %li},\n",
+			d.u, (int32_t)d.u, cor);
 	} else {
 		fprintf(stdout, "\t0x%xU/* %i */,\n", d.u, (int32_t)d.u);
 	}
@@ -194,12 +179,11 @@ const uint32_t %s[] = {\n\
 static int
 pr_line_dt(const char *line, size_t llen, va_list vap)
 {
-	static int32_t corr = 0;
-	struct dt_dt_s d;
+	static long int cor;
 	dt_dtyp_t __attribute__((unused)) typ;
+	long int val;
 	int colp;
 	char *ep;
-	dt_ssexy_t val;
 
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
@@ -207,11 +191,10 @@ pr_line_dt(const char *line, size_t llen, va_list vap)
 
 	if (llen == PROLOGUE) {
 		/* prologue */
-		corr = 0;
 		if (!colp) {
 			fprintf(stdout, "\
 const struct zleap_s %s[] = {\n\
-	{INT32_MIN, 0},\n", line);
+	{INT32_MIN, 10},\n", line);
 		} else {
 			fprintf(stdout, "\
 const int32_t %s[] = {\n\
@@ -222,13 +205,14 @@ const int32_t %s[] = {\n\
 		/* epilogue */
 		if (!colp) {
 			fprintf(stdout, "\
-	{INT32_MAX, %i}\n\
-};\n", corr);
+	{INT32_MAX, %li}\n\
+};\n", cor);
 		} else {
 			fputs("\
 	INT32_MAX\n\
 };\n", stdout);
 		}
+		cor = 0;
 		return 0;
 	} else if (line == NULL) {
 		/* buggre */
@@ -241,34 +225,21 @@ const int32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((d = dt_strpdt(
-		     line, "Leap\t%Y\t%b\t%d\t%H:%M:%S", &ep), ep) == NULL) {
-		return -1;
-	} else if (llen - (ep - line) < 1) {
-		return -1;
-	} else if (ep[0] != '\t') {
+	if ((ep = NULL, val = strtol(line, &ep, 10), ep == NULL)) {
 		return -1;
 	}
 
 	/* fix up and convert to target type */
-	d.t.hms.s--;
-	val = dt_to_unix_epoch(d);
+	val--;
+	val = ntp_to_unix_epoch(val);
 
 	if (!colp) {
-		switch (ep[1]) {
-		case '+':
-			++corr;
-			break;
-		case '-':
-			--corr;
-			break;
-		default:
-			/* still buggered */
+		if ((cor = strtol(ep, &ep, 10), ep == NULL)) {
 			return -1;
 		}
 		/* just output the line then */
-		fprintf(stdout, "\t{0x%xU/* %li */, %i},\n",
-			(uint32_t)val, val, corr);
+		fprintf(stdout, "\t{0x%xU/* %li */, %li},\n",
+			(uint32_t)val, val, cor);
 	} else {
 		/* column-oriented mode */
 		fprintf(stdout, "\t0x%xU/* %li */,\n", (uint32_t)val, val);
@@ -279,15 +250,21 @@ const int32_t %s[] = {\n\
 static int
 pr_line_t(const char *line, size_t llen, va_list vap)
 {
-	struct dt_dt_s d;
+	static long int cor;
+	struct dt_t_s t = dt_t_initialiser();
 	dt_dtyp_t typ;
 	int colp;
 	char *ep;
-	uint32_t val;
+	long int val;
 
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
 	colp = va_arg(vap, int);
+
+	/* column-oriented mode only */
+	if (!colp) {
+		return 0;
+	}
 
 	if (llen == PROLOGUE) {
 		/* prologue */
@@ -300,6 +277,7 @@ const uint32_t %s[] = {\n\
 		fputs("\
 	UINT32_MAX\n\
 };\n", stdout);
+		cor = 0;
 		return 0;
 	} else if (typ != (dt_dtyp_t)DT_HMS || !colp) {
 		return 0;
@@ -314,19 +292,27 @@ const uint32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((d = dt_strpdt(
-		     line, "Leap\t%Y\t%b\t%d\t%H:%M:%S", &ep), ep) == NULL) {
+	if ((ep = NULL, val = strtol(line, &ep, 10), ep == NULL)) {
 		return -1;
-	} else if (llen - (ep - line) < 1) {
-		return -1;
-	} else if (ep[0] != '\t') {
+	}
+	val--;
+	t.hms.s = val % 60L;
+	val /= 60L;
+	t.hms.m = val % 60L;
+	val /= 60L;
+	t.hms.h = val % 24L;
+
+	/* read correction */
+	if ((val = strtol(ep, &ep, 10), ep == NULL)) {
 		return -1;
 	}
 
 	/* fix up and convert to target type */
-	val = d.t.hms.u24;
-	/* column-oriented mode */
-	fprintf(stdout, "\t0x%xU/* %u */,\n", val, val);
+	with (uint32_t ual = t.hms.u24) {
+		ual += val >= cor;
+		fprintf(stdout, "\t0x%xU/* %u */,\n", ual, ual);
+		cor = val;
+	}
 	return 0;
 }
 
@@ -382,7 +368,7 @@ parse_file(const char *file)
 #include <stdint.h>\n\
 #include <limits.h>\n\
 #include \"leaps.h\"\n\
-#include \"leapseconds.h\"\n\
+#include \"leap-seconds.h\"\n\
 \n\
 #if !defined INCLUDED_ltrcc_generated_def_\n\
 #define INCLUDED_ltrcc_generated_def_\n\
@@ -428,7 +414,7 @@ main(int argc, char *argv[])
 		rc = 1;
 		goto out;
 	} else if (!argi->nargs) {
-		fputs("LEAPS_FILE argument is mandatory\n", stderr);
+		fputs("LEAP-SECONDSS.LIST argument is mandatory\n", stderr);
 		rc = 1;
 		goto out;
 	}

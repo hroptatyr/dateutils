@@ -30,14 +30,12 @@ ltrcc_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 ltrcc_CPPFLAGS += -DDECLF=extern
 ltrcc_CPPFLAGS += -DSKIP_LEAP_ARITH
 ltrcc_SOURCES = ltrcc.c ltrcc.yuck
-ltrcc_SOURCES += token.c token.h
-ltrcc_SOURCES += strops.c strops.h
+
 ltrcc_SOURCES += date-core.c date-core.h
 ltrcc_SOURCES += time-core.c time-core.h
-ltrcc_SOURCES += dt-core.c dt-core.h
 ltrcc_SOURCES += dt-locale.c dt-locale.h
-EXTRA_ltrcc_SOURCES =
-EXTRA_ltrcc_SOURCES += fmt-special.gperf
+ltrcc_SOURCES += token.c token.h
+ltrcc_SOURCES += strops.c strops.h
 endif  ## BUILD_LTRCC
 BUILT_SOURCES += ltrcc.yucc
 
@@ -66,7 +64,7 @@ libdut_a_SOURCES += nifty.h
 libdut_a_SOURCES += gmtime.h
 libdut_a_SOURCES += generics.h
 libdut_a_SOURCES += dt-core-tz-glue.h dt-core-tz-glue.c
-libdut_a_SOURCES += leapseconds.def leapseconds.h
+libdut_a_SOURCES += leap-seconds.def leap-seconds.h
 EXTRA_libdut_a_SOURCES =
 EXTRA_libdut_a_SOURCES += dt-core-strpf.c
 EXTRA_libdut_a_SOURCES += dt-core-tz-glue.c
@@ -79,10 +77,10 @@ EXTRA_libdut_a_SOURCES += ywd.c
 EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
 EXTRA_libdut_a_SOURCES += fmt-special.gperf
-EXTRA_libdut_a_SOURCES += leapseconds
+EXTRA_libdut_a_SOURCES += leap-seconds.list
 BUILT_SOURCES += version.c
 BUILT_SOURCES += fmt-special.c
-BUILT_SOURCES += leapseconds.def
+BUILT_SOURCES += leap-seconds.def
 
 noinst_PROGRAMS += tzmap
 tzmap_SOURCES = tzmap.c tzmap.h tzmap.yuck
@@ -134,9 +132,12 @@ AM_V_DL = $(am__v_DL_$(V))
 am__v_DL_ = $(am__v_DL_$(AM_DEFAULT_VERBOSITY))
 am__v_DL_0 = @echo "  D/L'ING " $@;
 
-leapseconds.def: leapseconds
+## leaps
+SUFFIXES += .list
+SUFFIXES += .def
+.list.def:
 	$(MAKE) $(AM_MAKEFLAGS) ltrcc$(EXEEXT)
-	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $(srcdir)/leapseconds > $@ || rm -f $@
+	$(AM_V_LTRCC)$(builddir)/ltrcc$(EXEEXT) -C $< > $@ || rm -f $@
 
 ## version rules
 version.c: version.c.in $(top_builddir)/.version
