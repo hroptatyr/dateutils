@@ -165,15 +165,7 @@ SUFFIXES += .tzmcc
 
 TZMAP_URL := https://raw.github.com/hroptatyr/dateutils/tzmaps
 .tzminfo.tzmap:
-	-$(AM_V_DL) curl -qgskfLO -D "$*.hdr" "$(TZMAP_URL)/$@" \
-		|| { echo "Cannot download latest tzmaps:" >&2; \
-			cat "$*.hdr" >&2; \
-			echo -e "\n\
-You can download them from  https://github.com/hroptatyr/dateutils/tree/tzmaps\n\
-or if you happen to use the git repository copy them rom the tzmaps branch\n\
-and put them into $(abs_builddir).\n\
-\n" >&2; }
-	-@$(RM) -- "$*.hdr"
+	-$(AM_V_DL) curl -q -gskfLO -D "$*.hdr" "$(TZMAP_URL)/$@"
 
 .tzmap.tzmcc:
 	-$(AM_V_GEN) $(builddir)/tzmap cc -e -o $@ $<
