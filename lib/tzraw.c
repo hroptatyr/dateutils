@@ -70,7 +70,7 @@
 /* me own header, innit */
 #include "tzraw.h"
 /* for leap corrections */
-#include "leapseconds.h"
+#include "leap-seconds.h"
 
 #if !defined DEFUN
 # define DEFUN
@@ -558,7 +558,7 @@ zif_open(const char *file)
 
 
 /* for leap corrections */
-#include "leapseconds.def"
+#include "leap-seconds.def"
 
 static inline int
 __find_trno(const struct zif_s z[static 1U], int32_t t, int min, int max)

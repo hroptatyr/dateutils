@@ -68,7 +68,7 @@
 # undef WITH_LEAP_SECONDS
 #endif	/* SKIP_LEAP_ARITH */
 #if defined WITH_LEAP_SECONDS
-# include "leapseconds.h"
+# include "leap-seconds.h"
 #endif	/* WITH_LEAP_SECONDS */
 
 #if defined __INTEL_COMPILER
