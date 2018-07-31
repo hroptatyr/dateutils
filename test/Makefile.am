@@ -864,6 +864,7 @@ dt_tests += dzone.010.clit
 dt_tests += dzone.011.clit
 dt_tests += dzone.012.clit
 dt_tests += dzone.013.clit
+dt_tests += dzone.014.clit
 
 dt_tests += dsort.001.clit
 dt_tests += dsort.002.clit
