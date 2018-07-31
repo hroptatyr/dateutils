@@ -362,9 +362,6 @@ out:
 		free(d);
 	}
 
-	if (fromz != NULL) {
-		zif_close(fromz);
-	}
 	if (argi->from_locale_arg) {
 		setilocale(NULL);
 	}
