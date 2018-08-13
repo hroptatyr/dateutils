@@ -8,6 +8,35 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.4
+------
+Summary: v0.4.4 of dateutils
+
+This is dateutils v0.4.4.
+
+This is a bugfix release.
+
+Incompatible changes:
+
+- suffix `m` is no longer accepted as a synonym for `mo`
+    with date-only input, issue #76
+
+Bugfixes:
+
+- expose BSD routines (fgetln()) to yuck
+- for dates passed to dateround(1) that coincidentally
+    match the roundspecs do read them as dates
+- wrong timestamps read via -i %s signal error
+- facilitate bmake build
+- time rounding on date-only input keeps the date unchanged
+- dateseq's short-cut iterator (2 date arguments) does not
+    interfere with the 3-argument version
+- adding 0 date or time units does not change the summand
+- datezone on times (without date) will return times
+- zones are singletons now, opened and closed only once
+
+See info page examples and/or README.
+
 v0.4.3
 ------
 Summary: v0.4.3 of dateutils
