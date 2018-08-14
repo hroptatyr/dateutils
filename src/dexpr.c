@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "strops.h"
+#include "dt-locale.h"
 #include "dexpr.h"
 #include "dexpr-parser.h"
 
@@ -639,6 +640,8 @@ dexpr_matches_p(const_dexpr_t dex, struct dt_dt_s d)
 
 
 #if defined STANDALONE
+const char *prog = "dexpr";
+
 int
 main(int argc, char *argv[])
 {
