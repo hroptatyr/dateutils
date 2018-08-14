@@ -560,7 +560,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 		break;
 	case DT_SPFL_N_WCNT_MON:
 		/* exotic function, needs extern'ing */
-		cmp = /*dt_get_count(d)*/0;
+		cmp = dt_get_wcnt_mon(d.d);
 		break;
 	case DT_SPFL_N_DCNT_YEAR:
 		cmp = dt_get_yday(d.d);

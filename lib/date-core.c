@@ -251,8 +251,8 @@ dt_get_md(struct dt_d_s that)
 	}
 }
 
-/* too exotic to be public */
-static int
+/* too exotic to be public, nope bug #81 needs it */
+int
 dt_get_wcnt_mon(struct dt_d_s that)
 {
 	if (LIKELY(that.typ == DT_YMCW)) {
