@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "strops.h"
+#include "dt-locale.h"
 #include "dexpr.h"
 #include "dexpr-parser.h"
 
@@ -559,7 +560,7 @@ dexkv_matches_p(const_dexkv_t dkv, struct dt_dt_s d)
 		break;
 	case DT_SPFL_N_WCNT_MON:
 		/* exotic function, needs extern'ing */
-		cmp = /*dt_get_count(d)*/0;
+		cmp = dt_get_wcnt_mon(d.d);
 		break;
 	case DT_SPFL_N_DCNT_YEAR:
 		cmp = dt_get_yday(d.d);
@@ -639,6 +640,8 @@ dexpr_matches_p(const_dexpr_t dex, struct dt_dt_s d)
 
 
 #if defined STANDALONE
+const char *prog = "dexpr";
+
 int
 main(int argc, char *argv[])
 {

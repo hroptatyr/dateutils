@@ -462,6 +462,10 @@ extern unsigned int dt_get_yday(struct dt_d_s d);
  * Return N where N is the week within the year that THIS is in. */
 extern int dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention);
 
+/**
+ * Return N where N is the week within the month that THIS is in. */
+extern int dt_get_wcnt_mon(struct dt_d_s this);
+
 /* converters */
 extern dt_daisy_t dt_conv_to_daisy(struct dt_d_s);
 
