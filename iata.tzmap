@@ -788,6 +788,7 @@ BKR	Africa/Ndjamena
 BKS	Asia/Jakarta
 BKT	America/New_York
 BKU	Indian/Antananarivo
+BKV	Asia/Shanghai
 BKW	America/New_York
 BKX	America/Chicago
 BKY	Africa/Lubumbashi
@@ -1255,6 +1256,7 @@ CFG	America/Havana
 CFH	Australia/Adelaide
 CFI	Australia/Darwin
 CFK	Africa/Algiers
+CFM	America/Edmonton
 CFN	Europe/Dublin
 CFO	America/Cuiaba
 CFP	Australia/Brisbane
@@ -3310,6 +3312,7 @@ IPL	America/Los_Angeles
 IPN	America/Sao_Paulo
 IPT	America/New_York
 IPU	America/Bahia
+IPZ	America/Costa_Rica
 IQA	Asia/Baghdad
 IQM	Asia/Urumqi
 IQN	Asia/Chongqing
@@ -4294,6 +4297,7 @@ LKY	Africa/Dar_es_Salaam
 LKZ	Europe/London
 LLA	Europe/Stockholm
 LLB	Asia/Chongqing
+LLC	Asia/Manila
 LLF	Asia/Shanghai
 LLG	Australia/Brisbane
 LLH	America/Tegucigalpa
@@ -5904,6 +5908,7 @@ PFB	America/Sao_Paulo
 PFC	America/Los_Angeles
 PFD	America/Juneau
 PFJ	Atlantic/Reykjavik
+PFM	America/Edmonton
 PFN	America/Chicago
 PFO	Asia/Nicosia
 PFQ	Asia/Tehran
@@ -6629,6 +6634,7 @@ RPN	Asia/Jerusalem
 RPR	Asia/Kolkata
 RPV	Australia/Darwin
 RPX	America/Denver
+RQA	Asia/Urumqi
 RQE	America/Denver
 RQW	Asia/Baghdad
 RRE	Australia/Adelaide
@@ -7850,6 +7856,7 @@ UAX	America/Guatemala
 UBA	America/Sao_Paulo
 UBB	Australia/Lindeman
 UBJ	Asia/Tokyo
+UBN	Asia/Ulaanbaatar
 UBP	Asia/Bangkok
 UBR	Asia/Jayapura
 UBS	America/Chicago
@@ -7990,6 +7997,7 @@ USA	America/New_York
 USC	US/Eastern
 USH	America/Argentina/Ushuaia
 USI	America/Guyana
+USJ	Asia/Almaty
 USK	Europe/Moscow
 USL	Australia/Perth
 USM	Asia/Bangkok
