@@ -8,6 +8,22 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.5
+------
+Summary: v0.4.5 of dateutils
+
+This is dateutils v0.4.5.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- dgrep accepts %c as qualifier in expressions (issue 81)
+- tests work regardless of wall clock time (issue 84)
+
+See info page examples and/or README.
+
+
 v0.4.4
 ------
 Summary: v0.4.4 of dateutils
