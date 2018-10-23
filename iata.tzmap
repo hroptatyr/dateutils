@@ -3341,7 +3341,7 @@ ISG	Asia/Tokyo
 ISI	Australia/Brisbane
 ISJ	America/Cancun
 ISK	Asia/Kolkata
-ISL	America/Anchorage
+ISL	Europe/Istanbul
 ISM	America/New_York
 ISN	America/Chicago
 ISO	America/New_York
@@ -6730,6 +6730,7 @@ SAC	America/Los_Angeles
 SAD	America/Phoenix
 SAE	America/Godthab
 SAF	America/Denver
+SAG	Asia/Kolkata
 SAH	Asia/Aden
 SAK	Atlantic/Reykjavik
 SAL	America/El_Salvador
