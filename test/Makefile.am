@@ -338,6 +338,8 @@ dt_tests += dadd.092.clit
 dt_tests += dadd.093.clit
 dt_tests += dadd.094.clit
 dt_tests += dadd.095.clit
+dt_tests += dadd.096.clit
+dt_tests += dadd.097.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
