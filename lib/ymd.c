@@ -552,6 +552,7 @@ __ymd_fixup_d(unsigned int y, signed int m, signed int d)
 {
 	dt_ymd_t res = {0};
 
+	m += !m;
 	if (LIKELY(d >= 1 && d <= 28)) {
 		/* all months in our design range have at least 28 days */
 		;
