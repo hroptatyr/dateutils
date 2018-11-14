@@ -810,6 +810,51 @@ no durations given");
 		} else {
 			rc = 1;
 		}
+	} else if (argi->empty_mode_flag) {
+		/* read from stdin in exact/empty mode */
+		size_t lno = 0;
+		void *pctx;
+
+		/* no threads reading this stream */
+		__io_setlocking_bycaller(stdout);
+
+		/* using the prchunk reader now */
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			serror("could not open stdin");
+			goto clear;
+		}
+
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t llen = prchunk_getline(pctx, &line);
+				char *ep = NULL;
+
+
+				if (UNLIKELY(!llen)) {
+					goto empty;
+				}
+				/* try and parse the line */
+				d = dt_io_strpdt_ep(line, fmt, nfmt, &ep, fromz);
+				if (UNLIKELY(dt_unk_p(d))) {
+					goto empty;
+				} else if (ep && (unsigned)*ep >= ' ') {
+					goto empty;
+				}
+				/* do the rounding */
+				d = dround(d, st.durs, st.ndurs, nextp);
+				if (UNLIKELY(dt_unk_p(d))) {
+					goto empty;
+				}
+				if (fromz != NULL) {
+					/* fixup zone */
+					d = dtz_forgetz(d, fromz);
+				}
+				dt_io_write(d, ofmt, z, '\n');
+				continue;
+			empty:
+				__io_write("\n", 1U, stdout);
+			}
+		}
 	} else {
 		/* read from stdin */
 		size_t lno = 0;
@@ -861,6 +906,7 @@ no durations given");
 		}
 		goto out;
 	}
+clear:
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
 

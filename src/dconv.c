@@ -163,6 +163,43 @@ main(int argc, char *argv[])
 				dt_io_warn_strpdt(inp);
 			}
 		}
+	} else if (argi->empty_mode_flag) {
+		/* read from stdin */
+		size_t lno = 0;
+		void *pctx;
+
+		/* no threads reading this stream */
+		__io_setlocking_bycaller(stdout);
+
+		/* using the prchunk reader now */
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			serror("Error: could not open stdin");
+			goto clear;
+		}
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t llen = prchunk_getline(pctx, &line);
+				struct dt_dt_s d;
+				char *ep = NULL;
+
+				if (UNLIKELY(!llen)) {
+					goto empty;
+				}
+				/* try and parse the line */
+				d = dt_io_strpdt_ep(line, fmt, nfmt, &ep, fromz);
+				if (UNLIKELY(dt_unk_p(d))) {
+					goto empty;
+				} else if (ep && (unsigned)*ep >= ' ') {
+					goto empty;
+				}
+				dt_io_write(d, ofmt, z, '\n');
+				continue;
+			empty:
+				__io_write("\n", 1U, stdout);
+			}
+		}
+		/* get rid of resources */
+		free_prchunk(pctx);
 	} else {
 		/* read from stdin */
 		size_t lno = 0;
@@ -211,6 +248,7 @@ main(int argc, char *argv[])
 		}
 	}
 
+clear:
 	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);

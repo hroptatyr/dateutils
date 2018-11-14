@@ -84,18 +84,14 @@ dt_io_strpdt_special(const char *str)
 }
 
 struct dt_dt_s
-dt_io_strpdt_ep(
+dt_io_strpdt(
 	const char *str,
-	const char *const *fmt, size_t nfmt, char **ep,
+	const char *const *fmt, size_t nfmt,
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 	dt_strpdt_special_t now;
 
-	/* init */
-	if (ep != NULL) {
-		*ep = NULL;
-	}
 	/* basic sanity checks, catch phrases first */
 	now = dt_io_strpdt_special(str);
 
@@ -128,6 +124,26 @@ dt_io_strpdt_ep(
 		}
 		return res;
 	} else if (nfmt == 0) {
+		res = dt_strpdt(str, NULL, NULL);
+	} else {
+		for (size_t i = 0; i < nfmt; i++) {
+			if (!dt_unk_p(res = dt_strpdt(str, fmt[i], NULL))) {
+				break;
+			}
+		}
+	}
+	return dtz_forgetz(res, zone);
+}
+
+struct dt_dt_s
+dt_io_strpdt_ep(
+	const char *str,
+	const char *const *fmt, size_t nfmt, char **ep,
+	zif_t zone)
+{
+	struct dt_dt_s res = dt_dt_initialiser();
+
+	if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {

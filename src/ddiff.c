@@ -735,6 +735,9 @@ main(int argc, char *argv[])
 		size_t lno = 0;
 		void *pctx;
 
+		/* convert deprecated -S|--skip-illegal */
+		argi->empty_mode_flag += argi->skip_illegal_flag;
+
 		/* no threads reading this stream */
 		__io_setlocking_bycaller(stdout);
 
@@ -757,7 +760,7 @@ main(int argc, char *argv[])
 						dt_io_warn_strpdt(line);
 						rc = 2;
 					}
-					if (argi->skip_illegal_flag) {
+					if (argi->empty_mode_flag) {
 						/* empty line */
 						__io_write("\n", 1U, stdout);
 					}
