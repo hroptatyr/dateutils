@@ -143,10 +143,6 @@ dt_io_strpdt_ep(
 {
 	struct dt_dt_s res = dt_dt_initialiser();
 
-	/* init */
-	if (ep != NULL) {
-		*ep = NULL;
-	}
 	if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {

@@ -57,7 +57,6 @@ struct prln_ctx_s {
 	zif_t fromz;
 	zif_t outz;
 	int sed_mode_p;
-	int empty_mode_p;
 	int quietp;
 };
 
@@ -79,8 +78,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			dt_io_write(d, ctx.ofmt, ctx.outz, '\0');
 			llen -= (ep - line);
 			line = ep;
-		} else if (!dt_unk_p(d) &&
-			   (!ctx.empty_mode_p || (unsigned)*ep < ' ')) {
+		} else if (!dt_unk_p(d)) {
 			if (UNLIKELY(d.fix) && !ctx.quietp) {
 				rc = 2;
 			}
@@ -89,9 +87,6 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		} else if (ctx.sed_mode_p) {
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
-			break;
-		} else if (ctx.empty_mode_p) {
-			__io_write("\n", 1, stdout);
 			break;
 		} else {
 			/* obviously unmatched, warn about it in non -q mode */
@@ -168,6 +163,43 @@ main(int argc, char *argv[])
 				dt_io_warn_strpdt(inp);
 			}
 		}
+	} else if (argi->empty_mode_flag) {
+		/* read from stdin */
+		size_t lno = 0;
+		void *pctx;
+
+		/* no threads reading this stream */
+		__io_setlocking_bycaller(stdout);
+
+		/* using the prchunk reader now */
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			serror("Error: could not open stdin");
+			goto clear;
+		}
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t llen = prchunk_getline(pctx, &line);
+				struct dt_dt_s d;
+				char *ep = NULL;
+
+				if (UNLIKELY(!llen)) {
+					goto empty;
+				}
+				/* try and parse the line */
+				d = dt_io_strpdt_ep(line, fmt, nfmt, &ep, fromz);
+				if (UNLIKELY(dt_unk_p(d))) {
+					goto empty;
+				} else if (ep && (unsigned)*ep >= ' ') {
+					goto empty;
+				}
+				dt_io_write(d, ofmt, z, '\n');
+				continue;
+			empty:
+				__io_write("\n", 1U, stdout);
+			}
+		}
+		/* get rid of resources */
+		free_prchunk(pctx);
 	} else {
 		/* read from stdin */
 		size_t lno = 0;
@@ -181,7 +213,6 @@ main(int argc, char *argv[])
 			.fromz = fromz,
 			.outz = z,
 			.sed_mode_p = argi->sed_mode_flag,
-			.empty_mode_p = argi->empty_mode_flag,
 			.quietp = argi->quiet_flag,
 		};
 
@@ -217,6 +248,7 @@ main(int argc, char *argv[])
 		}
 	}
 
+clear:
 	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);

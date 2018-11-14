@@ -83,7 +83,6 @@ struct mass_add_clo_s {
 	zif_t z;
 	const char *ofmt;
 	int sed_mode_p;
-	int empty_mode_p;
 	int quietp;
 };
 
@@ -117,9 +116,6 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 				dt_io_write(d, clo->ofmt, clo->z, '\0');
 				llen -= (ep - line);
 				line = ep;
-			} else if (clo->empty_mode_p && (unsigned)*ep >= ' ') {
-				__io_write("\n", 1U, stdout);
-				break;
 			} else {
 				dt_io_write(d, clo->ofmt, clo->z, '\n');
 				break;
@@ -127,9 +123,6 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 		} else if (clo->sed_mode_p) {
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
-			break;
-		} else if (clo->empty_mode_p) {
-			__io_write("\n", 1U, stdout);
 			break;
 		} else {
 			/* obviously unmatched, warn about it in non -q mode */
@@ -205,8 +198,6 @@ mass_add_d(const struct mass_add_clo_s *clo)
 			dt_io_write(d, clo->ofmt, clo->z, '\n');
 		} else if (clo->sed_mode_p) {
 			__io_write(line, llen + 1, stdout);
-		} else if (clo->empty_mode_p) {
-			__io_write("\n", 1U, stdout);
 		} else if (!clo->quietp) {
 			line[llen] = '\0';
 			dt_io_warn_strpdt(line);
@@ -297,7 +288,7 @@ main(int argc, char *argv[])
 				serror("Error: \
 cannot parse duration string `%s'", st.istr);
 				rc = 1;
-				goto dur_out;
+				goto clear;
 			}
 		} while (__strpdtdur_more_p(&st));
 	}
@@ -312,7 +303,7 @@ cannot parse duration string `%s'", st.istr);
 			error("\
 Error: cannot interpret date/time string `%s'", inp);
 			rc = 1;
-			goto dur_out;
+			goto clear;
 		}
 	}
 
@@ -331,6 +322,50 @@ Error: cannot interpret date/time string `%s'", inp);
 			rc = 1;
 		}
 
+	} else if (st.ndurs && argi->empty_mode_flag) {
+		size_t lno = 0U;
+		void *pctx;
+
+		/* no threads reading this stream */
+		__io_setlocking_bycaller(stdout);
+
+		/* using the prchunk reader now */
+		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
+			serror("could not open stdin");
+			goto clear;
+		}
+
+		while (prchunk_fill(pctx) >= 0) {
+			for (char *line; prchunk_haslinep(pctx); lno++) {
+				size_t llen = prchunk_getline(pctx, &line);
+				char *ep = NULL;
+
+				if (UNLIKELY(!llen)) {
+					goto empty;
+				}
+				/* try and parse the line */
+				d = dt_io_strpdt_ep(line, fmt, nfmt, &ep, fromz);
+				if (UNLIKELY(dt_unk_p(d))) {
+					goto empty;
+				} else if (ep && (unsigned)*ep >= ' ') {
+					goto empty;
+				}
+				/* do the adding */
+				d = dadd_add(d, st.durs, st.ndurs);
+				if (UNLIKELY(dt_unk_p(d))) {
+					goto empty;
+				}
+
+				if (hackz == NULL && fromz != NULL) {
+					/* fixup zone */
+					d = dtz_forgetz(d, fromz);
+				}
+				dt_io_write(d, ofmt, z, '\n');
+				continue;
+			empty:
+				__io_write("\n", 1U, stdout);
+			}
+		}
 	} else if (st.ndurs) {
 		/* read dates from stdin */
 		struct grep_atom_s __nstk[16], *needle = __nstk;
@@ -366,7 +401,6 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->z = z;
 		clo->ofmt = ofmt;
 		clo->sed_mode_p = argi->sed_mode_flag;
-		clo->empty_mode_p = argi->empty_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			rc |= mass_add_dur(clo);
@@ -389,7 +423,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		/* using the prchunk reader now */
 		if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
 			serror("could not open stdin");
-			goto dur_out;
+			goto clear;
 		}
 
 		/* build the clo and then loop */
@@ -400,7 +434,6 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->z = z;
 		clo->ofmt = ofmt;
 		clo->sed_mode_p = argi->sed_mode_flag;
-		clo->empty_mode_p = argi->empty_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			rc |= mass_add_d(clo);
@@ -408,7 +441,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		/* get rid of resources */
 		free_prchunk(pctx);
 	}
-dur_out:
+clear:
 	/* free the strpdur status */
 	__strpdtdur_free(&st);
 
