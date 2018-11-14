@@ -83,6 +83,7 @@ struct mass_add_clo_s {
 	zif_t z;
 	const char *ofmt;
 	int sed_mode_p;
+	int empty_mode_p;
 	int quietp;
 };
 
@@ -116,6 +117,9 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 				dt_io_write(d, clo->ofmt, clo->z, '\0');
 				llen -= (ep - line);
 				line = ep;
+			} else if (clo->empty_mode_p && (unsigned)*ep >= ' ') {
+				__io_write("\n", 1U, stdout);
+				break;
 			} else {
 				dt_io_write(d, clo->ofmt, clo->z, '\n');
 				break;
@@ -123,6 +127,9 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 		} else if (clo->sed_mode_p) {
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
+			break;
+		} else if (clo->empty_mode_p) {
+			__io_write("\n", 1U, stdout);
 			break;
 		} else {
 			/* obviously unmatched, warn about it in non -q mode */
@@ -198,6 +205,8 @@ mass_add_d(const struct mass_add_clo_s *clo)
 			dt_io_write(d, clo->ofmt, clo->z, '\n');
 		} else if (clo->sed_mode_p) {
 			__io_write(line, llen + 1, stdout);
+		} else if (clo->empty_mode_p) {
+			__io_write("\n", 1U, stdout);
 		} else if (!clo->quietp) {
 			line[llen] = '\0';
 			dt_io_warn_strpdt(line);
@@ -357,6 +366,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->z = z;
 		clo->ofmt = ofmt;
 		clo->sed_mode_p = argi->sed_mode_flag;
+		clo->empty_mode_p = argi->empty_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			rc |= mass_add_dur(clo);
@@ -390,6 +400,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->z = z;
 		clo->ofmt = ofmt;
 		clo->sed_mode_p = argi->sed_mode_flag;
+		clo->empty_mode_p = argi->empty_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			rc |= mass_add_d(clo);

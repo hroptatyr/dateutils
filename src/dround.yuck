@@ -66,6 +66,7 @@ line options and a separating `--' has to be used.
                                matching date/time.
                                Note that all occurrences of date/times within a
                                line will be processed.
+  -E, --empty-mode           Empty lines that cannot be parsed.
       --locale=LOCALE        Format results according to LOCALE, this would only
                              affect month and weekday names.
       --from-locale=LOCALE   Interpret dates on stdin or the command line as

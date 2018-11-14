@@ -641,6 +641,7 @@ struct prln_ctx_s {
 	zif_t fromz;
 	zif_t outz;
 	int sed_mode_p;
+	int empty_mode_p;
 	int quietp;
 
 	const struct __strpdtdur_st_s *st;
@@ -677,6 +678,9 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 				dt_io_write(d, ctx.ofmt, ctx.outz, '\0');
 				llen -= (ep - line);
 				line = ep;
+			} else if (ctx.empty_mode_p && (unsigned)*ep >= ' ') {
+				__io_write("\n", 1U, stdout);
+				break;
 			} else {
 				dt_io_write(d, ctx.ofmt, ctx.outz, '\n');
 				break;
@@ -684,6 +688,9 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 		} else if (ctx.sed_mode_p) {
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
+			break;
+		} else if (ctx.empty_mode_p) {
+			__io_write("\n", 1U, stdout);
 			break;
 		} else {
 			/* obviously unmatched, warn about it in non -q mode */
@@ -823,6 +830,7 @@ no durations given");
 			.fromz = fromz,
 			.outz = z,
 			.sed_mode_p = argi->sed_mode_flag,
+			.empty_mode_p = argi->empty_mode_flag,
 			.quietp = argi->quiet_flag,
 			.st = &st,
 			.nextp = nextp,
