@@ -76,6 +76,12 @@ struct __strpdtdur_st_s {
 /* public API */
 extern dt_strpdt_special_t dt_io_strpdt_special(const char *str);
 extern struct dt_dt_s
+dt_io_strpdt(
+	const char *str,
+	const char *const *fmt, size_t nfmt,
+	zif_t zone);
+
+extern struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
 	const char *const *fmt, size_t nfmt, char **ep,
@@ -122,13 +128,6 @@ extern int dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str);
 extern zif_t dt_io_zone(const char *spec);
 
 
-/* inlines */
-static inline struct dt_dt_s
-dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt, zif_t zone)
-{
-	return dt_io_strpdt_ep(input, (const char*const*)fmt, nfmt, NULL, zone);
-}
-
 /* grep atoms */
 static inline __attribute__((pure, const)) struct grep_atom_s
 __grep_atom_initialiser(void)
