@@ -1741,6 +1741,9 @@ dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 	case DT_DURWK:
 		d = dt_dadd_w(d, dur.dv);
 		break;
+	case DT_DURQU:
+		/* just use the month adder */
+		dur.dv *= 3U;
 	case DT_DURMO:
 		d = dt_dadd_m(d, dur.dv);
 		break;

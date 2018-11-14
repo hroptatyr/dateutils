@@ -57,6 +57,7 @@ typedef union {
 	unsigned int flags;
 	struct {
 		unsigned int has_year:1;
+		unsigned int has_qtr:1;
 		unsigned int has_mon:1;
 		unsigned int has_week:1;
 		unsigned int has_day:1;
@@ -141,6 +142,9 @@ determine_durfmt(const char *fmt)
 			case DT_SPFL_N_YEAR:
 				res.has_year = 1;
 				break;
+			case DT_SPFL_N_QTR:
+				res.has_qtr = 1;
+				break;
 			case DT_SPFL_N_MON:
 			case DT_SPFL_S_MON:
 				res.has_mon = 1;
@@ -200,11 +204,11 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 	} else if (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)) {
 		/* isn't defined */
 		return (dt_dtdurtyp_t)DT_DURUNK;
-	} else if (f.has_week && f.has_mon) {
+	} else if (f.has_week && (f.has_mon || f.has_qtr)) {
 		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (f.has_week && f.has_year) {
 		return (dt_dtdurtyp_t)DT_DURYWD;
-	} else if (f.has_mon) {
+	} else if (f.has_mon || f.has_qtr) {
 		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (f.has_year && f.has_day) {
 		return (dt_dtdurtyp_t)DT_DURYD;
@@ -393,6 +397,7 @@ __strf_tot_years(struct dt_dtdur_s dur)
 
 static struct precalc_s {
 	int Y;
+	int q;
 	int m;
 	int w;
 	int d;
@@ -418,12 +423,18 @@ static struct precalc_s {
 		/* just years */
 		res.Y = __strf_tot_years(dur);
 	}
-	if (f.has_year && f.has_mon) {
+	if (f.has_year && (f.has_mon || f.has_qtr)) {
 		/* years and months */
 		res.m = __strf_ym_mon(dur);
-	} else if (f.has_mon) {
+	} else if (f.has_mon || f.has_qtr) {
 		/* just months */
 		res.m = __strf_tot_mon(dur);
+	}
+
+	if (f.has_qtr) {
+		/* split m slot */
+		res.q = res.m / 3;
+		res.m = res.m % 3;
 	}
 
 	/* the other units are easily converted as their factors are fixed.
@@ -582,6 +593,10 @@ __strfdtdur(
 
 		case DT_SPFL_N_MON:
 			bp += ltostr(bp, eo - bp, pre.m, 2, spec.pad);
+			break;
+
+		case DT_SPFL_N_QTR:
+			bp += ltostr(bp, eo - bp, pre.q, 2, spec.pad);
 			break;
 
 		case DT_SPFL_N_YEAR:
