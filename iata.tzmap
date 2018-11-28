@@ -1015,6 +1015,7 @@ BUQ	Africa/Harare
 BUR	America/Los_Angeles
 BUS	Asia/Tbilisi
 BUT	Asia/Thimphu
+BUU	Asia/Jakarta
 BUV	America/Montevideo
 BUW	Asia/Makassar
 BUX	Africa/Lubumbashi
@@ -1765,6 +1766,7 @@ DHM	Asia/Kolkata
 DHN	America/Chicago
 DHR	Europe/Amsterdam
 DHT	America/Chicago
+DIA	Asia/Qatar
 DIB	Asia/Kolkata
 DIE	Indian/Antananarivo
 DIG	Asia/Chongqing
@@ -2592,6 +2594,7 @@ GHE	America/Panama
 GHF	Europe/Berlin
 GHK	Asia/Gaza
 GHM	America/Chicago
+GHS	Asia/Makassar
 GHT	Africa/Tripoli
 GHU	America/Argentina/Cordoba
 GIB	Europe/Gibraltar
@@ -2806,6 +2809,7 @@ GWN	Pacific/Port_Moresby
 GWO	America/Chicago
 GWT	Europe/Berlin
 GWY	Europe/Dublin
+GXA	Asia/Jakarta
 GXF	Asia/Aden
 GXG	Africa/Luanda
 GXH	Asia/Chongqing
@@ -3269,6 +3273,7 @@ IMM	America/New_York
 IMN	Pacific/Port_Moresby
 IMO	Africa/Bangui
 IMP	America/Araguaina
+IMQ	Asia/Tehran
 IMT	America/Menominee
 INA	Europe/Moscow
 INB	America/Belize
@@ -3789,6 +3794,7 @@ KJK	Europe/Brussels
 KJP	Asia/Tokyo
 KJT	Asia/Jakarta
 KJU	Pacific/Port_Moresby
+KJX	Asia/Jakarta
 KKA	America/Nome
 KKB	America/Anchorage
 KKC	Asia/Bangkok
@@ -4351,6 +4357,7 @@ LNO	Australia/Perth
 LNP	America/New_York
 LNR	America/Chicago
 LNS	America/New_York
+LNU	Asia/Makassar
 LNV	Pacific/Port_Moresby
 LNX	Europe/Moscow
 LNY	Pacific/Honolulu
@@ -5587,6 +5594,7 @@ OIR	Asia/Tokyo
 OIT	Asia/Tokyo
 OIZ	Africa/Tunis
 OJC	America/Chicago
+OJU	Asia/Makassar
 OKA	Asia/Tokyo
 OKB	Australia/Brisbane
 OKC	America/Chicago
@@ -5924,6 +5932,7 @@ PGK	Asia/Jakarta
 PGL	America/Chicago
 PGM	America/Anchorage
 PGN	America/Port-au-Prince
+PGQ	Asia/Jayapura
 PGS	America/Phoenix
 PGU	Asia/Tehran
 PGV	America/New_York
@@ -6253,6 +6262,7 @@ PYA	America/Bogota
 PYB	Asia/Kolkata
 PYC	America/Panama
 PYE	Pacific/Rarotonga
+PYG	Asia/Kolkata
 PYH	America/Caracas
 PYJ	Asia/Yakutsk
 PYK	Asia/Tehran
@@ -8095,6 +8105,7 @@ VDE	Atlantic/Canary
 VDH	Asia/Ho_Chi_Minh
 VDI	America/New_York
 VDM	America/Argentina/Salta
+VDO	Asia/Ho_Chi_Minh
 VDP	America/Caracas
 VDR	America/Argentina/Cordoba
 VDS	Europe/Oslo
@@ -8411,6 +8422,7 @@ WSF	America/Anchorage
 WSG	America/New_York
 WSH	America/New_York
 WSJ	America/Anchorage
+WSK	Asia/Harbin
 WSM	America/Anchorage
 WSN	America/Anchorage
 WSO	America/Paramaribo
