@@ -859,6 +859,7 @@ dt_tests += dtround.013.clit
 dt_tests += dtround.014.clit
 dt_tests += dtround.015.clit
 dt_tests += dtround.016.clit
+dt_tests += dtround.017.clit
 
 dt_tests += dzone.001.clit
 dt_tests += dzone.002.clit

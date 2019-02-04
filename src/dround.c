@@ -63,7 +63,7 @@ static struct dt_t_s
 tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
 /* this will return the rounded to DUR time of T with carry */
-	unsigned int tunp;
+	signed int tunp;
 	signed int sdur;
 	bool downp = false;
 
@@ -115,6 +115,10 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		} else {
 			tunp -= diff;
 		}
+		if (tunp < 0) {
+			tunp += SECS_PER_DAY;
+			t.carry = -1;
+		}
 	}
 
 	/* assign */
@@ -125,7 +129,7 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
 	tunp /= HOURS_PER_DAY;
-	t.carry = tunp;
+	t.carry += tunp;
 out:
 	return t;
 }
