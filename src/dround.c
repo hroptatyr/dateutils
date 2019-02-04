@@ -772,7 +772,61 @@ cannot parse duration/rounding string `%s'", st.istr);\
 					goto out;
 				}
 			} else if (LAST_DUR.cocl) {
-				;
+				switch (LAST_DUR.durtyp) {
+				case DT_DURH:
+					if (!LAST_DUR.dv ||
+					    HOURS_PER_DAY % LAST_DUR.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURM:
+					if (!LAST_DUR.dv ||
+					    MINS_PER_HOUR % LAST_DUR.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURS:
+					if (!LAST_DUR.dv ||
+					    SECS_PER_MIN % LAST_DUR.dv) {
+						goto nococl;
+					}
+					break;
+
+				case DT_DURD:
+				case DT_DURBD:
+					if (LAST_DUR.d.dv != 1 &&
+					    LAST_DUR.d.dv != -1) {
+						goto nococl;
+					}
+					break;
+				case DT_DURMO:
+					/* make a millenium the next milestone */
+					if (!LAST_DUR.d.dv ||
+					    12000 % LAST_DUR.d.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURQU:
+					/* make a millenium the next milestone */
+					if (!LAST_DUR.d.dv ||
+					    4000 % LAST_DUR.d.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURYR:
+					/* make a millenium the next milestone */
+					if (!LAST_DUR.d.dv ||
+					    1000 % LAST_DUR.d.dv) {
+						goto nococl;
+					}
+					break;
+
+				nococl:
+					error("\
+Error: subdivisions must add up to whole divisions");
+					rc = 1;
+					goto out;
+				}
 			} else {
 				switch (LAST_DUR.durtyp) {
 				case DT_DURH:
