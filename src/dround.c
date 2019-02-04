@@ -62,13 +62,11 @@ const char *prog = "dround";
 static struct dt_t_s
 tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
-/* this will return the rounded to DUR time of T and, to encode carry
- * (which can only take values 0 or 1), we will use t's neg bit */
+/* this will return the rounded to DUR time of T with carry */
 	unsigned int tunp;
 	signed int sdur;
 	bool downp = false;
 
-	/* we won't have carries, ever */
 	t.carry = 0;
 
 	/* get directions, no dur is a no-op */
@@ -126,6 +124,8 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	t.hms.m = tunp % MINS_PER_HOUR;
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
+	tunp /= HOURS_PER_DAY;
+	t.carry = tunp;
 out:
 	return t;
 }
