@@ -324,11 +324,16 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		}
 		break;
 
+	case DT_DURQU:
+		dur.dv *= 3;
+		dur.dv -= (dur.dv > 0) * 2;
+		dur.dv += (dur.dv < 0) * 2;
+	case DT_DURMO:
 	case DT_DURYMD:
 		switch (d.typ) {
 			unsigned int mdays;
 		case DT_YMD:
-			tgt = dur.ymd.m;
+			tgt = dur.durtyp == DT_DURYMD ? dur.ymd.m : dur.dv;
 			forw = !dt_dur_neg_p(dur);
 
 			if ((forw && d.ymd.m < tgt) ||
