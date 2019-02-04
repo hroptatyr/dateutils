@@ -760,15 +760,70 @@ main(int argc, char *argv[])
 	for (size_t i = dt_given_p; i < argi->nargs; i++) {
 		inp = argi->args[i];
 		do {
+#define LAST_DUR	(st.durs[st.ndurs - 1])
 			if (dt_io_strpdtrnd(&st, inp) < 0) {
 				if (UNLIKELY(i == 0)) {
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
 					serror("Error: \
-cannot parse duration/rounding string `%s'", st.istr);
+cannot parse duration/rounding string `%s'", st.istr);\
+					rc = 1;
+					goto out;
+				}
+			} else if (LAST_DUR.cocl) {
+				;
+			} else {
+				switch (LAST_DUR.durtyp) {
+				case DT_DURH:
+					if (LAST_DUR.dv >= HOURS_PER_DAY ||
+					    LAST_DUR.dv <= -HOURS_PER_DAY) {
+						goto range;
+					}
+					break;
+				case DT_DURM:
+					if (LAST_DUR.dv >= MINS_PER_HOUR ||
+					    LAST_DUR.dv <= -MINS_PER_HOUR) {
+						goto range;
+					}
+					break;
+				case DT_DURS:
+					if (LAST_DUR.dv >= SECS_PER_MIN ||
+					    LAST_DUR.dv <= -SECS_PER_MIN) {
+						goto range;
+					}
+					break;
+				case DT_DURMO:
+					if (!LAST_DUR.d.dv ||
+					    LAST_DUR.d.dv > 12 ||
+					    LAST_DUR.d.dv < -12) {
+						goto range;
+					}
+					break;
+				case DT_DURQU:
+					if (!LAST_DUR.d.dv ||
+					    LAST_DUR.d.dv > 4 ||
+					    LAST_DUR.d.dv < -4) {
+						goto range;
+					}
+					break;
+				case DT_DURYR:
+					serror("\
+Error: Gregorian years are non-recurrent.\n\
+Did you mean year class rounding?  Try `/%s'", inp);
+					rc = 1;
+					goto out;
+				default:
+					break;
+
+				range:
+					serror("\
+Error: rounding parameter out of range `%s'", inp);
+					rc = 1;
+					goto out;
 				}
 			}
+#undef LAST_DUR
 		} while (__strpdtdur_more_p(&st));
 	}
 
