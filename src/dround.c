@@ -568,25 +568,19 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	struct strpd_s d = strpd_initialiser();
 	struct dt_spec_s s = spec_initialiser();
 	struct dt_dtdur_s payload = {(dt_dtdurtyp_t)DT_DURUNK};
-	bool negp = false;
-	bool coclp = true;
+	int negp = 0;
+	int coclp = 0;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
 		return 0;
 	}
 
 	/* check for co-classes */
-	if (*str == '/') {
-		coclp = true;
-		str++;
-	}
+	coclp = (*str == '/');
+	str += coclp;
 	/* check if there's a sign + or - */
-	if (*str == '-') {
-		negp = true;
-		str++;
-	} else if (*str == '+') {
-		str++;
-	}
+	negp = (*str == '-');
+	str += negp || *str == '+';
 
 	/* try weekdays, set up s */
 	s.spfl = DT_SPFL_S_WDAY;
@@ -616,11 +610,13 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 		payload.d = (struct dt_ddur_s){
 			DT_DURYMD,
 			.neg = negp,
+			.cocl = coclp,
 			.ymd.m = d.m,
 		};
 #else
 		payload.d.durtyp = DT_DURYMD;
 		payload.d.neg = negp;
+		payload.d.cocl = coclp;
 		payload.d.ymd.m = d.m;
 #endif
 		goto out;
