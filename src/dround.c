@@ -830,20 +830,20 @@ Error: subdivisions must add up to whole divisions");
 			} else {
 				switch (LAST_DUR.durtyp) {
 				case DT_DURH:
-					if (LAST_DUR.dv >= HOURS_PER_DAY ||
-					    LAST_DUR.dv <= -HOURS_PER_DAY) {
+					if (LAST_DUR.dv >= 24 ||
+					    LAST_DUR.dv <= -24) {
 						goto range;
 					}
 					break;
 				case DT_DURM:
-					if (LAST_DUR.dv >= MINS_PER_HOUR ||
-					    LAST_DUR.dv <= -MINS_PER_HOUR) {
+					if (LAST_DUR.dv >= 60 ||
+					    LAST_DUR.dv <= -60) {
 						goto range;
 					}
 					break;
 				case DT_DURS:
-					if (LAST_DUR.dv >= SECS_PER_MIN ||
-					    LAST_DUR.dv <= -SECS_PER_MIN) {
+					if (LAST_DUR.dv >= 60 ||
+					    LAST_DUR.dv <= -60) {
 						goto range;
 					}
 					break;
