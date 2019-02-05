@@ -224,21 +224,11 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 }
 
 static struct dt_d_s
-dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
+dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool UNUSED(nextp))
 {
-	signed int sdur;
-	bool downp = false;
-
-	/* get directions, no dur is a no-op */
-	if (UNLIKELY(!(sdur = dur.dv))) {
-		/* IPO/LTO hack */
-		goto out;
-	} else if (sdur < 0) {
-		downp = true;
-		sdur = -sdur;
-	} else if (dur.neg) {
-		downp = true;
-	}
+/* we won't be using next here because next/prev adjustments should have
+ * been made in dround already */
+	signed int sdur = dur.dv;
 
 	switch (dur.durtyp) {
 	case DT_DURD:
@@ -251,12 +241,14 @@ dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		tmp = dt_dconv(DT_DAISY, d);
 		wday = dt_get_wday(tmp);
 
-		if (downp && wday >= DT_SATURDAY) {
-			/* set to previous friday */
-			diff = -(signed int)(wday - DT_FRIDAY);
-		} else if (!downp && wday >= DT_SATURDAY) {
-			/* set to next monday */
-			diff = GREG_DAYS_P_WEEK + DT_MONDAY - wday;
+		if (wday >= DT_SATURDAY) {
+			if (sdur < 0 || dur.neg) {
+				/* set to previous friday */
+				diff = -(signed int)(wday - DT_FRIDAY);
+			} else {
+				/* set to next monday */
+				diff = GREG_DAYS_P_WEEK + DT_MONDAY - wday;
+			}
 		}
 
 		/* final assignment */
@@ -265,13 +257,51 @@ dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 		break;
 	}
 
-	case DT_DURMO:
-	case DT_DURQU:
 	case DT_DURYR:
-		puts("MO/QU/YR");
+		sdur *= 4;
+	case DT_DURQU:
+		sdur *= 3;
+	case DT_DURMO: {
+		int ym, of, on;
+
+		/* we need the concept of months and years
+		 * and we use the fact that ymd's and ymcw's
+		 * y and m slots coincide*/
+		ym = d.ymcw.y * 12 + d.ymcw.m - 1;
+
+		switch (d.typ) {
+		case DT_YMD:
+			on = d.ymd.d == 1;
+			break;
+		case DT_YMCW:
+			on = d.ymcw.c == 1 && d.ymcw.w == DT_MONDAY;
+			break;
+		default:
+			/* warning? */
+			break;
+		}
+		of = ym % sdur;
+		ym -= of;
+		if (sdur > 0 && !dur.neg && (of || !on)) {
+			ym += sdur;
+		}
+		/* reassemble */
+		d.ymd.y = ym / 12;
+		d.ymd.m = (ym % 12) + 1;
+		switch (d.typ) {
+		case DT_YMD:
+			d.ymd.d = 1;
+			break;
+		case DT_YMCW:
+			d.ymcw.c = 1;
+			break;
+		}
 		break;
 	}
-out:
+	default:
+		/* warning? */
+		break;
+	}
 	return d;
 }
 
@@ -588,6 +618,9 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 
 		case DT_DURD:
 		case DT_DURBD:
+		case DT_DURMO:
+		case DT_DURQU:
+		case DT_DURYR:
 			/* special case for cocl days/bizdays */
 			if (dur.cocl) {
 #define midnightp(x)	(!(x).hms.h && !(x).hms.m && !(x).hms.s)

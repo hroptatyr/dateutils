@@ -77,22 +77,22 @@ typedef union {
 		/* offset by the year 1900 */
 		unsigned int y:12;
 		unsigned int m:4;
-		unsigned int d:5;
+		unsigned int d:6;
 		/* round up to 32 bits, remaining bits are seconds east */
-		unsigned int offs:11;
+		unsigned int offs:10;
 
 		/* time part */
 		unsigned int H:5;
 		unsigned int M:8;
 		unsigned int S:8;
 #elif BYTE_ORDER == LITTLE_ENDIAN
-		unsigned int d:5;
+		unsigned int d:6;
 		unsigned int m:4;
 		/* offset by the year 1900 */
 #define DT_YEAR_OFFS	(1900)
 		unsigned int y:12;
 		/* round up to 32 bits, remaining bits are seconds east */
-		unsigned int offs:11;
+		unsigned int offs:10;
 
 		/* time part */
 		unsigned int S:8;
