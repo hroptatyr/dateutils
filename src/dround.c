@@ -224,6 +224,58 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 }
 
 static struct dt_d_s
+dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
+{
+	signed int sdur;
+	bool downp = false;
+
+	/* get directions, no dur is a no-op */
+	if (UNLIKELY(!(sdur = dur.dv))) {
+		/* IPO/LTO hack */
+		goto out;
+	} else if (sdur < 0) {
+		downp = true;
+		sdur = -sdur;
+	} else if (dur.neg) {
+		downp = true;
+	}
+
+	switch (dur.durtyp) {
+	case DT_DURD:
+		break;
+	case DT_DURBD: {
+		struct dt_d_s tmp;
+		unsigned int wday;
+		signed int diff = 0;
+
+		tmp = dt_dconv(DT_DAISY, d);
+		wday = dt_get_wday(tmp);
+
+		if (downp && wday >= DT_SATURDAY) {
+			/* set to previous friday */
+			diff = -(signed int)(wday - DT_FRIDAY);
+		} else if (!downp && wday >= DT_SATURDAY) {
+			/* set to next monday */
+			diff = GREG_DAYS_P_WEEK + DT_MONDAY - wday;
+		}
+
+		/* final assignment */
+		tmp.daisy += diff;
+		d = dt_dconv(d.typ, tmp);
+		break;
+	}
+
+	case DT_DURMO:
+	case DT_DURQU:
+	case DT_DURYR:
+		puts("MO/QU/YR");
+		break;
+	}
+out:
+	return d;
+}
+
+static struct dt_d_s
 dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 {
 	switch (dur.durtyp) {
@@ -324,6 +376,8 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 			d.bizda.bd = tgt;
 			break;
 		default:
+			serror("\
+Warning: rounding to n-th business day not supported for input value");
 			break;
 		}
 		break;
@@ -514,7 +568,7 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 	default:
 		switch (dur.durtyp) {
 		default:
-			/* all the date durs */
+			/* all the other date durs */
 			break;
 
 		case DT_DURH:
@@ -531,6 +585,21 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 				d.t = tround_tdur_cocl(d.t, dur, nextp);
 			}
 			break;
+
+		case DT_DURD:
+		case DT_DURBD:
+			/* special case for cocl days/bizdays */
+			if (dur.cocl) {
+#define midnightp(x)	(!(x).hms.h && !(x).hms.m && !(x).hms.s)
+				d.t.carry =
+					(dur.d.dv > 0 &&
+					 (nextp || !midnightp(d.t))) |
+					/* or if midnight and nextp */
+					-(dur.d.dv < 0 &&
+					  (nextp && midnightp(d.t)));
+				/* set to midnight */
+				d.t.hms = (dt_hms_t){0};
+			}
 		}
 		/* check carry */
 		if (UNLIKELY(d.t.carry)) {
@@ -541,7 +610,11 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 			d.d = dt_dadd(d.d, one_day);
 		}
 		with (unsigned int sw = d.sandwich) {
-			d.d = dround_ddur(d.d, dur.d, nextp);
+			if (!dur.cocl) {
+				d.d = dround_ddur(d.d, dur.d, nextp);
+			} else {
+				d.d = dround_ddur_cocl(d.d, dur.d, nextp);;
+			}
 			d.sandwich = (uint8_t)sw;
 		}
 		break;
