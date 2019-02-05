@@ -62,13 +62,11 @@ const char *prog = "dround";
 static struct dt_t_s
 tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 {
-/* this will return the rounded to DUR time of T and, to encode carry
- * (which can only take values 0 or 1), we will use t's neg bit */
-	unsigned int tunp;
+/* this will return the rounded to DUR time of T with carry */
+	signed int tunp;
 	signed int sdur;
 	bool downp = false;
 
-	/* we won't have carries, ever */
 	t.carry = 0;
 
 	/* get directions, no dur is a no-op */
@@ -117,6 +115,10 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		} else {
 			tunp -= diff;
 		}
+		if (tunp < 0) {
+			tunp += SECS_PER_DAY;
+			t.carry = -1;
+		}
 	}
 
 	/* assign */
@@ -126,6 +128,8 @@ tround_tdur_cocl(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 	t.hms.m = tunp % MINS_PER_HOUR;
 	tunp /= MINS_PER_HOUR;
 	t.hms.h = tunp % HOURS_PER_DAY;
+	tunp /= HOURS_PER_DAY;
+	t.carry += tunp;
 out:
 	return t;
 }
@@ -217,6 +221,88 @@ tround_tdur(struct dt_t_s t, struct dt_dtdur_s dur, bool nextp)
 		break;
 	}
 	return t;
+}
+
+static struct dt_d_s
+dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool UNUSED(nextp))
+{
+/* we won't be using next here because next/prev adjustments should have
+ * been made in dround already */
+	signed int sdur = dur.dv;
+
+	switch (dur.durtyp) {
+	case DT_DURD:
+		break;
+	case DT_DURBD: {
+		struct dt_d_s tmp;
+		unsigned int wday;
+		signed int diff = 0;
+
+		tmp = dt_dconv(DT_DAISY, d);
+		wday = dt_get_wday(tmp);
+
+		if (wday >= DT_SATURDAY) {
+			if (sdur < 0 || dur.neg) {
+				/* set to previous friday */
+				diff = -(signed int)(wday - DT_FRIDAY);
+			} else {
+				/* set to next monday */
+				diff = GREG_DAYS_P_WEEK + DT_MONDAY - wday;
+			}
+		}
+
+		/* final assignment */
+		tmp.daisy += diff;
+		d = dt_dconv(d.typ, tmp);
+		break;
+	}
+
+	case DT_DURYR:
+		sdur *= 4;
+	case DT_DURQU:
+		sdur *= 3;
+	case DT_DURMO: {
+		int ym, of, on;
+
+		/* we need the concept of months and years
+		 * and we use the fact that ymd's and ymcw's
+		 * y and m slots coincide*/
+		ym = d.ymcw.y * 12 + d.ymcw.m - 1;
+
+		switch (d.typ) {
+		case DT_YMD:
+			on = d.ymd.d == 1;
+			break;
+		case DT_YMCW:
+			on = d.ymcw.c == 1 && d.ymcw.w == DT_MONDAY;
+			break;
+		default:
+			/* warning? */
+			break;
+		}
+		of = ym % sdur;
+		ym -= of;
+		if (sdur > 0 && !dur.neg && (of || !on)) {
+			ym += sdur;
+		}
+		/* reassemble */
+		d.ymd.y = ym / 12;
+		d.ymd.m = (ym % 12) + 1;
+		switch (d.typ) {
+		case DT_YMD:
+			d.ymd.d = 1;
+			break;
+		case DT_YMCW:
+			d.ymcw.c = 1;
+			break;
+		}
+		break;
+	}
+	default:
+		/* warning? */
+		break;
+	}
+	return d;
 }
 
 static struct dt_d_s
@@ -320,15 +406,22 @@ dround_ddur(struct dt_d_s d, struct dt_ddur_s dur, bool nextp)
 			d.bizda.bd = tgt;
 			break;
 		default:
+			serror("\
+Warning: rounding to n-th business day not supported for input value");
 			break;
 		}
 		break;
 
+	case DT_DURQU:
+		dur.dv *= 3;
+		dur.dv -= (dur.dv > 0) * 2;
+		dur.dv += (dur.dv < 0) * 2;
+	case DT_DURMO:
 	case DT_DURYMD:
 		switch (d.typ) {
 			unsigned int mdays;
 		case DT_YMD:
-			tgt = dur.ymd.m;
+			tgt = dur.durtyp == DT_DURYMD ? dur.ymd.m : dur.dv;
 			forw = !dt_dur_neg_p(dur);
 
 			if ((forw && d.ymd.m < tgt) ||
@@ -505,7 +598,7 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 	default:
 		switch (dur.durtyp) {
 		default:
-			/* all the date durs */
+			/* all the other date durs */
 			break;
 
 		case DT_DURH:
@@ -522,6 +615,24 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 				d.t = tround_tdur_cocl(d.t, dur, nextp);
 			}
 			break;
+
+		case DT_DURD:
+		case DT_DURBD:
+		case DT_DURMO:
+		case DT_DURQU:
+		case DT_DURYR:
+			/* special case for cocl days/bizdays */
+			if (dur.cocl) {
+#define midnightp(x)	(!(x).hms.h && !(x).hms.m && !(x).hms.s)
+				d.t.carry =
+					(dur.d.dv > 0 &&
+					 (nextp || !midnightp(d.t))) |
+					/* or if midnight and nextp */
+					-(dur.d.dv < 0 &&
+					  (nextp && midnightp(d.t)));
+				/* set to midnight */
+				d.t.hms = (dt_hms_t){0};
+			}
 		}
 		/* check carry */
 		if (UNLIKELY(d.t.carry)) {
@@ -532,7 +643,11 @@ dt_round(struct dt_dt_s d, struct dt_dtdur_s dur, bool nextp)
 			d.d = dt_dadd(d.d, one_day);
 		}
 		with (unsigned int sw = d.sandwich) {
-			d.d = dround_ddur(d.d, dur.d, nextp);
+			if (!dur.cocl) {
+				d.d = dround_ddur(d.d, dur.d, nextp);
+			} else {
+				d.d = dround_ddur_cocl(d.d, dur.d, nextp);;
+			}
 			d.sandwich = (uint8_t)sw;
 		}
 		break;
@@ -568,25 +683,19 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 	struct strpd_s d = strpd_initialiser();
 	struct dt_spec_s s = spec_initialiser();
 	struct dt_dtdur_s payload = {(dt_dtdurtyp_t)DT_DURUNK};
-	bool negp = false;
-	bool coclp = true;
+	int negp = 0;
+	int coclp = 0;
 
 	if (dt_io_strpdtdur(st, str) >= 0) {
 		return 0;
 	}
 
 	/* check for co-classes */
-	if (*str == '/') {
-		coclp = true;
-		str++;
-	}
+	coclp = (*str == '/');
+	str += coclp;
 	/* check if there's a sign + or - */
-	if (*str == '-') {
-		negp = true;
-		str++;
-	} else if (*str == '+') {
-		str++;
-	}
+	negp = (*str == '-');
+	str += negp || *str == '+';
 
 	/* try weekdays, set up s */
 	s.spfl = DT_SPFL_S_WDAY;
@@ -616,11 +725,13 @@ dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 		payload.d = (struct dt_ddur_s){
 			DT_DURYMD,
 			.neg = negp,
+			.cocl = coclp,
 			.ymd.m = d.m,
 		};
 #else
 		payload.d.durtyp = DT_DURYMD;
 		payload.d.neg = negp;
+		payload.d.cocl = coclp;
 		payload.d.ymd.m = d.m;
 #endif
 		goto out;
@@ -764,15 +875,124 @@ main(int argc, char *argv[])
 	for (size_t i = dt_given_p; i < argi->nargs; i++) {
 		inp = argi->args[i];
 		do {
+#define LAST_DUR	(st.durs[st.ndurs - 1])
 			if (dt_io_strpdtrnd(&st, inp) < 0) {
 				if (UNLIKELY(i == 0)) {
 					/* that's ok, must be a date then */
 					dt_given_p = true;
 				} else {
 					serror("Error: \
-cannot parse duration/rounding string `%s'", st.istr);
+cannot parse duration/rounding string `%s'", st.istr);\
+					rc = 1;
+					goto out;
+				}
+			} else if (LAST_DUR.cocl) {
+				switch (LAST_DUR.durtyp) {
+				case DT_DURH:
+					if (!LAST_DUR.dv ||
+					    HOURS_PER_DAY % LAST_DUR.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURM:
+					if (!LAST_DUR.dv ||
+					    MINS_PER_HOUR % LAST_DUR.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURS:
+					if (!LAST_DUR.dv ||
+					    SECS_PER_MIN % LAST_DUR.dv) {
+						goto nococl;
+					}
+					break;
+
+				case DT_DURD:
+				case DT_DURBD:
+					if (LAST_DUR.d.dv != 1 &&
+					    LAST_DUR.d.dv != -1) {
+						goto nococl;
+					}
+					break;
+				case DT_DURMO:
+					/* make a millenium the next milestone */
+					if (!LAST_DUR.d.dv ||
+					    12000 % LAST_DUR.d.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURQU:
+					/* make a millenium the next milestone */
+					if (!LAST_DUR.d.dv ||
+					    4000 % LAST_DUR.d.dv) {
+						goto nococl;
+					}
+					break;
+				case DT_DURYR:
+					/* make a millenium the next milestone */
+					if (!LAST_DUR.d.dv ||
+					    1000 % LAST_DUR.d.dv) {
+						goto nococl;
+					}
+					break;
+
+				nococl:
+					error("\
+Error: subdivisions must add up to whole divisions");
+					rc = 1;
+					goto out;
+				}
+			} else {
+				switch (LAST_DUR.durtyp) {
+				case DT_DURH:
+					if (LAST_DUR.dv >= 24 ||
+					    LAST_DUR.dv <= -24) {
+						goto range;
+					}
+					break;
+				case DT_DURM:
+					if (LAST_DUR.dv >= 60 ||
+					    LAST_DUR.dv <= -60) {
+						goto range;
+					}
+					break;
+				case DT_DURS:
+					if (LAST_DUR.dv >= 60 ||
+					    LAST_DUR.dv <= -60) {
+						goto range;
+					}
+					break;
+				case DT_DURMO:
+					if (!LAST_DUR.d.dv ||
+					    LAST_DUR.d.dv > 12 ||
+					    LAST_DUR.d.dv < -12) {
+						goto range;
+					}
+					break;
+				case DT_DURQU:
+					if (!LAST_DUR.d.dv ||
+					    LAST_DUR.d.dv > 4 ||
+					    LAST_DUR.d.dv < -4) {
+						goto range;
+					}
+					break;
+				case DT_DURYR:
+					serror("\
+Error: Gregorian years are non-recurrent.\n\
+Did you mean year class rounding?  Try `/%s'", inp);
+					rc = 1;
+					goto out;
+				default:
+					break;
+
+				range:
+					serror("\
+Error: rounding parameter out of range `%s'", inp);
+					rc = 1;
+					goto out;
 				}
 			}
+#undef LAST_DUR
 		} while (__strpdtdur_more_p(&st));
 	}
 

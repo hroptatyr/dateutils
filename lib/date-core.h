@@ -102,17 +102,17 @@ typedef union {
 	uint32_t u;
 	struct {
 #if BYTE_ORDER == BIG_ENDIAN
-		/* 11 bits left */
-		unsigned int:11;
+		/* 10 bits left, make ym coincide with ym from ymcw */
+		unsigned int:10;
 		unsigned int y:12;
 		unsigned int m:4;
-		unsigned int d:5;
+		unsigned int d:6;
 #elif BYTE_ORDER == LITTLE_ENDIAN
-		unsigned int d:5;
+		unsigned int d:6;
 		unsigned int m:4;
 		unsigned int y:12;
-		/* 11 bits left */
-		unsigned int:11;
+		/* 10 bits left, make ym coincide with ym from ymcw */
+		unsigned int:10;
 #else
 # warning unknown byte order
 #endif	/* BYTE_ORDER */
@@ -125,7 +125,7 @@ typedef union {
 	uint32_t u;
 	struct {
 #if BYTE_ORDER == BIG_ENDIAN
-		/* 10 bits left */
+		/* 10 bits left, make ym coincide with ym from ymd */
 		unsigned int:10;
 		unsigned int y:12;
 		unsigned int m:4;
@@ -136,7 +136,7 @@ typedef union {
 		unsigned int c:3;
 		unsigned int m:4;
 		unsigned int y:12;
-		/* 10 bits left */
+		/* 10 bits left, make ym coincide with ym from ymd */
 		unsigned int:10;
 #else
 # warning unknown byte order
