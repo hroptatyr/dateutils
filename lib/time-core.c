@@ -271,9 +271,27 @@ dt_tdiff_s(struct dt_t_s t1, struct dt_t_s t2)
 /* compute t2 - t1 */
 	int r = 0;
 
-	r += (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
-	r += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
+	r += (t2.hms.h - t1.hms.h);
+	r *= MINS_PER_HOUR;
+	r += (t2.hms.m - t1.hms.m);
+	r *= SECS_PER_MIN;
 	r += (t2.hms.s - t1.hms.s);
+	return r;
+}
+
+DEFUN int64_t
+dt_tdiff_ns(struct dt_t_s t1, struct dt_t_s t2)
+{
+/* compute t2 - t1 */
+	int64_t r = 0;
+
+	r += (t2.hms.h - t1.hms.h);
+	r *= MINS_PER_HOUR;
+	r += (t2.hms.m - t1.hms.m);
+	r *= SECS_PER_MIN;
+	r += (t2.hms.s - t1.hms.s);
+	r *= NANOS_PER_SEC;
+	r += (int64_t)t2.hms.ns - (int64_t)t1.hms.ns;
 	return r;
 }
 

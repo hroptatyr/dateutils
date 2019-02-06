@@ -1596,19 +1596,26 @@ DEFUN struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
 	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
-	int dt = 0;
+	int64_t dt = 0;
 
 	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
 		/* do the time portion difference right away */
-		dt = dt_tdiff_s(d1.t, d2.t);
+		switch (tgttyp) {
+		default:
+			dt = dt_tdiff_s(d1.t, d2.t);
+			break;
+		case DT_DURNANO:
+			dt = dt_tdiff_ns(d1.t, d2.t);
+			break;
+		}
 	}
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
-		res.durtyp = DT_DURS;
+		res.durtyp = DT_DURS + (tgttyp == DT_DURNANO);
 		res.dv = dt;
 	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
-		/* check for negative carry */
+		/* check for negative carry, DT typ can't be NANO */
 		if (UNLIKELY(dt < 0)) {
 			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
 			dt += SECS_PER_DAY;
@@ -1616,15 +1623,20 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		res.durtyp = tgttyp;
 		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
 		res.t.sdur = dt;
+		res.t.nsdur = 0;
 	} else if ((dt_durtyp_t)tgttyp >= DT_NDURTYP) {
 		int64_t sxdur;
 
 		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {
 			/* go for tdiff and ddiff independently */
 			res.d = dt_ddiff(DT_DURD, d1.d, d2.d);
+
+			if (UNLIKELY(tgttyp == DT_DURNANO)) {
+				/* unfortunately we have to scale back */
+				dt /= NANOS_PER_SEC;
+			}
 			/* since target type is SEXY do the conversion here */
-			sxdur = (int64_t)dt +
-				(int64_t)res.d.dv * SECS_PER_DAY;
+			sxdur = dt + (int64_t)res.d.dv * SECS_PER_DAY;
 		} else {
 			/* oh we're in the sexy domain already,
 			 * note, we can't diff ymdhms packs */
@@ -1632,18 +1644,17 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			d2 = dt_dtconv(DT_SEXY, d2);
 
 			/* now it's fuck-easy */
-			sxdur = d2.sexy - d1.sexy;
+			sxdur = (int64_t)(d2.sexy - d1.sexy);
 		}
 
 		/* set up the output here */
-		res.durtyp = tgttyp;
+		res.durtyp = DT_DURS;
 		res.neg = 0U;
 		if (LIKELY(tgttyp < DT_NDTDURTYP)) {
 			res.tai = 0U;
 		} else {
 			/* just a hack to transfer the notion of TAIness */
 			res.tai = 1U;
-			res.durtyp = DT_DURS;
 		}
 		res.dv = sxdur;
 

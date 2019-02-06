@@ -224,7 +224,7 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		return (dt_dtdurtyp_t)0xffU;
 	}
 	/* otherwise */
-	return DT_DURS;
+	return DT_DURS + (f.has_nano);
 }
 
 
@@ -286,7 +286,7 @@ static __attribute__((pure)) long int
 __strf_tot_secs(struct dt_dtdur_s dur)
 {
 /* return time portion of duration in UTC seconds */
-	long int s = dur.dv;
+	int64_t s = dur.dv;
 
 	if (UNLIKELY(dur.tai) && dur.durtyp == DT_DURS) {
 		return dur.soft - dur.corr;
@@ -440,7 +440,7 @@ static struct precalc_s {
 	/* the other units are easily converted as their factors are fixed.
 	 * we operate on clean seconds and attribute leap seconds only
 	 * to the S slot, so 59 seconds plus a leap second != 1 minute */
-	with (long long int S = __strf_tot_secs(dur), d = __strf_tot_days(dur)) {
+	with (int64_t S = __strf_tot_secs(dur), d = __strf_tot_days(dur)) {
 		us = d * (int)SECS_PER_DAY + S;
 	}
 
@@ -465,11 +465,16 @@ static struct precalc_s {
 	if (f.has_sec) {
 		res.S = us + __strf_tot_corr(dur);
 	}
+	if (f.has_nano) {
+		if (dur.durtyp == DT_DURNANO) {
+			res.N = dur.dv % (long int)NANOS_PER_SEC;
+		}
+	}
 
 	/* just in case the duration iss negative jump through all
 	 * the hoops again, backwards */
 	if (res.w < 0 || res.d < 0 ||
-	    res.H < 0 || res.M < 0 || res.S < 0) {
+	    res.H < 0 || res.M < 0 || res.S < 0 || res.N < 0) {
 		if (0) {
 		fixup_d:
 			res.d = -res.d;
@@ -479,6 +484,8 @@ static struct precalc_s {
 			res.M = -res.M;
 		fixup_S:
 			res.S = -res.S;
+		fixup_N:
+			res.N = -res.N;
 		} else if (f.has_week) {
 			goto fixup_d;
 		} else if (f.has_day) {
@@ -487,6 +494,8 @@ static struct precalc_s {
 			goto fixup_M;
 		} else if (f.has_min) {
 			goto fixup_S;
+		} else if (f.has_sec) {
+			goto fixup_N;
 		}
 	}
 	return res;
@@ -626,6 +635,10 @@ __strfdtdur(
 
 		case DT_SPFL_N_HOUR:
 			bp += ltostr(bp, eo - bp, pre.H, 2, spec.pad);
+			break;
+
+		case DT_SPFL_N_NANO:
+			bp += ltostr(bp, eo - bp, pre.N, 9, DT_SPPAD_ZERO);
 			break;
 
 		default:
