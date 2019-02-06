@@ -1,0 +1,10 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## test case from issues/94
+$ ddiff -i "%0H:%0M:%0S.%N" '12:00:00.000' '12:01:01.010' -f '%0S.%N'
+61.010000000
+$ ddiff -i "%0H:%0M:%0S.%N" '12:00:00.439000' '12:01:01.017000500' -f '%0S.%N'
+60.578000500
+$
+
+## tdiff.014.clit ends here

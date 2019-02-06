@@ -544,6 +544,7 @@ dt_tests += tdiff.010.clit
 dt_tests += tdiff.011.clit
 dt_tests += tdiff.012.clit
 dt_tests += tdiff.013.clit
+dt_tests += tdiff.014.clit
 
 dt_tests += tadd.001.clit
 dt_tests += tadd.002.clit
