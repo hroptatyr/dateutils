@@ -212,7 +212,7 @@ else
 	cntrb_apps="none"
 fi
 
-AX_CHECK_YUCK
+AX_CHECK_YUCK([yes])
 
 dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags

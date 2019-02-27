@@ -86,7 +86,7 @@ dt_io_strpdt_special(const char *str)
 struct dt_dt_s
 dt_io_strpdt(
 	const char *str,
-	const char *const *fmt, size_t nfmt,
+	char *const *fmt, size_t nfmt,
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
@@ -138,7 +138,7 @@ dt_io_strpdt(
 struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
-	const char *const *fmt, size_t nfmt, char **ep,
+	char *const *fmt, size_t nfmt, char **ep,
 	zif_t zone)
 {
 	struct dt_dt_s res = dt_dt_initialiser();
@@ -163,13 +163,12 @@ dt_io_find_strpdt(
 {
 	const char *__sp = str;
 	struct dt_dt_s d;
-	const char *const *cfmt = (const char*const*)fmt;
 
-	d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone);
+	d = dt_io_strpdt_ep(__sp, fmt, nfmt, ep, zone);
 	if (dt_unk_p(d)) {
 		while ((__sp = strstr(__sp, needle)) &&
 		       (d = dt_io_strpdt_ep(
-				__sp += needlen, cfmt, nfmt, ep, zone),
+				__sp += needlen, fmt, nfmt, ep, zone),
 			dt_unk_p(d)));
 	}
 	*sp = (char*)__sp;

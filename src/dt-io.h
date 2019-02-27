@@ -78,13 +78,13 @@ extern dt_strpdt_special_t dt_io_strpdt_special(const char *str);
 extern struct dt_dt_s
 dt_io_strpdt(
 	const char *str,
-	const char *const *fmt, size_t nfmt,
+	char *const *fmt, size_t nfmt,
 	zif_t zone);
 
 extern struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
-	const char *const *fmt, size_t nfmt, char **ep,
+	char *const *fmt, size_t nfmt, char **ep,
 	zif_t zone);
 
 extern struct dt_dt_s
