@@ -790,7 +790,7 @@ __trans_ddurfmt(const char **fmt)
 DEFUN struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
-	struct dt_d_s res = dt_d_initialiser();
+	struct dt_d_s res = {};
 
 	if (LIKELY(d.y > 0 && d.c <= 0 && !d.flags.c_wcnt_p && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
@@ -875,8 +875,8 @@ __guess_dtyp(struct strpd_s d)
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
-	struct dt_d_s res = dt_d_initialiser();
-	struct strpd_s d = strpd_initialiser();
+	struct dt_d_s res = {};
+	struct strpd_s d = {};
 	const char *sp = str;
 	const char *fp;
 
@@ -949,7 +949,7 @@ out:
 DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-	struct strpd_s d = strpd_initialiser();
+	struct strpd_s d = {};
 	const char *fp;
 	char *bp;
 	dt_dtyp_t tgttyp;
@@ -1148,7 +1148,7 @@ out:
 DEFUN size_t
 dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s that)
 {
-	struct strpd_s d = strpd_initialiser();
+	struct strpd_s d = {};
 	const char *fp;
 	char *bp;
 
@@ -1363,7 +1363,7 @@ dt_date(dt_dtyp_t outtyp)
 DEFUN struct dt_d_s
 dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 {
-	struct dt_d_s res = dt_d_initialiser();
+	struct dt_d_s res = {};
 
 	/* fix up before conversion */
 	d = dt_dfixup(d);

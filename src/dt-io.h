@@ -129,24 +129,10 @@ extern zif_t dt_io_zone(const char *spec);
 
 
 /* grep atoms */
-static inline __attribute__((const)) struct grep_atom_s
-__grep_atom_initialiser(void)
-{
-	static const struct grep_atom_s res;
-	return res;
-}
-
-static inline __attribute__((const)) struct grep_atom_soa_s
-__grep_atom_soa_initialiser(void)
-{
-	static const struct grep_atom_soa_s res;
-	return res;
-}
-
 static inline struct grep_atom_soa_s
 make_grep_atom_soa(grep_atom_t atoms, size_t natoms)
 {
-	struct grep_atom_soa_s res = __grep_atom_soa_initialiser();
+	struct grep_atom_soa_s res = {};
 
 	res.needle = (char*)atoms;
 	res.flesh = (void*)(res.needle + natoms);
@@ -224,13 +210,6 @@ dt_io_warn_strpdt(const char *inp)
 
 
 /* duration parser */
-static inline __attribute__((const)) struct __strpdtdur_st_s
-__strpdtdur_st_initialiser(void)
-{
-	static const struct __strpdtdur_st_s res;
-	return res;
-}
-
 static inline int
 __strpdtdur_more_p(struct __strpdtdur_st_s *st)
 {

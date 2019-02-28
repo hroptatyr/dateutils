@@ -177,13 +177,6 @@ extern struct dt_t_s dt_get_tbase(void);
 
 
 /* some useful gimmicks, sort of */
-static inline __attribute__((const)) struct dt_t_s
-dt_t_initialiser(void)
-{
-	static const struct dt_t_s res;
-	return res;
-}
-
 static inline unsigned int
 __secs_since_midnight(struct dt_t_s t)
 {

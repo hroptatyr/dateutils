@@ -544,14 +544,6 @@ extern struct dt_d_s dt_get_dbase(void);
 extern __attribute__((const)) struct dt_d_s dt_dfixup(struct dt_d_s);
 
 
-/* some useful gimmicks, sort of */
-static inline __attribute__((const)) struct dt_d_s
-dt_d_initialiser(void)
-{
-	static const struct dt_d_s res;
-	return res;
-}
-
 /* other ctors */
 static inline struct dt_d_s
 dt_make_ymd(unsigned int y, unsigned int m, unsigned int d)

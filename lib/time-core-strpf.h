@@ -66,14 +66,6 @@ struct strpt_s {
 extern struct dt_t_s __guess_ttyp(struct strpt_s t);
 
 
-/* helpers */
-static inline __attribute__((const)) struct strpt_s
-strpt_initialiser(void)
-{
-	static const struct strpt_s res;
-	return res;
-}
-
 /* self-explanatory funs */
 extern int
 __strpt_card(struct strpt_s *d, const char *str, struct dt_spec_s s, char **ep);

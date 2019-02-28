@@ -56,7 +56,7 @@
 struct dt_spec_s
 __tok_spec(const char *fp, const char **ep)
 {
-	struct dt_spec_s res = spec_initialiser();
+	struct dt_spec_s res = {};
 
 	if (*fp != '%') {
 		goto out;

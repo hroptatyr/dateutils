@@ -81,21 +81,6 @@ struct strprng_s {
 };
 
 
-/* helpers */
-static inline __attribute__((const)) struct strpd_s
-strpd_initialiser(void)
-{
-	static const struct strpd_s res;
-	return res;
-}
-
-static inline __attribute__((const)) struct strpdi_s
-strpdi_initialiser(void)
-{
-	static const struct strpdi_s res;
-	return res;
-}
-
 #if defined INCLUDED_date_core_h_
 /**
  * Populate TGT with duration information from DUR. */

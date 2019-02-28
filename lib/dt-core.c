@@ -185,7 +185,7 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
 		dt.sxepoch = __to_unix_epoch(dt);
 	} else {
-		dt = dt_dt_initialiser();
+		dt = (struct dt_dt_s){};
 	}
 	/* make sure we hand out sexies */
 	dt.typ = DT_SEXY;
@@ -195,7 +195,7 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 static inline struct dt_dt_s
 __sexy_to_daisy(dt_ssexy_t sx)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {};
 
 	res.t.hms.s = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
@@ -215,7 +215,7 @@ __sexy_to_daisy(dt_ssexy_t sx)
 static inline struct dt_dt_s
 __ymdhms_to_ymd(dt_ymdhms_t x)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {};
 
 	res.t.hms.s = x.S;
 	res.t.hms.m = x.M;
@@ -601,8 +601,8 @@ need_milfup_p(const char *fmt)
 DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d;
+	struct dt_dt_s res = {};
+	struct strpdt_s d = {};
 	const char *sp = str;
 	const char *fp;
 
@@ -686,7 +686,6 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	}
 
 	fp = fmt;
-	d = strpdt_initialiser();
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
@@ -765,13 +764,13 @@ fucked:
 	if (ep != NULL) {
 		*ep = (char*)str;
 	}
-	return dt_dt_initialiser();
+	return (struct dt_dt_s){};
 }
 
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = strpdt_initialiser();
+	struct strpdt_s d = {};
 	const char *fp;
 	char *bp;
 	dt_dtyp_t tgttyp;
@@ -1093,7 +1092,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dtdur_s that)
 {
-	struct strpdt_s d;
+	struct strpdt_s d = {};
 	const char *fp;
 	char *bp;
 
@@ -1102,7 +1101,6 @@ dt_strfdtdur(
 		goto out;
 	}
 
-	d = strpdt_initialiser();
 	switch (that.d.durtyp) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
@@ -1295,7 +1293,7 @@ dt_dtdur_neg_p(struct dt_dtdur_s dur)
 DEFUN struct dt_dt_s
 dt_datetime(dt_dttyp_t outtyp)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {};
 	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
 	struct tm tm = now_tm();
 	struct timeval tv = now_tv();
@@ -1437,7 +1435,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 
 		case DT_DUNK:
 		default:
-			d = dt_dt_initialiser();
+			d = (struct dt_dt_s){};
 			break;
 		}
 	} else if (dt_sandwich_only_t_p(d)) {
@@ -1467,7 +1465,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			}
 			break;
 		default:
-			d = dt_dt_initialiser();
+			d = (struct dt_dt_s){};
 			break;
 		}
 	} else {
