@@ -82,25 +82,17 @@ struct strprng_s {
 
 
 /* helpers */
-static inline __attribute__((pure, const)) struct strpd_s
+static inline __attribute__((const)) struct strpd_s
 strpd_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct strpd_s res = {};
-#else
 	static const struct strpd_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 
-static inline __attribute__((pure, const)) struct strpdi_s
+static inline __attribute__((const)) struct strpdi_s
 strpdi_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct strpdi_s res = {};
-#else
 	static const struct strpdi_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

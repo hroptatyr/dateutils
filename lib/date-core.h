@@ -541,18 +541,14 @@ extern struct dt_d_s dt_get_dbase(void);
 
 /**
  * Crop dates with days beyond ultimo. */
-extern __attribute__((pure)) struct dt_d_s dt_dfixup(struct dt_d_s);
+extern __attribute__((const)) struct dt_d_s dt_dfixup(struct dt_d_s);
 
 
 /* some useful gimmicks, sort of */
-static inline __attribute__((pure, const)) struct dt_d_s
+static inline __attribute__((const)) struct dt_d_s
 dt_d_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct dt_d_s res = {};
-#else  /* HAVE_SLOPPY_STRUCTS_INIT */
 	static const struct dt_d_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

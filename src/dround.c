@@ -278,6 +278,7 @@ dround_ddur_cocl(struct dt_d_s d, struct dt_ddur_s dur, bool UNUSED(nextp))
 			break;
 		default:
 			/* warning? */
+			on = 1;
 			break;
 		}
 		of = ym % sdur;

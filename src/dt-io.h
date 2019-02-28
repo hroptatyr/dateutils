@@ -129,25 +129,17 @@ extern zif_t dt_io_zone(const char *spec);
 
 
 /* grep atoms */
-static inline __attribute__((pure, const)) struct grep_atom_s
+static inline __attribute__((const)) struct grep_atom_s
 __grep_atom_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct grep_atom_s res = {0};
-#else
 	static const struct grep_atom_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 
-static inline __attribute__((pure, const)) struct grep_atom_soa_s
+static inline __attribute__((const)) struct grep_atom_soa_s
 __grep_atom_soa_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct grep_atom_soa_s res = {0};
-#else
 	static const struct grep_atom_soa_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 
@@ -232,14 +224,10 @@ dt_io_warn_strpdt(const char *inp)
 
 
 /* duration parser */
-static inline __attribute__((pure, const)) struct __strpdtdur_st_s
+static inline __attribute__((const)) struct __strpdtdur_st_s
 __strpdtdur_st_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct __strpdtdur_st_s res = {};
-#else
 	static const struct __strpdtdur_st_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

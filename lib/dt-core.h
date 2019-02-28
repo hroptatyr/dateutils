@@ -318,56 +318,52 @@ extern struct dt_dt_s dt_get_base(void);
 
 /**
  * Crop datetimess with days beyond ultimo. */
-extern __attribute__((pure)) struct dt_dt_s dt_fixup(struct dt_dt_s);
+extern __attribute__((const)) struct dt_dt_s dt_fixup(struct dt_dt_s);
 
 /**
  * Decay military midnigths to the following day 00:00:00 */
-extern __attribute__((pure)) struct dt_dt_s dt_milfup(struct dt_dt_s);
+extern __attribute__((const)) struct dt_dt_s dt_milfup(struct dt_dt_s);
 
 
 /* some useful gimmicks, sort of */
-static inline __attribute__((pure, const)) struct dt_dt_s
+static inline __attribute__((const)) struct dt_dt_s
 dt_dt_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct dt_dt_s res = {};
-#else
 	static const struct dt_dt_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 
-static inline __attribute__((pure, const)) bool
+static inline __attribute__((const)) bool
 dt_unk_p(struct dt_dt_s d)
 {
 	return !(d.sandwich || d.typ > DT_UNK);
 }
 
-static inline __attribute__((pure, const)) bool
+static inline __attribute__((const)) bool
 dt_durunk_p(struct dt_dtdur_s d)
 {
 	return !d.durtyp;
 }
 
-static inline __attribute__((pure, const)) bool
+static inline __attribute__((const)) bool
 dt_sandwich_p(struct dt_dt_s d)
 {
 	return d.sandwich && d.d.typ > DT_DUNK;
 }
 
-static inline __attribute__((pure, const)) bool
+static inline __attribute__((const)) bool
 dt_sandwich_only_d_p(struct dt_dt_s d)
 {
 	return !d.sandwich && d.d.typ > DT_DUNK && d.d.typ < DT_NDTYP;
 }
 
-static inline __attribute__((pure, const)) bool
+static inline __attribute__((const)) bool
 dt_sandwich_only_t_p(struct dt_dt_s d)
 {
 	return d.sandwich && d.typ == DT_UNK;
 }
 
-static inline __attribute__((pure, const)) bool
+static inline __attribute__((const)) bool
 dt_separable_p(struct dt_dt_s d)
 {
 /* return true if D is a d+t sandwich or D is d-only or D is t-only */

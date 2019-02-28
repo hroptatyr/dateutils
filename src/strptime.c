@@ -73,14 +73,10 @@ prnt_line(const char *ofmt, struct tm *tm)
 	return;
 }
 
-static inline __attribute__((pure, const)) struct tm
+static inline __attribute__((const)) struct tm
 __tm_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct tm res = {};
-#else
 	static const struct tm res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

@@ -155,18 +155,14 @@ struct dt_spec_s {
 extern struct dt_spec_s __tok_spec(const char *fp, const char **ep);
 
 
-static inline __attribute__((pure, const)) struct dt_spec_s
+static inline __attribute__((const)) struct dt_spec_s
 spec_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct dt_spec_s res = {};
-#else
 	static const struct dt_spec_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 
-static inline __attribute__((pure, const)) char
+static inline __attribute__((const)) char
 padchar(struct dt_spec_s s)
 {
 	return (char)(0x20U ^ ((s.pad < DT_SPPAD_SPC) << 4U));
