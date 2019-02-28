@@ -458,11 +458,7 @@ massage_strpdt(struct strpdt_s d)
 /* the reason we do this separately is that we don't want to bother
  * the pieces of code that use the guesser for different reasons */
 	if (UNLIKELY(d.sd.y == 0U)) {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
 		static const struct strpd_s d0 = {};
-#else  /* !HAVE_SLOPPY_STRUCTS_INIT */
-		static const struct strpd_s d0;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 		struct dt_dt_s now = dt_get_base();
 
 		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
@@ -1610,7 +1606,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
-		res.durtyp = DT_DURS + (tgttyp == DT_DURNANO);
+		res.durtyp = (dt_dtdurtyp_t)(DT_DURS + (tgttyp == DT_DURNANO));
 		res.dv = dt;
 	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
 		/* check for negative carry, DT typ can't be NANO */
