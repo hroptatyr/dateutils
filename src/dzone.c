@@ -137,7 +137,7 @@ static size_t
 dz_strftr(char *restrict buf, size_t bsz, struct ztr_s t)
 {
 	static const char fmt[] = "%FT%T%Z";
-	struct dt_dt_s d = dt_dt_initialiser();
+	struct dt_dt_s d = {};
 
 	d.typ = DT_SEXY;
 	d.sexy = t.trns + t.offs;

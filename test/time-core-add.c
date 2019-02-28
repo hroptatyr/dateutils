@@ -69,7 +69,7 @@ main(void)
 	struct dt_t_s chk;
 
 	/* 12:34:56 + 17s */
-	t = dt_t_initialiser();
+	t = (struct dt_t_s){};
 	t.typ = DT_HMS;
 	t.hms.h = 12;
 	t.hms.m = 34;
@@ -78,7 +78,7 @@ main(void)
 	dur = 17;
 
 	/* should be 12:35:13 */
-	chk = dt_t_initialiser();
+	chk = (struct dt_t_s){};
 	chk.typ = DT_HMS;
 	chk.hms.h = 12;
 	chk.hms.m = 35;
@@ -91,7 +91,7 @@ main(void)
 
 
 	/* 12:34:56 + 11*3600s + 25*60s + 4s */
-	t = dt_t_initialiser();
+	t = (struct dt_t_s){};
 	t.typ = DT_HMS;
 	t.hms.h = 12;
 	t.hms.m = 34;
@@ -100,7 +100,7 @@ main(void)
 	dur = 11 * 3600 + 25 * 60 + 4;
 
 	/* should be 00:00:00 */
-	chk = dt_t_initialiser();
+	chk = (struct dt_t_s){};
 	chk.typ = DT_HMS;
 	chk.hms.h = 00;
 	chk.hms.m = 00;
@@ -114,7 +114,7 @@ main(void)
 
 
 	/* 12:34:56 + 11*3600s + 25*60s + 4s on a leap day */
-	t = dt_t_initialiser();
+	t = (struct dt_t_s){};
 	t.typ = DT_HMS;
 	t.hms.h = 12;
 	t.hms.m = 34;
@@ -123,7 +123,7 @@ main(void)
 	dur = 11 * 3600 + 25 * 60 + 4;
 
 	/* should be 00:00:00 */
-	chk = dt_t_initialiser();
+	chk = (struct dt_t_s){};
 	chk.typ = DT_HMS;
 	chk.hms.h = 23;
 	chk.hms.m = 59;
@@ -137,7 +137,7 @@ main(void)
 
 
 	/* 12:34:56 + 11*3600s + 25*60s + 3s on a -leap day */
-	t = dt_t_initialiser();
+	t = (struct dt_t_s){};
 	t.typ = DT_HMS;
 	t.hms.h = 12;
 	t.hms.m = 34;
@@ -146,7 +146,7 @@ main(void)
 	dur = 11 * 3600 + 25 * 60 + 3;
 
 	/* should be 00:00:00 */
-	chk = dt_t_initialiser();
+	chk = (struct dt_t_s){};
 	chk.typ = DT_HMS;
 	chk.hms.h = 00;
 	chk.hms.m = 00;
@@ -160,7 +160,7 @@ main(void)
 
 
 	/* 12:34:56 + 11*3600s + 25*60s + 2s on a -leap day */
-	t = dt_t_initialiser();
+	t = (struct dt_t_s){};
 	t.typ = DT_HMS;
 	t.hms.h = 12;
 	t.hms.m = 34;
@@ -169,7 +169,7 @@ main(void)
 	dur = 11 * 3600 + 25 * 60 + 2;
 
 	/* should be 00:00:00 */
-	chk = dt_t_initialiser();
+	chk = (struct dt_t_s){};
 	chk.typ = DT_HMS;
 	chk.hms.h = 23;
 	chk.hms.m = 59;
@@ -183,7 +183,7 @@ main(void)
 
 
 	/* 12:34:56 + 11*3600s + 25*60s + 3s on a +leap day */
-	t = dt_t_initialiser();
+	t = (struct dt_t_s){};
 	t.typ = DT_HMS;
 	t.hms.h = 12;
 	t.hms.m = 34;
@@ -192,7 +192,7 @@ main(void)
 	dur = 11 * 3600 + 25 * 60 + 3;
 
 	/* should be 00:00:00 */
-	chk = dt_t_initialiser();
+	chk = (struct dt_t_s){};
 	chk.typ = DT_HMS;
 	chk.hms.h = 23;
 	chk.hms.m = 59;

@@ -66,15 +66,14 @@ DEFUN struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
 /* code dupe, see __strpdt_std() */
-	struct dt_d_s res = dt_d_initialiser();
-	struct strpd_s d;
+	struct dt_d_s res = {};
+	struct strpd_s d = {};
 	const char *sp;
 
 	if ((sp = str) == NULL) {
 		goto out;
 	}
 
-	d = strpd_initialiser();
 	d.c = -1;
 	/* read the year */
 	d.y = strtoi(sp, &sp);
@@ -158,7 +157,7 @@ fucked:
 	if (ep != NULL) {
 		*ep = (char*)str;
 	}
-	return dt_d_initialiser();
+	return (struct dt_d_s){};
 }
 
 DEFUN int

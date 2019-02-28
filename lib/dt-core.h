@@ -326,13 +326,6 @@ extern __attribute__((const)) struct dt_dt_s dt_milfup(struct dt_dt_s);
 
 
 /* some useful gimmicks, sort of */
-static inline __attribute__((const)) struct dt_dt_s
-dt_dt_initialiser(void)
-{
-	static const struct dt_dt_s res;
-	return res;
-}
-
 static inline __attribute__((const)) bool
 dt_unk_p(struct dt_dt_s d)
 {

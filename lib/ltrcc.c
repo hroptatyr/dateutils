@@ -251,7 +251,7 @@ static int
 pr_line_t(const char *line, size_t llen, va_list vap)
 {
 	static long int cor;
-	struct dt_t_s t = dt_t_initialiser();
+	struct dt_t_s t = {};
 	dt_dtyp_t typ;
 	int colp;
 	char *ep;

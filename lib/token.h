@@ -155,13 +155,6 @@ struct dt_spec_s {
 extern struct dt_spec_s __tok_spec(const char *fp, const char **ep);
 
 
-static inline __attribute__((const)) struct dt_spec_s
-spec_initialiser(void)
-{
-	static const struct dt_spec_s res;
-	return res;
-}
-
 static inline __attribute__((const)) char
 padchar(struct dt_spec_s s)
 {
