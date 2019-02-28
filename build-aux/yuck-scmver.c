@@ -99,7 +99,7 @@ error(const char *fmt, ...)
 	return;
 }
 
-static inline __attribute__((const, pure, always_inline)) char*
+static inline __attribute__((const, always_inline)) char*
 deconst(const char *s)
 {
 	union {

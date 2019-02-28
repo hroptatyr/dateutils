@@ -55,7 +55,7 @@
 #include "version.c"
 
 
-static __attribute__((pure, const)) long int
+static __attribute__((const)) long int
 ntp_to_unix_epoch(long int x)
 {
 	return x - 25567L * 86400L;

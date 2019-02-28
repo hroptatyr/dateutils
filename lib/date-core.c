@@ -1897,7 +1897,7 @@ dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 	return 2 - ((m >> (i * 8U + j * 2U)) & 0b11U);
 }
 
-DEFUN __attribute__((pure)) struct dt_d_s
+DEFUN __attribute__((const)) struct dt_d_s
 dt_dfixup(struct dt_d_s d)
 {
 	switch (d.typ) {

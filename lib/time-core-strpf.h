@@ -67,14 +67,10 @@ extern struct dt_t_s __guess_ttyp(struct strpt_s t);
 
 
 /* helpers */
-static inline __attribute__((pure, const)) struct strpt_s
+static inline __attribute__((const)) struct strpt_s
 strpt_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct strpt_s res = {};
-#else
 	static const struct strpt_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 

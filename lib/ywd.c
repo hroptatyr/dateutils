@@ -108,7 +108,7 @@ __ywd_get_dec31_wday(dt_ywd_t d)
 }
 
 #if defined GET_ISOWK_FULL_SWITCH
-DEFUN __attribute__((const, pure)) inline unsigned int
+DEFUN __attribute__((const)) inline unsigned int
 __get_isowk(unsigned int y)
 {
 /* return the number of iso weeks in Y */
@@ -365,7 +365,7 @@ __get_z31wk(unsigned int y)
 }
 
 #elif defined GET_ISOWK_28Y_SWITCH
-DEFUN __attribute__((const, pure)) inline unsigned int
+DEFUN __attribute__((const)) inline unsigned int
 __get_isowk(unsigned int y)
 {
 	switch (y % 28U) {
@@ -589,7 +589,7 @@ __make_ywd_ybd(unsigned int y, int yd)
 	return res;
 }
 
-static __attribute__((pure, const)) int
+static __attribute__((const)) int
 __ywd_get_yday(dt_ywd_t d)
 {
 /* since everything is in ISO 8601 format, getting the doy is a matter of

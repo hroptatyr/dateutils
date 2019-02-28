@@ -126,7 +126,7 @@
 # define htooe16(x)	be16toh(x)
 #else
 /* do it agnostically */
-static inline __attribute__((pure, const)) uint16_t
+static inline __attribute__((const)) uint16_t
 htooe16(uint16_t x)
 {
 	return ((x >> 8U) & 0xffU) | ((x << 8U) & 0xff00U);
@@ -185,7 +185,7 @@ htooe16(uint16_t x)
 # define htooe32(x)	be32toh(x)
 #else
 /* do it agnostically */
-static inline __attribute__((pure, const)) uint32_t
+static inline __attribute__((const)) uint32_t
 htooe32(uint32_t x)
 {
 	/* swap them word-wise first */
@@ -247,7 +247,7 @@ htooe32(uint32_t x)
 # define htooe64(x)	be64toh(x)
 #else
 /* do it agnostically */
-static inline __attribute__((pure, const)) uint64_t
+static inline __attribute__((const)) uint64_t
 htooe64(uint64_t x)
 {
 	/* swap them dword-wise first */

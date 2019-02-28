@@ -568,7 +568,7 @@ zdiff_sec(struct dt_dt_s d)
 	return zdiff;
 }
 
-static inline __attribute__((const, pure)) bool
+static inline __attribute__((const)) bool
 dt_dur_only_d_p(struct dt_dtdur_s d)
 {
 	return d.durtyp && d.d.durtyp < DT_NDURTYP && !d.t.sdur;
@@ -1811,7 +1811,7 @@ dt_get_tbase(void)
 # endif	/* INCLUDED_time_core_h_ */
 #endif	/* LIBDUT */
 
-DEFUN __attribute__((pure)) struct dt_dt_s
+DEFUN __attribute__((const)) struct dt_dt_s
 dt_fixup(struct dt_dt_s d)
 {
 	if (LIKELY(dt_sandwich_only_d_p(d) || dt_sandwich_p(d))) {
@@ -1820,7 +1820,7 @@ dt_fixup(struct dt_dt_s d)
 	return d;
 }
 
-DEFUN __attribute__((pure)) struct dt_dt_s
+DEFUN __attribute__((const)) struct dt_dt_s
 dt_milfup(struct dt_dt_s dt)
 {
 	if (dt_sandwich_p(dt) && UNLIKELY(dt.t.hms.h == 24)) {

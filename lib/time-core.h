@@ -177,14 +177,10 @@ extern struct dt_t_s dt_get_tbase(void);
 
 
 /* some useful gimmicks, sort of */
-static inline __attribute__((pure, const)) struct dt_t_s
+static inline __attribute__((const)) struct dt_t_s
 dt_t_initialiser(void)
 {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct dt_t_s res = {};
-#else
 	static const struct dt_t_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
 	return res;
 }
 
