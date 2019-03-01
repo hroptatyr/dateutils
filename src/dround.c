@@ -681,8 +681,8 @@ static int
 dt_io_strpdtrnd(struct __strpdtdur_st_s *st, const char *str)
 {
 	char *sp = NULL;
-	struct strpd_s d = {};
-	struct dt_spec_s s = {};
+	struct strpd_s d = {0};
+	struct dt_spec_s s = {0};
 	struct dt_dtdur_s payload = {(dt_dtdurtyp_t)DT_DURUNK};
 	int negp = 0;
 	int coclp = 0;
@@ -817,7 +817,7 @@ main(int argc, char *argv[])
 {
 	yuck_t argi[1U];
 	struct dt_dt_s d;
-	struct __strpdtdur_st_s st = {};
+	struct __strpdtdur_st_s st = {0};
 	char *inp;
 	const char *ofmt;
 	char **fmt;

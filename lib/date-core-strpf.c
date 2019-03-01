@@ -66,8 +66,8 @@ DEFUN struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
 /* code dupe, see __strpdt_std() */
-	struct dt_d_s res = {};
-	struct strpd_s d = {};
+	struct dt_d_s res = {DT_DUNK};
+	struct strpd_s d = {0};
 	const char *sp;
 
 	if ((sp = str) == NULL) {
@@ -157,7 +157,7 @@ fucked:
 	if (ep != NULL) {
 		*ep = (char*)str;
 	}
-	return (struct dt_d_s){};
+	return (struct dt_d_s){DT_DUNK};
 }
 
 DEFUN int

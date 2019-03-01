@@ -224,7 +224,7 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		return (dt_dtdurtyp_t)0xffU;
 	}
 	/* otherwise */
-	return DT_DURS + (f.has_nano);
+	return (dt_dtdurtyp_t)(DT_DURS + (f.has_nano));
 }
 
 
