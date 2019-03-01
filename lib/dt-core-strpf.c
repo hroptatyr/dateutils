@@ -150,8 +150,8 @@ DEFUN struct dt_dt_s
 __strpdt_std(const char *str, char **ep)
 {
 /* code dupe, see __strpd_std() */
-	struct dt_dt_s res = {};
-	struct strpdt_s d = {};
+	struct dt_dt_s res = {DT_UNK};
+	struct strpdt_s d = {0};
 	const char *sp;
 
 	if ((sp = str) == NULL) {

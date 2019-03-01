@@ -32,7 +32,7 @@ add_d_only(void)
 
 	/* prep the duration */
 	dur.d = dt_make_ddur(DT_DURD, 1);
-	dur.t = (struct dt_t_s){};
+	dur.t = (struct dt_t_s){DT_TUNK};
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);
@@ -123,7 +123,7 @@ dt_add_d(void)
 
 	/* prep the duration */
 	dur.d = dt_make_ddur(DT_DURD, 1);
-	dur.t = (struct dt_t_s){};
+	dur.t = (struct dt_t_s){DT_TUNK};
 
 	/* the actual addition */
 	d = dt_dtadd(d, dur);

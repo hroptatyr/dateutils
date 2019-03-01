@@ -57,7 +57,7 @@ main(void)
 	struct dt_dt_s chk;
 
 	/* conv, then check */
-	t = (struct dt_dt_s){};
+	t = (struct dt_dt_s){DT_UNK};
 	t.sandwich = 1;
 	t.d.typ = DT_YMD;
 	t.d.ymd.y = 2012;
@@ -69,7 +69,7 @@ main(void)
 	t.t.hms.m = 59;
 	t.t.hms.s = 59;
 
-	chk = (struct dt_dt_s){};
+	chk = (struct dt_dt_s){DT_UNK};
 	chk.typ = DT_SEXY;
 	chk.sexy = 1341100799;
 
@@ -78,7 +78,7 @@ main(void)
 	}
 
 	/* conv, then check */
-	t = (struct dt_dt_s){};
+	t = (struct dt_dt_s){DT_UNK};
 	t.sandwich = 1;
 	t.d.typ = DT_YMD;
 	t.d.ymd.y = 2012;
@@ -90,7 +90,7 @@ main(void)
 	t.t.hms.m = 00;
 	t.t.hms.s = 00;
 
-	chk = (struct dt_dt_s){};
+	chk = (struct dt_dt_s){DT_UNK};
 	chk.typ = DT_SEXY;
 	chk.sexy = 1341100800;
 
@@ -100,7 +100,7 @@ main(void)
 
 #if defined WITH_LEAP_SECONDS
 	/* conv, then check */
-	t = (struct dt_dt_s){};
+	t = (struct dt_dt_s){DT_UNK};
 	t.sandwich = 1;
 	t.d.typ = DT_YMD;
 	t.d.ymd.y = 2012;
@@ -112,7 +112,7 @@ main(void)
 	t.t.hms.m = 59;
 	t.t.hms.s = 59;
 
-	chk = (struct dt_dt_s){};
+	chk = (struct dt_dt_s){DT_UNK};
 	chk.typ = DT_SEXYTAI;
 	chk.sexy = 1341100799 + 34;
 
@@ -121,7 +121,7 @@ main(void)
 	}
 
 	/* conv, then check */
-	t = (struct dt_dt_s){};
+	t = (struct dt_dt_s){DT_UNK};
 	t.sandwich = 1;
 	t.d.typ = DT_YMD;
 	t.d.ymd.y = 2012;
@@ -133,7 +133,7 @@ main(void)
 	t.t.hms.m = 00;
 	t.t.hms.s = 00;
 
-	chk = (struct dt_dt_s){};
+	chk = (struct dt_dt_s){DT_UNK};
 	chk.typ = DT_SEXYTAI;
 	chk.sexy = 1341100800 + 35;
 

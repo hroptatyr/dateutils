@@ -185,7 +185,7 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
 		dt.sxepoch = __to_unix_epoch(dt);
 	} else {
-		dt = (struct dt_dt_s){};
+		dt = (struct dt_dt_s){DT_UNK};
 	}
 	/* make sure we hand out sexies */
 	dt.typ = DT_SEXY;
@@ -195,7 +195,7 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 static inline struct dt_dt_s
 __sexy_to_daisy(dt_ssexy_t sx)
 {
-	struct dt_dt_s res = {};
+	struct dt_dt_s res = {DT_UNK};
 
 	res.t.hms.s = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
@@ -215,7 +215,7 @@ __sexy_to_daisy(dt_ssexy_t sx)
 static inline struct dt_dt_s
 __ymdhms_to_ymd(dt_ymdhms_t x)
 {
-	struct dt_dt_s res = {};
+	struct dt_dt_s res = {DT_UNK};
 
 	res.t.hms.s = x.S;
 	res.t.hms.m = x.M;
@@ -442,7 +442,7 @@ now_tm(void)
 	} else if ((tv = now_tv()).tv_sec == 0U) {
 		/* big cinema :( */
 #if defined HAVE_SLOPPY_STRUCTS_INIT
-		return (struct tm){};
+		return (struct tm){0};
 #else  /* !HAVE_SLOPPY_STRUCTS_INIT */
 		memset(&tm, 0, sizeof(tm));
 #endif	/* HAVE_SLOPPY_STRUCTS_INIT */
@@ -458,7 +458,7 @@ massage_strpdt(struct strpdt_s d)
 /* the reason we do this separately is that we don't want to bother
  * the pieces of code that use the guesser for different reasons */
 	if (UNLIKELY(d.sd.y == 0U)) {
-		static const struct strpd_s d0 = {};
+		static const struct strpd_s d0 = {0};
 		struct dt_dt_s now = dt_get_base();
 
 		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
@@ -597,8 +597,8 @@ need_milfup_p(const char *fmt)
 DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_dt_s res = {};
-	struct strpdt_s d = {};
+	struct dt_dt_s res = {DT_UNK};
+	struct strpdt_s d = {0};
 	const char *sp = str;
 	const char *fp;
 
@@ -760,13 +760,13 @@ fucked:
 	if (ep != NULL) {
 		*ep = (char*)str;
 	}
-	return (struct dt_dt_s){};
+	return (struct dt_dt_s){DT_UNK};
 }
 
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = {};
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 	dt_dtyp_t tgttyp;
@@ -1088,7 +1088,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dtdur_s that)
 {
-	struct strpdt_s d = {};
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -1289,7 +1289,7 @@ dt_dtdur_neg_p(struct dt_dtdur_s dur)
 DEFUN struct dt_dt_s
 dt_datetime(dt_dttyp_t outtyp)
 {
-	struct dt_dt_s res = {};
+	struct dt_dt_s res = {DT_UNK};
 	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
 	struct tm tm = now_tm();
 	struct timeval tv = now_tv();
@@ -1431,7 +1431,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 
 		case DT_DUNK:
 		default:
-			d = (struct dt_dt_s){};
+			d = (struct dt_dt_s){DT_UNK};
 			break;
 		}
 	} else if (dt_sandwich_only_t_p(d)) {
@@ -1461,7 +1461,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			}
 			break;
 		default:
-			d = (struct dt_dt_s){};
+			d = (struct dt_dt_s){DT_UNK};
 			break;
 		}
 	} else {

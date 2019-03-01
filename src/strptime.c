@@ -79,7 +79,7 @@ proc_line(
 	const char *ofmt,
 	int quietp)
 {
-	struct tm tm = {};
+	struct tm tm = {0};
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
 		if (!quietp) {

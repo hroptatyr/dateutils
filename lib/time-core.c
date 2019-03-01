@@ -109,7 +109,7 @@ __guess_ttyp(struct strpt_s t)
 	}
 	return res;
 fucked:
-	return (struct dt_t_s){};
+	return (struct dt_t_s){DT_TUNK};
 }
 
 DEFUN dt_ttyp_t
@@ -133,8 +133,8 @@ __trans_tfmt(const char **fmt)
 DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_t_s res = {};
-	struct strpt_s d = {};
+	struct dt_t_s res = {DT_TUNK};
+	struct strpt_s d = {0};
 	const char *sp = str;
 	const char *fp;
 
@@ -170,7 +170,7 @@ out:
 DEFUN size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 {
-	struct strpt_s d = {};
+	struct strpt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -309,7 +309,7 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 DEFUN struct dt_t_s
 dt_time(void)
 {
-	struct dt_t_s res = {};
+	struct dt_t_s res = {DT_TUNK};
 	struct timeval tv;
 	unsigned int tonly;
 
