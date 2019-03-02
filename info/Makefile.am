@@ -248,6 +248,28 @@ dsort.man: dsort.h2m
 dtest.man: dtest.h2m
 dzone.man: dzone.h2m
 
+strptime.h2m: $(strptime_EXAMPLES)
+dadd.h2m: $(dadd_EXAMPLES)
+dconv.h2m: $(dconv_EXAMPLES)
+ddiff.h2m: $(ddiff_EXAMPLES)
+dgrep.h2m: $(dgrep_EXAMPLES)
+dround.h2m: $(dround_EXAMPLES)
+dseq.h2m: $(dseq_EXAMPLES)
+dsort.h2m: $(dsort_EXAMPLES)
+dtest.h2m: $(dtest_EXAMPLES)
+dzone.h2m: $(dzone_EXAMPLES)
+
+strptime.texi: $(strptime_EXAMPLES) dateutils.texi
+dadd.texi: $(dadd_EXAMPLES) dateutils.texi
+dconv.texi: $(dconv_EXAMPLES) dateutils.texi
+ddiff.texi: $(ddiff_EXAMPLES) dateutils.texi
+dgrep.texi: $(dgrep_EXAMPLES) dateutils.texi
+dround.texi: $(dround_EXAMPLES) dateutils.texi
+dseq.texi: $(dseq_EXAMPLES) dateutils.texi
+dsort.texi: $(dsort_EXAMPLES) dateutils.texi
+dtest.texi: $(dtest_EXAMPLES) dateutils.texi
+dzone.texi: $(dzone_EXAMPLES) dateutils.texi
+
 ## new file names
 TRAFO = sed 's/dadd/dateadd/g; s/dconv/dateconv/g; s/ddiff/datediff/g; s/dgrep/dategrep/g; s/dround/dateround/g; s/dseq/dateseq/g; s/dsort/datesort/g; s/dtest/datetest/g; s/dzone/datezone/g'
 
@@ -334,7 +356,7 @@ my_bld_h2m = $(__bld_h2m_$(V))
 __bld_h2m_ = $(__bld_h2m_$(AM_DEFAULT_VERBOSITY))
 __bld_h2m_0 = @echo "  GENH2M  " $*;
 SUFFIXES += .h2m
-.yuck.h2m: $(dateutils_EXAMPLES)
+.yuck.h2m:
 	$(my_bld_h2m) ${SHELL} \
 		$(srcdir)/genh2m.sh $(top_builddir)/src/$* \
 		$($*_EXAMPLES) > $@ || rm -f -- $@
@@ -343,7 +365,7 @@ my_bld_texi = $(__bld_texi_$(V))
 __bld_texi_ = $(__bld_texi_$(AM_DEFAULT_VERBOSITY))
 __bld_texi_0 = @echo "  GENTEXI " $*;
 SUFFIXES += .texi
-.yuck.texi: $(dateutils_EXAMPLES) dateutils.texi
+.yuck.texi:
 	$(my_bld_texi) ${SHELL} \
 		$(srcdir)/gentexi.sh $(top_builddir)/src/$* \
 		$($*_EXAMPLES) > $@ || test "$$?" = "2" || rm -f -- $@
