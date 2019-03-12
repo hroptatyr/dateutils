@@ -26,7 +26,8 @@ See section `The refinement rule' in ddiff(1).
                              fixed up value and return error code 2.
                              Also see -S|--skip-illegal to output an empty
                              line instead of leaving out the line altogether.
-  -S, --skip-illegal         Output empty lines as placeholder for illegal
+  -S, --skip-illegal         Deprecated, use -E|--empty-mode.
+  -E, --empty-mode           Output empty lines as placeholder for illegal
                              input, i.e. parser errors or date/times that
                              cannot be subtracted.
   -f, --format=STRING        Output format.  This can either be a specifier

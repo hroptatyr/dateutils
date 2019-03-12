@@ -1,6 +1,6 @@
 /*** yuck-scmver.c -- snarf versions off project cwds
  *
- * Copyright (C) 2013-2018 Sebastian Freundt
+ * Copyright (C) 2013-2016 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -99,7 +99,7 @@ error(const char *fmt, ...)
 	return;
 }
 
-static inline __attribute__((const, pure, always_inline)) char*
+static inline __attribute__((const, always_inline)) char*
 deconst(const char *s)
 {
 	union {

@@ -57,6 +57,7 @@ typedef union {
 	unsigned int flags;
 	struct {
 		unsigned int has_year:1;
+		unsigned int has_qtr:1;
 		unsigned int has_mon:1;
 		unsigned int has_week:1;
 		unsigned int has_day:1;
@@ -141,6 +142,9 @@ determine_durfmt(const char *fmt)
 			case DT_SPFL_N_YEAR:
 				res.has_year = 1;
 				break;
+			case DT_SPFL_N_QTR:
+				res.has_qtr = 1;
+				break;
 			case DT_SPFL_N_MON:
 			case DT_SPFL_S_MON:
 				res.has_mon = 1;
@@ -200,11 +204,11 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 	} else if (dt_sandwich_only_t_p(d1) || dt_sandwich_only_t_p(d2)) {
 		/* isn't defined */
 		return (dt_dtdurtyp_t)DT_DURUNK;
-	} else if (f.has_week && f.has_mon) {
+	} else if (f.has_week && (f.has_mon || f.has_qtr)) {
 		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (f.has_week && f.has_year) {
 		return (dt_dtdurtyp_t)DT_DURYWD;
-	} else if (f.has_mon) {
+	} else if (f.has_mon || f.has_qtr) {
 		return (dt_dtdurtyp_t)DT_DURYMD;
 	} else if (f.has_year && f.has_day) {
 		return (dt_dtdurtyp_t)DT_DURYD;
@@ -220,7 +224,7 @@ determine_durtype(struct dt_dt_s d1, struct dt_dt_s d2, durfmt_t f)
 		return (dt_dtdurtyp_t)0xffU;
 	}
 	/* otherwise */
-	return DT_DURS;
+	return (dt_dtdurtyp_t)(DT_DURS + (f.has_nano));
 }
 
 
@@ -282,7 +286,7 @@ static __attribute__((pure)) long int
 __strf_tot_secs(struct dt_dtdur_s dur)
 {
 /* return time portion of duration in UTC seconds */
-	long int s = dur.dv;
+	int64_t s = dur.dv;
 
 	if (UNLIKELY(dur.tai) && dur.durtyp == DT_DURS) {
 		return dur.soft - dur.corr;
@@ -393,6 +397,7 @@ __strf_tot_years(struct dt_dtdur_s dur)
 
 static struct precalc_s {
 	int Y;
+	int q;
 	int m;
 	int w;
 	int d;
@@ -418,18 +423,24 @@ static struct precalc_s {
 		/* just years */
 		res.Y = __strf_tot_years(dur);
 	}
-	if (f.has_year && f.has_mon) {
+	if (f.has_year && (f.has_mon || f.has_qtr)) {
 		/* years and months */
 		res.m = __strf_ym_mon(dur);
-	} else if (f.has_mon) {
+	} else if (f.has_mon || f.has_qtr) {
 		/* just months */
 		res.m = __strf_tot_mon(dur);
+	}
+
+	if (f.has_qtr) {
+		/* split m slot */
+		res.q = res.m / 3;
+		res.m = res.m % 3;
 	}
 
 	/* the other units are easily converted as their factors are fixed.
 	 * we operate on clean seconds and attribute leap seconds only
 	 * to the S slot, so 59 seconds plus a leap second != 1 minute */
-	with (long long int S = __strf_tot_secs(dur), d = __strf_tot_days(dur)) {
+	with (int64_t S = __strf_tot_secs(dur), d = __strf_tot_days(dur)) {
 		us = d * (int)SECS_PER_DAY + S;
 	}
 
@@ -454,11 +465,16 @@ static struct precalc_s {
 	if (f.has_sec) {
 		res.S = us + __strf_tot_corr(dur);
 	}
+	if (f.has_nano) {
+		if (dur.durtyp == DT_DURNANO) {
+			res.N = dur.dv % (long int)NANOS_PER_SEC;
+		}
+	}
 
 	/* just in case the duration iss negative jump through all
 	 * the hoops again, backwards */
 	if (res.w < 0 || res.d < 0 ||
-	    res.H < 0 || res.M < 0 || res.S < 0) {
+	    res.H < 0 || res.M < 0 || res.S < 0 || res.N < 0) {
 		if (0) {
 		fixup_d:
 			res.d = -res.d;
@@ -468,6 +484,8 @@ static struct precalc_s {
 			res.M = -res.M;
 		fixup_S:
 			res.S = -res.S;
+		fixup_N:
+			res.N = -res.N;
 		} else if (f.has_week) {
 			goto fixup_d;
 		} else if (f.has_day) {
@@ -476,6 +494,8 @@ static struct precalc_s {
 			goto fixup_M;
 		} else if (f.has_min) {
 			goto fixup_S;
+		} else if (f.has_sec) {
+			goto fixup_N;
 		}
 	}
 	return res;
@@ -584,6 +604,10 @@ __strfdtdur(
 			bp += ltostr(bp, eo - bp, pre.m, 2, spec.pad);
 			break;
 
+		case DT_SPFL_N_QTR:
+			bp += ltostr(bp, eo - bp, pre.q, 2, spec.pad);
+			break;
+
 		case DT_SPFL_N_YEAR:
 			bp += ltostr(bp, eo - bp, pre.Y, -1, DT_SPPAD_NONE);
 			break;
@@ -611,6 +635,10 @@ __strfdtdur(
 
 		case DT_SPFL_N_HOUR:
 			bp += ltostr(bp, eo - bp, pre.H, 2, spec.pad);
+			break;
+
+		case DT_SPFL_N_NANO:
+			bp += ltostr(bp, eo - bp, pre.N, 9, DT_SPPAD_ZERO);
 			break;
 
 		default:
@@ -735,6 +763,9 @@ main(int argc, char *argv[])
 		size_t lno = 0;
 		void *pctx;
 
+		/* convert deprecated -S|--skip-illegal */
+		argi->empty_mode_flag += argi->skip_illegal_flag;
+
 		/* no threads reading this stream */
 		__io_setlocking_bycaller(stdout);
 
@@ -757,7 +788,7 @@ main(int argc, char *argv[])
 						dt_io_warn_strpdt(line);
 						rc = 2;
 					}
-					if (argi->skip_illegal_flag) {
+					if (argi->empty_mode_flag) {
 						/* empty line */
 						__io_write("\n", 1U, stdout);
 					}

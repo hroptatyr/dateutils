@@ -3,7 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-AC_INIT([dateutils], [0.4.4.GIT], [https://github.com/hroptatyr/dateutils/issues])
+AC_INIT([dateutils], [0.4.6.GIT], [https://github.com/hroptatyr/dateutils/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -212,7 +212,7 @@ else
 	cntrb_apps="none"
 fi
 
-AX_CHECK_YUCK
+AX_CHECK_YUCK([yes])
 
 dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags

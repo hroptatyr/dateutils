@@ -102,17 +102,17 @@ typedef union {
 	uint32_t u;
 	struct {
 #if BYTE_ORDER == BIG_ENDIAN
-		/* 11 bits left */
-		unsigned int:11;
+		/* 10 bits left, make ym coincide with ym from ymcw */
+		unsigned int:10;
 		unsigned int y:12;
 		unsigned int m:4;
-		unsigned int d:5;
+		unsigned int d:6;
 #elif BYTE_ORDER == LITTLE_ENDIAN
-		unsigned int d:5;
+		unsigned int d:6;
 		unsigned int m:4;
 		unsigned int y:12;
-		/* 11 bits left */
-		unsigned int:11;
+		/* 10 bits left, make ym coincide with ym from ymcw */
+		unsigned int:10;
 #else
 # warning unknown byte order
 #endif	/* BYTE_ORDER */
@@ -125,7 +125,7 @@ typedef union {
 	uint32_t u;
 	struct {
 #if BYTE_ORDER == BIG_ENDIAN
-		/* 10 bits left */
+		/* 10 bits left, make ym coincide with ym from ymd */
 		unsigned int:10;
 		unsigned int y:12;
 		unsigned int m:4;
@@ -136,7 +136,7 @@ typedef union {
 		unsigned int c:3;
 		unsigned int m:4;
 		unsigned int y:12;
-		/* 10 bits left */
+		/* 10 bits left, make ym coincide with ym from ymd */
 		unsigned int:10;
 #else
 # warning unknown byte order
@@ -462,6 +462,10 @@ extern unsigned int dt_get_yday(struct dt_d_s d);
  * Return N where N is the week within the year that THIS is in. */
 extern int dt_get_wcnt_year(struct dt_d_s this, unsigned int wkcnt_convention);
 
+/**
+ * Return N where N is the week within the month that THIS is in. */
+extern int dt_get_wcnt_mon(struct dt_d_s this);
+
 /* converters */
 extern dt_daisy_t dt_conv_to_daisy(struct dt_d_s);
 
@@ -537,21 +541,9 @@ extern struct dt_d_s dt_get_dbase(void);
 
 /**
  * Crop dates with days beyond ultimo. */
-extern __attribute__((pure)) struct dt_d_s dt_dfixup(struct dt_d_s);
+extern __attribute__((const)) struct dt_d_s dt_dfixup(struct dt_d_s);
 
 
-/* some useful gimmicks, sort of */
-static inline __attribute__((pure, const)) struct dt_d_s
-dt_d_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct dt_d_s res = {};
-#else  /* HAVE_SLOPPY_STRUCTS_INIT */
-	static const struct dt_d_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
 /* other ctors */
 static inline struct dt_d_s
 dt_make_ymd(unsigned int y, unsigned int m, unsigned int d)

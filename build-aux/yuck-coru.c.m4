@@ -157,7 +157,7 @@ ifdef([YUCK_MAX_POSARGS], [], [define([YUCK_MAX_POSARGS], [(size_t)-1])])dnl
 		resume;
 
 dnl TYPE actions
-pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++; goto xtra_chk])dnl
+pushdef([yuck_flag_action], [tgt->yuck_slot([$1], [$2])++; ifdef([YOPT_ALLOW_UNKNOWN_DASHDASH], [], [goto xtra_chk])])dnl
 pushdef([yuck_arg_action], [tgt->yuck_slot([$1], [$2]) = arg ?: argv[[++i]]])dnl
 pushdef([yuck_arg_opt_action], [tgt->yuck_slot([$1], [$2]) = arg ?: YUCK_OPTARG_NONE])dnl
 pushdef([yuck_arg_mul_action], [tgt->yuck_slot([$1], [$2]) =
@@ -271,27 +271,32 @@ pushdef([yuck_auto_action], [/* invoke auto action and exit */
 		foreachq([__CMD], yuck_umbcmds(), [coroutine(yuck_cmd(defn([__CMD]))[_shortopt])
 		{
 			switch (*op) {
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				if (op[[-1]] == '-') {
-					/* literal treatment of numeral */
-					resume_at(arg);
-				}
-				/*@fallthrough@*/
 			default:
+				/* again for clarity */
+				switch (*op) {
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					if (op[[-1]] == '-') {
+						/* literal treatment of numeral */
+						resume_at(arg);
+					}
+					/* fallthrough */
+				default:
+					break;
+				}
 				divert(1);
 ifdef([YOPT_ALLOW_UNKNOWN_DASH], [dnl
 				resume_at(arg);
 ], [dnl
-				fprintf(stderr, "YUCK_UMB_STR: invalid option -%c\n", *op);
+				fprintf(stderr, "YUCK_UMB_STR: unrecognized option -%c\n", *op);
 				resume_at(failure);
 ])dnl
 

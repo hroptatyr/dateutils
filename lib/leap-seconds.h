@@ -1,6 +1,6 @@
 /*** header counterpart to auto-gen'd leapseconds.def */
-#if !defined INCLUDED_leapseconds_h_
-#define INCLUDED_leapseconds_h_
+#if !defined INCLUDED_leap_seconds_h_
+#define INCLUDED_leap_seconds_h_
 
 #include <stdint.h>
 
@@ -32,4 +32,4 @@ extern const int32_t leaps_s[];
  * HMS representation of transitions. */
 extern const uint32_t leaps_hms[];
 
-#endif	/* INCLUDED_leapseconds_h_ */
+#endif	/* INCLUDED_leap_seconds_h_ */

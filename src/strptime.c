@@ -73,24 +73,13 @@ prnt_line(const char *ofmt, struct tm *tm)
 	return;
 }
 
-static inline __attribute__((pure, const)) struct tm
-__tm_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct tm res = {};
-#else
-	static const struct tm res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
 static void
 proc_line(
 	const char *ln, const char *const *fmt, size_t nfmt,
 	const char *ofmt,
 	int quietp)
 {
-	struct tm tm = __tm_initialiser();
+	struct tm tm = {0};
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
 		if (!quietp) {

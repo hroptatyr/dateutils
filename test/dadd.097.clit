@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dadd -i %Y 2032 +1d -f ymcw
+2032-01-01-04
+$ dadd -i %Y 2018 +20d -f ymcw
+2018-01-03-06
+$
+
+## dadd.097.clit ends here

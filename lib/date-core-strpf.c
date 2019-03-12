@@ -66,15 +66,15 @@ DEFUN struct dt_d_s
 __strpd_std(const char *str, char **ep)
 {
 /* code dupe, see __strpdt_std() */
-	struct dt_d_s res = dt_d_initialiser();
-	struct strpd_s d;
+	struct dt_d_s res = {DT_DUNK};
+	struct strpd_s d = {0};
 	const char *sp;
 
 	if ((sp = str) == NULL) {
 		goto out;
 	}
 
-	d = strpd_initialiser();
+	d.c = -1;
 	/* read the year */
 	d.y = strtoi(sp, &sp);
 	if (d.y < DT_MIN_YEAR || d.y > DT_MAX_YEAR || *sp++ != '-') {
@@ -117,11 +117,11 @@ __strpd_std(const char *str, char **ep)
 	switch (*sp) {
 	case '-':
 		/* it is a YMCW date */
-		if ((d.c = d.d) > 5) {
+		if (d.d > 5) {
 			/* nope, it was bollocks */
-			break;
+			goto fucked;
 		}
-		d.d = 0;
+		d.c = d.d, d.d = 0;
 		sp++;
 	dow:
 		if (d.w = strtoi(sp, &sp),
@@ -157,7 +157,7 @@ fucked:
 	if (ep != NULL) {
 		*ep = (char*)str;
 	}
-	return dt_d_initialiser();
+	return (struct dt_d_s){DT_DUNK};
 }
 
 DEFUN int

@@ -251,8 +251,8 @@ dt_get_md(struct dt_d_s that)
 	}
 }
 
-/* too exotic to be public */
-static int
+/* too exotic to be public, nope bug #81 needs it */
+int
 dt_get_wcnt_mon(struct dt_d_s that)
 {
 	if (LIKELY(that.typ == DT_YMCW)) {
@@ -790,7 +790,7 @@ __trans_ddurfmt(const char **fmt)
 DEFUN struct dt_d_s
 __guess_dtyp(struct strpd_s d)
 {
-	struct dt_d_s res = dt_d_initialiser();
+	struct dt_d_s res = {DT_DUNK};
 
 	if (LIKELY(d.y > 0 && d.c <= 0 && !d.flags.c_wcnt_p && !d.flags.bizda)) {
 		/* nearly all goes to ymd */
@@ -875,8 +875,8 @@ __guess_dtyp(struct strpd_s d)
 DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
-	struct dt_d_s res = dt_d_initialiser();
-	struct strpd_s d = strpd_initialiser();
+	struct dt_d_s res = {DT_DUNK};
+	struct strpd_s d = {0};
 	const char *sp = str;
 	const char *fp;
 
@@ -949,7 +949,7 @@ out:
 DEFUN size_t
 dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 {
-	struct strpd_s d = strpd_initialiser();
+	struct strpd_s d = {0};
 	const char *fp;
 	char *bp;
 	dt_dtyp_t tgttyp;
@@ -1148,7 +1148,7 @@ out:
 DEFUN size_t
 dt_strfddur(char *restrict buf, size_t bsz, const char *fmt, struct dt_ddur_s that)
 {
-	struct strpd_s d = strpd_initialiser();
+	struct strpd_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -1363,7 +1363,7 @@ dt_date(dt_dtyp_t outtyp)
 DEFUN struct dt_d_s
 dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 {
-	struct dt_d_s res = dt_d_initialiser();
+	struct dt_d_s res = {DT_DUNK};
 
 	/* fix up before conversion */
 	d = dt_dfixup(d);
@@ -1741,6 +1741,9 @@ dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 	case DT_DURWK:
 		d = dt_dadd_w(d, dur.dv);
 		break;
+	case DT_DURQU:
+		/* just use the month adder */
+		dur.dv *= 3U;
 	case DT_DURMO:
 		d = dt_dadd_m(d, dur.dv);
 		break;
@@ -1894,7 +1897,7 @@ dt_d_in_range_p(struct dt_d_s d, struct dt_d_s d1, struct dt_d_s d2)
 	return 2 - ((m >> (i * 8U + j * 2U)) & 0b11U);
 }
 
-DEFUN __attribute__((pure)) struct dt_d_s
+DEFUN __attribute__((const)) struct dt_d_s
 dt_dfixup(struct dt_d_s d)
 {
 	switch (d.typ) {

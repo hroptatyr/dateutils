@@ -239,6 +239,9 @@ dt_tests += dconv.135.clit
 dt_tests += dconv.136.clit
 dt_tests += dconv.137.clit
 dt_tests += dconv.138.clit
+dt_tests += dconv.139.clit
+dt_tests += dconv.140.clit
+dt_tests += dconv.141.clit
 
 dt_tests += dadd.001.clit
 dt_tests += dadd.002.clit
@@ -336,6 +339,9 @@ dt_tests += dadd.092.clit
 dt_tests += dadd.093.clit
 dt_tests += dadd.094.clit
 dt_tests += dadd.095.clit
+dt_tests += dadd.096.clit
+dt_tests += dadd.097.clit
+dt_tests += dadd.098.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
@@ -464,6 +470,8 @@ dt_tests += dgrep.038.clit
 dt_tests += dgrep.039.clit
 dt_tests += dgrep.040.clit
 dt_tests += dgrep.041.clit
+dt_tests += dgrep.042.clit
+dt_tests += dgrep.043.clit
 
 dt_tests += dround.001.clit
 dt_tests += dround.002.clit
@@ -501,6 +509,7 @@ dt_tests += dround.033.clit
 dt_tests += dround.034.clit
 dt_tests += dround.035.clit
 dt_tests += dround.036.clit
+dt_tests += dround.037.clit
 
 dt_tests += tseq.01.clit
 dt_tests += tseq.02.clit
@@ -535,6 +544,7 @@ dt_tests += tdiff.010.clit
 dt_tests += tdiff.011.clit
 dt_tests += tdiff.012.clit
 dt_tests += tdiff.013.clit
+dt_tests += tdiff.014.clit
 
 dt_tests += tadd.001.clit
 dt_tests += tadd.002.clit
@@ -850,6 +860,12 @@ dt_tests += dtround.013.clit
 dt_tests += dtround.014.clit
 dt_tests += dtround.015.clit
 dt_tests += dtround.016.clit
+dt_tests += dtround.017.clit
+dt_tests += dtround.018.clit
+dt_tests += dtround.019.clit
+dt_tests += dtround.020.clit
+dt_tests += dtround.021.clit
+dt_tests += dtround.022.clit
 
 dt_tests += dzone.001.clit
 dt_tests += dzone.002.clit
@@ -862,6 +878,9 @@ dt_tests += dzone.008.clit
 dt_tests += dzone.009.clit
 dt_tests += dzone.010.clit
 dt_tests += dzone.011.clit
+dt_tests += dzone.012.clit
+dt_tests += dzone.013.clit
+dt_tests += dzone.014.clit
 
 dt_tests += dsort.001.clit
 dt_tests += dsort.002.clit

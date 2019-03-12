@@ -109,7 +109,7 @@ __guess_ttyp(struct strpt_s t)
 	}
 	return res;
 fucked:
-	return dt_t_initialiser();
+	return (struct dt_t_s){DT_TUNK};
 }
 
 DEFUN dt_ttyp_t
@@ -133,8 +133,8 @@ __trans_tfmt(const char **fmt)
 DEFUN struct dt_t_s
 dt_strpt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_t_s res = dt_t_initialiser();
-	struct strpt_s d = strpt_initialiser();
+	struct dt_t_s res = {DT_TUNK};
+	struct strpt_s d = {0};
 	const char *sp = str;
 	const char *fp;
 
@@ -170,7 +170,7 @@ out:
 DEFUN size_t
 dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 {
-	struct strpt_s d;
+	struct strpt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -178,7 +178,6 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 		return 0;
 	}
 
-	d = strpt_initialiser();
 	d.h = that.hms.h;
 	d.m = that.hms.m;
 	d.s = that.hms.s;
@@ -271,9 +270,27 @@ dt_tdiff_s(struct dt_t_s t1, struct dt_t_s t2)
 /* compute t2 - t1 */
 	int r = 0;
 
-	r += (t2.hms.h - t1.hms.h) * SECS_PER_HOUR;
-	r += (t2.hms.m - t1.hms.m) * SECS_PER_MIN;
+	r += (t2.hms.h - t1.hms.h);
+	r *= MINS_PER_HOUR;
+	r += (t2.hms.m - t1.hms.m);
+	r *= SECS_PER_MIN;
 	r += (t2.hms.s - t1.hms.s);
+	return r;
+}
+
+DEFUN int64_t
+dt_tdiff_ns(struct dt_t_s t1, struct dt_t_s t2)
+{
+/* compute t2 - t1 */
+	int64_t r = 0;
+
+	r += (t2.hms.h - t1.hms.h);
+	r *= MINS_PER_HOUR;
+	r += (t2.hms.m - t1.hms.m);
+	r *= SECS_PER_MIN;
+	r += (t2.hms.s - t1.hms.s);
+	r *= NANOS_PER_SEC;
+	r += (int64_t)t2.hms.ns - (int64_t)t1.hms.ns;
 	return r;
 }
 
@@ -292,7 +309,7 @@ dt_tcmp(struct dt_t_s t1, struct dt_t_s t2)
 DEFUN struct dt_t_s
 dt_time(void)
 {
-	struct dt_t_s res = {0};
+	struct dt_t_s res = {DT_TUNK};
 	struct timeval tv;
 	unsigned int tonly;
 

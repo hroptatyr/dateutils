@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dzone UTC Europe/Moscow America/Bogota 08:00:00
+08:00:00+00:00	UTC
+11:00:00+03:00	Europe/Moscow
+03:00:00-05:00	America/Bogota
+$
+
+## dzone.012.clit ends here

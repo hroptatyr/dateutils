@@ -68,7 +68,7 @@
 # undef WITH_LEAP_SECONDS
 #endif	/* SKIP_LEAP_ARITH */
 #if defined WITH_LEAP_SECONDS
-# include "leapseconds.h"
+# include "leap-seconds.h"
 #endif	/* WITH_LEAP_SECONDS */
 
 #if defined __INTEL_COMPILER
@@ -126,24 +126,22 @@ static inline dt_ssexy_t
 __to_unix_epoch(struct dt_dt_s dt)
 {
 /* daisy is competing with the prevalent unix epoch, this is the offset */
+	struct dt_d_s dd;
+	dt_ssexy_t res;
+
 	if (dt.typ == DT_SEXY) {
 		/* no way to find out, is there */
 		return dt.sexy;
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
-		dt_daisy_t d = dt_conv_to_daisy(dt.d);
-		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
-		if (dt_sandwich_p(dt)) {
-			res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-		}
-		return res;
+		dd = dt.d;
 	} else if (dt_sandwich_only_t_p(dt)) {
-		/* bug/65, fill in with base */
-		dt_daisy_t d = dt_conv_to_daisy(dt_get_base().d);
-		dt_ssexy_t res = (d - DAISY_UNIX_BASE) * SECS_PER_DAY;
-		res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
-		return res;
+		dd = dt_get_base().d;
+	} else {
+		return 0;
 	}
-	return 0;
+	res = (dt_conv_to_daisy(dd) - DAISY_UNIX_BASE) * SECS_PER_DAY;
+	res += (dt.t.hms.h * 60 + dt.t.hms.m) * 60 + dt.t.hms.s;
+	return res;
 }
 
 /* public version */
@@ -187,7 +185,7 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 	} else if (dt_sandwich_p(dt) || dt_sandwich_only_d_p(dt)) {
 		dt.sxepoch = __to_unix_epoch(dt);
 	} else {
-		dt = dt_dt_initialiser();
+		dt = (struct dt_dt_s){DT_UNK};
 	}
 	/* make sure we hand out sexies */
 	dt.typ = DT_SEXY;
@@ -197,7 +195,7 @@ dt_conv_to_sexy(struct dt_dt_s dt)
 static inline struct dt_dt_s
 __sexy_to_daisy(dt_ssexy_t sx)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {DT_UNK};
 
 	res.t.hms.s = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
@@ -217,7 +215,7 @@ __sexy_to_daisy(dt_ssexy_t sx)
 static inline struct dt_dt_s
 __ymdhms_to_ymd(dt_ymdhms_t x)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {DT_UNK};
 
 	res.t.hms.s = x.S;
 	res.t.hms.m = x.M;
@@ -444,7 +442,7 @@ now_tm(void)
 	} else if ((tv = now_tv()).tv_sec == 0U) {
 		/* big cinema :( */
 #if defined HAVE_SLOPPY_STRUCTS_INIT
-		return (struct tm){};
+		return (struct tm){0};
 #else  /* !HAVE_SLOPPY_STRUCTS_INIT */
 		memset(&tm, 0, sizeof(tm));
 #endif	/* HAVE_SLOPPY_STRUCTS_INIT */
@@ -460,11 +458,7 @@ massage_strpdt(struct strpdt_s d)
 /* the reason we do this separately is that we don't want to bother
  * the pieces of code that use the guesser for different reasons */
 	if (UNLIKELY(d.sd.y == 0U)) {
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-		static const struct strpd_s d0 = {};
-#else  /* !HAVE_SLOPPY_STRUCTS_INIT */
-		static const struct strpd_s d0;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
+		static const struct strpd_s d0 = {0};
 		struct dt_dt_s now = dt_get_base();
 
 		if (UNLIKELY(memcmp(&d.sd, &d0, sizeof(d0)) == 0U)) {
@@ -570,7 +564,7 @@ zdiff_sec(struct dt_dt_s d)
 	return zdiff;
 }
 
-static inline __attribute__((const, pure)) bool
+static inline __attribute__((const)) bool
 dt_dur_only_d_p(struct dt_dtdur_s d)
 {
 	return d.durtyp && d.d.durtyp < DT_NDURTYP && !d.t.sdur;
@@ -603,8 +597,8 @@ need_milfup_p(const char *fmt)
 DEFUN struct dt_dt_s
 dt_strpdt(const char *str, const char *fmt, char **ep)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
-	struct strpdt_s d;
+	struct dt_dt_s res = {DT_UNK};
+	struct strpdt_s d = {0};
 	const char *sp = str;
 	const char *fp;
 
@@ -688,7 +682,6 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 	}
 
 	fp = fmt;
-	d = strpdt_initialiser();
 	while (*fp && *sp) {
 		const char *fp_sav = fp;
 		struct dt_spec_s spec = __tok_spec(fp_sav, &fp);
@@ -767,13 +760,13 @@ fucked:
 	if (ep != NULL) {
 		*ep = (char*)str;
 	}
-	return dt_dt_initialiser();
+	return (struct dt_dt_s){DT_UNK};
 }
 
 DEFUN size_t
 dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 {
-	struct strpdt_s d = strpdt_initialiser();
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 	dt_dtyp_t tgttyp;
@@ -1095,7 +1088,7 @@ DEFUN size_t
 dt_strfdtdur(
 	char *restrict buf, size_t bsz, const char *fmt, struct dt_dtdur_s that)
 {
-	struct strpdt_s d;
+	struct strpdt_s d = {0};
 	const char *fp;
 	char *bp;
 
@@ -1104,7 +1097,6 @@ dt_strfdtdur(
 		goto out;
 	}
 
-	d = strpdt_initialiser();
 	switch (that.d.durtyp) {
 	case DT_YMD:
 		d.sd.y = that.d.ymd.y;
@@ -1297,7 +1289,7 @@ dt_dtdur_neg_p(struct dt_dtdur_s dur)
 DEFUN struct dt_dt_s
 dt_datetime(dt_dttyp_t outtyp)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {DT_UNK};
 	const dt_dtyp_t outdtyp = (dt_dtyp_t)outtyp;
 	struct tm tm = now_tm();
 	struct timeval tv = now_tv();
@@ -1439,7 +1431,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 
 		case DT_DUNK:
 		default:
-			d = dt_dt_initialiser();
+			d = (struct dt_dt_s){DT_UNK};
 			break;
 		}
 	} else if (dt_sandwich_only_t_p(d)) {
@@ -1469,7 +1461,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			}
 			break;
 		default:
-			d = dt_dt_initialiser();
+			d = (struct dt_dt_s){DT_UNK};
 			break;
 		}
 	} else {
@@ -1598,19 +1590,26 @@ DEFUN struct dt_dtdur_s
 dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 {
 	struct dt_dtdur_s res = {(dt_dtdurtyp_t)DT_DURUNK};
-	int dt = 0;
+	int64_t dt = 0;
 
 	if (!dt_sandwich_only_d_p(d1) && !dt_sandwich_only_d_p(d2)) {
 		/* do the time portion difference right away */
-		dt = dt_tdiff_s(d1.t, d2.t);
+		switch (tgttyp) {
+		default:
+			dt = dt_tdiff_s(d1.t, d2.t);
+			break;
+		case DT_DURNANO:
+			dt = dt_tdiff_ns(d1.t, d2.t);
+			break;
+		}
 	}
 	/* now assess what else is to be done */
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
-		res.durtyp = DT_DURS;
+		res.durtyp = (dt_dtdurtyp_t)(DT_DURS + (tgttyp == DT_DURNANO));
 		res.dv = dt;
 	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
-		/* check for negative carry */
+		/* check for negative carry, DT typ can't be NANO */
 		if (UNLIKELY(dt < 0)) {
 			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
 			dt += SECS_PER_DAY;
@@ -1618,15 +1617,20 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		res.durtyp = tgttyp;
 		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
 		res.t.sdur = dt;
+		res.t.nsdur = 0;
 	} else if ((dt_durtyp_t)tgttyp >= DT_NDURTYP) {
 		int64_t sxdur;
 
 		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {
 			/* go for tdiff and ddiff independently */
 			res.d = dt_ddiff(DT_DURD, d1.d, d2.d);
+
+			if (UNLIKELY(tgttyp == DT_DURNANO)) {
+				/* unfortunately we have to scale back */
+				dt /= NANOS_PER_SEC;
+			}
 			/* since target type is SEXY do the conversion here */
-			sxdur = (int64_t)dt +
-				(int64_t)res.d.dv * SECS_PER_DAY;
+			sxdur = dt + (int64_t)res.d.dv * SECS_PER_DAY;
 		} else {
 			/* oh we're in the sexy domain already,
 			 * note, we can't diff ymdhms packs */
@@ -1634,18 +1638,17 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 			d2 = dt_dtconv(DT_SEXY, d2);
 
 			/* now it's fuck-easy */
-			sxdur = d2.sexy - d1.sexy;
+			sxdur = (int64_t)(d2.sexy - d1.sexy);
 		}
 
 		/* set up the output here */
-		res.durtyp = tgttyp;
+		res.durtyp = DT_DURS;
 		res.neg = 0U;
 		if (LIKELY(tgttyp < DT_NDTDURTYP)) {
 			res.tai = 0U;
 		} else {
 			/* just a hack to transfer the notion of TAIness */
 			res.tai = 1U;
-			res.durtyp = DT_DURS;
 		}
 		res.dv = sxdur;
 
@@ -1802,7 +1805,7 @@ dt_get_tbase(void)
 # endif	/* INCLUDED_time_core_h_ */
 #endif	/* LIBDUT */
 
-DEFUN __attribute__((pure)) struct dt_dt_s
+DEFUN __attribute__((const)) struct dt_dt_s
 dt_fixup(struct dt_dt_s d)
 {
 	if (LIKELY(dt_sandwich_only_d_p(d) || dt_sandwich_p(d))) {
@@ -1811,7 +1814,7 @@ dt_fixup(struct dt_dt_s d)
 	return d;
 }
 
-DEFUN __attribute__((pure)) struct dt_dt_s
+DEFUN __attribute__((const)) struct dt_dt_s
 dt_milfup(struct dt_dt_s dt)
 {
 	if (dt_sandwich_p(dt) && UNLIKELY(dt.t.hms.h == 24)) {

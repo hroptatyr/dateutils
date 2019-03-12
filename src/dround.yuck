@@ -11,30 +11,52 @@ DATE/TIME can also be one of the following specials
   - `tomo[rrow]'    tomorrow's date (according to UTC)
   - `y[ester]day'   yesterday's date (according to UTC)
 
+1. RNDSPECs can be month names (Jan, Feb, ...), weekday names (Sun, Mon, ...),
+   numerals suffixed with y, q, mo, d, bd, h, m, or s, possibly prefixed with
+   a dash (`-`) to indicate the rounding direction is downwards.
 
-RNDSPECs can be month names (Jan, Feb, ...), weekday names (Sun, Mon, ...), or
-days.
-If a month name the next date/time relative to DATE/TIME is returned whose
-month part matches the value given, so e.`g. dround 2012-01-01 Feb' will return
-2012-02-01.
-If a weekday name is given, the next date/time after DATE/TIME whose weekday
-part matches the values given is returned.
-If a day, the next date/time after DATE/TIME whose day part matches is
-returned, so `dround 2012-01-15 1' will return 2012-02-01.
+2. Suffixed RNDSPECs may additionally be prefixed with a slash (`/`) to
+   indicate that rounding to a multiple of RNDSPEC is desired.
+   Co-class rounding.
 
-RNDSPECs can also be multiples of the day dividing units, e.g 1h rounds to the
-nearest full hour, 30m to the nearest half hour, and 10s to the next 10s mark.
+In the first case, rounding affects the named element in the specified date
+or date/time and more significant elements by setting this element to the
+specified value and adjusting the more significant elements such that the
+result is greater (younger) or equal to the input (or strictly greater when
+-n|--next is given) for positive values, and less (older) or equal (unless
+-n|--next is given) for named elements that are prefixed with dash (`-`).
+In either case, less significant elements, e.g. subdivisions of the named
+element and their subdivisions are left unchanged.
 
-To round to the previous occurrence of a RNDSPEC any argument can be prefixed
-with a `-' to denote that.  E.g. `dround 2012-02-14 -1' will return 2012-02-01.
-And `dround 2012-02-11 -- -Sep' will return 2011-09-11.
+    That is     dateround 2019-01-28T12:04:00 +6
+    will yield  2019-02-06T12:04:00
+
+    Similarly   dateround -n 2019-01-28T12:04:00 -- -Oct
+    will yield  2018-10-28T12:04:00
+
+In the second case, rounding is more like rounding decimal fractions to
+negative infinity.  The time axis is partitioned by multiples of the named
+element, and the oldest date or datetime is returned that is greater (younger)
+(or equal if -n|--next is omitted) than the specified date or date/time,
+when rounding down (`-` prefix) the oldest date or datetime is returned
+that is less (older) than the specified date or datetime.
+
+    That is     dateround 2019-01-28T12:04:00 /1y
+    will yield  2020-01-01T00:00:00
+
+    Similarly   dateround 2019-01-28T12:04:00 /-30m
+    will yield  2019-01-28T12:00:00
+
+The superdivision of years are millennia, i.e. there's 1000 years,
+500 biennia, 100 decades, etc. in a millenium.
+
 
 Multiple RNDSPECs are evaluated left to right.
 
 Note that rounding isn't commutative, e.g.
-	2012-03-01 Sat Sep -> 2012-09-03
+	dateround 2012-03-01 Sat Sep -> 2012-09-03
 vs.
-	2012-03-01 Sep Sat -> 2012-09-01
+	dateround 2012-03-01 Sep Sat -> 2012-09-01
 
 Note that non-numeric strings prefixed with a `-' conflict with the command
 line options and a separating `--' has to be used.
@@ -66,6 +88,7 @@ line options and a separating `--' has to be used.
                                matching date/time.
                                Note that all occurrences of date/times within a
                                line will be processed.
+  -E, --empty-mode           Empty lines that cannot be parsed.
       --locale=LOCALE        Format results according to LOCALE, this would only
                              affect month and weekday names.
       --from-locale=LOCALE   Interpret dates on stdin or the command line as

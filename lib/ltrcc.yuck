@@ -1,5 +1,5 @@
-Usage: ltrcc LEAPS_FILE
+Usage: ltrcc LEAP-SECONDS.LIST
 
-Compile LEAPS_FILE into C source code.
+Compile LEAP-SECONDS.LIST into C source code.
 
   -C, --column-oriented  Produce column-oriented output.

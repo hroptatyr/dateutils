@@ -43,8 +43,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include "token.h"
+#include "date-core.h"
 #include "date-core-strpf.h"
+#include "dt-locale.h"
 #include "dexpr.h"
+#include "dexpr-parser.h"
+#include "dt-io.h"
 
 extern int yylex(YYSTYPE *yylval_param);
 extern int yyerror(dexpr_t *cur __attribute__((unused)), const char *errmsg);

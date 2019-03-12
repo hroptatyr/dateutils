@@ -76,9 +76,15 @@ struct __strpdtdur_st_s {
 /* public API */
 extern dt_strpdt_special_t dt_io_strpdt_special(const char *str);
 extern struct dt_dt_s
+dt_io_strpdt(
+	const char *str,
+	char *const *fmt, size_t nfmt,
+	zif_t zone);
+
+extern struct dt_dt_s
 dt_io_strpdt_ep(
 	const char *str,
-	const char *const *fmt, size_t nfmt, char **ep,
+	char *const *fmt, size_t nfmt, char **ep,
 	zif_t zone);
 
 extern struct dt_dt_s
@@ -122,40 +128,11 @@ extern int dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str);
 extern zif_t dt_io_zone(const char *spec);
 
 
-/* inlines */
-static inline struct dt_dt_s
-dt_io_strpdt(const char *input, char *const *fmt, size_t nfmt, zif_t zone)
-{
-	return dt_io_strpdt_ep(input, (const char*const*)fmt, nfmt, NULL, zone);
-}
-
 /* grep atoms */
-static inline __attribute__((pure, const)) struct grep_atom_s
-__grep_atom_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct grep_atom_s res = {0};
-#else
-	static const struct grep_atom_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
-static inline __attribute__((pure, const)) struct grep_atom_soa_s
-__grep_atom_soa_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct grep_atom_soa_s res = {0};
-#else
-	static const struct grep_atom_soa_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
 static inline struct grep_atom_soa_s
 make_grep_atom_soa(grep_atom_t atoms, size_t natoms)
 {
-	struct grep_atom_soa_s res = __grep_atom_soa_initialiser();
+	struct grep_atom_soa_s res = {};
 
 	res.needle = (char*)atoms;
 	res.flesh = (void*)(res.needle + natoms);
@@ -233,17 +210,6 @@ dt_io_warn_strpdt(const char *inp)
 
 
 /* duration parser */
-static inline __attribute__((pure, const)) struct __strpdtdur_st_s
-__strpdtdur_st_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct __strpdtdur_st_s res = {};
-#else
-	static const struct __strpdtdur_st_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
 static inline int
 __strpdtdur_more_p(struct __strpdtdur_st_s *st)
 {

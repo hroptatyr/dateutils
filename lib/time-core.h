@@ -101,8 +101,8 @@ struct dt_t_s {
 	union {
 		uint64_t u:56;
 		struct {
-			signed int sdur;
-			unsigned int nsdur:10;
+			signed int sdur:26;
+			unsigned int nsdur:30;
 		} __attribute__((packed));
 		dt_hms_t hms;
 	} __attribute__((packed));
@@ -156,6 +156,10 @@ extern struct dt_t_s dt_tadd_s(struct dt_t_s t, int durs, int corr);
 extern int dt_tdiff_s(struct dt_t_s t1, struct dt_t_s t2);
 
 /**
+ * Compute the duration between T1 and T2 (as in T2 - T1). */
+extern int64_t dt_tdiff_ns(struct dt_t_s t1, struct dt_t_s t2);
+
+/**
  * Compare two time values, yielding 0 if they are equal, -1 if T1 is older,
  * 1 if T1 is younger than the T2. */
 extern int dt_tcmp(struct dt_t_s t1, struct dt_t_s t2);
@@ -173,17 +177,6 @@ extern struct dt_t_s dt_get_tbase(void);
 
 
 /* some useful gimmicks, sort of */
-static inline __attribute__((pure, const)) struct dt_t_s
-dt_t_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct dt_t_s res = {};
-#else
-	static const struct dt_t_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
 static inline unsigned int
 __secs_since_midnight(struct dt_t_s t)
 {

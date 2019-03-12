@@ -1,0 +1,14 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+## whitespace at the beginning is ok, at the end is not
+$ dround -Ei '%b %d %y' -1 <<EOF
+Jul 4 17
+ Jul 8 17
+ Jul 4 17 
+EOF
+2017-07-01
+
+
+$
+
+## dround.037.clit ends here

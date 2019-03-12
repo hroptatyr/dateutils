@@ -498,7 +498,7 @@ main(int argc, char *argv[])
 	}
 
 	if (argi->alt_inc_arg) {
-		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
+		struct __strpdtdur_st_s st = {0};
 
 		do {
 			if (dt_io_strpdtdur(&st, argi->alt_inc_arg) < 0) {
@@ -578,7 +578,7 @@ don't know how to handle single argument case");
 		goto make_compat;
 
 	case 3: {
-		struct __strpdtdur_st_s st = __strpdtdur_st_initialiser();
+		struct __strpdtdur_st_s st = {0};
 
 		/* get lower bound */
 		fst = dt_io_strpdt(argi->args[0U], ifmt, nifmt, NULL);

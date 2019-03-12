@@ -142,9 +142,7 @@ main(int argc, char *argv[])
 		res = res == 1 || res == 0 ? 0 : 1;
 	}
 out:
-	if (fromz != NULL) {
-		zif_close(fromz);
-	}
+	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);
 	}

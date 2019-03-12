@@ -43,19 +43,6 @@ extern "C" {
 #endif	/* __cplusplus */
 
 
-/* helpers */
-static inline __attribute__((pure, const)) struct strpdt_s
-strpdt_initialiser(void)
-{
-#if defined HAVE_SLOPPY_STRUCTS_INIT
-	static const struct strpdt_s res = {};
-#else
-	static const struct strpdt_s res;
-#endif	/* HAVE_SLOPPY_STRUCTS_INIT */
-	return res;
-}
-
-
 #if defined INCLUDED_dt_core_h_
 /**
  * Parse STR with the standard parser, put the end of the parsed string in EP.*/

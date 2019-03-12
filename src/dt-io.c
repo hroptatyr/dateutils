@@ -84,18 +84,14 @@ dt_io_strpdt_special(const char *str)
 }
 
 struct dt_dt_s
-dt_io_strpdt_ep(
+dt_io_strpdt(
 	const char *str,
-	const char *const *fmt, size_t nfmt, char **ep,
+	char *const *fmt, size_t nfmt,
 	zif_t zone)
 {
-	struct dt_dt_s res = dt_dt_initialiser();
+	struct dt_dt_s res = {DT_UNK};
 	dt_strpdt_special_t now;
 
-	/* init */
-	if (ep != NULL) {
-		*ep = NULL;
-	}
 	/* basic sanity checks, catch phrases first */
 	now = dt_io_strpdt_special(str);
 
@@ -110,7 +106,7 @@ dt_io_strpdt_ep(
 		case STRPDT_TOMO:
 		case STRPDT_YDAY:
 		case STRPDT_DATE:
-			res.t = dt_t_initialiser();
+			res.t = (struct dt_t_s){DT_TUNK};
 			dt_make_d_only(&res, res.d.typ);
 			if (LIKELY(now == STRPDT_DATE)) {
 				break;
@@ -118,7 +114,7 @@ dt_io_strpdt_ep(
 			res.d = dt_dadd(res.d, dt_make_ddur(DT_DURD, add[now]));
 			break;
 		case STRPDT_TIME:
-			res.d = dt_d_initialiser();
+			res.d = (struct dt_d_s){DT_DUNK};
 			dt_make_t_only(&res, res.t.typ);
 			break;
 		case STRPDT_NOW:
@@ -128,6 +124,26 @@ dt_io_strpdt_ep(
 		}
 		return res;
 	} else if (nfmt == 0) {
+		res = dt_strpdt(str, NULL, NULL);
+	} else {
+		for (size_t i = 0; i < nfmt; i++) {
+			if (!dt_unk_p(res = dt_strpdt(str, fmt[i], NULL))) {
+				break;
+			}
+		}
+	}
+	return dtz_forgetz(res, zone);
+}
+
+struct dt_dt_s
+dt_io_strpdt_ep(
+	const char *str,
+	char *const *fmt, size_t nfmt, char **ep,
+	zif_t zone)
+{
+	struct dt_dt_s res = {DT_UNK};
+
+	if (nfmt == 0) {
 		res = dt_strpdt(str, NULL, ep);
 	} else {
 		for (size_t i = 0; i < nfmt; i++) {
@@ -147,13 +163,12 @@ dt_io_find_strpdt(
 {
 	const char *__sp = str;
 	struct dt_dt_s d;
-	const char *const *cfmt = (const char*const*)fmt;
 
-	d = dt_io_strpdt_ep(__sp, cfmt, nfmt, ep, zone);
+	d = dt_io_strpdt_ep(__sp, fmt, nfmt, ep, zone);
 	if (dt_unk_p(d)) {
 		while ((__sp = strstr(__sp, needle)) &&
 		       (d = dt_io_strpdt_ep(
-				__sp += needlen, cfmt, nfmt, ep, zone),
+				__sp += needlen, fmt, nfmt, ep, zone),
 			dt_unk_p(d)));
 	}
 	*sp = (char*)__sp;
@@ -167,7 +182,7 @@ dt_io_find_strpdt2(
 	char **sp, char **ep,
 	zif_t zone)
 {
-	struct dt_dt_s d = dt_dt_initialiser();
+	struct dt_dt_s d = {DT_UNK};
 	const char *needle = needles->needle;
 	const char *p = str;
 	const char *const zp = str + len;
@@ -321,7 +336,7 @@ dt_io_write(struct dt_dt_s d, const char *fmt, zif_t zone, int apnd_ch)
 struct grep_atom_s
 calc_grep_atom(const char *fmt)
 {
-	struct grep_atom_s res = __grep_atom_initialiser();
+	struct grep_atom_s res = {0};
 	int8_t andl_idx = 0;
 	int8_t bndl_idx = 0;
 	int8_t pndl_idx = 0;

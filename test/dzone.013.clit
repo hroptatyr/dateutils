@@ -1,0 +1,9 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ dzone Europe/Berlin Australia/Sydney America/Buenos_Aires 2018-05-31
+2018-05-31+02:00	Europe/Berlin
+2018-05-31+10:00	Australia/Sydney
+2018-05-31-03:00	America/Buenos_Aires
+$
+
+## dzone.013.clit ends here
