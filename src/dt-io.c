@@ -693,9 +693,10 @@ dt_io_strpdtdur(struct __strpdtdur_st_s *st, const char *str)
 	/* check if we should continue */
 	if (st->cont != NULL) {
 		str = st->istr = st->cont;
-	} else if ((st->istr = str) != NULL) {
+	} else if (LIKELY((st->istr = str) != NULL)) {
 		;
 	} else {
+		res = -1;
 		goto out;
 	}
 
