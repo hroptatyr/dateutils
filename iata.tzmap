@@ -101,7 +101,6 @@ AEB	Asia/Shanghai
 AEE	Africa/Juba
 AEG	Asia/Jakarta
 AEH	Africa/Ndjamena
-AEI	Europe/Madrid
 AEK	Pacific/Port_Moresby
 AEL	America/Chicago
 AEM	Asia/Vladivostok
@@ -140,7 +139,6 @@ AGI	America/Paramaribo
 AGJ	Asia/Tokyo
 AGK	Pacific/Port_Moresby
 AGL	Pacific/Port_Moresby
-AGM	America/Godthab
 AGN	America/Juneau
 AGO	America/Chicago
 AGP	Europe/Madrid
@@ -222,7 +220,7 @@ AKQ	Asia/Jakarta
 AKR	Africa/Lagos
 AKS	Pacific/Guadalcanal
 AKT	Asia/Nicosia
-AKU	Asia/Kashgar
+AKU	Asia/Shanghai
 AKV	America/Toronto
 AKW	Asia/Tehran
 AKX	Asia/Aqtobe
@@ -248,7 +246,6 @@ ALR	Pacific/Auckland
 ALS	America/Denver
 ALT	America/Santarem
 ALU	Africa/Mogadishu
-ALV	Europe/Andorra
 ALW	America/Los_Angeles
 ALX	America/Chicago
 ALY	Africa/Cairo
@@ -296,7 +293,6 @@ ANP	America/New_York
 ANQ	America/Indiana/Indianapolis
 ANR	Europe/Brussels
 ANS	America/Lima
-ANT	Europe/Vienna
 ANU	America/Antigua
 ANV	America/Anchorage
 ANW	America/Chicago
@@ -318,7 +314,6 @@ AOM	Asia/Muscat
 AON	Pacific/Port_Moresby
 AOO	America/New_York
 AOP	America/Lima
-AOQ	America/Godthab
 AOR	Asia/Kuala_Lumpur
 AOS	America/Anchorage
 AOT	Europe/Rome
@@ -433,7 +428,6 @@ ATX	Asia/Almaty
 ATY	America/Chicago
 ATZ	Africa/Cairo
 AUA	America/Aruba
-AUB	America/Cuiaba
 AUC	America/Bogota
 AUD	Australia/Brisbane
 AUE	Africa/Cairo
@@ -546,13 +540,11 @@ BAK	Asia/Baku
 BAL	Europe/Istanbul
 BAM	America/Los_Angeles
 BAN	Africa/Lubumbashi
-BAO	Asia/Bangkok
 BAP	Pacific/Port_Moresby
 BAQ	America/Bogota
 BAR	Asia/Shanghai
 BAS	Pacific/Guadalcanal
 BAT	America/Sao_Paulo
-BAU	America/Sao_Paulo
 BAV	Asia/Shanghai
 BAW	Africa/Libreville
 BAX	Asia/Omsk
@@ -562,7 +554,6 @@ BBA	America/Santiago
 BBB	America/Chicago
 BBC	America/Chicago
 BBD	America/Chicago
-BBE	Australia/Perth
 BBG	Pacific/Tarawa
 BBH	Europe/Berlin
 BBI	Asia/Kolkata
@@ -710,7 +701,6 @@ BGY	Europe/Rome
 BGZ	Europe/Lisbon
 BHA	America/Guayaquil
 BHB	America/New_York
-BHC	Asia/Karachi
 BHD	Europe/London
 BHE	Pacific/Auckland
 BHF	America/Bogota
@@ -719,7 +709,7 @@ BHH	Asia/Riyadh
 BHI	America/Argentina/Buenos_Aires
 BHJ	Asia/Kolkata
 BHK	Asia/Samarkand
-BHL	America/Santa_Isabel
+BHL	America/Tijuana
 BHM	America/Chicago
 BHN	Asia/Aden
 BHO	Asia/Kolkata
@@ -851,7 +841,7 @@ BML	America/New_York
 BMM	Africa/Libreville
 BMN	Asia/Baghdad
 BMO	Asia/Yangon
-BMP	Australia/Lindeman
+BMP	Australia/Brisbane
 BMQ	Africa/Nairobi
 BMR	Europe/Berlin
 BMS	America/Bahia
@@ -892,7 +882,6 @@ BOB	Pacific/Tahiti
 BOC	America/Panama
 BOD	Europe/Paris
 BOE	Africa/Brazzaville
-BOF	America/New_York
 BOG	America/Bogota
 BOH	Europe/London
 BOI	America/Boise
@@ -904,7 +893,6 @@ BON	America/Kralendijk
 BOO	Europe/Oslo
 BOP	Africa/Bangui
 BOQ	Pacific/Port_Moresby
-BOR	Europe/Paris
 BOS	America/New_York
 BOT	Pacific/Port_Moresby
 BOU	Europe/Paris
@@ -922,7 +910,7 @@ BPG	America/Cuiaba
 BPH	Asia/Manila
 BPI	America/Denver
 BPK	Pacific/Port_Moresby
-BPL	Asia/Kashgar
+BPL	Asia/Shanghai
 BPM	Asia/Kolkata
 BPN	Asia/Makassar
 BPS	America/Bahia
@@ -1018,7 +1006,7 @@ BTV	America/New_York
 BTW	Asia/Jakarta
 BTX	Australia/Brisbane
 BTY	America/Los_Angeles
-BUA	Pacific/Port_Moresby
+BUA	Pacific/Bougainville
 BUB	America/Chicago
 BUC	Australia/Brisbane
 BUD	Europe/Budapest
@@ -1108,7 +1096,7 @@ BXU	Asia/Manila
 BXV	Atlantic/Reykjavik
 BXW	Asia/Jakarta
 BXX	Africa/Mogadishu
-BXY	Asia/Almaty
+BXY	Asia/Qostanay
 BXZ	Pacific/Port_Moresby
 BYA	America/Anchorage
 BYB	Asia/Muscat
@@ -1205,10 +1193,10 @@ CBV	America/Guatemala
 CBW	America/Sao_Paulo
 CBX	Australia/Sydney
 CBY	Australia/Brisbane
-CCA	America/Chicago
+CCA	America/La_Paz
 CCB	America/Los_Angeles
 CCC	America/Havana
-CCE	America/Marigot
+CCE	Africa/Cairo
 CCF	Europe/Paris
 CCG	America/Chicago
 CCH	America/Santiago
@@ -1238,7 +1226,7 @@ CDG	Europe/Paris
 CDH	America/Chicago
 CDI	America/Sao_Paulo
 CDJ	America/Araguaina
-CDK	America/Kentucky/Monticello
+CDK	America/New_York
 CDL	America/Anchorage
 CDN	America/New_York
 CDO	Africa/Johannesburg
@@ -1260,7 +1248,6 @@ CEF	America/New_York
 CEG	Europe/London
 CEH	Africa/Blantyre
 CEI	Asia/Bangkok
-CEJ	Europe/Kiev
 CEK	Asia/Yekaterinburg
 CEM	America/Anchorage
 CEN	America/Hermosillo
@@ -1402,7 +1389,6 @@ CKZ	Europe/Istanbul
 CLA	Asia/Dhaka
 CLD	America/Los_Angeles
 CLE	America/New_York
-CLF	Europe/London
 CLG	America/Los_Angeles
 CLH	Australia/Sydney
 CLI	America/Chicago
@@ -1561,11 +1547,9 @@ CSG	America/New_York
 CSH	Europe/Moscow
 CSI	Australia/Sydney
 CSK	Africa/Dakar
-CSL	America/Los_Angeles
 CSM	America/Chicago
 CSN	America/Los_Angeles
 CSO	Europe/Berlin
-CSP	America/Juneau
 CSQ	America/Chicago
 CSR	America/Bogota
 CSS	America/Campo_Grande
@@ -1711,7 +1695,6 @@ DAD	Asia/Ho_Chi_Minh
 DAF	Pacific/Port_Moresby
 DAG	America/Los_Angeles
 DAH	Asia/Aden
-DAI	Asia/Kolkata
 DAK	Africa/Cairo
 DAL	America/Chicago
 DAM	Asia/Damascus
@@ -1812,7 +1795,6 @@ DIK	America/Denver
 DIL	Asia/Dili
 DIM	Africa/Abidjan
 DIN	Asia/Ho_Chi_Minh
-DIO	America/Nome
 DIP	Africa/Ouagadougou
 DIQ	America/Sao_Paulo
 DIR	Africa/Addis_Ababa
@@ -1834,7 +1816,6 @@ DJU	Atlantic/Reykjavik
 DKA	Africa/Lagos
 DKI	Australia/Lindeman
 DKK	America/New_York
-DKL	America/Fort_Nelson
 DKR	Africa/Dakar
 DKS	Asia/Krasnoyarsk
 DKV	Australia/Darwin
@@ -1977,7 +1958,7 @@ DUM	Asia/Jakarta
 DUQ	America/Vancouver
 DUR	Africa/Johannesburg
 DUS	Europe/Berlin
-DUT	America/Nome
+DUT	America/Anchorage
 DVD	Indian/Antananarivo
 DVK	America/Yellowknife
 DVL	America/Chicago
@@ -2048,7 +2029,6 @@ EDB	Africa/Khartoum
 EDD	Australia/Darwin
 EDE	America/New_York
 EDF	America/Anchorage
-EDG	America/New_York
 EDI	Europe/London
 EDK	America/Chicago
 EDL	Africa/Nairobi
@@ -2158,7 +2138,7 @@ ENL	America/Chicago
 ENN	America/Anchorage
 ENO	America/Asuncion
 ENS	Europe/Amsterdam
-ENT	Pacific/Pohnpei
+ENT	Pacific/Kwajalein
 ENU	Africa/Lagos
 ENV	America/Denver
 ENW	America/Chicago
@@ -2322,7 +2302,6 @@ FEL	Europe/Berlin
 FEN	America/Noronha
 FEP	America/Chicago
 FET	America/Chicago
-FEW	America/Denver
 FEZ	Africa/Casablanca
 FFA	America/New_York
 FFD	Europe/London
@@ -2333,7 +2312,6 @@ FFT	America/New_York
 FFU	America/Santiago
 FGD	Africa/Nouakchott
 FGI	Pacific/Apia
-FGL	Pacific/Auckland
 FGU	Pacific/Tahiti
 FHU	America/Phoenix
 FHZ	Pacific/Tahiti
@@ -2344,7 +2322,6 @@ FIH	Africa/Kinshasa
 FIK	Australia/Darwin
 FIL	America/Denver
 FIN	Pacific/Port_Moresby
-FIV	America/Juneau
 FIZ	Australia/Perth
 FJR	Asia/Dubai
 FKB	Europe/Berlin
@@ -2422,7 +2399,6 @@ FRE	Pacific/Guadalcanal
 FRG	America/New_York
 FRH	America/Indiana/Indianapolis
 FRI	America/Chicago
-FRJ	Europe/Paris
 FRK	Indian/Mahe
 FRL	Europe/Rome
 FRM	America/Chicago
@@ -2518,7 +2494,6 @@ GBJ	America/Guadeloupe
 GBK	Africa/Freetown
 GBL	Australia/Darwin
 GBM	Africa/Mogadishu
-GBO	America/New_York
 GBP	Australia/Brisbane
 GBR	America/New_York
 GBT	Asia/Tehran
@@ -2574,7 +2549,6 @@ GEV	Europe/Stockholm
 GEW	Pacific/Port_Moresby
 GEX	Australia/Melbourne
 GEY	America/Denver
-GFA	America/Denver
 GFD	America/Indiana/Indianapolis
 GFE	Australia/Sydney
 GFF	Australia/Sydney
@@ -2766,7 +2740,6 @@ GSR	Africa/Mogadishu
 GSS	Africa/Johannesburg
 GST	America/Juneau
 GSU	Africa/Khartoum
-GSY	Europe/London
 GTA	Pacific/Guadalcanal
 GTE	Australia/Darwin
 GTF	America/Denver
@@ -2843,10 +2816,8 @@ GYP	Australia/Brisbane
 GYR	America/Phoenix
 GYS	Asia/Shanghai
 GYU	Asia/Shanghai
-GYY	America/Chicago
 GZA	Asia/Gaza
 GZI	Asia/Kabul
-GZM	Europe/Malta
 GZO	Pacific/Guadalcanal
 GZP	Europe/Istanbul
 GZT	Europe/Istanbul
@@ -2855,7 +2826,6 @@ HAA	Europe/Oslo
 HAB	America/Chicago
 HAC	Asia/Tokyo
 HAD	Europe/Stockholm
-HAE	America/Phoenix
 HAF	America/Los_Angeles
 HAH	Indian/Comoro
 HAI	America/Detroit
@@ -2917,7 +2887,6 @@ HEO	Pacific/Port_Moresby
 HER	Europe/Athens
 HES	America/Los_Angeles
 HET	Asia/Shanghai
-HEV	Europe/Madrid
 HEZ	America/Chicago
 HFA	Asia/Jerusalem
 HFD	America/New_York
@@ -2942,7 +2911,6 @@ HHE	Asia/Tokyo
 HHH	America/New_York
 HHI	Pacific/Honolulu
 HHN	Europe/Berlin
-HHP	Asia/Hong_Kong
 HHQ	Asia/Bangkok
 HHR	America/Los_Angeles
 HHZ	Pacific/Tahiti
@@ -2960,7 +2928,6 @@ HIN	Asia/Seoul
 HIO	America/Los_Angeles
 HIP	Australia/Brisbane
 HIR	Pacific/Guadalcanal
-HIS	Australia/Lindeman
 HIT	Pacific/Port_Moresby
 HIW	Asia/Tokyo
 HJJ	Asia/Shanghai
@@ -3090,7 +3057,7 @@ HTN	Asia/Shanghai
 HTO	America/New_York
 HTR	Asia/Tokyo
 HTS	America/New_York
-HTT	Asia/Shanghai
+HTT	Asia/Urumqi
 HTU	Australia/Melbourne
 HTV	America/Chicago
 HTW	America/New_York
@@ -3225,7 +3192,6 @@ IGR	America/Argentina/Cordoba
 IGS	Europe/Berlin
 IGT	Europe/Moscow
 IGU	America/Sao_Paulo
-IHA	Asia/Tokyo
 IHC	Africa/Maputo
 IHN	Asia/Aden
 IHO	Indian/Antananarivo
@@ -3239,7 +3205,6 @@ IJU	America/Sao_Paulo
 IJX	America/Chicago
 IKA	Asia/Tehran
 IKB	America/New_York
-IKE	America/Godthab
 IKI	Asia/Tokyo
 IKK	America/Chicago
 IKL	Africa/Kinshasa
@@ -3310,7 +3275,6 @@ IOK	Pacific/Port_Moresby
 IOM	Europe/Isle_of_Man
 ION	Africa/Brazzaville
 IOP	Pacific/Port_Moresby
-IOQ	America/Godthab
 IOR	Europe/Dublin
 IOS	America/Bahia
 IOW	America/Chicago
@@ -3379,7 +3343,6 @@ ITQ	America/Sao_Paulo
 ITR	America/Sao_Paulo
 ITU	Asia/Magadan
 IUE	Pacific/Niue
-IUI	America/Godthab
 IUL	Asia/Jayapura
 IUS	Pacific/Port_Moresby
 IVA	Indian/Antananarivo
@@ -3431,7 +3394,6 @@ JAD	Australia/Perth
 JAE	America/Lima
 JAF	Asia/Colombo
 JAG	Asia/Karachi
-JAH	Europe/Paris
 JAI	Asia/Kolkata
 JAK	America/Port-au-Prince
 JAL	America/Mexico_City
@@ -3449,17 +3411,13 @@ JBB	Asia/Jakarta
 JBQ	America/Santo_Domingo
 JBR	America/Chicago
 JBT	America/Anchorage
-JCA	Europe/Paris
 JCB	America/Sao_Paulo
 JCH	America/Godthab
 JCI	America/Chicago
-JCJ	Asia/Seoul
 JCK	Australia/Brisbane
 JCM	America/Bahia
-JCN	Asia/Seoul
 JCR	America/Manaus
 JCT	America/Chicago
-JCU	Africa/Ceuta
 JCY	America/Chicago
 JDA	America/Los_Angeles
 JDF	America/Sao_Paulo
@@ -3467,14 +3425,13 @@ JDG	Asia/Seoul
 JDH	Asia/Kolkata
 JDN	America/Denver
 JDO	America/Fortaleza
-JDP	Europe/Paris
 JDR	America/Sao_Paulo
 JDZ	Asia/Shanghai
 JED	Asia/Riyadh
 JEE	America/Port-au-Prince
 JEF	America/Chicago
 JEG	America/Godthab
-JEJ	Pacific/Kwajalein
+JEJ	Pacific/Majuro
 JEK	Africa/Lusaka
 JEQ	America/Bahia
 JER	Europe/Jersey
@@ -3485,8 +3442,6 @@ JGA	Asia/Kolkata
 JGB	Asia/Kolkata
 JGD	Asia/Shanghai
 JGN	Asia/Shanghai
-JGO	America/Godthab
-JGR	America/Godthab
 JGS	Asia/Shanghai
 JHB	Asia/Kuala_Lumpur
 JHG	Asia/Shanghai
@@ -3514,7 +3469,6 @@ JJG	America/Sao_Paulo
 JJI	America/Lima
 JJM	Africa/Nairobi
 JJN	Asia/Shanghai
-JJU	America/Godthab
 JKG	Europe/Stockholm
 JKH	Europe/Athens
 JKL	Europe/Athens
@@ -3526,7 +3480,6 @@ JLN	America/Chicago
 JLR	Asia/Kolkata
 JLS	America/Sao_Paulo
 JMB	Africa/Luanda
-JMC	America/Los_Angeles
 JMJ	Asia/Shanghai
 JMK	Europe/Athens
 JMO	Asia/Kathmandu
@@ -3537,8 +3490,6 @@ JNB	Africa/Johannesburg
 JNG	Asia/Shanghai
 JNI	America/Argentina/Buenos_Aires
 JNJ	Asia/Muscat
-JNN	America/Godthab
-JNS	America/Godthab
 JNU	America/Juneau
 JNX	Europe/Athens
 JNZ	Asia/Shanghai
@@ -3553,28 +3504,22 @@ JOM	Africa/Dar_es_Salaam
 JOP	Pacific/Port_Moresby
 JOS	Africa/Lagos
 JOT	America/Chicago
-JPA	America/Recife
+JPA	America/Fortaleza
 JPR	America/Porto_Velho
-JPU	Europe/Paris
 JQA	America/Godthab
 JQE	America/Panama
-JRA	America/New_York
-JRB	America/New_York
-JRD	America/Los_Angeles
 JRF	Pacific/Honolulu
+JRG	Asia/Kolkata
 JRH	Asia/Kolkata
-JRK	America/Godthab
 JRN	America/Cuiaba
 JRO	Africa/Dar_es_Salaam
-JRS	Asia/Jerusalem
+JRS	Asia/Hebron
 JSA	Asia/Kolkata
-JSG	America/Los_Angeles
 JSH	Europe/Athens
 JSI	Europe/Athens
 JSJ	Asia/Shanghai
 JSK	Asia/Tehran
 JSM	America/Argentina/Catamarca
-JSP	Asia/Seoul
 JSR	Asia/Dhaka
 JST	America/New_York
 JSU	America/Godthab
@@ -3588,14 +3533,12 @@ JUB	Africa/Juba
 JUH	Asia/Shanghai
 JUI	Europe/Berlin
 JUJ	America/Argentina/Jujuy
-JUK	America/Godthab
 JUL	America/Lima
 JUM	Asia/Kathmandu
 JUN	Australia/Brisbane
 JUO	America/Bogota
 JUR	Australia/Perth
 JUT	America/Tegucigalpa
-JUU	America/Godthab
 JUV	America/Godthab
 JUZ	Asia/Shanghai
 JVA	Indian/Antananarivo
@@ -3616,7 +3559,6 @@ KAD	Africa/Lagos
 KAE	America/Sitka
 KAF	Pacific/Bougainville
 KAG	Asia/Seoul
-KAH	Australia/Melbourne
 KAI	America/Guyana
 KAJ	Europe/Helsinki
 KAK	Pacific/Port_Moresby
@@ -3639,10 +3581,10 @@ KBA	Africa/Freetown
 KBB	Australia/Darwin
 KBC	America/Anchorage
 KBD	Australia/Perth
-KBE	America/Juneau
+KBE	America/Sitka
 KBF	Asia/Jayapura
 KBG	Africa/Kampala
-KBH	Asia/Karachi
+KBH	Africa/Dar_es_Salaam
 KBI	Africa/Douala
 KBJ	Australia/Darwin
 KBL	Asia/Kabul
@@ -3751,7 +3693,6 @@ KGM	Pacific/Port_Moresby
 KGN	Africa/Kinshasa
 KGO	Europe/Zaporozhye
 KGP	Asia/Yekaterinburg
-KGQ	America/Godthab
 KGR	Australia/Darwin
 KGS	Europe/Athens
 KGT	Asia/Shanghai
@@ -3772,7 +3713,6 @@ KHK	Asia/Tehran
 KHM	Asia/Yangon
 KHN	Asia/Shanghai
 KHO	Africa/Johannesburg
-KHQ	America/Godthab
 KHR	Asia/Ulaanbaatar
 KHS	Asia/Muscat
 KHT	Asia/Kabul
@@ -3840,7 +3780,6 @@ KKW	Africa/Kinshasa
 KKX	Asia/Tokyo
 KKY	Europe/Dublin
 KKZ	Asia/Phnom_Penh
-KLA	Africa/Kampala
 KLB	Africa/Lusaka
 KLC	Africa/Dakar
 KLD	Europe/Moscow
@@ -3849,7 +3788,6 @@ KLF	Europe/Moscow
 KLG	America/Anchorage
 KLH	Asia/Kolkata
 KLI	Africa/Kinshasa
-KLJ	Europe/Vilnius
 KLK	Africa/Nairobi
 KLL	America/Anchorage
 KLM	Asia/Tehran
@@ -3870,7 +3808,7 @@ KMB	Pacific/Port_Moresby
 KMC	Asia/Riyadh
 KME	Africa/Kigali
 KMF	Pacific/Port_Moresby
-KMG	Asia/Chongqing
+KMG	Asia/Shanghai
 KMH	Africa/Johannesburg
 KMI	Asia/Tokyo
 KMJ	Asia/Tokyo
@@ -3944,7 +3882,6 @@ KPC	America/Nome
 KPE	Pacific/Port_Moresby
 KPF	Pacific/Port_Moresby
 KPG	America/Guyana
-KPH	America/Nome
 KPI	Asia/Kuching
 KPL	Pacific/Port_Moresby
 KPM	Pacific/Port_Moresby
@@ -3969,7 +3906,6 @@ KRD	Australia/Darwin
 KRE	Africa/Bujumbura
 KRF	Europe/Stockholm
 KRG	America/Guyana
-KRH	Europe/London
 KRI	Pacific/Port_Moresby
 KRJ	Pacific/Port_Moresby
 KRK	Europe/Warsaw
@@ -4001,7 +3937,7 @@ KSJ	Europe/Athens
 KSK	Europe/Stockholm
 KSL	Africa/Khartoum
 KSM	America/Nome
-KSN	Asia/Qyzylorda
+KSN	Asia/Qostanay
 KSO	Europe/Athens
 KSP	Pacific/Port_Moresby
 KSQ	Asia/Samarkand
@@ -4094,7 +4030,7 @@ KWV	Pacific/Port_Moresby
 KWX	Pacific/Port_Moresby
 KWY	Africa/Nairobi
 KWZ	Africa/Lubumbashi
-KXA	America/Metlakatla
+KXA	America/Juneau
 KXD	Asia/Yekaterinburg
 KXE	Africa/Johannesburg
 KXF	Pacific/Fiji
@@ -4130,7 +4066,6 @@ LAC	Asia/Kuching
 LAD	Africa/Luanda
 LAE	Pacific/Port_Moresby
 LAF	America/Indiana/Indianapolis
-LAG	America/Caracas
 LAH	Asia/Jayapura
 LAI	Europe/Paris
 LAJ	America/Sao_Paulo
@@ -4342,12 +4277,12 @@ LLI	Africa/Addis_Ababa
 LLJ	Asia/Dhaka
 LLK	Asia/Baku
 LLL	Australia/Perth
+LLM	Pacific/Guadalcanal
 LLN	Asia/Jayapura
 LLO	Asia/Makassar
 LLP	Australia/Brisbane
 LLS	America/Argentina/Cordoba
 LLT	Africa/Luanda
-LLU	America/Godthab
 LLV	Asia/Shanghai
 LLW	Africa/Blantyre
 LLX	America/New_York
@@ -4402,7 +4337,7 @@ LOB	America/Santiago
 LOC	Australia/Adelaide
 LOD	Pacific/Efate
 LOE	Asia/Bangkok
-LOF	Pacific/Majuro
+LOF	Pacific/Kwajalein
 LOH	America/Guayaquil
 LOI	America/Sao_Paulo
 LOK	Africa/Nairobi
@@ -4412,7 +4347,6 @@ LON	Europe/London
 LOO	Africa/Algiers
 LOP	Asia/Makassar
 LOQ	Africa/Gaborone
-LOR	America/Chicago
 LOS	Africa/Lagos
 LOT	America/Chicago
 LOU	America/Kentucky/Louisville
@@ -4654,7 +4588,6 @@ MCI	America/Chicago
 MCJ	America/Bogota
 MCK	America/Chicago
 MCL	America/Anchorage
-MCM	Europe/Monaco
 MCN	America/New_York
 MCO	America/New_York
 MCP	America/Belem
@@ -4667,7 +4600,6 @@ MCW	America/Chicago
 MCX	Europe/Moscow
 MCY	Australia/Brisbane
 MCZ	America/Maceio
-MDA	America/Chicago
 MDB	America/Belize
 MDC	Asia/Makassar
 MDD	America/Chicago
@@ -4738,7 +4670,6 @@ MFP	Australia/Darwin
 MFQ	Africa/Niamey
 MFR	America/Los_Angeles
 MFS	America/Bogota
-MFT	America/Lima
 MFU	Africa/Lusaka
 MFV	America/New_York
 MFW	Africa/Maputo
@@ -4825,7 +4756,7 @@ MJA	Indian/Antananarivo
 MJB	Pacific/Majuro
 MJC	Africa/Abidjan
 MJD	Asia/Karachi
-MJE	Pacific/Kwajalein
+MJE	Pacific/Majuro
 MJF	Europe/Oslo
 MJI	Africa/Tripoli
 MJJ	Pacific/Port_Moresby
@@ -4925,7 +4856,7 @@ MND	America/Bogota
 MNE	Australia/Adelaide
 MNF	Pacific/Fiji
 MNG	Australia/Darwin
-MNH	Asia/Colombo
+MNH	Asia/Muscat
 MNI	America/Montserrat
 MNJ	Indian/Antananarivo
 MNK	Pacific/Tarawa
@@ -5157,7 +5088,6 @@ MWL	America/Chicago
 MWM	America/Chicago
 MWN	Africa/Dar_es_Salaam
 MWO	America/New_York
-MWP	Asia/Kathmandu
 MWQ	Asia/Yangon
 MWR	Africa/Johannesburg
 MWT	Australia/Adelaide
@@ -5259,7 +5189,7 @@ NAP	Europe/Rome
 NAQ	America/Thule
 NAR	America/Bogota
 NAS	America/Nassau
-NAT	America/Recife
+NAT	America/Fortaleza
 NAU	Pacific/Tahiti
 NAV	Europe/Istanbul
 NAW	Asia/Bangkok
@@ -5360,7 +5290,6 @@ NIM	Africa/Niamey
 NIN	America/Anchorage
 NIO	Africa/Kinshasa
 NIP	America/New_York
-NIQ	America/Godthab
 NIR	America/Chicago
 NIS	Pacific/Port_Moresby
 NIT	Europe/Paris
@@ -5369,6 +5298,7 @@ NIX	Africa/Bamako
 NJA	Asia/Tokyo
 NJC	Asia/Yekaterinburg
 NJF	Asia/Baghdad
+NJJ	Asia/Shanghai
 NJK	America/Los_Angeles
 NKA	Africa/Libreville
 NKB	Australia/Perth
@@ -5487,7 +5417,6 @@ NSL	America/Chicago
 NSM	Australia/Perth
 NSN	Pacific/Auckland
 NSO	Australia/Sydney
-NSQ	America/Godthab
 NST	Asia/Bangkok
 NSV	Australia/Brisbane
 NSY	Europe/Rome
@@ -5590,7 +5519,6 @@ OBO	Asia/Tokyo
 OBS	Europe/Paris
 OBU	America/Anchorage
 OBX	Pacific/Port_Moresby
-OBY	America/Scoresbysund
 OCA	America/New_York
 OCC	America/Guayaquil
 OCE	America/New_York
@@ -5776,7 +5704,7 @@ ORN	Africa/Algiers
 ORO	America/Tegucigalpa
 ORP	Africa/Gaborone
 ORR	Australia/Adelaide
-ORS	Australia/Brisbane
+ORS	Australia/Lindeman
 ORT	America/Anchorage
 ORU	America/La_Paz
 ORV	America/Anchorage
@@ -5969,7 +5897,6 @@ PEF	Europe/Berlin
 PEG	Europe/Rome
 PEH	America/Argentina/Buenos_Aires
 PEI	America/Bogota
-PEJ	Europe/Rome
 PEK	Asia/Shanghai
 PEL	Africa/Maseru
 PEM	America/Lima
@@ -6069,7 +5996,6 @@ PKG	Asia/Kuala_Lumpur
 PKH	Europe/Athens
 PKJ	America/Guatemala
 PKK	Asia/Yangon
-PKL	Pacific/Auckland
 PKM	America/Guyana
 PKN	Asia/Pontianak
 PKO	Africa/Porto-Novo
@@ -6079,6 +6005,7 @@ PKT	Australia/Darwin
 PKU	Asia/Jakarta
 PKV	Europe/Moscow
 PKW	Africa/Gaborone
+PKX	Asia/Shanghai
 PKY	Asia/Pontianak
 PKZ	Asia/Vientiane
 PLA	America/Bogota
@@ -6203,7 +6130,6 @@ PQI	America/New_York
 PQM	America/Mexico_City
 PQQ	Australia/Sydney
 PQS	America/Nome
-PQT	America/Godthab
 PRA	America/Argentina/Cordoba
 PRB	America/Los_Angeles
 PRC	America/Phoenix
@@ -6253,9 +6179,8 @@ PSY	Atlantic/Stanley
 PSZ	America/La_Paz
 PTA	America/Anchorage
 PTB	America/New_York
-PTC	America/Juneau
+PTC	America/Metlakatla
 PTD	America/Sitka
-PTE	Australia/Sydney
 PTF	Pacific/Fiji
 PTG	Africa/Johannesburg
 PTH	America/Anchorage
@@ -6348,7 +6273,6 @@ PYO	America/Guayaquil
 PYR	Europe/Athens
 PYS	America/Los_Angeles
 PYV	America/Panama
-PYX	Asia/Bangkok
 PYY	Asia/Bangkok
 PZA	America/Bogota
 PZB	Africa/Johannesburg
@@ -6706,7 +6630,7 @@ RYN	Europe/Paris
 RYO	America/Argentina/Rio_Gallegos
 RZA	America/Argentina/Rio_Gallegos
 RZE	Europe/Warsaw
-RZH	America/Los_Angeles
+RZH	Asia/Vladivostok
 RZN	Europe/Moscow
 RZP	Asia/Manila
 RZR	Asia/Tehran
@@ -6754,7 +6678,7 @@ SBP	America/Los_Angeles
 SBQ	Asia/Karachi
 SBR	Australia/Brisbane
 SBS	America/Denver
-SBT	America/Los_Angeles
+SBT	Asia/Yekaterinburg
 SBU	Africa/Johannesburg
 SBV	Pacific/Bougainville
 SBW	Asia/Kuching
@@ -6785,7 +6709,6 @@ SCW	Europe/Moscow
 SCX	America/Mexico_City
 SCY	Pacific/Galapagos
 SCZ	Pacific/Guadalcanal
-SDA	Asia/Baghdad
 SDB	Africa/Johannesburg
 SDC	America/Guyana
 SDD	Africa/Luanda
@@ -6816,7 +6739,6 @@ SEE	America/Los_Angeles
 SEF	America/New_York
 SEG	America/New_York
 SEH	Asia/Jayapura
-SEI	America/Bahia
 SEK	Asia/Magadan
 SEL	Asia/Seoul
 SEM	America/Chicago
@@ -6859,7 +6781,6 @@ SGC	Asia/Yekaterinburg
 SGD	Europe/Copenhagen
 SGE	Europe/Berlin
 SGF	America/Chicago
-SGG	Asia/Kuching
 SGH	America/New_York
 SGI	Asia/Karachi
 SGJ	Pacific/Port_Moresby
@@ -7064,7 +6985,6 @@ SOE	Africa/Brazzaville
 SOF	Europe/Sofia
 SOG	Europe/Oslo
 SOH	America/Bogota
-SOI	Australia/Lindeman
 SOJ	Europe/Oslo
 SOK	Africa/Maseru
 SOL	America/Nome
@@ -7092,7 +7012,6 @@ SPH	Pacific/Port_Moresby
 SPI	America/Chicago
 SPJ	Europe/Athens
 SPK	Asia/Tokyo
-SPL	Europe/Amsterdam
 SPM	Europe/Berlin
 SPN	Pacific/Saipan
 SPP	Africa/Luanda
@@ -7176,7 +7095,7 @@ SSS	Pacific/Port_Moresby
 SST	America/Argentina/Buenos_Aires
 SSV	Asia/Manila
 SSW	America/Los_Angeles
-SSX	Europe/Istanbul
+SSX	Africa/Johannesburg
 SSY	Africa/Luanda
 SSZ	America/Sao_Paulo
 STA	Europe/Copenhagen
@@ -7311,7 +7230,6 @@ SYH	Asia/Kathmandu
 SYI	America/Chicago
 SYJ	Asia/Tehran
 SYK	Atlantic/Reykjavik
-SYL	America/Los_Angeles
 SYM	Asia/Shanghai
 SYN	America/Chicago
 SYO	Asia/Tokyo
@@ -7338,7 +7256,6 @@ SZL	America/Chicago
 SZM	Africa/Windhoek
 SZN	America/Los_Angeles
 SZP	America/Los_Angeles
-SZQ	America/Argentina/Cordoba
 SZR	Europe/Sofia
 SZS	Pacific/Auckland
 SZU	Africa/Bamako
@@ -7642,7 +7559,7 @@ TNF	Europe/Paris
 TNG	Africa/Casablanca
 TNH	Asia/Shanghai
 TNI	Asia/Kolkata
-TNJ	Asia/Jakarta
+TNJ	Asia/Pontianak
 TNK	America/Nome
 TNL	Europe/Uzhgorod
 TNM	Antarctica/Palmer
@@ -7702,14 +7619,11 @@ TPS	Europe/Rome
 TPT	Africa/Monrovia
 TPU	Asia/Kathmandu
 TPX	Pacific/Tahiti
-TQA	America/Godthab
 TQD	Asia/Baghdad
-TQI	America/Godthab
 TQL	Asia/Yekaterinburg
 TQN	Asia/Kabul
 TQP	Australia/Brisbane
 TQQ	Asia/Makassar
-TQR	Europe/Rome
 TQS	America/Bogota
 TRA	Asia/Tokyo
 TRB	America/Bogota
@@ -7749,11 +7663,9 @@ TSK	Pacific/Port_Moresby
 TSL	America/Mexico_City
 TSM	America/Denver
 TSN	Asia/Shanghai
-TSO	Europe/London
 TSP	America/Los_Angeles
 TSQ	America/Sao_Paulo
 TSR	Europe/Bucharest
-TSS	America/New_York
 TST	Asia/Bangkok
 TSU	Pacific/Tarawa
 TSV	Australia/Brisbane
@@ -7815,6 +7727,7 @@ TVU	Pacific/Fiji
 TVY	Asia/Yangon
 TWA	America/Anchorage
 TWB	Australia/Brisbane
+TWC	Asia/Shanghai
 TWD	America/Los_Angeles
 TWE	America/Nome
 TWF	America/Boise
@@ -7956,7 +7869,6 @@ ULY	Europe/Ulyanovsk
 ULZ	Asia/Hovd
 UMA	America/Havana
 UMC	Pacific/Port_Moresby
-UMD	America/Godthab
 UME	Europe/Stockholm
 UMI	America/Lima
 UMM	America/Anchorage
@@ -7982,7 +7894,6 @@ UOL	Asia/Makassar
 UOS	America/Chicago
 UOX	America/Chicago
 UPB	America/Havana
-UPF	Europe/Berlin
 UPG	Asia/Makassar
 UPL	America/Costa_Rica
 UPN	America/Mexico_City
@@ -8076,7 +7987,6 @@ VAT	Indian/Antananarivo
 VAU	Pacific/Fiji
 VAV	Pacific/Tongatapu
 VAW	Europe/Oslo
-VAZ	Europe/Paris
 VBA	Asia/Yangon
 VBC	Asia/Yangon
 VBG	America/Los_Angeles
@@ -8132,7 +8042,6 @@ VIA	America/Sao_Paulo
 VIB	America/Mazatlan
 VIC	Europe/Rome
 VIE	Europe/Vienna
-VIF	Europe/Rome
 VIG	America/Caracas
 VIH	America/Chicago
 VII	Asia/Ho_Chi_Minh
@@ -8210,7 +8119,6 @@ VRN	Europe/Rome
 VRO	America/Havana
 VRS	America/Chicago
 VRU	Africa/Johannesburg
-VRY	Europe/Oslo
 VSA	America/Merida
 VSE	Europe/Lisbon
 VSF	America/New_York
@@ -8281,6 +8189,7 @@ WBR	America/Detroit
 WBU	America/Denver
 WBW	America/New_York
 WCA	America/Santiago
+WCD	Australia/Perth
 WCH	America/Santiago
 WCR	America/Anchorage
 WDA	Asia/Aden
@@ -8573,7 +8482,7 @@ XZA	Africa/Ouagadougou
 YAA	America/Vancouver
 YAB	America/Rankin_Inlet
 YAC	America/Winnipeg
-YAD	America/Chicago
+YAD	America/Winnipeg
 YAG	America/Winnipeg
 YAH	America/Toronto
 YAI	America/Santiago
@@ -8590,7 +8499,6 @@ YAS	Pacific/Fiji
 YAT	America/Toronto
 YAU	America/Toronto
 YAV	America/Vancouver
-YAW	America/Halifax
 YAX	America/Winnipeg
 YAY	America/St_Johns
 YAZ	America/Vancouver
@@ -8605,7 +8513,6 @@ YBI	America/St_Johns
 YBJ	America/Toronto
 YBK	America/Rankin_Inlet
 YBL	America/Vancouver
-YBN	America/Toronto
 YBO	America/Vancouver
 YBP	Asia/Shanghai
 YBQ	America/Vancouver
@@ -8635,7 +8542,6 @@ YCS	America/Rankin_Inlet
 YCT	America/Edmonton
 YCU	Asia/Shanghai
 YCW	America/Vancouver
-YCX	America/Moncton
 YCY	America/Iqaluit
 YCZ	America/Edmonton
 YDA	America/Whitehorse
@@ -8657,7 +8563,6 @@ YDW	America/Yellowknife
 YEA	America/Edmonton
 YEB	America/Toronto
 YEC	Asia/Seoul
-YED	America/Edmonton
 YEG	America/Edmonton
 YEH	Asia/Shanghai
 YEI	Europe/Istanbul
@@ -8725,6 +8630,7 @@ YHT	America/Whitehorse
 YHU	America/Toronto
 YHY	America/Yellowknife
 YHZ	America/Halifax
+YIA	Asia/Jakarta
 YIB	America/Atikokan
 YIC	Asia/Shanghai
 YIE	Asia/Shanghai
@@ -8775,7 +8681,6 @@ YLK	America/Toronto
 YLL	America/Edmonton
 YLM	America/Whitehorse
 YLN	Asia/Shanghai
-YLO	America/Winnipeg
 YLP	America/Toronto
 YLQ	America/Toronto
 YLR	America/Winnipeg
@@ -8838,7 +8743,6 @@ YOP	America/Edmonton
 YOS	America/Toronto
 YOT	Asia/Jerusalem
 YOW	America/Toronto
-YOY	America/Toronto
 YPA	America/Regina
 YPB	America/Vancouver
 YPC	America/Yellowknife
@@ -8903,7 +8807,6 @@ YRV	America/Vancouver
 YSA	America/Halifax
 YSB	America/Toronto
 YSC	America/Toronto
-YSD	America/Edmonton
 YSE	America/Vancouver
 YSF	America/Regina
 YSG	America/Yellowknife
@@ -8967,7 +8870,6 @@ YVV	America/Toronto
 YVZ	America/Winnipeg
 YWA	America/Toronto
 YWB	America/Toronto
-YWF	America/Halifax
 YWG	America/Winnipeg
 YWH	America/Vancouver
 YWJ	America/Yellowknife
@@ -9067,6 +8969,7 @@ ZFN	America/Yellowknife
 ZFW	America/Edmonton
 ZGF	America/Vancouver
 ZGI	America/Winnipeg
+ZGL	Australia/Brisbane
 ZGM	Africa/Lusaka
 ZGR	America/Winnipeg
 ZGS	America/Blanc-Sablon
@@ -9089,7 +8992,7 @@ ZKB	Africa/Lusaka
 ZKE	America/Toronto
 ZKG	America/Blanc-Sablon
 ZKL	Asia/Shanghai
-ZKP	Asia/Yakutsk
+ZKP	Asia/Magadan
 ZLO	America/Mexico_City
 ZLT	America/Blanc-Sablon
 ZLW	Asia/Kuala_Lumpur
