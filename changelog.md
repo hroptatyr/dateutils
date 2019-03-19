@@ -8,6 +8,31 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.6
+------
+Summary: v0.4.6 of dateutils
+
+This is dateutils v0.4.6.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- underspecified ISO weekday dates can be parsed
+- adding days to underspecified dates results in proper dates
+
+Features:
+
+- all tools with -S|--sed-mode now support -E|--empty-mode to
+    output an empty line when a line cannot be read.
+- dateround supports day, week, month and year classes now
+    (issues/92)
+- datediff can determine difference in nanoseconds between
+    two time values (issues/94)
+
+See info page examples and/or README.
+
+
 v0.4.5
 ------
 Summary: v0.4.5 of dateutils
