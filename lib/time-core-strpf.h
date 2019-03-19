@@ -1,6 +1,6 @@
 /*** time-core-strpf.h -- parser and formatter funs for time-core
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2019 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

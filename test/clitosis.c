@@ -1,6 +1,6 @@
 /*** clitosis.c -- command-line-interface tester on shell input syntax
  *
- * Copyright (C) 2013-2018 Sebastian Freundt
+ * Copyright (C) 2013-2019 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

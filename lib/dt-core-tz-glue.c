@@ -1,6 +1,6 @@
 /*** dt-core-tz-glue.c -- gluing date/times and tzs
  *
- * Copyright (C) 2012-2018 Sebastian Freundt
+ * Copyright (C) 2012-2019 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
