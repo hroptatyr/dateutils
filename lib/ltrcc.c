@@ -55,10 +55,10 @@
 #include "version.c"
 
 
-static __attribute__((const)) long int
-ntp_to_unix_epoch(long int x)
+static __attribute__((const)) unsigned long int
+ntp_to_unix_epoch(unsigned long int x)
 {
-	return x - 25567L * 86400L;
+	return x - 25567U * 86400U;
 }
 
 
@@ -68,7 +68,7 @@ ntp_to_unix_epoch(long int x)
 static int
 pr_line_corr(const char *line, size_t llen, va_list UNUSED(vap))
 {
-	static long int cor;
+	static unsigned long int cor;
 	char *sp, *ep;
 
 	if (llen == PROLOGUE) {
@@ -96,7 +96,7 @@ const int32_t %s[] = {\n\
 	/* otherwise process */
 	if ((sp = memchr(line, '\t', llen)) == NULL) {
 		return -1;
-	} else if ((ep = NULL, cor = strtol(++sp, &ep, 10), ep == NULL)) {
+	} else if ((ep = NULL, cor = strtoul(++sp, &ep, 10), ep == NULL || cor == ULONG_MAX)) {
 		return -1;
 	}
 
@@ -108,10 +108,10 @@ const int32_t %s[] = {\n\
 static int
 pr_line_d(const char *line, size_t llen, va_list vap)
 {
-	static long int cor;
+	static unsigned long int cor;
 	struct dt_d_s d;
 	dt_dtyp_t typ;
-	long int val;
+	unsigned long int val;
 	int colp;
 	char *ep;
 
@@ -155,7 +155,7 @@ const uint32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((ep = NULL, val = strtol(line, &ep, 10), ep == NULL)) {
+	if ((ep = NULL, val = strtoul(line, &ep, 10), ep == NULL || val == ULONG_MAX)) {
 		return -1;
 	}
 
@@ -164,7 +164,7 @@ const uint32_t %s[] = {\n\
 	d = dt_dconv(typ, d);
 
 	if (!colp) {
-		if ((cor = strtol(ep, &ep, 10), ep == NULL)) {
+		if ((cor = strtoul(ep, &ep, 10), ep == NULL || val == ULONG_MAX)) {
 			return -1;
 		}
 		/* just output the line then */
@@ -179,9 +179,9 @@ const uint32_t %s[] = {\n\
 static int
 pr_line_dt(const char *line, size_t llen, va_list vap)
 {
-	static long int cor;
+	static unsigned long int cor;
 	dt_dtyp_t __attribute__((unused)) typ;
-	long int val;
+	unsigned long int val;
 	int colp;
 	char *ep;
 
@@ -225,7 +225,7 @@ const int32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((ep = NULL, val = strtol(line, &ep, 10), ep == NULL)) {
+	if ((ep = NULL, val = strtoul(line, &ep, 10), ep == NULL || val == ULONG_MAX)) {
 		return -1;
 	}
 
@@ -234,15 +234,15 @@ const int32_t %s[] = {\n\
 	val = ntp_to_unix_epoch(val);
 
 	if (!colp) {
-		if ((cor = strtol(ep, &ep, 10), ep == NULL)) {
+		if ((cor = strtoul(ep, &ep, 10), ep == NULL || cor == ULONG_MAX)) {
 			return -1;
 		}
 		/* just output the line then */
-		fprintf(stdout, "\t{0x%xU/* %li */, %li},\n",
-			(uint32_t)val, val, cor);
+		fprintf(stdout, "\t{0x%lxU/* %li */, %li},\n",
+			val, val, cor);
 	} else {
 		/* column-oriented mode */
-		fprintf(stdout, "\t0x%xU/* %li */,\n", (uint32_t)val, val);
+		fprintf(stdout, "\t0x%lxU/* %li */,\n", val, val);
 	}
 	return 0;
 }
@@ -250,12 +250,12 @@ const int32_t %s[] = {\n\
 static int
 pr_line_t(const char *line, size_t llen, va_list vap)
 {
-	static long int cor;
+	static unsigned long int cor;
 	struct dt_t_s t = {DT_TUNK};
 	dt_dtyp_t typ;
 	int colp;
 	char *ep;
-	long int val;
+	unsigned long int val;
 
 	/* extract type from inner list */
 	typ = va_arg(vap, dt_dtyp_t);
@@ -292,7 +292,7 @@ const uint32_t %s[] = {\n\
 		return 0;
 	}
 	/* otherwise process */
-	if ((ep = NULL, val = strtol(line, &ep, 10), ep == NULL)) {
+	if ((ep = NULL, val = strtoul(line, &ep, 10), ep == NULL || val == ULONG_MAX)) {
 		return -1;
 	}
 	val--;
@@ -303,7 +303,7 @@ const uint32_t %s[] = {\n\
 	t.hms.h = val % 24L;
 
 	/* read correction */
-	if ((val = strtol(ep, &ep, 10), ep == NULL)) {
+	if ((val = strtoul(ep, &ep, 10), ep == NULL || val == ULONG_MAX)) {
 		return -1;
 	}
 
