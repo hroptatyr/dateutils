@@ -100,6 +100,8 @@ dt_tests += dseq.58.clit
 dt_tests += dseq.59.clit
 dt_tests += dseq.60.clit
 dt_tests += dseq.61.clit
+dt_tests += dseq.62.clit
+dt_tests += dseq.63.clit
 
 dt_tests += dconv.001.clit
 dt_tests += dconv.002.clit
@@ -342,6 +344,7 @@ dt_tests += dadd.095.clit
 dt_tests += dadd.096.clit
 dt_tests += dadd.097.clit
 dt_tests += dadd.098.clit
+dt_tests += dadd.099.clit
 
 dt_tests += dtest.001.clit
 dt_tests += dtest.002.clit
