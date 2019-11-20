@@ -211,7 +211,11 @@ yield1:
 	} else if (UNLIKELY(nrd <= 0 && off == ctx->buf)) {
 		/* special case, we worked our arses off and nothing's
 		 * in the pipe line so just fuck off here */
-		return -1;
+		if (!ctx->bno) {
+			return -1;
+		}
+		/* go to drain mode */
+		YIELD(2);
 	} else if (LIKELY(off < bno || off == ctx->buf)) {
 		YIELD(2);
 	}
