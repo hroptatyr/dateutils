@@ -229,9 +229,8 @@ yield2:
 			if (LIKELY(nrd > 0)) {
 				break;
 			}
-			/* fucking idiots didnt conclude with a \n */
-			error(0, "ID:10T error");
-			p = bno;
+			/* not concluded with \n, let's hope we're in drain mode */
+			return -1;
 		}
 		/* massage our status structures */
 		set_loff(ctx, ctx->tot_lno, p - ctx->buf);
