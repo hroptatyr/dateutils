@@ -46,7 +46,6 @@
 #endif	/* MAP_ANON_NEEDS_ALL_SOURCE */
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -95,25 +94,6 @@ struct prch_ctx_s {
 };
 
 
-/* error() impl */
-static void
-__attribute__((format(printf, 2, 3)))
-error(int eno, const char *fmt, ...)
-{
-	va_list vap;
-	va_start(vap, fmt);
-	fputs("prchunk: ", stderr);
-	vfprintf(stderr, fmt, vap);
-	va_end(vap);
-	if (eno) {
-		fputc(':', stderr);
-		fputc(' ', stderr);
-		fputs(strerror(eno), stderr);
-	}
-	fputc('\n', stderr);
-	return;
-}
-
 static inline void
 set_loff(prch_ctx_t ctx, uint32_t lno, off32_t off)
 {
@@ -440,6 +420,8 @@ prchunk_getcolno(prch_ctx_t ctx, char **p, int lno, int cno)
 
 
 #if defined STANDALONE
+#include <stdio.h>
+
 int
 main(int argc, char *argv[])
 {
