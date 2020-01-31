@@ -18,6 +18,7 @@ Generate a parser from definitions in FILE, or stdin if omitted.
   --no-auto-actions  Do not automatically handle auto flags.
   --version=VERSION  Hardwire version number.
   --custom=FILE      Include custom macros from FILE.
+  -p, --preserve     Preserve indentation and newlines.
 
 
 ## GENMAN
@@ -43,6 +44,7 @@ if omitted.
   --no-auto-version  Do not add auto --version flag
   --no-auto-actions  Do not automatically handle auto flags.
   --version=VERSION  Hardwire version number.
+  -p, --preserve     Preserve indentation and newlines.
 
 
 ## VER
