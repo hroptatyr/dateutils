@@ -1,6 +1,6 @@
 /*** leaps.h -- materialised leap seconds
  *
- * Copyright (C) 2012-2019 Sebastian Freundt
+ * Copyright (C) 2012-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

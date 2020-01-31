@@ -1,6 +1,6 @@
 /*** bizda.c -- guts for bizda dates
  *
- * Copyright (C) 2010-2019 Sebastian Freundt
+ * Copyright (C) 2010-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

@@ -1,6 +1,6 @@
 /*** dadd.c -- perform simple date arithmetic, date plus duration
  *
- * Copyright (C) 2011-2019 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
