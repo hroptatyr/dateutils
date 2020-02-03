@@ -8,8 +8,26 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
-v0.4.6
+v0.4.7
 ------
+Summary: v0.4.7 of dateutils
+
+This is dateutils v0.4.7.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- strptime mimics return code behaviour of dateconv
+- use unsigned arithmetic for leap second conversion
+- fix up ymds before adding days or business days
+- drain prchunk if filled with many small lines
+
+See info page examples and/or README.
+
+
+v0.4.6
+=======
 Summary: v0.4.6 of dateutils
 
 This is dateutils v0.4.6.
