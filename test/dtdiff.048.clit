@@ -1,0 +1,13 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff -f '%Y years, %m months, %d days, %H:%0M:%0S' 2020-04-14T00:00:00 2020-04-17T06:47:19
+0 years, 0 months, 3 days, 6:47:19
+$ ddiff -f '%d days, %H:%0M:%0S' 2020-04-14T00:00:00 2020-04-17T06:47:19
+3 days, 6:47:19
+$ ddiff -f '%Y years, %m months, %d days, %H:%0M:%0S' 2020-04-17T06:47:19+00:00 2020-04-14T00:00:00+00:00
+-0 years, 0 months, 3 days, 6:47:19
+$ ddiff -f '%d days, %H:%0M:%0S' 2020-04-17T06:47:19+00:00 2020-04-14T00:00:00+00:00
+-3 days, 6:47:19
+$
+
+## dtdiff.048.clit ends here
