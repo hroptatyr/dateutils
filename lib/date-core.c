@@ -121,6 +121,12 @@ __uidiv(signed int x, signed int m)
 	return x >= 0 ? res : x % m ? res - 1 : res;
 }
 
+static inline __attribute__((const, pure)) int
+__sgn(signed int x)
+{
+	return (x > 0) - (x < 0);
+}
+
 
 /* helpers from the calendar files, don't define any aspect, so only
  * the helpers should get included */
@@ -1797,8 +1803,11 @@ dt_dur_neg_p(struct dt_ddur_s dur)
 }
 
 DEFUN struct dt_ddur_s
-dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
+dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2, int carry)
 {
+/* carry of 0 doesn't change anything
+ * carry <0 adds -1 to d2 iff d1 <= d2
+ * carry >0 adds 1 to d2 iff d1 >= d2 */
 	struct dt_ddur_s res = dt_make_ddur(DT_DURUNK, 0);
 
 	switch (tgttyp) {
@@ -1806,6 +1815,7 @@ dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	case DT_DURBD: {
 		dt_daisy_t tmp1 = dt_conv_to_daisy(d1);
 		dt_daisy_t tmp2 = dt_conv_to_daisy(d2);
+
 		res = __daisy_diff(tmp1, tmp2);
 
 		/* fix up result in case it's bizsi, i.e. kick weekends */
@@ -1818,25 +1828,61 @@ dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2)
 	case DT_DURYMD: {
 		dt_ymd_t tmp1 = dt_conv_to_ymd(d1);
 		dt_ymd_t tmp2 = dt_conv_to_ymd(d2);
+		int fix = __sgn(carry) == -__sgn(tmp2.u - tmp1.u);
+
+		if (UNLIKELY(fix)) {
+			/* add -1 iff tmp2 > tmp1 && carry < 0
+			 * add 1 iff tmp2 < tmp1 && carry > 0, i.e.
+			 * add sgn(carry) iff sgn(tmp2-tmp1) = -sgn(carry) */
+			tmp2 = __ymd_add_d(tmp2, __sgn(carry));
+		}
 		res = __ymd_diff(tmp1, tmp2);
+		res.fix = fix;
 		break;
 	}
 	case DT_DURYMCW: {
 		dt_ymcw_t tmp1 = dt_conv_to_ymcw(d1);
 		dt_ymcw_t tmp2 = dt_conv_to_ymcw(d2);
+		int fix = carry && __sgn(carry) == -__ymcw_cmp(tmp1, tmp2);
+
+		if (UNLIKELY(fix)) {
+			/* add -1 iff tmp2 > tmp1 && carry < 0
+			 * add 1 iff tmp2 < tmp1 && carry > 0, i.e.
+			 * add sgn(carry) iff sgn(tmp2-tmp1) = -sgn(carry) */
+			tmp2 = __ymcw_add_d(tmp2, __sgn(carry));
+		}
 		res = __ymcw_diff(tmp1, tmp2);
+		res.fix = fix;
 		break;
 	}
 	case DT_DURYD: {
 		dt_yd_t tmp1 = dt_conv_to_yd(d1);
 		dt_yd_t tmp2 = dt_conv_to_yd(d2);
+		int fix = __sgn(carry) == -__sgn(tmp2.u - tmp1.u);
+
+		if (UNLIKELY(fix)) {
+			/* add -1 iff tmp2 > tmp1 && carry < 0
+			 * add 1 iff tmp2 < tmp1 && carry > 0, i.e.
+			 * add sgn(carry) iff sgn(tmp2-tmp1) = -sgn(carry) */
+			tmp2 = __yd_add_d(tmp2, __sgn(carry));
+		}
 		res = __yd_diff(tmp1, tmp2);
+		res.fix = fix;
 		break;
 	}
 	case DT_DURYWD: {
 		dt_ywd_t tmp1 = dt_conv_to_ywd(d1);
 		dt_ywd_t tmp2 = dt_conv_to_ywd(d2);
+		int fix = __sgn(carry) == -__sgn(tmp2.u - tmp1.u);
+
+		if (UNLIKELY(fix)) {
+			/* add -1 iff tmp2 > tmp1 && carry < 0
+			 * add 1 iff tmp2 < tmp1 && carry > 0, i.e.
+			 * add sgn(carry) iff sgn(tmp2-tmp1) = -sgn(carry) */
+			tmp2 = __ywd_add_d(tmp2, __sgn(carry));
+		}
 		res = __ywd_diff(tmp1, tmp2);
+		res.fix = fix;
 		break;
 	}
 	case DT_DURBIZDA:

@@ -846,6 +846,8 @@ dt_tests += dtdiff.044.clit
 dt_tests += dtdiff.045.clit
 dt_tests += dtdiff.046.clit
 dt_tests += dtdiff.047.clit
+dt_tests += dtdiff.048.clit
+dt_tests += dtdiff.049.clit
 
 dt_tests += dtround.001.clit
 dt_tests += dtround.002.clit
