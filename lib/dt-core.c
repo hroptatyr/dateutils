@@ -1607,15 +1607,16 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
 		res.durtyp = (dt_dtdurtyp_t)(DT_DURS + (tgttyp == DT_DURNANO));
-		res.dv = dt;
+		res.neg = (uint16_t)(dt < 0);
+		res.dv = dt >= 0 ? dt : -dt;
 	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
-		/* check for negative carry, DT typ can't be NANO */
-		if (UNLIKELY(dt < 0)) {
-			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
-			dt += SECS_PER_DAY;
-		}
 		res.durtyp = tgttyp;
-		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
+		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d, dt);
+		dt = !res.neg ? dt : -dt;
+		dt = !res.d.fix ? dt
+			: dt > 0 ? SECS_PER_DAY - dt
+			: dt < 0 ? dt + SECS_PER_DAY
+			: 0;
 		res.t.sdur = dt;
 		res.t.nsdur = 0;
 	} else if ((dt_durtyp_t)tgttyp >= DT_NDURTYP) {
@@ -1623,7 +1624,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {
 			/* go for tdiff and ddiff independently */
-			res.d = dt_ddiff(DT_DURD, d1.d, d2.d);
+			res.d = dt_ddiff(DT_DURD, d1.d, d2.d, 0);
 
 			if (UNLIKELY(tgttyp == DT_DURNANO)) {
 				/* unfortunately we have to scale back */
