@@ -65,7 +65,9 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/sysctl.h>
+#if defined __FreeBSD__
+# include <sys/sysctl.h>
+#endif	/* __FreeBSD__ */
 #include <time.h>
 #if defined __APPLE__
 # include <mach-o/dyld.h>
