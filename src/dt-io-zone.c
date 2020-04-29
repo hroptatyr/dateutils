@@ -53,7 +53,9 @@ static const char tmdir[] = ".";
 static size_t
 xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
 {
-	if (ssz > dsz) {
+	if (UNLIKELY(!dsz)) {
+		return 0U;
+	} else if (ssz > dsz) {
 		ssz = dsz - 1U;
 	}
 	memcpy(dst, src, ssz);
@@ -65,7 +67,10 @@ static size_t
 xstrlcpy(char *restrict dst, const char *src, size_t dsz)
 {
 	size_t ssz = strlen(src);
-	if (ssz > dsz) {
+
+	if (UNLIKELY(!dsz)) {
+		return 0U;
+	} else if (ssz > dsz) {
 		ssz = dsz - 1U;
 	}
 	memcpy(dst, src, ssz);
@@ -100,6 +105,10 @@ find_tzmap(const char *mnm, size_t mnz)
 	}
 	tp += z, tz -= z;
 	*tp++ = '/', tz--;
+	if (UNLIKELY(tz < mnz + sizeof(tzmap_suffix))) {
+		/* GHSL-2020-090 */
+		return NULL;
+	}
 
 	/* try and find it the hard way */
 	xstrlncpy(tp, tz, mnm, mnz);
