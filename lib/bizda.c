@@ -58,56 +58,31 @@ __get_d_equiv(dt_dow_t dow, int b)
 /* return the number of gregorian days B business days away from now,
  * where the first day is on a DOW. */
 	int res = 0;
+	int u5, u7;
 
-	switch (dow) {
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
-		b %= (signed int)DUWW_BDAYS_P_WEEK;
-		break;
-	case DT_SATURDAY:
-		res++;
-	case DT_SUNDAY:
-		res++;
-		b--;
-		res += GREG_DAYS_P_WEEK * (b / (signed int)DUWW_BDAYS_P_WEEK);
-		if ((b %= (signed int)DUWW_BDAYS_P_WEEK) < 0) {
-			/* act as if we're on the monday after */
-			res++;
-		}
-		dow = DT_MONDAY;
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		break;
-	}
-
-	/* fixup b */
-	if (b < 0) {
-		res -= GREG_DAYS_P_WEEK;
-		b += DUWW_BDAYS_P_WEEK;
-	}
-	/* b >= 0 && b < 5 */
-	switch (dow) {
-	case DT_MONDAY:
-	case DT_TUESDAY:
-	case DT_WEDNESDAY:
-	case DT_THURSDAY:
-	case DT_FRIDAY:
-		if ((int)dow + b <= (int)DT_FRIDAY) {
-			res += b;
+	if (dow >= DT_SATURDAY) {
+		if (b >= 0) {
+			/* move to monday */
+			res += 8 - dow;
+			dow = DT_MONDAY;
+			b -= b != 0;
 		} else {
-			res += b + 2;
+			/* move to friday */
+			res -= dow - 5;
+			dow = DT_FRIDAY;
+			b += b != 0;
 		}
-		break;
-	case DT_MIRACLEDAY:
-	default:
-		res = 0;
-		break;
 	}
+	/* 384 == 4 mod 5 and 384 == 6 mod 7 */
+	u5 = (dow + 384 + b) % 5;
+	b = b / 5 * 7 + b % 5;
+	u7 = (dow + 384 + b) % 7;
+
+	/* u5 is the day we want to be on, Mon=0
+	 * u7 is the day we land on, Mon=0 */
+	res += b;
+	res += u5 - u7;
+	res += b >= 0 && u5 < u7 ? 7 : 0;
 	return res;
 }
 #endif	/* ASPECT_YMD */
