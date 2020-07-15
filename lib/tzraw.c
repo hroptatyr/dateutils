@@ -546,6 +546,7 @@ zif_open(const char *file)
 	if (UNLIKELY((fd = __open_zif(file)) < STDIN_FILENO)) {
 		return NULL;
 	} else if (UNLIKELY(__read_zif(tmp, fd) < 0)) {
+		close(fd);
 		return NULL;
 	}
 	/* otherwise all's fine, it's still BE
