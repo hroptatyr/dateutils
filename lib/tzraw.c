@@ -58,7 +58,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <limits.h>
-
+#include <assert.h>
 #if defined HAVE_TZFILE_H
 # include <tzfile.h>
 #endif	/* HAVE_TZFILE_H */
@@ -553,6 +553,7 @@ zif_open(const char *file)
 	 * assign the coord zone type if any and convert to host byte-order */
 	tmp->cz = cz;
 	res = __copy(tmp);
+	assert((tmp + 1) != (void*)tmp->hdr);
 	__close(tmp);
 	return res;
 }
