@@ -1538,7 +1538,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 			carry--;
 		}
 
-		d.t.hms.ns = dv;
+		if (d.sandwich) {
+			d.t.hms.ns = dv;
+		}
 
 		/* the rest is normal second-wise tadd */
 		dv = carry;
