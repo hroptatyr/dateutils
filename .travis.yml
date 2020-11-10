@@ -47,7 +47,7 @@ script:
     fi
   - if [ "$CHECK" = "distcheck" ]; then
       ./configure --enable-tzmap-fetch || { cat config.log; false; } &&
-      make -j2 all && make -j2 distcheck;
+      make -j2 all && make -j1 distcheck;
     fi
 
 after_script:
