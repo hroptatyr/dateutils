@@ -396,6 +396,7 @@ __strf_tot_years(struct dt_dtdur_s dur)
 }
 
 static struct precalc_s {
+	int neg;
 	int Y;
 	int q;
 	int m;
@@ -442,60 +443,34 @@ static struct precalc_s {
 	 * to the S slot, so 59 seconds plus a leap second != 1 minute */
 	with (int64_t S = __strf_tot_secs(dur), d = __strf_tot_days(dur)) {
 		us = d * (int)SECS_PER_DAY + S;
+		res.neg = dur.neg || us < 0;
+		us = us >= 0 ? us : -us;
 	}
 
 	if (f.has_week) {
 		/* week shadows days in the hierarchy */
-		res.w = us / (int)SECS_PER_WEEK;
-		us %= (int)SECS_PER_WEEK;
+		res.w = us / SECS_PER_WEEK;
+		us %= SECS_PER_WEEK;
 	}
 	if (f.has_day) {
-		res.d += us / (int)SECS_PER_DAY;
-		us %= (int)SECS_PER_DAY;
+		res.d += us / SECS_PER_DAY;
+		us %= SECS_PER_DAY;
 	}
 	if (f.has_hour) {
-		res.H = us / (long int)SECS_PER_HOUR;
-		us %= (long int)SECS_PER_HOUR;
+		res.H = us / SECS_PER_HOUR;
+		us %= SECS_PER_HOUR;
 	}
 	if (f.has_min) {
 		/* minutes and seconds */
-		res.M = us / (long int)SECS_PER_MIN;
-		us %= (long int)SECS_PER_MIN;
+		res.M = us / SECS_PER_MIN;
+		us %= SECS_PER_MIN;
 	}
 	if (f.has_sec) {
 		res.S = us + __strf_tot_corr(dur);
 	}
 	if (f.has_nano) {
 		if (dur.durtyp == DT_DURNANO) {
-			res.N = dur.dv % (long int)NANOS_PER_SEC;
-		}
-	}
-
-	/* just in case the duration iss negative jump through all
-	 * the hoops again, backwards */
-	if (res.w < 0 || res.d < 0 ||
-	    res.H < 0 || res.M < 0 || res.S < 0 || res.N < 0) {
-		if (0) {
-		fixup_d:
-			res.d = -res.d;
-		fixup_H:
-			res.H = -res.H;
-		fixup_M:
-			res.M = -res.M;
-		fixup_S:
-			res.S = -res.S;
-		fixup_N:
-			res.N = -res.N;
-		} else if (f.has_week) {
-			goto fixup_d;
-		} else if (f.has_day) {
-			goto fixup_H;
-		} else if (f.has_hour) {
-			goto fixup_M;
-		} else if (f.has_min) {
-			goto fixup_S;
-		} else if (f.has_sec) {
-			goto fixup_N;
+			res.N = dur.dv % NANOS_PER_SEC;
 		}
 	}
 	return res;
@@ -537,7 +512,7 @@ __strfdtdur(
 	/* assign and go */
 	bp = buf;
 	fp = fmt;
-	if (dur.neg) {
+	if (pre.neg) {
 		*bp++ = '-';
 	}
 	for (char *const eo = buf + bsz; *fp && bp < eo;) {
