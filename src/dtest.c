@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 
 	/* just do the comparison */
 	if ((res = dt_dtcmp(d1, d2)) == -2) {
-		/* incomparable */
+		/* non-comparable */
 		res = 3;
 	} else if (argi->cmp_flag) {
 		switch (res) {
