@@ -88,6 +88,12 @@ tzmap_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
 tzmap_CPPFLAGS += -DSTANDALONE
 BUILT_SOURCES += tzmap.yucc
 
+noinst_PROGRAMS += tzraw
+tzraw_SOURCES = tzraw.c tzraw.h
+tzraw_SOURCES += leaps.h leaps.c
+tzraw_CPPFLAGS = -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -D_BSD_SOURCE
+tzraw_CPPFLAGS += -DSTANDALONE
+
 ## some tzmaps we'd like to support
 tzminfo_FILES =
 tzminfo_FILES += iata.tzminfo

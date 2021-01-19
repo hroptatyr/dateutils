@@ -82,11 +82,9 @@
 # define MAP_ANON	(0x1000U)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
 
-typedef struct zih_s *zih_t;
-typedef int32_t *ztr_t;
-typedef uint8_t *zty_t;
-typedef struct ztrdtl_s *ztrdtl_t;
-typedef char *znam_t;
+typedef int32_t ztr_t;
+typedef int64_t zt2_t;
+typedef uint8_t zty_t;
 
 /* this is tzhead but better */
 struct zih_s {
@@ -122,7 +120,7 @@ struct zspec_s {
 	int32_t since;
 	unsigned int offs:31;
 	unsigned int dstp:1;
-	znam_t name;
+	char *name;
 } __attribute__((packed, aligned(16)));
 
 /* for leap second transitions */
@@ -136,16 +134,16 @@ struct zleap_tr_s {
 /* leap second support missing */
 struct zif_s {
 	size_t mpsz;
-	zih_t hdr;
+	struct zih_s *hdr;
 
 	/* transitions */
-	ztr_t trs;
+	ztr_t *trs;
 	/* types */
-	zty_t tys;
+	zty_t *tys;
 	/* type array, deser'd, transition details array */
-	ztrdtl_t tda;
+	struct ztrdtl_s *tda;
 	/* zonename array */
-	znam_t zn;
+	char *zn;
 
 	/* file descriptor, if >0 this also means all data is in BE */
 	int fd;
@@ -285,7 +283,7 @@ zif_troffs(const struct zif_s z[static 1U], int n)
 
 /**
  * Return the zonename after the N-th transition in Z. */
-static __attribute__((unused)) inline znam_t
+static __attribute__((unused)) inline char*
 zif_trname(const struct zif_s z[static 1U], int n)
 {
 /* no bound check! */
@@ -358,9 +356,9 @@ __init_zif(struct zif_s z[static 1U])
 		nty = zif_ntypes(z);
 	}
 
-	z->trs = (ztr_t)(z->hdr + 1);
-	z->tys = (zty_t)(z->trs + ntr);
-	z->tda = (ztrdtl_t)(z->tys + ntr);
+	z->trs = (ztr_t*)(z->hdr + 1);
+	z->tys = (zty_t*)(z->trs + ntr);
+	z->tda = (struct ztrdtl_s*)(z->tys + ntr);
 	z->zn = (char*)(z->tda + nty);
 	return;
 }
@@ -744,4 +742,44 @@ zif_local_time(zif_t z, int32_t t)
 }
 
 #endif	/* INCLUDED_tzraw_c_ */
+
+#if defined STANDALONE
+#include <stdio.h>
+
+int
+main(int argc, char *argv[])
+{
+	int rc = 0;
+
+	for (int i = 1; i < argc; i++) {
+		zif_t z = zif_open(argv[i]);
+
+		if (z == NULL) {
+			rc++;
+			continue;
+		}
+
+		puts(argv[i]);
+		printf("  tutccnt\t%u\n", z->hdr->tzh_ttisgmtcnt);
+		printf("  tstdcnt\t%u\n", z->hdr->tzh_ttisstdcnt);
+		printf("  leapcnt\t%u\n", z->hdr->tzh_leapcnt);
+		printf("  timecnt\t%u\n", z->hdr->tzh_timecnt);
+		printf("  typecnt\t%u\n", z->hdr->tzh_typecnt);
+		printf("  charcnt\t%u\n", z->hdr->tzh_charcnt);
+
+		for (size_t j = 0U; j < zif_ntrans(z); j++) {
+			printf("    tr[%zu]\t%d\n", j, z->trs[j]);
+		}
+		for (size_t j = 0U; j < zif_ntypes(z); j++) {
+			printf("    ty[%zu]\t%hhi\n", j, z->tys[j]);
+		}
+		for (size_t j = 0U; j < zif_ntypes(z); j++) {
+			printf("    dt[%zu]\t%d %hhu %hhx\n", j, z->tda[j].offs, z->tda[j].dstp, z->tda[j].abbr);
+		}
+
+		zif_close(z);
+	}
+	return rc;
+}
+#endif	/* STANDALONE */
 /* tzraw.c ends here */
