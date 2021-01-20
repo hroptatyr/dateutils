@@ -82,8 +82,6 @@
 # define MAP_ANON	(0x1000U)
 #endif	/* MAP_ANON->MAP_ANONYMOUS */
 
-#define STAMP_MIN	INT64_MIN
-
 typedef uint8_t zty_t;
 typedef int zof_t;
 
@@ -341,6 +339,7 @@ zif_open(const char *file)
 	struct zif_s *res;
 	unsigned char *map;
 	const unsigned char *hdr, *beef;
+	size_t real_ntr = 0U;
 
 	/* check for special time zones */
 	if ((cz = coord_zone(file)) > TZCZ_UNK) {
@@ -442,6 +441,16 @@ zif_open(const char *file)
 	/* clean up */
 	munmap(map, st.st_size);
 	close(fd);
+	/* compactify, we disallow transitions to the same type */
+	real_ntr += res->ntr > 0U;
+	for (size_t i = 1U; i < res->ntr; i++) {
+		if (res->tys[i - 1U] != res->tys[i - 0U]) {
+			res->trs[real_ntr] = res->trs[i];
+			res->tys[real_ntr] = res->tys[i];
+			real_ntr++;
+		}
+	}
+	res->ntr = real_ntr;
 	return res;
 unmp:
 	munmap(map, st.st_size);
@@ -542,27 +551,27 @@ __find_zrng(const struct zif_s z[static 1U], stamp_t t, int min, int max)
 	res.prev = zif_trans(z, trno);
 	if (UNLIKELY(trno <= 0 && t < res.prev)) {
 		res.trno = 0U;
-		res.prev = INT_MIN;
+		res.prev = STAMP_MIN;
 		/* assume the first offset has always been there */
 		res.next = res.prev;
 	} else if (UNLIKELY(trno < 0)) {
 		/* special case where no transitions are recorded */
 		res.trno = 0U;
-		res.prev = INT_MIN;
-		res.next = INT_MAX;
+		res.prev = STAMP_MIN;
+		res.next = STAMP_MAX;
 	} else {
 		res.trno = (uint8_t)trno;
 		if (LIKELY(trno + 1U < z->ntr)) {
 			res.next = zif_trans(z, trno + 1U);
 		} else {
-			res.next = INT_MAX;
+			res.next = STAMP_MAX;
 		}
 	}
 	res.offs = _zif_troffs(z, res.trno);
 	return res;
 }
 
-DEFUN inline struct zrng_s
+DEFUN struct zrng_s
 zif_find_zrng(zif_t z, stamp_t t)
 {
 /* find the last transition before time, time is expected to be UTC */

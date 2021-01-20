@@ -39,7 +39,6 @@
 #define INCLUDED_tzraw_h_
 
 #include <stdint.h>
-#include <limits.h>
 #include "leaps.h"
 
 #if defined __cplusplus
@@ -103,6 +102,10 @@ struct tzhead {
 
 /* now our view on things */
 typedef struct zif_s *zif_t;
+typedef int64_t stamp_t;
+
+#define STAMP_MIN	INT64_MIN
+#define STAMP_MAX	INT64_MAX
 
 typedef enum {
 	TZCZ_UNK,
@@ -111,8 +114,6 @@ typedef enum {
 	TZCZ_GPS,
 	TZCZ_NZONE,
 } coord_zone_t;
-
-typedef int64_t stamp_t;
 
 /* for the one tool that needs raw transitions */
 struct zrng_s {

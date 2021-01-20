@@ -150,7 +150,7 @@ dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 	const char *const ep = gbuf + sizeof(gbuf);
 	size_t ntr = zif_ntrans(z);
 
-	if (r.next == INT_MAX) {
+	if (r.next == STAMP_MAX) {
 		bp += xstrlcpy(bp, never, bp - ep);
 	} else {
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, r.offs});
@@ -161,7 +161,7 @@ dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 		/* thank god there's another one */
 		stamp_t zdo = zif_troffs(z, r.trno + 1);
 
-		if (r.next == INT_MAX) {
+		if (r.next == STAMP_MAX) {
 			goto never;
 		}
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, zdo});
@@ -196,7 +196,7 @@ dz_write_prtr(struct zrng_s r, zif_t UNUSED(z), const char *zn)
 	}
 	/* append prev indicator */
 	bp += xstrlcpy(bp, pindi, bp - ep);
-	if (r.prev == INT_MIN) {
+	if (r.prev == STAMP_MIN) {
 		bp += xstrlcpy(bp, never, bp - ep);
 	} else {
 		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, r.offs});
