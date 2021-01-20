@@ -156,11 +156,11 @@ extern stamp_t zif_local_time(zif_t z, stamp_t t);
 /* exposure for specific zif-inspecting tools (dzone(1) for one) */
 /**
  * Return the gmt offset (in seconds) after the N-th transition in Z. */
-extern inline int zif_troffs(const struct zif_s z[static 1U], int n);
+extern int zif_troffs(zif_t z, int n);
 
 /**
  * Return the number of transitions in Z. */
-extern inline size_t zif_ntrans(const struct zif_s z[static 1U]);
+extern size_t zif_ntrans(zif_t z);
 
 #if defined __cplusplus
 }

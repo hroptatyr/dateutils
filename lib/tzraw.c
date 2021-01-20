@@ -243,8 +243,8 @@ zif_trans(const struct zif_s z[static 1U], int n)
 
 /**
  * Return the transition type index of the N-th transition in Z. */
-inline uint8_t
-zif_type(const struct zif_s z[static 1U], int n)
+static inline uint8_t
+_zif_type(const struct zif_s z[static 1U], int n)
 {
 	size_t ntr = z->ntr;
 
@@ -261,18 +261,28 @@ zif_type(const struct zif_s z[static 1U], int n)
 
 /**
  * Return the gmt offset after the N-th transition in Z. */
-DEFUN inline int
-zif_troffs(const struct zif_s z[static 1U], int n)
+static inline int
+_zif_troffs(const struct zif_s z[static 1U], int n)
 {
 /* no bound check! */
-	uint8_t idx = zif_type(z, n);
+	uint8_t idx = _zif_type(z, n);
+	return z->ofs[idx];
+}
+
+/**
+ * Return the gmt offset after the N-th transition in Z. */
+DEFUN int
+zif_troffs(zif_t z, int n)
+{
+/* no bound check! */
+	uint8_t idx = _zif_type(z, n);
 	return z->ofs[idx];
 }
 
 /**
  * Return the transition time stamp of the N-th transition in Z. */
 DEFUN inline size_t
-zif_ntrans(const struct zif_s z[static 1U])
+zif_ntrans(zif_t z)
 {
 	return z->ntr;
 }
@@ -548,7 +558,7 @@ __find_zrng(const struct zif_s z[static 1U], stamp_t t, int min, int max)
 			res.next = INT_MAX;
 		}
 	}
-	res.offs = zif_troffs(z, res.trno);
+	res.offs = _zif_troffs(z, res.trno);
 	return res;
 }
 
