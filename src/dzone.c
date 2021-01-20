@@ -239,7 +239,7 @@ main(int argc, char *argv[])
 	/* all them datetimes to consider */
 	struct dt_dt_s *d = NULL;
 	size_t nd = 0U;
-	bool trnsp = false;
+	bool trnsp;
 
 	if (yuck_parse(argi, argc, argv)) {
 		rc = 1;
@@ -258,9 +258,8 @@ main(int argc, char *argv[])
 	if (argi->from_zone_arg) {
 		fromz = dt_io_zone(argi->from_zone_arg);
 	}
-	if (argi->next_flag || argi->prev_flag) {
-		trnsp = true;
-	}
+	trnsp = argi->next_flag || argi->prev_flag;
+
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
 		dt_set_base(base);
