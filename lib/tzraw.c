@@ -339,6 +339,7 @@ zif_open(const char *file)
 	struct zif_s *res;
 	unsigned char *map;
 	const unsigned char *hdr, *beef;
+	size_t real_ntr = 0U;
 
 	/* check for special time zones */
 	if ((cz = coord_zone(file)) > TZCZ_UNK) {
@@ -440,6 +441,16 @@ zif_open(const char *file)
 	/* clean up */
 	munmap(map, st.st_size);
 	close(fd);
+	/* compactify, we disallow transitions to the same type */
+	real_ntr += res->ntr > 0U;
+	for (size_t i = 1U; i < res->ntr; i++) {
+		if (res->tys[i - 1U] != res->tys[i - 0U]) {
+			res->trs[real_ntr] = res->trs[i];
+			res->tys[real_ntr] = res->tys[i];
+			real_ntr++;
+		}
+	}
+	res->ntr = real_ntr;
 	return res;
 unmp:
 	munmap(map, st.st_size);
