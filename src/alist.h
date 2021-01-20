@@ -51,7 +51,7 @@ struct alist_s {
 
 struct acons_s {
 	const char *key;
-	const void *val;
+	void *val;
 };
 
 
@@ -59,16 +59,16 @@ extern void free_alist(alist_t);
 
 /**
  * Return value associated with KEY in alist, or NULL if none found. */
-extern const void *alist_assoc(alist_t, const char *key);
+extern void *alist_assoc(alist_t, const char *key);
 
 /**
  * Put VAL as value associated with KEY in alist, but don't do a check
  * for duplicates first, i.e. it is assumed that KEY is not present. */
-extern void alist_put(alist_t, const char *key, const void *val);
+extern void alist_put(alist_t, const char *key, void *val);
 
 /**
  * Set value associated with KEY in alist to VAL. */
-extern void alist_set(alist_t, const char *key, const void *val);
+extern void alist_set(alist_t, const char *key, void *val);
 
 /**
  * Return next alist cons cell. */

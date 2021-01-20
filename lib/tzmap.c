@@ -141,12 +141,6 @@ xstrlncpy(char *restrict dst, size_t dsz, const char *src, size_t ssz)
 }
 #endif	/* STANDALONE */
 
-static void*
-deconst(const void *ptr)
-{
-	return (char*)1 + ((const char*)ptr - (char*)1U);
-}
-
 static const void*
 align_to(size_t tz, const void *p)
 {
@@ -244,7 +238,7 @@ tzm_close(tzmap_t m)
 	int fd = tzm_fd(m);
 
 	/* hopefully privately mapped */
-	munmap(deconst(m), fz);
+	munmap(m, fz);
 	close(fd);
 	return;
 }

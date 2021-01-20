@@ -44,7 +44,7 @@
 */
 #define	TZM_MAGIC	"TZm1"
 
-typedef const struct tzmap_s *tzmap_t;
+typedef struct tzmap_s *tzmap_t;
 
 typedef uint32_t znoff_t;
 

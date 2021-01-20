@@ -50,16 +50,9 @@
 #include "tzraw.h"
 
 struct ztr_s {
-	int32_t trns;
-	int32_t offs;
+	stamp_t trns;
+	int offs;
 };
-
-/* fwd decld in tzraw.h */
-struct ztrdtl_s {
-	int32_t offs;
-	uint8_t dstp;
-	uint8_t abbr;
-} __attribute__((packed));
 
 const char *prog = "dzone";
 static char gbuf[256U];
@@ -166,12 +159,12 @@ dz_write_nxtr(struct zrng_s r, zif_t z, const char *zn)
 	bp += xstrlcpy(bp, nindi, bp - ep);
 	if (r.trno + 1U < ntr) {
 		/* thank god there's another one */
-		struct ztrdtl_s zd = zif_trdtl(z, r.trno + 1);
+		stamp_t zdo = zif_troffs(z, r.trno + 1);
 
 		if (r.next == INT_MAX) {
 			goto never;
 		}
-		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, zd.offs});
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.next, zdo});
 	} else {
 	never:
 		bp += xstrlcpy(bp, never, bp - ep);
@@ -195,9 +188,9 @@ dz_write_prtr(struct zrng_s r, zif_t UNUSED(z), const char *zn)
 
 	if (r.trno >= 1) {
 		/* there's one before that */
-		struct ztrdtl_s zd = zif_trdtl(z, r.trno - 1);
+		stamp_t zdo = zif_troffs(z, r.trno - 1);
 
-		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, zd.offs});
+		bp += dz_strftr(bp, ep - bp, (struct ztr_s){r.prev, zdo});
 	} else {
 		bp += xstrlcpy(bp, never, bp - ep);
 	}
