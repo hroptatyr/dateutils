@@ -161,17 +161,6 @@ static const char tzdir[] = TZDIR;
 static const char tzdir[] = "/usr/share/zoneinfo";
 #endif
 
-#if 0
-
-#elif defined ZONEINFO_UTC
-static const char coord_fn[] = ZONEINFO_UTC;
-#elif defined ZONEINFO_UTC_RIGHT
-/* where can we deduce some info for our coordinated zones */
-static const char coord_fn[] = ZONEINFO_UTC_RIGHT;
-#else  /* !ZONEINFO_UTC_RIGHT && !ZONEINFO_UTC */
-static const char coord_fn[] = "/usr/share/zoneinfo/UTC";
-#endif	/* ZONEINFO_UTC_RIGHT || ZONEINFO_UTC */
-
 #define PROT_MEMMAP	PROT_READ | PROT_WRITE
 #define MAP_MEMMAP	MAP_PRIVATE | MAP_ANON
 
@@ -325,7 +314,9 @@ __open_zif(const char *file)
 DEFUN void
 zif_close(zif_t z)
 {
-	free(z);
+	if (!z->cz) {
+		free(z);
+	}
 	return;
 }
 
@@ -343,8 +334,15 @@ zif_open(const char *file)
 
 	/* check for special time zones */
 	if ((cz = coord_zone(file)) > TZCZ_UNK) {
-		/* use UTC file */
-		file = coord_fn;
+		/* we used to go to the UTC file hoping they're coordinated well,
+		 * however seeing as we're dealing with leap seconds ourself we
+		 * can just skip the file reading and return a static instance */
+		static struct zif_s coord_zifs[] = {
+			[TZCZ_UTC] = {.cz = TZCZ_UTC, .ofs = (void*)&coord_zifs},
+			[TZCZ_TAI] = {.cz = TZCZ_TAI, .ofs = (void*)&coord_zifs},
+			[TZCZ_GPS] = {.cz = TZCZ_GPS, .ofs = (void*)&coord_zifs},
+		};
+		return coord_zifs + cz;
 	}
 
 	if (UNLIKELY((fd = __open_zif(file)) < STDIN_FILENO)) {
