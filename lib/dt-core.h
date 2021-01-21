@@ -106,7 +106,7 @@ typedef union {
 
 /** sexy
  * sexy is really, secsi, seconds since X, 1970-01-01T00:00:00 here */
-typedef uint64_t dt_sexy_t;
+typedef int64_t dt_sexy_t;
 typedef int64_t dt_ssexy_t;
 #define DT_SEXY_BASE_YEAR	(1917)
 

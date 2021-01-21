@@ -104,8 +104,8 @@ struct tzhead {
 typedef struct zif_s *zif_t;
 typedef int64_t stamp_t;
 
-#define STAMP_MIN	INT64_MIN
-#define STAMP_MAX	INT64_MAX
+#define STAMP_MIN	(-140737488355328LL)
+#define STAMP_MAX	(140737488355327LL)
 
 typedef enum {
 	TZCZ_UNK,
