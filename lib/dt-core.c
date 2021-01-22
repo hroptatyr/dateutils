@@ -196,13 +196,27 @@ static inline struct dt_dt_s
 __sexy_to_daisy(dt_ssexy_t sx)
 {
 	struct dt_dt_s res = {DT_UNK};
+	int s, m, h;
 
-	res.t.hms.s = sx % SECS_PER_MIN;
+	s = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
-	res.t.hms.m = sx % MINS_PER_HOUR;
+	m = sx % MINS_PER_HOUR;
 	sx /= MINS_PER_HOUR;
-	res.t.hms.h = sx % HOURS_PER_DAY;
+	h = sx % HOURS_PER_DAY;
 	sx /= HOURS_PER_DAY;
+
+	m -= s < 0;
+	h -= m < 0;
+	sx -= h < 0;
+
+	s += s >= 0 ? 0 : SECS_PER_MIN;
+	m += m >= 0 ? 0 : MINS_PER_HOUR;
+	h += h >= 0 ? 0 : HOURS_PER_DAY;
+
+	/* assign now */
+	res.t.hms.s = s;
+	res.t.hms.m = m;
+	res.t.hms.h = h;
 
 	/* rest is a day-count, move to daisy */
 	res.d.daisy = sx + DAISY_UNIX_BASE;
@@ -1401,7 +1415,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			unsigned int ss = __secs_since_midnight(d.t);
 
 			switch (tgttyp) {
-				int32_t sx;
+				int64_t sx;
 #if defined WITH_LEAP_SECONDS
 			case DT_SEXYTAI: {
 				zidx_t zi;

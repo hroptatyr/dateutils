@@ -111,16 +111,16 @@ struct dt_t_s {
 
 /* helpers */
 #if !defined NANOS_PER_SEC
-# define NANOS_PER_SEC		(1000U * 1000U * 1000U)
+# define NANOS_PER_SEC		(1000 * 1000 * 1000)
 #endif	/* !SECS_PER_MIN */
 #if !defined SECS_PER_MIN
-# define SECS_PER_MIN		(60U)
+# define SECS_PER_MIN		(60)
 #endif	/* !SECS_PER_MIN */
 #if !defined MINS_PER_HOUR
-# define MINS_PER_HOUR		(60U)
+# define MINS_PER_HOUR		(60)
 #endif	/* !MINS_PER_HOUR */
 #if !defined HOURS_PER_DAY
-# define HOURS_PER_DAY		(24U)
+# define HOURS_PER_DAY		(24)
 #endif	/* !HOURS_PER_DAY */
 #if !defined SECS_PER_HOUR
 # define SECS_PER_HOUR		(SECS_PER_MIN * MINS_PER_HOUR)
