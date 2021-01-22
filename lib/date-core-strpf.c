@@ -76,14 +76,14 @@ __strpd_std(const char *str, char **ep)
 
 	d.c = -1;
 	/* read the year */
-	d.y = strtoi(sp, &sp);
+	d.y = strtoi32(sp, &sp);
 	if (d.y < DT_MIN_YEAR || d.y > DT_MAX_YEAR || *sp++ != '-') {
 		goto fucked;
 	}
 	/* check for ywd dates */
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
-		sp++, d.c = strtoi(sp, &sp);
+		sp++, d.c = strtoi32(sp, &sp);
 		if (d.c < 0 || d.c > 53 || *sp++ != '-') {
 			goto fucked;
 		}
@@ -93,7 +93,7 @@ __strpd_std(const char *str, char **ep)
 	}
 	/* read the month, then day count */
 	with (const char *tmp) {
-		d.m = strtoi(sp, &tmp);
+		d.m = strtoi32(sp, &tmp);
 		if (d.m < 0 || d.m > 366) {
 			goto fucked;
 		} else if (UNLIKELY(*tmp != '-')) {
@@ -120,7 +120,7 @@ __strpd_std(const char *str, char **ep)
 				goto fucked;
 			}
 			goto guess;
-		} else if (d.d = strtoi(++tmp, &sp), d.d < 0 || d.d > 31) {
+		} else if (d.d = strtoi32(++tmp, &sp), d.d < 0 || d.d > 31) {
 			/* didn't work, fuck off */
 			goto fucked;
 		}
@@ -136,7 +136,7 @@ __strpd_std(const char *str, char **ep)
 		d.c = d.d, d.d = 0;
 		sp++;
 	dow:
-		if (d.w = strtoi(sp, &sp),
+		if (d.w = strtoi32(sp, &sp),
 		    d.w < 0 || (unsigned int)d.w > GREG_DAYS_P_WEEK) {
 			/* didn't work, fuck off */
 			goto fucked;
