@@ -629,7 +629,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		goto sober;
 
 	case DT_LDN:
-		res.d.ldn = (dt_ldn_t)strtoi(str, &sp);
+		res.d.ldn = (dt_ldn_t)strtoi32(str, &sp);
 		if (*sp == '.') {
 			/* oooh, a double it seems */
 			double tmp = strtod(sp, &on);
@@ -655,7 +655,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		goto sober;
 
 	case DT_MDN:
-		res.d.mdn = (dt_ldn_t)strtoi(str, &sp);
+		res.d.mdn = (dt_ldn_t)strtoi32(str, &sp);
 		if (*sp == '.') {
 			/* oooh, a double it seems */
 			double tmp = strtod(sp, &on);
