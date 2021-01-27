@@ -92,7 +92,7 @@ __ymcw_fixup(dt_ymcw_t d)
 static dt_dow_t
 __ymcw_get_wday(dt_ymcw_t that)
 {
-	return (dt_dow_t)(that.w ?: DT_SUNDAY);
+	return (dt_dow_t)that.w;
 }
 
 DEFUN unsigned int
@@ -200,7 +200,8 @@ __ymcw_get_yday(dt_ymcw_t that)
 		},
 	};
 	dt_dow_t j01w = __get_jan01_wday(that.y);
-	unsigned int diff = j01w <= that.w ? that.w - j01w : that.w + 7 - j01w;
+	dt_dow_t w = (dt_dow_t)(that.w ?: DT_THURSDAY);
+	unsigned int diff = j01w <= w ? w - j01w : w + 7 - j01w;
 
 	if (UNLIKELY(__leapp(that.y))) {
 		switch (diff) {
@@ -400,10 +401,10 @@ __ymcw_add_d(dt_ymcw_t d, int n)
 	signed int aw = n / (signed int)GREG_DAYS_P_WEEK;
 	signed int ad = n % (signed int)GREG_DAYS_P_WEEK;
 
-	if ((ad += d.w) >= (signed int)GREG_DAYS_P_WEEK) {
+	if ((ad += d.w) > (signed int)GREG_DAYS_P_WEEK) {
 		ad -= GREG_DAYS_P_WEEK;
 		aw++;
-	} else if (ad < 0) {
+	} else if (ad <= 0) {
 		ad += GREG_DAYS_P_WEEK;
 		aw--;
 	}

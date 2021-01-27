@@ -84,12 +84,18 @@ __strpd_std(const char *str, char **ep)
 	if (UNLIKELY(*sp == 'W')) {
 		/* brilliant */
 		sp++, d.c = strtoi32(sp, &sp);
-		if (d.c < 0 || d.c > 53 || *sp++ != '-') {
+		if (d.c < 0 || d.c > 53) {
 			goto fucked;
 		}
 		d.flags.c_wcnt_p = 1;
 		d.flags.wk_cnt = YWD_ISOWK_CNT;
-		goto dow;
+		if (*sp == '-') {
+			goto dow;
+		} else if ((unsigned char)*sp <= ' ') {
+			/* unspecified week-date */
+			goto guess;
+		}
+		goto fucked;
 	}
 	/* read the month, then day count */
 	with (const char *tmp) {
@@ -134,15 +140,13 @@ __strpd_std(const char *str, char **ep)
 			goto fucked;
 		}
 		d.c = d.d, d.d = 0;
-		sp++;
 	dow:
+		sp++;
 		if (d.w = strtoi32(sp, &sp),
 		    d.w < 0 || (unsigned int)d.w > GREG_DAYS_P_WEEK) {
 			/* didn't work, fuck off */
 			goto fucked;
 		}
-		/* fix up d.w right away */
-		d.w = d.w ?: DT_SUNDAY;
 		break;
 	case 'B':
 		/* it's a bizda/YMDU before ultimo date */
@@ -264,7 +268,6 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		/* ymcw mode? */
 		d->w = strtoi_lim(sp, &sp, 0, GREG_DAYS_P_WEEK);
 		/* fix up d->w right away */
-		d->w = d->w ?: DT_SUNDAY;
 		res = 0 - (d->w < 0);
 		break;
 	case DT_SPFL_N_WCNT_MON:
@@ -552,10 +555,6 @@ __strfd_card(
 		with (unsigned int w = (unsigned)d->w ?: dt_get_wday(that)) {
 			const unsigned int ymcwp = s.wk_cnt != YWD_MONWK_CNT;
 
-			if (w == DT_SUNDAY && ymcwp) {
-				/* turn Sun 07 to Sun 00 */
-				w = 0;
-			}
 			res = ui99topstr(buf, bsz, w, 1 + ymcwp, padchar(s));
 		}
 		break;
