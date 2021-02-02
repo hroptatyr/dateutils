@@ -1,6 +1,6 @@
 /*** dround.c -- perform simple date arithmetic, round to duration
  *
- * Copyright (C) 2012-2018 Sebastian Freundt
+ * Copyright (C) 2012-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

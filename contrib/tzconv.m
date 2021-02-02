@@ -11,6 +11,6 @@
 % Output Arguments:
 %   d      - vector of dates in the result
 %
-% Copyright (C) 2013  Sebastian Freundt <freundt@ga-group.nl>
+% Copyright (C) 2019 Sebastian Freundt <freundt@ga-group.nl>
 %
 % This file is part of dateutils

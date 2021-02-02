@@ -1,6 +1,6 @@
 /*** time-core.c -- our universe of times
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -46,6 +46,7 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
+#include <strings.h>
 
 #include "time-core.h"
 #include "time-core-private.h"

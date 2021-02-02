@@ -1,6 +1,6 @@
 /*** dt-core-strpf.c -- parser and formatter funs for dt-core
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -161,8 +161,8 @@ __strpdt_std(const char *str, char **ep)
 	if (*sp == '@') {
 		/* yay, epoch */
 		const char *tmp;
-		d.i = strtoi(++sp, &tmp);
-		if (UNLIKELY(d.i == -1 && sp == tmp)) {
+		d.i = strtoi64(++sp, &tmp);
+		if (UNLIKELY(d.i == INT64_MIN && sp == tmp)) {
 			sp--;
 		} else {
 			/* let's make a DT_SEXY */
@@ -281,8 +281,8 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		/* read over @ */
 		const char *tp = sp;
 		tp += *tp == '@';
-		d->i = strtoi(tp, &tp);
-		if (UNLIKELY(d->i < 0 || tp == sp)) {
+		d->i = strtoi64(tp, &tp);
+		if (UNLIKELY(d->i == INT64_MIN || tp == sp)) {
 			res = -1;
 		} else {
 			sp = tp;

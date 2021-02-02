@@ -1,6 +1,6 @@
 /*** ywd.c -- guts for ywd dates
  *
- * Copyright (C) 2012-2018 Sebastian Freundt
+ * Copyright (C) 2012-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -393,6 +393,7 @@ __get_z31wk(unsigned int y)
  * the new year are treated as 53
  * In the 400 year cycle, there's 243 years with 53 weeks and
  * 157 years with 52 weeks. */
+#if 0
 	switch (y % 28U) {
 	default:
 		break;
@@ -412,6 +413,15 @@ __get_z31wk(unsigned int y)
 	}
 	/* more weeks with 53, so default to that */
 	return 53;
+#endif
+#define BIT(x)	(1U << (x))
+	/* redo with bitmasks */
+	static const unsigned int w =
+		BIT(1U) ^ BIT(2U) ^ BIT(3U) ^ BIT(4U) ^
+		BIT(7U) ^ BIT(8U) ^ BIT(9U) ^ BIT(12U) ^
+		BIT(13U) ^ BIT(14U) ^ BIT(15U) ^ BIT(18U) ^
+		BIT(19U) ^ BIT(20U) ^ BIT(24U) ^ BIT(25U) ^ BIT(26U);
+	return 52 + (w >> (y % 28U)) & 0b1U;
 }
 
 #endif	/* GET_ISOWK_* */
@@ -476,18 +486,18 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 	default:
 	case YWD_ISOWK_CNT:
 		break;
-	case YWD_ABSWK_CNT:
-		assert(w != DT_MIRACLEDAY);
+	case YWD_ABSWK_CNT: {
+		dt_dow_t u = w ?: DT_THURSDAY;
 
-		if (hang == 1 && w < DT_SUNDAY) {
+		if (hang == 1 && u < DT_SUNDAY) {
 			/* n-th W in the year is n-th week,
 			 * year starts on sunday */
 			;
-		} else if (hang > 0 && w < DT_SUNDAY && w < j01) {
+		} else if (hang > 0 && u < DT_SUNDAY && u < j01) {
 			/* n-th W in the year is n-th week,
 			 * in this case the year doesnt start on sunday */
 			;
-		} else if (hang <= 0 && (w >= j01 || w == DT_SUNDAY)) {
+		} else if (hang <= 0 && (u >= j01 || u == DT_SUNDAY)) {
 			/* n-th W in the year is n-th week */
 			;
 		} else if (hang > 0) {
@@ -497,7 +507,7 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 			/* weekdays missing in the first week of Y */
 			c++;
 		}
-
+	}
 		canon_yc(y, c, hang);
 		break;
 	case YWD_SUNWK_CNT:
@@ -596,7 +606,7 @@ __ywd_get_yday(dt_ywd_t d)
  * counting how many days there are in a week.
  * This may return negative values and values larger than the number of
  * days in that year. */
-	return GREG_DAYS_P_WEEK * (d.c - 1) + d.w + d.hang;
+	return GREG_DAYS_P_WEEK * (d.c - 1) +  (dt_dow_t)(d.w ?: DT_THURSDAY) + d.hang;
 }
 
 static dt_dow_t
@@ -679,17 +689,10 @@ __ywd_get_year(dt_ywd_t d)
 
 	if (d.c == 1) {
 		dt_dow_t f01 = __ywd_get_jan01_wday(d);
-
-		if (d.hang <= 0 && d.w < f01) {
-			y--;
-		}
-
+		y -= d.hang <= 0 && (dt_dow_t)(d.w ?: DT_THURSDAY) < f01;
 	} else if (d.c >= __get_z31wk(y)) {
 		dt_dow_t z31 = __ywd_get_dec31_wday(d);
-
-		if (z31 < DT_SUNDAY && d.w > z31) {
-			y++;
-		}
+		y += z31 < DT_SUNDAY && (dt_dow_t)(d.w ?: DT_THURSDAY) > z31;
 	}
 	return y;
 }

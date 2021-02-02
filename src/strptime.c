@@ -1,6 +1,6 @@
 /*** strptime.c -- a shell interface to strptime(3)
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -73,45 +73,48 @@ prnt_line(const char *ofmt, struct tm *tm)
 	return;
 }
 
-static void
+static int
 proc_line(
 	const char *ln, const char *const *fmt, size_t nfmt,
 	const char *ofmt,
 	int quietp)
 {
 	struct tm tm = {0};
+	int rc = 0;
 
 	if (pars_line(&tm, fmt, nfmt, ln) < 0) {
 		if (!quietp) {
 			dt_io_warn_strpdt(ln);
+			rc = 2;
 		}
 	} else {
 		prnt_line(ofmt, &tm);
 	}
-	return;
+	return rc;
 }
 
-static void
+static int
 proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 {
 	size_t lno = 0;
+	int rc = 0;
 	void *pctx;
 
 	/* using the prchunk reader now */
 	if ((pctx = init_prchunk(STDIN_FILENO)) == NULL) {
 		serror("Error: could not open stdin");
-		return;
+		return 1;
 	}
 	while (prchunk_fill(pctx) >= 0) {
 		for (char *line; prchunk_haslinep(pctx); lno++) {
 			(void)prchunk_getline(pctx, &line);
 			/* check if line matches */
-			proc_line(line, fmt, nfmt, ofmt, quietp);
+			rc |= proc_line(line, fmt, nfmt, ofmt, quietp);
 		}
 	}
 	/* get rid of resources */
 	free_prchunk(pctx);
-	return;
+	return rc;
 }
 
 
@@ -128,10 +131,10 @@ main(int argc, char *argv[])
 	char **input;
 	size_t ninput;
 	int quietp;
-	int res = 0;
+	int rc = 0;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 
@@ -177,17 +180,17 @@ main(int argc, char *argv[])
 	/* get lines one by one, apply format string and print date/time */
 	if (ninput == 0) {
 		/* read from stdin */
-		proc_lines((const char*const*)infmt, ninfmt, outfmt, quietp);
+		rc |= proc_lines((const char*const*)infmt, ninfmt, outfmt, quietp);
 	} else {
 		const char *const *cinfmt = (const char*const*)infmt;
 		for (size_t i = 0; i < ninput; i++) {
-			proc_line(input[i], cinfmt, ninfmt, outfmt, quietp);
+			rc |= proc_line(input[i], cinfmt, ninfmt, outfmt, quietp);
 		}
 	}
 
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* strptime.c ends here */

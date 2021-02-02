@@ -1,6 +1,6 @@
 /*** dt-core.c -- our universe of datetimes
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -196,13 +196,27 @@ static inline struct dt_dt_s
 __sexy_to_daisy(dt_ssexy_t sx)
 {
 	struct dt_dt_s res = {DT_UNK};
+	int s, m, h;
 
-	res.t.hms.s = sx % SECS_PER_MIN;
+	s = sx % SECS_PER_MIN;
 	sx /= SECS_PER_MIN;
-	res.t.hms.m = sx % MINS_PER_HOUR;
+	m = sx % MINS_PER_HOUR;
 	sx /= MINS_PER_HOUR;
-	res.t.hms.h = sx % HOURS_PER_DAY;
+	h = sx % HOURS_PER_DAY;
 	sx /= HOURS_PER_DAY;
+
+	m -= s < 0;
+	h -= m < 0;
+	sx -= h < 0;
+
+	s += s >= 0 ? 0 : SECS_PER_MIN;
+	m += m >= 0 ? 0 : MINS_PER_HOUR;
+	h += h >= 0 ? 0 : HOURS_PER_DAY;
+
+	/* assign now */
+	res.t.hms.s = s;
+	res.t.hms.m = m;
+	res.t.hms.h = h;
 
 	/* rest is a day-count, move to daisy */
 	res.d.daisy = sx + DAISY_UNIX_BASE;
@@ -629,7 +643,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		goto sober;
 
 	case DT_LDN:
-		res.d.ldn = (dt_ldn_t)strtoi(str, &sp);
+		res.d.ldn = (dt_ldn_t)strtoi32(str, &sp);
 		if (*sp == '.') {
 			/* oooh, a double it seems */
 			double tmp = strtod(sp, &on);
@@ -655,7 +669,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 		goto sober;
 
 	case DT_MDN:
-		res.d.mdn = (dt_ldn_t)strtoi(str, &sp);
+		res.d.mdn = (dt_ldn_t)strtoi32(str, &sp);
 		if (*sp == '.') {
 			/* oooh, a double it seems */
 			double tmp = strtod(sp, &on);
@@ -1401,7 +1415,7 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 			unsigned int ss = __secs_since_midnight(d.t);
 
 			switch (tgttyp) {
-				int32_t sx;
+				int64_t sx;
 #if defined WITH_LEAP_SECONDS
 			case DT_SEXYTAI: {
 				zidx_t zi;
@@ -1538,7 +1552,9 @@ dt_dtadd(struct dt_dt_s d, struct dt_dtdur_s dur)
 			carry--;
 		}
 
-		d.t.hms.ns = dv;
+		if (d.sandwich) {
+			d.t.hms.ns = dv;
+		}
 
 		/* the rest is normal second-wise tadd */
 		dv = carry;
@@ -1607,15 +1623,16 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 	if (dt_sandwich_only_t_p(d1) && dt_sandwich_only_t_p(d2)) {
 		/* make t-only */
 		res.durtyp = (dt_dtdurtyp_t)(DT_DURS + (tgttyp == DT_DURNANO));
-		res.dv = dt;
+		res.neg = (uint16_t)(dt < 0);
+		res.dv = dt >= 0 ? dt : -dt;
 	} else if (tgttyp && (dt_durtyp_t)tgttyp < DT_NDURTYP) {
-		/* check for negative carry, DT typ can't be NANO */
-		if (UNLIKELY(dt < 0)) {
-			d2.d = dt_dadd(d2.d, dt_make_ddur(DT_DURD, -1));
-			dt += SECS_PER_DAY;
-		}
 		res.durtyp = tgttyp;
-		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d);
+		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d, dt);
+		dt = !res.neg ? dt : -dt;
+		dt = !res.d.fix ? dt
+			: dt > 0 ? SECS_PER_DAY - dt
+			: dt < 0 ? dt + SECS_PER_DAY
+			: 0;
 		res.t.sdur = dt;
 		res.t.nsdur = 0;
 	} else if ((dt_durtyp_t)tgttyp >= DT_NDURTYP) {
@@ -1623,7 +1640,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 
 		if (d1.typ < DT_PACK && d2.typ < DT_PACK) {
 			/* go for tdiff and ddiff independently */
-			res.d = dt_ddiff(DT_DURD, d1.d, d2.d);
+			res.d = dt_ddiff(DT_DURD, d1.d, d2.d, 0);
 
 			if (UNLIKELY(tgttyp == DT_DURNANO)) {
 				/* unfortunately we have to scale back */

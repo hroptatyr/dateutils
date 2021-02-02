@@ -43,11 +43,11 @@ before_script:
 script:
   - if [ "$CHECK" = "normal" ]; then
       ./configure --enable-contrib || { cat config.log; false; } &&
-      make -j2 clean && make -j2 check;
+      make -j2 clean && make -j2 check || { cat test/test-suite.log; false; } ;
     fi
   - if [ "$CHECK" = "distcheck" ]; then
       ./configure --enable-tzmap-fetch || { cat config.log; false; } &&
-      make -j2 all && make -j2 distcheck;
+      make -j2 all && make -j1 distcheck;
     fi
 
 after_script:

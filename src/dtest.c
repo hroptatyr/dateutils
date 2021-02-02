@@ -1,6 +1,6 @@
 /*** dtest.c -- like test(1) but for dates
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 
 	/* just do the comparison */
 	if ((res = dt_dtcmp(d1, d2)) == -2) {
-		/* uncomparable */
+		/* non-comparable */
 		res = 3;
 	} else if (argi->cmp_flag) {
 		switch (res) {

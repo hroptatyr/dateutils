@@ -1,6 +1,6 @@
 /*** strops.h -- useful string operations
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -52,9 +52,16 @@ extern __attribute__((nonnull(1, 2))) int32_t
 padstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim);
 
 /**
- * Convert STR to i32 and point to the end of the string in EP. */
+ * Convert STR to i32 and point to the end of the string in EP.
+ * Return INT32_MIN on error. */
 extern __attribute__((nonnull(1, 2))) int32_t
-strtoi(const char *str, const char **ep);
+strtoi32(const char *str, const char **ep);
+
+/**
+ * Convert STR to i64 and point to the end of the string in EP.
+ * Return INT64_MIN on error. */
+extern __attribute__((nonnull(1, 2))) int64_t
+strtoi64(const char *str, const char **ep);
 
 /**
  * Convert roman numeral (string) to i32 and point to its end in EP. */

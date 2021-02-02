@@ -1,6 +1,6 @@
 /*** alist.c -- bog standard associative lists
  *
- * Copyright (C) 2010-2018 Sebastian Freundt
+ * Copyright (C) 2010-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -47,12 +47,12 @@
 /* our alist is a simple flat char array with pointers behind every key
  * aligned to void* boundaries. */
 
-static const void**
+static void**
 __assoc(alist_t al, const char *key)
 {
 	for (const char *ap = al->data, *const ep = ap + al->dend; ap < ep;) {
 		const char *kp;
-		const void **res = (const void**)al->data;
+		void **res = (void**)al->data;
 
 		/* unrolled strcmp */
 		for (kp = key; *ap && *ap == *kp; ap++, kp++);
@@ -109,10 +109,10 @@ free_alist(alist_t al)
 	return;
 }
 
-const void*
+void*
 alist_assoc(alist_t al, const char *key)
 {
-	const void **res;
+	void **res;
 
 	if (UNLIKELY(al->data == NULL)) {
 		goto nada;
@@ -125,7 +125,7 @@ nada:
 }
 
 void
-alist_put(alist_t al, const char *key, const void *val)
+alist_put(alist_t al, const char *key, void *val)
 {
 	size_t klen = strlen(key);
 
@@ -141,9 +141,9 @@ alist_put(alist_t al, const char *key, const void *val)
 }
 
 void
-alist_set(alist_t al, const char *key, const void *val)
+alist_set(alist_t al, const char *key, void *val)
 {
-	const void **ass;
+	void **ass;
 
 	if ((ass = __assoc(al, key)) != NULL) {
 		*ass = val;
@@ -165,7 +165,7 @@ alist_next(alist_t al)
 		const char *p = al->iter ?: al->data;
 		size_t klen = strlen(p);
 
-		with (const void *const *d = (const void*)p) {
+		with (void *const *d = (const void*)p) {
 			d += klen / sizeof(d) + 1U;
 			res.key = p;
 			res.val = *d++;

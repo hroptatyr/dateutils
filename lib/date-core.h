@@ -1,6 +1,6 @@
 /*** date-core.h -- our universe of dates
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -520,7 +520,7 @@ extern int dt_dur_neg_p(struct dt_ddur_s dur);
  * If instead D2 should count, swap D1 and D2 and negate the duration
  * by setting/clearing the neg bit. */
 extern struct dt_ddur_s
-dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2);
+dt_ddiff(dt_durtyp_t tgttyp, struct dt_d_s d1, struct dt_d_s d2, int carry);
 
 /**
  * Compare two dates, yielding 0 if they are equal, -1 if D1 is older,

@@ -1,6 +1,6 @@
 /*** strops.c -- useful string operations
  *
- * Copyright (C) 2011-2018 Sebastian Freundt
+ * Copyright (C) 2011-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -109,7 +109,7 @@ padstrtoi_lim(const char *str, const char **ep, int32_t llim, int32_t ulim)
 }
 
 DEFUN int32_t
-strtoi(const char *str, const char **ep)
+strtoi32(const char *str, const char **ep)
 {
 	const char *sp = str;
 	bool negp = false;
@@ -123,7 +123,31 @@ strtoi(const char *str, const char **ep)
 		res *= 10, res += (unsigned char)(*sp++ ^ '0');
 	}
 	if (UNLIKELY(sp == str)) {
-		res = -1;
+		res = INT32_MIN;
+	} else if (negp) {
+		res = -res;
+	}
+	*ep = (char*)sp;
+	return res;
+}
+
+
+DEFUN int64_t
+strtoi64(const char *str, const char **ep)
+{
+	const char *sp = str;
+	bool negp = false;
+	int64_t res = 0;
+
+	if (*str == '-') {
+		negp = true;
+		sp++;
+	}
+	while (res < INT64_MAX / 10 && (unsigned char)(*sp ^ '0') < 10U) {
+		res *= 10, res += (unsigned char)(*sp++ ^ '0');
+	}
+	if (UNLIKELY(sp == str)) {
+		res = INT64_MIN;
 	} else if (negp) {
 		res = -res;
 	}

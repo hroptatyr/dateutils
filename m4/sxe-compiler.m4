@@ -678,9 +678,6 @@ AC_DEFUN([SXE_CHECK_SLOPPY_STRUCTS_INIT], [
 	save_CFLAGS="${CFLAGS}"
 	CFLAGS="-Werror"
 
-	SXE_CHECK_COMPILER_FLAG([-Wmissing-field-initializers], [
-		CFLAGS="${CFLAGS} -Wmissing-field-initializers"])
-
 	AC_MSG_CHECKING([dnl
 whether C compiler can initialise structs and unions in a sloppy way])
 

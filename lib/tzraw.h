@@ -1,6 +1,6 @@
 /*** tzraw.h -- reader for olson database zoneinfo files
  *
- * Copyright (C) 2009-2018 Sebastian Freundt
+ * Copyright (C) 2009-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -39,7 +39,6 @@
 #define INCLUDED_tzraw_h_
 
 #include <stdint.h>
-#include <limits.h>
 #include "leaps.h"
 
 #if defined __cplusplus
@@ -102,7 +101,11 @@ struct tzhead {
 
 
 /* now our view on things */
-typedef const struct zif_s *zif_t;
+typedef struct zif_s *zif_t;
+typedef int64_t stamp_t;
+
+#define STAMP_MIN	(-140737488355328LL)
+#define STAMP_MAX	(140737488355327LL)
 
 typedef enum {
 	TZCZ_UNK,
@@ -114,7 +117,7 @@ typedef enum {
 
 /* for the one tool that needs raw transitions */
 struct zrng_s {
-	int32_t prev, next;
+	stamp_t prev, next;
 	signed int offs:24;
 	unsigned int trno:8;
 } __attribute__((packed));
@@ -136,25 +139,29 @@ extern zif_t zif_copy(zif_t);
 
 /**
  * Find the most recent transition in Z before T. */
-extern int zif_find_trans(zif_t z, int32_t t);
+extern int zif_find_trans(zif_t z, stamp_t t);
 
 /**
  * Find a range of transitions in Z that T belongs to. */
-extern struct zrng_s zif_find_zrng(zif_t z, int32_t t);
+extern struct zrng_s zif_find_zrng(zif_t z, stamp_t t);
 
 /**
  * Given T in local time specified by Z, return a T in UTC. */
-extern int32_t zif_utc_time(zif_t z, int32_t t);
+extern stamp_t zif_utc_time(zif_t z, stamp_t t);
 
 /**
  * Given T in UTC, return a T in local time specified by Z. */
-extern int32_t zif_local_time(zif_t z, int32_t t);
+extern stamp_t zif_local_time(zif_t z, stamp_t t);
 
 
 /* exposure for specific zif-inspecting tools (dzone(1) for one) */
-extern size_t zif_ntrans(zif_t z);
+/**
+ * Return the gmt offset (in seconds) after the N-th transition in Z. */
+extern int zif_troffs(zif_t z, int n);
 
-extern struct ztrdtl_s zif_trdtl(zif_t z, int n);
+/**
+ * Return the number of transitions in Z. */
+extern size_t zif_ntrans(zif_t z);
 
 #if defined __cplusplus
 }

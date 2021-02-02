@@ -1,6 +1,6 @@
 /*** tzmap.h -- zonename maps
  *
- * Copyright (C) 2014-2018 Sebastian Freundt
+ * Copyright (C) 2014-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -44,7 +44,7 @@
 */
 #define	TZM_MAGIC	"TZm1"
 
-typedef const struct tzmap_s *tzmap_t;
+typedef struct tzmap_s *tzmap_t;
 
 typedef uint32_t znoff_t;
 

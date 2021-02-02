@@ -1,6 +1,6 @@
 /*** ymd.c -- guts for ymd dates
  *
- * Copyright (C) 2010-2018 Sebastian Freundt
+ * Copyright (C) 2010-2020 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -590,7 +590,9 @@ static dt_ymd_t
 __ymd_add_d(dt_ymd_t d, int n)
 {
 /* add N days to D */
-	signed int tgtd = d.d + n;
+	signed int tgtd;
+	d = __ymd_fixup(d);
+	tgtd = d.d + n;
 
 	/* fixup the day */
 	return __ymd_fixup_d(d.y, d.m, tgtd);
@@ -600,8 +602,12 @@ static dt_ymd_t
 __ymd_add_b(dt_ymd_t d, int n)
 {
 /* add N business days to D */
-	dt_dow_t wd = __ymd_get_wday(d);
-	int tgtd = d.d + __get_d_equiv(wd, n);
+	dt_dow_t wd;
+	signed int tgtd;
+
+	d = __ymd_fixup(d);
+	wd = __ymd_get_wday(d);
+	tgtd = d.d + __get_d_equiv(wd, n);
 
 	/* fixup the day, i.e. 2012-01-34 -> 2012-02-03 */
 	return __ymd_fixup_d(d.y, d.m, tgtd);
