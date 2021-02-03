@@ -77,7 +77,7 @@ DEFVAR const char hms_dflt[] = "%H:%M:%S";
 DEFUN struct dt_t_s
 __guess_ttyp(struct strpt_s t)
 {
-	struct dt_t_s res;
+	struct dt_t_s res = {DT_TUNK};
 
 	if (UNLIKELY(!(t.flags.h_set || t.flags.m_set ||
 		       t.flags.s_set || t.flags.ns_set))) {
@@ -108,9 +108,8 @@ __guess_ttyp(struct strpt_s t)
 		res.hms.h %= HOURS_PER_DAY / 2U;
 		res.hms.h += t.flags.pm_p ? 12U : 0U;
 	}
-	return res;
 fucked:
-	return (struct dt_t_s){DT_TUNK};
+	return res;
 }
 
 DEFUN dt_ttyp_t

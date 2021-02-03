@@ -413,6 +413,7 @@ zif_open(const char *file)
 	beef = hdr + sizeof(struct zih_s);
 	switch (hdr[offsetof(struct zih_s, tzh_version)]) {
 	case '2':
+		/*@fallthrough@*/
 	case '3':
 		for (size_t i = 0U; i < tmp.ntr; i++) {
 			res->trs[i] = RDI64(beef + 8U * i);
@@ -424,6 +425,7 @@ zif_open(const char *file)
 			res->ofs[i] = RDI32(beef + 6U * i);
 		}
 		break;
+		/*@fallthrough@*/
 	case '\0':
 		for (size_t i = 0U; i < tmp.ntr; i++) {
 			res->trs[i] = RDI32(beef + 4U * i);

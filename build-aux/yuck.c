@@ -1599,6 +1599,7 @@ wr_man_include(char **const inc)
 	} else if (UNLIKELY((ofp = mkftempp(&ofn, sizeof(P_tmpdir))) == NULL)) {
 		error("Cannot open output file `%s', ignoring", ofn);
 		*inc = NULL;
+		fclose(fp);
 		return -1;
 	}
 
