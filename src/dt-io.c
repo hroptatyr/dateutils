@@ -83,6 +83,11 @@ dt_io_strpdt_special(const char *str)
 	const struct dt_strpdt_special_s *res;
 	size_t len = min_z(strlen(str), 16U);
 
+	for (size_t i = 0U; i < len; i++) {
+		if (UNLIKELY(str[i] < ' ')) {
+			return STRPDT_UNK;
+		}
+	}
 	if (UNLIKELY((res = __strpdt_special(str, len)) != NULL)) {
 		return res->e;
 	}
