@@ -366,6 +366,7 @@ zif_open(const char *file)
 	switch (hdr[offsetof(struct zih_s, tzh_version)]) {
 		const unsigned char *hds;
 	case '2':
+		/*@fallthrough@*/
 	case '3':
 		hds = hdr;
 		tmp.nlp = RDU32(hdr + offsetof(struct zih_s, tzh_leapcnt));
@@ -384,6 +385,7 @@ zif_open(const char *file)
 			goto unmp;
 		}
 		hdr = hds;
+		/*@fallthrough@*/
 	case '\0':
 		tmp.nlp = RDU32(hdr + offsetof(struct zih_s, tzh_leapcnt));
 		tmp.ntr = RDU32(hdr + offsetof(struct zih_s, tzh_timecnt));
