@@ -71,20 +71,14 @@ serror(const char *fmt, ...)
 
 #include "strpdt-special.c"
 
-static inline __attribute__((const, pure)) size_t
-min_z(size_t z1, size_t z2)
-{
-	return z1 <= z2 ? z1 : z2;
-}
-
 dt_strpdt_special_t
 dt_io_strpdt_special(const char *str)
 {
 	const struct dt_strpdt_special_s *res;
-	size_t len = min_z(strlen(str), 16U);
+	size_t len = strlen(str) & 0xfU;
 
 	for (size_t i = 0U; i < len; i++) {
-		if (UNLIKELY(str[i] < ' ')) {
+		if (UNLIKELY((signed char)str[i] < ' ')) {
 			return STRPDT_UNK;
 		}
 	}
