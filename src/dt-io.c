@@ -71,6 +71,7 @@ serror(const char *fmt, ...)
 
 #include "strpdt-special.c"
 
+/* coverity[-tainted_data_sink: arg-0] */
 dt_strpdt_special_t
 dt_io_strpdt_special(const char *str)
 {
