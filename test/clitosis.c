@@ -1,6 +1,6 @@
 /*** clitosis.c -- command-line-interface tester on shell input syntax
  *
- * Copyright (C) 2013-2020 Sebastian Freundt
+ * Copyright (C) 2013-2021 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
@@ -318,6 +318,7 @@ xmemmem(const char *hay, const size_t hayz, const char *ndl, const size_t ndlz)
 	return NULL;
 }
 
+/* coverity[-tainted_data_sink: arg-0] */
 static char*
 xstrndup(const char *s, size_t z)
 {
