@@ -8,6 +8,25 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.8
+------
+Summary: v0.4.8 of dateutils
+
+This is dateutils v0.4.8.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- be symmetric about differences, A - B := -(B - A) for A < B
+- fix security issue when reading TZMAP_DIR from environment
+- fix printing of negative 0 (-0)
+- fix issue with tzdata transitions in files with leap second
+  adjustments that are now cut off at expiration time (#121)
+
+See info page examples and/or README.
+
+
 v0.4.7
 ------
 Summary: v0.4.7 of dateutils
