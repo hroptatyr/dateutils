@@ -702,7 +702,7 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 
 		if (spec.spfl == DT_SPFL_UNK) {
 			/* must be literal */
-			if (*fp_sav != *sp++) {
+			if (UNLIKELY(*fp_sav != *sp++)) {
 				goto fucked;
 			}
 		} else if (LIKELY(!spec.rom)) {

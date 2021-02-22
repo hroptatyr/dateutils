@@ -85,6 +85,8 @@ typedef enum {
 	/* date/time specs */
 	/* %s epoch spec, non-standard */
 	DT_SPFL_N_EPOCH,
+	/* %s%N epoch spec, non-standard */
+	DT_SPFL_N_EPOCHNS,
 	/* %Z zone difference */
 	DT_SPFL_N_ZDIFF,
 	DT_SPFL_N_DTLAST = DT_SPFL_N_ZDIFF,
