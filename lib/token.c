@@ -146,6 +146,10 @@ next:
 		break;
 	case 's':
 		res.spfl = DT_SPFL_N_EPOCH;
+		if (fp[1U] == '%' && fp[2U] == 'N') {
+			res.spfl = DT_SPFL_N_EPOCHNS;
+			fp += 2U;
+		}
 		break;
 	case 'Z':
 		res.spfl = DT_SPFL_N_ZDIFF;

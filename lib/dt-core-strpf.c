@@ -277,7 +277,8 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 		res = __strpt_card(&d->st, sp, s, ep);
 		goto out_direct;
 
-	case DT_SPFL_N_EPOCH: {
+	case DT_SPFL_N_EPOCH:
+	case DT_SPFL_N_EPOCHNS: {
 		/* read over @ */
 		const char *tp = sp;
 		tp += *tp == '@';
@@ -286,6 +287,10 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			res = -1;
 		} else {
 			sp = tp;
+		}
+		if (s.spfl == DT_SPFL_N_EPOCHNS) {
+			d->st.ns = d->i % 1000000000;
+			d->i /= 1000000000;
 		}
 		break;
 	}
@@ -358,7 +363,8 @@ __strfdt_card(
 		res = __strft_card(buf, bsz, s, &d->st, that.t);
 		break;
 
-	case DT_SPFL_N_EPOCH: {
+	case DT_SPFL_N_EPOCH:
+	case DT_SPFL_N_EPOCHNS: {
 		/* convert to sexy */
 		int64_t sexy = dt_conv_to_sexy(that).sexy;
 		res = snprintf(buf, bsz, "%" PRIi64, sexy);

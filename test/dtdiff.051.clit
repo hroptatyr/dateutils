@@ -1,0 +1,7 @@
+#!/usr/bin/clitoris  ## -*- shell-script -*-
+
+$ ddiff -i "%s%N" 1100000000000000000 1000000000000000000
+-100000000s
+$
+
+## dtdiff.051.clit ends here
