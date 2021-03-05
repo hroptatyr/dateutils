@@ -113,7 +113,7 @@ strtoi32(const char *str, const char **ep)
 {
 	const char *sp = str;
 	bool negp = false;
-	int32_t res = 0;
+	int32_t res = INT32_MIN;
 
 	if (*str == '-') {
 		negp = true;
@@ -122,12 +122,10 @@ strtoi32(const char *str, const char **ep)
 	while (res < INT32_MAX / 10 && (unsigned char)(*sp ^ '0') < 10U) {
 		res *= 10, res += (unsigned char)(*sp++ ^ '0');
 	}
-	if (UNLIKELY(sp == str)) {
-		res = INT32_MIN;
-	} else if (negp) {
+	if (negp) {
 		res = -res;
 	}
-	*ep = (char*)sp;
+	*ep = res > INT32_MIN ? (char*)sp : (char*)str;
 	return res;
 }
 
@@ -137,7 +135,7 @@ strtoi64(const char *str, const char **ep)
 {
 	const char *sp = str;
 	bool negp = false;
-	int64_t res = 0;
+	int64_t res = INT64_MIN;
 
 	if (*str == '-') {
 		negp = true;
@@ -146,12 +144,10 @@ strtoi64(const char *str, const char **ep)
 	while (res < INT64_MAX / 10 && (unsigned char)(*sp ^ '0') < 10U) {
 		res *= 10, res += (unsigned char)(*sp++ ^ '0');
 	}
-	if (UNLIKELY(sp == str)) {
-		res = INT64_MIN;
-	} else if (negp) {
+	if (negp) {
 		res = -res;
 	}
-	*ep = (char*)sp;
+	*ep = res > INT64_MIN ? (char*)sp : (char*)str;
 	return res;
 }
 
