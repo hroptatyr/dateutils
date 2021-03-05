@@ -85,7 +85,7 @@
 struct strpdt_s {
 	struct strpd_s sd;
 	struct strpt_s st;
-	long int i;
+	int64_t i;
 
 	/* use 31 bits for the difference */
 	int32_t zdiff:31;

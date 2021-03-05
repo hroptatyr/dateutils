@@ -289,8 +289,8 @@ __strpdt_card(struct strpdt_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			sp = tp;
 		}
 		if (s.spfl == DT_SPFL_N_EPOCHNS) {
-			d->st.ns = d->i % 1000000000;
-			d->i /= 1000000000;
+			d->st.ns = d->i % 1000000000LL;
+			d->i /= 1000000000LL;
 		}
 		break;
 	}
