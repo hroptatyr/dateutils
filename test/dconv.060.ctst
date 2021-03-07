@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2008-00-02 -i '%Y-%W-%w' -f %F
+2008-01-01
+$
+
+## dconv.60.ctst ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dadd '1930-01-01 00:00:00' -f '%F %T' 259200s
-1930-01-04 00:00:00
-$
-
-## dtadd.22.clit ends here

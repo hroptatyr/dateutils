@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ echo 'M2016' | dconv -i '%_b%Y'
-2016-06-00
-$
-
-## dconv.132.clit ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -i "%Y-W%V" 2000-W45
-2000-W45-0
-$
-
-## dconv.139.clit ends here

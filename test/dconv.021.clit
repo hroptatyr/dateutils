@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -f '%qth quarter of %Y' '2010-03-01'
-1st quarter of 2010
-$
-
-## dconv.21.clit ends here

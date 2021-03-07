@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq "1917-01-01" "2399-12-31" -f "ywd" > "add.ywd-1w.ref"
+$ dadd +1w < "add.ywd-1w.ref" | dadd -1w
+< "add.ywd-1w.ref"
+$ rm -- "add.ywd-1w.ref"
+$
+
+## add.ywd-1w.clit

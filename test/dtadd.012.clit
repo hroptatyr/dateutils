@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dadd 2012-03-24T18:00:00 24h --from-zone 'Europe/Berlin' -z Europe/Berlin
-2012-03-25T19:00:00
-$
-
-## dtadd.12.clit ends here

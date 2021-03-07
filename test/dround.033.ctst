@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dround --locale fo_FO -f '%d/%b/%Y' -31d <<EOF
+2016-01-01
+2016-06-01
+EOF
+31/des/2015
+31/mai/2016
+$
+
+## dround.033.ctst ends here

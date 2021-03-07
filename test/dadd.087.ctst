@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd -i ldn +1d <<EOF
+157729
+157732
+EOF
+157730
+157733
+$
+
+## dadd.087.ctst ends here

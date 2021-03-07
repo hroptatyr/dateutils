@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2012-03-01T07:05:06 --zone America/Chicago
+2012-03-01T01:05:06
+$
+
+## dtconv.5.ctst ends here

@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -i '%Y-%D' 2012-365
-2012-365
-$ dconv -f '%F' 2012-365
-2012-12-30
-$
-
-## dconv.39.clit ends here

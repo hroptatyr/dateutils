@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ?2 dconv -i '%Y%M%d/%b/%y' -f '%F %T' 20101230
+$ ?2 dconv -i '%Y%M%d/%b/%y' -f '%F %T' <<EOF
+20101230
+EOF
+$
+
+## dconv.99.ctst ends here

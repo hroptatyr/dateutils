@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i '%s' <<EOF
+1234567890
+EOF
+2009-02-13T23:31:30
+$
+
+## dtconv.39.ctst ends here

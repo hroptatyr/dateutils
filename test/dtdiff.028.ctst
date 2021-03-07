@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff --from-zone Australia/Sydney 2013-04-15T08:30:00 <<EOF
+2013-04-15T09:00:00
+EOF
+1800s
+$
+
+## dtdiff.28.ctst ends here

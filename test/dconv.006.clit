@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -f "%Y-%jb" "2010-03-01b"
-2010-042b
-$
-
-## dconv.6.clit ends here

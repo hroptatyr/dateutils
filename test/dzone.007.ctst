@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## Singapore stopped transitioning in 1982
+$ dzone --next Asia/Singapore 2014-02-22
+never -> never	Asia/Singapore
+$
+
+## dzone.007.ctst ends here

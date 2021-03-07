@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2012-03-01T12:34:56
+2012-03-01T12:34:56
+$
+
+## dtconv.2.ctst ends here

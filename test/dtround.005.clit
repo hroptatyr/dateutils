@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dround 2012-03-04T12:03:11 1m
-2012-03-04T13:01:11
-$ dround 2012-03-04T12:03:11 /1m
-2012-03-04T12:04:00
-$
-
-## dtround.5.clit ends here

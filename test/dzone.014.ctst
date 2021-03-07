@@ -1,0 +1,14 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## this is issue #80
+$ dzone --input-format='%m/%d/%Y,%H:%M' --from-zone='America/New_York' UTC '03/14/2017,11:30'
+2017-03-14T15:30:00+00:00	UTC
+$ dzone --input-format='%m/%d/%Y,%H:%M' --from-zone='America/New_York' '03/14/2017,11:30'
+2017-03-14T15:30:00-04:00
+$ dzone --input-format='%m/%d/%Y,%H:%M' UTC '03/14/2017,11:30'
+2017-03-14T11:30:00+00:00	UTC
+$ dzone --input-format='%m/%d/%Y,%H:%M' '03/14/2017,11:30'
+2017-03-14T11:30:00+00:00
+$
+
+## dzone.014.ctst ends here

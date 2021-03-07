@@ -1,8 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-## dconv fixes up dates
-$ dconv 2014-10-06T10:13:00 -f '%FT%T%Z' -z 'Europe/London'
-2014-10-06T11:13:00+01:00
-$
-
-## dtconv.068.clit ends here

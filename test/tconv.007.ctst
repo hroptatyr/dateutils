@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv --from-zone 'Europe/London' --zone 'Europe/Berlin' '12:00'
+13:00:00
+$
+
+## tconv.007.ctst ends here

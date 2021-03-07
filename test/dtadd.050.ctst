@@ -1,0 +1,5 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd -z "Europe/Berlin" "@1434147500" "+2m" -f "%Y%m%d %T Europe/Berlin" 
+20150613 00:20:20 Europe/Berlin
+$

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dround 2012-03-04 -- -Mar
+2012-03-04
+$
+
+## dround.17.ctst ends here

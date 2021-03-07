@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis
+
+$ printf "2014-08-08\n" | dround Mon
+2014-08-11
+$ printf "2014-08-08" | dround Mon
+2014-08-11
+$

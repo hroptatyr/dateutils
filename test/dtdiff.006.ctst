@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff 2012-03-02 2012-03-03T10:14:00 -f '%F'
+1d
+$
+
+## dtdiff.6.ctst ends here

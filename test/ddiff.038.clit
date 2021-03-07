@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2008-03-31 2012-03-31 -f '%Y %d'
-4 0
-$
-
-## ddiff.038.clit ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv 2011-01-01T00:00:00 -f julian
-2455562.500000
-$
-
-## dtconv.42.clit ends here

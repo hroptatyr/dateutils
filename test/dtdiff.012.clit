@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2012-03-01T12:17:00 2012-03-02T14:00:00 -f '%d days and %S seconds'
-1 days and 6180 seconds
-$
-
-## dtdiff.12.clit ends here

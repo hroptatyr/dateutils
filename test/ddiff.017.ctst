@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff 2008-06-29 2009-06-29 -f '%yy %mm %dd'
+1y 0m 0d
+$
+
+## ddiff.017.ctst ends here

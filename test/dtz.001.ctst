@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2012-01-01T00:00:00 --zone 'Asia/Singapore'
+2012-01-01T08:00:00
+$
+
+## dtz.1.ctst ends here

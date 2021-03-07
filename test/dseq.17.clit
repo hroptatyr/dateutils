@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dseq 2001-02-05 -4 2001-02-05 -f "%F %a"
-2001-02-05 Mon
-$
-
-## dseq.17.clit ends here

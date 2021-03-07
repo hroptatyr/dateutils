@@ -1,0 +1,21 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## dconv fixes up dates and reports no error back
+$ dconv -q <<EOF
+2013-02-29
+EOF
+2013-02-28
+$ dconv -q <<EOF
+2013-09-31
+EOF
+2013-09-30
+$ dconv -q <<EOF
+2012-02-30
+EOF
+2012-02-29
+$ dconv -q <<EOF
+2012-03-32
+EOF
+$
+
+## dconv.118.ctst ends here

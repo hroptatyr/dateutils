@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv '2012-03-01 00:00:00' -z GPS
+2012-03-01T00:00:15
+$
+
+## dtconv.26.ctst ends here

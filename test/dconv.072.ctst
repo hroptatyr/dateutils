@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2007-W01-1 -i '%Y-W%W-%w' -f ymd
+2007-01-01
+$
+
+## dconv.72.ctst ends here

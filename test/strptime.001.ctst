@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ strptime -i '%a, %b-%d/%Y' 'Mon, May-01/2000'
+2000-05-01
+$
+
+## strptime.1.ctst ends here

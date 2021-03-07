@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## do not interpret dash as tz indicator
+$ dconv 2014-10-06T10:13:00-FOO --from-zone 'Europe/Berlin' -z 'Europe/London' -f '%FT%T%Z'
+2014-10-06T09:13:00+01:00
+$
+
+## dtconv.069.ctst ends here

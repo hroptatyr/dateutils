@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest --ne 2012-03-02T00:00:00 2012-03-02 || echo 'false'
+false
+$
+
+## dttest.10.ctst ends here

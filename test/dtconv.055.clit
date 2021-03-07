@@ -1,8 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -z Australia/Sydney --from-zone=Australia/Sydney 1408226870 -i %rs \
-  -f "%A %b %dth %H:%M:%S %Y"
-Saturday Aug 16th 22:07:50 2014
-$
-
-## dconv.055.clit ends here

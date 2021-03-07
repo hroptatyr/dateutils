@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 2012-03-24T18:00:00 1d --from-zone 'Europe/Berlin' -z Europe/Berlin
+2012-03-25T18:00:00
+$
+
+## dtadd.11.ctst ends here

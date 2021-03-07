@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## valid roundspec as date
+$ dround -i '%b %d %y' 'Jul 4 17' -1
+2017-07-01
+$
+
+## dround.036.ctst ends here

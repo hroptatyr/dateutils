@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 10:01:00 11:03:10 -f '%S sec'
-3730 sec
-$
-
-## tdiff.8.clit ends here

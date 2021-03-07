@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## range is empty
+$ dseq 2001-02-01 -1 2001-02-04
+$
+
+## dseq.28.ctst ends here

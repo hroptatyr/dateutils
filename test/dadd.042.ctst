@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 2012-W36-1 -1w
+2012-W35-1
+$
+
+## dadd.042.ctst ends here

@@ -1,0 +1,15 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 10:01:00 0
+10:01:00
+$ dadd 10:01:00 0s
+10:01:00
+$ dadd 10:01:00 0m
+10:01:00
+$ dadd 10:01:00 0h
+10:01:00
+$ dadd 10:01:00 0h0m
+10:01:00
+$
+
+## tadd.011.ctst ends here

@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## Frank O'Carroll's report
+$ dseq 2015-06-01 2015-06-07 --skip sun-sat
+$ dseq 2015-06-01 2015-06-07 --skip mon-sun
+$ dseq 2015-06-01 2015-06-07 --skip tue-mon
+$ dseq 2015-06-01 2015-06-07 --skip wed-tue
+$ dseq 2015-06-01 2015-06-07 --skip thu-wed
+$ dseq 2015-06-01 2015-06-07 --skip fri-thu
+$ dseq 2015-06-01 2015-06-07 --skip sat-fri
+$
+
+## dseq.43.ctst ends here

@@ -1,0 +1,16 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## mass adding of durations, time to date
+$ dadd -S 2001-01-05 <<EOF
+1s
+2h
+48h
+test
+EOF
+2001-01-05
+2001-01-05
+2001-01-05
+test
+$
+
+## dadd.029.ctst ends here

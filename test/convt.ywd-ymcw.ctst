@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq "1917-01-01" "2399-12-31" -f "ywd" > "convt.ywd-ymcw.ref"
+$ dconv -f "ymcw" < "convt.ywd-ymcw.ref" | dconv -f "ywd"
+< "convt.ywd-ymcw.ref"
+$ rm -- "convt.ywd-ymcw.ref"
+$
+
+## convt.ywd-ymcw.clit

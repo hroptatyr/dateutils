@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dgrep '>=12:00:00' <<EOF
+fileA	11:59:58
+fileB	11:59:59	leap second?
+fileNOON	12:00:00	new version
+fileC	12:03:12
+EOF
+fileNOON	12:00:00	new version
+fileC	12:03:12
+$
+
+## tgrep.1.ctst ends here

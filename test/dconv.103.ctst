@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i "ldn" 157686
+157686
+$
+
+## dconv.103.ctst ends here

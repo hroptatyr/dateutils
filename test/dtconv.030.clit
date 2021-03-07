@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv '1970-01-01 00:00:00' -z TAI
-1970-01-01T00:00:10
-$
-
-## dtconv.30.clit ends here

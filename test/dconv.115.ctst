@@ -1,0 +1,12 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## dconv fixes up dates
+$ ?2 dconv 2013-02-29
+2013-02-28
+$ ?2 dconv 2013-09-31
+2013-09-30
+$ ?2 dconv 2012-02-30
+2012-02-29
+$
+
+## dconv.115.ctst ends here

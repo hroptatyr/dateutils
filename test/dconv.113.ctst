@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i ldn -f ymd <<EOF
+157729
+157730
+EOF
+2014-08-20
+2014-08-21
+$
+
+## dconv.113.ctst ends here

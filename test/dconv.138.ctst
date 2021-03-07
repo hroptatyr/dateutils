@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -f "mdn" 2011-03-14T06:00:00
+734576.250000
+$ dconv 2011-03-14T06:00:00 -f "matlab"
+734576.250000
+$
+
+## dconv.138.ctst ends here

@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv --from-zone America/Chicago <<EOF
-2012-03-11T02:05:06
-EOF
-2012-03-11T07:05:06
-$
-
-## dtconv.13.clit ends here

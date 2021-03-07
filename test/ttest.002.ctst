@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest 12:00:04 --lt 11:22:33 || echo "false"
+false
+$
+
+## ttest.2.ctst ends here

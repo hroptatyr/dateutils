@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2012-01-01 -f julian
+2455927.500000
+$
+
+## dconv.95.ctst ends here

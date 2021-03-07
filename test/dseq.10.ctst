@@ -1,0 +1,10 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq 2001-01-01 2d 2001-01-08
+2001-01-01
+2001-01-03
+2001-01-05
+2001-01-07
+$
+
+## dseq.10.ctst ends here

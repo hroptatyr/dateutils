@@ -1,0 +1,17 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -Ef "mdn" <<EOF
+2011-03-14T06:00:00
+2011-03-14
+ 2011-03-14
+ 2011-03-14 
+2011/03/14
+EOF
+734576.250000
+734576
+
+
+
+$
+
+## dconv.141.ctst ends here

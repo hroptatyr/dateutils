@@ -1,0 +1,6 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq 2001-02-03 -1 2001-03-03 --skip sat -f "%F %a"
+$
+
+## dseq.14.ctst ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest --from-locale fr_FR -i '%b %Y' --isvalid 'févr. 2010'
+$ ! dtest --isvalid 'févr. 2010'
+$
+
+## dtest.011.ctst ends here

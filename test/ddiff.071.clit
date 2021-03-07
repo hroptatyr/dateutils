@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff -i '%d %B %y' --from-locale an_ES '12 abril 2016' '10 mayo 2016'
-28
-$
-
-## ddiff.071.clit ends here

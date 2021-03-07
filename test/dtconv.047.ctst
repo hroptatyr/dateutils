@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -S --from-zone Europe/Berlin --zone UTC <<EOF
+x	2012-11-01T12:51:21.000	2012-11-01T12:51:22.000
+EOF
+x	2012-11-01T11:51:21	2012-11-01T11:51:22
+$
+
+## dtconv.47.ctst ends here

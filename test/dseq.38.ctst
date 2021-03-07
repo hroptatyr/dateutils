@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq 2016-01-01 2017-01-01 | dconv -f ywd > "dseq.38.ref"
+$ dseq 2015-W53-5 2016-W52-07
+< dseq.38.ref
+$ rm -f -- "dseq.38.ref"
+$
+
+## dseq.38.ctst ends here

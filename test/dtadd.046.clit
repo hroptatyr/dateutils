@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-## actual zone specs take precedence over --from-zone
-$ dadd --from-zone America/Chicago '2014-01-08T12:34:56-05:00' +1h \
-  --zone America/Chicago -f "%FT%T%Z"
-2014-01-08T12:34:56-06:00
-$
-
-## dtadd.046.clit ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd '2014-01-08T12:34:56' +20ns -f "%FT%T.%N"
+2014-01-08T12:34:56.000000020
+$
+
+## dtadd.047.ctst ends here

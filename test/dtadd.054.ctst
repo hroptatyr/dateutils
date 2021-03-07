@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd +2mo +1500m <<EOF
+2016-04-04
+2016-04-04T10:20:00
+EOF
+2016-06-04
+2016-06-05T11:20:00
+$
+
+## dtadd.054.ctst ends here

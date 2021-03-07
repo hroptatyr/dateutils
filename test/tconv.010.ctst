@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv --from-zone 'Asia/Singapore' '12:00'
+04:00:00
+$
+
+## tconv.010.ctst ends here

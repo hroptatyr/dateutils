@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -f "mdn" 2011-03-14T06:00:00
-734576.250000
-$ dconv 2011-03-14T06:00:00 -f "matlab"
-734576.250000
-$
-
-## dconv.138.clit ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd '2012-05-01 14:00:00' -f '%Y-%m-%db %T' +7b
+2012-05-08b 14:00:00
+$
+
+## dtadd.39.ctst ends here

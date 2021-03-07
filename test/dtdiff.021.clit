@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff '2012-06-30 23:59:00' '2012-07-01 00:00:00' -f '%rT'
-61s
-$
-
-## dtdiff.21.clit ends here

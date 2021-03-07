@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2012-03-03 2012-03-02T10:14:00 -f '%F'
--1d
-$
-
-## dtdiff.8.clit ends here

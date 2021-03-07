@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i "%d/%b/%y" -f "%OY %Om %Od" 17/Sep/98
+MCMXCVIII IX XVII
+$
+
+## dconv.5.ctst ends here

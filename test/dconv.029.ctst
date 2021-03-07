@@ -1,0 +1,6 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ignore-output dconv today
+$
+
+## dconv.29.ctst ends here

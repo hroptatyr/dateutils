@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ignore-return find "${root}/lib" "${TZMAP_DIR}/../lib" -name '*.tzmap' | \
+	xargs "${TZMAP}" check
+$
+
+## tzmap_check_01.ctst ends here

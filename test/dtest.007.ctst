@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest now --gt 2010-01-01 && echo "yes"
+yes
+$
+
+## dtest.7.ctst ends here

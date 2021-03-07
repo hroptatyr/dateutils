@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2013-04-15T08:30:00+1000 <<EOF
-2013-04-14T23:00:00+0000
-EOF
-1800s
-$
-
-## dtdiff.32.clit ends here

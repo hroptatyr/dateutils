@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## read stamps
+$ ddiff 2012-03-02T10:04:00 @1330683240
+600s
+$
+
+## dtdiff.041.ctst ends here

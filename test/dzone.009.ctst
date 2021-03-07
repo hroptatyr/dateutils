@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dzone --prev UTC
+never <- never	UTC
+$
+
+## dzone.009.ctst ends here

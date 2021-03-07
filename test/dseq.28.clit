@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-## range is empty
-$ dseq 2001-02-01 -1 2001-02-04
-$
-
-## dseq.28.clit ends here

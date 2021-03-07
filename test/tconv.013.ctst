@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i '%I:%M:%S %p' '12:03:01 PM'
+12:03:01
+$ dconv -i '%I:%M:%S %p' '01:03:01 PM'
+13:03:01
+$ dconv -i '%I:%M:%S %P' '12:03:01 pm'
+12:03:01
+$ dconv -i '%I:%M:%S %P' '01:03:01 pm'
+13:03:01
+$
+
+## tconv.013.ctst ends here

@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i '%Y-%D' 2012-32
+2012-032
+$ dconv -f '%F' 2012-032
+2012-02-01
+$
+
+## dconv.34.ctst ends here

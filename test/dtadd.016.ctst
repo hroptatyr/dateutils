@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd -1d4h <<EOF
+2012-03-12T12:05:00
+EOF
+2012-03-11T08:05:00
+$
+
+## dtadd.16.ctst ends here

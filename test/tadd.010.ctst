@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd -S 12:05:00 <<EOF
+test 10m
+1d
+12
+EOF
+test 10m
+12:05:00
+12:05:00
+$
+
+## tadd.10.ctst ends here

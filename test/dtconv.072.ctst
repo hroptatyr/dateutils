@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## mind the -1 when reading unix stamps
+$ ! dconv -i %s /16s
+$
+
+## dtconv.071.ctst ends here

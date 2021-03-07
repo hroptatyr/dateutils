@@ -1,0 +1,12 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dgrep -v \<=2012-03-01 <<EOF
+2012-02-28
+2012-02-29
+2012-03-01
+2012-03-02
+EOF
+2012-03-02
+$
+
+## dgrep.023.ctst ends here

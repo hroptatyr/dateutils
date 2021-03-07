@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -b 2016-01-01 --input-format "%b %d %H:%M:%S" --format "%F %T" "Oct 1 12:05:00"
+2016-10-01 12:05:00
+$ dconv -b 2016-01-01 --input-format "%b %d %H:%M:%S" --format "%F %T" "Oct  1 12:05:00"
+2016-10-01 12:05:00
+$
+
+## dconv.133.ctst ends here

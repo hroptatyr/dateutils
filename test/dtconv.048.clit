@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -S --from-zone Europe/Berlin --zone UTC -f '%FT%T%Z' <<EOF
-x	2012-11-01T12:51:21.000+01:00	2012-11-01T12:51:22.000+01:00
-EOF
-x	2012-11-01T11:51:21+00:00	2012-11-01T11:51:22+00:00
-$
-
-## dtconv.48.clit ends here

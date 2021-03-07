@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 12:03:01
+12:03:01
+$
+
+## tconv.1.ctst ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest --eq 11:22:33 11:22:33 && echo "true"
+true
+$
+
+## ttest.6.ctst ends here

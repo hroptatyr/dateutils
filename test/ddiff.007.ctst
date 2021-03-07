@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff 2012-01-02 2012-02-29 -f '%ww'
+8w
+$
+
+## ddiff.7.ctst ends here
