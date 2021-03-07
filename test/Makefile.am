@@ -32,7 +32,7 @@ SUFFIXES =
 DT_LIBS = $(top_builddir)/lib/libdut.a
 
 ## our friendly helper
-include ctstosis.am
+include clitosis.am
 AM_CTST_LOG_FLAGS = -v --builddir "$(top_builddir)/src" --timeout 300 --keep-going
 
 TESTS_ENVIRONMENT += GPERF=$(GPERF)
