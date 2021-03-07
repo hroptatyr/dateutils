@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ echo 'R19052016' | dconv -i '%_a%d%m%Y'
+2016-05-19
+$
+
+## dconv.131.ctst ends here

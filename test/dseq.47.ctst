@@ -1,0 +1,15 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq Apr +1mo Dec --locale ts_ZA -i '%b' -f '%b'
+Dzi
+Mud
+Kho
+Maw
+Mha
+Ndz
+Nhl
+Huk
+N'w
+$
+
+## dseq.47.ctst ends here

@@ -1,8 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-## read stamps
-$ ddiff -i '%s' 1330682640 1330683240
-600s
-$
-
-## dtdiff.043.clit ends here

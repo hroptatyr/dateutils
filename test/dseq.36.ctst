@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq 2018-W01-1 2018-W52-07 | dconv -f ymd > "dseq.36.ref"
+$ dseq 2018-01-01 2018-12-30
+< dseq.36.ref
+$ rm -f -- "dseq.36.ref"
+$
+
+## dseq.36.ctst ends here

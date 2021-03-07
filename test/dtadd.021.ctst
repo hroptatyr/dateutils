@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd '1930-01-01 00:00:00' -f '%F %T' 86400s
+1930-01-02 00:00:00
+$
+
+## dtadd.21.ctst ends here

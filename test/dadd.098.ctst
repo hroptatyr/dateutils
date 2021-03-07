@@ -1,0 +1,15 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd -Ei "%Y %b" +1d <<EOF
+Invalid line
+2010 Mar
+2010 Mar 04
+2010 Apr
+EOF
+
+2010-03-01
+
+2010-04-01
+$
+
+## dadd.098.ctst ends here

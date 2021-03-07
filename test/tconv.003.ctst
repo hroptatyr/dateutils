@@ -1,0 +1,6 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ignore-output dconv time
+$
+
+## tconv.3.ctst ends here

@@ -1,0 +1,18 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## consider expression date/times as Europe/Berlin
+$ dgrep --zone Europe/Berlin '>=11:00:00' <<EOF
+2014-02-14T09:00:00  (is 10 CET)
+2014-02-14T10:00:00  (is 11 CET)
+2014-02-14T11:00:00  (is 12 CET)
+2014-04-14T08:00:00  (is 10 CEST)
+2014-04-14T09:00:00  (is 11 CEST)
+2014-04-14T10:00:00  (is 12 CEST)
+EOF
+2014-02-14T10:00:00  (is 11 CET)
+2014-02-14T11:00:00  (is 12 CET)
+2014-04-14T09:00:00  (is 11 CEST)
+2014-04-14T10:00:00  (is 12 CEST)
+$
+
+## dtgrep.014.ctst ends here

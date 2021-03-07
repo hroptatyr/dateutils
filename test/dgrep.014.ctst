@@ -1,0 +1,10 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## Show only matching bit
+$ dgrep -i '%Y%m%d-00' 20120303-00 -o <<EOF
+- <- illegal 20120303-00
+EOF
+20120303-00
+$
+
+## dgrep.014.ctst ends here

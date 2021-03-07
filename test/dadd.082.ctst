@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 1919-W52-7 +1y -f ymd
+1920-12-26
+$
+
+## dadd.082.ctst ends here

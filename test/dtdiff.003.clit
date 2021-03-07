@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2012-03-02T10:04:00 2012-03-02T10:14:00 -f '%M min'
-10 min
-$
-
-## dtdiff.3.clit ends here

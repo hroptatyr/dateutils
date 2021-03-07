@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dadd '2012-05-30 14:00:00' -7b -f '%Y-%m-%db'
-2012-05-15b
-$
-
-## dtadd.40.clit ends here

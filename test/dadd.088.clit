@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-## we have to use the .0 variant here because the LDN
-## can be mistaken for a duration
-$ dadd -i ldn 157729.0 +1d
-157730.000000
-$
-
-## dadd.088.clit ends here

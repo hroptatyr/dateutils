@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff 10:01:00 10:06:00
+300s
+$
+
+## tdiff.2.ctst ends here

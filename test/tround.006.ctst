@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dround 17:05:00 -1m
+17:01:00
+$ dround 17:04:00 /-10m
+17:00:00
+$
+
+## tround.006.ctst ends here

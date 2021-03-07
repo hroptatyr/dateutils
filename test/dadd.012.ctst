@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 2012-01-02-03 -1d
+2012-01-02-02
+$
+
+## dadd.012.ctst ends here

@@ -1,6 +1,6 @@
 ## assumes TEST_EXTENSIONS, BUILT_SOURCES, check_PROGRAMS have been set
-TEST_EXTENSIONS += .clit
-CLIT_LOG_COMPILER = $(builddir)/clitosis
+TEST_EXTENSIONS += .ctst
+CTST_LOG_COMPILER = $(builddir)/clitosis
 
 ## our friendly helper
 check_PROGRAMS += clitosis

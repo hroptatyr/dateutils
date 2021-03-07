@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2012-03-01-Sun -i %Y-%m-%c-%a -f ymd
+2012-03-04
+$
+
+## dtconv.35.ctst ends here

@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq 2001-02-05 4 2001-03-04 -f "%F %a"
+2001-02-05 Mon
+2001-02-09 Fri
+2001-02-13 Tue
+2001-02-17 Sat
+2001-02-21 Wed
+2001-02-25 Sun
+2001-03-01 Thu
+$
+
+## dseq.6.ctst ends here

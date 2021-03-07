@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -f "%dthb business day in %B %Y" "2010-03-01b"
+1st business day in March 2010
+$
+
+## dconv.20.ctst ends here

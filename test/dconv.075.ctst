@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2009-W53-7 -i '%Y-W%V-%w'
+2009-W53-7
+$
+
+## dconv.75.ctst ends here

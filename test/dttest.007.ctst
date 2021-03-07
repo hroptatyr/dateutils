@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest 2012-03-02 --cmp 09:30:00; echo "${?}"
+3
+$
+
+## dttest.7.ctst ends here

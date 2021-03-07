@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 2009-W53-7 -1y
+2008-W52-7
+$
+
+## dadd.076.ctst ends here

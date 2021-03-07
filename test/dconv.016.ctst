@@ -1,0 +1,10 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ?2 dconv -i "%a%y%m%d" <<EOF
+this line was created on Thu111013 and should match
+whereas this line Thu1110 shouldn't
+EOF
+2011-10-13
+$
+
+## dconv.16.ctst ends here

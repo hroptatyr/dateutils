@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-## dadd: Error: cannot parse duration string `-2147483648s': Numerical result out of range
-$ ! dadd '1930-01-01 00:00:00' -f '%F %T' -2147483648s
-$
-
-## dtadd.28.clit ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2001-02-08 2001-03-09 -f "%m month and %d day"
-1 month and 1 day
-$
-
-## ddiff.10.clit ends here

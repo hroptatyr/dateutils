@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv 2012-01-01 -f lilian
+156767
+$
+
+## dconv.93.ctst ends here

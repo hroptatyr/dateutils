@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dseq 2016-01-01 2017-01-01 -f ywd > "dseq.37.ref"
-$ dseq 2015-W53-5 2016-W52-07
-< dseq.37.ref
-$ rm -f -- "dseq.37.ref"
-$
-
-## dseq.37.clit ends here

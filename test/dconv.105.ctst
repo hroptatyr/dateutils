@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i "jdn" 2456846.5
+2456846.500000
+$
+
+## dconv.105.ctst ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2008-06-29 2009-06-30 -f '%y-% d'
-1-  1
-$
-
-## ddiff.030.clit ends here

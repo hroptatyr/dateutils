@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq 2014-01-12 2014-01-13 -f '%rY-%W'
+2014-01
+2014-02
+$
+
+## dseq.20.ctst ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i "%Y-W%W" 2000-W45
+2000-W46-0
+$
+
+## dconv.140.ctst ends here

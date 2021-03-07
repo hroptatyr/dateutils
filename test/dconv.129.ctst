@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv --from-locale it_IT -i '%b %Y' 'gen 2016'
+2016-01-00
+$ dconv --from-locale it_IT -i '%d %B %Y' '06 maggio 2016'
+2016-05-06
+$
+
+## dconv.127.ctst ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dtest --ne 2012-03-02T00:00:00 2012-03-02 || echo 'false'
-false
-$
-
-## dttest.10.clit ends here

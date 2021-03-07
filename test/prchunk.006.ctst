@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis
+
+$ printf "2014-08-08\n" | strptime -i '%Y-%m-%d'
+2014-08-08
+$ printf "2014-08-08" | strptime -i '%Y-%m-%d'
+2014-08-08
+$

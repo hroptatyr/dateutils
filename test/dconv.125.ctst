@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -f '%_b%_y' 2015-05
+K5
+$ dconv -f '%_b%_y' 2022-12
+Z2
+$
+
+## dconv.125.ctst ends here

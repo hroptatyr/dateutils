@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff '2012-05-01 14:00:00' '2012-05-10 15:00:00' -f 'bizsi'
+7bT01:00:00
+$
+
+## dtdiff.26.ctst ends here

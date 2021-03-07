@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest 2012-03-01 --ot 2012-03-02 && echo "true"
+true
+$
+
+## dtest.2.ctst ends here

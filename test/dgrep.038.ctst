@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dgrep -v '<today' -i "%B/%d/%y" <<EOF
+fileF,February/28/12
+fileF,February/29/12 leap day
+fileM,March/01/12
+fileM,March/02/12
+EOF
+$
+
+## dgrep.038.ctst ends here

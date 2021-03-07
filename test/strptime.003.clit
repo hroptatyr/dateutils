@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ echo 1900-01-01 | strptime -i '%F'
-1900-01-01
-$ ! echo 1900-01-01 | strptime -i 'foo'
-$ ! echo 1900-01-01 | strptime -i
-$
-
-## strptime.003.clit ends here

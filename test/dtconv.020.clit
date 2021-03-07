@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv --from-zone Europe/Berlin -z Europe/Berlin -i '%F %T.%N' -f '%T.%N' <<EOF
-2010-01-01 10:00:00.723000000
-EOF
-10:00:00.723000000
-$
-
-## dtconv.20.clit ends here

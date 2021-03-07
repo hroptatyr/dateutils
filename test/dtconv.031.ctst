@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv '1972-01-01 00:00:00' -z TAI
+1972-01-01T00:00:10
+$
+
+## dtconv.31.ctst ends here

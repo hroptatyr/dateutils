@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis
+
+$ dadd --from-locale de_AT +4mo -i '%b %Y' <<EOF
+Jän 2016
+Mär 2016
+Okt 2016
+EOF
+2016-05-00
+2016-07-00
+2017-02-00
+$

@@ -1,0 +1,5 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest --lt '2014-10-01T24:00:00' '2014-10-02T00:00:00' && echo yes
+yes
+$

@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dseq "1917-01-01" "2071-12-31" -f "ywd" > "add.ywd-28y.ref"
-$ dadd +28y < "add.ywd-28y.ref" | dadd -28y
-< "add.ywd-28y.ref"
-$ rm -- "add.ywd-28y.ref"
-$
-
-## add.ywd-28y.clit

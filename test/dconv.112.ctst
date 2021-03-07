@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i ldn <<EOF
+157729.0
+157730.0
+EOF
+157729.000000
+157730.000000
+$
+
+## dconv.112.ctst ends here

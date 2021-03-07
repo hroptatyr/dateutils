@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dround 2012-03-04T12:03:11 13h
+2012-03-04T13:03:11
+$ dround 2012-03-04T12:03:11 /1h
+2012-03-04T13:00:00
+$
+
+## dtround.10.ctst ends here

@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv 1980-01-01T00:00:00 --zone 'Asia/Singapore'
-1980-01-01T07:30:00
-$
-
-## dtz.2.clit ends here

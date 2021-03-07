@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dseq --compute-from-last 2001-02-03 3 2001-03-03 --skip sat,fri -f "%F %a"
+2001-02-04 Sun
+2001-02-07 Wed
+2001-02-13 Tue
+2001-02-19 Mon
+2001-02-22 Thu
+2001-02-25 Sun
+2001-02-28 Wed
+$
+
+## dseq.5.ctst ends here

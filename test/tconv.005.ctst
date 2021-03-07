@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i '%T' -f '%H:%M:%S' <<EOF
+12:03:01
+12:59:01
+12:59:60
+EOF
+12:03:01
+12:59:01
+12:59:60
+$
+
+## tconv.5.ctst ends here

@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ddiff 2012-05-01 2012-05-10 -f '%db'
+7b
+$
+
+## ddiff.11.ctst ends here

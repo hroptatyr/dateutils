@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i "%I:%M:%S %p" "11:22:33 PM"
+23:22:33
+$
+
+## tconv.2.ctst ends here

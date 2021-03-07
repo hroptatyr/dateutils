@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ ddiff 2012-03-25T01:45:00 2012-03-25T03:15:00 --from-zone Europe/Berlin
-1800s
-$
-
-## dtdiff.13.clit ends here

@@ -1,6 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dadd -z "Europe/Berlin" "2015-06-13T00:18:20" "+2m" -f "%Y%m%d %T Europe/Berlin" 
-20150613 02:20:20 Europe/Berlin
-$
- 

@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dgrep -v -i '%Y%m%d-00' 2012-03-03 -o <<EOF
+- <- illegal 20120303-00
+EOF
+$
+
+## dgrep.036.ctst ends here

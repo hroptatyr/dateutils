@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i '%y-%m-%d' 21-01-01
+2021-01-01
+$ dconv -i '%y-%m-%d' 98-01-01
+1998-01-01
+$
+
+## dconv.123.ctst ends here

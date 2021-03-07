@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -f "%Y-%jb" "2010-03-01b"
+2010-042b
+$
+
+## dconv.6.ctst ends here

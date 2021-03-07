@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dround 2016-07-07T12:19:44 +0s30m2h --zone Europe/Berlin
+2016-07-08T04:30:00
+$
+
+## dround.035.ctst ends here

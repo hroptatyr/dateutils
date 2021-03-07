@@ -1,0 +1,32 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ itostr-2
+123
+ 23
+ 10
+  0
+001
+123
+23
+3
+
+123
+23
+10
+ 0
+01
+123
+23
+3
+
+23
+3
+0
+0
+1
+3
+23
+3
+$
+
+## itostr.002.ctst ends here

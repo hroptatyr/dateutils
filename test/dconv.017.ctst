@@ -1,0 +1,39 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i '%dth of %b %Y' -f '%b %dth %Y' <<EOF
+1st of Oct 2011
+2nd of Oct 2011
+3rd of Oct 2011
+4th of Oct 2011
+10th of Oct 2011
+11th of Oct 2011
+12th of Oct 2011
+13th of Oct 2011
+14th of Oct 2011
+20th of Oct 2011
+21st of Oct 2011
+22nd of Oct 2011
+23rd of Oct 2011
+24th of Oct 2011
+30th of Oct 2011
+31st of Oct 2011 
+EOF
+Oct 1st 2011
+Oct 2nd 2011
+Oct 3rd 2011
+Oct 4th 2011
+Oct 10th 2011
+Oct 11th 2011
+Oct 12th 2011
+Oct 13th 2011
+Oct 14th 2011
+Oct 20th 2011
+Oct 21st 2011
+Oct 22nd 2011
+Oct 23rd 2011
+Oct 24th 2011
+Oct 30th 2011
+Oct 31st 2011
+$
+
+## dconv.17.ctst ends here

@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dround 2m <<EOF
+2016-04-04
+2016-04-04T10:20:00
+EOF
+2016-04-04
+2016-04-04T11:02:00
+$
+
+## dtround.015.ctst ends here

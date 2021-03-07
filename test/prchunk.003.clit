@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris
-
-$ printf "2014-08-08\n" | ddiff 2014-08-01
-7
-$ printf "2014-08-08" | ddiff 2014-08-01
-7
-$

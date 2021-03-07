@@ -1,9 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv -i "%Y%d%m" <<EOF
-this line was created on 20122303.
-EOF
-2012-03-23
-$
-
-## dconv.13.clit ends here

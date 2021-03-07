@@ -1,0 +1,6 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dzone '2014-10-01T24:00:00' Europe/Berlin Australia/Sydney
+2014-10-02T02:00:00+02:00	Europe/Berlin
+2014-10-02T10:00:00+10:00	Australia/Sydney
+$

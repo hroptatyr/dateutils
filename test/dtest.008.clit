@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dtest today --gt 2010-01-01T12:34:56 && echo "yes"
-yes
-$
-
-## dtest.8.clit ends here

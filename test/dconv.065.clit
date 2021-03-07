@@ -1,7 +1,0 @@
-#!/usr/bin/clitoris  ## -*- shell-script -*-
-
-$ dconv 2007-01-01 -i '%Y-%W-%w' -f %F
-2007-01-01
-$
-
-## dconv.65.clit ends here

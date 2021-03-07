@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -f '%Y-%Q' -i '%Y %qth quarter' '2010 2nd quarter'
+2010-Q2
+$
+
+## dconv.22.ctst ends here
