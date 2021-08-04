@@ -16,7 +16,7 @@ version.mk: .version version.mk.in
 	if test "$(MAKECMDGOALS)" != "am--refresh"; then \
 		$(MAKE) -C "$(top_builddir)/build-aux" $(MAKECMDGOALS); \
 		PATH="$(top_builddir)/build-aux:$${PATH}" \
-			yuck scmver --ignore-noscm -o $@ --reference $^; \
+			$(YUCK) scmver --ignore-noscm -o $@ --reference $^; \
 		if test $$? -eq 3 -a -n "$(_dist-target_p)"; then \
 			exec $(MAKE) $(MAKECMDGOALS); \
 		fi; \

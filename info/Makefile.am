@@ -318,7 +318,7 @@ VPATH = $(srcdir):@top_srcdir@/src
 SUFFIXES += .man
 .yuck.man:
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
-		yuck$(EXEEXT) genman \
+		$(YUCK) genman \
 			--package "$(PACKAGE_NAME)" \
 			--info-page \
 			-i "$(builddir)/format.th2m" \
@@ -330,7 +330,7 @@ SUFFIXES += .man
 SUFFIXES += .mand
 .yuck.mand:
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
-		yuck$(EXEEXT) genman \
+		$(YUCK) genman \
 			--package "$(PACKAGE_NAME)" \
 			--info-page \
 			-i "$(builddir)/format.th2m" \
@@ -343,7 +343,7 @@ SUFFIXES += .mand
 SUFFIXES += .manu
 .yuck.manu:
 	$(AM_V_GEN) PATH="$(top_builddir)/build-aux:$${PATH}" \
-		yuck$(EXEEXT) genman \
+		$(YUCK) genman \
 			--package "$(PACKAGE_NAME)" \
 			--info-page \
 			-i "$(builddir)/format.th2m" \
