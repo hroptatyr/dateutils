@@ -85,13 +85,15 @@ instead of the system-wide one.])], [with_included_yuck="${withval}"], [with_inc
 			## see what m4 they used back then
 			YUCK_M4=`${YUCK} config --m4 2>/dev/null`
 			M4="${YUCK_M4-$M4}"
+		else
+			YUCK="yuck"
 		fi
 	else
 		AC_MSG_CHECKING([for yuck])
 		AC_MSG_RESULT([using included])
+		YUCK="${YUCK-yuck}"
 	fi
-	AM_CONDITIONAL([HAVE_YUCK], [dnl
-		test "${with_included_yuck}" = "no" -a -n "${YUCK}"])
+	AM_CONDITIONAL([HAVE_YUCK], [test "${with_included_yuck}" = "no"])
 
 	## further requirement is either getline() or fgetln()
 	AC_CHECK_FUNCS([getline])

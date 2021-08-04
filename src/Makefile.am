@@ -164,7 +164,7 @@ SUFFIXES += .yuck
 SUFFIXES += .yucc
 .yuck.yucc:
 	$(AM_V_GEN) PATH=$(top_builddir)/build-aux:"$${PATH}" \
-		yuck$(EXEEXT) gen -o $@ $<
+		$(YUCK) gen -o $@ $<
 
 ## gperf rule
 SUFFIXES += .gperf
