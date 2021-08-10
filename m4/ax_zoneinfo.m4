@@ -46,98 +46,33 @@ AC_DEFUN([AX_ZONEINFO_TZFILE_H], [dnl
 	AC_CHECK_HEADER([tzfile.h])
 ])dnl AX_ZONEINFO_TZFILE_H
 
-AC_DEFUN([AX_ZONEINFO_CHECK_TZFILE], [dnl
-	dnl AX_ZONEINFO_CHECK_TZFILE([FILE], [ACTION-IF-VALID], [ACTION-IF-NOT])
-	dnl secret switch is the 4th argument, which determines the ret code
-	dnl of the leapcnt check
+AC_DEFUN([AY_ZONEINFO_CHECK_TZFILE], [dnl
+	dnl AY_ZONEINFO_CHECK_TZFILE([FILE], [ACTION-IF-VALID], [ACTION-IF-NOT])
+	dnl check for FILE's presence
 	pushdef([probe], [$1])
 	pushdef([if_found], [$2])
 	pushdef([if_not_found], [$3])
-
-	AC_REQUIRE([AX_ZONEINFO_TZFILE_H])
 
 	if test -z "${ax_tmp_zoneinfo_nested}"; then
 		AC_MSG_CHECKING([zoneinfo file ]probe[])
 	fi
 
-	AC_LANG_PUSH([C])
-	AC_RUN_IFELSE([AC_LANG_SOURCE([[
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <fcntl.h>
-
-]]ifelse([$4], [], [], [[
-#define CHECK_LEAPCNT	]]$4[[
-]])[[
-
-/* simplified struct */
-struct tzhead {
-	char	tzh_magic[4];		/* TZ_MAGIC */
-	char	tzh_version[1];		/* '\0' or '2' as of 2005 */
-	char	tzh_reserved[15];	/* reserved--must be zero */
-	char	tzh_ttisgmtcnt[4];	/* coded number of trans. time flags */
-	char	tzh_ttisstdcnt[4];	/* coded number of trans. time flags */
-	char	tzh_leapcnt[4];		/* coded number of leap seconds */
-	char	tzh_timecnt[4];		/* coded number of transition times */
-	char	tzh_typecnt[4];		/* coded number of local time types */
-	char	tzh_charcnt[4];		/* coded number of abbr. chars */
-};
-
-int
-main(int argc, char *argv[])
-{
-	struct tzhead foo;
-	int f;
-
-	if (argc <= 1) {
-		return 0;
-	} else if ((f = open(argv[1], O_RDONLY, 0644)) < 0) {
-		return 1;
-	} else if (read(f, &foo, sizeof(foo)) != sizeof(foo)) {
-		return 1;
-	} else if (close(f) < 0) {
-		return 1;
-	}
-
-	/* inspect the header */
-	if (memcmp(foo.tzh_magic, "TZif", sizeof(foo.tzh_magic))) {
-		return 1;
-	} else if (*foo.tzh_version && *foo.tzh_version != '2') {
-		return 1;
-#if defined CHECK_LEAPCNT
-	} else if (!foo.tzh_leapcnt[0] && !foo.tzh_leapcnt[1] &&
-		   !foo.tzh_leapcnt[2] && !foo.tzh_leapcnt[3]) {
-		return CHECK_LEAPCNT;
-#endif  /* CHECK_LEAPCNT */
-	}
-
-	/* otherwise everything's in order */
-	return 0;
-}
-]])], [## call the whole shebang again with the tzfile
-		if ./conftest$EXEEXT probe; then
-			if test -z "${ax_tmp_zoneinfo_nested}"; then
-				AC_MSG_RESULT([looking good])
-			fi
-			[]if_found[]
-		else
-			if test -z "${ax_tmp_zoneinfo_nested}"; then
-				AC_MSG_RESULT([looking bad ${ax_tmp_rc}])
-			fi
-			[]if_not_found[]
-		fi
-], [
+	if test -r "[]probe[]"; then
 		if test -z "${ax_tmp_zoneinfo_nested}"; then
-			AC_MSG_RESULT([impossible])
+			AC_MSG_RESULT([looking good])
 		fi
-		[]if_not_found[]])
-	AC_LANG_POP([C])
+		[]if_found[]
+	else
+		if test -z "${ax_tmp_zoneinfo_nested}"; then
+			AC_MSG_RESULT([looking bad ${ax_tmp_rc}])
+		fi
+		[]if_not_found[]
+	fi
 
 	popdef([probe])
 	popdef([if_found])
 	popdef([if_not_found])
-])dnl AX_ZONEINFO_CHECK_TZFILE
+])dnl AY_ZONEINFO_CHECK_TZFILE
 
 AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 	dnl we consider a zoneinfo directory properly populated when it
@@ -172,6 +107,8 @@ AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 		rm -f -- "${valtmp}"
 	fi
 
+	AC_REQUIRE([AX_ZONEINFO_TZFILE_H])
+
 	dnl lastly, append the usual suspects
 	TZDIR_cand="${TZDIR_cand} \
 /usr/share/zoneinfo \
@@ -186,7 +123,7 @@ AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 		for c in ${TZDIR_cand}; do
 			ax_cv_zoneinfo_utc=""
 			for f in "UTC" "UCT" "Universal" "Zulu"; do
-				AX_ZONEINFO_CHECK_TZFILE(["${c}/${f}"], [
+				AY_ZONEINFO_CHECK_TZFILE(["${c}/${f}"], [
 					dnl ACTION-IF-FOUND
 					ax_cv_zoneinfo_utc="${c}/${f}"
 					break
@@ -239,11 +176,11 @@ ${TZDIR}/posix \
 				if test -d "${c}"; then
 					c="${c}/${__utc_file}"
 				fi
-				AX_ZONEINFO_CHECK_TZFILE(["${c}"], [
+				AY_ZONEINFO_CHECK_TZFILE(["${c}"], [
 					dnl ACTION-IF-FOUND
 					ax_cv_zoneinfo_utc_right="${c}"
 					break
-				], [:], [2])
+				])
 			done
 		fi
 		ax_tmp_zoneinfo_nested=""
