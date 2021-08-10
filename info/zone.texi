@@ -6,6 +6,9 @@ globally declare that date/time input is expressed in ZONE.
 Tools that output absolute date/times also allow @samp{--zone=ZONE} to
 globally declare that date/time output is to be converted into ZONE.
 
+When input or output zones are omitted dates and timestamps are treated
+as coming from the special (built-in) timezone UTC.
+
 Due to the complexity in setting up and maintaining timezone reference
 data, we decided to depart from our usual course and depend on the
 system's zoneinfo database.  As a consequence, @samp{ZONE} can point to
