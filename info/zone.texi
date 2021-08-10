@@ -15,6 +15,9 @@ system's zoneinfo database.  As a consequence, @samp{ZONE} can point to
 anything in the system's zoneinfo directory which is assumed to be in
 IANA format.
 
+Zones @samp{UTC}, @samp{TAI}, and @samp{GPS} are treated specially.
+Their rules and offsets are built-in and never read from the disk.
+
 @heading Timezone maps
 
 Additionally, and true to our motto not to depend on system facilities,
