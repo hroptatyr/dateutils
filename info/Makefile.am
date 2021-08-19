@@ -231,7 +231,18 @@ built_mans += dseq.manu
 built_mans += dsort.man
 built_mans += dtest.man
 built_mans += dzone.man
-endif  WITH_OLD_LINKS
+else  !WITH_OLD_LINKS
+## just for the tarball
+EXTRA_DIST += dadd.manu
+EXTRA_DIST += dconv.man
+EXTRA_DIST += ddiff.mand
+EXTRA_DIST += dgrep.man
+EXTRA_DIST += dround.manu
+EXTRA_DIST += dseq.manu
+EXTRA_DIST += dsort.man
+EXTRA_DIST += dtest.man
+EXTRA_DIST += dzone.man
+endif  !WITH_OLD_LINKS
 
 EXTRA_DIST += $(man1_MANS)
 EXTRA_DIST += $(dateutils_TEXINFOS)
