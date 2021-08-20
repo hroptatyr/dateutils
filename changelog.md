@@ -8,6 +8,23 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.9
+------
+Summary: v0.4.9 of dateutils
+
+This is dateutils v0.4.9.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- allow to specify epochs in nanoseconds, %s%N (#123)
+- fix nanosecond arithmetic (#124)
+- make cross-compilations easier (#128)
+- mention default timezone (#129)
+
+See info page examples and/or README.
+
 v0.4.8
 ------
 Summary: v0.4.8 of dateutils
