@@ -21,7 +21,7 @@ Date specs:
   %g  ISO week date year without the century (range 00 to 99)
   %G  ISO week date year including the century
   %j  Equivalent to %D
-  %m  The month in the current calendar (range 00 to 19)
+  %m  The month in the current calendar (range 00 to 12)
   %Q  The quarter of the year (range Q1 to Q4)
   %q  The number of the quarter (range 01 to 04)
   %s  The number of seconds since the Epoch.
