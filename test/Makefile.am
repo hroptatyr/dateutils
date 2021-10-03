@@ -351,6 +351,9 @@ dt_tests += dadd.097.ctst
 dt_tests += dadd.098.ctst
 dt_tests += dadd.099.ctst
 dt_tests += dadd.100.ctst
+dt_tests += dadd.101.ctst
+dt_tests += dadd.102.ctst
+dt_tests += dadd.103.ctst
 
 dt_tests += dtest.001.ctst
 dt_tests += dtest.002.ctst
