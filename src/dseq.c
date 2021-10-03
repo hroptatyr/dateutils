@@ -671,6 +671,9 @@ cannot mix dates and times as arguments");
 	} else if (dt_sandwich_only_d_p(clo.fst) &&
 		   __daisy_feasible_p(clo.ite, clo.nite) &&
 		   clo.fst.d.typ == DT_YMD &&
+		   /* issue 131, don't convert noughted out aus to daisy */
+		   clo.fst.d.ymd.m && clo.fst.d.ymd.d &&
+		   clo.lst.d.ymd.m && clo.lst.d.ymd.d &&
 		   /* convert to daisies */
 		   ((clo.fst = dt_dtconv(_DAISY, clo.fst)).d.typ != DT_DAISY ||
 		    (clo.lst = dt_dtconv(_DAISY, clo.lst)).d.typ != DT_DAISY)) {
