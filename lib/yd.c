@@ -755,7 +755,7 @@ static dt_yd_t
 __yd_add_d(dt_yd_t d, int n)
 {
 /* add N days to D */
-	signed int tgtd = d.d + n;
+	signed int tgtd = d.d + n + (n < 0 && !d.d);
 
 	/* fixup the day */
 	return __yd_fixup_d(d.y, tgtd);

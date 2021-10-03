@@ -1428,7 +1428,7 @@ dt_dadd_d(struct dt_d_s d, int n)
 {
 /* add N (gregorian) days to D */
 	if (UNLIKELY(!n)) {
-		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		/* can't use short-cut return here, it'd upset the IPO/LTO */
 		goto out;
 	}
 	switch (d.typ) {
@@ -1734,7 +1734,7 @@ DEFUN struct dt_d_s
 dt_dadd(struct dt_d_s d, struct dt_ddur_s dur)
 {
 	if (UNLIKELY(!dur.dv)) {
-		/* cacn't use short-cut return here, it'd upset the IPO/LTO */
+		/* can't use short-cut return here, it'd upset the IPO/LTO */
 		goto out;
 	}
 	switch (dur.durtyp) {
