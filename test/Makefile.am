@@ -102,6 +102,10 @@ dt_tests += dseq.60.ctst
 dt_tests += dseq.61.ctst
 dt_tests += dseq.62.ctst
 dt_tests += dseq.63.ctst
+dt_tests += dseq.64.ctst
+dt_tests += dseq.65.ctst
+dt_tests += dseq.66.ctst
+dt_tests += dseq.67.ctst
 
 dt_tests += dconv.001.ctst
 dt_tests += dconv.002.ctst
