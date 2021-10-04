@@ -755,7 +755,7 @@ static dt_yd_t
 __yd_add_d(dt_yd_t d, int n)
 {
 /* add N days to D */
-	signed int tgtd = d.d + n;
+	signed int tgtd = d.d + n + (n < 0 && !d.d);
 
 	/* fixup the day */
 	return __yd_fixup_d(d.y, tgtd);
@@ -765,8 +765,12 @@ static dt_yd_t
 __yd_add_b(dt_yd_t d, int n)
 {
 /* add N business days to D */
-	dt_dow_t wd = __yd_get_wday(d);
-	int tgtd = d.d + __get_d_equiv(wd, n);
+	dt_dow_t wd;
+	signed int tgtd;
+
+	d.d ^= n < 0 && !d.d;
+	wd = __yd_get_wday(d);
+	tgtd = d.d + __get_d_equiv(wd, n);
 
 	/* fixup the day, i.e. 2012-0367 -> 2013-001 */
 	return __yd_fixup_d(d.y, tgtd);

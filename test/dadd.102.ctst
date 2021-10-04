@@ -1,0 +1,13 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dadd 2021-00-00 -0d
+2021-00-00
+$ dadd 2021-00-00 -1d
+2020-12-31
+$ dadd 2021-00-00 -0b
+2021-00-00
+$ dadd 2021-00-00 -1b
+2020-12-31
+$
+
+## dadd.102.ctst ends here

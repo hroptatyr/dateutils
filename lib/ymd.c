@@ -592,7 +592,7 @@ __ymd_add_d(dt_ymd_t d, int n)
 /* add N days to D */
 	signed int tgtd;
 	d = __ymd_fixup(d);
-	tgtd = d.d + n;
+	tgtd = d.d + n + (n < 0 && !d.d);
 
 	/* fixup the day */
 	return __ymd_fixup_d(d.y, d.m, tgtd);
@@ -606,6 +606,7 @@ __ymd_add_b(dt_ymd_t d, int n)
 	signed int tgtd;
 
 	d = __ymd_fixup(d);
+	d.d ^= n < 0 && !d.d;
 	wd = __ymd_get_wday(d);
 	tgtd = d.d + __get_d_equiv(wd, n);
 
@@ -635,7 +636,7 @@ __ymd_add_m(dt_ymd_t d, int n)
 		--d.y;
 	}
 	/* final assignment */
-	d.m = tgtm;
+	d.m = tgtm + (n < 0 && !d.m);
 	return d;
 }
 
