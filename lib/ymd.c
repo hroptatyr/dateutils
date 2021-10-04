@@ -606,8 +606,9 @@ __ymd_add_b(dt_ymd_t d, int n)
 	signed int tgtd;
 
 	d = __ymd_fixup(d);
+	d.d ^= n < 0 && !d.d;
 	wd = __ymd_get_wday(d);
-	tgtd = d.d + __get_d_equiv(wd, n + (n < 0 && !d.d));
+	tgtd = d.d + __get_d_equiv(wd, n);
 
 	/* fixup the day, i.e. 2012-01-34 -> 2012-02-03 */
 	return __ymd_fixup_d(d.y, d.m, tgtd);
