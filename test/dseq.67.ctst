@@ -1,7 +1,7 @@
 #!/usr/bin/clitosis  ## -*- shell-script -*-
 
 ## issue 131
-$ dseq --compute-from-last -i %m 10 -1d 09
+$ dseq -b 2021-01-01 --compute-from-last -i %m 10 -1d 09
 2021-09-30
 2021-09-29
 2021-09-28
@@ -65,4 +65,4 @@ $ dseq --compute-from-last 2021-10-00 -1d 2021-09-00
 2021-09-01
 $
 
-## dseq.66.ctst ends here
+## dseq.67.ctst ends here

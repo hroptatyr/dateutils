@@ -1,7 +1,7 @@
 #!/usr/bin/clitosis  ## -*- shell-script -*-
 
 ## issue 131
-$ dseq -i %m 09 +1d 10
+$ dseq -b 2021-12-31 -i %m 09 +1d 10
 2021-09-00
 2021-09-01
 2021-09-02
