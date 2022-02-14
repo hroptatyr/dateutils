@@ -1,0 +1,11 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -SE <<EOF
+2022-02-01	valid
+20-	invalid
+EOF
+2022-02-01	valid
+
+$
+
+## dconv.143.ctst ends here

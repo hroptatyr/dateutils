@@ -83,6 +83,7 @@ struct mass_add_clo_s {
 	zif_t z;
 	const char *ofmt;
 	int sed_mode_p;
+	int empty_mode_p;
 	int quietp;
 };
 
@@ -92,6 +93,7 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 	struct dt_dt_s d;
 	char *sp = NULL;
 	char *ep = NULL;
+	size_t nmatch = 0U;
 	int rc = 0;
 
 	do {
@@ -116,13 +118,18 @@ proc_line(const struct mass_add_clo_s *clo, char *line, size_t llen)
 				dt_io_write(d, clo->ofmt, clo->z, '\0');
 				llen -= (ep - line);
 				line = ep;
+				nmatch++;
 			} else {
 				dt_io_write(d, clo->ofmt, clo->z, '\n');
 				break;
 			}
 		} else if (clo->sed_mode_p) {
+			llen = !(clo->empty_mode_p && !nmatch) ? llen : 0U;
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
+			break;
+		} else if (clo->empty_mode_p) {
+			__io_write("\n", 1U, stdout);
 			break;
 		} else {
 			/* obviously unmatched, warn about it in non -q mode */
@@ -322,7 +329,7 @@ Error: cannot interpret date/time string `%s'", inp);
 			rc = 1;
 		}
 
-	} else if (st.ndurs && argi->empty_mode_flag) {
+	} else if (st.ndurs && !argi->sed_mode_flag && argi->empty_mode_flag) {
 		size_t lno = 0U;
 		void *pctx;
 
@@ -401,6 +408,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->z = z;
 		clo->ofmt = ofmt;
 		clo->sed_mode_p = argi->sed_mode_flag;
+		clo->empty_mode_p = argi->empty_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			rc |= mass_add_dur(clo);
@@ -434,6 +442,7 @@ Error: cannot interpret date/time string `%s'", inp);
 		clo->z = z;
 		clo->ofmt = ofmt;
 		clo->sed_mode_p = argi->sed_mode_flag;
+		clo->empty_mode_p = argi->empty_mode_flag;
 		clo->quietp = argi->quiet_flag;
 		while (prchunk_fill(pctx) >= 0) {
 			rc |= mass_add_d(clo);
