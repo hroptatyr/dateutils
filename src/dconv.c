@@ -57,6 +57,7 @@ struct prln_ctx_s {
 	zif_t fromz;
 	zif_t outz;
 	int sed_mode_p;
+	int empty_mode_p;
 	int quietp;
 };
 
@@ -66,6 +67,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 	struct dt_dt_s d;
 	char *sp = NULL;
 	char *ep = NULL;
+	size_t nmatch = 0U;
 	int rc = 0;
 
 	do {
@@ -78,6 +80,7 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			dt_io_write(d, ctx.ofmt, ctx.outz, '\0');
 			llen -= (ep - line);
 			line = ep;
+			nmatch++;
 		} else if (!dt_unk_p(d)) {
 			if (UNLIKELY(d.fix) && !ctx.quietp) {
 				rc = 2;
@@ -85,8 +88,12 @@ proc_line(struct prln_ctx_s ctx, char *line, size_t llen)
 			dt_io_write(d, ctx.ofmt, ctx.outz, '\n');
 			break;
 		} else if (ctx.sed_mode_p) {
+			llen = !(ctx.empty_mode_p && !nmatch) ? llen : 0U;
 			line[llen] = '\n';
 			__io_write(line, llen + 1, stdout);
+			break;
+		} else if (ctx.empty_mode_p) {
+			__io_write("\n", 1U, stdout);
 			break;
 		} else {
 			/* obviously unmatched, warn about it in non -q mode */
@@ -163,7 +170,7 @@ main(int argc, char *argv[])
 				dt_io_warn_strpdt(inp);
 			}
 		}
-	} else if (argi->empty_mode_flag) {
+	} else if (!argi->sed_mode_flag && argi->empty_mode_flag) {
 		/* read from stdin */
 		size_t lno = 0;
 		void *pctx;
@@ -213,6 +220,7 @@ main(int argc, char *argv[])
 			.fromz = fromz,
 			.outz = z,
 			.sed_mode_p = argi->sed_mode_flag,
+			.empty_mode_p = argi->empty_mode_flag,
 			.quietp = argi->quiet_flag,
 		};
 
