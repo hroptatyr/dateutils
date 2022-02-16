@@ -186,7 +186,12 @@ yield1:
 	 * we'd proceed processing them (off < __ctx->bno + nrd */
 	if (UNLIKELY(!nrd && off < bno && ctx->cur_lno <= ctx->tot_lno)) {
 		/* last line then, unyielded :| */
-		set_loff(ctx, 0, bno - ctx->buf);
+		set_loff(ctx, ctx->tot_lno, bno - ctx->buf);
+		off = bno;
+		/* count it as line and check if we need more */
+		if (++ctx->tot_lno >= MAX_NLINES) {
+			YIELD(3);
+		}
 		YIELD(4);
 	} else if (UNLIKELY(nrd <= 0 && off == ctx->buf)) {
 		/* special case, we worked our arses off and nothing's
