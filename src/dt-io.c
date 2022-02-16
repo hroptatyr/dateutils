@@ -193,7 +193,7 @@ dt_io_find_strpdt2(
 	const char *p = str;
 	const char *const zp = str + len;
 
-	for (; *(p = xmempbrk(p, zp - p, needle)); p++) {
+	for (; (p = xmempbrk(p, zp - p, needle)) < zp && *p; p++) {
 		/* find the offset */
 		const struct grpatm_payload_s *fp;
 		const char *np;
@@ -300,7 +300,7 @@ dt_io_find_strpdt2(
 			continue;
 		}
 		/* not reached unless ndl is set */
-		for (p = str; *(p = xmempbrk(p, zp - p, ndl)); p++) {
+		for (p = str; (p = xmempbrk(p, zp - p, ndl)) < zp && *p; p++) {
 			if (p + f.off_min < str || p + f.off_max > zp) {
 				continue;
 			}
