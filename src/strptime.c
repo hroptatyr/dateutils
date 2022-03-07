@@ -69,7 +69,7 @@ prnt_line(const char *ofmt, struct tm *tm)
 {
 	char res[256];
 	strftime(res, sizeof(res), ofmt, tm);
-	fputs(res, stdout);
+	puts(res);
 	return;
 }
 
@@ -123,7 +123,7 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 int
 main(int argc, char *argv[])
 {
-	static char dflt_fmt[] = "%Y-%m-%d\n\0H:%M:%S %Z\n";
+	static char dflt_fmt[] = "%Y-%m-%d\0%H:%M:%S %Z";
 	yuck_t argi[1U];
 	char *outfmt = dflt_fmt;
 	char **infmt;
@@ -146,7 +146,6 @@ main(int argc, char *argv[])
 		}
 	} else if (argi->time_flag) {
 		outfmt[8] = ' ';
-		outfmt[9] = '%';
 	}
 
 	if (!argi->input_format_nargs) {
