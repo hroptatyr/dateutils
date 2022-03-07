@@ -69,7 +69,7 @@ prnt_line(const char *ofmt, struct tm *tm)
 {
 	char res[256];
 	strftime(res, sizeof(res), ofmt, tm);
-	fputs(res, stdout);
+	puts(res);
 	return;
 }
 
@@ -123,13 +123,9 @@ proc_lines(const char *const *fmt, size_t nfmt, const char *ofmt, int quietp)
 int
 main(int argc, char *argv[])
 {
-	static char dflt_fmt[] = "%Y-%m-%d\n\0H:%M:%S %Z\n";
+	static char dflt_fmt[] = "%Y-%m-%d\0%H:%M:%S %Z";
 	yuck_t argi[1U];
 	char *outfmt = dflt_fmt;
-	char **infmt;
-	size_t ninfmt;
-	char **input;
-	size_t ninput;
 	int quietp;
 	int rc = 0;
 
@@ -146,20 +142,8 @@ main(int argc, char *argv[])
 		}
 	} else if (argi->time_flag) {
 		outfmt[8] = ' ';
-		outfmt[9] = '%';
 	}
 
-	if (!argi->input_format_nargs) {
-		infmt = argi->args;
-		ninfmt = argi->nargs;
-		input = NULL;
-		ninput = 0;
-	} else {
-		infmt = argi->input_format_args;
-		ninfmt = argi->input_format_nargs;
-		input = argi->args;
-		ninput = argi->nargs;
-	}
 	/* get quiet predicate */
 	quietp = argi->quiet_flag;
 
@@ -178,13 +162,12 @@ main(int argc, char *argv[])
 	}
 
 	/* get lines one by one, apply format string and print date/time */
-	if (ninput == 0) {
+	if (argi->nargs == 0U) {
 		/* read from stdin */
-		rc |= proc_lines((const char*const*)infmt, ninfmt, outfmt, quietp);
+		rc |= proc_lines(argi->input_format_args, argi->input_format_nargs, outfmt, quietp);
 	} else {
-		const char *const *cinfmt = (const char*const*)infmt;
-		for (size_t i = 0; i < ninput; i++) {
-			rc |= proc_line(input[i], cinfmt, ninfmt, outfmt, quietp);
+		for (size_t i = 0; i < argi->nargs; i++) {
+			rc |= proc_line(argi->args[i], argi->input_format_args, argi->input_format_nargs, outfmt, quietp);
 		}
 	}
 
