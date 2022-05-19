@@ -385,7 +385,6 @@ zif_open(const char *file)
 			goto unmp;
 		}
 		hdr = hds;
-		/*@fallthrough@*/
 	case '\0':
 		tmp.nlp = RDU32(hdr + offsetof(struct zih_s, tzh_leapcnt));
 		tmp.ntr = RDU32(hdr + offsetof(struct zih_s, tzh_timecnt));
@@ -427,7 +426,6 @@ zif_open(const char *file)
 			res->ofs[i] = RDI32(beef + 6U * i);
 		}
 		break;
-		/*@fallthrough@*/
 	case '\0':
 		for (size_t i = 0U; i < tmp.ntr; i++) {
 			res->trs[i] = RDI32(beef + 4U * i);
