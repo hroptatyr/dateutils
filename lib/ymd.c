@@ -1,6 +1,6 @@
 /*** ymd.c -- guts for ymd dates
  *
- * Copyright (C) 2010-2020 Sebastian Freundt
+ * Copyright (C) 2010-2022 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

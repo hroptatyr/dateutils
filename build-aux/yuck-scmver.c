@@ -1,6 +1,6 @@
 /*** yuck-scmver.c -- snarf versions off project cwds
  *
- * Copyright (C) 2013-2020 Sebastian Freundt
+ * Copyright (C) 2013-2022 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
