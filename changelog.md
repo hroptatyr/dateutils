@@ -8,6 +8,24 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.10
+-------
+Summary: v0.4.10 of dateutils
+
+This is dateutils v0.4.10.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- do not resort to daisy sequences when incomplete dates are present (#131)
+- upon end-of-buffer finalise the last line (#141)
+- let --empty-mode|-E and --sed-mode|-S play nicely together (#139)
+- adapt CLI behaviour of strptime(1) to the other tools (#142)
+
+See info page examples and/or README.
+
+
 v0.4.9
 ------
 Summary: v0.4.9 of dateutils
@@ -24,6 +42,7 @@ Bugfixes:
 - mention default timezone (#129)
 
 See info page examples and/or README.
+
 
 v0.4.8
 ------
