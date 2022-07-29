@@ -3,7 +3,7 @@
 $ dtest --isvalid '2010-01-01T12:34:56'
 $ dtest --isvalid '2010-01-01'
 $ dtest --isvalid '2010-01'
-$ dtest --isvalid '2010-01-01T12:34:56' -i '%F'
+$ ! dtest --isvalid '2010-01-01T12:34:56' -i '%F'
 $ dtest --isvalid '2010-01-01X' -i '%FX'
 $ ! dtest --isvalid '2010-01-01T12:34:56X' -i '%FX'
 $ dtest --isvalid '2010-May' -i '%Y-%b'

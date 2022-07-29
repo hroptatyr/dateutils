@@ -367,6 +367,7 @@ dt_tests += dtest.008.ctst
 dt_tests += dtest.009.ctst
 dt_tests += dtest.010.ctst
 dt_tests += dtest.011.ctst
+dt_tests += dtest.012.ctst
 
 dt_tests += ddiff.001.ctst
 dt_tests += ddiff.002.ctst
