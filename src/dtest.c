@@ -91,7 +91,18 @@ main(int argc, char *argv[])
 
 	if (argi->isvalid_flag) {
 		/* check that one date */
-		res = dt_unk_p(dt_io_strpdt(*argi->args, ifmt, nifmt, fromz));
+		char *ep = NULL;
+
+		res = nifmt > 0U ||
+			dt_unk_p(dt_strpdt(*argi->args, NULL, &ep)) ||
+			ep == NULL || *ep;
+		for (size_t i = 0; i < nifmt; i++, ep = NULL) {
+			if (!dt_unk_p(dt_strpdt(*argi->args, ifmt[i], &ep)) &&
+			    ep && !*ep) {
+				res = 0;
+				break;
+			}
+		}
 		goto out;
 	}
 	if (dt_unk_p(d1 = dt_io_strpdt(argi->args[0U], ifmt, nifmt, fromz))) {

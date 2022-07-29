@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dtest --isvalid -i '%F' '2017-02-02'
+$ ! dtest --isvalid -i '%F' '2017-02-02T'
+$ ! dtest --isvalid -i '%F' '2022-02-27T9999:8888:7777'
+$ ! dtest --isvalid -i '%F' 'X2022-02-27T9999:8888:7777'
+$
+
+## dtest.012.ctst ends here
