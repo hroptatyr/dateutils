@@ -19,11 +19,24 @@ matrix:
   include:
     ## distcheck
     - os: linux
+      dist: focal
       compiler: gcc
       env: CHECK="distcheck"
     ## Ubuntu 14.04 Trusty (beta), sudo required!
     - os: linux
       dist: trusty
+      sudo: required
+      compiler: gcc
+      env: TRUSTY="yes" CHECK="normal"
+    ## Ubuntu 16.04 Xenial, sudo required!
+    - os: linux
+      dist: xenial
+      sudo: required
+      compiler: gcc
+      env: TRUSTY="yes" CHECK="normal"
+    ## Ubuntu 18.04 Bionic, sudo required!
+    - os: linux
+      dist: bionic
       sudo: required
       compiler: gcc
       env: TRUSTY="yes" CHECK="normal"
