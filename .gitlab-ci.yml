@@ -1,4 +1,4 @@
-image: gcc:6.3
+image: gcc:12
 
 before_script:
   - apt-get -q -m update || true
