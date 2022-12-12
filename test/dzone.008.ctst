@@ -1,7 +1,7 @@
 #!/usr/bin/clitosis  ## -*- shell-script -*-
 
-$ dzone --prev Asia/Singapore 2014-02-22
-1981-12-31T23:30:00+07:30 <- 1982-01-01T00:00:00+08:00	Asia/Singapore
+$ dzone --prev Asia/Jakarta
+1964-01-01T00:00:00+07:30 <- 1963-12-31T23:30:00+07:00	Asia/Jakarta
 $
 
 ## dzone.008.ctst ends here
