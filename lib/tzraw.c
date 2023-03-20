@@ -702,7 +702,7 @@ main(int argc, char *argv[])
 		printf("  nlp\t%zu\n", z->nlp);
 
 		for (size_t j = 0U; j < z->ntr; j++) {
-			printf("    tr[%zu]\t%ld\t%hhu\n", j, z->trs[j], z->tys[j]);
+			printf("    tr[%zu]\t%lld\t%hhu\n", j, z->trs[j], z->tys[j]);
 		}
 		for (size_t j = 0U; j < z->nty; j++) {
 			printf("    of[%zu]\t%d\n", j, z->ofs[j]);
