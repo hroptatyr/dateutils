@@ -130,6 +130,9 @@ __io_zone(const char *spec)
 		if ((res = zif_open(spec)) != NULL) {
 			/* cache 'im */
 			alist_put(zones, spec, res);
+		} else {
+			error("\
+Warning: Cannot find zone `%s'. Defaulting to UTC.", spec);
 		}
 	}
 	return res;
@@ -159,12 +162,14 @@ dt_io_zone(const char *spec)
 			alist_put(tzmaps, tzmfn, tzm);
 		} else {
 			error("\
-Cannot find `%s" TZMAP_SUF "' in the tzmaps search path\n\
+Warning: Cannot find `%s" TZMAP_SUF "' in the tzmaps search path\n\
 Set TZMAP_DIR environment variable to where " TZMAP_SUF " files reside", tzmfn);
 			return NULL;
 		}
 		/* look up key bit in tzmap and use that if found */
 		if ((spec = tzm_find(tzm, ++p)) == NULL) {
+			error("\
+Warning: Cannot find zone association `%s' in %s" TZMAP_SUF ". Defaulting to UTC.", p, tzmfn);
 			return NULL;
 		}
 	}
