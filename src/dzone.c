@@ -248,8 +248,12 @@ main(int argc, char *argv[])
 	}
 
 	/* try and read the from and to time zones */
-	if (argi->from_zone_arg) {
-		fromz = dt_io_zone(argi->from_zone_arg);
+	if (argi->from_zone_arg &&
+	    (fromz = dt_io_zone(argi->from_zone_arg)) == NULL) {
+		error("\
+Error: cannot find zone specified in --from-zone: `%s'", argi->from_zone_arg);
+		rc = 1;
+		goto clear;
 	}
 	trnsp = argi->next_flag || argi->prev_flag;
 
@@ -343,7 +347,7 @@ nor a date/time corresponding to the given input formats", inp);
 		}
 	}
 
-out:
+clear:
 	/* release the zones */
 	dt_io_clear_zones();
 	/* release those arrays */
@@ -358,6 +362,7 @@ out:
 		setilocale(NULL);
 	}
 
+out:
 	yuck_free(argi);
 	return rc;
 }

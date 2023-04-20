@@ -675,8 +675,12 @@ main(int argc, char *argv[])
 	}
 
 	/* try and read the from and to time zones */
-	if (argi->from_zone_arg) {
-		fromz = dt_io_zone(argi->from_zone_arg);
+	if (argi->from_zone_arg &&
+	    (fromz = dt_io_zone(argi->from_zone_arg)) == NULL) {
+		error("\
+Error: cannot find zone specified in --from-zone: `%s'", argi->from_zone_arg);
+		rc = 1;
+		goto clear;
 	}
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
@@ -791,6 +795,7 @@ main(int argc, char *argv[])
 		free_prchunk(pctx);
 	}
 
+clear:
 	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);

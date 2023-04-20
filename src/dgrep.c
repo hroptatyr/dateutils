@@ -130,10 +130,12 @@ main(int argc, char *argv[])
 	size_t nfmt;
 	dexpr_t root;
 	oper_t o = OP_UNK;
-	int res = 0;
+	zif_t fromz = NULL;
+	zif_t z = NULL;
+	int rc = 0;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 1;
+		rc = 1;
 		goto out;
 	}
 
@@ -166,13 +168,13 @@ main(int argc, char *argv[])
 	/* parse the expression */
 	if (argi->nargs == 0U || 
 	    dexpr_parse(&root, argi->args[0U], strlen(argi->args[0U])) < 0) {
-		res = 1;
+		rc = 1;
 		error("Error: need an expression to grep");
 		goto out;
 	}
 	/* fixup o, default is OP_EQ */
 	if (o != OP_UNK && root->type != DEX_VAL) {
-		res = 1;
+		rc = 1;
 		error("\
 long opt operators (--lt, --gt, ...) cannot be used in conjunction \n\
 with complex expressions");
@@ -184,6 +186,20 @@ with complex expressions");
 
 	if (argi->from_locale_arg) {
 		setilocale(argi->from_locale_arg);
+	}
+	if (argi->from_zone_arg &&
+	    (fromz = dt_io_zone(argi->from_zone_arg)) == NULL) {
+		error("\
+Error: cannot find zone specified in --from-zone: `%s'", argi->from_zone_arg);
+		rc = 1;
+		goto clear;
+	}
+	if (argi->zone_arg &&
+	    (z = dt_io_zone(argi->zone_arg)) == NULL) {
+		error("\
+Error: cannot find zone specified in --zone: `%s'", argi->zone_arg);
+		rc = 1;
+		goto clear;
 	}
 
 	/* otherwise bring dexpr to normal form */
@@ -199,8 +215,8 @@ with complex expressions");
 		struct prln_ctx_s prln = {
 			.ndl = &ndlsoa,
 			.root = root,
-			.fromz = dt_io_zone(argi->from_zone_arg),
-			.z = dt_io_zone(argi->zone_arg),
+			.fromz = fromz,
+			.z = z,
 			.only_matching_p = argi->only_matching_flag,
 			.invert_match_p = argi->invert_match_flag,
 		};
@@ -236,6 +252,7 @@ with complex expressions");
 			free(needle);
 		}
 	}
+clear:
 	/* resource freeing */
 	free_dexpr(root);
 	dt_io_clear_zones();
@@ -244,7 +261,7 @@ with complex expressions");
 	}
 out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dgrep.c ends here */

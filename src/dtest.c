@@ -62,24 +62,28 @@ main(int argc, char *argv[])
 	size_t nifmt;
 	struct dt_dt_s d1, d2;
 	zif_t fromz = NULL;
-	int res = 0;
+	int rc = 0;
 
 	if (yuck_parse(argi, argc, argv)) {
-		res = 2;
+		rc = 2;
 		goto out;
 	}
 
 
 	if (argi->nargs != 1U + !argi->isvalid_flag) {
 		yuck_auto_help(argi);
-		res = 2;
+		rc = 2;
 		goto out;
 	}
 	if (argi->from_locale_arg) {
 		setilocale(argi->from_locale_arg);
 	}
-	if (argi->from_zone_arg) {
-		fromz = dt_io_zone(argi->from_zone_arg);
+	if (argi->from_zone_arg &&
+	    (fromz = dt_io_zone(argi->from_zone_arg)) == NULL) {
+		error("\
+Error: cannot find zone specified in --from-zone: `%s'", argi->from_zone_arg);
+		rc = 1;
+		goto clear;
 	}
 	if (argi->base_arg) {
 		struct dt_dt_s base = dt_strpdt(argi->base_arg, NULL, NULL);
@@ -93,13 +97,13 @@ main(int argc, char *argv[])
 		/* check that one date */
 		char *ep = NULL;
 
-		res = nifmt > 0U ||
+		rc = nifmt > 0U ||
 			dt_unk_p(dt_strpdt(*argi->args, NULL, &ep)) ||
 			ep == NULL || *ep;
 		for (size_t i = 0; i < nifmt; i++, ep = NULL) {
 			if (!dt_unk_p(dt_strpdt(*argi->args, ifmt[i], &ep)) &&
 			    ep && !*ep) {
-				res = 0;
+				rc = 0;
 				break;
 			}
 		}
@@ -109,57 +113,58 @@ main(int argc, char *argv[])
 		if (!argi->quiet_flag) {
 			dt_io_warn_strpdt(argi->args[0U]);
 		}
-		res = 2;
+		rc = 2;
 		goto out;
 	}
 	if (dt_unk_p(d2 = dt_io_strpdt(argi->args[1U], ifmt, nifmt, fromz))) {
 		if (!argi->quiet_flag) {
 			dt_io_warn_strpdt(argi->args[1U]);
 		}
-		res = 2;
+		rc = 2;
 		goto out;
 	}
 
 	/* just do the comparison */
-	if ((res = dt_dtcmp(d1, d2)) == -2) {
+	if ((rc = dt_dtcmp(d1, d2)) == -2) {
 		/* non-comparable */
-		res = 3;
+		rc = 3;
 	} else if (argi->cmp_flag) {
-		switch (res) {
+		switch (rc) {
 		case 0:
-			res = 0;
+			rc = 0;
 			break;
 		case -1:
-			res = 2;
+			rc = 2;
 			break;
 		case 1:
-			res = 1;
+			rc = 1;
 			break;
 		default:
-			res = 3;
+			rc = 3;
 			break;
 		}
 	} else if (argi->eq_flag) {
-		res = res == 0 ? 0 : 1;
+		rc = rc == 0 ? 0 : 1;
 	} else if (argi->ne_flag) {
-		res = res != 0 ? 0 : 1;
+		rc = rc != 0 ? 0 : 1;
 	} else if (argi->lt_flag || argi->ot_flag) {
-		res = res == -1 ? 0 : 1;
+		rc = rc == -1 ? 0 : 1;
 	} else if (argi->le_flag) {
-		res = res == -1 || res == 0 ? 0 : 1;
+		rc = rc == -1 || rc == 0 ? 0 : 1;
 	} else if (argi->gt_flag || argi->nt_flag) {
-		res = res == 1 ? 0 : 1;
+		rc = rc == 1 ? 0 : 1;
 	} else if (argi->ge_flag) {
-		res = res == 1 || res == 0 ? 0 : 1;
+		rc = rc == 1 || rc == 0 ? 0 : 1;
 	}
-out:
+clear:
 	dt_io_clear_zones();
 	if (argi->from_locale_arg) {
 		setilocale(NULL);
 	}
 
+out:
 	yuck_free(argi);
-	return res;
+	return rc;
 }
 
 /* dtest.c ends here */
