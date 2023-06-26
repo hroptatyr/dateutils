@@ -208,7 +208,7 @@ dt_strft(char *restrict buf, size_t bsz, const char *fmt, struct dt_t_s that)
 	return bp - buf;
 }
 
-/* arithmetics helpers */
+/* arithmetic helpers */
 struct divrem_s {
 	signed int div;
 	unsigned int rem;

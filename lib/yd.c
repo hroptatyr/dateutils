@@ -249,7 +249,7 @@ static inline __attribute__((pure)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR
- * using the 28y cycle thats valid till the year 2399
+ * using the 28y cycle that's valid till the year 2399
  * 1920 = 16 mod 28 */
 #if !defined WITH_FAST_ARITH
 	if (UNLIKELY(year > 2100U ||
@@ -273,7 +273,7 @@ static inline __attribute__((const)) dt_dow_t
 __get_jan01_wday(unsigned int year)
 {
 /* get the weekday of jan01 in YEAR
- * using the 28y cycle thats valid till the year 2399
+ * using the 28y cycle that's valid till the year 2399
  * 1920 = 16 mod 28
  * switch variant */
 # define M	(DT_MONDAY)

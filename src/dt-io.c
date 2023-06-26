@@ -534,7 +534,7 @@ calc_grep_atom(const char *fmt)
 post_snarf:
 	if (res.needle == 0 && (res.pl.off_min || res.pl.off_max)) {
 		if ((res.pl.flags & ~(GRPATM_DIGITS | GRPATM_ORDINALS)) == 0) {
-			/* ah, only digits, thats good */
+			/* ah, only digits, that's good */
 			int8_t tmp = (int8_t)-res.pl.off_min;
 
 			/* swap-invert min and max */

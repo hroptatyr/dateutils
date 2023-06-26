@@ -48,7 +48,7 @@ that is less (older) than the specified date or datetime.
     will yield  2019-01-28T12:00:00
 
 The superdivision of years are millennia, i.e. there's 1000 years,
-500 biennia, 100 decades, etc. in a millenium.
+500 biennia, 100 decades, etc. in a millennium.
 
 
 Multiple RNDSPECs are evaluated left to right.

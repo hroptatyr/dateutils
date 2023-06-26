@@ -495,7 +495,7 @@ __make_ywd_c(unsigned int y, unsigned int c, dt_dow_t w, unsigned int cc)
 			;
 		} else if (hang > 0 && u < DT_SUNDAY && u < j01) {
 			/* n-th W in the year is n-th week,
-			 * in this case the year doesnt start on sunday */
+			 * in this case the year doesn't start on sunday */
 			;
 		} else if (hang <= 0 && (u >= j01 || u == DT_SUNDAY)) {
 			/* n-th W in the year is n-th week */
