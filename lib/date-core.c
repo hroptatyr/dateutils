@@ -105,7 +105,7 @@ struct __md_s {
 /* bizda definitions, reference dates */
 static __attribute__((unused)) const char *bizda_ult[] = {"ultimo", "ult"};
 
-/* arithmetics helpers */
+/* arithmetic helpers */
 static inline unsigned int
 __uimod(signed int x, signed int m)
 {

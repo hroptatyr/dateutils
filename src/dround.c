@@ -931,21 +931,21 @@ cannot parse duration/rounding string `%s'", st.istr);\
 					}
 					break;
 				case DT_DURMO:
-					/* make a millenium the next milestone */
+					/* make a millennium the next milestone */
 					if (!LAST_DUR.d.dv ||
 					    12000 % LAST_DUR.d.dv) {
 						goto nococl;
 					}
 					break;
 				case DT_DURQU:
-					/* make a millenium the next milestone */
+					/* make a millennium the next milestone */
 					if (!LAST_DUR.d.dv ||
 					    4000 % LAST_DUR.d.dv) {
 						goto nococl;
 					}
 					break;
 				case DT_DURYR:
-					/* make a millenium the next milestone */
+					/* make a millennium the next milestone */
 					if (!LAST_DUR.d.dv ||
 					    1000 % LAST_DUR.d.dv) {
 						goto nococl;
