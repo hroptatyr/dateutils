@@ -1,0 +1,8 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## regression case corresponding to bug/153
+$ ddiff 1988-01-30T00:00:01 1989-03-01T23:01:58 -f '%Y %m %w %d  %H %M %S'
+1 0 4 2  23 1 57
+$
+
+## dtdiff.052.ctst ends here
