@@ -680,8 +680,18 @@ __ymd_diff(dt_ymd_t d1, dt_ymd_t d2)
 			d2m = GREG_MONTHS_P_YEAR;
 			d2y--;
 		}
-		tgtd += __get_mdays(d2y, d2m);
 		tgtm--;
+		if (UNLIKELY((tgtd += __get_mdays(d2y, d2m)) < 0)) {
+			/* super special case when d2m is feb and the
+			 * difference is >= 28 or 29,
+			 * unrolled because it cannot happen again */
+			if (--d2m < 1) {
+				d2m = GREG_MONTHS_P_YEAR;
+				d2y--;
+			}
+			tgtm--;
+			tgtd += __get_mdays(d2y, d2m);
+		}
 #if !defined WITH_FAST_ARITH || defined OMIT_FIXUPS
 		/* the non-fast arith has done the fixup already */
 #else  /* WITH_FAST_ARITH && !defined OMIT_FIXUPS */
