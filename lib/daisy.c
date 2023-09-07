@@ -201,6 +201,51 @@ __mdn_to_daisy(dt_mdn_t d)
 DEFUN __attribute__((const)) dt_ymd_t
 __daisy_to_ymd(dt_daisy_t that)
 {
+#if 1
+/* cassio neri eaf */
+#define s	(82U)
+#define K	(584693U + 146097U * s)
+#define L	(400U * s)
+	if (UNLIKELY(that == 0 || that > 910674U)) {
+		return (dt_ymd_t){.u = 0};
+	} else {
+		const unsigned int N = that + K;
+
+		/* century */
+		const unsigned int N_1 = 4U * N + 3U;
+		const unsigned int C = N_1 / 146097U;
+		const unsigned int N_C = N_1 % 146097U / 4U;
+
+		/* year */
+		const unsigned int N_2 = 4U * N_C + 3U;
+		const uint64_t P_2 = (uint64_t)2939745ULL * (uint64_t)N_2;
+		const unsigned int Z = (unsigned int)(P_2 / 4294967296ULL);
+		const unsigned int N_Y = (unsigned int)(P_2 % 4294967296ULL) / 2939745U / 4U;
+		const unsigned int Y = 100U * C + Z;
+
+		/* month and day */
+		const unsigned int N_3 = 2141U * N_Y + 197913U;
+		const unsigned int M = N_3 / 65536U;
+		const unsigned int D = N_3 % 65536U / 2141U;
+
+		/* year correction */
+		const unsigned int J = N_Y >= 306U;
+#if defined HAVE_ANON_STRUCTS_INIT
+		return (dt_ymd_t){.y = Y - L + J, .m = J ? M - 12 : M, .d = D + 1};
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+		{
+			dt_ymd_t res;
+			res.y = Y - L + J;
+			res.m = J ? M - 12 : M;
+			res.d = D + 1;
+			return res;
+		}
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+	}
+#undef s
+#undef K
+#undef L
+#else
 	dt_daisy_t j00;
 	unsigned int doy;
 	unsigned int y;
@@ -225,6 +270,7 @@ __daisy_to_ymd(dt_daisy_t that)
 		return res;
 	}
 #endif	/* HAVE_ANON_STRUCTS_INIT */
+#endif
 }
 
 static __attribute__((const)) dt_ymcw_t
