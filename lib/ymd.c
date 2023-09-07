@@ -504,6 +504,28 @@ static dt_daisy_t
 __ymd_to_daisy(dt_ymd_t d)
 {
 	dt_daisy_t res;
+#if 1
+/* cassio neri eaf */
+#define s	(82U)
+#define K	(584693U + 146097U * s)
+#define L	(400U * s)
+	const unsigned int J = d.m <= 2;
+	const unsigned int Y = (uint32_t)(d.y + L) - J;
+	const unsigned int M = J ? d.m + 12U : d.m;
+	const unsigned int D = d.d - 1U;
+	const unsigned int C = Y / 100U;
+
+	/* Rata die.*/
+	const unsigned int y_star = 1461U * Y / 4U - C + C / 4U;
+	const unsigned int m_star = (979U * M - 2919U) / 32U;
+	res = y_star + m_star + D;
+
+	/* shift */
+	res -= K;
+#undef s
+#undef K
+#undef L
+#else
 	unsigned int sy = d.y;
 	unsigned int sm = d.m;
 	unsigned int sd;
@@ -526,6 +548,7 @@ __ymd_to_daisy(dt_ymd_t d)
 
 	res = __jan00_daisy(sy);
 	res += __md_get_yday(sy, sm, sd);
+#endif
 	return res;
 }
 
