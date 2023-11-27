@@ -113,6 +113,8 @@ AC_DEFUN([AX_ZONEINFO_TZDIR], [dnl
 	TZDIR_cand="${TZDIR_cand} \
 /usr/share/zoneinfo \
 /usr/lib/zoneinfo \
+/etc/zoneinfo \
+/share/zoneinfo \
 /usr/local/etc/zoneinfo \
 /usr/share/lib/zoneinfo \
 "
