@@ -144,8 +144,6 @@ __local(void)
 	if (!*tzmfn) {
 		struct stat st;
 
-		puts(tzname[0U]);
-		puts(tzname[1U]);
 		if (!stat("/etc/localtime", &st)) {
 			memcpy(tzmfn, "/etc/localtime", 14L);
 			goto gothim;
