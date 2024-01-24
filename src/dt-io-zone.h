@@ -1,6 +1,6 @@
 /*** dt-io-zone.h -- abstract from raw zone interface
  *
- * Copyright (C) 2009-2022 Sebastian Freundt
+ * Copyright (C) 2009-2024 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

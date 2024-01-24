@@ -1,6 +1,6 @@
 /*** dtest.c -- like test(1) but for dates
  *
- * Copyright (C) 2011-2022 Sebastian Freundt
+ * Copyright (C) 2011-2024 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

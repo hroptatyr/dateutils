@@ -1,6 +1,6 @@
 /*** nifty.h -- generally handy macroes
  *
- * Copyright (C) 2009-2022 Sebastian Freundt
+ * Copyright (C) 2009-2024 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

@@ -1,6 +1,6 @@
 /*** tzconv.c -- convert matlab dates between timezones
  *
- * Copyright (C) 2013-2019 Sebastian Freundt
+ * Copyright (C) 2013-2024 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

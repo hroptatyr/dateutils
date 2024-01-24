@@ -1,6 +1,6 @@
 /*** dsort.c -- sort FILEs or stdin chronologically
  *
- * Copyright (C) 2011-2022 Sebastian Freundt
+ * Copyright (C) 2011-2024 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
