@@ -8,6 +8,25 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.11
+-------
+Summary: v0.4.11 of dateutils
+
+This is dateutils v0.4.11.
+
+This is a bugfix release.
+
+Bugfixes:
+
+- be strict about inputs in datetest --isvalid (#146)
+- build on Macs again (#107)
+- make illegible zone names fatal errors (#151)
+- be strict in datetest --isvalid when inputs have been specified (#146)
+- fix issue with negative days remaining after adding months in datediff (#153)
+
+See info page examples and/or README.
+
+
 v0.4.10
 -------
 Summary: v0.4.10 of dateutils
