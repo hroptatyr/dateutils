@@ -167,7 +167,7 @@ dt_io_zone(const char *spec)
 		return NULL;
 	}
 	/* see if SPEC is a MAP:KEY */
-	if ((p = strchr(spec, ':')) != NULL) {
+	if (*spec != '+' && *spec != '-' && (p = strchr(spec, ':')) != NULL) {
 		char tzmfn[PATH_MAX];
 		tzmap_t tzm;
 

@@ -314,7 +314,7 @@ __open_zif(const char *file)
 DEFUN void
 zif_close(zif_t z)
 {
-	if (!z->cz) {
+	if (!z->cz || z->cz >= TZCZ_NZONE) {
 		free(z);
 	}
 	return;
@@ -343,6 +343,45 @@ zif_open(const char *file)
 			[TZCZ_GPS] = {.cz = TZCZ_GPS, .ofs = (void*)&coord_zifs},
 		};
 		return coord_zifs + cz;
+	}
+	/* more special zones, created on the fly by offsets */
+	if (*file == '+' || *file == '-') {
+		unsigned char xc;
+		const char *fp = file + 1U;
+		int off = 0;
+
+		if ((xc = (unsigned char)(*fp++ ^ '0')) >= 10) {
+			return NULL;
+		}
+		off += xc;
+		if ((xc = (unsigned char)(*fp++ ^ '0')) >= 10) {
+			return NULL;
+		}
+		off *= 10;
+		off += xc;
+		off *= 6;
+		fp += *fp == ':';
+		if ((xc = (unsigned char)(*fp++ ^ '0')) >= 10) {
+			return NULL;
+		}
+		off += xc;
+		off *= 10;
+		if ((xc = (unsigned char)(*fp++ ^ '0')) >= 10) {
+			return NULL;
+		}
+		off += xc;
+		off *= *file == '+' ? 60 : -60;
+		if (UNLIKELY(*fp != '\0')) {
+			return NULL;
+		}
+
+		if (UNLIKELY((res = malloc(sizeof(*res))) == NULL)) {
+			return NULL;
+		}
+		memset(res, 0, sizeof(*res));
+		res->cz = (coord_zone_t)off;
+		res->ofs = (void*)res;
+		return res;
 	}
 
 	if (UNLIKELY((fd = __open_zif(file)) < STDIN_FILENO)) {
@@ -609,7 +648,6 @@ __offs(struct zif_s z[static 1U], stamp_t t)
 	size_t max;
 
 	switch (z->cz) {
-	default:
 	case TZCZ_UNK:
 		break;
 	case TZCZ_UTC:
@@ -618,6 +656,9 @@ __offs(struct zif_s z[static 1U], stamp_t t)
 		return __tai_offs(t);
 	case TZCZ_GPS:
 		return __gps_offs(t);
+	default:
+		/* hard-coded offsets */
+		return (stamp_t)z->cz;
 	}
 
 	/* use the classic code */
