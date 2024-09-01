@@ -17,3 +17,8 @@ EXTRA_DIST = $(BUILT_SOURCES) $(pkgdata_DATA)
 SUFFIXES =
 
 pkgdata_DATA += locale
+pkgdata_DATA += ummulqura.tab
+
+ummulqura.tab: snarf-ummulqura.R
+	$< --as.c -o $@.t $(shell seq 1318 1450) \
+	&& mv $@.t $@
