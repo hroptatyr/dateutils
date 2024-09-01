@@ -3,7 +3,7 @@ dnl Autoconf startup.
 dnl -------------------------------------------------------------------------
 
 AC_PREREQ([2.63])
-AC_INIT([dateutils], [0.4.12.GIT], [https://github.com/hroptatyr/dateutils/issues])
+AC_INIT([dateutils], [0.5.0.GIT], [https://github.com/hroptatyr/dateutils/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
