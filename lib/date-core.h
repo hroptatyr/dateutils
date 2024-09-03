@@ -64,6 +64,7 @@ typedef enum {
 	DT_JDN,
 	DT_LDN,
 	DT_MDN,
+	DT_UMMULQURA,
 	DT_NDTYP,
 } dt_dtyp_t;
 
@@ -118,6 +119,8 @@ typedef union {
 #endif	/* BYTE_ORDER */
 	};
 } dt_ymd_t;
+
+typedef dt_ymd_t dt_ummulqura_t;
 
 /** ymcws
  * ymcws are year-month-count-weekday bcd coded. */
@@ -306,6 +309,8 @@ struct dt_d_s {
 		dt_bizda_t bizda;
 		/* for helper purposes only */
 		dt_yd_t yd;
+		/* basically ymd */
+		dt_ummulqura_t ummulqura;
 	};
 };
 
@@ -375,6 +380,7 @@ enum {
 /* constants (for known calendars) */
 #define GREG_DAYS_P_WEEK	(7U)
 #define GREG_MONTHS_P_YEAR	(12U)
+#define HIJRI_MONTHS_P_YEAR	(12U)
 #define DUWW_BDAYS_P_WEEK	(5U)
 
 
@@ -394,6 +400,9 @@ enum {
  * date string. */
 extern struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep);
+
+extern struct dt_d_s
+dt_strpd_special(const char *str, dt_dtyp_t, char **ep);
 
 /**
  * Like strftime() for our dates */

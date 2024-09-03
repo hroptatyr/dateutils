@@ -247,6 +247,10 @@ __strpd_card(struct strpd_s *d, const char *sp, struct dt_spec_s s, char **ep)
 			}
 #endif	/* LIBDUT */
 			break;
+		case DT_SPMOD_ILL:
+			/* good for ymd like calendars with different years */
+			d->y = strtoi32(sp, &sp);
+			break;
 		}
 		res = 0 - (d->y < 0);
 		break;
