@@ -78,6 +78,7 @@ EXTRA_libdut_a_SOURCES += bizda.c
 EXTRA_libdut_a_SOURCES += daisy.c
 EXTRA_libdut_a_SOURCES += fmt-special.gperf
 EXTRA_libdut_a_SOURCES += leap-seconds.list
+EXTRA_libdut_a_SOURCES += ummulqura.c
 BUILT_SOURCES += version.c
 BUILT_SOURCES += fmt-special.c
 BUILT_SOURCES += leap-seconds.def
