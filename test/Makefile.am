@@ -862,6 +862,8 @@ dt_tests += dtdiff.049.ctst
 dt_tests += dtdiff.050.ctst
 dt_tests += dtdiff.051.ctst
 dt_tests += dtdiff.052.ctst
+dt_tests += dtdiff.053.ctst
+dt_tests += dtdiff.054.ctst
 
 dt_tests += dtround.001.ctst
 dt_tests += dtround.002.ctst

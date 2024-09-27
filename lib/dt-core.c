@@ -1658,7 +1658,7 @@ dt_dtdiff(dt_dtdurtyp_t tgttyp, struct dt_dt_s d1, struct dt_dt_s d2)
 		res.d = dt_ddiff((dt_durtyp_t)tgttyp, d1.d, d2.d, dt);
 		dt = !res.neg ? dt : -dt;
 		dt = !res.d.fix ? dt
-			: dt > 0 ? SECS_PER_DAY - dt
+			: dt > 0 ? dt - SECS_PER_DAY
 			: dt < 0 ? dt + SECS_PER_DAY
 			: 0;
 		res.t.sdur = dt;
