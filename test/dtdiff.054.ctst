@@ -1,0 +1,10 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+## regression case corresponding to bug/161
+$ ddiff 2024-09-26T18:00:00-04:00 2024-09-26T19:33:00+10:00 -f '%Y years %m months %w weeks %d days %H hours %M minutes %S seconds'
+-0 years 0 months 0 weeks 0 days 12 hours 27 minutes 0 seconds
+$ ddiff 2024-09-26T18:00:00-10:00 2024-09-26T19:33:00+10:00 -f '%Y years %m months %w weeks %d days %H hours %M minutes %S seconds'
+-0 years 0 months 0 weeks 0 days 18 hours 27 minutes 0 seconds
+$
+
+## dtdiff.054.ctst ends here
