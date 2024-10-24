@@ -693,8 +693,7 @@ Error: cannot find zone specified in --from-zone: `%s'", argi->from_zone_arg);
 
 	if (argi->nargs == 0 ||
 	    (refinp = argi->args[0U],
-	     dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, fromz)) &&
-	     dt_unk_p(d = dt_io_strpdt(refinp, NULL, 0U, fromz)))) {
+	     dt_unk_p(d = dt_io_strpdt(refinp, fmt, nfmt, fromz)))) {
 		error("Error: cannot parse reference DATE");
 		rc = 1;
 		goto out;

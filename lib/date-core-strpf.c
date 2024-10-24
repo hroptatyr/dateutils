@@ -114,18 +114,22 @@ __strpd_std(const char *str, char **ep)
 				goto fucked;
 			}
 			switch (*(sp = tmp)) {
+			case '\0':
+				goto guess;
 			case 'B':
 				/* it's a bizda/YMDU before ultimo date */
 				d.flags.ab = BIZDA_BEFORE;
+				/*@fallthrough@*/
 			case 'b':
 				/* it's a bizda/YMDU after ultimo date */
 				d.flags.bizda = 1;
 				sp++;
 				/* we currently don't support
 				 * business day of year calendars */
+				/*@fallthrough@*/
+			default:
 				goto fucked;
 			}
-			goto guess;
 		} else if (d.d = strtoi32(++tmp, &sp), d.d < 0 || d.d > 31) {
 			/* didn't work, fuck off */
 			goto fucked;
