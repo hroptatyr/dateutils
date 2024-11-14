@@ -2083,7 +2083,7 @@ EAE	Pacific/Efate
 EAL	Pacific/Kwajalein
 EAM	Asia/Riyadh
 EAN	America/Denver
-EAP	Europe/Zurich
+EAP	Europe/Paris
 EAR	America/Chicago
 EAS	Europe/Madrid
 EAT	America/Los_Angeles
@@ -2115,6 +2115,7 @@ EDB	Africa/Khartoum
 EDD	Australia/Darwin
 EDE	America/New_York
 EDF	America/Anchorage
+EDG	America/New_York
 EDI	Europe/London
 EDK	America/Chicago
 EDL	Africa/Nairobi
@@ -2124,9 +2125,11 @@ EDO	Europe/Istanbul
 EDQ	America/Tegucigalpa
 EDR	Australia/Brisbane
 EDW	America/Los_Angeles
+EEA	America/Sao_Paulo
 EED	America/Los_Angeles
 EEK	America/Nome
 EEN	America/New_York
+EES	Africa/Cairo
 EFD	America/Chicago
 EFG	Pacific/Port_Moresby
 EFK	America/New_York
@@ -2135,6 +2138,7 @@ EFW	America/Chicago
 EGA	Pacific/Port_Moresby
 EGC	Europe/Paris
 EGE	America/Denver
+EGH	Africa/Cairo
 EGI	America/Chicago
 EGL	Africa/Addis_Ababa
 EGM	Pacific/Guadalcanal
@@ -2146,6 +2150,8 @@ EGV	America/Chicago
 EGX	America/Anchorage
 EHL	America/Argentina/Salta
 EHM	America/Nome
+EHT	America/New_York
+EHU	Asia/Shanghai
 EIA	Pacific/Port_Moresby
 EIB	Europe/Berlin
 EIE	Asia/Krasnoyarsk
@@ -2216,6 +2222,7 @@ ENC	Europe/Paris
 END	America/Chicago
 ENE	Asia/Makassar
 ENF	Europe/Helsinki
+ENG	Asia/Jakarta
 ENH	Asia/Shanghai
 ENI	Asia/Manila
 ENJ	America/Guatemala
@@ -2223,6 +2230,7 @@ ENK	Europe/London
 ENL	America/Chicago
 ENN	America/Anchorage
 ENO	America/Asuncion
+ENQ	America/Tegucigalpa
 ENS	Europe/Amsterdam
 ENT	Pacific/Kwajalein
 ENU	Africa/Lagos
@@ -2248,7 +2256,7 @@ EQS	America/Argentina/Catamarca
 ERA	Africa/Mogadishu
 ERB	Australia/Adelaide
 ERC	Europe/Istanbul
-ERD	Europe/Zaporozhye
+ERD	Europe/Kyiv
 ERE	Pacific/Port_Moresby
 ERF	Europe/Berlin
 ERG	Asia/Irkutsk
@@ -2256,7 +2264,7 @@ ERH	Africa/Casablanca
 ERI	America/New_York
 ERL	Asia/Shanghai
 ERM	America/Sao_Paulo
-ERN	America/Manaus
+ERN	America/Eirunepe
 ERQ	Australia/Brisbane
 ERR	America/New_York
 ERS	Africa/Windhoek
@@ -2321,9 +2329,11 @@ EWK	America/Chicago
 EWN	America/New_York
 EWO	Africa/Brazzaville
 EWR	America/New_York
+EWY	Europe/London
 EXI	America/Juneau
 EXM	Australia/Perth
 EXT	Europe/London
+EYA	Asia/Yakutsk
 EYK	Asia/Yekaterinburg
 EYL	Africa/Bamako
 EYP	America/Bogota
@@ -2344,6 +2354,7 @@ FAI	America/Anchorage
 FAJ	America/Puerto_Rico
 FAK	America/Sitka
 FAM	America/Chicago
+FAN	Europe/Oslo
 FAO	Europe/Lisbon
 FAQ	Pacific/Port_Moresby
 FAR	America/Chicago
@@ -2362,6 +2373,7 @@ FBL	America/Chicago
 FBM	Africa/Lubumbashi
 FBR	America/Denver
 FBS	America/Los_Angeles
+FBU	Europe/Oslo
 FBY	America/Chicago
 FCA	America/Denver
 FCB	Africa/Johannesburg
@@ -2388,6 +2400,7 @@ FEL	Europe/Berlin
 FEN	America/Noronha
 FEP	America/Chicago
 FET	America/Chicago
+FEW	America/Denver
 FEZ	Africa/Casablanca
 FFA	America/New_York
 FFD	Europe/London
@@ -2398,6 +2411,7 @@ FFT	America/New_York
 FFU	America/Santiago
 FGD	Africa/Nouakchott
 FGI	Pacific/Apia
+FGL	Pacific/Auckland
 FGU	Pacific/Tahiti
 FHU	America/Phoenix
 FHZ	Pacific/Tahiti
@@ -2408,9 +2422,12 @@ FIH	Africa/Kinshasa
 FIK	Australia/Darwin
 FIL	America/Denver
 FIN	Pacific/Port_Moresby
+FIS	America/Bogota
+FIV	America/Juneau
 FIZ	Australia/Perth
 FJR	Asia/Dubai
 FKB	Europe/Berlin
+FKH	Europe/London
 FKI	Africa/Lubumbashi
 FKJ	Asia/Tokyo
 FKL	America/New_York
@@ -2419,11 +2436,14 @@ FKQ	Asia/Jayapura
 FKS	Asia/Tokyo
 FLA	America/Bogota
 FLB	America/Fortaleza
+FLC	Australia/Melbourne
 FLD	America/Chicago
+FLE	America/New_York
 FLF	Europe/Berlin
 FLG	America/Phoenix
 FLH	Europe/London
 FLI	Atlantic/Reykjavik
+FLJ	America/Anchorage
 FLL	America/New_York
 FLM	America/Asuncion
 FLN	America/Sao_Paulo
@@ -2432,12 +2452,14 @@ FLP	America/Chicago
 FLR	Europe/Rome
 FLS	Australia/Hobart
 FLT	America/Anchorage
+FLU	America/New_York
 FLV	America/Chicago
 FLW	Atlantic/Azores
 FLX	America/Los_Angeles
 FLY	Australia/Sydney
 FLZ	Asia/Jakarta
 FMA	America/Argentina/Cordoba
+FMC	America/Anchorage
 FME	America/New_York
 FMH	America/New_York
 FMI	Africa/Lubumbashi
@@ -2445,16 +2467,19 @@ FMM	Europe/Berlin
 FMN	America/Denver
 FMO	Europe/Berlin
 FMS	America/Chicago
+FMT	Indian/Maldives
 FMU	America/Los_Angeles
 FMY	America/New_York
 FNA	Africa/Freetown
 FNB	Europe/Berlin
 FNC	Atlantic/Madeira
+FND	Indian/Maldives
 FNE	Pacific/Port_Moresby
 FNG	Africa/Ouagadougou
 FNH	Africa/Addis_Ababa
 FNI	Europe/Paris
 FNJ	Asia/Pyongyang
+FNK	America/Anchorage
 FNL	America/Denver
 FNR	America/Juneau
 FNT	America/Detroit
@@ -2469,6 +2494,7 @@ FOK	America/New_York
 FOM	Africa/Douala
 FON	America/Costa_Rica
 FOO	Asia/Jayapura
+FOP	America/New_York
 FOR	America/Fortaleza
 FOS	Australia/Perth
 FOT	Australia/Sydney
@@ -2482,9 +2508,11 @@ FRB	Australia/Sydney
 FRC	America/Sao_Paulo
 FRD	America/Los_Angeles
 FRE	Pacific/Guadalcanal
+FRF	Europe/Berlin
 FRG	America/New_York
 FRH	America/Indiana/Indianapolis
 FRI	America/Chicago
+FRJ	Europe/Paris
 FRK	Indian/Mahe
 FRL	Europe/Rome
 FRM	America/Chicago
@@ -2504,6 +2532,7 @@ FSI	America/Chicago
 FSK	America/Chicago
 FSL	Australia/Perth
 FSM	America/Chicago
+FSN	America/Chicago
 FSP	America/Miquelon
 FSS	Europe/London
 FST	America/Chicago
@@ -2534,6 +2563,7 @@ FWA	America/Indiana/Indianapolis
 FWH	America/Chicago
 FWL	America/Anchorage
 FXE	America/New_York
+FXM	America/Anchorage
 FXO	Africa/Maputo
 FXY	America/Chicago
 FYJ	Asia/Shanghai
@@ -2542,6 +2572,7 @@ FYN	Asia/Urumqi
 FYT	Africa/Ndjamena
 FYU	America/Anchorage
 FYV	America/Chicago
+FZL	Asia/Baku
 FZO	Europe/London
 GAA	America/Bogota
 GAB	America/Los_Angeles
