@@ -875,7 +875,7 @@ __guess_dtyp(struct strpd_s d)
 			}
 #endif	/* WITH_FAST_ARITH */
 		}
-	} else if (d.y > 0 && d.m <= 0 && !d.flags.bizda) {
+	} else if (d.y > 0 && d.flags.c_wcnt_p && !d.flags.bizda) {
 		res.typ = DT_YWD;
 		res.ywd = __make_ywd_c(d.y, d.c, (dt_dow_t)d.w, d.flags.wk_cnt);
 	} else if (d.y > 0 && !d.flags.bizda) {
