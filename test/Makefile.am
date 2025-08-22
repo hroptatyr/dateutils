@@ -250,6 +250,7 @@ dt_tests += dconv.140.ctst
 dt_tests += dconv.141.ctst
 dt_tests += dconv.142.ctst
 dt_tests += dconv.143.ctst
+dt_tests += dconv.144.ctst
 
 dt_tests += dadd.001.ctst
 dt_tests += dadd.002.ctst

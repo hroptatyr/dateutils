@@ -1,0 +1,9 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ dconv -i "%V%_b%y" 33Q25
+2025-W33-0
+$ dconv -i "%V%_b%y" 33F25
+2025-W33-0
+$
+
+## dconv.144.ctst ends here
