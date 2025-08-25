@@ -21,5 +21,5 @@ pkgdata_DATA += ummulqura.tab
 EXTRA_DIST += snarf-ummulqura.R
 
 ummulqura.tab: snarf-ummulqura.R
-	$< --as.c -o $@.t $(shell seq 1318 1450) \
+	$< --as.c -o $@.t $(shell seq 1318 1451) \
 	&& mv $@.t $@
