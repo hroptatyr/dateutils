@@ -1,0 +1,7 @@
+#!/usr/bin/clitosis  ## -*- shell-script -*-
+
+$ ! dtest --isvalid -i '%F' '2017-02-29'
+$ ! dtest --isvalid '2017-02-31'
+$
+
+## dtest.013.ctst ends here
