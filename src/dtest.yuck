@@ -39,4 +39,4 @@ Like test(1) but for dates.
                                equal, 1 if left argument was newer and 2 if
                                right argument was newer
   --isvalid                  Return success if dates specified conform to
-                             input format.
+                             input format and no date or time fixing occurred.

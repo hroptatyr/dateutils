@@ -95,17 +95,17 @@ Error: cannot find zone specified in --from-zone: `%s'", argi->from_zone_arg);
 
 	if (argi->isvalid_flag) {
 		/* check that one date */
+		struct dt_dt_s r;
 		char *ep = NULL;
 
 		rc = nifmt > 0U ||
-			dt_unk_p(dt_strpdt(*argi->args, NULL, &ep)) ||
+			dt_unk_p(r = dt_strpdt(*argi->args, NULL, &ep)) ||
+			r.fix ||
 			ep == NULL || *ep;
-		for (size_t i = 0; i < nifmt; i++, ep = NULL) {
-			if (!dt_unk_p(dt_strpdt(*argi->args, ifmt[i], &ep)) &&
-			    ep && !*ep) {
-				rc = 0;
-				break;
-			}
+		for (size_t i = 0; i < nifmt && rc; i++, ep = NULL) {
+			rc = dt_unk_p(r = dt_strpdt(*argi->args, ifmt[i], &ep)) ||
+				r.fix ||
+				ep == NULL || *ep;
 		}
 		goto out;
 	}
