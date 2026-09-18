@@ -1,6 +1,6 @@
 /*** token.c -- tokeniser specs and stuff
  *
- * Copyright (C) 2011-2024 Sebastian Freundt
+ * Copyright (C) 2011-2026 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

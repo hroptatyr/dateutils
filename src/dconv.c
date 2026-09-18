@@ -1,6 +1,6 @@
 /*** dconv.c -- convert calendrical and time stamp systems
  *
- * Copyright (C) 2011-2024 Sebastian Freundt
+ * Copyright (C) 2011-2026 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *

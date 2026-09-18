@@ -1,6 +1,6 @@
 /*** tzmap.h -- zonename maps
  *
- * Copyright (C) 2014-2024 Sebastian Freundt
+ * Copyright (C) 2014-2026 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
