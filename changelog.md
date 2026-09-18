@@ -8,6 +8,37 @@ logo: dateutils_logo_120.png
 Changelog in reverse order
 ==========================
 
+v0.4.12
+-------
+
+Summary: v0.4.12 of dateutils
+
+This is dateutils v0.4.12.
+
+This is a bugfix release.
+
+Features:
+
+- zones can now be specified by their offset
+- named input formats can be dates only
+- allow to overspecify ywd dates
+
+Bugfixes:
+
+- differences absolutely less than 24 hours but
+  on different days are calculated correctly
+- differences on epoch based timestamps are
+  implemented
+- check if input fulfils %V/%W specs
+- always ignore time zone fixups when using the
+  "now" special
+- when reading epochs do not treat 0 specially
+- leap second transitions are detected properly
+- datetest --isvalid also checks for fix-ups
+
+See info page examples and/or README.
+
+
 v0.4.11
 -------
 Summary: v0.4.11 of dateutils
