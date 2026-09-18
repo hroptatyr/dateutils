@@ -136,7 +136,6 @@ __sgn(signed int x)
 #include "ywd.c"
 #include "bizda.c"
 #include "daisy.c"
-#include "ummulqura.c"
 
 
 #define ASPECT_GETTERS
@@ -146,7 +145,6 @@ __sgn(signed int x)
 #include "ywd.c"
 #include "bizda.c"
 #include "daisy.c"
-#include "ummulqura.c"
 #undef ASPECT_GETTERS
 
 #define ASPECT_CONV
@@ -156,7 +154,6 @@ __sgn(signed int x)
 #include "ywd.c"
 #include "bizda.c"
 #include "daisy.c"
-#include "ummulqura.c"
 #undef ASPECT_CONV
 
 
@@ -173,8 +170,6 @@ dt_get_year(struct dt_d_s that)
 		return __daisy_to_ymd(that.daisy).y;
 	case DT_BIZDA:
 		return that.bizda.y;
-	case DT_UMMULQURA:
-		return that.ummulqura.y;
 	default:
 	case DT_DUNK:
 		return 0;
@@ -195,8 +190,6 @@ dt_get_mon(struct dt_d_s that)
 		return that.bizda.m;
 	case DT_YWD:
 		return __ywd_get_mon(that.ywd);
-	case DT_UMMULQURA:
-		return that.ummulqura.m;
 	default:
 	case DT_DUNK:
 		return 0;
@@ -217,8 +210,6 @@ dt_get_wday(struct dt_d_s that)
 		return __bizda_get_wday(that.bizda);
 	case DT_YWD:
 		return __ywd_get_wday(that.ywd);
-	case DT_UMMULQURA:
-		;
 	default:
 	case DT_DUNK:
 		return DT_MIRACLEDAY;
@@ -240,8 +231,6 @@ dt_get_mday(struct dt_d_s that)
 		return __bizda_get_mday(that.bizda);;
 	case DT_YMD:
 		/* to shut gcc up */
-	case DT_UMMULQURA:
-		return that.ummulqura.d;
 	default:
 	case DT_DUNK:
 		return 0;
@@ -265,10 +254,6 @@ dt_get_md(struct dt_d_s that)
 		return __ywd_get_md(that.ywd);
 	case DT_YD:
 		return __yd_get_md(that.yd);
-	case DT_UMMULQURA:
-		return (struct __md_s){
-			.m = that.ummulqura.m, .d = that.ummulqura.d
-			};
 	}
 }
 
@@ -369,8 +354,6 @@ dt_get_yday(struct dt_d_s that)
 		return __bizda_get_yday(that.bizda, __get_bizda_param(that));
 	case DT_YWD:
 		return __ywd_get_yday(that.ywd);
-	case DT_UMMULQURA:
-		;
 	default:
 	case DT_DUNK:
 		return 0;
@@ -476,7 +459,6 @@ dt_conv_to_daisy(struct dt_d_s that)
 	case DT_BIZDA:
 		return __bizda_to_daisy(that.bizda, __get_bizda_param(that));
 	case DT_LDN:
-	ldn:
 		return __ldn_to_daisy(that.ldn);
 	case DT_JDN:
 		return __jdn_to_daisy(that.jdn);
@@ -484,9 +466,6 @@ dt_conv_to_daisy(struct dt_d_s that)
 		return __mdn_to_daisy(that.mdn);
 	case DT_YD:
 		return __yd_to_daisy(that.yd);
-	case DT_UMMULQURA:
-		that.ldn = __ummulqura_to_ldn(that.ummulqura);
-		goto ldn;
 	case DT_DUNK:
 	default:
 		break;
@@ -506,7 +485,6 @@ dt_conv_to_ymd(struct dt_d_s that)
 		that.daisy = __jdn_to_daisy(that.jdn);
 		goto daisy;
 	case DT_LDN:
-	ldn:
 		that.daisy = __ldn_to_daisy(that.ldn);
 		goto daisy;
 	case DT_MDN:
@@ -521,9 +499,6 @@ dt_conv_to_ymd(struct dt_d_s that)
 		return __ywd_to_ymd(that.ywd);
 	case DT_YD:
 		return __yd_to_ymd(that.yd);
-	case DT_UMMULQURA:
-		that.ldn = __ummulqura_to_ldn(that.ummulqura);
-		goto ldn;
 	case DT_DUNK:
 	default:
 		break;
@@ -543,7 +518,6 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		that.daisy = __jdn_to_daisy(that.jdn);
 		goto daisy;
 	case DT_LDN:
-	ldn:
 		that.daisy = __ldn_to_daisy(that.ldn);
 		goto daisy;
 	case DT_MDN:
@@ -558,9 +532,6 @@ dt_conv_to_ymcw(struct dt_d_s that)
 		return __ywd_to_ymcw(that.ywd);
 	case DT_YD:
 		return __yd_to_ymcw(that.yd);
-	case DT_UMMULQURA:
-		that.ldn = __ummulqura_to_ldn(that.ummulqura);
-		goto ldn;
 	case DT_DUNK:
 	default:
 		break;
@@ -607,7 +578,6 @@ dt_conv_to_ywd(struct dt_d_s this)
 		this.daisy = __jdn_to_daisy(this.jdn);
 		goto daisy;
 	case DT_LDN:
-	ldn:
 		this.daisy = __ldn_to_daisy(this.ldn);
 		goto daisy;
 	case DT_MDN:
@@ -620,9 +590,6 @@ dt_conv_to_ywd(struct dt_d_s this)
 		return __bizda_to_ywd(this.bizda, __get_bizda_param(this));
 	case DT_YD:
 		return __yd_to_ywd(this.yd);
-	case DT_UMMULQURA:
-		this.ldn = __ummulqura_to_ldn(this.ummulqura);
-		goto ldn;
 	case DT_DUNK:
 	default:
 		break;
@@ -643,7 +610,6 @@ dt_conv_to_yd(struct dt_d_s this)
 		this.daisy = __jdn_to_daisy(this.jdn);
 		goto daisy;
 	case DT_LDN:
-	ldn:
 		this.daisy = __ldn_to_daisy(this.ldn);
 		goto daisy;
 	case DT_MDN:
@@ -656,21 +622,10 @@ dt_conv_to_yd(struct dt_d_s this)
 		return __ymcw_to_yd(this.ymcw);
 	case DT_YWD:
 		return __ywd_to_yd(this.ywd);
-	case DT_UMMULQURA:
-		this.ldn = __ummulqura_to_ldn(this.ummulqura);
-		goto ldn;
 	default:
 		break;
 	}
 	return (dt_yd_t){.u = 0};
-}
-
-static dt_ummulqura_t
-dt_conv_to_ummulqura(struct dt_d_s this)
-{
-	dt_daisy_t dd = dt_conv_to_daisy(this);
-	dt_ldn_t dl = __daisy_to_ldn(dd);
-	return __ldn_to_ummulqura(dl);
 }
 
 
@@ -760,7 +715,6 @@ __trans_dfmt(const char **fmt)
 		default:
 			break;
 		case DT_YMD:
-		case DT_UMMULQURA:
 			*fmt = ymd_dflt;
 			break;
 		case DT_YMCW:
@@ -925,33 +879,6 @@ __guess_dtyp(struct strpd_s d)
 #endif	/* __INTEL_COMPILER */
 
 DEFUN struct dt_d_s
-dt_strpd_special(const char *str, dt_dtyp_t typ, char **ep)
-{
-	struct dt_d_s res = {DT_DUNK};
-	const char *sp = str;
-
-	switch (typ) {
-	default:
-		break;
-	case DT_UMMULQURA:
-		res.ummulqura.y = strtoi_lim(sp, &sp, UMMULQURA_MIN_YEAR, UMMULQURA_MAX_YEAR);
-		sp += *sp == '-';
-		res.ummulqura.m = strtoi_lim(sp, &sp, 1, HIJRI_MONTHS_P_YEAR);
-		sp += *sp == '-';
-		res.ummulqura.d = strtoi_lim(sp, &sp, 1, 31);
-
-		res.typ = DT_UMMULQURA;
-		goto out;
-	}
-out:
-	/* set the end pointer */
-	if (ep != NULL) {
-		*ep = (char*)sp;
-	}
-	return res;
-}
-
-DEFUN struct dt_d_s
 dt_strpd(const char *str, const char *fmt, char **ep)
 {
 	struct dt_d_s res = {DT_DUNK};
@@ -963,13 +890,7 @@ dt_strpd(const char *str, const char *fmt, char **ep)
 		return __strpd_std(str, ep);
 	}
 	/* translate high-level format names */
-	switch (__trans_dfmt(&fmt)) {
-	default:
-		break;
-	case DT_UMMULQURA:
-		res = dt_strpd_special(str, DT_UMMULQURA, ep);
-		goto out;
-	}
+	__trans_dfmt(&fmt);
 
 	fp = fmt;
 	while (*fp && *sp) {
@@ -1076,10 +997,6 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		case DT_BIZDA:
 			fmt = bizda_dflt;
 			break;
-		/* ymd like calendars */
-		case DT_UMMULQURA:
-			fmt = ymd_dflt;
-			break;
 		default:
 			/* fuck */
 			abort();
@@ -1125,12 +1042,6 @@ dt_strfd(char *restrict buf, size_t bsz, const char *fmt, struct dt_d_s that)
 		break;
 	case DT_YWD:
 		__prep_strfd_ywd(&d, that.ywd);
-		break;
-	/* ymd like calendars */
-	case DT_UMMULQURA:
-		d.y = that.ummulqura.y;
-		d.m = that.ummulqura.m;
-		d.d = that.ummulqura.d;
 		break;
 	default:
 	case DT_DUNK:
@@ -1503,9 +1414,6 @@ dt_dconv(dt_dtyp_t tgttyp, struct dt_d_s d)
 		break;
 	case DT_YD:
 		res.yd = dt_conv_to_yd(d);
-		break;
-	case DT_UMMULQURA:
-		res.ummulqura = dt_conv_to_ummulqura(d);
 		break;
 	case DT_DUNK:
 	default:
@@ -2053,9 +1961,6 @@ dt_dfixup(struct dt_d_s d)
 		break;
 	case DT_BIZDA:
 		d.bizda = __bizda_fixup(d.bizda);
-		break;
-	case DT_UMMULQURA:
-		d.ummulqura = __ummulqura_fixup(d.ummulqura);
 		break;
 
 		/* these can't be buggered */

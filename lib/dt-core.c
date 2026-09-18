@@ -341,7 +341,6 @@ __trans_dtfmt(const char **fmt)
 		default:
 			break;
 		case DT_YMD:
-		case DT_UMMULQURA:
 			*fmt = ymdhms_dflt;
 			break;
 		case DT_YMCW:
@@ -698,14 +697,6 @@ dt_strpdt(const char *str, const char *fmt, char **ep)
 			dt_make_d_only(&res, DT_MDN);
 		}
 		goto sober;
-	case DT_UMMULQURA:
-		res.d = dt_strpd_special(sp, DT_UMMULQURA, &on);
-		if (*(sp = on)) {
-			/* only accept dates for now */
-			goto fucked;
-		}
-		dt_make_d_only(&res, DT_UMMULQURA);
-		goto sober;
 	}
 
 	fp = fmt;
@@ -854,10 +845,6 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		case DT_YMDHMS:
 			fmt = ymdhms_dflt;
 			break;
-		/* ymd like calendars */
-		case DT_UMMULQURA:
-			fmt = ymdhms_dflt;
-			break;
 		default:
 			/* fuck */
 			abort();
@@ -888,10 +875,6 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 		case DT_LDN:
 		case DT_MDN:
 			goto strf_xian;
-		/* ymd like calendars */
-		case DT_UMMULQURA:
-			fmt = ymd_dflt;
-			break;
 		default:
 			/* fuck */
 			abort();
@@ -922,7 +905,6 @@ dt_strfdt(char *restrict buf, size_t bsz, const char *fmt, struct dt_dt_s that)
 
 	switch (that.typ) {
 	case DT_YMD:
-	case DT_UMMULQURA:
 	ymd_prep:
 		d.sd.y = that.d.ymd.y;
 		d.sd.m = that.d.ymd.m;
@@ -1433,7 +1415,6 @@ dt_dtconv(dt_dttyp_t tgttyp, struct dt_dt_s d)
 		case DT_JDN:
 		case DT_LDN:
 		case DT_MDN:
-		case DT_UMMULQURA:
 			/* backup sandwich state */
 			sw = d.sandwich;
 			/* convert */
