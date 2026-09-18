@@ -52,7 +52,7 @@
 	      {% capture latest %}{{ page.latest | split:'/' | last }}{% endcapture %}
 	      <li>
 		{% if page.latest == latest %}
-		<a href="https://github.com/hroptatyr/{{ page.project }}/releases/download/{{ tag }}/{{ latest }}">latest release ({{ latest }})</a>
+		<a href="https://github.com/hroptatyr/{{ page.project }}/releases/download/{{ page.tag }}/{{ latest }}">latest release ({{ latest }})</a>
 		{% else %}
 		<a href="{{ page.latest }}">latest release ({{ latest }})</a>
 		{% endif %}
