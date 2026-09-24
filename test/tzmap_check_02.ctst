@@ -1,6 +1,6 @@
 #!/usr/bin/clitosis  ## -*- shell-script -*-
 
-$ find "${root}/lib" "${TZMAP_DIR}/../lib" -name '*.tzmcc' | xargs "${TZMAP}" check
+$ find "${root}/lib" "${TZMAP_DIR}/../lib" -name '*.tzmcc' | env - PATH="${PATH}" TZMAPDIR="${TZMAP_DIR}" TZMAP="${TZMAP}" root="${root}" xargs "${TZMAP}" check
 $
 
 ## tzmap_check_02.ctst ends here
